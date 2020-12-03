@@ -1,0 +1,24 @@
+{
+  "name": "contractsdev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "hardhat": "^2.0.4"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^3.2.1",
+    "ethers": "^5.0.23"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Harris",
+  "license": "ISC"
+}
