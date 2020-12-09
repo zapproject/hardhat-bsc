@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Client4",
+  "sourceName": "contracts/lib/platform/Client.sol",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "name": "response1",
+          "type": "string"
+        },
+        {
+          "name": "response2",
+          "type": "string"
+        },
+        {
+          "name": "response3",
+          "type": "string"
+        },
+        {
+          "name": "response4",
+          "type": "string"
+        }
+      ],
+      "name": "callback",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

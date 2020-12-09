@@ -1,8 +1,8 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/Users/btccenternyc/contractsDev/contracts/lib/ERC20.sol": {
-      "lastModificationDate": 1606976580599,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/ERC20.sol": {
+      "lastModificationDate": 1607088585775,
       "contentHash": "20c7137be1dcd094c080d7bd810524dd",
       "sourceName": "contracts/lib/ERC20.sol",
       "solcConfig": {
@@ -36,8 +36,8 @@
         "ERC20Basic"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/bondage/Bondage.sol": {
-      "lastModificationDate": 1606976052131,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/Bondage.sol": {
+      "lastModificationDate": 1607088585783,
       "contentHash": "4c5614c2d9c4b2d863521099e376e250",
       "sourceName": "contracts/platform/bondage/Bondage.sol",
       "solcConfig": {
@@ -77,8 +77,8 @@
         "Bondage"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/lifecycle/Destructible.sol": {
-      "lastModificationDate": 1606976052121,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/lifecycle/Destructible.sol": {
+      "lastModificationDate": 1607088585776,
       "contentHash": "99a54ce2751d140df9d5879dc3b7cde6",
       "sourceName": "contracts/lib/lifecycle/Destructible.sol",
       "solcConfig": {
@@ -113,8 +113,8 @@
         "Destructible"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/ownership/Upgradable.sol": {
-      "lastModificationDate": 1606976052122,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/Upgradable.sol": {
+      "lastModificationDate": 1607088585776,
       "contentHash": "a2b71055b027ab34cc5abbcf4b53f351",
       "sourceName": "contracts/lib/ownership/Upgradable.sol",
       "solcConfig": {
@@ -149,8 +149,8 @@
         "Upgradable"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/database/DatabaseInterface.sol": {
-      "lastModificationDate": 1606976052131,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/database/DatabaseInterface.sol": {
+      "lastModificationDate": 1607088585785,
       "contentHash": "1a55e2461514df51e3f4419ada2edd43",
       "sourceName": "contracts/platform/database/DatabaseInterface.sol",
       "solcConfig": {
@@ -185,8 +185,8 @@
         "DatabaseInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
-      "lastModificationDate": 1606976052132,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
+      "lastModificationDate": 1607088585784,
       "contentHash": "f7914b18af3d48c6fd69131030ed3a3f",
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCostInterface.sol",
       "solcConfig": {
@@ -219,8 +219,8 @@
         "CurrentCostInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/bondage/BondageInterface.sol": {
-      "lastModificationDate": 1606976052132,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/BondageInterface.sol": {
+      "lastModificationDate": 1607088585784,
       "contentHash": "843eeed99b3f72db6666641b2a82c197",
       "sourceName": "contracts/platform/bondage/BondageInterface.sol",
       "solcConfig": {
@@ -253,8 +253,8 @@
         "BondageInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/ownership/Ownable.sol": {
-      "lastModificationDate": 1606976052121,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/Ownable.sol": {
+      "lastModificationDate": 1607088585776,
       "contentHash": "3f39e3a8eb2bad09a9128ef55adffc5c",
       "sourceName": "contracts/lib/ownership/Ownable.sol",
       "solcConfig": {
@@ -287,8 +287,8 @@
         "Ownable"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
-      "lastModificationDate": 1606976052122,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
+      "lastModificationDate": 1607088585777,
       "contentHash": "1a95eaa60cbdc204a748502ba232f471",
       "sourceName": "contracts/lib/ownership/ZapCoordinatorInterface.sol",
       "solcConfig": {
@@ -323,8 +323,8 @@
         "ZapCoordinatorInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/dispatch/Dispatch.sol": {
-      "lastModificationDate": 1606976052133,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/dispatch/Dispatch.sol": {
+      "lastModificationDate": 1607088585786,
       "contentHash": "c439d25bfe35e7ba7e80adb7eda1163f",
       "sourceName": "contracts/platform/dispatch/Dispatch.sol",
       "solcConfig": {
@@ -365,8 +365,8 @@
         "Dispatch"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/Client.sol": {
-      "lastModificationDate": 1606976052120,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/Client.sol": {
+      "lastModificationDate": 1607088585778,
       "contentHash": "2b133f72f057a2e71a96c0904baa5c91",
       "sourceName": "contracts/lib/platform/Client.sol",
       "solcConfig": {
@@ -404,8 +404,8 @@
         "ClientIntArray"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/OnChainProvider.sol": {
-      "lastModificationDate": 1606976052120,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/OnChainProvider.sol": {
+      "lastModificationDate": 1607088585778,
       "contentHash": "61ff8309a6fbb6d70303a32d77d02d50",
       "sourceName": "contracts/lib/platform/OnChainProvider.sol",
       "solcConfig": {
@@ -438,8 +438,8 @@
         "OnChainProvider"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/dispatch/DispatchInterface.sol": {
-      "lastModificationDate": 1606976052133,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/dispatch/DispatchInterface.sol": {
+      "lastModificationDate": 1607088585786,
       "contentHash": "1de16252e298b10d2c4ecb92d26d9293",
       "sourceName": "contracts/platform/dispatch/DispatchInterface.sol",
       "solcConfig": {
@@ -472,8 +472,8 @@
         "DispatchInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/registry/Registry.sol": {
-      "lastModificationDate": 1606976052135,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/registry/Registry.sol": {
+      "lastModificationDate": 1607088585786,
       "contentHash": "1ef8f7ac377adaccefadb073637f987a",
       "sourceName": "contracts/platform/registry/Registry.sol",
       "solcConfig": {
@@ -511,8 +511,8 @@
         "Registry"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/registry/RegistryInterface.sol": {
-      "lastModificationDate": 1606976052135,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/registry/RegistryInterface.sol": {
+      "lastModificationDate": 1607088585786,
       "contentHash": "d014573409ddd47c19c49fdf380db003",
       "sourceName": "contracts/platform/registry/RegistryInterface.sol",
       "solcConfig": {
@@ -545,8 +545,8 @@
         "RegistryInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/bondage/currentCost/CurrentCost.sol": {
-      "lastModificationDate": 1606976052132,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/currentCost/CurrentCost.sol": {
+      "lastModificationDate": 1607088585784,
       "contentHash": "7c70e2788e050110ec398f6f657fb6ec",
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCost.sol",
       "solcConfig": {
@@ -585,8 +585,8 @@
         "CurrentCost"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/PiecewiseLogic.sol": {
-      "lastModificationDate": 1606976052119,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/PiecewiseLogic.sol": {
+      "lastModificationDate": 1607088585779,
       "contentHash": "09a7bd000e5ff005a773b18feca9a808",
       "sourceName": "contracts/lib/platform/PiecewiseLogic.sol",
       "solcConfig": {
@@ -619,8 +619,8 @@
         "PiecewiseLogic"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/TokenDotFactory.sol": {
-      "lastModificationDate": 1606976052119,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/TokenDotFactory.sol": {
+      "lastModificationDate": 1607088585781,
       "contentHash": "acb4325faa8bd89bc397fe403ed85e3c",
       "sourceName": "contracts/lib/platform/TokenDotFactory.sol",
       "solcConfig": {
@@ -659,8 +659,8 @@
         "TokenDotFactory"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/token/TokenFactoryInterface.sol": {
-      "lastModificationDate": 1606976052117,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/TokenFactoryInterface.sol": {
+      "lastModificationDate": 1607088585782,
       "contentHash": "babac04dcf75f7040e368fe4d981da5f",
       "sourceName": "contracts/lib/token/TokenFactoryInterface.sol",
       "solcConfig": {
@@ -695,8 +695,8 @@
         "TokenFactoryInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/token/FactoryTokenInterface.sol": {
-      "lastModificationDate": 1606976052116,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/FactoryTokenInterface.sol": {
+      "lastModificationDate": 1607088585781,
       "contentHash": "1f67f91e1acc66d9eae3e62a6364de3a",
       "sourceName": "contracts/lib/token/FactoryTokenInterface.sol",
       "solcConfig": {
@@ -731,8 +731,8 @@
         "FactoryTokenInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/SampleOnChainOracle.sol": {
-      "lastModificationDate": 1606976052119,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/SampleOnChainOracle.sol": {
+      "lastModificationDate": 1607088585780,
       "contentHash": "056cdd1a75952dc515e55cae048a0c09",
       "sourceName": "contracts/lib/platform/SampleOnChainOracle.sol",
       "solcConfig": {
@@ -770,8 +770,8 @@
         "SampleOnChainOracle"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/TestContracts.sol": {
-      "lastModificationDate": 1606976052118,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/TestContracts.sol": {
+      "lastModificationDate": 1607088585780,
       "contentHash": "91fdd4e2dd8256f1a92445f656135b39",
       "sourceName": "contracts/lib/platform/TestContracts.sol",
       "solcConfig": {
@@ -812,8 +812,8 @@
         "TestProvider"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/MostBondedByDateContest.sol": {
-      "lastModificationDate": 1606976442439,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/MostBondedByDateContest.sol": {
+      "lastModificationDate": 1607088585778,
       "contentHash": "d047b421ffa02ccab12131f7ce02796f",
       "sourceName": "contracts/lib/platform/MostBondedByDateContest.sol",
       "solcConfig": {
@@ -853,8 +853,8 @@
         "MostBondedByDateContest"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/SampleContest.sol": {
-      "lastModificationDate": 1606976052118,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/SampleContest.sol": {
+      "lastModificationDate": 1607088585779,
       "contentHash": "e06d1029b3a078e65ca8cccee1f4a4b0",
       "sourceName": "contracts/lib/platform/SampleContest.sol",
       "solcConfig": {
@@ -893,8 +893,8 @@
         "SampleContest"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/BTCcontest.sol": {
-      "lastModificationDate": 1606976442439,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/BTCcontest.sol": {
+      "lastModificationDate": 1607088585777,
       "contentHash": "6ff114416887fef1aa0e540e80ffcc25",
       "sourceName": "contracts/lib/platform/BTCcontest.sol",
       "solcConfig": {
@@ -934,8 +934,8 @@
         "BTCcontest"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/token/Token.sol": {
-      "lastModificationDate": 1606976052116,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/Token.sol": {
+      "lastModificationDate": 1607088585781,
       "contentHash": "ea10a677860848329716d1b64a46f7dd",
       "sourceName": "contracts/lib/token/Token.sol",
       "solcConfig": {
@@ -971,8 +971,8 @@
         "SafeMath"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/token/TokenFactory.sol": {
-      "lastModificationDate": 1606976052117,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/TokenFactory.sol": {
+      "lastModificationDate": 1607088585782,
       "contentHash": "2bd5ce9bfb99ca36d46c4eab46f584d2",
       "sourceName": "contracts/lib/token/TokenFactory.sol",
       "solcConfig": {
@@ -1008,8 +1008,8 @@
         "TokenFactory"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/database/Database.sol": {
-      "lastModificationDate": 1606976052131,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/database/Database.sol": {
+      "lastModificationDate": 1607088585785,
       "contentHash": "fe0ae1801dbc7b3761b9908ad367cfae",
       "sourceName": "contracts/platform/database/Database.sol",
       "solcConfig": {
@@ -1045,8 +1045,8 @@
         "Database"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/arbiter/Arbiter.sol": {
-      "lastModificationDate": 1606976052134,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/arbiter/Arbiter.sol": {
+      "lastModificationDate": 1607088585783,
       "contentHash": "f3963a4ed1ae44ca733482c195c7da42",
       "sourceName": "contracts/platform/arbiter/Arbiter.sol",
       "solcConfig": {
@@ -1085,8 +1085,8 @@
         "Arbiter"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/arbiter/ArbiterInterface.sol": {
-      "lastModificationDate": 1606976052134,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/arbiter/ArbiterInterface.sol": {
+      "lastModificationDate": 1607088585783,
       "contentHash": "a8dd112e0b3e06f34c13ef615bcbf426",
       "sourceName": "contracts/platform/arbiter/ArbiterInterface.sol",
       "solcConfig": {
@@ -1119,8 +1119,8 @@
         "ArbiterInterface"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/ownership/ZapCoordinator.sol": {
-      "lastModificationDate": 1606976052121,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/ZapCoordinator.sol": {
+      "lastModificationDate": 1607088585777,
       "contentHash": "8977933a0818cf07b250eb2ab2c585a8",
       "sourceName": "contracts/lib/ownership/ZapCoordinator.sol",
       "solcConfig": {
@@ -1157,8 +1157,8 @@
         "ZapCoordinator"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/lib/platform/Telegram.sol": {
-      "lastModificationDate": 1606976052118,
+    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/Telegram.sol": {
+      "lastModificationDate": 1607088585780,
       "contentHash": "1a0d91dc89f908abacf0a6898fece32d",
       "sourceName": "contracts/lib/platform/Telegram.sol",
       "solcConfig": {
@@ -1194,8 +1194,8 @@
         "Telegram"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/ERC20.sol": {
-      "lastModificationDate": 1606976810588,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/ERC20.sol": {
+      "lastModificationDate": 1607088585782,
       "contentHash": "20c7137be1dcd094c080d7bd810524dd",
       "sourceName": "contracts/platform/ERC20.sol",
       "solcConfig": {
@@ -1229,8 +1229,8 @@
         "ERC20Basic"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/platform/zapBridge.sol": {
-      "lastModificationDate": 1606976871692,
+    "/Users/ericmanganaro/zap/contracts/contracts/platform/zapBridge.sol": {
+      "lastModificationDate": 1607088585787,
       "contentHash": "0d5cd3fcd93527955add54ab39cc3023",
       "sourceName": "contracts/platform/zapBridge.sol",
       "solcConfig": {
@@ -1259,8 +1259,8 @@
       "versionPragmas": [],
       "artifacts": []
     },
-    "/Users/btccenternyc/contractsDev/contracts/token/Faucet.sol": {
-      "lastModificationDate": 1606976052143,
+    "/Users/ericmanganaro/zap/contracts/contracts/token/Faucet.sol": {
+      "lastModificationDate": 1607088585787,
       "contentHash": "8c73a1b4818f092a8bf4a5617d2d10f6",
       "sourceName": "contracts/token/Faucet.sol",
       "solcConfig": {
@@ -1294,8 +1294,8 @@
         "Token"
       ]
     },
-    "/Users/btccenternyc/contractsDev/contracts/token/ZapToken.sol": {
-      "lastModificationDate": 1606976052143,
+    "/Users/ericmanganaro/zap/contracts/contracts/token/ZapToken.sol": {
+      "lastModificationDate": 1607088585787,
       "contentHash": "4dca503f01640a9a81ce429d933cff54",
       "sourceName": "contracts/token/ZapToken.sol",
       "solcConfig": {

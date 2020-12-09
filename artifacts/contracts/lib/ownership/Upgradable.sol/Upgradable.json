@@ -1,0 +1,31 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Upgradable",
+  "sourceName": "contracts/lib/ownership/Upgradable.sol",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "updateDependencies",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "c",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
