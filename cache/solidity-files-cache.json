@@ -1334,6 +1334,40 @@
         "StandardToken",
         "ZapToken"
       ]
+    },
+    "/Users/ericmanganaro/zap/contracts/contracts/Migrations.sol": {
+      "lastModificationDate": 1607521527974,
+      "contentHash": "af4a95d8e5d41fb86dd6761258252187",
+      "sourceName": "contracts/Migrations.sol",
+      "solcConfig": {
+        "version": "0.4.24",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.4.24"
+      ],
+      "artifacts": [
+        "Migrations"
+      ]
     }
   }
 }
