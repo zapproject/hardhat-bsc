@@ -34,8 +34,7 @@ Notes:
 
 Notes:
 
-- running a coverage report currently deletes artifacts, so after each coverage run you will then need to run `npx buidler clean` followed by `npm run build` before re-running tests
-- the branch coverage is 75%
+- running a coverage report currently deletes artifacts, so after each coverage run you will then need to run `npx hardhat clean` followed by `npm run build` before re-running tests
 
 ### Deploy to Ethereum
 
