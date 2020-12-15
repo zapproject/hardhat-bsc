@@ -1,109 +1,8 @@
 {
   "_format": "hh-sol-cache-1",
   "files": {
-    "/Users/ericmanganaro/code/typescript-solidity-dev-starter-kit/contracts/Counter.sol": {
-      "lastModificationDate": 1607535379055,
-      "sourceName": "contracts/Counter.sol",
-      "solcConfig": {
-        "version": "0.6.8",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "hardhat/console.sol"
-      ],
-      "versionPragmas": [
-        "^0.6.8"
-      ],
-      "artifacts": [
-        "Counter"
-      ]
-    },
-    "/Users/ericmanganaro/code/typescript-solidity-dev-starter-kit/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1607535464210,
-      "sourceName": "hardhat/console.sol",
-      "solcConfig": {
-        "version": "0.6.8",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.8.0"
-      ],
-      "artifacts": [
-        "console"
-      ]
-    },
-    "/Users/ericmanganaro/zap/contracts/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1607539082525,
-      "sourceName": "hardhat/console.sol",
-      "solcConfig": {
-        "version": "0.6.8",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.8.0"
-      ],
-      "artifacts": [
-        "console"
-      ]
-    },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/ERC20.sol": {
-      "lastModificationDate": 1607539782532,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/ERC20.sol": {
+      "lastModificationDate": 1608056391390,
       "sourceName": "contracts/lib/ERC20.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -136,8 +35,8 @@
         "ERC20Basic"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/Bondage.sol": {
-      "lastModificationDate": 1607539782584,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/bondage/Bondage.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/bondage/Bondage.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -176,8 +75,8 @@
         "Bondage"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/lifecycle/Destructible.sol": {
-      "lastModificationDate": 1607539782539,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/lifecycle/Destructible.sol": {
+      "lastModificationDate": 1608056391390,
       "sourceName": "contracts/lib/lifecycle/Destructible.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -211,8 +110,8 @@
         "Destructible"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/Upgradable.sol": {
-      "lastModificationDate": 1607539782542,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/ownership/Upgradable.sol": {
+      "lastModificationDate": 1608056391390,
       "sourceName": "contracts/lib/ownership/Upgradable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -246,8 +145,8 @@
         "Upgradable"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/database/DatabaseInterface.sol": {
-      "lastModificationDate": 1607539782582,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/database/DatabaseInterface.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/database/DatabaseInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -281,8 +180,8 @@
         "DatabaseInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
-      "lastModificationDate": 1607539782586,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCostInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -314,8 +213,8 @@
         "CurrentCostInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/BondageInterface.sol": {
-      "lastModificationDate": 1607539782588,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/bondage/BondageInterface.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/bondage/BondageInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -347,8 +246,8 @@
         "BondageInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/Ownable.sol": {
-      "lastModificationDate": 1607539782540,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/ownership/Ownable.sol": {
+      "lastModificationDate": 1608056391390,
       "sourceName": "contracts/lib/ownership/Ownable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -380,8 +279,8 @@
         "Ownable"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
-      "lastModificationDate": 1607539782541,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/ownership/ZapCoordinatorInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -415,8 +314,8 @@
         "ZapCoordinatorInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/dispatch/Dispatch.sol": {
-      "lastModificationDate": 1607539782591,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/dispatch/Dispatch.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/dispatch/Dispatch.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -456,8 +355,8 @@
         "Dispatch"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/Client.sol": {
-      "lastModificationDate": 1607539782537,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/Client.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/Client.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -494,8 +393,8 @@
         "ClientIntArray"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/OnChainProvider.sol": {
-      "lastModificationDate": 1607539782537,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/OnChainProvider.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/OnChainProvider.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -527,8 +426,8 @@
         "OnChainProvider"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/dispatch/DispatchInterface.sol": {
-      "lastModificationDate": 1607539782590,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/dispatch/DispatchInterface.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/dispatch/DispatchInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -560,8 +459,8 @@
         "DispatchInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/registry/Registry.sol": {
-      "lastModificationDate": 1607539782598,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/registry/Registry.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/registry/Registry.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -598,8 +497,8 @@
         "Registry"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/registry/RegistryInterface.sol": {
-      "lastModificationDate": 1607539782597,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/registry/RegistryInterface.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/registry/RegistryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -631,8 +530,8 @@
         "RegistryInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/bondage/currentCost/CurrentCost.sol": {
-      "lastModificationDate": 1607539782585,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCost.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCost.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -670,8 +569,8 @@
         "CurrentCost"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/PiecewiseLogic.sol": {
-      "lastModificationDate": 1607539782534,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/PiecewiseLogic.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/PiecewiseLogic.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -703,8 +602,8 @@
         "PiecewiseLogic"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/TokenDotFactory.sol": {
-      "lastModificationDate": 1607539782535,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/TokenDotFactory.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/TokenDotFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -742,8 +641,8 @@
         "TokenDotFactory"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/TokenFactoryInterface.sol": {
-      "lastModificationDate": 1607539782530,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/token/TokenFactoryInterface.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/token/TokenFactoryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -777,8 +676,8 @@
         "TokenFactoryInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/FactoryTokenInterface.sol": {
-      "lastModificationDate": 1607539782530,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/token/FactoryTokenInterface.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/token/FactoryTokenInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -812,8 +711,8 @@
         "FactoryTokenInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/SampleOnChainOracle.sol": {
-      "lastModificationDate": 1607539782536,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/SampleOnChainOracle.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/SampleOnChainOracle.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -850,8 +749,8 @@
         "SampleOnChainOracle"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/TestContracts.sol": {
-      "lastModificationDate": 1607539782532,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/TestContracts.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/TestContracts.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -891,8 +790,8 @@
         "TestProvider"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/Telegram.sol": {
-      "lastModificationDate": 1607539782534,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/Telegram.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/Telegram.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -927,8 +826,8 @@
         "Telegram"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/platform/SampleContest.sol": {
-      "lastModificationDate": 1607539782533,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/platform/SampleContest.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/platform/SampleContest.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -966,8 +865,8 @@
         "SampleContest"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/Token.sol": {
-      "lastModificationDate": 1607539782529,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/token/Token.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/token/Token.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1002,8 +901,8 @@
         "SafeMath"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/token/TokenFactory.sol": {
-      "lastModificationDate": 1607539782531,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/token/TokenFactory.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/token/TokenFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1038,8 +937,8 @@
         "TokenFactory"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/database/Database.sol": {
-      "lastModificationDate": 1607539782581,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/database/Database.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/database/Database.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1074,8 +973,8 @@
         "Database"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/arbiter/Arbiter.sol": {
-      "lastModificationDate": 1607539782595,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/arbiter/Arbiter.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/arbiter/Arbiter.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1113,8 +1012,8 @@
         "Arbiter"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/platform/arbiter/ArbiterInterface.sol": {
-      "lastModificationDate": 1607539782594,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/platform/arbiter/ArbiterInterface.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/platform/arbiter/ArbiterInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1146,8 +1045,8 @@
         "ArbiterInterface"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/lib/ownership/ZapCoordinator.sol": {
-      "lastModificationDate": 1607539782540,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/lib/ownership/ZapCoordinator.sol": {
+      "lastModificationDate": 1608056391410,
       "sourceName": "contracts/lib/ownership/ZapCoordinator.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1183,8 +1082,8 @@
         "ZapCoordinator"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/Migrations.sol": {
-      "lastModificationDate": 1607539782552,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/Migrations.sol": {
+      "lastModificationDate": 1608056391390,
       "sourceName": "contracts/Migrations.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1216,8 +1115,8 @@
         "Migrations"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/token/Faucet.sol": {
-      "lastModificationDate": 1607539782638,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/token/Faucet.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/token/Faucet.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1250,8 +1149,8 @@
         "Token"
       ]
     },
-    "/Users/ericmanganaro/zap/contracts/contracts/token/ZapToken.sol": {
-      "lastModificationDate": 1607539782637,
+    "/home/suprposition/code/zap/zap-hardhat/contracts/token/ZapToken.sol": {
+      "lastModificationDate": 1608056391420,
       "sourceName": "contracts/token/ZapToken.sol",
       "solcConfig": {
         "version": "0.4.24",
