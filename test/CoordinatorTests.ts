@@ -69,8 +69,7 @@ describe("ZapCoordinator", () => {
 
     it("COORDINATOR_6 - updateContract() - Check that we can update REGISTRY", async function () {
         const signers = await ethers.getSigners();
- 
-        
+   
         await expect(coordinator.updateContract('REGISTRY', registry.address))
           .to.emit(coordinator,'UpdatedContract')
           .withArgs(
