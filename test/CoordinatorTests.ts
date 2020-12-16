@@ -16,6 +16,8 @@ describe("ZapCoordinator", () => {
     let coordinator: ZapCoordinator;
     let db : Database;
     let registry: Registry;
+    let registry2: Registry;
+    const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
   
     beforeEach(async () => {
       const signers = await ethers.getSigners();
@@ -40,7 +42,8 @@ describe("ZapCoordinator", () => {
       );
       
       registry = (await registryFactory.deploy(coordinator.address)) as Registry;
-
+      registry2 = (await registryFactory.deploy(coordinator.address)) as Registry;
+      
       await db.transferOwnership(coordinator.address)
       await coordinator.addImmutableContract('DATABASE', db.address)
     }); 
@@ -50,7 +53,7 @@ describe("ZapCoordinator", () => {
     });
 
     it("COORDINATOR_2 - addImmutableContract() - Check that we can't set the DATABASE to a null address", async function () {
-      await expect(coordinator.addImmutableContract('DATABASE', '0x0000000000000000000000000000000000000000')).to.reverted;
+      await expect(coordinator.addImmutableContract('DATABASE', NULL_ADDRESS)).to.reverted;
     });
 
     it("COORDINATOR_3 - addImmutableContract() - Check that when we set the DATABASE it updates db", async function () {
@@ -68,21 +71,56 @@ describe("ZapCoordinator", () => {
     });
 
     it("COORDINATOR_6 - updateContract() - Check that we can update REGISTRY", async function () {
-        const signers = await ethers.getSigners();
-   
         await expect(coordinator.updateContract('REGISTRY', registry.address))
           .to.emit(coordinator,'UpdatedContract')
           .withArgs(
             'REGISTRY',
-            '0x0000000000000000000000000000000000000000',
+            NULL_ADDRESS,
             registry.address
           );
     });
 
-  //   it("COORDINATOR_7 - updateContract() - Check that we can't update REGISTRY from an address that's not the owner", async function () {
-  //     const reg = await Registry.new(this.test.coord.address);
-  //     await this.test.coord.updateContract('REGISTRY', reg.address, { from: accounts[1] }).should.be.rejectedWith(EVMRevert);
-  // });
+    it("COORDINATOR_7 - updateContract() - Check that we can update REGISTRY twice", async function () {
+
+      await expect(coordinator.updateContract('REGISTRY', registry.address))
+        .to.emit(coordinator,'UpdatedContract')
+        .withArgs(
+          'REGISTRY',
+          NULL_ADDRESS,
+          registry.address
+        );
+
+      await expect(coordinator.updateContract('REGISTRY', registry2.address))
+        .to.emit(coordinator,'UpdatedContract')
+        .withArgs(
+          'REGISTRY',
+          registry.address,
+          registry2.address
+        );
+    });
+
+    it("COORDINATOR_8 - getContract() - Check that we get the REGISTRY address after updateContract", async function () {
+
+      await expect(coordinator.updateContract('REGISTRY', registry.address))
+        .to.emit(coordinator, 'UpdatedContract')
+        .withArgs(
+          'REGISTRY',
+          NULL_ADDRESS,
+          registry.address
+        );
+
+      await expect(await coordinator.getContract('REGISTRY'))
+        .to.equal(registry.address);
+    });
+
+    it("COORDINATOR_9 - getContract() - Check that we get the REGISTRY address after two updateContracts", async function () {
+      await coordinator.updateContract('REGISTRY', registry.address)
+      await coordinator.updateContract('REGISTRY', registry2.address)
+
+      await expect(await coordinator.getContract('REGISTRY'))
+        .to.equal(registry2.address);
+    });
+
 });
 
 
