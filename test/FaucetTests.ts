@@ -14,10 +14,14 @@ describe('Faucet', () => {
 
     let zapToken: ZapToken;
     let faucet: Faucet;
+    let allocatedAmt: number
 
     beforeEach(async () => {
 
+        // Instance of the ZapToken.sol contract
         const zapTokenFactory = await ethers.getContractFactory('ZapToken');
+
+        // Instance of the Faucet.sol contract
         const faucetFactory = await ethers.getContractFactory('Faucet');
 
         // Deploys the ZapToken contract and creating the test Zap token
@@ -44,7 +48,7 @@ describe('Faucet', () => {
     it('Faucet_2 - rate() - Check if 1 ETH is equivalent to 1000 ZAP'
         , async () => {
 
-            // Stores the value of 
+            // Stores the value of the rate
             const rateObj = await faucet.rate();
 
             expect(parseInt(rateObj._hex)).to.equal(1000);
@@ -52,32 +56,49 @@ describe('Faucet', () => {
         });
 
 
-    it('Faucet_3 - Check if the Faucet can be funded test ZAP and initial balance is the same', async () => {
+    it('Faucet_3 - Check if the Faucet can be allocated test tokens', async () => {
 
-        const allocateAmt = 900000000;
+        // Amount to fund the Faucet
+        allocatedAmt = 900000000;
 
-        expect(await zapToken.allocate(faucet.address, allocateAmt));
-
-        const balance = await zapToken.balanceOf(faucet.address);
-
-        expect(allocateAmt).to.equal(parseInt(balance._hex));
+        expect(await zapToken.allocate(faucet.address, allocatedAmt));
 
     });
 
+    it('Faucet_4 - Check if the balance is equivalent to the initial allocated amount', async () => {
 
-    // it('Faucet_3 - withdrawTok() - Check if the Faucet ZAP balance is 0 after withdrawing ', async () => {
+        // Amount to fund the Faucet
+        allocatedAmt = 900000000;
 
-    //     // Withdraw all the test ZAP from the Faucet
-    //     expect(await faucet.withdrawTok());
+        // Funds the Faucet from allocatedAmt
+        expect(await zapToken.allocate(faucet.address, allocatedAmt));
 
-    //     // Stores key/value pair bigNumber and _hex
-    //     // The _hex value 0x00 is 0 as a hex string
-    //     const balanceObj = await zapToken.balanceOf(faucet.address);
+        // Stores the balance after being funded
+        const balance = await zapToken.balanceOf(faucet.address);
 
-    //     expect(parseInt(balanceObj._hex)).to.equal(0);
+        // Checks that the balance equals to allocatedAmt
+        expect(parseInt(balance._hex)).to.equal(allocatedAmt);
 
-    // });
+    });
 
+    it('Faucet_5 - withdrawTok() - Check if all tokens are withdrawn from the Faucet', async () => {
+
+        // Amount to fund the Faucet
+        allocatedAmt = 900000000;
+
+        // Funds the Faucet from allocatedAmt
+        expect(await zapToken.allocate(faucet.address, allocatedAmt));
+
+        // Invoke the withdawnTok function
+        expect(await faucet.withdrawTok());
+
+        // Store the new balance after being withdrawn
+        const withdrawnBalance = await zapToken.balanceOf(faucet.address);
+
+        // Verify that the balance is 0
+        expect(parseInt(withdrawnBalance._hex)).to.equal(0);
+
+    });
 
 })
 
