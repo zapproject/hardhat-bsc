@@ -5,10 +5,12 @@ import chai from "chai";
 import { Faucet } from '../typechain/Faucet';
 
 import { ZapToken } from '../typechain/ZapToken';
+import { assert } from "console";
 
 chai.use(solidity);
 
 const { expect } = chai;
+
 
 describe('Faucet', () => {
 
@@ -74,9 +76,6 @@ describe('Faucet', () => {
 
     it('Faucet_4 - withdrawTok() - Check if all tokens are withdrawn from the Faucet', async () => {
 
-        // Funds the Faucet from allocatedAmt
-        expect(await zapToken.allocate(faucet.address, allocatedAmt));
-
         // Invoke the withdawnTok function
         expect(await faucet.withdrawTok());
 
@@ -87,6 +86,13 @@ describe('Faucet', () => {
         expect(parseInt(withdrawnBalance._hex)).to.equal(0);
 
     });
+
+    it('testing', async () => {
+
+        console.log(await signers[0].getBalance())
+
+    })
+
 
 })
 

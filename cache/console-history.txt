@@ -1,0 +1,2 @@
+console.log(await web3.eth.getBalance())
+console.log(await web3.eth.getBalance()
