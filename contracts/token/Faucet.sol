@@ -25,11 +25,11 @@ contract Faucet {
 
     event Log(uint256 n1, uint256 n2);
 
-    function buyZap() public payable {
-        require(msg.value > 0);
-        uint256 amt = msg.value * rate;
+    function buyZap(address to, uint256 amt) public payable {
+        require(amt > 0);
+        amt = amt * rate;
         require(amt <= token.balanceOf(address(this)));
-        token.transfer(msg.sender, amt);
+        token.transfer(to, amt);
         emit BUYZAP(msg.sender,amt,rate);
     }
 

@@ -5,7 +5,11 @@ import { HardhatUserConfig } from "hardhat/types";
 
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-web3";
+
 import "hardhat-typechain";
+
+
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
 
