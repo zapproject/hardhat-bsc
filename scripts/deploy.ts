@@ -2,7 +2,6 @@ import { ethers } from "hardhat";
 
 async function main() {
 
-<<<<<<< HEAD
   const tokenFactory = await ethers.getContractFactory('ZapToken');
   const zapToken = await tokenFactory.deploy();
 
@@ -40,19 +39,6 @@ async function main() {
   console.log("Bondage address:", Bondage.address);
   console.log("Registry address:", Registry.address);
 
-
-
-
-
-
-
-=======
-  const tokenFactory = await ethers.getContractFactory('ZapToken')
-  const token = await tokenFactory.deploy()
->>>>>>> parent of f40582c... Configured Faucet.sol and ZapToken.sol for localhost deployment
-
-  const faucetContract = await ethers.getContractFactory('Faucet')
-  const faucet = await faucetContract.deploy(token.address)
   // const factory = await ethers.getContractFactory("Counter");
 
   // // If we had constructor arguments, they would be passed into deploy()

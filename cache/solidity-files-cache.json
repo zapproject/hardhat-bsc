@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-1",
   "files": {
     "/Users/btccenternyc/zap-hardhat/contracts/lib/ERC20.sol": {
-      "lastModificationDate": 1608740086145,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/ERC20.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -36,7 +36,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/Bondage.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/platform/bondage/Bondage.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -76,7 +76,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/lifecycle/Destructible.sol": {
-      "lastModificationDate": 1608740086145,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/lifecycle/Destructible.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -111,7 +111,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/Upgradable.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/ownership/Upgradable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -146,7 +146,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/database/DatabaseInterface.sol": {
-      "lastModificationDate": 1608740086149,
+      "lastModificationDate": 1608748196361,
       "sourceName": "contracts/platform/database/DatabaseInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -181,7 +181,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196361,
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCostInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -214,7 +214,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/BondageInterface.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/platform/bondage/BondageInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -247,7 +247,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/Ownable.sol": {
-      "lastModificationDate": 1608740086145,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/ownership/Ownable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -280,7 +280,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/ownership/ZapCoordinatorInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -315,7 +315,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/dispatch/Dispatch.sol": {
-      "lastModificationDate": 1608740086149,
+      "lastModificationDate": 1608748196361,
       "sourceName": "contracts/platform/dispatch/Dispatch.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -356,7 +356,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/Client.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/platform/Client.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -394,7 +394,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/OnChainProvider.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/platform/OnChainProvider.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -427,7 +427,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/dispatch/DispatchInterface.sol": {
-      "lastModificationDate": 1608740086149,
+      "lastModificationDate": 1608748196361,
       "sourceName": "contracts/platform/dispatch/DispatchInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -460,7 +460,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/registry/Registry.sol": {
-      "lastModificationDate": 1608740086149,
+      "lastModificationDate": 1608748196361,
       "sourceName": "contracts/platform/registry/Registry.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -498,7 +498,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/registry/RegistryInterface.sol": {
-      "lastModificationDate": 1608740086149,
+      "lastModificationDate": 1608748196362,
       "sourceName": "contracts/platform/registry/RegistryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -531,7 +531,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCost.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCost.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -570,7 +570,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/PiecewiseLogic.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/platform/PiecewiseLogic.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -603,7 +603,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/TokenDotFactory.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/platform/TokenDotFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -642,7 +642,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/token/TokenFactoryInterface.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/lib/token/TokenFactoryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -677,7 +677,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/token/FactoryTokenInterface.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/token/FactoryTokenInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -712,7 +712,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/SampleOnChainOracle.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/platform/SampleOnChainOracle.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -750,7 +750,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/TestContracts.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/platform/TestContracts.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -791,7 +791,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/Telegram.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/platform/Telegram.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -827,7 +827,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/SampleContest.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/platform/SampleContest.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -866,7 +866,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/token/Token.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196359,
       "sourceName": "contracts/lib/token/Token.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -902,7 +902,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/token/TokenFactory.sol": {
-      "lastModificationDate": 1608740086147,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/lib/token/TokenFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -938,7 +938,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/database/Database.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196361,
       "sourceName": "contracts/platform/database/Database.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -974,7 +974,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/arbiter/Arbiter.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/platform/arbiter/Arbiter.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1013,7 +1013,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/platform/arbiter/ArbiterInterface.sol": {
-      "lastModificationDate": 1608740086148,
+      "lastModificationDate": 1608748196360,
       "sourceName": "contracts/platform/arbiter/ArbiterInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1046,7 +1046,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/ZapCoordinator.sol": {
-      "lastModificationDate": 1608740086146,
+      "lastModificationDate": 1608748196358,
       "sourceName": "contracts/lib/ownership/ZapCoordinator.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1083,7 +1083,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/Migrations.sol": {
-      "lastModificationDate": 1608740086145,
+      "lastModificationDate": 1608748196357,
       "sourceName": "contracts/Migrations.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1116,7 +1116,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/token/Faucet.sol": {
-      "lastModificationDate": 1608740120395,
+      "lastModificationDate": 1608748953544,
       "sourceName": "contracts/token/Faucet.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1150,7 +1150,7 @@
       ]
     },
     "/Users/btccenternyc/zap-hardhat/contracts/token/ZapToken.sol": {
-      "lastModificationDate": 1608740086150,
+      "lastModificationDate": 1608748196362,
       "sourceName": "contracts/token/ZapToken.sol",
       "solcConfig": {
         "version": "0.4.24",
