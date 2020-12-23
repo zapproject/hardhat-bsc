@@ -1,11 +1,6 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const signers = await ethers.getSigners();
-
-  console.log("Deploying contracts with the account:", signers[0].address);
-
-  console.log("Account balance:", (await signers[0].getBalance()).toString());
 
   const tokenFactory = await ethers.getContractFactory('ZapToken');
   const zapToken = await tokenFactory.deploy();
@@ -51,6 +46,8 @@ async function main() {
 
 
 
+  const faucetContract = await ethers.getContractFactory('Faucet')
+  const faucet = await faucetContract.deploy(token.address)
   // const factory = await ethers.getContractFactory("Counter");
 
   // // If we had constructor arguments, they would be passed into deploy()

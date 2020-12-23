@@ -7,9 +7,28 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
 
+const { task, taskArgs } = require("hardhat/config");
+import { normalizeHardhatNetworkAccountsConfig } from "../internal/core/providers/util";
+import {
+  EthereumProvider,
+  HardhatNetworkConfig,
+  JsonRpcServer,
+} from "../types";
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
+
+function logHardhatNetworkAccounts(networkConfig: HardhatNetworkConfig) {
+  if (networkConfig.accounts === undefined) {
+    return;
+  }
+
+task("faucet", "Sends 100 ZAP to the first 20 accounts")
+  .setAction(async taskArgs => {
+    const accounts = normalizeHardhatNetworkAccountsConfig(
+      networkConfig.accounts
+    );
+  });
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 const RINKEBY_PRIVATE_KEY =
