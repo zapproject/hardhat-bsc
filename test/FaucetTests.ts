@@ -2,7 +2,6 @@
 import { ethers } from "hardhat";
 import { solidity } from "ethereum-waffle";
 import chai from "chai";
-import web3 from 'web3'
 
 import { Faucet } from '../typechain/Faucet';
 
@@ -10,7 +9,6 @@ import { ZapToken } from '../typechain/ZapToken';
 chai.use(solidity);
 
 const { expect } = chai;
-
 
 let zapToken: ZapToken;
 let faucet: Faucet;
@@ -23,7 +21,7 @@ beforeEach(async () => {
     signers = await ethers.getSigners();
 
     // Funds for the Faucet
-    allocatedAmt = 900000000;
+    allocatedAmt = 999999999;
 
     // Instance of the ZapToken.sol contract
     const zapTokenFactory = await ethers.getContractFactory('ZapToken', signers[0]);
@@ -47,59 +45,90 @@ beforeEach(async () => {
 
 describe('Faucet_Deployment', () => {
 
-    it('Check if the owner is valid', async () => {
+    it('owner() - Check if the owner is valid', async () => {
 
-        // Checks if the Faucet contract address is equivalent to the first test account address
+        // Verify the Faucet contract address is equivalent to the first test account address
         expect(await faucet.owner()).to.equal(signers[0].address);
 
     });
 
-    it('Check if the rate is 1 ETH for 1000 ZAP'
+});
+
+describe('Faucet_Transactions', async () => {
+
+    it('rate() - Check if the rate is 1 ETH for 1000 ZAP'
         , async () => {
 
             // Stores the value of the rate
             const rateObj = await faucet.rate();
 
+            // Verfiy the rate is equal to 1000
             expect(parseInt(rateObj._hex)).to.equal(1000);
 
-        })
-})
+        });
 
-describe('Faucet_Transactions', async () => {
-
-    it('Check if the balance is equivalent to the initial allocated amount', async () => {
+    it('balanceOf() - Check if the balance is equivalent to the initial allocated amount', async () => {
 
         // Stores the balance after being funded
         const balance = await zapToken.balanceOf(faucet.address);
 
-        // Checks that the balance equals to allocatedAmt
+        // Verify the balance equals to allocatedAmt
         expect(parseInt(balance._hex)).to.equal(allocatedAmt);
 
     });
 
-    it('Check if all tokens are withdrawn from the Faucet', async () => {
+    it('withdrawTok() -Check if the withdrawTok function withdraws all test ZAP from the Faucet', async () => {
 
         // Invoke the withdawnTok function
         expect(await faucet.withdrawTok());
 
         // Store the new balance after being withdrawn
-        const withdrawnBalance = await zapToken.balanceOf(faucet.address);
+        const withdrawnFaucet = await zapToken.balanceOf(faucet.address);
 
         // Verify that the balance is 0
-        expect(parseInt(withdrawnBalance._hex)).to.equal(0);
+        expect(parseInt(withdrawnFaucet._hex)).to.equal(0);
 
-    })
+    });
 
-    it('Test', async () => {
+    it('buyZap() - Check if the buyZap function is able to disperse 100,000 test ZAP to signers', async () => {
 
-        console.log(await faucet.buyZap('0x5C631BB57A3b30746846979f84A3412aAa200852', 240))
+        // Verify that 100,000 test ZAP is dispersed to the signer
+        expect(await faucet.buyZap(signers[0].address, 100));
 
-        console.log(await zapToken.balanceOf(signers[0].address))
-            
-    })
+    });
 
+    it('buyZap() - Check if 100,000 test ZAP is available in the signers balance', async () => {
 
+        // Signer is dispersed 100,000 test ZAP
+        expect(await faucet.buyZap(signers[0].address, 100));
 
+        // Stores the balance of the signer
+        const signerBalance = await zapToken.balanceOf(signers[0].address);
+
+        // Verify the signers balance is equal to 100,000
+        expect(parseInt(signerBalance._hex)).to.equal(100000);
+
+    });
+
+    it('buyZap() - Check if the Faucet balance subtracts the dispersed 100,000 test ZAP', async () => {
+
+        // Signer is dispersed 100,000 test ZAP
+        expect(await faucet.buyZap(signers[0].address, 100));
+
+        // Stores the balance of the signer
+        const faucetBalance = await zapToken.balanceOf(faucet.address);
+
+        // Verify the signers balance is equal to 100,000
+        expect(parseInt(faucetBalance._hex)).to.equal(allocatedAmt - 100000);
+
+    });
+
+    it('withdrawTok() - Check if the withdrawEther function invokes ', async () => {
+
+        // Verify the function invokes
+        expect(await faucet.withdrawEther());
+
+    });
 
 
 })
