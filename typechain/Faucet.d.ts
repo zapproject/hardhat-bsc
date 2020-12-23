@@ -26,8 +26,8 @@ interface FaucetInterface extends ethers.utils.Interface {
     "withdrawTok()": FunctionFragment;
     "rate()": FunctionFragment;
     "withdrawEther()": FunctionFragment;
-    "buyZap()": FunctionFragment;
     "owner()": FunctionFragment;
+    "buyZap(address,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -39,8 +39,11 @@ interface FaucetInterface extends ethers.utils.Interface {
     functionFragment: "withdrawEther",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "buyZap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "buyZap",
+    values: [string, BigNumberish]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "withdrawTok",
@@ -51,8 +54,8 @@ interface FaucetInterface extends ethers.utils.Interface {
     functionFragment: "withdrawEther",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "buyZap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "buyZap", data: BytesLike): Result;
 
   events: {
     "BUYZAP(address,uint256,uint256)": EventFragment;
@@ -97,10 +100,6 @@ export class Faucet extends Contract {
 
     "withdrawEther()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-    buyZap(overrides?: PayableOverrides): Promise<ContractTransaction>;
-
-    "buyZap()"(overrides?: PayableOverrides): Promise<ContractTransaction>;
-
     owner(
       overrides?: CallOverrides
     ): Promise<{
@@ -112,6 +111,18 @@ export class Faucet extends Contract {
     ): Promise<{
       0: string;
     }>;
+
+    buyZap(
+      to: string,
+      amt: BigNumberish,
+      overrides?: PayableOverrides
+    ): Promise<ContractTransaction>;
+
+    "buyZap(address,uint256)"(
+      to: string,
+      amt: BigNumberish,
+      overrides?: PayableOverrides
+    ): Promise<ContractTransaction>;
   };
 
   withdrawTok(overrides?: Overrides): Promise<ContractTransaction>;
@@ -126,13 +137,21 @@ export class Faucet extends Contract {
 
   "withdrawEther()"(overrides?: Overrides): Promise<ContractTransaction>;
 
-  buyZap(overrides?: PayableOverrides): Promise<ContractTransaction>;
-
-  "buyZap()"(overrides?: PayableOverrides): Promise<ContractTransaction>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
+
+  buyZap(
+    to: string,
+    amt: BigNumberish,
+    overrides?: PayableOverrides
+  ): Promise<ContractTransaction>;
+
+  "buyZap(address,uint256)"(
+    to: string,
+    amt: BigNumberish,
+    overrides?: PayableOverrides
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     withdrawTok(overrides?: CallOverrides): Promise<void>;
@@ -147,13 +166,21 @@ export class Faucet extends Contract {
 
     "withdrawEther()"(overrides?: CallOverrides): Promise<void>;
 
-    buyZap(overrides?: CallOverrides): Promise<void>;
-
-    "buyZap()"(overrides?: CallOverrides): Promise<void>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     "owner()"(overrides?: CallOverrides): Promise<string>;
+
+    buyZap(
+      to: string,
+      amt: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "buyZap(address,uint256)"(
+      to: string,
+      amt: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -179,13 +206,21 @@ export class Faucet extends Contract {
 
     "withdrawEther()"(overrides?: Overrides): Promise<BigNumber>;
 
-    buyZap(overrides?: PayableOverrides): Promise<BigNumber>;
-
-    "buyZap()"(overrides?: PayableOverrides): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    buyZap(
+      to: string,
+      amt: BigNumberish,
+      overrides?: PayableOverrides
+    ): Promise<BigNumber>;
+
+    "buyZap(address,uint256)"(
+      to: string,
+      amt: BigNumberish,
+      overrides?: PayableOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -201,12 +236,20 @@ export class Faucet extends Contract {
 
     "withdrawEther()"(overrides?: Overrides): Promise<PopulatedTransaction>;
 
-    buyZap(overrides?: PayableOverrides): Promise<PopulatedTransaction>;
-
-    "buyZap()"(overrides?: PayableOverrides): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    buyZap(
+      to: string,
+      amt: BigNumberish,
+      overrides?: PayableOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "buyZap(address,uint256)"(
+      to: string,
+      amt: BigNumberish,
+      overrides?: PayableOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

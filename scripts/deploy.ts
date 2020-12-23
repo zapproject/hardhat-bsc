@@ -1,19 +1,37 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const factory = await ethers.getContractFactory("Counter");
+  const signers = await ethers.getSigners();
 
-  // If we had constructor arguments, they would be passed into deploy()
-  let contract = await factory.deploy();
+  console.log("Deploying contracts with the account:", signers[0].address);
 
-  // The address the Contract WILL have once mined
-  console.log(contract.address);
+  console.log("Account balance:", (await signers[0].getBalance()).toString());
 
-  // The transaction that was sent to the network to deploy the Contract
-  console.log(contract.deployTransaction.hash);
+  const tokenFactory = await ethers.getContractFactory('ZapToken')
+  const zapToken = await tokenFactory.deploy();
 
-  // The contract is NOT deployed yet; we must wait until it is mined
-  await contract.deployed();
+  const faucetContract = await ethers.getContractFactory('Faucet');
+  const faucet = await faucetContract.deploy(zapToken.address);
+
+  console.log("zapToken address:", zapToken.address);
+  console.log("Faucet address:", faucet.address);
+
+
+
+
+  // const factory = await ethers.getContractFactory("Counter");
+
+  // // If we had constructor arguments, they would be passed into deploy()
+  // let contract = await factory.deploy();
+
+  // // The address the Contract WILL have once mined
+  // console.log(contract.address);
+
+  // // The transaction that was sent to the network to deploy the Contract
+  // console.log(contract.deployTransaction.hash);
+
+  // // The contract is NOT deployed yet; we must wait until it is mined
+  // await contract.deployed();
 }
 
 main()
