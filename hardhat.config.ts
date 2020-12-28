@@ -23,6 +23,14 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
 
+  // Config setup to use the tasks
+
+  // 1. defaultNetwork should be set to 'hardhat'
+  // 2. Open a terminal and run 'npx hardhat node'
+  // 3. Go back to hardhat.config.ts and set defaultNetwork to 'localhost'
+  // 4. Open another terminal and run 'npx hardhat run --network localhost scripts/deploy.ts
+  // 5. Run any task available in the terminal
+
   defaultNetwork: 'localhost',
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }],
