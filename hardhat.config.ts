@@ -6,8 +6,9 @@ import { HardhatUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
-import "hardhat-deploy"
-import './tasks/faucet'
+import "hardhat-deploy";
+import './tasks/faucet';
+import './tasks/checkBalance'
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
@@ -19,6 +20,7 @@ const RINKEBY_PRIVATE_KEY =
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
+
   defaultNetwork: 'localhost',
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }],

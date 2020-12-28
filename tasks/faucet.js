@@ -63,5 +63,3 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
         }
     });
 
-
-
