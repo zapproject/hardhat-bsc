@@ -3,7 +3,7 @@ const { task } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require('hardhat-deploy');
 
-task("buyZap", "Signer can buy 100k ZAP")
+task("buyZap", "Signer can buy 100K ZAP")
 
     .addParam("account", "The account's address")
 
@@ -23,9 +23,11 @@ task("buyZap", "Signer can buy 100k ZAP")
         const faucetBalance = await token.balanceOf(faucet.address);
 
         // Checks if the faucet is empty 
-        if (parseInt(faucetBalance._hex) === '0') {
+        if (parseInt(faucetBalance._hex) === 0) {
 
-            console.log("Please run the 'npx hardhat faucet' task to replinish.");
+            console.log("Please run the <npx hardhat faucet> task.");
+            console.log("<npx hardhat faucet> will replinish the Faucet for purchase.");
+            console.log("<npx hardhat faucet> will make the test accounts purchase 100K ZAP.");
 
         } else {
 
