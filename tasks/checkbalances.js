@@ -2,7 +2,7 @@ const { task } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require('hardhat-deploy');
 
-task("checkAllBalances", "Prints the test account balances")
+task("checkBalances", "Prints the test account balances")
 
     .setAction(async () => {
 

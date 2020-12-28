@@ -9,7 +9,7 @@ import "hardhat-typechain";
 import "hardhat-deploy";
 import './tasks/faucet';
 import './tasks/checkbalance';
-import './tasks/checkallbalances';
+import './tasks/checkbalances';
 import './tasks/buyzap';
 
 // TODO: reenable solidity-coverage when it works
