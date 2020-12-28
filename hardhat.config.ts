@@ -8,7 +8,9 @@ import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
 import "hardhat-deploy";
 import './tasks/faucet';
-import './tasks/checkBalance'
+import './tasks/checkbalance';
+import './tasks/checkallbalances';
+import './tasks/buyzap';
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";

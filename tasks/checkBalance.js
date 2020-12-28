@@ -1,14 +1,16 @@
 
 const { task } = require("hardhat/config");
 require("hardhat-deploy-ethers");
-require('hardhat-deploy')
+require('hardhat-deploy');
 
 task("checkBalance", "Checks the ZAP balance of a given signer address")
+
     .addParam("account", "The account's address")
+
     .setAction(async taskArgs => {
 
         // Connection to ZapToken.sol
-        const Token = await ethers.getContractFactory('ZapToken')
+        const Token = await ethers.getContractFactory('ZapToken');
         const token = await Token.attach('0x5FbDB2315678afecb367f032d93F642f64180aa3');
 
         // Stores the ZAP balance
@@ -19,7 +21,7 @@ task("checkBalance", "Checks the ZAP balance of a given signer address")
             address: taskArgs.account,
             balance: parseInt(signerBalance._hex) + ' ZAP'
         });
-        
+
     })
 
 
