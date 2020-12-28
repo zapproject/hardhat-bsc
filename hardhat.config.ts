@@ -19,14 +19,17 @@ const RINKEBY_PRIVATE_KEY =
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "localhost",
+  defaultNetwork: 'localhost',
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }],
   },
   networks: {
-    hardhat: {},
     localhost: {
-      url: "http://127.0.0.1:8545"
+      url: "http://127.0.0.1:8545",
+
+    },
+    hardhat: {
+
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
