@@ -7,13 +7,10 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
 
-const { task, taskArgs } = require("hardhat/config");
+import './tasks/faucet'
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
-
-task("faucet", "Sends 100 ZAP to the first 20 accounts")
-  .setAction(async () => {});
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 const RINKEBY_PRIVATE_KEY =
@@ -22,7 +19,7 @@ const RINKEBY_PRIVATE_KEY =
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "localhost",
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }],
   },

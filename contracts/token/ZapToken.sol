@@ -198,8 +198,8 @@ contract MintableToken is StandardToken, Ownable {
 }
 
 contract ZapToken is MintableToken {
-    string public name = "TEST TOKEN";
-    string public symbol = "TEST";
+    string public name = "Zap";
+    string public symbol = "ZAP";
     uint256 public decimals = 18;
 
     function allocate(address to, uint amount) public{
