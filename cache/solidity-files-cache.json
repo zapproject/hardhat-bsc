@@ -1,8 +1,8 @@
 {
   "_format": "hh-sol-cache-1",
   "files": {
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\ERC20.sol": {
-      "lastModificationDate": 1609116018674,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/ERC20.sol": {
+      "lastModificationDate": 1609169745423,
       "sourceName": "contracts/lib/ERC20.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -17,20 +17,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -43,8 +35,8 @@
         "ERC20Basic"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\bondage\\Bondage.sol": {
-      "lastModificationDate": 1609116018692,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/Bondage.sol": {
+      "lastModificationDate": 1609169745426,
       "sourceName": "contracts/platform/bondage/Bondage.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -59,20 +51,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -91,8 +75,8 @@
         "Bondage"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\lifecycle\\Destructible.sol": {
-      "lastModificationDate": 1609116018675,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/lifecycle/Destructible.sol": {
+      "lastModificationDate": 1609169745423,
       "sourceName": "contracts/lib/lifecycle/Destructible.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -107,20 +91,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -134,8 +110,8 @@
         "Destructible"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\ownership\\Upgradable.sol": {
-      "lastModificationDate": 1609116018677,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/Upgradable.sol": {
+      "lastModificationDate": 1609169745423,
       "sourceName": "contracts/lib/ownership/Upgradable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -150,20 +126,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -177,8 +145,8 @@
         "Upgradable"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\database\\DatabaseInterface.sol": {
-      "lastModificationDate": 1609116018697,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/database/DatabaseInterface.sol": {
+      "lastModificationDate": 1609169745427,
       "sourceName": "contracts/platform/database/DatabaseInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -193,20 +161,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -220,8 +180,8 @@
         "DatabaseInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\bondage\\currentCost\\CurrentCostInterface.sol": {
-      "lastModificationDate": 1609116018694,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
+      "lastModificationDate": 1609169745427,
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCostInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -236,20 +196,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -261,8 +213,8 @@
         "CurrentCostInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\bondage\\BondageInterface.sol": {
-      "lastModificationDate": 1609116018693,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/BondageInterface.sol": {
+      "lastModificationDate": 1609169745426,
       "sourceName": "contracts/platform/bondage/BondageInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -277,20 +229,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -302,8 +246,8 @@
         "BondageInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\ownership\\Ownable.sol": {
-      "lastModificationDate": 1609116018676,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/Ownable.sol": {
+      "lastModificationDate": 1609169745423,
       "sourceName": "contracts/lib/ownership/Ownable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -318,20 +262,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -343,8 +279,8 @@
         "Ownable"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\ownership\\ZapCoordinatorInterface.sol": {
-      "lastModificationDate": 1609116018678,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
+      "lastModificationDate": 1609169745423,
       "sourceName": "contracts/lib/ownership/ZapCoordinatorInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -359,20 +295,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -386,8 +314,8 @@
         "ZapCoordinatorInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\dispatch\\Dispatch.sol": {
-      "lastModificationDate": 1609116018698,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/dispatch/Dispatch.sol": {
+      "lastModificationDate": 1609169745427,
       "sourceName": "contracts/platform/dispatch/Dispatch.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -402,20 +330,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -435,8 +355,8 @@
         "Dispatch"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\Client.sol": {
-      "lastModificationDate": 1609116018679,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/Client.sol": {
+      "lastModificationDate": 1609169745424,
       "sourceName": "contracts/lib/platform/Client.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -451,20 +371,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -481,8 +393,8 @@
         "ClientIntArray"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\OnChainProvider.sol": {
-      "lastModificationDate": 1609116018680,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/OnChainProvider.sol": {
+      "lastModificationDate": 1609169745424,
       "sourceName": "contracts/lib/platform/OnChainProvider.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -497,20 +409,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -522,8 +426,8 @@
         "OnChainProvider"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\dispatch\\DispatchInterface.sol": {
-      "lastModificationDate": 1609116018698,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/dispatch/DispatchInterface.sol": {
+      "lastModificationDate": 1609169745428,
       "sourceName": "contracts/platform/dispatch/DispatchInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -538,20 +442,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -563,8 +459,8 @@
         "DispatchInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\registry\\Registry.sol": {
-      "lastModificationDate": 1609116018700,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/registry/Registry.sol": {
+      "lastModificationDate": 1609169745428,
       "sourceName": "contracts/platform/registry/Registry.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -579,20 +475,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -609,8 +497,8 @@
         "Registry"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\registry\\RegistryInterface.sol": {
-      "lastModificationDate": 1609116018700,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/registry/RegistryInterface.sol": {
+      "lastModificationDate": 1609169745428,
       "sourceName": "contracts/platform/registry/RegistryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -625,20 +513,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -650,8 +530,8 @@
         "RegistryInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\bondage\\currentCost\\CurrentCost.sol": {
-      "lastModificationDate": 1609116018693,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCost.sol": {
+      "lastModificationDate": 1609169745427,
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCost.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -666,20 +546,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -697,8 +569,8 @@
         "CurrentCost"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\PiecewiseLogic.sol": {
-      "lastModificationDate": 1609116018680,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/PiecewiseLogic.sol": {
+      "lastModificationDate": 1609169745424,
       "sourceName": "contracts/lib/platform/PiecewiseLogic.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -713,20 +585,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -738,8 +602,8 @@
         "PiecewiseLogic"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\TokenDotFactory.sol": {
-      "lastModificationDate": 1609116018684,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/TokenDotFactory.sol": {
+      "lastModificationDate": 1609169745425,
       "sourceName": "contracts/lib/platform/TokenDotFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -754,20 +618,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -785,8 +641,8 @@
         "TokenDotFactory"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\token\\TokenFactoryInterface.sol": {
-      "lastModificationDate": 1609116018688,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/token/TokenFactoryInterface.sol": {
+      "lastModificationDate": 1609169745426,
       "sourceName": "contracts/lib/token/TokenFactoryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -801,20 +657,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -828,8 +676,8 @@
         "TokenFactoryInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\token\\FactoryTokenInterface.sol": {
-      "lastModificationDate": 1609116018686,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/token/FactoryTokenInterface.sol": {
+      "lastModificationDate": 1609169745425,
       "sourceName": "contracts/lib/token/FactoryTokenInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -844,20 +692,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -871,8 +711,8 @@
         "FactoryTokenInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\SampleOnChainOracle.sol": {
-      "lastModificationDate": 1609116018682,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/SampleOnChainOracle.sol": {
+      "lastModificationDate": 1609169745424,
       "sourceName": "contracts/lib/platform/SampleOnChainOracle.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -887,20 +727,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -917,8 +749,8 @@
         "SampleOnChainOracle"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\TestContracts.sol": {
-      "lastModificationDate": 1609116018684,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/TestContracts.sol": {
+      "lastModificationDate": 1609169745425,
       "sourceName": "contracts/lib/platform/TestContracts.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -933,20 +765,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -966,8 +790,8 @@
         "TestProvider"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\Telegram.sol": {
-      "lastModificationDate": 1609116018683,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/Telegram.sol": {
+      "lastModificationDate": 1609169745425,
       "sourceName": "contracts/lib/platform/Telegram.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -982,20 +806,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1010,8 +826,8 @@
         "Telegram"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\platform\\SampleContest.sol": {
-      "lastModificationDate": 1609116018681,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/platform/SampleContest.sol": {
+      "lastModificationDate": 1609169745424,
       "sourceName": "contracts/lib/platform/SampleContest.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1026,20 +842,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1057,8 +865,8 @@
         "SampleContest"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\token\\Token.sol": {
-      "lastModificationDate": 1609116018687,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/token/Token.sol": {
+      "lastModificationDate": 1609169745425,
       "sourceName": "contracts/lib/token/Token.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1073,20 +881,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1101,8 +901,8 @@
         "SafeMath"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\token\\TokenFactory.sol": {
-      "lastModificationDate": 1609116018687,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/token/TokenFactory.sol": {
+      "lastModificationDate": 1609169745426,
       "sourceName": "contracts/lib/token/TokenFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1117,20 +917,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1145,8 +937,8 @@
         "TokenFactory"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\database\\Database.sol": {
-      "lastModificationDate": 1609116018696,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/database/Database.sol": {
+      "lastModificationDate": 1609169745427,
       "sourceName": "contracts/platform/database/Database.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1161,20 +953,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1189,8 +973,8 @@
         "Database"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\arbiter\\Arbiter.sol": {
-      "lastModificationDate": 1609116018690,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/arbiter/Arbiter.sol": {
+      "lastModificationDate": 1609169745426,
       "sourceName": "contracts/platform/arbiter/Arbiter.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1205,20 +989,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1236,8 +1012,8 @@
         "Arbiter"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\platform\\arbiter\\ArbiterInterface.sol": {
-      "lastModificationDate": 1609116018691,
+    "/Users/btccenternyc/zap-hardhat/contracts/platform/arbiter/ArbiterInterface.sol": {
+      "lastModificationDate": 1609169745426,
       "sourceName": "contracts/platform/arbiter/ArbiterInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1252,20 +1028,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1277,8 +1045,8 @@
         "ArbiterInterface"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\lib\\ownership\\ZapCoordinator.sol": {
-      "lastModificationDate": 1609116018677,
+    "/Users/btccenternyc/zap-hardhat/contracts/lib/ownership/ZapCoordinator.sol": {
+      "lastModificationDate": 1609169745423,
       "sourceName": "contracts/lib/ownership/ZapCoordinator.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1293,20 +1061,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1322,49 +1082,8 @@
         "ZapCoordinator"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\Migrations.sol": {
-      "lastModificationDate": 1609116018672,
-      "sourceName": "contracts/Migrations.sol",
-      "solcConfig": {
-        "version": "0.4.24",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.4.24"
-      ],
-      "artifacts": [
-        "Migrations"
-      ]
-    },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\token\\Faucet.sol": {
-      "lastModificationDate": 1609116018701,
+    "/Users/btccenternyc/zap-hardhat/contracts/token/Faucet.sol": {
+      "lastModificationDate": 1609169745428,
       "sourceName": "contracts/token/Faucet.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1379,20 +1098,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
@@ -1405,8 +1116,8 @@
         "Token"
       ]
     },
-    "C:\\workspace\\Blockchain_Workspace\\zap-hardhat\\contracts\\token\\ZapToken.sol": {
-      "lastModificationDate": 1609117383824,
+    "/Users/btccenternyc/zap-hardhat/contracts/token/ZapToken.sol": {
+      "lastModificationDate": 1609169745428,
       "sourceName": "contracts/token/ZapToken.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1421,20 +1132,12 @@
                 "abi",
                 "evm.bytecode",
                 "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
+                "evm.methodIdentifiers"
               ],
               "": [
                 "ast"
               ]
             }
-          },
-          "metadata": {
-            "useLiteralContent": true
           }
         }
       },
