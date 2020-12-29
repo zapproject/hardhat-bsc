@@ -1,12 +1,15 @@
 import { ethers } from "hardhat";
+import { ZapToken } from "../typechain/ZapToken";
 
 async function main() {
 
   const tokenFactory = await ethers.getContractFactory('ZapToken');
   const zapToken = await tokenFactory.deploy();
+  await zapToken.deployed();
 
   const faucetContract = await ethers.getContractFactory('Faucet');
   const faucet = await faucetContract.deploy(zapToken.address);
+  await faucet.deployed();
 
   // Core Contracts 
 
@@ -26,7 +29,7 @@ async function main() {
 
   const dispatch = await ethers.getContractFactory('Dispatch')
   const Dispatch = await dispatch.deploy(Coordinator.address);
-  
+
   const registry = await ethers.getContractFactory('Registry')
   const Registry = await registry.deploy(Coordinator.address);
 
@@ -52,7 +55,10 @@ async function main() {
 
   // // The contract is NOT deployed yet; we must wait until it is mined
   // await contract.deployed();
+
 }
+
+
 
 main()
   .then(() => process.exit(0))
