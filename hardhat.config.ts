@@ -11,6 +11,7 @@ import './tasks/faucet';
 import './tasks/checkbalance';
 import './tasks/checkbalances';
 import './tasks/buyzap';
+import './tasks/initProvider';
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
