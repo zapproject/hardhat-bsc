@@ -34,7 +34,7 @@ const config: HardhatUserConfig = {
   // 4. Open another terminal and run 'npx hardhat run --network localhost scripts/deploy.ts
   // 5. Run any task available in the terminal
 
-  defaultNetwork: 'hardhat',
+  defaultNetwork: 'localhost',
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }],
   },

@@ -19,6 +19,11 @@ async function main() {
   const database = await ethers.getContractFactory('Database')
   const Database = await database.deploy();
 
+  //const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+
+  const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
+  const OnchainOracle = await onchainOracle.deploy(Coordinator.address, 1, "Slothrop");
+
 
   // The majority of the core contracts take the Coordinator as params
   const arbiter = await ethers.getContractFactory('Arbiter');
@@ -36,6 +41,7 @@ async function main() {
 
   console.log("zapToken address:", zapToken.address);
   console.log("Faucet address:", faucet.address);
+  console.log("Onchain Oracle address:", OnchainOracle.address);
   console.log("ZapCoordinator address:", Coordinator.address);
   console.log("Database address:", Database.address);
   console.log("Arbiter address:", Arbiter.address);
