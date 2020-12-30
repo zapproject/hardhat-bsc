@@ -66,4 +66,5 @@ task("initiate-Provider-Curve", "Initializes the first 20 provider accounts with
         );
 
         }
+        
     })

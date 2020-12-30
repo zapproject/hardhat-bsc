@@ -13,6 +13,7 @@ import './tasks/checkbalances';
 import './tasks/buyzap';
 import './tasks/initProvider';
 import './tasks/initProviderCurve';
+import './tasks/setEndpointParams';
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
@@ -33,7 +34,7 @@ const config: HardhatUserConfig = {
   // 4. Open another terminal and run 'npx hardhat run --network localhost scripts/deploy.ts
   // 5. Run any task available in the terminal
 
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }],
   },
