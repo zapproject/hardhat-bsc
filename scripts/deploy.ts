@@ -1,5 +1,6 @@
 import { ethers } from "hardhat";
-import { ZapToken } from "../typechain/ZapToken";
+
+const fs = require('fs')
 
 async function main() {
 
@@ -19,11 +20,9 @@ async function main() {
   const database = await ethers.getContractFactory('Database')
   const Database = await database.deploy();
 
-  //const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+  // const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
 
-  const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
-  const OnchainOracle = await onchainOracle.deploy(Coordinator.address, 1, "Slothrop");
-
+  // const test = ethers.utils.formatBytes32String('Slothrop')
 
   // The majority of the core contracts take the Coordinator as params
   const arbiter = await ethers.getContractFactory('Arbiter');
@@ -38,36 +37,38 @@ async function main() {
   const registry = await ethers.getContractFactory('Registry')
   const Registry = await registry.deploy(Coordinator.address);
 
+  // const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
+  // const OnchainOracle = await onchainOracle.deploy(Coordinator.address,
+  //   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, test);
 
   console.log("zapToken address:", zapToken.address);
   console.log("Faucet address:", faucet.address);
-  console.log("Onchain Oracle address:", OnchainOracle.address);
   console.log("ZapCoordinator address:", Coordinator.address);
   console.log("Database address:", Database.address);
   console.log("Arbiter address:", Arbiter.address);
   console.log("Bondage address:", Bondage.address);
   console.log("Registry address:", Registry.address);
-
-  // const factory = await ethers.getContractFactory("Counter");
-
-  // // If we had constructor arguments, they would be passed into deploy()
-  // let contract = await factory.deploy();
-
-  // // The address the Contract WILL have once mined
-  // console.log(contract.address);
-
-  // // The transaction that was sent to the network to deploy the Contract
-  // console.log(contract.deployTransaction.hash);
-
-  // // The contract is NOT deployed yet; we must wait until it is mined
-  // await contract.deployed();
+  // console.log("Onchain Oracle address:", OnchainOracle.address);
 
 }
 
+fs.readFile('hardhat.config.ts', 'utf8',
+
+  (readFileErr: string, hardHatConfig: string) => {
+
+    const localhostConfig = hardHatConfig.replace(`defaultNetwork: "hardhat"`, `defaultNetwork: "localhost"`)
+
+    fs.writeFile('hardhat.config.ts', localhostConfig, (writeFileErr: string) => {
+      if (writeFileErr) {
+        return writeFileErr
+      }
+    })
+  })
 
 
 main()
-  .then(() => process.exit(0))
+  .then(() =>
+    process.exit(0))
   .catch((error) => {
     console.error(error);
     process.exit(1);
