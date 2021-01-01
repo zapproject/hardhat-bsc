@@ -1,5 +1,6 @@
 import { ethers } from "hardhat";
 
+const hre = require("hardhat")
 const fs = require('fs')
 
 async function main() {
@@ -52,19 +53,32 @@ async function main() {
 
 }
 
+// Reads the content of hardhat.config.ts
 fs.readFile('hardhat.config.ts', 'utf8',
 
   (readFileErr: string, hardHatConfig: string) => {
 
+    // Changes the `defaultNetwork: "localhost"` to `defaultNetwork: "localhost"`
     const localhostConfig = hardHatConfig.replace(`defaultNetwork: "hardhat"`, `defaultNetwork: "localhost"`)
 
+    /*Updates hardhat.config.ts file to support the localhost network
+      without manually changing */
     fs.writeFile('hardhat.config.ts', localhostConfig, (writeFileErr: string) => {
-      if (writeFileErr) {
-        return writeFileErr
-      }
-    })
-  })
 
+      console.log({
+        HardhatNetwork: process.env.HARDHAT_NETWORK
+      })
+
+      console.log()
+
+      if (writeFileErr) {
+
+        return writeFileErr;
+      }
+
+    })
+
+  });
 
 main()
   .then(() =>
