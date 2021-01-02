@@ -10,7 +10,7 @@ fs.readFile('hardhat.config.ts', 'utf8',
         const localConfig = res.replace(`defaultNetwork: "hardhat"`, `defaultNetwork: "localhost"`);
 
         /*Updates hardhat.config.ts file to support the localhost network
-          without manually changing */
+          without directly changing the file */
         fs.writeFile('hardhat.config.ts', localConfig, (error) => {
 
             if (error) {
