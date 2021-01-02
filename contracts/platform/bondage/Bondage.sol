@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 import "../../lib/lifecycle/Destructible.sol";
 import "../../lib/ownership/Upgradable.sol";
@@ -6,7 +6,7 @@ import "../../lib/ERC20.sol";
 import "../database/DatabaseInterface.sol";
 import "./currentCost/CurrentCostInterface.sol";
 import "./BondageInterface.sol";
-
+import "hardhat/console.sol";
 contract Bondage is Destructible, BondageInterface, Upgradable {
     DatabaseInterface public db;
 
@@ -190,7 +190,8 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
         returns (uint256)
     {
         address broker = getEndpointBroker(oracleAddress, endpoint);
-
+        console.log(broker);
+        console.log("the broker");
         if (broker != address(0)) {
             require(msg.sender == broker, "Error: Only the broker has access to this function");
         }
@@ -202,7 +203,7 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
         uint256 numZap = currentCost._costOfNDots(oracleAddress, endpoint, issued + 1, numDots - 1);
 
         // User must have approved contract to transfer working ZAP
-        require(token.transferFrom(msg.sender, this, numZap), "Error: User must have approved contract to transfer ZAP");
+        require(token.transferFrom(msg.sender, address(this), numZap), "Error: User must have approved contract to transfer ZAP");
 
         if (!isProviderInitialized(holderAddress, oracleAddress)) {
             setProviderInitialized(holderAddress, oracleAddress);
@@ -258,7 +259,9 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
 
     /// @dev get broker address for endpoint
     function getEndpointBroker(address oracleAddress, bytes32 endpoint) public view returns (address) {
-        return address(db.getBytes32(keccak256(abi.encodePacked('oracles', oracleAddress, endpoint, 'broker'))));
+       // bytes32 result=db.getBytes32(keccak256(abi.encodePacked('oracles', oracleAddress, endpoint, 'broker')));
+        
+        return address(uint160(bytes20(db.getBytes32(keccak256(abi.encodePacked('oracles', oracleAddress, endpoint, 'broker'))))));
     }
 
     function getNumEscrow(address holderAddress, address oracleAddress, bytes32 endpoint) public view returns (uint256) {

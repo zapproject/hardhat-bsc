@@ -19,7 +19,7 @@
 
 ### Run Contract Tests and Generate Gas Usage Report
 
-In one terminal run `npx hardhat node`
+In one terminal run `npm`
 
 Then in another run `npm run test -- --network localhost`
 
