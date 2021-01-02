@@ -23,8 +23,6 @@ async function main() {
 
   // const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
 
-  // const test = ethers.utils.formatBytes32String('Slothrop')
-
   // The majority of the core contracts take the Coordinator as params
   const arbiter = await ethers.getContractFactory('Arbiter');
   const Arbiter = await arbiter.deploy(Coordinator.address);
