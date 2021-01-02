@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 contract Token {
     function transfer(address to, uint256 amount) public returns (bool);
@@ -7,7 +7,7 @@ contract Token {
 
 contract Faucet {
     Token token;
-    address public owner;
+    address payable public  owner;
     uint256 public rate = 1000; // 1 ETH = 1000 ZAP
     event BUYZAP(address indexed _buyer, uint256 indexed _amount, uint indexed _rate);
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 import "./FactoryTokenInterface.sol";
 
@@ -85,7 +85,7 @@ contract FactoryToken is FactoryTokenInterface {
         _;
     }
 
-    constructor(string _name, string _symbol) public {
+    constructor(string memory _name, string memory _symbol) public {
         name = _name;
         symbol = _symbol;
     }
