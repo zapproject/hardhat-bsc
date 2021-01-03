@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { ZapToken } from "../typechain/ZapToken";
 import fs from "fs";
+
 async function main() {
 
   const tokenFactory = await ethers.getContractFactory('ZapToken');
