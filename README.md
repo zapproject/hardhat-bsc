@@ -41,3 +41,11 @@ Notes:
 Create/modify network config in `hardhat.config.ts` and add API key and private key, then run:
 
 `npx hardhat run --network rinkeby scripts/deploy.ts`
+### -or- Just use Docker
+- After building your container,
+Run  docker run-td zaphardhatdevelop
+Run docker start (container ID)
+Run docker attach (container ID)
+- Or to access the CLI:
+- Go to Docker Desktop
+- Run the image after building, and click the cli option. You can run other npm commands within this container
