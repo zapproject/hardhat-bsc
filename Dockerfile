@@ -19,4 +19,4 @@ COPY ./test/. .
 COPY ./scripts/. .
 COPY ./contracts/. . 
 
-RUN npx hardhat node &
+#RUN npx hardhat node &
