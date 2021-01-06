@@ -20,3 +20,4 @@ COPY ./scripts/. .
 COPY ./contracts/. . 
 
 #RUN npx hardhat node &
+CMD ["npx", "hardhat", "node"]
