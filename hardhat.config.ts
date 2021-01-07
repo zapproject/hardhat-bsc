@@ -3,6 +3,9 @@ dotEnvConfig();
 
 import { HardhatUserConfig } from "hardhat/types";
 
+import './reset/hardhat';
+import './reset/localhost';
+
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
@@ -15,6 +18,7 @@ import './tasks/initProvider';
 import './tasks/initProviderCurve';
 import './tasks/setEndpointParams';
 
+
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
 
@@ -26,21 +30,13 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
 
-  // Config setup to use the tasks
-
-  // 1. defaultNetwork should be set to 'hardhat'
-  // 2. Open a terminal and run 'npx hardhat node'
-  // 3. Go back to hardhat.config.ts and set defaultNetwork to 'localhost'
-  // 4. Open another terminal and run 'npx hardhat run --network localhost scripts/deploy.ts
-  // 5. Run any task available in the terminal
-
-  defaultNetwork: 'hardhat',
+  defaultNetwork: "hardhat",
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} },{ version: "0.5.1", settings: {} }],
   },
   networks: {
     localhost: {
-      url: "http://127.0.0.1:8545",
+      url: "http://127.0.0.1:8545/",
 
     },
     hardhat: {
@@ -61,4 +57,12 @@ const config: HardhatUserConfig = {
   },
 };
 
+
+
+
 export default config;
+
+
+
+
+

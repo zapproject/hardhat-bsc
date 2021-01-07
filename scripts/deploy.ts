@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
-import { ZapToken } from "../typechain/ZapToken";
-import fs from "fs";
+
+const hre = require("hardhat")
+const fs = require('fs')
 
 async function main() {
 
@@ -20,11 +21,15 @@ async function main() {
   const database = await ethers.getContractFactory('Database')
   const Database = await database.deploy();
 
+<<<<<<< HEAD
   //const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
 
   const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
   const OnchainOracle = await onchainOracle.deploy(Coordinator.address, 1, "Slothrop");
 
+=======
+  // const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+>>>>>>> develop
 
   // The majority of the core contracts take the Coordinator as params
   const arbiter = await ethers.getContractFactory('Arbiter');
@@ -39,6 +44,9 @@ async function main() {
   const registry = await ethers.getContractFactory('Registry')
   const Registry = await registry.deploy(Coordinator.address);
 
+  // const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
+  // const OnchainOracle = await onchainOracle.deploy(Coordinator.address,
+  //   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, test);
 
   console.log("zapToken address:", zapToken.address);
   console.log("Faucet address:", faucet.address);
@@ -48,7 +56,11 @@ async function main() {
   console.log("Arbiter address:", Arbiter.address);
   console.log("Bondage address:", Bondage.address);
   console.log("Registry address:", Registry.address);
+  // console.log("Onchain Oracle address:", OnchainOracle.address);
 
+}
+
+<<<<<<< HEAD
   let Deployed={
     zapToken:zapToken.address,
     coordinator:Coordinator.address,
@@ -59,25 +71,38 @@ async function main() {
   }
   fs.writefile("deployContracts.json",JSON.stringify(Deployed)) 
   // const factory = await ethers.getContractFactory("Counter");
+=======
+// Reads the content of hardhat.config.ts
+fs.readFile('hardhat.config.ts', 'utf8',
+>>>>>>> develop
 
-  // // If we had constructor arguments, they would be passed into deploy()
-  // let contract = await factory.deploy();
+  (readFileErr: string, hardHatConfig: string) => {
 
-  // // The address the Contract WILL have once mined
-  // console.log(contract.address);
+    // Changes the `defaultNetwork: "localhost"` to `defaultNetwork: "localhost"`
+    const localhostConfig = hardHatConfig.replace(`defaultNetwork: "hardhat"`, `defaultNetwork: "localhost"`)
 
-  // // The transaction that was sent to the network to deploy the Contract
-  // console.log(contract.deployTransaction.hash);
+    /*Updates hardhat.config.ts file to support the localhost network
+      without manually changing */
+    fs.writeFile('hardhat.config.ts', localhostConfig, (writeFileErr: string) => {
 
-  // // The contract is NOT deployed yet; we must wait until it is mined
-  // await contract.deployed();
+      console.log({
+        HardhatNetwork: process.env.HARDHAT_NETWORK
+      })
 
-}
+      console.log()
 
+      if (writeFileErr) {
 
+        return writeFileErr;
+      }
+
+    })
+
+  });
 
 main()
-  .then(() => process.exit(0))
+  .then(() =>
+    process.exit(0))
   .catch((error) => {
     console.error(error);
     process.exit(1);
