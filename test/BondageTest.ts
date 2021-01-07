@@ -170,7 +170,7 @@ describe("ZapBondage", () => {
        
     })
      
-    async function prepareProvider(provider = true, curve = true, account = oracle, curveParams = piecewiseFunction, bondBroker = broker) {
+    async function prepareProvider( account = oracle, curveParams = piecewiseFunction) {
      //   console.log("init provider")
        
         await registry.connect(account).initiateProvider(publicKey, title);
@@ -511,4 +511,177 @@ it("BONDAGE_26 - bond() - Check registry.clearEndpoint cannot be applied to a bo
 
   await expect(registry.connect(oracle).clearEndpoint(specifier)).to.reverted;
 });
+});
+
+describe('CurrentCost Test', ()=> {
+    let zapToken: ZapToken;
+    let dataBase:Database;
+    let bondage:Bondage;
+    let cost:CurrentCost
+    let registry:Registry;
+    let allocatedAmt: number;
+    let signers: any;
+    let coordinator: ZapCoordinator;
+    let owner:any;
+    let subscriber:any;
+    let oracle:any;
+    let broker:any;
+    let escrower:any;
+    let escrower2:any;
+    let arbiter:any;
+    const curveParams1 = [3, 0, 0, 2, 1000];
+
+    // 1 + 2 x + 3 x ^ 2 on [1, 1000]
+    const curveParams2 = [3, 1, 2, 3, 1000];
+  
+    // 10 on [1, 1000]
+    const curveParams3 = [1, 10, 1000];
+  
+    // 1 + 2 x + 3 x ^ 2 on [1, 10]
+    // 2 on [10, 20]
+    const curveParams4 = [3, 1, 2, 3, 10, 1, 2, 20];
+    beforeEach(async()=>{
+      signers = await ethers.getSigners();
+      owner=signers[0]
+      subscriber=signers[1];
+      oracle=signers[2];
+      broker=signers[3];
+      escrower=signers[4];
+      escrower2=signers[5];
+      arbiter=signers[6];
+      const zapTokenFactory = await ethers.getContractFactory('ZapToken', signers[0]);                 
+     
+      const coordinatorFactory = await ethers.getContractFactory(
+          "ZapCoordinator",
+          signers[0]
+        );        
+  
+        const dbFactory = await ethers.getContractFactory(
+          "Database",
+          signers[0]
+        );
+        
+        const registryFactory = await ethers.getContractFactory(
+          "Registry",
+          signers[0]
+        );
+        const costFactory= await ethers.getContractFactory(
+          "CurrentCost",
+          signers[0]
+        );
+        const bondFactory = await ethers.getContractFactory('Bondage', signers[0]); 
+
+        zapToken = (await zapTokenFactory.deploy()) as ZapToken;
+       
+        await zapToken.deployed();
+
+        coordinator = (await coordinatorFactory.deploy()) as ZapCoordinator;
+        await coordinator.deployed();
+
+        dataBase = (await dbFactory.deploy()) as Database;
+
+        cost= (await costFactory.deploy(coordinator.address)) as CurrentCost;
+        await cost.deployed();
+        registry = (await registryFactory.deploy(coordinator.address)) as Registry;
+
+        await dataBase.transferOwnership(coordinator.address);
+       // console.log("adding ImmutableContracts")
+        await coordinator.addImmutableContract('DATABASE', dataBase.address);               
+       
+        await coordinator.addImmutableContract('ARBITER', arbiter.address);
+        await coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
+       // console.log("updating Contracts")
+        await coordinator.updateContract('REGISTRY', registry.address);
+        await coordinator.updateContract('CURRENT_COST', cost.address);
+       // console.log("deploying bond")
+       
+        bondage = (await bondFactory.deploy(coordinator.address)) as Bondage;
+      //  console.log("deployed")
+       // console.log(bondage.address)
+       // console.log("updating bondage")
+        await coordinator.updateContract('BONDAGE', bondage.address)
+       // console.log("transferring ownershipt")
+       
+       await coordinator.updateAllDependencies();
+     
+  })
+    async function prepareProvider( account = oracle, curveParams = piecewiseFunction) {
+      //   console.log("init provider")
+        
+        await registry.connect(account).initiateProvider(publicKey, title);
+        //console.log("init curve")
+        
+        
+        await registry.connect(account).initiateProviderCurve(specifier, curveParams, zeroAddress);
+    }
+
+    async function prepareTokens(allocAddress = subscriber) {
+        // console.log("allocate")
+        await zapToken.allocate(owner.address, tokensForOwner)
+        // console.log("allocate")
+        await zapToken.allocate(allocAddress.address, tokensForSubscriber)
+        // console.log("approve")
+        await zapToken.connect(allocAddress).approve(bondage.address, approveTokens)
+        
+    }    
+  
+    it("CURRENT_COST_1 - _currentCostOfDot() - Check current cost for function 1", async function () {
+        await prepareProvider( oracle, curveParams1);
+
+        const dotNumber = 3;
+        const structure = structurizeCurve(curveParams1);
+        const dotcost = calcNextDotCost(structure, dotNumber);
+
+        const res = await cost._currentCostOfDot(oracle.address, specifier, dotNumber);
+        expect(res).to.equal(ethers.BigNumber.from(dotcost));
+    });
+
+    it("CURRENT_COST_2 - _currentCostOfDot() - Check current cost for function 2", async function () {
+        await prepareProvider( oracle, curveParams2);
+
+        const dotNumber = 3;
+        const structure = structurizeCurve(curveParams2);
+        const dotcost = calcNextDotCost(structure, dotNumber);
+
+        const res = await cost._currentCostOfDot(oracle.address, specifier, dotNumber);
+        expect(res).to.equal(ethers.BigNumber.from(dotcost));
+    });
+
+    it("CURRENT_COST_3 - _currentCostOfDot() - Check current cost for function 3", async function () {
+      await prepareProvider( oracle, curveParams3);
+
+      const dotNumber = 3;
+      const structure = structurizeCurve(curveParams3);
+      const dotcost = calcNextDotCost(structure, dotNumber);
+
+      const res = await cost._currentCostOfDot(oracle.address, specifier, dotNumber);
+      expect(res).to.equal(ethers.BigNumber.from(dotcost));
+    });
+
+    it("CURRENT_COST_4 - _currentCostOfDot() - Check current cost for function 4", async function () {
+      await prepareProvider( oracle, curveParams4);
+
+      const dotNumber = 3;
+      const structure = structurizeCurve(curveParams4);
+      const dotcost = calcNextDotCost(structure, dotNumber);
+
+      const res = await cost._currentCostOfDot(oracle.address, specifier, dotNumber);
+      expect(res).to.equal(ethers.BigNumber.from(dotcost));
+    });
+
+    it("CURRENT_COST_5 - _costOfNDots() - Check cost of n-dots for function 4", async function () {
+      await prepareProvider( oracle, curveParams4);
+
+        const dotNumber = 20;
+        const structure =structurizeCurve(curveParams4);
+        const dotcost = calcDotsCost(structure, dotNumber);
+
+        const res = await cost._costOfNDots(oracle.address, specifier, 1, dotNumber - 1);
+        expect(res).to.equal(ethers.BigNumber.from(dotcost));
+        // checking that Utils.calcDotsCost is working properly
+        // ghci> let f x = 1 + 2 * x + 3 * x^2
+        // ghci> sum (f <$> [1..10]) + 2 * 10
+        // >>> 1295
+        //res.should.be.bignumber.equal(web3.toBigNumber(1295));
+    });
 })
