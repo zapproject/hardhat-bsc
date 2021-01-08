@@ -50,6 +50,7 @@ async function main() {
   console.log("Registry address:", Registry.address);
   console.log("CICD Complete");
   // console.log("Onchain Oracle address:", OnchainOracle.address);
+  // new change
 
 }
 
