@@ -50,46 +50,7 @@ async function main() {
   console.log("Registry address:", Registry.address);
   console.log("CICD Complete");
   // console.log("Onchain Oracle address:", OnchainOracle.address);
-  // new change
-
 }
-
-  let Deployed={
-    zapToken:zapToken.address,
-    coordinator:Coordinator.address,
-    database:Database.address,
-    bondage:Bondage.address,    
-    registry:Registry.address,
-    arbiter:Arbiter.address
-  }
-  fs.writefile("deployContracts.json",JSON.stringify(Deployed)) 
-  // const factory = await ethers.getContractFactory("Counter");
-// Reads the content of hardhat.config.ts
-fs.readFile('hardhat.config.ts', 'utf8',
-
-  (readFileErr: string, hardHatConfig: string) => {
-
-    // Changes the `defaultNetwork: "localhost"` to `defaultNetwork: "localhost"`
-    const localhostConfig = hardHatConfig.replace(`defaultNetwork: "hardhat"`, `defaultNetwork: "localhost"`)
-
-    /*Updates hardhat.config.ts file to support the localhost network
-      without manually changing */
-    fs.writeFile('hardhat.config.ts', localhostConfig, (writeFileErr: string) => {
-
-      console.log({
-        HardhatNetwork: process.env.HARDHAT_NETWORK
-      })
-
-      console.log()
-
-      if (writeFileErr) {
-
-        return writeFileErr;
-      }
-
-    })
-
-  });
 
 main()
   .then(() =>
