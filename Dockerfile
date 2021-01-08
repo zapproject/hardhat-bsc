@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 FROM node:alpine 
 
 
