@@ -21,15 +21,7 @@ async function main() {
   const database = await ethers.getContractFactory('Database')
   const Database = await database.deploy();
 
-<<<<<<< HEAD
-  //const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
-
-  const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
-  const OnchainOracle = await onchainOracle.deploy(Coordinator.address, 1, "Slothrop");
-
-=======
   // const publicKey = await ethers.BigNumber.isBigNumber(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
->>>>>>> develop
 
   // The majority of the core contracts take the Coordinator as params
   const arbiter = await ethers.getContractFactory('Arbiter');
