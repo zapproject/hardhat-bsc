@@ -56,11 +56,11 @@ async function main() {
   console.log("Arbiter address:", Arbiter.address);
   console.log("Bondage address:", Bondage.address);
   console.log("Registry address:", Registry.address);
+  console.log("CICD Complete");
   // console.log("Onchain Oracle address:", OnchainOracle.address);
 
 }
 
-<<<<<<< HEAD
   let Deployed={
     zapToken:zapToken.address,
     coordinator:Coordinator.address,
@@ -71,10 +71,8 @@ async function main() {
   }
   fs.writefile("deployContracts.json",JSON.stringify(Deployed)) 
   // const factory = await ethers.getContractFactory("Counter");
-=======
 // Reads the content of hardhat.config.ts
 fs.readFile('hardhat.config.ts', 'utf8',
->>>>>>> develop
 
   (readFileErr: string, hardHatConfig: string) => {
 
