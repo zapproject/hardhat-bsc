@@ -42,7 +42,7 @@ async function main() {
 
   console.log("zapToken address:", zapToken.address);
   console.log("Faucet address:", faucet.address);
-  console.log("Onchain Oracle address:", OnchainOracle.address);
+  //console.log("Onchain Oracle address:", OnchainOracle.address);
   console.log("ZapCoordinator address:", Coordinator.address);
   console.log("Database address:", Database.address);
   console.log("Arbiter address:", Arbiter.address);
