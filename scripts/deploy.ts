@@ -50,6 +50,11 @@ async function main() {
   console.log("Registry address:", Registry.address);
   console.log("CI/CD DEMO!");
   // console.log("Onchain Oracle address:", OnchainOracle.address);
+
+  await hre.run('faucet')
+  await hre.run('initiate-Provider')
+  await hre.run('initiate-Provider-Curve')
+  await hre.run('set-Endpoint-Params')
 }
 
 main()
