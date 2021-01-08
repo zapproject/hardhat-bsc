@@ -48,7 +48,7 @@ async function main() {
   console.log("Arbiter address:", Arbiter.address);
   console.log("Bondage address:", Bondage.address);
   console.log("Registry address:", Registry.address);
-  console.log("CICD Complete");
+  console.log("Sanity Check");
   // console.log("Onchain Oracle address:", OnchainOracle.address);
 }
 
