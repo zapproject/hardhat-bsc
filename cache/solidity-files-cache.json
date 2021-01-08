@@ -1,8 +1,9 @@
 {
-  "_format": "hh-sol-cache-1",
+  "_format": "hh-sol-cache-2",
   "files": {
     "/home/otacon9000/work/zap-hardhat/contracts/lib/ERC20.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "20c7137be1dcd094c080d7bd810524dd",
       "sourceName": "contracts/lib/ERC20.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -44,7 +45,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/bondage/Bondage.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "4c5614c2d9c4b2d863521099e376e250",
       "sourceName": "contracts/platform/bondage/Bondage.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -92,7 +94,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/lifecycle/Destructible.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "99a54ce2751d140df9d5879dc3b7cde6",
       "sourceName": "contracts/lib/lifecycle/Destructible.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -135,7 +138,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/ownership/Upgradable.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "a2b71055b027ab34cc5abbcf4b53f351",
       "sourceName": "contracts/lib/ownership/Upgradable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -178,7 +182,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/database/DatabaseInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "1a55e2461514df51e3f4419ada2edd43",
       "sourceName": "contracts/platform/database/DatabaseInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -221,7 +226,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCostInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "f7914b18af3d48c6fd69131030ed3a3f",
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCostInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -262,7 +268,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/bondage/BondageInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "843eeed99b3f72db6666641b2a82c197",
       "sourceName": "contracts/platform/bondage/BondageInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -303,7 +310,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/ownership/Ownable.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "3f39e3a8eb2bad09a9128ef55adffc5c",
       "sourceName": "contracts/lib/ownership/Ownable.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -344,7 +352,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/ownership/ZapCoordinatorInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "1a95eaa60cbdc204a748502ba232f471",
       "sourceName": "contracts/lib/ownership/ZapCoordinatorInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -387,7 +396,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/dispatch/Dispatch.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "c439d25bfe35e7ba7e80adb7eda1163f",
       "sourceName": "contracts/platform/dispatch/Dispatch.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -436,7 +446,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/Client.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "2b133f72f057a2e71a96c0904baa5c91",
       "sourceName": "contracts/lib/platform/Client.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -482,7 +493,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/OnChainProvider.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "61ff8309a6fbb6d70303a32d77d02d50",
       "sourceName": "contracts/lib/platform/OnChainProvider.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -523,7 +535,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/dispatch/DispatchInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "1de16252e298b10d2c4ecb92d26d9293",
       "sourceName": "contracts/platform/dispatch/DispatchInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -564,7 +577,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/registry/Registry.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "1ef8f7ac377adaccefadb073637f987a",
       "sourceName": "contracts/platform/registry/Registry.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -610,7 +624,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/registry/RegistryInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "d014573409ddd47c19c49fdf380db003",
       "sourceName": "contracts/platform/registry/RegistryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -651,7 +666,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/bondage/currentCost/CurrentCost.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "7c70e2788e050110ec398f6f657fb6ec",
       "sourceName": "contracts/platform/bondage/currentCost/CurrentCost.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -698,7 +714,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/PiecewiseLogic.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "09a7bd000e5ff005a773b18feca9a808",
       "sourceName": "contracts/lib/platform/PiecewiseLogic.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -739,7 +756,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/TokenDotFactory.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "acb4325faa8bd89bc397fe403ed85e3c",
       "sourceName": "contracts/lib/platform/TokenDotFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -786,7 +804,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/token/TokenFactoryInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "babac04dcf75f7040e368fe4d981da5f",
       "sourceName": "contracts/lib/token/TokenFactoryInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -829,7 +848,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/token/FactoryTokenInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "1f67f91e1acc66d9eae3e62a6364de3a",
       "sourceName": "contracts/lib/token/FactoryTokenInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -872,7 +892,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/SampleOnChainOracle.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "056cdd1a75952dc515e55cae048a0c09",
       "sourceName": "contracts/lib/platform/SampleOnChainOracle.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -918,7 +939,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/TestContracts.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "91fdd4e2dd8256f1a92445f656135b39",
       "sourceName": "contracts/lib/platform/TestContracts.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -967,7 +989,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/Telegram.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "1a0d91dc89f908abacf0a6898fece32d",
       "sourceName": "contracts/lib/platform/Telegram.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1011,7 +1034,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/platform/SampleContest.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "e06d1029b3a078e65ca8cccee1f4a4b0",
       "sourceName": "contracts/lib/platform/SampleContest.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1058,7 +1082,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/token/Token.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "ea10a677860848329716d1b64a46f7dd",
       "sourceName": "contracts/lib/token/Token.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1102,7 +1127,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/token/TokenFactory.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "2bd5ce9bfb99ca36d46c4eab46f584d2",
       "sourceName": "contracts/lib/token/TokenFactory.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1146,7 +1172,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/database/Database.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "fe0ae1801dbc7b3761b9908ad367cfae",
       "sourceName": "contracts/platform/database/Database.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1190,7 +1217,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/arbiter/Arbiter.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "f3963a4ed1ae44ca733482c195c7da42",
       "sourceName": "contracts/platform/arbiter/Arbiter.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1237,7 +1265,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/platform/arbiter/ArbiterInterface.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "a8dd112e0b3e06f34c13ef615bcbf426",
       "sourceName": "contracts/platform/arbiter/ArbiterInterface.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1278,7 +1307,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/lib/ownership/ZapCoordinator.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "8977933a0818cf07b250eb2ab2c585a8",
       "sourceName": "contracts/lib/ownership/ZapCoordinator.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1323,7 +1353,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/token/Faucet.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "c0f87f1e71098ff2fcfedb0af8fd5e31",
       "sourceName": "contracts/token/Faucet.sol",
       "solcConfig": {
         "version": "0.4.24",
@@ -1365,7 +1396,8 @@
       ]
     },
     "/home/otacon9000/work/zap-hardhat/contracts/token/ZapToken.sol": {
-      "lastModificationDate": 1610056830958,
+      "lastModificationDate": 1610116010350,
+      "contentHash": "d473d73490302aa8cae771e34a173ccc",
       "sourceName": "contracts/token/ZapToken.sol",
       "solcConfig": {
         "version": "0.4.24",
