@@ -37,6 +37,11 @@ async function main() {
   const registry = await ethers.getContractFactory('Registry')
   const Registry = await registry.deploy(Coordinator.address);
 
+  const mpostorage = await ethers.getContractFactory('MPOStorage');
+  const MpoStorage = await mpostorage.deploy();
+
+  const multipartyoracle = await ethers.getContractFactory('MultiPartyOracle');
+  const MultiPartyOracle = await multipartyoracle.deploy(Coordinator.address, MpoStorage.address);
   // const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
   // const OnchainOracle = await onchainOracle.deploy(Coordinator.address,
   //   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, test);
@@ -48,6 +53,9 @@ async function main() {
   console.log("Arbiter address:", Arbiter.address);
   console.log("Bondage address:", Bondage.address);
   console.log("Registry address:", Registry.address);
+  console.log("MPOStorage address:", MpoStorage.address);
+  console.log("MultiPartyOracle address:", MultiPartyOracle.address);
+
   // console.log("Onchain Oracle address:", OnchainOracle.address);
 
 }
