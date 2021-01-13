@@ -1,22 +1,20 @@
 name: Test Action
 
-
-
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
-
 
 jobs:
   test-remote:
-    
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: dawidd6/action-ansible-playbook@v2
+        uses: actions/checkout@v2
 
+      - name: Test remote
+        uses: ./
         with:
           playbook: playbook.yml
-          directory: ./scripts/
+          directory: scripts
