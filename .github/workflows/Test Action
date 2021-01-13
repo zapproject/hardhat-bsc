@@ -1,0 +1,21 @@
+name: Test Action
+
+
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+jobs:
+  test-remote:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Test remote
+        uses: ./
+        with:
+          playbook: playbook.yml
+          directory: scripts
