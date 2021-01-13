@@ -27,7 +27,7 @@ jobs:
       uses: dawidd6/action-ansible-playbook@v2
       with:
         playbook: playbook.yml
-        directory: ./
+        directory: scripts
 
         # Ansible Galaxy requirements filepath
 
