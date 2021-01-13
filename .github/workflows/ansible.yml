@@ -30,7 +30,7 @@ jobs:
       with:
         # Ansible playbook filepath
         playbook: playbook.yml
-        directory: /home/runner/work/zap-hardhat/zap-hardhat/github/workflows/
+        directory: /home/runner/work/zap-hardhat/zap-hardhat/
 
         # Ansible Galaxy requirements filepath
 
