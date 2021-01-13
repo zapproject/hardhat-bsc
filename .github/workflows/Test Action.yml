@@ -19,4 +19,4 @@ jobs:
 
         with:
           playbook: playbook.yml
-          directory: ./
+          directory: ./scripts/
