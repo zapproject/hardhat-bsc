@@ -23,14 +23,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - name: Run Ansible playbook
-      # You may pin to the exact commit or the version.
-      # uses: dawidd6/action-ansible-playbook@3c534b3ba0bcbbee2b13fb45226f71acbaca2a76
-      uses: dawidd6/action-ansible-playbook@v2.2.0
+    - name: Run playbook
+      uses: dawidd6/action-ansible-playbook@v2
       with:
-        # Ansible playbook filepath
         playbook: playbook.yml
-        directory: /home/runner/work/zap-hardhat/zap-hardhat/
+        directory: ./
 
         # Ansible Galaxy requirements filepath
 
