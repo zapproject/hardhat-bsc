@@ -9,10 +9,15 @@ on:
 jobs:
   test-remote:
     runs-on: ubuntu-latest
+    name: Execute Sample Playbook
     steps:
+      - uses: actions/checkout@v1
+      - name: Execute Playbook Action Step
+        id: Execution
+        uses: saubermacherag/ansible-playbook-docker-action@master
+        env:
+          ANSIBLE_STDOUT_CALLBACK: debug
+          ANSIBLE_FORCE_COLOR: true    
 
-    - name: Execute Ansible Playbook
-
-      uses: saubermacherag/ansible-playbook-docker-action@v1.4
-      with:
-        playbookName: ".ansible/playbooks/playbook.yml"
+        with:
+          playbookName: ".ansible/playbooks/playbook.yml"
