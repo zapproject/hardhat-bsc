@@ -11,18 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Run playbook
-        uses: dawidd6/action-ansible-playbook@v2
-        with:
-          playbook: playbook.yml
-          directory: ./
-          inventory: |
-            [all]
-            example.com
+    - name: Execute Ansible Playbook
 
-            [group1]
-            example.com
-          options: |
-            --limit group1
-            --extra-vars hello=there
-            --verbose
+      uses: saubermacherag/ansible-playbook-docker-action@v1.4
+      with:
+        playbookName: 'playbook.yml'
