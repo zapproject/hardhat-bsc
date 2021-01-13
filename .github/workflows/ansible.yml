@@ -29,6 +29,6 @@ jobs:
       uses: dawidd6/action-ansible-playbook@v2.2.0
       with:
         # Ansible playbook filepath
-        playbook: /playbook.yml 
+        playbook: scripts/playbook.yml/ 
         # Ansible Galaxy requirements filepath
 
