@@ -15,4 +15,4 @@ jobs:
 
       uses: saubermacherag/ansible-playbook-docker-action@v1.4
       with:
-        playbookName: "zap-hardhat/.ansible/.playbooks/playbook.yml"
+        playbookName: ".ansible/playbooks/playbook.yml"
