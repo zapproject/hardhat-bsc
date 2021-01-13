@@ -1,4 +1,4 @@
-name: Test Action
+name: ansible
 
 on:
   push:
