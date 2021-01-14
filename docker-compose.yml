@@ -10,15 +10,6 @@ services:
         networks: 
             - devnet
 
-    generic-oracle:
-        image: generic-oracle
-        build:
-            context: ./oracles/generic
-            dockerfile: Dockerfile
-        depends_on: 
-            - zap-hardhat
-        networks: 
-            - devnet
 
     zap-hardhat:
         image: zaporacle/hardhat:main
