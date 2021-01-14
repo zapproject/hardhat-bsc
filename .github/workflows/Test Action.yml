@@ -20,4 +20,6 @@ jobs:
           ANSIBLE_FORCE_COLOR: true    
 
         with:
+          inventoryFile: ".ansible/playbooks/inventory/local.yml"
           playbookName: ".ansible/playbooks/playbook.yml"
+          verbosity: vvvvv
