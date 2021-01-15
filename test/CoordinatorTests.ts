@@ -6,8 +6,6 @@ import mocha from "mocha";
 import { ZapCoordinator } from "../typechain/ZapCoordinator";
 import { Database } from "../typechain/Database";
 import { Registry } from "../typechain/Registry";
-// import { CurrentCost } from "../typechain/CurrentCost";
-// import { sign } from "crypto";
 
 chai.use(solidity);
 const { expect} = chai;

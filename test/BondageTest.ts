@@ -6,9 +6,9 @@ import mocha from "mocha";
 import { ZapCoordinator } from "../typechain/ZapCoordinator";
 import { Database } from "../typechain/Database";
 import { Registry } from "../typechain/Registry";
-import {Bondage} from  "../typechain/Bondage"
+import { Bondage  } from  "../typechain/Bondage"
 import { ZapToken } from '../typechain/ZapToken';
-import {CurrentCost} from '../typechain/CurrentCost';
+import { CurrentCost } from '../typechain/CurrentCost';
 chai.use(solidity);
 const { expect} = chai;
 
@@ -106,13 +106,13 @@ describe("ZapBondage", () => {
     let arbiter:any;
     beforeEach(async()=>{
         signers = await ethers.getSigners();
-        owner=signers[0]
-        subscriber=signers[1];
-        oracle=signers[2];
-        broker=signers[3];
-        escrower=signers[4];
-        escrower2=signers[5];
-        arbiter=signers[6];
+        owner = signers[0]
+        subscriber = signers[1];
+        oracle = signers[2];
+        broker = signers[3];
+        escrower = signers[4];
+        escrower2 = signers[5];
+        arbiter = signers[6];
         const zapTokenFactory = await ethers.getContractFactory('ZapToken', signers[0]);                 
        
         const coordinatorFactory = await ethers.getContractFactory(
@@ -149,64 +149,48 @@ describe("ZapBondage", () => {
           registry = (await registryFactory.deploy(coordinator.address)) as Registry;
 
           await dataBase.transferOwnership(coordinator.address);
-         // console.log("adding ImmutableContracts")
-          await coordinator.addImmutableContract('DATABASE', dataBase.address);               
-         
+          await coordinator.addImmutableContract('DATABASE', dataBase.address);                  
           await coordinator.addImmutableContract('ARBITER', arbiter.address);
           await coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
-         // console.log("updating Contracts")
           await coordinator.updateContract('REGISTRY', registry.address);
           await coordinator.updateContract('CURRENT_COST', cost.address);
-         // console.log("deploying bond")
+
          
           bondage = (await bondFactory.deploy(coordinator.address)) as Bondage;
-        //  console.log("deployed")
-         // console.log(bondage.address)
-         // console.log("updating bondage")
           await coordinator.updateContract('BONDAGE', bondage.address)
-         // console.log("transferring ownershipt")
-         
-         await coordinator.updateAllDependencies();
+          await coordinator.updateAllDependencies();
        
     })
      
     async function prepareProvider( account = oracle, curveParams = piecewiseFunction) {
-     //   console.log("init provider")
-       
-        await registry.connect(account).initiateProvider(publicKey, title);
-        //console.log("init curve")
-       
-        
-       await registry.connect(account).initiateProviderCurve(specifier, curveParams, zeroAddress);
+      await registry.connect(account).initiateProvider(publicKey, title);
+      await registry.connect(account).initiateProviderCurve(specifier, curveParams, zeroAddress);
     }
 
     async function prepareTokens(allocAddress = subscriber) {
-       // console.log("allocate")
         await zapToken.allocate(owner.address, tokensForOwner)
-       // console.log("allocate")
         await zapToken.allocate(allocAddress.address, tokensForSubscriber)
-       // console.log("approve")
         await zapToken.connect(allocAddress).approve(bondage.address, approveTokens)
-        
     }
 
     it("BONDAGE_1 - bond() - Check bond function", async function () {
-      
         await prepareProvider()
         await prepareTokens()
         await prepareTokens(broker)
-       // console.log(oracle.address)
         await bondage.connect(subscriber).bond(oracle.address, specifier, dotBound);
-        let result=await bondage.getBoundDots(subscriber.address, oracle.address, specifier)
+
+        let result = await bondage.getBoundDots(subscriber.address, oracle.address, specifier)
         await expect(result).to.equal(999)
     });
     it("BONDAGE_4 - unbond() - Check unbond function", async function () {
       await prepareProvider()
       await prepareTokens()
       await prepareTokens(broker)
+
       await bondage.connect(subscriber).bond(oracle.address, specifier, dotBound);
       await bondage.connect(subscriber).unbond(oracle.address, specifier, dotBound);
-      let result=await bondage.getBoundDots(subscriber.address, oracle.address, specifier)
+
+      let result = await bondage.getBoundDots(subscriber.address, oracle.address, specifier)
       await expect(result).to.equal(0)
   });
   it("BONDAGE_5 - calcZapForDots() - Check zap for dots calculating", async function () {
@@ -515,20 +499,20 @@ it("BONDAGE_26 - bond() - Check registry.clearEndpoint cannot be applied to a bo
 
 describe('CurrentCost Test', ()=> {
     let zapToken: ZapToken;
-    let dataBase:Database;
-    let bondage:Bondage;
-    let cost:CurrentCost
-    let registry:Registry;
+    let dataBase: Database;
+    let bondage: Bondage;
+    let cost: CurrentCost
+    let registry: Registry;
     let allocatedAmt: number;
     let signers: any;
     let coordinator: ZapCoordinator;
-    let owner:any;
-    let subscriber:any;
-    let oracle:any;
-    let broker:any;
-    let escrower:any;
-    let escrower2:any;
-    let arbiter:any;
+    let owner: any;
+    let subscriber: any;
+    let oracle: any;
+    let broker: any;
+    let escrower: any;
+    let escrower2: any;
+    let arbiter: any;
     const curveParams1 = [3, 0, 0, 2, 1000];
 
     // 1 + 2 x + 3 x ^ 2 on [1, 1000]
@@ -580,29 +564,21 @@ describe('CurrentCost Test', ()=> {
 
         dataBase = (await dbFactory.deploy()) as Database;
 
-        cost= (await costFactory.deploy(coordinator.address)) as CurrentCost;
+        cost = (await costFactory.deploy(coordinator.address)) as CurrentCost;
         await cost.deployed();
         registry = (await registryFactory.deploy(coordinator.address)) as Registry;
 
         await dataBase.transferOwnership(coordinator.address);
-       // console.log("adding ImmutableContracts")
         await coordinator.addImmutableContract('DATABASE', dataBase.address);               
-       
         await coordinator.addImmutableContract('ARBITER', arbiter.address);
         await coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
-       // console.log("updating Contracts")
         await coordinator.updateContract('REGISTRY', registry.address);
         await coordinator.updateContract('CURRENT_COST', cost.address);
-       // console.log("deploying bond")
        
         bondage = (await bondFactory.deploy(coordinator.address)) as Bondage;
-      //  console.log("deployed")
-       // console.log(bondage.address)
-       // console.log("updating bondage")
         await coordinator.updateContract('BONDAGE', bondage.address)
-       // console.log("transferring ownershipt")
        
-       await coordinator.updateAllDependencies();
+        await coordinator.updateAllDependencies();
      
   })
     async function prepareProvider( account = oracle, curveParams = piecewiseFunction) {
