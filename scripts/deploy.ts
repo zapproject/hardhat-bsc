@@ -1,3 +1,4 @@
+
 import { ethers } from "hardhat";
 
 const hre = require("hardhat")
@@ -51,6 +52,7 @@ const calcNextDotCost = function (structurizedCurve:any, total:any) {
   if (total < 0) {
       return 0;
   }
+
 
   for (let i = 0; i < structurizedCurve.length; i++) {
       if (structurizedCurve[i].start <= total && total <= structurizedCurve[i].end) {
