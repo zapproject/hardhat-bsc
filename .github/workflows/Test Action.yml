@@ -1,0 +1,25 @@
+name: Test Action
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-remote:
+    runs-on: ubuntu-latest
+    name: Execute Sample Playbook
+    steps:
+      - uses: actions/checkout@v1
+      - name: Execute Playbook Action Step
+        id: Execution
+        uses: saubermacherag/ansible-playbook-docker-action@master
+        env:
+          ANSIBLE_STDOUT_CALLBACK: debug
+          ANSIBLE_FORCE_COLOR: true    
+
+        with:
+          inventoryFile: ".ansible/playbooks/inventory/local.yml"
+          playbookName: ".ansible/playbooks/playbook.yml"
+          verbosity: vvvvv

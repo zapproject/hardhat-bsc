@@ -42,24 +42,5 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
                     return err;
                 })
 
-            // Gets the balance of each test account
-            await token.balanceOf(signers[i].address)
-                .then((balance) => {
-
-                    balances.push(balance);
-                })
-                .catch((err) => {
-                    return err;
-                })
-
-            // Log account details
-            console.log(
-                {
-                    signer: i,
-                    address: signers[i].address,
-                    ZAP_Balance: parseInt(balances[i]._hex) + ' ZAP',
-                },
-            );
         }
     });
-

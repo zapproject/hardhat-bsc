@@ -25,3 +25,4 @@ CMD ["chmod", "+x", "./start.sh"]
 #RUN npx hardhat node &
 CMD ["./start.sh"]
 
+# CI Rules
