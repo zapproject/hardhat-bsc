@@ -53,14 +53,7 @@ const calcNextDotCost = function (structurizedCurve:any, total:any) {
       return 0;
   }
 
-  const mpostorage = await ethers.getContractFactory('MPOStorage');
-  const MpoStorage = await mpostorage.deploy();
 
-  const multipartyoracle = await ethers.getContractFactory('MultiPartyOracle');
-  const MultiPartyOracle = await multipartyoracle.deploy(Coordinator.address, MpoStorage.address);
-  // const onchainOracle = await ethers.getContractFactory('SampleOnChainOracle');
-  // const OnchainOracle = await onchainOracle.deploy(Coordinator.address,
-  //   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, test);
   for (let i = 0; i < structurizedCurve.length; i++) {
       if (structurizedCurve[i].start <= total && total <= structurizedCurve[i].end) {
           return _calculatePolynomial(structurizedCurve[i].terms, total);
