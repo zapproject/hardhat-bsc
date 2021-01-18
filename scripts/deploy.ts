@@ -148,6 +148,13 @@ async function main() {
   await zapToken.allocate(owner.address, tokensForOwner)
   await zapToken.allocate(broker.address, tokensForSubscriber)
   await zapToken.connect(broker).approve(Bondage.address, approveTokens)
+
+  const mpostorage = await ethers.getContractFactory('MPOStorage');
+  const MpoStorage = await mpostorage.deploy();
+
+  const multipartyoracle = await ethers.getContractFactory('MultiPartyOracle');
+  const MultiPartyOracle = await multipartyoracle.deploy(Coordinator.address, MpoStorage.address);
+
 }
 
 main()

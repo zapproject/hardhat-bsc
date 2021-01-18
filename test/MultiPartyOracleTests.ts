@@ -2,7 +2,8 @@
 import { ethers } from "hardhat";
 import { solidity } from "ethereum-waffle";
 import chai from "chai";
-import { Database } from '../typechain/Database';
+import { MultiPartyOracle} from '../typechain/MultiPartyOracle';
+import { MpoStorage} from '../typechain/MpoStorage';
 
 import { ZapToken } from '../typechain/ZapToken';
 import { SSL_OP_NETSCAPE_CA_DN_BUG } from "constants";
@@ -16,8 +17,10 @@ chai.use(solidity);
 
 const { expect } = chai;
 
+let coordinator: ZapCoordinator;
 let zapToken: ZapToken;
-let db: Database;
+let MPO: MultiPartyOracle;
+let mpoStorage: MpoStorage
 let key: number;
 let owner: SignerWithAddress;
 let add1: SignerWithAddress;
@@ -28,6 +31,14 @@ beforeEach(async () => {
 
     // Test accounts
     [owner,add1] = await ethers.getSigners();
+
+    const coordinatorFactory = await ethers.getContractFactory(
+        "ZapCoordinator",
+        owner
+      );
+
+    coordinator = (await coordinatorFactory.deploy()) as ZapCoordinator;
+    await coordinator.deployed();
 
     const database = await ethers.getContractFactory('Database')
     db = await database.deploy() as Database;
