@@ -12,6 +12,7 @@ import { assert } from "console";
 import { BigNumber, BigNumberish, ContractTransaction } from "ethers";
 import { Bytes, BytesLike, checkProperties, formatBytes32String, hexConcat, hexlify, randomBytes } from "ethers/lib/utils";
 import { beforeEach } from "mocha";
+import { ZapCoordinator } from "../typechain/ZapCoordinator";
 
 chai.use(solidity);
 
