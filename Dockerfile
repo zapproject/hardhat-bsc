@@ -18,7 +18,6 @@ COPY ./tasks/. .
 COPY ./test/. .
 COPY ./scripts/. .
 COPY ./contracts/. . 
-# COPY ./reset/. . 
 
 CMD ["chmod", "+x", "./start.sh"]
 
