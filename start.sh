@@ -1,4 +1,4 @@
-node ./reset/hardhat.js
+# node ./reset/hardhat.js
 npx hardhat node &
 sleep 10
 npx hardhat run --network localhost scripts/deploy.ts
