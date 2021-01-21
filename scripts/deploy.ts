@@ -1,4 +1,5 @@
 
+
 import { ethers } from "hardhat";
 
 const hre = require("hardhat")
@@ -91,9 +92,9 @@ async function main() {
 
   let owner = signers[0]
 
-  let subscriber = signers[1];
+  let subscriberAddress = signers[1];
 
-  let oracle = signers[2];
+  let OracleSigner = signers[2];
   let broker = signers[3];
 
   let escrower = signers[4];
@@ -118,7 +119,7 @@ async function main() {
 
   const dispatch = await ethers.getContractFactory('Dispatch', signers[0])
   const Dispatch = await dispatch.deploy(Coordinator.address);
-
+  console.log(`Dispatch address is ${Dispatch.address}`)
   const faucetContract = await ethers.getContractFactory('Faucet', signers[0]);
   const faucet = await faucetContract.deploy(zapToken.address);
   await faucet.deployed();
@@ -131,7 +132,6 @@ async function main() {
   await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
   await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
-  await Coordinator.addImmutableContract('FAUCET', faucet.address);
   await Coordinator.updateContract('REGISTRY', Registry.address);
   await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
 
@@ -142,20 +142,45 @@ async function main() {
   await Coordinator.updateAllDependencies();
   await hre.run('faucet')
 
-  await Registry.connect(oracle).initiateProvider(publicKey, title);
-  await Registry.connect(oracle).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
+  
+  await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
+  await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
 
   // Approve the amount of Zap
   await zapToken.allocate(owner.address, tokensForOwner)
   await zapToken.allocate(broker.address, tokensForSubscriber)
   await zapToken.connect(broker).approve(Bondage.address, approveTokens)
+  const subscriberFactory = await ethers.getContractFactory(
+    'TestClient'
+  );
+  const offchainSubscriberFactory = await ethers.getContractFactory(
+    'OffChainClient' 
+  );
+  const oracleFactory = await ethers.getContractFactory(
+    'TestProvider' 
+  );
+  const subscriber = (await subscriberFactory.deploy(
+    zapToken.address,
+    Dispatch.address,
+    Bondage.address,
+    Registry.address
+  )) 
 
-  const mpostorage = await ethers.getContractFactory('MPOStorage');
-  const MpoStorage = await mpostorage.deploy();
+  const offchainsubscriber = (await offchainSubscriberFactory.deploy(
+    zapToken.address,
+    Dispatch.address,
+    Bondage.address,
+    Registry.address,
+    OracleSigner.address
+  )) 
 
-  const multipartyoracle = await ethers.getContractFactory('MultiPartyOracle');
-  const MultiPartyOracle = await multipartyoracle.deploy(Coordinator.address, MpoStorage.address);
-
+  await subscriber.deployed();
+  await offchainsubscriber.deployed();
+  const oracle = (await await oracleFactory.deploy(
+    Registry.address,
+    false
+  )) 
+  await oracle.deployed()
 }
 
 main()
