@@ -311,7 +311,7 @@ describe('ZapBondage', () => {
       .connect(subscriberAccount)
       .testQuery(oracle.address, query, spec, params);
     let r = await result.wait();
-    events(r.events, expected);
+    validateEvents(r.events, expected);
 
     let expected = [
       'Escrowed(address,address,bytes32,uint256)',
