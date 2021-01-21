@@ -16,59 +16,59 @@ const routeKeys = [1];
 const params = ["param1", "param2"];
 
 const specifier = "0x048a2991c2676296b330734992245f5ba6b98174d3f1907d795b7639e92ce577";
-const zeroAddress =  '0x0000000000000000000000000000000000000000'
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 const piecewiseFunction = [3, 0, 0, 2, 10000];
-const tokensForOwner =ethers.BigNumber.from("1500000000000000000000000000000");
+const tokensForOwner = ethers.BigNumber.from("1500000000000000000000000000000");
 const tokensForSubscriber = ethers.BigNumber.from("50000000000000000000000000000");
 const approveTokens = ethers.BigNumber.from("1000000000000000000000000000000");
 
 const dotBound = ethers.BigNumber.from("999");
 
-const structurizeCurve = function (parts:any) {
+const structurizeCurve = function (parts: any) {
   const pieces = Array();
 
   let index = 0;
   let start = 1;
 
-  while ( index < parts.length ) {
-      const length = parts[index];
-      const base = index + 1;
-      const terms = parts.slice(base, base + length);
-      const end = parts[base + length];
+  while (index < parts.length) {
+    const length = parts[index];
+    const base = index + 1;
+    const terms = parts.slice(base, base + length);
+    const end = parts[base + length];
 
-      pieces.push({
-          terms,
-          start,
-          end
-      });
+    pieces.push({
+      terms,
+      start,
+      end
+    });
 
-      index = base + length + 1;
-      start = end;
+    index = base + length + 1;
+    start = end;
   }
 
   return pieces;
 };
-const calcNextDotCost = function (structurizedCurve:any, total:any) {
+const calcNextDotCost = function (structurizedCurve: any, total: any) {
   if (total < 0) {
-      return 0;
+    return 0;
   }
 
 
   for (let i = 0; i < structurizedCurve.length; i++) {
-      if (structurizedCurve[i].start <= total && total <= structurizedCurve[i].end) {
-          return _calculatePolynomial(structurizedCurve[i].terms, total);
-      }
+    if (structurizedCurve[i].start <= total && total <= structurizedCurve[i].end) {
+      return _calculatePolynomial(structurizedCurve[i].terms, total);
+    }
   }
 
   return 0;
 };
 
-const calcDotsCost = function (structurizedCurve:any, numDots:any) {
+const calcDotsCost = function (structurizedCurve: any, numDots: any) {
   let cost = 0;
 
   for (let i = 1; i <= numDots; i++) {
-      cost += calcNextDotCost(structurizedCurve, i);
+    cost += calcNextDotCost(structurizedCurve, i);
   }
 
   return cost;
@@ -76,18 +76,18 @@ const calcDotsCost = function (structurizedCurve:any, numDots:any) {
 
 //TODO move these functions to another file
 
-function _calculatePolynomial(terms:any, x:any) {
+function _calculatePolynomial(terms: any, x: any) {
   let sum = 0;
 
-  for (let i = 0; i < terms.length; i++ ) {
-      sum += terms[i] * (x ** i);
+  for (let i = 0; i < terms.length; i++) {
+    sum += terms[i] * (x ** i);
   }
 
   return sum;
 }
 
 async function main() {
-  
+
   let signers = await ethers.getSigners();
 
   let owner = signers[0]
@@ -129,7 +129,7 @@ async function main() {
   // Transfer ownership before creating bondage contract
 
   await Database.transferOwnership(Coordinator.address);
-  await Coordinator.addImmutableContract('DATABASE', Database.address);               
+  await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
   await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
   await Coordinator.updateContract('REGISTRY', Registry.address);
@@ -141,6 +141,7 @@ async function main() {
   await Coordinator.updateContract('BONDAGE', Bondage.address);
   await Coordinator.updateAllDependencies();
   await hre.run('faucet')
+
   
   await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
   await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
