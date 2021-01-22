@@ -53,8 +53,6 @@ describe('Registry Test', () => {
         await coordinator.updateContract('REGISTRY', registry.address);
         await coordinator.updateAllDependencies();
 
-        console.log(await registry.db())
-
     });
 
     it('Should be able to create an instance of the ZapCoordinator contract', () => {
@@ -85,7 +83,16 @@ describe('Registry Test', () => {
 
         const convertedTitle = ethers.utils.formatBytes32String(testProvider.title);
 
-        console.log(await registry.db())
+        const tx = await registry.initiateProvider(
+            testProvider.publicKey,
+            convertedTitle
+        )
+
+       const isInit = await registry.isProviderInitiated(signers[0].address)
+
+       console.log(isInit)
+
+      
     });
 
 })
