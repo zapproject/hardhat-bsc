@@ -18,14 +18,7 @@ services:
         networks: 
             - devnet
             
-    alpha-zap:
-        image: zaporacle/alpha.zap:latest
-        ports:
-            - 3000:3000 
-        networks: 
-            - devnet
-        stdin_open: true
-        tty: true
+ 
     
     ipfs-host:
         image: ipfs/go-ipfs
