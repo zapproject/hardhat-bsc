@@ -16,4 +16,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           BRANCH_PREFIX: "feature/"
-          PULL_REQUEST_BRANCH: "main"
+          PULL_REQUEST_BRANCH: "develop"
