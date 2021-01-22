@@ -8,7 +8,8 @@
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
-    "coverage": "npm run build && npx hardhat coverage --temp artifacts --network coverage"
+    "coverage": "npm run build && npx hardhat coverage --temp artifacts --network coverage",
+    "prettier-format": "prettier --config .prettierrc 'test/*.ts'  --write"
   },
   "author": "ZapProtocol",
   "homepage": "https://zap.org",
@@ -32,7 +33,8 @@
     "ts-node": "^9.0.0",
     "typechain": "^3.0.0",
     "typescript": "^4.0.5",
-    "web3": "^1.3.1"
+    "web3": "^1.3.1",
+    "prettier": "^2.2.1"
   },
   "dependencies": {
     "hardhat-deploy": "^0.7.0-beta.39",
