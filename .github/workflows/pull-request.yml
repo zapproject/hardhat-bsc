@@ -5,13 +5,14 @@ on:
       - staging
       - launchpad
       - production
+        
 jobs:
   auto-pull-request:
     name: PullRequestAction
     runs-on: ubuntu-latest
     steps:
       - name: pull-request-action
-        uses: vsoch/pull-request-action@1.0.6
+        uses: vsoch/pull-request-action@1.0.12
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           BRANCH_PREFIX: "feature/"
