@@ -61,8 +61,11 @@ describe('Registry Test', () => {
         await registry.deployed();
 
         await database.transferOwnership(coordinator.address);
+
         await coordinator.addImmutableContract('DATABASE', database.address);
+
         await coordinator.updateContract('REGISTRY', registry.address);
+        
         await coordinator.updateAllDependencies();
 
     });
