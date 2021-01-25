@@ -52,7 +52,7 @@ describe('Registry Test', () => {
         registryFactory = await ethers.getContractFactory('Registry', signers[0]);
 
         database = (await databaseFactory.deploy()) as Database;
-        await database.deploy();
+        await database.deployed();
 
         coordinator = (await coordinatorFactory.deploy()) as ZapCoordinator;
         await coordinator.deployed();
@@ -79,32 +79,32 @@ describe('Registry Test', () => {
 
     });
 
-    it('REGISTRY_2 - Should be able to create an instance of the Database contract', () => {
+    it('REGISTRY_3 - Should be able to create an instance of the Database contract', () => {
 
         expect(databaseFactory).to.be.ok;
 
     });
 
 
-    it('REGISTRY_3 - Should be able to deploy the ZapCoordinator contract', () => {
+    it('REGISTRY_4 - Should be able to deploy the ZapCoordinator contract', () => {
 
         expect(coordinator).to.be.ok;
 
     });
 
-    it('REGISTRY_4 - Should be able to deploy the Registry contract', () => {
+    it('REGISTRY_5 - Should be able to deploy the Registry contract', () => {
 
         expect(registry).to.be.ok;
 
     });
 
-    it('REGISTRY_4 - Should be able to deploy the Database contract', () => {
+    it('REGISTRY_6 - Should be able to deploy the Database contract', () => {
 
         expect(database).to.be.ok;
 
     });
 
-    it("REGISTRY_5 - initiateProvider() - Check that we can initiate provider", async () => {
+    it("REGISTRY_7 - initiateProvider() - Check that we can initiate provider", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
 
@@ -112,7 +112,7 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_6 - initiateProvider() - Check that we can't change provider info if it was initated",
+    it("REGISTRY_8 - initiateProvider() - Check that we can't change provider info if it was initated",
         async () => {
 
             const newTestTitle = ethers.utils.formatBytes32String('newTestProvider');
@@ -136,7 +136,7 @@ describe('Registry Test', () => {
 
         });
 
-    it("REGISTRY_7 - initiateProviderCurve() - Check that we can initiate provider curve",
+    it("REGISTRY_9 - initiateProviderCurve() - Check that we can initiate provider curve",
         async () => {
 
             providerTitle = ethers.utils.formatBytes32String(testProvider.title);
@@ -150,7 +150,7 @@ describe('Registry Test', () => {
 
         });
 
-    it("REGISTRY_8 - initiateProviderCurve() - Check that we can't initiate provider curve if provider wasn't initiated",
+    it("REGISTRY_10 - initiateProviderCurve() - Check that we can't initiate provider curve if provider wasn't initiated",
         async () => {
 
             convertedEndpoint = ethers.utils.formatBytes32String(testProvider.endpoint);
@@ -171,7 +171,7 @@ describe('Registry Test', () => {
 
         });
 
-    it("REGISTRY_9 - get/setEndpointParams() - Check that we can get and set provider endpoint parameters",
+    it("REGISTRY_11 - get/setEndpointParams() - Check that we can get and set provider endpoint parameters",
         async () => {
 
             providerTitle = ethers.utils.formatBytes32String(testProvider.title);
@@ -196,7 +196,7 @@ describe('Registry Test', () => {
             expect(getParams[1]).to.equal(convertedParams[1]);
         });
 
-    it("REGISTRY_10 - get/setProviderParameter() - Check that we can get and set provider parameters",
+    it("REGISTRY_12 - get/setProviderParameter() - Check that we can get and set provider parameters",
         async () => {
 
             providerTitle = ethers.utils.formatBytes32String(testProvider.title);
@@ -238,7 +238,7 @@ describe('Registry Test', () => {
 
         });
 
-    it("REGISTRY_11 - getProviderTitle() - Check that we can get provider title", async () => {
+    it("REGISTRY_13 - getProviderTitle() - Check that we can get provider title", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
 
@@ -249,13 +249,13 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_12 - getProviderTitle() - Check that title of uninitialized provider is empty", async () => {
+    it("REGISTRY_14 - getProviderTitle() - Check that title of uninitialized provider is empty", async () => {
 
         expect(await registry.getProviderTitle(signers[0].address))
             .to.equal('0x0000000000000000000000000000000000000000000000000000000000000000');
     });
 
-    it("REGISTRY_13 - getProviderPublicKey() - Check that we can get provider public key", async () => {
+    it("REGISTRY_15 - getProviderPublicKey() - Check that we can get provider public key", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
 
@@ -265,14 +265,14 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_14 - getProviderPublicKey() - Check that public key of uninitialized provider is equal to 0",
+    it("REGISTRY_16 - getProviderPublicKey() - Check that public key of uninitialized provider is equal to 0",
         async () => {
 
             expect(await registry.getProviderPublicKey(signers[0].address)).to.equal(0);
 
         });
 
-    it("REGISTRY_15 - getProviderCurve() - Check that we initialize and get provider curve", async () => {
+    it("REGISTRY_17 - getProviderCurve() - Check that we initialize and get provider curve", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
         convertedEndpoint = ethers.utils.formatBytes32String(testProvider.endpoint);
@@ -301,7 +301,7 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_16 - getProviderCurve() - Check that cant get uninitialized curve ", async () => {
+    it("REGISTRY_18 - getProviderCurve() - Check that cant get uninitialized curve ", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
         convertedEndpoint = ethers.utils.formatBytes32String(testProvider.endpoint);
@@ -321,7 +321,7 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_17 - getAllOracles() - Check that we can get all providers", async function () {
+    it("REGISTRY_19 - getAllOracles() - Check that we can get all providers", async function () {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
 
@@ -333,7 +333,7 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_18 - getEndpointBroker() - Check that broker address can be saved and retreived", async () => {
+    it("REGISTRY_20 - getEndpointBroker() - Check that broker address can be saved and retreived", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
         convertedEndpoint = ethers.utils.formatBytes32String(testProvider.endpoint);
@@ -348,7 +348,7 @@ describe('Registry Test', () => {
         expect(brokerAddress).to.equal(testProvider.emptyBroker);
     });
 
-    it("REGISTRY_19 - clearEndpoint() - Check that provider can clear endpoint with no bonds", async () => {
+    it("REGISTRY_21 - clearEndpoint() - Check that provider can clear endpoint with no bonds", async () => {
 
         providerTitle = ethers.utils.formatBytes32String(testProvider.title);
         convertedEndpoint = ethers.utils.formatBytes32String(testProvider.endpoint);
@@ -368,7 +368,7 @@ describe('Registry Test', () => {
 
     });
 
-    it("REGISTRY_20 - setProviderTitle() - Check that provider can change their title", async () => {
+    it("REGISTRY_22 - setProviderTitle() - Check that provider can change their title", async () => {
 
         const newProviderTitle = ethers.utils.formatBytes32String('newTestProvider');
 
