@@ -52,7 +52,7 @@ describe('Registry Test', () => {
         registryFactory = await ethers.getContractFactory('Registry', signers[0]);
 
         database = (await databaseFactory.deploy()) as Database;
-        await database.deploye();
+        await database.deploy();
 
         coordinator = (await coordinatorFactory.deploy()) as ZapCoordinator;
         await coordinator.deployed();
