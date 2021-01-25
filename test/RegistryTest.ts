@@ -52,11 +52,13 @@ describe('Registry Test', () => {
         registryFactory = await ethers.getContractFactory('Registry', signers[0]);
 
         database = (await databaseFactory.deploy()) as Database;
+        await database.deploye();
 
         coordinator = (await coordinatorFactory.deploy()) as ZapCoordinator;
         await coordinator.deployed();
 
         registry = (await registryFactory.deploy(coordinator.address)) as Registry;
+        await registry.deployed();
 
         await database.transferOwnership(coordinator.address);
         await coordinator.addImmutableContract('DATABASE', database.address);
@@ -77,6 +79,13 @@ describe('Registry Test', () => {
 
     });
 
+    it('REGISTRY_2 - Should be able to create an instance of the Database contract', () => {
+
+        expect(databaseFactory).to.be.ok;
+
+    });
+
+
     it('REGISTRY_3 - Should be able to deploy the ZapCoordinator contract', () => {
 
         expect(coordinator).to.be.ok;
@@ -86,6 +95,12 @@ describe('Registry Test', () => {
     it('REGISTRY_4 - Should be able to deploy the Registry contract', () => {
 
         expect(registry).to.be.ok;
+
+    });
+
+    it('REGISTRY_4 - Should be able to deploy the Database contract', () => {
+
+        expect(database).to.be.ok;
 
     });
 
