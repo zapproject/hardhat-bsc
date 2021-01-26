@@ -75,7 +75,7 @@ beforeEach(async () => {
   )) as MultiPartyOracle;
 
   await coordinator.addImmutableContract('DATABASE', Database.address);
-  await coordinator.addImmutableContract('ARBITER', Arbiter.address);
+  // await coordinator.addImmutableContract('ARBITER', arbiter.address);
   await coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
   await coordinator.updateContract('REGISTRY', Registry.address);
 });

@@ -104,7 +104,6 @@ describe('ZapBondage', () => {
   let escrower2: any;
   let arbiter: any;
   beforeEach(async () => {
-    
     signers = await ethers.getSigners();
     owner = signers[0];
     subscriberAccount = signers[1];
@@ -276,12 +275,12 @@ describe('ZapBondage', () => {
     await bondage
       .connect(subscriberAccount)
       .delegateBond(subscriber.address, owner.address, spec1, 10);
-    
+
     let result = await subscriber
       .connect(subscriberAccount)
       .testQuery(owner.address, query, spec1, params);
     let r = await result.wait();
-    console.log(r.events)
+    console.log(r.events);
     let expected = [
       'Escrowed(address,address,bytes32,uint256)',
       'Incoming(uint256,address,address,string,bytes32,bytes32[],bool)',
