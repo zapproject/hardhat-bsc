@@ -131,6 +131,7 @@ async function main() {
   await Database.transferOwnership(Coordinator.address);
   await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
+  await Coordinator.addImmutableContract('FAUCET', faucet.address);
   await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
   await Coordinator.updateContract('REGISTRY', Registry.address);
   await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
@@ -141,7 +142,6 @@ async function main() {
   await Coordinator.updateContract('BONDAGE', Bondage.address);
   await Coordinator.updateAllDependencies();
   await hre.run('faucet')
-
 
   // await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
   // await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
@@ -176,7 +176,7 @@ async function main() {
 
   await subscriber.deployed();
   await offchainsubscriber.deployed();
-  const oracle = (await await oracleFactory.deploy(
+  const oracle = (await oracleFactory.deploy(
     Registry.address,
     false
   ))
