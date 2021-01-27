@@ -142,9 +142,9 @@ async function main() {
   await Coordinator.updateAllDependencies();
   await hre.run('faucet')
 
-  
-  await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
-  await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
+
+  // await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
+  // await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
 
   // Approve the amount of Zap
   await zapToken.allocate(owner.address, tokensForOwner)
@@ -154,17 +154,17 @@ async function main() {
     'TestClient'
   );
   const offchainSubscriberFactory = await ethers.getContractFactory(
-    'OffChainClient' 
+    'OffChainClient'
   );
   const oracleFactory = await ethers.getContractFactory(
-    'TestProvider' 
+    'TestProvider'
   );
   const subscriber = (await subscriberFactory.deploy(
     zapToken.address,
     Dispatch.address,
     Bondage.address,
     Registry.address
-  )) 
+  ))
 
   const offchainsubscriber = (await offchainSubscriberFactory.deploy(
     zapToken.address,
@@ -172,15 +172,21 @@ async function main() {
     Bondage.address,
     Registry.address,
     OracleSigner.address
-  )) 
+  ))
 
   await subscriber.deployed();
   await offchainsubscriber.deployed();
   const oracle = (await await oracleFactory.deploy(
     Registry.address,
     false
-  )) 
+  ))
   await oracle.deployed()
+
+  console.log({
+    coordinator: Coordinator.address,
+    registry: Registry.address,
+    database: Database.address,
+  })
 }
 
 main()
