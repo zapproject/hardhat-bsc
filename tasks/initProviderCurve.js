@@ -77,7 +77,7 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
 
             } catch (err) {
 
-                console.log(signers[i].address + ' Provider curve is already initiated')
+                console.log(signers[i].address + ': Provider curve is already initiated')
             }
 
             curves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]))
