@@ -1,4 +1,5 @@
 const { task, taskArgs } = require("hardhat/config");
+
 require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 
@@ -8,6 +9,9 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
 
         // Test accounts
         const signers = await ethers.getSigners();
+        let curves = [];
+        let coefficientArr = [];
+
 
         // Connection to Registry.sol
         const Registry = await ethers.getContractFactory('Registry');
@@ -67,16 +71,25 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
 
         for (var i = 0; i < signers.length; i++) {
 
-            await registry.connect(signers[i]).initiateProviderCurve(endpoint[i], curve[i], broker);
+            try {
 
-            await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i])
-                .then((res) => {
-                    console.log(res)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
+                await registry.connect(signers[i]).initiateProviderCurve(endpoint[i], curve[i], broker);
 
+            } catch (err) {
+
+                console.log(signers[i].address + ' Provider curve is already initiated')
+            }
+
+            curves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]))
+
+            coefficientArr.push(curves[i].map(item => parseInt(item._hex)));
+
+            console.log({
+                endpoint: ethers.utils.parseBytes32String(endpoint[i]),
+                curve: coefficientArr[i],
+                address: signers[i].address
+
+            })
 
         }
 
