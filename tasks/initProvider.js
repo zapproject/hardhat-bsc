@@ -100,10 +100,10 @@ task("initiateProvider", "Initializes the first 20 accounts as a Provider")
 
             console.log({
                 title: ethers.utils.parseBytes32String(providerTitles[i]),
-                bytes32Title: providerTitles[i],
+                //bytes32Title: providerTitles[i],
                 address: signers[i].address,
                 publicKey: parseInt(providerPublicKeys[i]._hex),
-                hexPublicKey: providerPublicKeys[i]._hex,
+                // hexPublicKey: providerPublicKeys[i]._hex,
                 status: providerStatus[i]
             });
 

@@ -182,11 +182,6 @@ async function main() {
   ))
   await oracle.deployed()
 
-  console.log({
-    coordinator: Coordinator.address,
-    registry: Registry.address,
-    database: Database.address,
-  })
 }
 
 main()
