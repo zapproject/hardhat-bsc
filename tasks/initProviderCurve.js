@@ -69,7 +69,7 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
             [2, 70000, 7000000, 1000000],
             [2, 0, 1, 1000000],
             [2, 0, 1000, 100000],
-        ]
+        ];
 
         // Converts the endpoint array to an array of bytes32 strings
         endpoint = endpoint.map(name => ethers.utils.formatBytes32String(name));
@@ -84,10 +84,10 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
 
             } catch (err) {
 
-                console.log(signers[i].address + ': Provider curve is already initiated')
+                console.log(signers[i].address + ': Provider curve is already initiated');
             }
 
-            getCurves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]))
+            getCurves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]));
 
             // Converts each curve coordinate from a hexstring to a number
             coefficientArr.push(getCurves[i].map(item => parseInt(item._hex)));
@@ -97,7 +97,7 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
                 curve: coefficientArr[i],
                 address: signers[i].address
 
-            })
+            });
 
         }
 
