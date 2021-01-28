@@ -55,8 +55,6 @@ task("bond", "Bonds 100 Zap using the first 20 accounts to the first 20 oracle e
         const Bondage = await ethers.getContractFactory('Bondage');
         const bondage = await Bondage.attach(await coordinator.getContract('BONDAGE'));
 
-        // Connection to Registry.sol
-        
 
         for (var i = 0; i < signers.length; i++) {
 
@@ -70,16 +68,17 @@ task("bond", "Bonds 100 Zap using the first 20 accounts to the first 20 oracle e
                     return err;
                 })
 
-                try {
+            try {
 
-                    await bondage.connect(signers[i]).bond(signers[i].address, endpoint[i],1);
-                    console.log((await bondage.connect(signers[i]).getZapBound(signers[i].address, endpoint[i])));
+                await token.connect(signers[i]).approve(bondage.address, await token.balanceOf(signers[i].address));
+                await bondage.connect(signers[i]).bond(signers[i].address, endpoint[i],1);
+                await bondage.connect(signers[i]).getZapBound(signers[i].address, endpoint[i]);
 
-                } catch (err) {
+            } catch (err) {
 
-                    console.log();
+                console.log(err);
 
-                }
+            }
         
 
             // Log account details
