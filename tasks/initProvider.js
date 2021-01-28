@@ -98,14 +98,14 @@ task("initiateProvider", "Initializes the first 20 accounts as a Provider")
             // Stores each provider initiated status as a boolean
             providerStatus.push(await registry.connect(signers[i]).isProviderInitiated(signers[i].address));
 
-            console.log({
-                title: ethers.utils.parseBytes32String(providerTitles[i]),
-                bytes32Title: providerTitles[i],
-                address: signers[i].address,
-                publicKey: parseInt(providerPublicKeys[i]._hex),
-                hexPublicKey: providerPublicKeys[i]._hex,
-                status: providerStatus[i]
-            });
+            // console.log({
+            //     title: ethers.utils.parseBytes32String(providerTitles[i]),
+            //     bytes32Title: providerTitles[i],
+            //     address: signers[i].address,
+            //     publicKey: parseInt(providerPublicKeys[i]._hex),
+            //     hexPublicKey: providerPublicKeys[i]._hex,
+            //     status: providerStatus[i]
+            // });
 
         }
 

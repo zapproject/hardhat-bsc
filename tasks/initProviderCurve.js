@@ -9,9 +9,15 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
 
         // Test accounts
         const signers = await ethers.getSigners();
-        let curves = [];
+
+        // Storage for the provider curves returned from getProviderCurve()
+        let getCurves = [];
+
+        // Storage for the parsed provider ccurve
         let coefficientArr = [];
 
+        // Empty broker address
+        const broker = '0x0000000000000000000000000000000000000000';
 
         // Connection to Registry.sol
         const Registry = await ethers.getContractFactory('Registry');
@@ -41,38 +47,39 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
             "Nakamoto"
         ];
 
-        endpoint = endpoint.map(name => ethers.utils.formatBytes32String(name));
-
+        // 20 test curves
         const curve = [
+            [3, 0, 0, 1, 122],
+            [3, 0, 0, 1, 10000],
+            [3, 0, 0, 1, 1222],
+            [1, 100, 1000],
             [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-            [3, 0, 2, 1, 100],
-
+            [2, 0, 0, 10000],
+            [1, 1000, 10000],
+            [1, 10000, 100000],
+            [2, 5000, 2000, 1000, 2, 0, 3000, 10000],
+            [2, 5000, 2000, 1000],
+            [2, 7000, 1000, 10000],
+            [2, 5000, 2000, 1000, 2, 0, 2000, 10000],
+            [3, 0, 2000, 1000, 10000],
+            [3, 0, 20000, 10000, 100000],
+            [3, 0, 2000, 10000, 100000],
+            [1, 100000, 1000000],
+            [2, 7000, 70000, 1000000],
+            [2, 70000, 7000000, 1000000],
+            [2, 0, 1, 1000000],
+            [2, 0, 1000, 100000],
         ]
 
-        const broker = '0x0000000000000000000000000000000000000000';
+        // Converts the endpoint array to an array of bytes32 strings
+        endpoint = endpoint.map(name => ethers.utils.formatBytes32String(name));
 
         for (var i = 0; i < signers.length; i++) {
 
             try {
 
+                // Connects the 20 test accounts to Registry.sol as signers
+                // Initiates the 20 test accounts with provider curves
                 await registry.connect(signers[i]).initiateProviderCurve(endpoint[i], curve[i], broker);
 
             } catch (err) {
@@ -80,9 +87,10 @@ task("initiateProviderCurve", "Initializes the first 20 provider accounts with a
                 console.log(signers[i].address + ': Provider curve is already initiated')
             }
 
-            curves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]))
+            getCurves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]))
 
-            coefficientArr.push(curves[i].map(item => parseInt(item._hex)));
+            // Converts each curve coordinate from a hexstring to a number
+            coefficientArr.push(getCurves[i].map(item => parseInt(item._hex)));
 
             console.log({
                 endpoint: ethers.utils.parseBytes32String(endpoint[i]),
