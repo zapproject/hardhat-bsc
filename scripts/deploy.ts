@@ -131,6 +131,7 @@ async function main() {
   await Database.transferOwnership(Coordinator.address);
   await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
+  await Coordinator.addImmutableContract('FAUCET', faucet.address);
   await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
   await Coordinator.updateContract('REGISTRY', Registry.address);
   await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
@@ -142,9 +143,8 @@ async function main() {
   await Coordinator.updateAllDependencies();
   await hre.run('faucet')
 
-  
-  await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
-  await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
+  // await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
+  // await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
 
   // Approve the amount of Zap
   await zapToken.allocate(owner.address, tokensForOwner)
@@ -154,17 +154,17 @@ async function main() {
     'TestClient'
   );
   const offchainSubscriberFactory = await ethers.getContractFactory(
-    'OffChainClient' 
+    'OffChainClient'
   );
   const oracleFactory = await ethers.getContractFactory(
-    'TestProvider' 
+    'TestProvider'
   );
   const subscriber = (await subscriberFactory.deploy(
     zapToken.address,
     Dispatch.address,
     Bondage.address,
     Registry.address
-  )) 
+  ))
 
   const offchainsubscriber = (await offchainSubscriberFactory.deploy(
     zapToken.address,
@@ -172,15 +172,16 @@ async function main() {
     Bondage.address,
     Registry.address,
     OracleSigner.address
-  )) 
+  ))
 
   await subscriber.deployed();
   await offchainsubscriber.deployed();
-  const oracle = (await await oracleFactory.deploy(
+  const oracle = (await oracleFactory.deploy(
     Registry.address,
     false
-  )) 
+  ))
   await oracle.deployed()
+
 }
 
 main()
