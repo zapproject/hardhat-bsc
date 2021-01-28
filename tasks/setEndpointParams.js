@@ -3,7 +3,7 @@ require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 
 
-task("set-Endpoint-Params", "Initialize a unique set of endpoint params for each endpoint on the first 20 accounts")
+task("setEndpointParams", "Initialize a unique set of endpoint params for each endpoint on the first 20 accounts")
 
     .setAction(async () => {
 
@@ -16,10 +16,29 @@ task("set-Endpoint-Params", "Initialize a unique set of endpoint params for each
         // Stores the endpoints of all 20 providers
         const endpoint = ["Ramanujan", "Lagrange", "Wiles", "Jacobi", "Turing", "Riemann", "Poincare", "Hilbert", "Fibonacci", "Bernoulli", "Pythagoras", "Gauss", "Newton", "Euler", "Archimedes", "Euclid", "Merkle", "Shamir", "Buterin", "Nakamoto"];
 
-        // Stores the curves of all 20 providers
-        // TODO: make all the curves below more realistic and unique
-        const curve = ["1x","2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x", "11x", "12x", "13x", "14x", "15x", "16x", "17x", "18x", "19x", "20x"];
-
+        // 20 test curves
+        const curve = [
+            [3, 0, 0, 1, 122],
+            [3, 0, 0, 1, 10000],
+            [3, 0, 0, 1, 1222],
+            [1, 100, 1000],
+            [3, 0, 2, 1, 100],
+            [2, 0, 0, 10000],
+            [1, 1000, 10000],
+            [1, 10000, 100000],
+            [2, 5000, 2000, 1000, 2, 0, 3000, 10000],
+            [2, 5000, 2000, 1000],
+            [2, 7000, 1000, 10000],
+            [2, 5000, 2000, 1000, 2, 0, 2000, 10000],
+            [3, 0, 2000, 1000, 10000],
+            [3, 0, 20000, 10000, 100000],
+            [3, 0, 2000, 10000, 100000],
+            [1, 100000, 1000000],
+            [2, 7000, 70000, 1000000],
+            [2, 70000, 7000000, 1000000],
+            [2, 0, 1, 1000000],
+            [2, 0, 1000, 100000],
+        ];
 
         // Test accounts
         const signers = await ethers.getSigners();
@@ -75,6 +94,7 @@ task("set-Endpoint-Params", "Initialize a unique set of endpoint params for each
     console.log(
         {
             signer: i,
+            title: title[i],
             endpoint: endpoint[i],
             curve: curve[i],
             endpointParams: endpointParams[i],

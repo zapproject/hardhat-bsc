@@ -14,6 +14,7 @@ import './tasks/buyzap';
 import './tasks/initProvider';
 import './tasks/initProviderCurve';
 import './tasks/setEndpointParams';
+import './tasks/bond';
 
 
 // TODO: reenable solidity-coverage when it works
