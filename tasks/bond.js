@@ -9,8 +9,8 @@ task("bond", "Bonds 100 Zap using the first 20 accounts to the first 20 oracle e
         // Stores the ZAP balance of each test account
         const balances = [];
 
-        // Storage for the zap bound returned from getZapBound()
-        let zapBound = [];
+        // Storage for the zap bound returned from getBoundDots()
+        let dotsBound = [];
 
         // Stores the endpoints of all 20 providers
         let endpoint = [
@@ -71,8 +71,18 @@ task("bond", "Bonds 100 Zap using the first 20 accounts to the first 20 oracle e
             try {
 
                 await token.connect(signers[i]).approve(bondage.address, await token.balanceOf(signers[i].address));
-                await bondage.connect(signers[i]).bond(signers[i].address, endpoint[i],1);
-                await bondage.connect(signers[i]).getZapBound(signers[i].address, endpoint[i]);
+                await bondage.bond(signers[i].address, endpoint[i],1);
+                await bondage.connect(signers[i]).getBoundDots(signers[i].address, signers[i].address, endpoint[i])
+                    .then((dotBalance) => {
+
+                        dotsBound.push(dotBalance);
+                    })
+                    .catch((err) => {
+                        return err;
+                    })
+
+               // await bondage.getZapBound(signers[i].address, endpoint[i]);
+
 
             } catch (err) {
 
@@ -87,7 +97,7 @@ task("bond", "Bonds 100 Zap using the first 20 accounts to the first 20 oracle e
                     signer: i,
                     address: signers[i].address,
                     ZAP_Balance: parseInt(balances[i]._hex) + ' ZAP',
-                    Zap_Bound: zapBound[i]
+                    Dots_Bound: parseInt(dotsBound[i]._hex)
                 },
             );
         }
