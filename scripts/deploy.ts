@@ -129,15 +129,20 @@ async function main() {
   // Transfer ownership before creating bondage contract
 
   await Database.transferOwnership(Coordinator.address);
+
+  const bondage = await ethers.getContractFactory('Bondage', signers[0]);
+  const Bondage = await bondage.deploy(Coordinator.address);
+
+
   await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
   await Coordinator.addImmutableContract('FAUCET', faucet.address);
   await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
+  //await Coordinator.addImmutableContract('BONDAGE', Bondage.address);
   await Coordinator.updateContract('REGISTRY', Registry.address);
   await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
 
-  const bondage = await ethers.getContractFactory('Bondage', signers[0]);
-  const Bondage = await bondage.deploy(Coordinator.address);
+
 
   await Coordinator.updateContract('BONDAGE', Bondage.address);
   await Coordinator.updateAllDependencies();
@@ -183,6 +188,8 @@ async function main() {
     false
   ))
   await oracle.deployed()
+
+  console.log(Database.address);
 
 }
 
