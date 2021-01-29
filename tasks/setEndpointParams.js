@@ -8,13 +8,13 @@ task("setEndpointParams", "Initialize a unique set of endpoint params for each e
     .setAction(async () => {
 
         // Stores the endpointParams of each endpoint of all 20 providers
-        const endpointParams = ["A, B", "C, D", "E, F", "G, H", "I, J", "K, L", "M, N", "O, P", "Q, R", "S, T", "U, V", "W, X", "Y, Z", "aa, bb", "cc, dd", "ee, ff", "gg, hh", "ii, jj", "kk, ll", "mm, nn"];
+        let endpointParams = ["A, B", "C, D", "E, F", "G, H", "I, J", "K, L", "M, N", "O, P", "Q, R", "S, T", "U, V", "W, X", "Y, Z", "aa, bb", "cc, dd", "ee, ff", "gg, hh", "ii, jj", "kk, ll", "mm, nn"];
 
         // Stores the titles of all 20 providers
-        const title = ["Slothrop", "Blicero", "Borgesius", "Enzian", "Pointsman", "Tchitcherine", "Achtfaden", "Andreas", "Bianca", "Bland", "Bloat", "Bodine", "Bounce", "Bummer", "Byron the Bulb", "Chiclitz", "Christian", "Darlene", "Dodson-Truck", "Erdmann"];
+        let title = ["Slothrop", "Blicero", "Borgesius", "Enzian", "Pointsman", "Tchitcherine", "Achtfaden", "Andreas", "Bianca", "Bland", "Bloat", "Bodine", "Bounce", "Bummer", "Byron the Bulb", "Chiclitz", "Christian", "Darlene", "Dodson-Truck", "Erdmann"];
 
         // Stores the endpoints of all 20 providers
-        const endpoint = ["Ramanujan", "Lagrange", "Wiles", "Jacobi", "Turing", "Riemann", "Poincare", "Hilbert", "Fibonacci", "Bernoulli", "Pythagoras", "Gauss", "Newton", "Euler", "Archimedes", "Euclid", "Merkle", "Shamir", "Buterin", "Nakamoto"];
+        let endpoint = ["Ramanujan", "Lagrange", "Wiles", "Jacobi", "Turing", "Riemann", "Poincare", "Hilbert", "Fibonacci", "Bernoulli", "Pythagoras", "Gauss", "Newton", "Euler", "Archimedes", "Euclid", "Merkle", "Shamir", "Buterin", "Nakamoto"];
 
         // 20 test curves
         const curve = [
@@ -40,6 +40,12 @@ task("setEndpointParams", "Initialize a unique set of endpoint params for each e
             [2, 0, 1000, 100000],
         ];
 
+        // Converts the endpoint array to an array of bytes32 strings
+        endpoint = endpoint.map(name => ethers.utils.formatBytes32String(name));
+
+        // Converts the endpointParams array to an array of bytes32 strings
+        endpointParams = endpointParams.map(name => ethers.utils.formatBytes32String(name));
+
         // Test accounts
         const signers = await ethers.getSigners();
         console.log(signers);
@@ -47,39 +53,6 @@ task("setEndpointParams", "Initialize a unique set of endpoint params for each e
         // Connection to Registry.sol
         const Registry = await ethers.getContractFactory('Registry');
         const registry = await Registry.attach('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853');
-        
-        for (var i = 0; i < signers.length; i++) {
-            // Registry.sol initializes provider on an account using ETH
-            await registry.initiateProvider(signers[i].address, title[i])
-                .then((res) => {
-                    return res;
-                })
-                .catch((err) => {
-                    return err;
-                })
-            
-
-    // Log account details
-    console.log(
-        {
-            signer: i,
-            providerAddress: signers[i].address,
-            title: title[i],
-        },
-    );
-    //}
-    }
-
-    for (var i = 0; i < signers.length; i++) {
-        // Registry.sol initializes curve on a provider account using ETH
-        await registry.initiateProviderCurve(endpoint[i], title[i])
-            .then((res) => {
-                return res;
-            })
-            .catch((err) => {
-                return err;
-            })
-    }
 
     for (var i = 0; i < signers.length; i++) {
         // Registry.sol initializes endpoint params on a specific endpoint
@@ -95,9 +68,9 @@ task("setEndpointParams", "Initialize a unique set of endpoint params for each e
         {
             signer: i,
             title: title[i],
-            endpoint: endpoint[i],
+            endpoint: ethers.utils.parseBytes32String(endpoint[i]),
             curve: curve[i],
-            endpointParams: endpointParams[i],
+            endpointParams: ethers.utils.parseBytes32String(endpointParams[i])
         },
     );
 
