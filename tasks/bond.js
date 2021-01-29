@@ -2,7 +2,7 @@ const { task, taskArgs } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 
-task("bond", "Bonds 100 Zap using the first 20 accounts to the first 20 oracle endpoints")
+task("bond", "Bonds 1 Zap using the first 20 accounts to the first 20 oracle endpoints")
 
     .setAction(async () => {
 
