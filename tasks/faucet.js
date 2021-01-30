@@ -19,15 +19,16 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
         // Connection to ZapToken.sol
         const Token = await ethers.getContractFactory('ZapToken')
-        const token = await Token.attach(await coordinator.getContract('ZAP_TOKEN'));
+        const token = await Token.attach( '0x5fbdb2315678afecb367f032d93f642f64180aa3');
 
         // Connection to Faucet.sol
         const Faucet = await ethers.getContractFactory('Faucet');
-        const faucet = await Faucet.attach(await coordinator.getContract('FAUCET'));
+        const faucet = await Faucet.attach('0x5fc8d32690cc91d4c39d9d3abcbd16989f875707');
 
         // ZapToken.sol funds test ZAP to Faucet.sol
-        await token.allocate(faucet.address, 1000000000)
+        await token.allocate(faucet.address, 1000000000000)
             .then((allocate) => {
+              //  console.log(allocate)
                 return allocate;
             })
             .catch((err) => {
@@ -38,11 +39,15 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
             // Test accounts purchasing 100K ZAP
             // 1 ETH = 1000 ZAP
-            await faucet.buyZap(signers[i].address, 100)
+            await faucet.connect(signers[i]).buyZap(signers[i].address, 1000000)
                 .then((res) => {
-                    return res;
+                    //console.log(res)
+                    res.wait().then((r)=>{
+                       // console.log(r)
+                    })
                 })
                 .catch((err) => {
+                    console.log(err)
                     return err;
                 })
 

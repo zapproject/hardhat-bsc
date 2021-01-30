@@ -118,8 +118,8 @@ async function main() {
   const Database = await database.deploy();
 
   const dispatch = await ethers.getContractFactory('Dispatch', signers[0])
-  const Dispatch = await dispatch.deploy(Coordinator.address);
-  console.log(`Dispatch address is ${Dispatch.address}`)
+ 
+
   const faucetContract = await ethers.getContractFactory('Faucet', signers[0]);
   const faucet = await faucetContract.deploy(zapToken.address);
   await faucet.deployed();
@@ -139,8 +139,13 @@ async function main() {
   const Bondage = await bondage.deploy(Coordinator.address);
 
   await Coordinator.updateContract('BONDAGE', Bondage.address);
+ 
   await Coordinator.updateAllDependencies();
-  await hre.run('faucet')
+  const Dispatch = await dispatch.deploy(Coordinator.address);
+  await Coordinator.updateContract('DISPATCH', Dispatch.address);
+  await Coordinator.updateAllDependencies();
+  //console.log(`Dispatch address is ${Dispatch.address}`)
+  //
 
   
   await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
@@ -165,7 +170,7 @@ async function main() {
     Bondage.address,
     Registry.address
   )) 
-
+  await subscriber.deployed();
   const offchainsubscriber = (await offchainSubscriberFactory.deploy(
     zapToken.address,
     Dispatch.address,
@@ -174,13 +179,27 @@ async function main() {
     OracleSigner.address
   )) 
 
-  await subscriber.deployed();
+  
   await offchainsubscriber.deployed();
   const oracle = (await await oracleFactory.deploy(
     Registry.address,
     false
   )) 
+  let Deployed={
+    zapToken:zapToken.address,
+    coordinator:Coordinator.address,
+    database:Database.address,
+    bondage:Bondage.address,    
+    dispatch:Dispatch.address,   
+    registry:Registry.address,
+    arbiter:Arbiter.address,
+    oracle:oracle.address,
+    offchainsubscriber:offchainsubscriber.address
+  }
+  console.log(Deployed)
+  fs.writeFile("/home/jjj/ZAP/zap-hardhat/deployContracts.json",JSON.stringify(Deployed),()=>{console.log('written')}) 
   await oracle.deployed()
+  await hre.run('faucet')
 }
 
 main()

@@ -166,26 +166,24 @@ describe('ZapBondage', () => {
     await dataBase.transferOwnership(coordinator.address);
     // console.log("adding ImmutableContracts")
     await coordinator.addImmutableContract('DATABASE', dataBase.address);
-
+    dispatch = (await await dispatchFactory.deploy(
+      coordinator.address
+    )) as Dispatch;
+    
+    
     await coordinator.addImmutableContract('ARBITER', arbiter.address);
     await coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
     // console.log("updating Contracts")
     await coordinator.updateContract('REGISTRY', registry.address);
     await coordinator.updateContract('CURRENT_COST', cost.address);
-    // console.log("deploying bond")
+    
 
     bondage = (await bondFactory.deploy(coordinator.address)) as Bondage;
-    //  console.log("deployed")
-    // console.log(bondage.address)
-    // console.log("updating bondage")
+ 
     await coordinator.updateContract('BONDAGE', bondage.address);
-    // console.log("transferring ownershipt")
-
-    await coordinator.updateAllDependencies();
-    dispatch = (await await dispatchFactory.deploy(
-      coordinator.address
-    )) as Dispatch;
-    await coordinator.updateContract('DISPATCH', dispatch.address);
+    
+    
+   
 
     await coordinator.updateAllDependencies();
 
@@ -304,7 +302,9 @@ describe('ZapBondage', () => {
     await bondage
       .connect(subscriberAccount)
       .delegateBond(subscriber.address, oracle.address, spec, 10);
-
+   let d=await bondage.dispatchAddress()
+   console.log(d)
+   console.log("DISPATCH ADDRESSSSSSSSSSSSSSSSSSSSSSSSS!!!!")
     //  spec= spec.wait();
     let result = await subscriber
       .connect(subscriberAccount)
