@@ -129,27 +129,30 @@ async function main() {
   // Transfer ownership before creating bondage contract
 
   await Database.transferOwnership(Coordinator.address);
-  await Coordinator.addImmutableContract('DATABASE', Database.address);
-  await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
-  await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
-  await Coordinator.updateContract('REGISTRY', Registry.address);
-  await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
 
   const bondage = await ethers.getContractFactory('Bondage', signers[0]);
   const Bondage = await bondage.deploy(Coordinator.address);
 
+
+  await Coordinator.addImmutableContract('DATABASE', Database.address);
+  await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
+  await Coordinator.addImmutableContract('FAUCET', faucet.address);
+  await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
+  //await Coordinator.addImmutableContract('BONDAGE', Bondage.address);
+  await Coordinator.updateContract('REGISTRY', Registry.address);
+  await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
+
+
+
   await Coordinator.updateContract('BONDAGE', Bondage.address);
  
   await Coordinator.updateAllDependencies();
-  const Dispatch = await dispatch.deploy(Coordinator.address);
-  await Coordinator.updateContract('DISPATCH', Dispatch.address);
-  await Coordinator.updateAllDependencies();
-  //console.log(`Dispatch address is ${Dispatch.address}`)
-  //
+  await hre.run('faucet')
+  await hre.run('initiateProvider')
+  await hre.run('initiateProviderCurve')
 
-  
-  await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
-  await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
+  // await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
+  // await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
 
   // Approve the amount of Zap
   await zapToken.allocate(owner.address, tokensForOwner)
@@ -159,47 +162,36 @@ async function main() {
     'TestClient'
   );
   const offchainSubscriberFactory = await ethers.getContractFactory(
-    'OffChainClient' 
+    'OffChainClient'
   );
   const oracleFactory = await ethers.getContractFactory(
-    'TestProvider' 
+    'TestProvider'
   );
   const subscriber = (await subscriberFactory.deploy(
     zapToken.address,
     Dispatch.address,
     Bondage.address,
     Registry.address
-  )) 
-  await subscriber.deployed();
+  ))
+
   const offchainsubscriber = (await offchainSubscriberFactory.deploy(
     zapToken.address,
     Dispatch.address,
     Bondage.address,
     Registry.address,
     OracleSigner.address
-  )) 
+  ))
 
   
   await offchainsubscriber.deployed();
-  const oracle = (await await oracleFactory.deploy(
+  const oracle = (await oracleFactory.deploy(
     Registry.address,
     false
-  )) 
-  let Deployed={
-    zapToken:zapToken.address,
-    coordinator:Coordinator.address,
-    database:Database.address,
-    bondage:Bondage.address,    
-    dispatch:Dispatch.address,   
-    registry:Registry.address,
-    arbiter:Arbiter.address,
-    oracle:oracle.address,
-    offchainsubscriber:offchainsubscriber.address
-  }
-  console.log(Deployed)
-  fs.writeFile("/home/jjj/ZAP/zap-hardhat/deployContracts.json",JSON.stringify(Deployed),()=>{console.log('written')}) 
+  ))
   await oracle.deployed()
-  await hre.run('faucet')
+
+  console.log(Database.address);
+
 }
 
 main()

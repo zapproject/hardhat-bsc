@@ -7,9 +7,6 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
     .setAction(async () => {
 
-        // Stores the ZAP balance of each test account
-        const balances = [];
-
         // Test accounts
         const signers = await ethers.getSigners();
 

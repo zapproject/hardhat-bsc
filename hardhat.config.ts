@@ -15,6 +15,8 @@ import './tasks/initProvider';
 import './tasks/initProviderCurve';
 import './tasks/setEndpointParams';
 import './tasks/dispatch';
+import './tasks/bond';
+
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
