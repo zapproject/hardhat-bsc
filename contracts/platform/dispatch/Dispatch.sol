@@ -8,7 +8,7 @@ import "../../lib/platform/OnChainProvider.sol";
 import "../bondage/BondageInterface.sol";
 import "./DispatchInterface.sol";
 import "../database/DatabaseInterface.sol";
-
+import "hardhat/console.sol";
 contract Dispatch is Destructible, DispatchInterface, Upgradable {
 
     enum Status { Pending, Fulfilled, Canceled }
@@ -121,12 +121,13 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         uint256 dots = bondage.getBoundDots(msg.sender, provider, endpoint);
         bool onchainProvider = isContract(provider);
         bool onchainSubscriber = isContract(msg.sender);
+        console.log(dots);
         if (dots >= 1) {
             //enough dots
             bondage.escrowDots(msg.sender, provider, endpoint, 1);
 
             id = uint256(keccak256(abi.encodePacked(block.number, now, userQuery, msg.sender, provider)));
-
+            console.log("in query");
             createQuery(id, provider, msg.sender, endpoint, userQuery, onchainSubscriber);
             if (onchainProvider) {
                 OnChainProvider(provider).receive(id, userQuery, endpoint, endpointParams, onchainSubscriber);

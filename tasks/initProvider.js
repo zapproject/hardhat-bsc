@@ -6,6 +6,12 @@ require("hardhat-deploy");
 task("initiateProvider", "Initializes the first 20 accounts as a Provider")
 
     .setAction(async () => {
+<<<<<<< HEAD
+        
+        // Stores the titles of all 20 providers
+        const title = ["Slothrop", "Blicero", "Borgesius", "Enzian", "Pointsman", "Tchitcherine", "Achtfaden", "Andreas", "Bianca", "Bland", "Bloat", "Bodine", "Bounce", "Bummer", "Byron the Bulb", "Chiclitz", "Christian", "Darlene", "Dodson-Truck", "Erdmann"];
+        const keys=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,16,17,18,19,20]
+=======
 
         // Storage for the provider titles returned from getProviderTitles()
         const providerTitles = [];
@@ -16,12 +22,13 @@ task("initiateProvider", "Initializes the first 20 accounts as a Provider")
         // Storage for the provider initiated status returned from isProviderInitiated()
         const providerStatus = [];
 
+>>>>>>> origin/develop
         // Test accounts
         const signers = await ethers.getSigners();
 
         // Connection to Registry.sol
         const Registry = await ethers.getContractFactory('Registry');
-        const registry = await Registry.attach('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853');
+        const registry = await Registry.attach('0x0165878a594ca255338adfa4d48449f69242eb8f');
 
         // Stores the titles of all 20 providers
         let title = [
@@ -76,6 +83,26 @@ task("initiateProvider", "Initializes the first 20 accounts as a Provider")
         title = title.map(name => ethers.utils.formatBytes32String(name));
 
         for (var i = 0; i < signers.length; i++) {
+<<<<<<< HEAD
+                // Registry.sol initializes provider on an account using ETH
+                await registry.connect(signers[i]).initiateProvider(keys[i], ethers.utils.sha256(ethers.utils.toUtf8Bytes(title[i])) )
+                    .then((res) => {
+                        return res;
+                    })
+                    .catch((err) => {
+                        return err;
+                    })
+
+        // Log account details
+        console.log(
+            {
+                signer: i,
+                providerAddress: signers[i].address,
+                title: title[i],
+            },
+        );
+        //}
+=======
 
             try {
 
@@ -107,6 +134,7 @@ task("initiateProvider", "Initializes the first 20 accounts as a Provider")
                 status: providerStatus[i]
             });
 
+>>>>>>> origin/develop
         }
 
     })
