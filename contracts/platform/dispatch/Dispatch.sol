@@ -96,7 +96,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
     DatabaseInterface public db;
 
     constructor(address c) Upgradable(c) public {
-        //_updateDependencies();
+        _updateDependencies();
     }
 
     function _updateDependencies() internal {
