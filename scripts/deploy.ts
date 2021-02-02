@@ -136,7 +136,7 @@ async function main() {
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
   await Coordinator.addImmutableContract('FAUCET', faucet.address);
   await Coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
-  await Coordinator.addImmutableContract('DISPATCH', Dispatch.address)
+  //await Coordinator.addImmutableContract('DISPATCH', Dispatch.address)
   //await Coordinator.addImmutableContract('BONDAGE', Bondage.address);
   await Coordinator.updateContract('REGISTRY', Registry.address);
   await Coordinator.updateContract('CURRENT_COST', CurrentCost.address);
