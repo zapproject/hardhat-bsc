@@ -104,7 +104,6 @@ describe('ZapBondage', () => {
   let escrower2: any;
   let arbiter: any;
   beforeEach(async () => {
-    console.log(getEventHashSigs());
     signers = await ethers.getSigners();
     owner = signers[0];
     subscriberAccount = signers[1];
@@ -167,26 +166,24 @@ describe('ZapBondage', () => {
     await dataBase.transferOwnership(coordinator.address);
     // console.log("adding ImmutableContracts")
     await coordinator.addImmutableContract('DATABASE', dataBase.address);
-
+    dispatch = (await await dispatchFactory.deploy(
+      coordinator.address
+    )) as Dispatch;
+    
+    
     await coordinator.addImmutableContract('ARBITER', arbiter.address);
     await coordinator.addImmutableContract('ZAP_TOKEN', zapToken.address);
     // console.log("updating Contracts")
     await coordinator.updateContract('REGISTRY', registry.address);
     await coordinator.updateContract('CURRENT_COST', cost.address);
-    // console.log("deploying bond")
+    
 
     bondage = (await bondFactory.deploy(coordinator.address)) as Bondage;
-    //  console.log("deployed")
-    // console.log(bondage.address)
-    // console.log("updating bondage")
+ 
     await coordinator.updateContract('BONDAGE', bondage.address);
-    // console.log("transferring ownershipt")
-
-    await coordinator.updateAllDependencies();
-    dispatch = (await await dispatchFactory.deploy(
-      coordinator.address
-    )) as Dispatch;
-    await coordinator.updateContract('DISPATCH', dispatch.address);
+    
+    
+   
 
     await coordinator.updateAllDependencies();
 
@@ -276,12 +273,12 @@ describe('ZapBondage', () => {
     await bondage
       .connect(subscriberAccount)
       .delegateBond(subscriber.address, owner.address, spec1, 10);
-    
+
     let result = await subscriber
       .connect(subscriberAccount)
       .testQuery(owner.address, query, spec1, params);
     let r = await result.wait();
-
+    console.log(r.events);
     let expected = [
       'Escrowed(address,address,bytes32,uint256)',
       'Incoming(uint256,address,address,string,bytes32,bytes32[],bool)',
@@ -305,12 +302,15 @@ describe('ZapBondage', () => {
     await bondage
       .connect(subscriberAccount)
       .delegateBond(subscriber.address, oracle.address, spec, 10);
-
+   let d=await bondage.dispatchAddress()
+   console.log(d)
+   console.log("DISPATCH ADDRESSSSSSSSSSSSSSSSSSSSSSSSS!!!!")
     //  spec= spec.wait();
     let result = await subscriber
       .connect(subscriberAccount)
       .testQuery(oracle.address, query, spec, params);
     let r = await result.wait();
+    //validateEvents(r.events, expected);
 
     let expected = [
       'Escrowed(address,address,bytes32,uint256)',
@@ -340,7 +340,6 @@ describe('ZapBondage', () => {
             await zapToken.connect(subscriberAccount).approve(bondage.address, approveTokens);
             
             await bondage.connect(subscriberAccount).delegateBond(subscriber.address, owner.address, spec1, 10);
-
             
             //await expect(subscriber.connect(escrower).testQuery(owner.address, query, spec1, params)).to.reverted;
             //await expect(this.test.dispatch.query(oracleAddr, query, spec1, params, {from: accounts[4]})).to.be.eventually.rejectedWith(EVMRevert);
