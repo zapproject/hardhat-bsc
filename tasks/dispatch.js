@@ -20,21 +20,22 @@ task("dispatch", "creates an offchain Incoming event")
         // Test accounts
         const signers = await ethers.getSigners();
         const owner=signers[1];
-        const specifier = ethers.utils.sha256(ethers.utils.toUtf8Bytes(endpoint[1]))
+        const specifier = ethers.utils.formatBytes32String(endpoint[1])
         const subscriberAccount=signers[2];
 
         // Connection to Registry.sol
-       
+        const Coordinator = await ethers.getContractFactory('ZapCoordinator')
+        const coordinator = await Coordinator.attach('0xe7f1725e7734ce288f8367e1bb143e90bb3f0512')
         const ZAPTOKEN = await ethers.getContractFactory('ZapToken');
-        const zapToken= await ZAPTOKEN.attach('0x5fbdb2315678afecb367f032d93f642f64180aa3');
+        const zapToken= await ZAPTOKEN.attach(await coordinator.getContract('ZAP_TOKEN'));
         const BONDAGE = await ethers.getContractFactory('Bondage');
-        const bondage= await BONDAGE.attach('0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82');
+        const bondage= await BONDAGE.attach(await coordinator.getContract('BONDAGE'));
         
         const SUBSCRIBER= await ethers.getContractFactory('OffChainClient');
         const subscriber= await SUBSCRIBER.attach('0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1');
         const DISPATCH = await ethers.getContractFactory('Dispatch');
-        const dispatch= await DISPATCH.attach('0x0B306BF915C4d645ff596e518fAf3F9669b97016');
-        
+        const dispatch= await DISPATCH.attach(await coordinator.getContract('DISPATCH'));
+        console.log(dispatch.address)
         let b=await dispatch.bondage()
         let d=await bondage.dispatchAddress()
         console.log(b)
