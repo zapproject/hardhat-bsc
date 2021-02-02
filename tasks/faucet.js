@@ -34,7 +34,7 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
             // Test accounts purchasing 100K ZAP
             // 1 ETH = 1000 ZAP
-            await faucet.buyZap(signers[i].address, 100)
+            await faucet.buyZap(signers[i].address, 700)
                 .then((res) => {
                     return res;
                 })
