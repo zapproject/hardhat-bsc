@@ -176,14 +176,14 @@ describe('ZapBondage', () => {
     // console.log("updating Contracts")
     await coordinator.updateContract('REGISTRY', registry.address);
     await coordinator.updateContract('CURRENT_COST', cost.address);
-    
+ 
 
     bondage = (await bondFactory.deploy(coordinator.address)) as Bondage;
  
     await coordinator.updateContract('BONDAGE', bondage.address);
     
     
-   
+    await coordinator.updateContract('DISPATCH', dispatch.address);
 
     await coordinator.updateAllDependencies();
 
