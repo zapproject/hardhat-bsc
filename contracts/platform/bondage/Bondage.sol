@@ -198,13 +198,11 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
 
         // This also checks if oracle is registered w/ an initialized curve
         uint256 issued = getDotsIssued(oracleAddress, endpoint);
-        
         require(issued + numDots <= dotLimit(oracleAddress, endpoint), "Error: Dot limit exceeded");
 
         uint256 numZap = currentCost._costOfNDots(oracleAddress, endpoint, issued + 1, numDots - 1);
 
         // User must have approved contract to transfer working ZAP
-        console.log(numZap,"cost in dots");
         require(token.transferFrom(msg.sender, address(this), numZap), "Error: User must have approved contract to transfer ZAP");
 
         if (!isProviderInitialized(holderAddress, oracleAddress)) {
