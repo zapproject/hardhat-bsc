@@ -47,5 +47,5 @@ jobs:
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: dev
-          cluster: devnet
+          cluster: Devnet
           wait-for-service-stability: true
