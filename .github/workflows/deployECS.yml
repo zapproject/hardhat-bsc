@@ -7,7 +7,7 @@ on:
 
 jobs:
   push_to_registry:
-    name: Push Docker image to Docker Hub
+    name: Upload and Deploy to AWS
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -46,6 +46,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: my-service
-          cluster: my-cluster
+          service: hardhat
+          cluster: devnet
           wait-for-service-stability: true
