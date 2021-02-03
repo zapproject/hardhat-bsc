@@ -6,6 +6,7 @@ on:
       - staging
       - launchpad
       - production
+      - aws_deploy
         
 jobs:
   auto-pull-request:
