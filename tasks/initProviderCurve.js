@@ -1,70 +1,104 @@
-const { task, taskArgs }  = require("hardhat/config");
+const { task, taskArgs } = require("hardhat/config");
+
 require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 
-task("initiate-Provider-Curve", "Initializes the first 20 provider accounts with a unique bonding curve")
+task("initiateProviderCurve", "Initializes the first 20 provider accounts with a unique bonding curve")
 
     .setAction(async () => {
-        
-        // Stores the titles of all 20 providers
-        const title = ["Slothrop", "Blicero", "Borgesius", "Enzian", "Pointsman", "Tchitcherine", "Achtfaden", "Andreas", "Bianca", "Bland", "Bloat", "Bodine", "Bounce", "Bummer", "Byron the Bulb", "Chiclitz", "Christian", "Darlene", "Dodson-Truck", "Erdmann"];
-
-        // Stores the endpoints of all 20 providers
-        const endpoint = ["Ramanujan", "Lagrange", "Wiles", "Jacobi", "Turing", "Riemann", "Poincare", "Hilbert", "Fibonacci", "Bernoulli", "Pythagoras", "Gauss", "Newton", "Euler", "Archimedes", "Euclid", "Merkle", "Shamir", "Buterin", "Nakamoto"];
-
-        // Stores the curves of all 20 providers
-        // TODO: make all the curves below more realistic and unique
-        const curve = ["1x","2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x", "11x", "12x", "13x", "14x", "15x", "16x", "17x", "18x", "19x", "20x"];
 
         // Test accounts
         const signers = await ethers.getSigners();
-        console.log(signers);
+
+        // Storage for the provider curves returned from getProviderCurve()
+        let getCurves = [];
+
+        // Storage for the parsed provider ccurve
+        let coefficientArr = [];
+
+        // Empty broker address
+        const broker = '0x0000000000000000000000000000000000000000';
 
         // Connection to Registry.sol
         const Registry = await ethers.getContractFactory('Registry');
         const registry = await Registry.attach('0xa513E6E4b8f2a923D98304ec87F64353C4D5C853');
 
-        for (var i = 0; i < signers.length; i++) {
-                // Registry.sol initializes provider on an account using ETH
-                await registry.initiateProvider(signers[i].address, title[i])
-                    .then((res) => {
-                        return res;
-                    })
-                    .catch((err) => {
-                        return err;
-                    })
-                
+        // Stores the endpoints of all 20 providers
+        let endpoint = [
+            "Ramanujan",
+            "Lagrange",
+            "Wiles",
+            "Jacobi",
+            "Turing",
+            "Riemann",
+            "Poincare",
+            "Hilbert",
+            "Fibonacci",
+            "Bernoulli",
+            "Pythagoras",
+            "Gauss",
+            "Newton",
+            "Euler",
+            "Archimedes",
+            "Euclid",
+            "Merkle",
+            "Shamir",
+            "Buterin",
+            "Nakamoto"
+        ];
 
-        // Log account details
-        console.log(
-            {
-                signer: i,
-                providerAddress: signers[i].address,
-                title: title[i],
-            },
-        );
-        //}
+        // 20 test curves
+        const curve = [
+            [3, 0, 0, 1, 122],
+            [3, 0, 0, 1, 10000],
+            [3, 0, 0, 1, 1222],
+            [1, 100, 1000],
+            [3, 0, 2, 1, 100],
+            [2, 0, 0, 10000],
+            [1, 1000, 10000],
+            [1, 10000, 100000],
+            [2, 5000, 2000, 1000, 2, 0, 3000, 10000],
+            [2, 5000, 2000, 1000],
+            [2, 7000, 1000, 10000],
+            [2, 5000, 2000, 1000, 2, 0, 2000, 10000],
+            [3, 0, 2000, 1000, 10000],
+            [3, 0, 20000, 10000, 100000],
+            [3, 0, 2000, 10000, 100000],
+            [1, 100000, 1000000],
+            [2, 7000, 70000, 1000000],
+            [2, 700, 7000, 100000],
+            [2, 0, 1, 1000000],
+            [2, 0, 1000, 100000],
+        ];
+
+        // Converts the endpoint array to an array of bytes32 strings
+        endpoint = endpoint.map(name => ethers.utils.formatBytes32String(name));
+
+        for (var i = 0; i < signers.length; i++) {
+
+            try {
+
+                // Connects the 20 test accounts to Registry.sol as signers
+                // Initiates the 20 test accounts with provider curves
+                await registry.connect(signers[i]).initiateProviderCurve(endpoint[i], curve[i], broker);
+
+            } catch (err) {
+
+                console.log(signers[i].address + ': Provider curve is already initiated');
+            }
+
+            getCurves.push(await registry.connect(signers[i]).getProviderCurve(signers[i].address, endpoint[i]));
+
+            // Converts each curve coordinate from a hexstring to a number
+            coefficientArr.push(getCurves[i].map(item => parseInt(item._hex)));
+
+            console.log({
+                endpoint: ethers.utils.parseBytes32String(endpoint[i]),
+                curve: coefficientArr[i],
+                address: signers[i].address
+
+            });
+
         }
 
-        for (var i = 0; i < signers.length; i++) {
-            // Registry.sol initializes curve on a provider account using ETH
-            await registry.initiateProviderCurve(endpoint[i], title[i])
-                .then((res) => {
-                    return res;
-                })
-                .catch((err) => {
-                    return err;
-                })
-        
-        // Log account details
-        console.log(
-            {
-                signer: i,
-                endpoint: endpoint[i],
-                curve: curve[i],
-            },
-        );
-
-        }
-        
     })

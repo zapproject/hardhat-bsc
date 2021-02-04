@@ -1,4 +1,3 @@
-
 const { task, taskArgs } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require('hardhat-deploy');
@@ -7,19 +6,20 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
     .setAction(async () => {
 
-        // Stores the ZAP balance of each test account
-        const balances = [];
-
         // Test accounts
         const signers = await ethers.getSigners();
 
+        // Connection to Coordinator
+        const Coordinator = await ethers.getContractFactory('ZapCoordinator')
+        const coordinator = await Coordinator.attach('0xe7f1725e7734ce288f8367e1bb143e90bb3f0512')
+
         // Connection to ZapToken.sol
         const Token = await ethers.getContractFactory('ZapToken')
-        const token = await Token.attach('0x5FbDB2315678afecb367f032d93F642f64180aa3');
+        const token = await Token.attach(await coordinator.getContract('ZAP_TOKEN'));
 
         // Connection to Faucet.sol
         const Faucet = await ethers.getContractFactory('Faucet');
-        const faucet = await Faucet.attach('0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512');
+        const faucet = await Faucet.attach(await coordinator.getContract('FAUCET'));
 
         // ZapToken.sol funds test ZAP to Faucet.sol
         await token.allocate(faucet.address, 1000000000)
@@ -34,7 +34,7 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
             // Test accounts purchasing 100K ZAP
             // 1 ETH = 1000 ZAP
-            await faucet.buyZap(signers[i].address, 100)
+            await faucet.buyZap(signers[i].address, 700)
                 .then((res) => {
                     return res;
                 })

@@ -3,9 +3,6 @@ dotEnvConfig();
 
 import { HardhatUserConfig } from "hardhat/types";
 
-import './reset/hardhat';
-import './reset/localhost';
-
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
@@ -17,6 +14,8 @@ import './tasks/buyzap';
 import './tasks/initProvider';
 import './tasks/initProviderCurve';
 import './tasks/setEndpointParams';
+import './tasks/bond';
+import './tasks/dispatch';
 
 
 // TODO: reenable solidity-coverage when it works
@@ -30,9 +29,8 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
 
-  defaultNetwork: "localhost",
   solidity: {
-    compilers: [{ version: "0.4.24", settings: {} },{ version: "0.5.1", settings: {} }],
+    compilers: [{ version: "0.4.24", settings: {} }, { version: "0.5.1", settings: {} }],
   },
   networks: {
     localhost: {
@@ -58,4 +56,3 @@ const config: HardhatUserConfig = {
 };
 
 export default config;
-
