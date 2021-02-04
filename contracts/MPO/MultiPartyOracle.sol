@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.1;
 
 import "./MPOStorage.sol";
 import "./lib/Destructible.sol";
@@ -55,7 +55,7 @@ contract MultiPartyOracle {
         ztoken = ZapInterface(ztokenAddress);
         stor = MPOStorage(mpoStorageAddress);
     }
-    function setup(address[] _responders) public{
+    function setup(address[] memory _responders) public{
         stor.setResponders(_responders);
         bytes32 title = "MultiPartyOracle";
         registry.initiateProvider(12345, title);
@@ -70,7 +70,7 @@ contract MultiPartyOracle {
     // @param bytes32 endpoint Determines whether to use Onchain Providers, Offchain Providers, Non-Providers
     // @param bytes32[] endpointParams Parameters passed to providers
     // @param bool onchainSubscriber Unused boolean that determines if subscriber is a smart contract
-    function receive(uint256 id, string userQuery, bytes32 endpoint, bytes32[] endpointParams, bool onchainSubscriber) external {
+    function receive(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
         emit RecievedQuery(userQuery, endpoint, endpointParams, msg.sender);
         require(msg.sender == dispatchAddress && stor.getQueryStatus(id) == 0, "Dispatch only");
         // endpoint params [from, to, threshold, precision, delta]
@@ -87,7 +87,7 @@ contract MultiPartyOracle {
                                 block.number, now, userQuery,id,stor.getResponderAddress(i)
                                 )));
                 stor.setClientQueryId(mpoid, id);
-                emit Incoming(mpoid, stor.getResponderAddress(i),this, userQuery, "Hello?", endpointParams, true);
+                emit Incoming(mpoid, stor.getResponderAddress(i),address(this), userQuery, "Hello?", endpointParams, true);
                 
             }
         }
@@ -100,7 +100,7 @@ contract MultiPartyOracle {
     // @dev 
     uint numTrue = 0;
     uint numFalse = 0;
-    function callback(uint256 mpoId, uint256[] responses, bytes32[] msgHash, uint8[] sigv, bytes32[] sigrs) external {
+    function callback(uint256 mpoId, uint256[] calldata responses, bytes32[] calldata msgHash, uint8[] calldata sigv, bytes32[] calldata sigrs) external {
         // require(msg.sender == aggregator, "Invalid aggregator");
         
         uint256 queryId = stor.getClientQueryId(mpoId);
