@@ -10,6 +10,13 @@
 
 `npm run compile`
 
+### Run Hardhat Node & Run Tasks
+
+In order to run tasks, complete the following steps:
+
+1. ```./start.sh``` This will run the localhost hardhat node and deploy your contracts to it.
+2. Open a new terminal, ```npx hardhat --network localhost [your-task-here]```
+
 ### Run Contract Tests & Get Callstacks
 
 `npx hardhat node`

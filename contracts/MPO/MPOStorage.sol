@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+pragma solidity ^0.5.1;
+=======
 pragma solidity ^0.4.24;
+>>>>>>> develop
 
 import "./lib/Ownable.sol";
 
@@ -42,7 +46,11 @@ contract MPOStorage is Ownable{
 		mpoToClientId[mpoId] = _clientQueryId;
 	}
  
+<<<<<<< HEAD
+	function setResponders(address[] calldata parties) external  onlyOwner{
+=======
 	function setResponders(address[] parties) external  onlyOwner{
+>>>>>>> develop
 		responders=parties;
 		if(responderLength>parties.length){
 			responderLength = parties.length;
@@ -117,7 +125,11 @@ contract MPOStorage is Ownable{
 	function getQueryStatus(uint256 queryId) external view returns(uint256){
 		return queryStatus[queryId];
 	}
+<<<<<<< HEAD
+	function getThresholdResponses(uint256 queryId) external view returns(uint256[] memory ){
+=======
 	function getThresholdResponses(uint256 queryId) external view returns(uint256[]){
+>>>>>>> develop
 		return thresholdArr[queryId];
 	}
 
@@ -128,10 +140,17 @@ contract MPOStorage is Ownable{
 	function getResponderAddress(uint index) external view returns(address){
 		return responders[index];
 	}
+<<<<<<< HEAD
+	function getResponders() external view returns (address[] memory){
+		return responders;
+	}
+	function getResponses(uint256 queryId) external view returns(uint256[] memory){
+=======
 	function getResponders() external view returns (address[]){
 		return responders;
 	}
 	function getResponses(uint256 queryId) external view returns(uint256[]){
+>>>>>>> develop
 		return responseArr[queryId];
 	}
 	function getDelta(uint256 queryId) external view returns(uint256){
@@ -143,7 +162,11 @@ contract MPOStorage is Ownable{
 	function getQueryThreshold(uint queryId)external view returns(bool){
 		return thresholdReached[queryId];
 	}
+<<<<<<< HEAD
+	function getAverage(uint256 queryId) external view returns(int[] memory ){
+=======
 	function getAverage(uint256 queryId) external view returns(int[]){
+>>>>>>> develop
 		require(responders.length!=0, "Division error");
 		uint total = 0;
 		uint len=0;

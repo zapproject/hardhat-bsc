@@ -19,6 +19,7 @@ RUN npm install
 RUN npm build
 RUN npm audit --fix
 
+
 CMD ["chmod", "+x", "./start.sh"]
 
 #RUN npx hardhat node &
