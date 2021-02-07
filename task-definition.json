@@ -9,9 +9,9 @@
       "entryPoint": [],
       "portMappings": [
         {
-          "hostPort": 4000,
+          "hostPort": 8545,
           "protocol": "tcp",
-          "containerPort": 4000
+          "containerPort": 8545
         }
       ],
       "command": [],
@@ -56,8 +56,8 @@
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:080462179947:task-definition/ZapHardhatServiceZapHardhatTaskDefinition:4",
-  "family": "ZapHardhatServiceZapHardhatTaskDefinition",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:080462179947:task-definition/zap-hardhat:1",
+  "family": "zap-hardhat",
   "requiresAttributes": [
     {
       "targetId": null,
@@ -102,7 +102,7 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "256",
-  "revision": 4,
+  "revision": 1,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
