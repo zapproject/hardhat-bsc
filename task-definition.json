@@ -56,7 +56,7 @@
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:080462179947:task-definition/zap-hardhat:1",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:080462179947:task-definition/zap-hardhat:3",
   "family": "zap-hardhat",
   "requiresAttributes": [
     {
@@ -102,7 +102,7 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "256",
-  "revision": 1,
+  "revision": 3,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
