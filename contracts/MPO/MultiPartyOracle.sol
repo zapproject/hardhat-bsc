@@ -1,8 +1,5 @@
-<<<<<<< HEAD
+
 pragma solidity ^0.5.1;
-=======
-pragma solidity ^0.4.24;
->>>>>>> develop
 
 import "./MPOStorage.sol";
 import "./lib/Destructible.sol";
@@ -43,6 +40,8 @@ contract MultiPartyOracle {
 
     bytes32 public spec3 = "Nonproviders";
     int256[] curve3 = [1,1,1000000000];
+    uint numTrue = 0;
+    uint numFalse = 0;
     // @notice constructor that sets up zap registry, dispatch, and MPO storage. Also sets up registry provider curve
     // @param address registryAddress
     // @param address _dispatchAddress
@@ -59,11 +58,11 @@ contract MultiPartyOracle {
         ztoken = ZapInterface(ztokenAddress);
         stor = MPOStorage(mpoStorageAddress);
     }
-<<<<<<< HEAD
+
+   
+
     function setup(address[] memory _responders) public{
-=======
-    function setup(address[] _responders) public{
->>>>>>> develop
+
         stor.setResponders(_responders);
         bytes32 title = "MultiPartyOracle";
         registry.initiateProvider(12345, title);
@@ -78,11 +77,11 @@ contract MultiPartyOracle {
     // @param bytes32 endpoint Determines whether to use Onchain Providers, Offchain Providers, Non-Providers
     // @param bytes32[] endpointParams Parameters passed to providers
     // @param bool onchainSubscriber Unused boolean that determines if subscriber is a smart contract
-<<<<<<< HEAD
+
+    
+
     function receive(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
-=======
-    function receive(uint256 id, string userQuery, bytes32 endpoint, bytes32[] endpointParams, bool onchainSubscriber) external {
->>>>>>> develop
+
         emit RecievedQuery(userQuery, endpoint, endpointParams, msg.sender);
         require(msg.sender == dispatchAddress && stor.getQueryStatus(id) == 0, "Dispatch only");
         // endpoint params [from, to, threshold, precision, delta]
@@ -99,12 +98,9 @@ contract MultiPartyOracle {
                                 block.number, now, userQuery,id,stor.getResponderAddress(i)
                                 )));
                 stor.setClientQueryId(mpoid, id);
-<<<<<<< HEAD
+
                 emit Incoming(mpoid, stor.getResponderAddress(i),address(this), userQuery, "Hello?", endpointParams, true);
-=======
-                emit Incoming(mpoid, stor.getResponderAddress(i),this, userQuery, "Hello?", endpointParams, true);
->>>>>>> develop
-                
+
             }
         }
     }
@@ -114,13 +110,9 @@ contract MultiPartyOracle {
     // @param response Response to be returned to client
     // @param msgHash, sigv, sigr, sigs to be used in ecrecover
     // @dev 
-    uint numTrue = 0;
-    uint numFalse = 0;
-<<<<<<< HEAD
+  
     function callback(uint256 mpoId, uint256[] calldata responses, bytes32[] calldata msgHash, uint8[] calldata sigv, bytes32[] calldata sigrs) external {
-=======
-    function callback(uint256 mpoId, uint256[] responses, bytes32[] msgHash, uint8[] sigv, bytes32[] sigrs) external {
->>>>>>> develop
+
         // require(msg.sender == aggregator, "Invalid aggregator");
         
         uint256 queryId = stor.getClientQueryId(mpoId);

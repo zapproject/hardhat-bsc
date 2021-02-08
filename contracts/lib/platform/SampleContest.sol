@@ -5,6 +5,7 @@ import "../../platform/bondage/BondageInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
 import "../../platform/registry/RegistryInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
+pragma solidity ^0.5.1;
 
 /*
 Contest where users can bond to contestant curves which mint tokens( unbondabe*),
@@ -69,7 +70,7 @@ contract SampleContest is Ownable {
         address factory,
         uint256 providerPubKey,
         bytes32 providerTitle
-    ){
+    ) public {
         coord = ZapCoordinatorInterface(coordinator);
         reserveToken = FactoryTokenInterface(coord.getContract("ZAP_TOKEN"));
         //always allow bondage to transfer from wallet
@@ -94,7 +95,7 @@ contract SampleContest is Ownable {
         emit Initialized(oracle);
     }
 
-    function judge(bytes32 endpoint) {
+    function judge(bytes32 endpoint) public {
         require( status == ContestStatus.Initialized, "Contest not initialized" );
         require( msg.sender == oracle, "Only designated Oracle can judge");
         require(block.number < ttl, "Contest expired, refund in process");
@@ -145,10 +146,10 @@ contract SampleContest is Ownable {
     function initializeCurve(
         bytes32 endpoint,
         bytes32 symbol,
-        int256[] curve
+        int256[] memory curve
     ) public returns(address) {
         // require(status==ContestStatus.Initialized,"Contest is not initalized")
-        require(curves[endpoint] == 0, "Curve endpoint already exists or used in the past. Please choose a new endpoint");
+        require(curves[endpoint] == address(0), "Curve endpoint already exists or used in the past. Please choose a new endpoint");
 
         RegistryInterface registry = RegistryInterface(coord.getContract("REGISTRY"));
         registry.initiateProviderCurve(endpoint, curve, address(this));
@@ -157,7 +158,7 @@ contract SampleContest is Ownable {
         curves_list.push(endpoint);
         registry.setProviderParameter(endpoint, toBytes(curves[endpoint]));
 
-        DotTokenCreated(curves[endpoint]);
+        emit DotTokenCreated(curves[endpoint]);
         return curves[endpoint];
     }
 
@@ -238,8 +239,8 @@ contract SampleContest is Ownable {
     }
 
     function newToken(
-        string name,
-        string symbol
+        string memory name,
+        string memory symbol
     )
         internal
         returns (address tokenAddress)
@@ -254,7 +255,7 @@ contract SampleContest is Ownable {
         return bytesToAddr(registry.getProviderParameter(address(this), endpoint));
     }
 
-    function getEndpoints() public view returns(bytes32[]){
+    function getEndpoints() public view returns(bytes32[] memory ){
       return curves_list;
     }
 
@@ -272,24 +273,24 @@ contract SampleContest is Ownable {
     }
 
     // https://ethereum.stackexchange.com/questions/884/how-to-convert-an-address-to-bytes-in-solidity
-    function toBytes(address x) public pure returns (bytes b) {
+    function toBytes(address x) public pure returns (bytes memory b) {
         b = new bytes(20);
         for (uint i = 0; i < 20; i++)
             b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
     }
 
     //https://ethereum.stackexchange.com/questions/2519/how-to-convert-a-bytes32-to-string
-    function bytes32ToString(bytes32 x) public pure returns (string) {
+    function bytes32ToString(bytes32 x) public pure returns (string memory) {
         bytes memory bytesString = new bytes(32);
         bytesString = abi.encodePacked(x);
         return string(bytesString);
     }
 
     //https://ethereum.stackexchange.com/questions/15350/how-to-convert-an-bytes-to-address-in-solidity
-    function bytesToAddr (bytes b) public pure returns (address) {
+    function bytesToAddr (bytes memory b) public pure returns (address) {
         uint result = 0;
         for (uint i = b.length-1; i+1 > 0; i--) {
-            uint c = uint(b[i]);
+            uint c = uint(uint8(b[i]));
             uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));
             result += to_inc;
         }
