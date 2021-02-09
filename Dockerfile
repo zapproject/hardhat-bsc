@@ -24,7 +24,7 @@ RUN npm install pm2 -g
 ENV PM2_PUBLIC_KEY wufv4yr66nw0ge6
 ENV PM2_SECRET_KEY 9pp4g5egqscuoxf
 
-CMD ["chmod", "+x", "./start.sh"]
+# CMD ["chmod", "+x", "./start.sh"]
 
 CMD ["pm2-runtime", "./start.sh"]
 
