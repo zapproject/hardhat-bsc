@@ -1,8 +1,6 @@
 module.exports = {
-  apps: [{
-    name: "Zap-Hardhat",
-    script: "./start.sh",
-    exec_interpreter: "bash",
-    exec_mode: fork_mode
+  apps : [{
+    script: './start.sh',
+    interpreter: '/bin/sh',
   }]
-}
+};
