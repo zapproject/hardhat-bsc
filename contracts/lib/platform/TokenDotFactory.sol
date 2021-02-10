@@ -5,8 +5,6 @@ import "../../platform/bondage/BondageInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
 import "../../platform/registry/RegistryInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
-
-import "hardhat/console.sol";
 contract TokenDotFactory is Ownable {
 
     CurrentCostInterface currentCost;
@@ -38,7 +36,7 @@ contract TokenDotFactory is Ownable {
     function initializeCurve(
         bytes32 specifier, 
         bytes32 symbol, 
-        int256[] curve
+        int256[] memory curve
     ) public returns(address) {
         
         require(curves[specifier] == address(0), "Curve specifier already exists");
@@ -52,7 +50,6 @@ contract TokenDotFactory is Ownable {
         
         registry.setProviderParameter(specifier, toBytes(curves[specifier]));
         
-        DotTokenCreated(curves[specifier]);
         emit DotTokenCreated(curves[specifier]);
         return curves[specifier];
     }
@@ -77,7 +74,6 @@ contract TokenDotFactory is Ownable {
         reserveToken.approve(address(bondage), numReserve);
         bondage.bond(address(this), specifier, numDots);
         FactoryTokenInterface(curves[specifier]).mint(msg.sender, numDots);
-        Bonded(specifier, numDots, msg.sender);
         emit Bonded(specifier, numDots, msg.sender);
 
     }
@@ -99,7 +95,6 @@ contract TokenDotFactory is Ownable {
         curveToken.burnFrom(msg.sender, numDots);
 
         require(reserveToken.transfer(msg.sender, reserveCost), "Error: Transfer failed");
-        Unbonded(specifier, numDots, msg.sender);
         emit Unbonded(specifier, numDots, msg.sender);
 
     }
@@ -118,10 +113,6 @@ contract TokenDotFactory is Ownable {
 
     function getTokenAddress(bytes32 endpoint) public view returns(address) {
         RegistryInterface registry = RegistryInterface(coord.getContract("REGISTRY"));
-        return bytesToAddr(registry.getProviderParameter(address(this), endpoint));
-    }
-
-    function getEndpoints() public view returns(bytes32[]){
        // console.log(registry.getProviderParameter(address(this), endpoint));
         return toAddress(registry.getProviderParameter(address(this), endpoint),0);
     }
@@ -130,12 +121,14 @@ contract TokenDotFactory is Ownable {
       return curves_list;
     }
 
+    // https://ethereum.stackexchange.com/questions/884/how-to-convert-an-address-to-bytes-in-solidity
     function toBytes(address x) public pure returns (bytes memory b) {
         b = new bytes(20);
         for (uint i = 0; i < 20; i++)
             b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
     }
 
+    //https://ethereum.stackexchange.com/questions/2519/how-to-convert-a-bytes32-to-string
     function bytes32ToString(bytes32 x) public pure returns (string memory) {
         bytes memory bytesString = new bytes(32);
 
@@ -144,18 +137,7 @@ contract TokenDotFactory is Ownable {
         return string(bytesString);
     }
 
-    //https://ethereum.stackexchange.com/questions/15350/how-to-convert-an-bytes-to-address-in-solidity
-    function bytesToAddr (bytes b) public pure returns (address) {
-        uint result = 0;
-        for (uint i = b.length-1; i+1 > 0; i--) {
-            uint c = uint(b[i]);
-            uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));
-            result += to_inc;
-        }
-        return address(result);
-    }
-
-
+    
     function toAddress(bytes memory _bytes, uint256 _start) internal view returns (address) {
         require(_start + 20 >= _start, "toAddress_overflow");
         //console.log(_bytes.length);
