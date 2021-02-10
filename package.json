@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "hardhat-deploy": "^0.7.0-beta.39",
-    "ping": "^0.4.0"
+    "ping": "^0.4.0",
+    "pm2": "^4.5.4"
   }
 }
