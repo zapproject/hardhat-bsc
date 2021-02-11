@@ -1,7 +1,9 @@
 module.exports = {
-  apps: [{
+  apps : [{
+    name: 'zap-hardhat',
     script: './start.sh',
-    intepreter: 'usr/bin/sh',
+    interpreter: '/bin/sh',
+    instances: 1,
+    autorestart: true,
   }]
 };
-
