@@ -9,7 +9,7 @@
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
     "coverage": "npm run build && npx hardhat coverage --temp artifacts --network coverage",
-    "prettier-format": "prettier --config .prettierrc 'test/*.ts'  --write",
+    "prettier-format": "prettier --config .prettierrc 'test/*.ts'  --write"
   },
   "author": "ZapProtocol",
   "homepage": "https://zap.org",

@@ -1,6 +1,7 @@
 module.exports = {
-  apps : [{
+  apps: [{
     script: './start.sh',
-    interpreter: '/bin/sh',
+    intepreter: 'usr/bin/sh',
   }]
 };
+
