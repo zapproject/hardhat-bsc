@@ -1,3 +1,4 @@
+import "../token/TokenFactoryInterface.sol";
 import "../token/FactoryTokenInterface.sol";
 import "../ownership/ZapCoordinatorInterface.sol";
 import "../../platform/bondage/BondageInterface.sol";
@@ -151,3 +152,4 @@ contract TokenDotFactory is Ownable {
     }
 
 }
+
