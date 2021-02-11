@@ -1,5 +1,7 @@
 FROM keymetrics/pm2:12-alpine
 
+WORKDIR /usr/src/app
+
 # Install app dependencies
 #COPY package.json /
 COPY ./package*.json ./
@@ -24,15 +26,17 @@ RUN npm run build
 ENV PM2_PUBLIC_KEY bdh9q68spo1eiqn
 ENV PM2_SECRET_KEY qs29ye4cnzybyl4
 
+# CMD ["pm2-runtime", "app.js"]
 
-# CMD ["chmod", "+x", "./start.sh"]
+CMD ["chmod", "+x", "./start.sh"]
 
 #RUN npx hardhat node &
 # CMD ["./start.sh"]
 
 # CMD ["pm2-runtime", "start", "ecosystem.config.js"]
-CMD ["npx", "pm2", "start", "ecosystem.config.js"]
-# CMD ["npx", "pm2", "start", "ecosystem.config.js", "--no-daemon"]
+# CMD ["pm2", "start", "ecosystem.config.js"]
+# CMD ["npx", "pm2", "start", "ecosystem.config.js"]
+CMD ["npx", "pm2", "start", "ecosystem.config.js", "--no-daemon"]
 # CMD ["pm2-runtime", "ecosystem.config.js"]
 
 USER node

@@ -3,6 +3,7 @@ module.exports = {
     name: 'zaphh',
     script: './start.sh',
     interpreter: '/bin/sh',
-    instances: 1
+    instances: 1,
+    autorestart: true,
   }]
 };
