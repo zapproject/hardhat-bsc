@@ -1,4 +1,3 @@
-
 name: Pull Request on Branch Push
 on:
   push:
@@ -6,6 +5,7 @@ on:
       - staging
       - launchpad
       - production
+      - aws_deploy
         
 jobs:
   auto-pull-request:
