@@ -1,6 +1,6 @@
 {
   "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::080462179947:role/DevNetExecutionRole",
+  "executionRoleArn": "arn:aws:iam::944238940241:role/DevNetExecutionRole",
   "containerDefinitions": [
     {
       "dnsSearchDomains": [],
@@ -29,7 +29,7 @@
       "memoryReservation": null,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "080462179947.dkr.ecr.us-east-1.amazonaws.com/zap-hardhat",
+      "image": "944238940241.dkr.ecr.us-east-2.amazonaws.com/zap-hardhat",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -51,12 +51,12 @@
   ],
   "placementConstraints": [],
   "memory": "512",
-  "taskRoleArn": "arn:aws:iam::080462179947:role/DevNetTaskRole",
+  "taskRoleArn": "arn:aws:iam::944238940241:role/DevNetTaskRole",
   "compatibilities": [
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:080462179947:task-definition/zap-hardhat:3",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-2:944238940241:task-definition/zap-hardhat:2",
   "family": "zap-hardhat",
   "requiresAttributes": [
     {
@@ -102,7 +102,7 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "256",
-  "revision": 3,
+  "revision": 2,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
