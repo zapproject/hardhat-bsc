@@ -5,7 +5,15 @@
     {
       "dnsSearchDomains": [],
       "environmentFiles": [],
-      "logConfiguration": null,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "secretOptions": [],
+        "options": {
+          "awslogs-group": "/ecs/ZapHardhatServiceTaskDefinition",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
       "entryPoint": [],
       "portMappings": [
         {
@@ -46,7 +54,7 @@
       "dockerLabels": {},
       "systemControls": [],
       "privileged": null,
-      "name": "ZapHardhatService"
+      "name": "zap-hardhat"
     }
   ],
   "placementConstraints": [],
@@ -56,14 +64,32 @@
     "EC2",
     "FARGATE"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-2:944238940241:task-definition/zap-hardhat:2",
+  "taskDefinitionArn": "arn:aws:ecs:us-east-2:944238940241:task-definition/zap-hardhat:14",
   "family": "zap-hardhat",
   "requiresAttributes": [
     {
       "targetId": null,
       "targetType": null,
       "value": null,
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
       "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
     },
     {
       "targetId": null,
@@ -102,7 +128,7 @@
   ],
   "networkMode": "awsvpc",
   "cpu": "256",
-  "revision": 2,
+  "revision": 14,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
