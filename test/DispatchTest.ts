@@ -13,6 +13,7 @@ import { Dispatch } from '../typechain/Dispatch';
 import { TestProvider } from '../typechain/TestProvider';
 import { TestClient } from '../typechain/TestClient';
 import { OffChainClient } from '../typechain/OffChainClient';
+import OffChainClientAbi from '../artifacts/contracts/lib/platform/OffChainClient.sol/OffChainClient.json'
 chai.use(solidity);
 const { expect } = chai;
 
@@ -146,7 +147,7 @@ describe('ZapBondage', () => {
     );
     const oracleFactory = await ethers.getContractFactory(
       'TestProvider',
-      signers[0]
+      OracleSigner
     );
     const bondFactory = await ethers.getContractFactory('Bondage', signers[0]);
 
@@ -198,8 +199,8 @@ describe('ZapBondage', () => {
       zapToken.address,
       dispatch.address,
       bondage.address,
-      registry.address,
-      OracleSigner.address
+      registry.address
+      
     )) as OffChainClient;
 
     await subscriber.deployed();
@@ -384,15 +385,25 @@ describe('ZapBondage', () => {
     let incoming: any = r.events ?? ([] as Event[]);
 
     let decoded = IncomingInterface.parseLog(incoming[1]);
-
-    let CallbackResp = await (
-      await offchainsubscriber.connect(OracleSigner).Callback(1, 'Hello')
-    ).wait();
+    console.log("DECODED")
+    //console.log(decoded[0])
+    let id:any=decoded.args[0]
+    let res:any=await dispatch.connect(owner).respond1(id,"A TEST RESPONSE")
+    let CallbackResp =await res.wait()
+    let storedResponse=await  offchainsubscriber.getQueryResultById(id)
+    let storedResponsebyOrder=await  offchainsubscriber.getQueryResultByOrder(0)
+    
+    expect(storedResponse).to.equal("A TEST RESPONSE");
+    expect(storedResponsebyOrder).to.equal("A TEST RESPONSE");
     let logs: any = CallbackResp.events ?? ([] as Event[]);
-
-    expect(logs[0].event).to.equal('Result1');
+    let offchainSubInterface=new ethers.utils.Interface(OffChainClientAbi.abi)
+    
+    let Result1:any=offchainSubInterface.parseLog(logs[2])
+   
+    expect(Result1.args["response1"]).to.equal("A TEST RESPONSE");
+   
   });
-  it('DISPATCH_6 - query() - test a query to an offchain subscriber fails from unathorized ', async function () {
+  it('DISPATCH_6 - query() - test a query to an offchain subscriber through dispatch fails from unathorized ', async function () {
     await prepareProvider();
     await prepareTokens();
 
@@ -407,9 +418,15 @@ describe('ZapBondage', () => {
     let result = await offchainsubscriber
       .connect(subscriberAccount)
       .testQuery(owner.address, query, spec2, params);
-
+    let r = await result.wait();
+    let incoming: any = r.events ?? ([] as Event[]);
+    let decoded = IncomingInterface.parseLog(incoming[1]);
+    
+    //console.log(decoded[0])
+    let id:any=decoded.args[0]
+  
     await expect(
-      offchainsubscriber.connect(subscriberAccount).Callback(1, 'Hello')
+      dispatch.connect(subscriberAccount).respond1(2,"A TEST RESPONSE")
     ).to.reverted;
   });
 });

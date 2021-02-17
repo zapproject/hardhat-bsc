@@ -177,8 +177,7 @@ async function main() {
     zapToken.address,
     Dispatch.address,
     Bondage.address,
-    Registry.address,
-    OracleSigner.address
+    Registry.address,  
   ))
 
   await subscriber.deployed();
