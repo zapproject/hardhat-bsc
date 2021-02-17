@@ -13,14 +13,20 @@ contract OffChainClient is Client1, Client2{
     event Result1(uint256 id, string response1);
     event Result1(uint256 id, bytes32 response1);
     event Result2(uint256 id, string response1, string response2);
+    event Result3(uint256 id, int[] response3);
 
     mapping(uint=>string) public queryResults;
     mapping(uint=>bytes32[]) public queryBytes32Results;
+    mapping(uint=>int[]) public queryIntResults;
 
     mapping(uint=>uint) public queryBytes32IDs;
+    mapping(uint=>uint) public queryIntIDs;
     mapping(uint=>uint) public queryIDs;
+
     uint public totalQueries;
+    uint public totalIntQueries;
     uint public totalBytes32Queries;
+
     ERC20 token;
     DispatchInterface dispatch;
     BondageInterface bondage;
@@ -60,7 +66,13 @@ contract OffChainClient is Client1, Client2{
         totalBytes32Queries++;
         // do something with result
     }
-
+    function callback(uint256 id, int[]  calldata response) external  onlyOracle() {
+        emit Result3(id, response);
+        queryIntResults[id]=response;
+        queryIntIDs[totalQueries]=id;
+        totalIntQueries++;
+        // do something with result
+    }
     // Client2 callback
     function callback(uint256 id, string calldata response1, string calldata response2) external  onlyOracle() {
        
@@ -79,9 +91,16 @@ contract OffChainClient is Client1, Client2{
     function getQueryResultById(uint id) public view returns(string memory ){
         return queryResults[id];
     }
+     function getQueryIntResultById(uint id) public view returns(int[] memory ){
+        return queryIntResults[id];
+    }
     function getQueryResultByOrder(uint pos) public view returns(string memory){
         uint id=queryIDs[pos];
         return queryResults[id];
+    }
+     function getQueryIntResultByOrder(uint pos) public view returns(int[] memory ){
+        uint id=queryIntIDs[pos];
+        return queryIntResults[id];
     }
       function getQueryBytes32ResultById(uint id) public view returns(bytes32[] memory){
         return queryBytes32Results[id];
@@ -89,6 +108,10 @@ contract OffChainClient is Client1, Client2{
     function getQueryBytes32ResultByOrder(uint pos) public view returns(bytes32[] memory){
         uint id=queryBytes32IDs[pos];
         return queryBytes32Results[id];
+    }
+    function getQueryIntResultByData(uint blockNumber,uint timestamp,string memory query,address subscriber,address provider) public view returns(int[] memory){
+        uint id=uint256(keccak256(abi.encodePacked(block.number, now, query, subscriber, provider)));
+        return queryIntResults[id];
     }
      function getQueryResultByData(uint blockNumber,uint timestamp,string memory query,address subscriber,address provider) public view returns(string memory){
         uint id=uint256(keccak256(abi.encodePacked(block.number, now, query, subscriber, provider)));
