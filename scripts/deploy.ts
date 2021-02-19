@@ -130,12 +130,7 @@ async function main() {
 
   const bondage = await ethers.getContractFactory('Bondage', signers[0]);
   const Bondage = await bondage.deploy(Coordinator.address);
-  const dotFactoryFactory = await ethers.getContractFactory(
-    'DotFactoryFactory',
-    signers[0]
-  );
  
-  await dotFactoryFactory.deploy(Coordinator.address, zapToken.address);
  
   await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
@@ -193,7 +188,18 @@ async function main() {
   ))
   await oracle.deployed()
 
-  console.log(Database.address);
+  const dotFactoryFactory = await ethers.getContractFactory(
+    'DotFactoryFactory',
+    signers[0]
+  );
+  const genericTokenFactory = await ethers.getContractFactory(
+    'TokenFactory',
+    signers[0]
+  );
+  let generictoken = (await genericTokenFactory.deploy());
+  await generictoken.deployed();
+  await dotFactoryFactory.deploy(Coordinator.address, generictoken.address);
+  
 
 }
 
