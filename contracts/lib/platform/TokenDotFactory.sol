@@ -10,6 +10,7 @@ contract DotFactoryFactory{
     address[] public deployedFactories;
     address public coordinator;
     address public factory;
+    event newDotFactory(address dptfactory,uint PubKey,bytes32 Title );
     constructor(address _coordinator,address _factory) public {
         coordinator=_coordinator;
         factory=_factory;
@@ -17,6 +18,7 @@ contract DotFactoryFactory{
     function deployFactory(uint256 providerPubKey,bytes32 providerTitle ) public returns(address){
         TokenDotFactory TDF=  new TokenDotFactory(coordinator,factory,providerPubKey,providerTitle);
         deployedFactories.push(address(TDF));
+        emit newDotFactory(address(TDF),providerPubKey,providerTitle);
         return address(TDF);
     }
     function getFactories() public view returns(address[] memory){

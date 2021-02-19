@@ -130,8 +130,13 @@ async function main() {
 
   const bondage = await ethers.getContractFactory('Bondage', signers[0]);
   const Bondage = await bondage.deploy(Coordinator.address);
-
-
+  const dotFactoryFactory = await ethers.getContractFactory(
+    'DotFactoryFactory',
+    signers[0]
+  );
+ 
+  await dotFactoryFactory.deploy(Coordinator.address, zapToken.address);
+ 
   await Coordinator.addImmutableContract('DATABASE', Database.address);
   await Coordinator.addImmutableContract('ARBITER', Arbiter.address);
   await Coordinator.addImmutableContract('FAUCET', faucet.address);
