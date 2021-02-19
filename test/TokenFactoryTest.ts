@@ -10,6 +10,7 @@ import { Bondage } from '../typechain/Bondage';
 import { ZapToken } from '../typechain/ZapToken';
 import { CurrentCost } from '../typechain/CurrentCost';
 import { TokenDotFactory } from '../typechain/TokenDotFactory';
+import {DotFactoryFactory} from '../typechain/DotFactoryFactory';
 import { TokenFactory } from '../typechain/TokenFactory';
 import { FactoryToken } from '../typechain/FactoryToken';
 chai.use(solidity);
@@ -120,6 +121,8 @@ describe('ZapBondage', () => {
   let escrower2: any;
   let arbiter: any;
   let dotTokenFactory: any;
+  //let dotFactoryFactory:DotFactoryFactory;
+  let dotFactoryFactoryInstance:any;
   beforeEach(async () => {
     signers = await ethers.getSigners();
     owner = signers[0];
@@ -133,6 +136,7 @@ describe('ZapBondage', () => {
       'TokenDotFactory',
       signers[0]
     );
+  
     factoryToken = await ethers.getContractFactory('FactoryToken', signers[0]);
     const zapTokenFactory = await ethers.getContractFactory(
       'ZapToken',
@@ -157,6 +161,10 @@ describe('ZapBondage', () => {
       'CurrentCost',
       signers[0]
     );
+    const dotFactoryFactory = await ethers.getContractFactory(
+      'DotFactoryFactory',
+      signers[0]
+    );
     const bondFactory = await ethers.getContractFactory('Bondage', signers[0]);
     tokenFactory = (await genericTokenFactory.deploy()) as TokenFactory;
     await tokenFactory.deployed();
@@ -173,6 +181,9 @@ describe('ZapBondage', () => {
 
     registry = (await registryFactory.deploy(coordinator.address)) as Registry;
 
+    dotFactoryFactoryInstance=await dotFactoryFactory.deploy(coordinator.address, tokenFactory.address) as DotFactoryFactory;
+    await dotFactoryFactoryInstance.deployed()
+    
     await dataBase.transferOwnership(coordinator.address);
     await coordinator.addImmutableContract('DATABASE', dataBase.address);
     await coordinator.addImmutableContract('ARBITER', arbiter.address);
@@ -353,6 +364,19 @@ describe('ZapBondage', () => {
     );
     await factory.initializeCurve(specifier, title2, piecewiseFunction);
     let curveTokenAddr = await factory.getTokenAddress(specifier);
+    await expect(curveTokenAddr).to.not.equal(zeroAddress);
+  });
+  it('TOKEN_DOT_FACTORY_10 -deploy through dot factory Factory ', async function () {
+    let factory = await dotFactoryFactoryInstance.deployFactory(      
+      publicKey,
+      title
+    );
+    let factories=await dotFactoryFactoryInstance.getFactories();
+   // console.log(factories) 
+    let Instantiated=await dotTokenFactory.attach(factories[0])
+    await Instantiated.initializeCurve(specifier, title2, piecewiseFunction)
+    //await factory.initializeCurve(specifier, title2, piecewiseFunction);
+    let curveTokenAddr = await Instantiated.getTokenAddress(specifier);
     await expect(curveTokenAddr).to.not.equal(zeroAddress);
   });
 });
