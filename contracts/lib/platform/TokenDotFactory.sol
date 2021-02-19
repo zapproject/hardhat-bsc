@@ -5,6 +5,25 @@ import "../../platform/bondage/BondageInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
 import "../../platform/registry/RegistryInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
+
+contract DotFactoryFactory{
+    address[] public deployedFactories;
+    address public coordinator;
+    address public factory;
+    constructor(address _coordinator,address _factory) public {
+        coordinator=_coordinator;
+        factory=_factory;
+    }
+    function deployFactory(uint256 providerPubKey,bytes32 providerTitle ) public returns(address){
+        TokenDotFactory TDF=  new TokenDotFactory(coordinator,factory,providerPubKey,providerTitle);
+        deployedFactories.push(address(TDF));
+        return address(TDF);
+    }
+    function getFactories() public view returns(address[] memory){
+        return deployedFactories;
+    }
+}
+
 contract TokenDotFactory is Ownable {
 
     CurrentCostInterface currentCost;
