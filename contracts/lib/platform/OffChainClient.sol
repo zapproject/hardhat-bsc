@@ -11,7 +11,7 @@ contract OffChainClient is Client1, Client2{
 
     event MadeQuery(address oracle, string query, uint256 id);
     event Result1(uint256 id, string response1);
-    event Result1(uint256 id, bytes32 response1);
+    event Result32(uint256 id, bytes32 response1);
     event Result2(uint256 id, string response1, string response2);
     event Result3(uint256 id, int[] response3);
 
