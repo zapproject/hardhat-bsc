@@ -147,8 +147,8 @@ async function main() {
   await Coordinator.updateContract('BONDAGE', Bondage.address);
   await Coordinator.updateAllDependencies();
   await hre.run('faucet')
-  await hre.run('initiateProvider')
-  await hre.run('initiateProviderCurve')
+  //await hre.run('initiateProvider')
+  //await hre.run('initiateProviderCurve')
 
   // await Registry.connect(OracleSigner).initiateProvider(publicKey, title);
   // await Registry.connect(OracleSigner).initiateProviderCurve(specifier, piecewiseFunction, zeroAddress);
