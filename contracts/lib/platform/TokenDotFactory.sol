@@ -8,6 +8,9 @@ import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
 
 contract DotFactoryFactory{
     address[] public deployedFactories;
+    uint[] public pubkeys;
+    bytes32[] public providerTitles;
+    
     address public coordinator;
     address public factory;
     event newDotFactory(address dotfactory,uint PubKey,bytes32 Title );
@@ -20,11 +23,13 @@ contract DotFactoryFactory{
         TokenDotFactory TDF=  new TokenDotFactory(coordinator,factory,providerPubKey,providerTitle);
         TDF.transferOwnership(msg.sender);
         deployedFactories.push(address(TDF));
+        pubkeys.push(providerPubKey);
+        providerTitles.push(providerTitle);
         emit newDotFactory(address(TDF),providerPubKey,providerTitle);
         return address(TDF);
     }
-    function getFactories() public view returns(address[] memory){
-        return deployedFactories;
+    function getFactories() public view returns(address[] memory,uint[] memory,bytes32[] memory){
+        return(deployedFactories, pubkeys,providerTitles);
     }
 }
 
