@@ -215,7 +215,7 @@ describe('ZapBondage', () => {
     return null;
   }
   it('TOKEN_DOT_FACTORY_1 - constructor() - Check token dot factory initialization', async function () {
-    console.log(tokenFactory.address);
+    //console.log(tokenFactory.address);
     await dotTokenFactory.deploy(
       coordinator.address,
       tokenFactory.address,
@@ -249,10 +249,10 @@ describe('ZapBondage', () => {
     );
     let tx = await factory.initializeCurve(specifier, title, piecewiseFunction);
     tx = await tx.wait();
-    console.log(tx);
+    //console.log(tx);
 
     let dotTokenCreatedEvent = findEvent(tx.events, 'DotTokenCreated');
-    console.log(dotTokenCreatedEvent);
+    //console.log(dotTokenCreatedEvent);
     await expect(dotTokenCreatedEvent).to.be.not.equal(null);
   });
 
@@ -265,7 +265,7 @@ describe('ZapBondage', () => {
     );
     let tx = await factory.initializeCurve(specifier, title, piecewiseFunction);
     tx = await tx.wait();
-    console.log(tx);
+    //console.log(tx);
     let dotTokenCreatedEvent = findEvent(tx.events, 'DotTokenCreated');
     await expect(dotTokenCreatedEvent).to.be.not.equal(null);
 
@@ -291,7 +291,7 @@ describe('ZapBondage', () => {
     let subBalance = parseInt(
       (await reserveToken.balanceOf(subscriber.address)).toString()
     );
-    console.log(subBalance);
+    //console.log(subBalance);
     await expect(subBalance).to.be.not.equal(10000);
   });
 
@@ -323,7 +323,7 @@ describe('ZapBondage', () => {
     await reserveToken.allocate(subscriber.address, 10000);
     await reserveToken.connect(subscriber).approve(factory.address, 10000);
     await factory.connect(subscriber).bond(specifier, 1);
-    console.log('finish bond');
+    //console.log('finish bond');
     let curveTokenAddr = await factory.getTokenAddress(specifier);
 
     let curveToken = await factoryToken.attach(curveTokenAddr);
@@ -345,7 +345,7 @@ describe('ZapBondage', () => {
     await reserveToken.allocate(subscriber.address, 10000);
     await reserveToken.connect(subscriber).approve(factory.address, 10000);
     await factory.connect(subscriber).bond(specifier, 1);
-    console.log('finish bond');
+    //console.log('finish bond');
     let curveTokenAddr = await factory.getTokenAddress(specifier);
 
     let curveToken = await factoryToken.attach(curveTokenAddr);
@@ -372,11 +372,14 @@ describe('ZapBondage', () => {
       title
     );
     let factories=await dotFactoryFactoryInstance.getFactories();
-   // console.log(factories) 
-    let Instantiated=await dotTokenFactory.attach(factories[0])
+    ////console.log(factories[0][0]) 
+    let Instantiated=await dotTokenFactory.attach(factories[0][0])
+    ////console.log(Instantiated)
     await Instantiated.initializeCurve(specifier, title2, piecewiseFunction)
-    //await factory.initializeCurve(specifier, title2, piecewiseFunction);
+    
+    
     let curveTokenAddr = await Instantiated.getTokenAddress(specifier);
     await expect(curveTokenAddr).to.not.equal(zeroAddress);
+    
   });
 });
