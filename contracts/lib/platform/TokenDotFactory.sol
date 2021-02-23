@@ -5,6 +5,34 @@ import "../../platform/bondage/BondageInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
 import "../../platform/registry/RegistryInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
+
+contract DotFactoryFactory{
+    address[] public deployedFactories;
+    uint[] public pubkeys;
+    bytes32[] public providerTitles;
+    
+    address public coordinator;
+    address public factory;
+    event newDotFactory(address dotfactory,uint PubKey,bytes32 Title );
+
+    constructor(address _coordinator,address _factory) public {
+        coordinator=_coordinator;
+        factory=_factory;
+    }
+    function deployFactory(uint256 providerPubKey,bytes32 providerTitle ) public returns(address){
+        TokenDotFactory TDF=  new TokenDotFactory(coordinator,factory,providerPubKey,providerTitle);
+        TDF.transferOwnership(msg.sender);
+        deployedFactories.push(address(TDF));
+        pubkeys.push(providerPubKey);
+        providerTitles.push(providerTitle);
+        emit newDotFactory(address(TDF),providerPubKey,providerTitle);
+        return address(TDF);
+    }
+    function getFactories() public view returns(address[] memory,uint[] memory,bytes32[] memory){
+        return(deployedFactories, pubkeys,providerTitles);
+    }
+}
+
 contract TokenDotFactory is Ownable {
 
     CurrentCostInterface currentCost;
@@ -37,7 +65,7 @@ contract TokenDotFactory is Ownable {
         bytes32 specifier, 
         bytes32 symbol, 
         int256[] memory curve
-    ) public returns(address) {
+    ) public  onlyOwner returns(address) {
         
         require(curves[specifier] == address(0), "Curve specifier already exists");
         
@@ -104,6 +132,7 @@ contract TokenDotFactory is Ownable {
         string memory symbol
     ) 
         public
+        onlyOwner
         returns (address tokenAddress) 
     {
         FactoryTokenInterface token = tokenFactory.create(name, symbol);

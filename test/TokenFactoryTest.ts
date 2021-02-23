@@ -10,6 +10,7 @@ import { Bondage } from '../typechain/Bondage';
 import { ZapToken } from '../typechain/ZapToken';
 import { CurrentCost } from '../typechain/CurrentCost';
 import { TokenDotFactory } from '../typechain/TokenDotFactory';
+import {DotFactoryFactory} from '../typechain/DotFactoryFactory';
 import { TokenFactory } from '../typechain/TokenFactory';
 import { FactoryToken } from '../typechain/FactoryToken';
 chai.use(solidity);
@@ -120,6 +121,8 @@ describe('ZapBondage', () => {
   let escrower2: any;
   let arbiter: any;
   let dotTokenFactory: any;
+  //let dotFactoryFactory:DotFactoryFactory;
+  let dotFactoryFactoryInstance:any;
   beforeEach(async () => {
     signers = await ethers.getSigners();
     owner = signers[0];
@@ -133,6 +136,7 @@ describe('ZapBondage', () => {
       'TokenDotFactory',
       signers[0]
     );
+  
     factoryToken = await ethers.getContractFactory('FactoryToken', signers[0]);
     const zapTokenFactory = await ethers.getContractFactory(
       'ZapToken',
@@ -157,6 +161,10 @@ describe('ZapBondage', () => {
       'CurrentCost',
       signers[0]
     );
+    const dotFactoryFactory = await ethers.getContractFactory(
+      'DotFactoryFactory',
+      signers[0]
+    );
     const bondFactory = await ethers.getContractFactory('Bondage', signers[0]);
     tokenFactory = (await genericTokenFactory.deploy()) as TokenFactory;
     await tokenFactory.deployed();
@@ -173,6 +181,9 @@ describe('ZapBondage', () => {
 
     registry = (await registryFactory.deploy(coordinator.address)) as Registry;
 
+    dotFactoryFactoryInstance=await dotFactoryFactory.deploy(coordinator.address, tokenFactory.address) as DotFactoryFactory;
+    await dotFactoryFactoryInstance.deployed()
+    
     await dataBase.transferOwnership(coordinator.address);
     await coordinator.addImmutableContract('DATABASE', dataBase.address);
     await coordinator.addImmutableContract('ARBITER', arbiter.address);
@@ -204,7 +215,7 @@ describe('ZapBondage', () => {
     return null;
   }
   it('TOKEN_DOT_FACTORY_1 - constructor() - Check token dot factory initialization', async function () {
-    console.log(tokenFactory.address);
+    //console.log(tokenFactory.address);
     await dotTokenFactory.deploy(
       coordinator.address,
       tokenFactory.address,
@@ -238,10 +249,10 @@ describe('ZapBondage', () => {
     );
     let tx = await factory.initializeCurve(specifier, title, piecewiseFunction);
     tx = await tx.wait();
-    console.log(tx);
+    //console.log(tx);
 
     let dotTokenCreatedEvent = findEvent(tx.events, 'DotTokenCreated');
-    console.log(dotTokenCreatedEvent);
+    //console.log(dotTokenCreatedEvent);
     await expect(dotTokenCreatedEvent).to.be.not.equal(null);
   });
 
@@ -254,7 +265,7 @@ describe('ZapBondage', () => {
     );
     let tx = await factory.initializeCurve(specifier, title, piecewiseFunction);
     tx = await tx.wait();
-    console.log(tx);
+    //console.log(tx);
     let dotTokenCreatedEvent = findEvent(tx.events, 'DotTokenCreated');
     await expect(dotTokenCreatedEvent).to.be.not.equal(null);
 
@@ -280,7 +291,7 @@ describe('ZapBondage', () => {
     let subBalance = parseInt(
       (await reserveToken.balanceOf(subscriber.address)).toString()
     );
-    console.log(subBalance);
+    //console.log(subBalance);
     await expect(subBalance).to.be.not.equal(10000);
   });
 
@@ -312,7 +323,7 @@ describe('ZapBondage', () => {
     await reserveToken.allocate(subscriber.address, 10000);
     await reserveToken.connect(subscriber).approve(factory.address, 10000);
     await factory.connect(subscriber).bond(specifier, 1);
-    console.log('finish bond');
+    //console.log('finish bond');
     let curveTokenAddr = await factory.getTokenAddress(specifier);
 
     let curveToken = await factoryToken.attach(curveTokenAddr);
@@ -334,7 +345,7 @@ describe('ZapBondage', () => {
     await reserveToken.allocate(subscriber.address, 10000);
     await reserveToken.connect(subscriber).approve(factory.address, 10000);
     await factory.connect(subscriber).bond(specifier, 1);
-    console.log('finish bond');
+    //console.log('finish bond');
     let curveTokenAddr = await factory.getTokenAddress(specifier);
 
     let curveToken = await factoryToken.attach(curveTokenAddr);
@@ -354,5 +365,21 @@ describe('ZapBondage', () => {
     await factory.initializeCurve(specifier, title2, piecewiseFunction);
     let curveTokenAddr = await factory.getTokenAddress(specifier);
     await expect(curveTokenAddr).to.not.equal(zeroAddress);
+  });
+  it('TOKEN_DOT_FACTORY_10 -deploy through dot factory Factory ', async function () {
+    let factory = await dotFactoryFactoryInstance.deployFactory(      
+      publicKey,
+      title
+    );
+    let factories=await dotFactoryFactoryInstance.getFactories();
+    ////console.log(factories[0][0]) 
+    let Instantiated=await dotTokenFactory.attach(factories[0][0])
+    ////console.log(Instantiated)
+    await Instantiated.initializeCurve(specifier, title2, piecewiseFunction)
+    
+    
+    let curveTokenAddr = await Instantiated.getTokenAddress(specifier);
+    await expect(curveTokenAddr).to.not.equal(zeroAddress);
+    
   });
 });
