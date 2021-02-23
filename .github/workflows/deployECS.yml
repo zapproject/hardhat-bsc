@@ -1,4 +1,4 @@
-name: Upload and Deploy to AWS
+name: Upload and Deploy to AWS 
 
 on:
   push:
