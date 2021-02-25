@@ -60,7 +60,7 @@ contract OffChainClient is Client1, Client2{
         // do something with result
     }
     function callback(uint256 id, bytes32[]  calldata response) external  onlyOracle() {
-        emit Result1(id, response[0]);
+        emit Result32(id, response[0]);
         queryBytes32Results[id]=response;
         queryBytes32IDs[totalQueries]=id;
         totalBytes32Queries++;
