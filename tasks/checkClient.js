@@ -19,14 +19,26 @@ task("checkClient", "Prints the test account balances")
         let tq= await client.totalQueries();
         let tiq=await client.totalIntQueries();
         let tbq=await client.totalBytes32Queries();
-
-        let result=await client.getQueryIntResultByOrder(0)
-        let result1=await client.getQueryResultByOrder(tq-1)
-        console.log(tq)
-        console.log(tiq)
-        console.log(tbq)
-        console.log(result)
-        console.log(result1)
+        let result;
+        let result1;
+        //console.log("SKFJDLKJFJL")
+        console.log("the total string responses are "+tq.toString())
+        console.log("the total int responses are "+tiq.toString())
+        console.log("the total bytes responses are"+tbq.toString())
+        if(tiq>0){
+            result=await client.getQueryIntResultByOrder(tiq-1)
+            console.log(result)
+            console.log(await client.queryIntIDs(5))
+            console.log("the latest int value is "+result)
+        }
+        if(tq>0){
+            result1=await client.getQueryResultByOrder(tq-1)
+            console.log("the latest string query is "+result1)
+        }
+      
+       
+       
+     
 
     });
 
