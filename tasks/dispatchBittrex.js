@@ -4,15 +4,15 @@ const { task, taskArgs } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 
-task("dispatchTS", "creates an offchain Incoming event")
+task("dispatchBittrex", "creates an offchain Incoming event")
 
     .setAction(async () => {
         
         const approveTokens = ethers.BigNumber.from('1000000000000000000000000000000');
         // Stores the titles of all 20 providers
-        const title = ["Coingecko Oracle"]
-        const endpoint = ["Zap Price"]
-        let query='zap';
+        const title = ["Bittrex Oracle"]
+        const endpoint = ["Bittrex Price"]
+        let query='BTC';
         const params = [
             ethers.utils.formatBytes32String("int")
            
