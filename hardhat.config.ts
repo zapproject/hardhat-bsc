@@ -16,7 +16,8 @@ import './tasks/initProviderCurve';
 import './tasks/setEndpointParams';
 import './tasks/bond';
 import './tasks/dispatch';
-import './tasks/dispatchTS';
+import './tasks/dispatchCoinGecko';
+import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 
 // TODO: reenable solidity-coverage when it works
