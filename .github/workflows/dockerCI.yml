@@ -22,3 +22,7 @@ jobs:
         with:
           push: true
           tags: zaporacle/hardhat:latest
+          build-args: |
+            pm2_public=${{ secrets.PM2_PUBLIC_KEY }}
+            pm2_secret=${{ secrets.PM2_SECRET_KEY }}
+          
