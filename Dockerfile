@@ -42,4 +42,5 @@ CMD ["chmod", "+x", "./start.sh"]
 #RUN npx hardhat node &
 # CMD ["./start.sh"]
 
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+# CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+CMD ["./start.sh"]
