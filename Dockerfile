@@ -43,4 +43,4 @@ CMD ["chmod", "+x", "./start.sh"]
 # CMD ["./start.sh"]
 
 # CMD ["pm2-runtime", "start", "ecosystem.config.js"]
-CMD ["./start.sh"]
+CMD ./start.sh
