@@ -9,7 +9,7 @@ jobs:
   push_to_registry:
     name: Upload and Deploy to AWS
     runs-on: ubuntu-latest
-    steps:
+    steps: 
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Configure AWS credentials
