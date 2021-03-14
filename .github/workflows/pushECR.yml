@@ -4,7 +4,7 @@ on:
   push:
     branches: [ develop ]   
  
- 
+  
 jobs:
   push_to_registry:
     name: Upload and Deploy to AWS
