@@ -87,9 +87,16 @@ function _calculatePolynomial(terms: any, x: any) {
 async function main() {
 
   let signers = await ethers.getSigners();
-
+  
+ 
   let owner = signers[0]
-
+  const endpoint = ["Zap Price"]
+  const specifier = ethers.utils.formatBytes32String(endpoint[0])
+  let query='zap';
+  const params = [
+      ethers.utils.formatBytes32String("int")
+     
+  ];
   let subscriberAddress = signers[1];
 
   let OracleSigner = signers[2];
@@ -163,6 +170,7 @@ async function main() {
   const offchainSubscriberFactory = await ethers.getContractFactory(
     'OffChainClient'
   );
+ 
   const oracleFactory = await ethers.getContractFactory(
     'TestProvider'
   );
@@ -199,8 +207,7 @@ async function main() {
   let generictoken = (await genericTokenFactory.deploy());
   await generictoken.deployed();
   await dotFactoryFactory.deploy(Coordinator.address, generictoken.address);
-  
-
+ 
 }
 
 main()

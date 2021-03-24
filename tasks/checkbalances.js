@@ -5,10 +5,10 @@ require('hardhat-deploy');
 task("checkBalances", "Prints the test account balances")
 
     .setAction(async () => {
-
+        console.log(process.argv)
         // Stores the ZAP balance of each test account
         const balances = [];
-
+        
         // Test accounts
         const signers = await ethers.getSigners();
 

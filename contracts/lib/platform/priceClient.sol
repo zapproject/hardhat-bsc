@@ -8,7 +8,7 @@ import "./OnChainProvider.sol";
 import "../ERC20.sol";
 import "../ownership/Ownable.sol";
 import "hardhat/console.sol";
-contract priceClient {
+contract priceClient is Ownable{
 
     event MadeQuery(address oracle, string query, uint256 id);
     event Result1(uint256 id, string response1);
@@ -89,10 +89,17 @@ contract priceClient {
        return (priceResults[totalIntQueries-1],priceTimeStamps[totalIntQueries-1],priceQueryIDs[totalIntQueries-1]);
     }
 
-   
+    function updateQuery(address oracleAddr, string memory query, bytes32 specifier, bytes32[] memory params) public onlyOwner{
+        oracle =oracleAddr;
+        DataQuery=query;
+        querySpec=specifier;
+        queryParams=params;
+    }
+    function delegateBond() public onlyOwner{
 
+    }
     // attempts to cancel an existing query
-    function cancelQuery(uint256 id) external  {
+    function cancelQuery(uint256 id) external onlyOwner {
         dispatch.cancelQuery(id);
     }
 

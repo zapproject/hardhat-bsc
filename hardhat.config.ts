@@ -17,6 +17,7 @@ import './tasks/setEndpointParams';
 import './tasks/bond';
 import './tasks/dispatch';
 import './tasks/dispatchCoinGecko';
+import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 
