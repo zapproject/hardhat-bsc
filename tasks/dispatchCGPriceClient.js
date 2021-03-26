@@ -5,8 +5,8 @@ require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 
 task("dispatchCGPriceClient", "creates an offchain Incoming event")
-
-    .setAction(async () => {
+    .addParam("clientAddress", "The account's address")
+    .setAction(async taskArgs =>   {
         
         const approveTokens = ethers.BigNumber.from('1000000000000000000000000000000');
         // Stores the titles of all 20 providers
@@ -34,7 +34,7 @@ task("dispatchCGPriceClient", "creates an offchain Incoming event")
         const bondage= await BONDAGE.attach(await coordinator.getContract('BONDAGE'));
         
         const SUBSCRIBER= await ethers.getContractFactory('priceClient');
-        const subscriber= await SUBSCRIBER.attach('0xcd8a1c3ba11cf5ecfa6267617243239504a98d90');
+        const subscriber= await SUBSCRIBER.attach(taskArgs.clientAddress);
         const DISPATCH = await ethers.getContractFactory('Dispatch');
         const dispatch= await DISPATCH.attach(await coordinator.getContract('DISPATCH'));
         console.log(dispatch.address)
