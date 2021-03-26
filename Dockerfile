@@ -1,5 +1,10 @@
 FROM node:alpine 
+RUN useradd -u 8877 prod
+# Change to non-root privilege
+USER prod
 
+ARG pm2_public
+ARG pm2_secret
 # Install app dependencies
 #COPY package.json /
 COPY ./package*.json ./
@@ -7,7 +12,6 @@ COPY ./package*.json ./
 COPY package-lock.json /
 EXPOSE 8545
 EXPOSE 80
-
 
 COPY . .
 # COPY ./tasks/. .
@@ -32,6 +36,8 @@ RUN npm install pm2 -g
 # pubic/secret key for pm2 monitoring: will change to zap-admin's credentials once done. (within .env or similar)
 # ENV PM2_PUBLIC_KEY bdh9q68spo1eiqn
 # ENV PM2_SECRET_KEY qs29ye4cnzybyl4
+ENV PM2_PUBLIC_KEY $pm2_public
+ENV PM2_SECRET_KEY $pm2_secret
 
 CMD ["chmod", "+x", "./start.sh"]
 
@@ -39,3 +45,4 @@ CMD ["chmod", "+x", "./start.sh"]
 # CMD ["./start.sh"]
 
 CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+# CMD ./start.sh

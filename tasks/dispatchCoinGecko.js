@@ -12,6 +12,7 @@ task("dispatchCoinGecko", "creates an offchain Incoming event")
         // Stores the titles of all 20 providers
         const title = ["Coingecko Oracle"]
         const endpoint = ["Zap Price"]
+        const specifier = ethers.utils.formatBytes32String(endpoint[0])
         let query='zap';
         const params = [
             ethers.utils.formatBytes32String("int")
@@ -20,7 +21,7 @@ task("dispatchCoinGecko", "creates an offchain Incoming event")
         // Test accounts
         const signers = await ethers.getSigners();
         const owner=signers[0];
-        const specifier = ethers.utils.formatBytes32String(endpoint[0])
+       
     
         const subscriberAccount=signers[2];
 
