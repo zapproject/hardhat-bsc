@@ -27,7 +27,7 @@ contract Faucet {
 
     function buyZap(address to, uint256 amt) public payable {
         require(amt > 0);
-        amt = amt * rate;
+        amt = 10**18 * rate;
         require(amt <= token.balanceOf(address(this)));
         token.transfer(to, amt);
         emit BUYZAP(msg.sender,amt,rate);
