@@ -50,6 +50,7 @@ contract TokenDotFactory is Ownable {
         address factory,
         uint256 providerPubKey,
         bytes32 providerTitle 
+        
     ) public {
         coord = ZapCoordinatorInterface(coordinator); 
         reserveToken = FactoryTokenInterface(coord.getContract("ZAP_TOKEN"));
