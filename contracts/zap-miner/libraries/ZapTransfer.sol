@@ -15,6 +15,49 @@ library ZapTransfer {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
 
     /*Functions*/
+    
+    /**
+    * @dev Allows for a transfer of tokens to _to
+    * @param _to The address to send tokens to
+    * @param _amount The amount of tokens to send
+    * @return true if transfer is successful
+    */
+    function transfer(ZapStorage.ZapStorageStruct storage self, address _to, uint256 _amount) public returns (bool success) {
+        doTransfer(self,msg.sender, _to, _amount);
+        return true;
+    }
+
+
+    /**
+    * @notice Send _amount tokens to _to from _from on the condition it
+    * is approved by _from
+    * @param _from The address holding the tokens being transferred
+    * @param _to The address of the recipient
+    * @param _amount The amount of tokens to be transferred
+    * @return True if the transfer was successful
+    */
+    function transferFrom(ZapStorage.ZapStorageStruct storage self, address _from, address _to, uint256 _amount) public returns (bool success) {
+        require(self.allowed[_from][msg.sender] >= _amount);
+        self.allowed[_from][msg.sender] -= _amount;
+        doTransfer(self,_from, _to, _amount);
+        return true;
+    }
+
+
+    /**
+    * @dev This function approves a _spender an _amount of tokens to use
+    * @param _spender address
+    * @param _amount amount the spender is being approved for
+    * @return true if spender appproved successfully
+    */
+    function approve(ZapStorage.ZapStorageStruct storage self, address _spender, uint _amount) public returns (bool) {
+        require(allowedToTrade(self,msg.sender,_amount));
+        require(_spender != address(0));
+        self.allowed[msg.sender][_spender] = _amount;
+        emit Approval(msg.sender, _spender, _amount);
+        return true;
+    }
+
 
     /**
     * @param _user address of party with the balance
@@ -43,6 +86,16 @@ library ZapTransfer {
         require(previousBalance + _amount >= previousBalance); // Check for overflow
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         emit Transfer(_from, _to, _amount);
+    }
+
+
+    /**
+    * @dev Gets balance of owner specified
+    * @param _user is the owner address used to look up the balance
+    * @return Returns the balance associated with the passed in _user
+    */
+    function balanceOf(ZapStorage.ZapStorageStruct storage self,address _user) public view returns (uint) {
+        return balanceOfAt(self,_user, block.number);
     }
 
 
@@ -98,11 +151,11 @@ library ZapTransfer {
     function allowedToTrade(ZapStorage.ZapStorageStruct storage self,address _user,uint _amount) public view returns(bool) {
         if(self.stakerDetails[_user].currentStatus >0){
             //Removes the stakeAmount from balance if the _user is staked
-            if(balanceOfAt(self,_user,block.number).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
+            if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
                 return true;
             }
         }
-        else if(balanceOfAt(self,_user,block.number).sub(_amount) >= 0){
+        else if(balanceOf(self,_user).sub(_amount) >= 0){
                 return true;
         }
         return false;
