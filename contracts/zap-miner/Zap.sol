@@ -2,12 +2,10 @@ pragma solidity ^0.5.0;
 
 import "./libraries/SafeMathM.sol";
 import "./libraries/ZapStorage.sol";
-// import "./libraries/ZapTransfer.sol";
 import "./libraries/ZapDispute.sol";
 import "./libraries/ZapStake.sol";
 import "./libraries/ZapLibrary.sol";
-// import "./libraries/Upgradable.sol";
-import "./token/ZapToken.sol";
+import "../token/ZapToken.sol";
 
 /**
  * @title Zap Oracle System
@@ -29,7 +27,6 @@ contract Zap {
     using ZapDispute for ZapStorage.ZapStorageStruct;
     using ZapLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
-    // using ZapTransfer for ZapStorage.ZapStorageStruct;
 
     ZapStorage.ZapStorageStruct zap;
     ZapToken public token;
@@ -143,17 +140,6 @@ contract Zap {
     }
 
 
-   /**
-    * @dev Add tip to Request value from oracle
-    * @param _requestId being requested to be mined
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    // function addTip(uint _requestId, uint _tip) external {
-    //     zap.addTip(_requestId,_tip);
-    // }
-
-
     /**
     * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be 
     * greater than 0 because there are no tokens in circulation for the initial(genesis) request 
@@ -164,7 +150,6 @@ contract Zap {
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
     function requestData(string calldata _c_sapi,string calldata _c_symbol,uint _granularity, uint _tip) external {
-        // zap.requestData(_c_sapi,_c_symbol,_granularity,_tip);
         //Require at least one decimal place
         require(_granularity > 0);
         
@@ -220,16 +205,6 @@ contract Zap {
 
 
     /**
-    * @dev Allows the current owner to transfer control of the contract to a newOwner.
-    * @param _newOwner The address to transfer ownership to.
-    */
-    // function transferOwnership(address payable _newOwner) public {
-    //     // zap.transferOwnership(_newOwner);
-    //     token.transferOwnership(_newOwner);
-    // }
-
-
-    /**
     * @dev This function allows miners to deposit their stake.
     */
     function depositStake() external {
@@ -264,7 +239,6 @@ contract Zap {
     * @return true if spender appproved successfully
     */
     function approve(address _spender, uint _amount) public returns (bool) {
-        // return zap.approve(_spender,_amount);
         return token.approve(_spender, _amount);
     }
 
