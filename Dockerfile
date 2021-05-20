@@ -1,7 +1,7 @@
 FROM node:alpine 
-RUN useradd -u 8877 prod
+# RUN useradd -u 8877 prod
 # Change to non-root privilege
-USER prod
+# USER prod
 
 ARG pm2_public
 ARG pm2_secret
