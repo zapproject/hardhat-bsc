@@ -2,8 +2,7 @@ import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 
 import { HardhatUserConfig } from "hardhat/types";
-
-import "hardhat-gas-reporter";
+require("hardhat-gas-reporter")
 
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
