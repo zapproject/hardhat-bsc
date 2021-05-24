@@ -17,6 +17,8 @@ import { ZapStake } from "../typechain/ZapStake";
 import { ZapMaster } from "../typechain/ZapMaster";
 
 import { Zap } from "../typechain/Zap";
+import { sign } from "crypto";
+import { zeroPad } from "ethers/lib/utils";
 
 const { expect } = chai;
 
@@ -35,6 +37,8 @@ let zapMaster: ZapMaster;
 let zap: Zap;
 
 let signers: any
+
+let allocatedAmt = 999999999;
 
 beforeEach(async () => {
 
@@ -116,11 +120,21 @@ beforeEach(async () => {
 
     zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
     await zapMaster.deployed()
+
+
+    await zapToken.allocate(signers[0].address, allocatedAmt)
 })
 
 
-it("Testing", async () => {
+it("Should stake a miner", async () => {
 
-    console.log("Hello")
+    await zap.theLazyCoon(signers[0].address, 5000)
+
+    await zapToken.approve(signers[0].address, 5000)
+
+    await zapMaster.depositStake()
+
+
+
 })
 
