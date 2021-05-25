@@ -124,7 +124,7 @@ beforeEach(async () => {
 
 })
 
-it("Should stake a miner", async () => {
+it("Should stake a miner with a balance greater than or equal to 1000 ZAP", async () => {
 
     // Attach the ZapMaster instance to Zap
     zap = zap.attach(zapMaster.address)
@@ -135,6 +135,12 @@ it("Should stake a miner", async () => {
     // Stakes 1000 Zap to initiate a miner
     await zap.depositStake();
 
+    // Gets the balance as hexString
+    const getBalance = await zapMaster.balanceOf(signers[1].address);
+
+    // Parses the hexString
+    const balance = parseInt(getBalance._hex);
+
     // Returns an array containing the staker status and timestamp
     // The array values are returned as hexStrings
     const getInfo = await zapMaster.getStakerInfo(signers[1].address);
@@ -142,6 +148,12 @@ it("Should stake a miner", async () => {
     // Parses the hexStrings in the array
     const stakerInfo = getInfo.map(info => parseInt(info._hex));
 
+    // Expect the balance to be greater than or equal to 1000
+    expect(balance).to.be.greaterThanOrEqual(1000)
+
+    // stakerInfo[0] = Staker Status
+    // stakerInfo[1] = Staker Timestamp
+    // Expect the staker status to be 1
     expect(stakerInfo[0]).to.equal(1);
 })
 
