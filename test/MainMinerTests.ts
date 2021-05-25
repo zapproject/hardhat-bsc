@@ -1,7 +1,7 @@
 // Signers 15, 16, 17, 18, 19, 0 are already miners
 import { ethers } from "hardhat";
 
-import { solidity } from "ethereum-waffle"
+import { solidity } from "ethereum-waffle";
 
 import chai from "chai";
 
@@ -21,6 +21,8 @@ import { Zap } from "../typechain/Zap";
 
 const { expect } = chai;
 
+chai.use(solidity);
+
 let zapToken: ZapToken;
 
 let zapTransfer: ZapTransfer;
@@ -36,8 +38,6 @@ let zapMaster: ZapMaster;
 let zap: Zap;
 
 let signers: any
-
-let allocatedAmt = 999999999;
 
 beforeEach(async () => {
 
@@ -120,40 +120,94 @@ beforeEach(async () => {
     zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
     await zapMaster.deployed()
 
-    await zapToken.allocate(signers[1].address, allocatedAmt)
-
 })
 
-it("Should stake a miner with a balance greater than or equal to 1000 ZAP", async () => {
+it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
+    async () => {
 
-    // Attach the ZapMaster instance to Zap
-    zap = zap.attach(zapMaster.address)
+        // Allocate enough to stake
+        await zapToken.allocate(signers[1].address, 1000)
 
-    // Connects address 1 as the signer
-    zap = zap.connect(signers[1]);
+        // Attach the ZapMaster instance to Zap
+        zap = zap.attach(zapMaster.address);
 
-    // Stakes 1000 Zap to initiate a miner
-    await zap.depositStake();
+        // Connects address 1 as the signer
+        zap = zap.connect(signers[1]);
 
-    // Gets the balance as hexString
-    const getBalance = await zapMaster.balanceOf(signers[1].address);
+        // Stakes 1000 Zap to initiate a miner
+        await zap.depositStake();
 
-    // Parses the hexString
-    const balance = parseInt(getBalance._hex);
+        // Gets the balance as hexString
+        const getBalance = await zapMaster.balanceOf(signers[1].address);
+
+        // Parses the hexString
+        const balance = parseInt(getBalance._hex);
+
+        // Returns an array containing the staker status and timestamp
+        // The array values are returned as hexStrings
+        const getInfo = await zapMaster.getStakerInfo(signers[1].address);
+
+        // Parses the hexStrings in the array
+        const stakerInfo = getInfo.map(info => parseInt(info._hex));
+
+        // Expect the balance to be greater than or equal to 1000
+        expect(balance).to.be.greaterThanOrEqual(1000);
+
+        // stakerInfo[0] = Staker Status
+        // Expect the staker status to be 1
+        expect(stakerInfo[0]).to.equal(1);
+
+        // stakerInfo[1] = Staker Timestamp
+        // Expect the staker timestamp to be greater than 0
+        expect(stakerInfo[1]).to.greaterThan(0)
+    })
+
+it("Should not stake a miner with a balance less than 1000 and return a 0 stake status and timestamp",
+    async () => {
+
+        // Allocate enough to not stake
+        await zapToken.allocate(signers[2].address, 999);
+
+        // Attach the ZapMaster instance to Zap
+        zap = zap.attach(zapMaster.address);
+
+        // Connects address 2 as the signer
+        zap = zap.connect(signers[2]);
+
+        // Returns an array containing the staker status and timestamp
+        // The array values are returned as hexStrings
+        const getInfo = await zapMaster.getStakerInfo(signers[2].address);
+
+        // Parses the hexStrings in the array
+        const stakerInfo = getInfo.map(info => parseInt(info._hex));
+
+        // Expects depositStake to fail and revert the transaction
+        await expect(zap.depositStake()).to.be.reverted;
+
+        // Expect staker status to be 0
+        expect(stakerInfo[0]).to.equal(0);
+
+        // Expect staker timestamp to be 0
+        expect(stakerInfo[1]).to.equal(0);
+
+    })
+
+it("Should get a non staked miner and return a 0 stake status and a 0 timestamp ", async () => {
 
     // Returns an array containing the staker status and timestamp
     // The array values are returned as hexStrings
-    const getInfo = await zapMaster.getStakerInfo(signers[1].address);
+    const getInfo = await zapMaster.getStakerInfo(signers[2].address);
 
     // Parses the hexStrings in the array
     const stakerInfo = getInfo.map(info => parseInt(info._hex));
 
-    // Expect the balance to be greater than or equal to 1000
-    expect(balance).to.be.greaterThanOrEqual(1000)
+    // Expect staker status to be 0
+    expect(stakerInfo[0]).to.equal(0);
 
-    // stakerInfo[0] = Staker Status
-    // stakerInfo[1] = Staker Timestamp
-    // Expect the staker status to be 1
-    expect(stakerInfo[0]).to.equal(1);
+    // Expect staker timestamp to be 0
+    expect(stakerInfo[1]).to.equal(0);
+
 })
+
+
 
