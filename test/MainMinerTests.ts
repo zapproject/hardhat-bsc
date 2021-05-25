@@ -1,3 +1,4 @@
+// Signers 15, 16, 17, 18, 19, 0 are already miners
 import { ethers } from "hardhat";
 
 import { solidity } from "ethereum-waffle"
@@ -52,7 +53,7 @@ beforeEach(async () => {
 
     const zapTransferFactory = await ethers.getContractFactory(
         "ZapTransfer",
-        signers[0]
+        signers[8]
     )
 
     zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer
@@ -63,7 +64,7 @@ beforeEach(async () => {
             libraries: {
                 ZapTransfer: zapTransfer.address,
             },
-            signer: signers[0]
+            signer: signers[8]
         }
     );
 
@@ -75,7 +76,7 @@ beforeEach(async () => {
         libraries: {
             ZapTransfer: zapTransfer.address,
         },
-        signer: signers[0]
+        signer: signers[8]
 
     });
 
@@ -88,7 +89,7 @@ beforeEach(async () => {
             ZapTransfer: zapTransfer.address,
             ZapDispute: zapDispute.address
         },
-        signer: signers[0]
+        signer: signers[8]
     })
 
     zapStake = (await zapStakeFactory.deploy()) as ZapStake
@@ -101,7 +102,7 @@ beforeEach(async () => {
             ZapDispute: zapDispute.address,
             ZapLibrary: zapLibrary.address,
         },
-        signer: signers[0]
+        signer: signers[8]
 
     })
 
@@ -113,20 +114,25 @@ beforeEach(async () => {
             ZapTransfer: zapTransfer.address,
             ZapStake: zapStake.address
         },
-        signer: signers[0]
+        signer: signers[8]
     });
 
     zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
     await zapMaster.deployed()
 
-})
+    await zapToken.allocate(signers[8].address, allocatedAmt)
 
+})
 
 it("Should stake a miner", async () => {
 
-    await zapToken.allocate(signers[0].address, allocatedAmt)
+    // Connect
+    zap = zap.attach(zapMaster.address)
 
     await zap.depositStake()
+
+    const test = await zapMaster.getStakerInfo(signers[8].address)
+
 
 
 })
