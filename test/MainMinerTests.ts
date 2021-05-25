@@ -209,5 +209,43 @@ it("Should get a non staked miner and return a 0 stake status and a 0 timestamp 
 
 })
 
+it("Should get the stakeAmount uintVar", async () => {
+
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const stakeAmtBytes = ethers.utils.toUtf8Bytes("stakeAmount");
+
+    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const stakeAmtHash = ethers.utils.keccak256(stakeAmtBytes);
+
+    // Gets the the current stake amount
+    const getStakeAmt = await zapMaster.getUintVar(stakeAmtHash);
+
+    // Parses getStakeAmt from a hexString to a number
+    const stakeAmt = parseInt(getStakeAmt._hex);
+
+    // Expect stakeAmt to equal 1000
+    expect(stakeAmt).to.equal(1000);
+
+})
+
+it("Should get the stakerCount uintVar", async () => {
+
+    // Converts the uintVar "stakerCount" to a bytes array
+    const stakerCountBytes = ethers.utils.toUtf8Bytes("stakerCount");
+
+    // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
+    const stakerCountHash = ethers.utils.keccak256(stakerCountBytes);
+
+    // Gets the number of parties currently staked
+    const getStakerCount = await zapMaster.getUintVar(stakerCountHash);
+
+    // Parsed the getStakerCount from a hexString to a number
+    const stakerCount = parseInt(getStakerCount._hex);
+
+    // Expect stakerCount to equal 6
+    expect(stakerCount).to.equal(6);
+
+})
+
 
 
