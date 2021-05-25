@@ -53,7 +53,7 @@ beforeEach(async () => {
 
     const zapTransferFactory = await ethers.getContractFactory(
         "ZapTransfer",
-        signers[8]
+        signers[0]
     )
 
     zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer
@@ -64,7 +64,7 @@ beforeEach(async () => {
             libraries: {
                 ZapTransfer: zapTransfer.address,
             },
-            signer: signers[8]
+            signer: signers[0]
         }
     );
 
@@ -76,7 +76,7 @@ beforeEach(async () => {
         libraries: {
             ZapTransfer: zapTransfer.address,
         },
-        signer: signers[8]
+        signer: signers[0]
 
     });
 
@@ -89,7 +89,7 @@ beforeEach(async () => {
             ZapTransfer: zapTransfer.address,
             ZapDispute: zapDispute.address
         },
-        signer: signers[8]
+        signer: signers[0]
     })
 
     zapStake = (await zapStakeFactory.deploy()) as ZapStake
@@ -102,7 +102,7 @@ beforeEach(async () => {
             ZapDispute: zapDispute.address,
             ZapLibrary: zapLibrary.address,
         },
-        signer: signers[8]
+        signer: signers[0]
 
     })
 
@@ -114,26 +114,34 @@ beforeEach(async () => {
             ZapTransfer: zapTransfer.address,
             ZapStake: zapStake.address
         },
-        signer: signers[8]
+        signer: signers[0]
     });
 
     zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
     await zapMaster.deployed()
 
-    await zapToken.allocate(signers[8].address, allocatedAmt)
+    await zapToken.allocate(signers[1].address, allocatedAmt)
 
 })
 
 it("Should stake a miner", async () => {
 
-    // Connect
+    // Attach the ZapMaster instance to Zap
     zap = zap.attach(zapMaster.address)
 
-    await zap.depositStake()
+    // Connects address 1 as the signer
+    zap = zap.connect(signers[1]);
 
-    const test = await zapMaster.getStakerInfo(signers[8].address)
+    // Stakes 1000 Zap to initiate a miner
+    await zap.depositStake();
 
+    // Returns an array containing the staker status and timestamp
+    // The array values are returned as hexStrings
+    const getInfo = await zapMaster.getStakerInfo(signers[1].address);
 
+    // Parses the hexStrings in the array
+    const stakerInfo = getInfo.map(info => parseInt(info._hex));
 
+    expect(stakerInfo[0]).to.equal(1);
 })
 
