@@ -37,96 +37,236 @@ let zapMaster: ZapMaster;
 
 let zap: Zap;
 
-let signers: any
+let signers: any;
 
-beforeEach(async () => {
+describe("Main Miner Functions", () => {
 
-    signers = await ethers.getSigners();
 
-    const zapTokenFactory = await ethers.getContractFactory(
-        "ZapToken",
-        signers[0]
-    )
+    beforeEach(async () => {
 
-    zapToken = (await zapTokenFactory.deploy()) as ZapToken;
-    await zapToken.deployed()
+        signers = await ethers.getSigners();
 
-    const zapTransferFactory = await ethers.getContractFactory(
-        "ZapTransfer",
-        signers[0]
-    )
+        const zapTokenFactory = await ethers.getContractFactory(
+            "ZapToken",
+            signers[0]
+        )
 
-    zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer
-    await zapTransfer.deployed();
+        zapToken = (await zapTokenFactory.deploy()) as ZapToken;
+        await zapToken.deployed()
 
-    const zapLibraryFactory = await ethers.getContractFactory("ZapLibrary",
-        {
+        const zapTransferFactory = await ethers.getContractFactory(
+            "ZapTransfer",
+            signers[0]
+        )
+
+        zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer
+        await zapTransfer.deployed();
+
+        const zapLibraryFactory = await ethers.getContractFactory("ZapLibrary",
+            {
+                libraries: {
+                    ZapTransfer: zapTransfer.address,
+                },
+                signer: signers[0]
+            }
+        );
+
+        zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary
+        await zapLibrary.deployed()
+
+        const zapDisputeFactory = await ethers.getContractFactory("ZapDispute", {
+
             libraries: {
                 ZapTransfer: zapTransfer.address,
             },
             signer: signers[0]
-        }
-    );
 
-    zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary
-    await zapLibrary.deployed()
+        });
 
-    const zapDisputeFactory = await ethers.getContractFactory("ZapDispute", {
+        zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute
+        await zapDispute.deployed();
 
-        libraries: {
-            ZapTransfer: zapTransfer.address,
-        },
-        signer: signers[0]
+        const zapStakeFactory = await ethers.getContractFactory("ZapStake", {
 
-    });
+            libraries: {
+                ZapTransfer: zapTransfer.address,
+                ZapDispute: zapDispute.address
+            },
+            signer: signers[0]
+        })
 
-    zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute
-    await zapDispute.deployed();
+        zapStake = (await zapStakeFactory.deploy()) as ZapStake
+        await zapStake.deployed()
 
-    const zapStakeFactory = await ethers.getContractFactory("ZapStake", {
+        const zapFactory = await ethers.getContractFactory("Zap", {
 
-        libraries: {
-            ZapTransfer: zapTransfer.address,
-            ZapDispute: zapDispute.address
-        },
-        signer: signers[0]
+            libraries: {
+                ZapStake: zapStake.address,
+                ZapDispute: zapDispute.address,
+                ZapLibrary: zapLibrary.address,
+            },
+            signer: signers[0]
+
+        })
+
+        zap = (await zapFactory.deploy(zapToken.address)) as Zap
+        await zap.deployed()
+
+        const zapMasterFactory = await ethers.getContractFactory("ZapMaster", {
+            libraries: {
+                ZapTransfer: zapTransfer.address,
+                ZapStake: zapStake.address
+            },
+            signer: signers[0]
+        });
+
+        zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
+        await zapMaster.deployed()
+
     })
 
-    zapStake = (await zapStakeFactory.deploy()) as ZapStake
-    await zapStake.deployed()
+    it("Should get token name", async () => {
 
-    const zapFactory = await ethers.getContractFactory("Zap", {
+        const name = await zapMaster.getName();
 
-        libraries: {
-            ZapStake: zapStake.address,
-            ZapDispute: zapDispute.address,
-            ZapLibrary: zapLibrary.address,
-        },
-        signer: signers[0]
+        expect(name).to.equal("Zap Token");
+    })
+
+    it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
+        async () => {
+
+            // Allocate enough to stake
+            await zapToken.allocate(signers[1].address, 1000)
+
+            // Attach the ZapMaster instance to Zap
+            zap = zap.attach(zapMaster.address);
+
+            // Connects address 1 as the signer
+            zap = zap.connect(signers[1]);
+
+            // Stakes 1000 Zap to initiate a miner
+            await zap.depositStake();
+
+            // Gets the balance as hexString
+            const getBalance = await zapMaster.balanceOf(signers[1].address);
+
+            // Parses the hexString
+            const balance = parseInt(getBalance._hex);
+
+            // Returns an array containing the staker status and timestamp
+            // The array values are returned as hexStrings
+            const getInfo = await zapMaster.getStakerInfo(signers[1].address);
+
+            // Parses the hexStrings in the array
+            const stakerInfo = getInfo.map(info => parseInt(info._hex));
+
+            // Expect the balance to be greater than or equal to 1000
+            expect(balance).to.be.greaterThanOrEqual(1000);
+
+            // stakerInfo[0] = Staker Status
+            // Expect the staker status to be 1
+            expect(stakerInfo[0]).to.equal(1);
+
+            // stakerInfo[1] = Staker Timestamp
+            // Expect the staker timestamp to be greater than 0
+            expect(stakerInfo[1]).to.greaterThan(0)
+        })
+
+    it("Should not stake a miner with a balance less than 1000 and return a 0 stake status and timestamp",
+        async () => {
+
+            // Allocate enough to not stake
+            await zapToken.allocate(signers[2].address, 999);
+
+            // Attach the ZapMaster instance to Zap
+            zap = zap.attach(zapMaster.address);
+
+            // Connects address 2 as the signer
+            zap = zap.connect(signers[2]);
+
+            // Returns an array containing the staker status and timestamp
+            // The array values are returned as hexStrings
+            const getInfo = await zapMaster.getStakerInfo(signers[2].address);
+
+            // Parses the hexStrings in the array
+            const stakerInfo = getInfo.map(info => parseInt(info._hex));
+
+            // Expects depositStake to fail and revert the transaction
+            await expect(zap.depositStake()).to.be.reverted;
+
+            // Expect staker status to be 0
+            expect(stakerInfo[0]).to.equal(0);
+
+            // Expect staker timestamp to be 0
+            expect(stakerInfo[1]).to.equal(0);
+
+        })
+
+    it("Should get a non staked miner and return a 0 stake status and a 0 timestamp ", async () => {
+
+        // Returns an array containing the staker status and timestamp
+        // The array values are returned as hexStrings
+        const getInfo = await zapMaster.getStakerInfo(signers[2].address);
+
+        // Parses the hexStrings in the array
+        const stakerInfo = getInfo.map(info => parseInt(info._hex));
+
+        // Expect staker status to be 0
+        expect(stakerInfo[0]).to.equal(0);
+
+        // Expect staker timestamp to be 0
+        expect(stakerInfo[1]).to.equal(0);
 
     })
 
-    zap = (await zapFactory.deploy(zapToken.address)) as Zap
-    await zap.deployed()
+    it("Should get the stakeAmount uintVar", async () => {
 
-    const zapMasterFactory = await ethers.getContractFactory("ZapMaster", {
-        libraries: {
-            ZapTransfer: zapTransfer.address,
-            ZapStake: zapStake.address
-        },
-        signer: signers[0]
-    });
+        // Converts the uintVar "stakeAmount" to a bytes array
+        const stakeAmtBytes = ethers.utils.toUtf8Bytes("stakeAmount");
 
-    zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
-    await zapMaster.deployed()
+        // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+        const stakeAmtHash = ethers.utils.keccak256(stakeAmtBytes);
 
-})
+        // Gets the the current stake amount
+        const getStakeAmt = await zapMaster.getUintVar(stakeAmtHash);
 
-it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
-    async () => {
+        // Parses getStakeAmt from a hexString to a number
+        const stakeAmt = parseInt(getStakeAmt._hex);
+
+        // Expect stakeAmt to equal 1000
+        expect(stakeAmt).to.equal(1000);
+
+    })
+
+    it("Should get the stakerCount uintVar", async () => {
+
+        // Converts the uintVar "stakerCount" to a bytes array
+        const stakerCountBytes = ethers.utils.toUtf8Bytes("stakerCount");
+
+        // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
+        const stakerCountHash = ethers.utils.keccak256(stakerCountBytes);
+
+        // Gets the number of parties currently staked
+        const getStakerCount = await zapMaster.getUintVar(stakerCountHash);
+
+        // Parsed the getStakerCount from a hexString to a number
+        const stakerCount = parseInt(getStakerCount._hex);
+
+        // Expect stakerCount to equal 6
+        expect(stakerCount).to.equal(6);
+
+    })
+
+    it("Should request staking withdraw", async () => {
 
         // Allocate enough to stake
-        await zapToken.allocate(signers[1].address, 1000)
+        await zapToken.allocate(signers[1].address, 1000);
+
+        // Attach the ZapMaster instance to Zap
+        zap = zap.attach(zapMaster.address);
+
+        // Connects address 1 as the signer
+        zap = zap.connect(signers[1]);
 
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
@@ -137,115 +277,120 @@ it("Should stake a miner with a balance greater than or equal to 1000 ZAP and re
         // Stakes 1000 Zap to initiate a miner
         await zap.depositStake();
 
-        // Gets the balance as hexString
-        const getBalance = await zapMaster.balanceOf(signers[1].address);
+        // Returns an array containing the staker status and timestamp
+        // The array values are returned as hexStrings
+        const getPostStakerInfo = await zapMaster.getStakerInfo(signers[1].address);
 
-        // Parses the hexString
-        const balance = parseInt(getBalance._hex);
+        // Parses the hexStrings in the array
+        const postStakerInfo = getPostStakerInfo.map(info => parseInt(info._hex));
+
+        // Request to withdraw stake
+        await zap.requestStakingWithdraw();
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
-        const getInfo = await zapMaster.getStakerInfo(signers[1].address);
+        const getPostReqInfo = await zapMaster.getStakerInfo(signers[1].address);
 
         // Parses the hexStrings in the array
-        const stakerInfo = getInfo.map(info => parseInt(info._hex));
+        const postReqInfo = getPostReqInfo.map(info => parseInt(info._hex));
 
-        // Expect the balance to be greater than or equal to 1000
-        expect(balance).to.be.greaterThanOrEqual(1000);
-
-        // stakerInfo[0] = Staker Status
-        // Expect the staker status to be 1
-        expect(stakerInfo[0]).to.equal(1);
-
-        // stakerInfo[1] = Staker Timestamp
-        // Expect the staker timestamp to be greater than 0
-        expect(stakerInfo[1]).to.greaterThan(0)
-    })
-
-it("Should not stake a miner with a balance less than 1000 and return a 0 stake status and timestamp",
-    async () => {
-
-        // Allocate enough to not stake
-        await zapToken.allocate(signers[2].address, 999);
-
-        // Attach the ZapMaster instance to Zap
-        zap = zap.attach(zapMaster.address);
-
-        // Connects address 2 as the signer
-        zap = zap.connect(signers[2]);
+        // Withdraws the stake 
+        await zap.withdrawStake();
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
-        const getInfo = await zapMaster.getStakerInfo(signers[2].address);
+        const getPostWthDrwInfo = await zapMaster.getStakerInfo(signers[1].address);
 
         // Parses the hexStrings in the array
-        const stakerInfo = getInfo.map(info => parseInt(info._hex));
+        const postWthDrwInfo = getPostWthDrwInfo.map(info => parseInt(info._hex));
 
-        // Expects depositStake to fail and revert the transaction
-        await expect(zap.depositStake()).to.be.reverted;
+        // Expects the staker status to equal 1 after staking
+        // 1 = Staked
+        expect(postStakerInfo[0]).to.equal(1);
 
-        // Expect staker status to be 0
-        expect(stakerInfo[0]).to.equal(0);
+        // Expects the timestamp to be greater than 0
+        expect(postStakerInfo[1]).to.be.greaterThan(0);
 
-        // Expect staker timestamp to be 0
-        expect(stakerInfo[1]).to.equal(0);
+        // Expects the staker status to equal 2 after requesting a withdrawal
+        // 2 = Staker request withdrawal
+        expect(postReqInfo[0]).to.equal(2);
+
+        // Expects the timestamp to be greater than 0
+        expect(postStakerInfo[1]).to.be.greaterThan(0);
+
+        // Expects the staker status to equal 0 after stake withdrawal
+        // 0 = Not staked
+        expect(postWthDrwInfo[0]).to.equal(0);
+
+        // Expects the timestamp to be greater than 0
+        expect(postWthDrwInfo[1]).to.be.greaterThan(0);
 
     })
 
-it("Should get a non staked miner and return a 0 stake status and a 0 timestamp ", async () => {
+    it("Should stake again after withdraw", async () => {
 
-    // Returns an array containing the staker status and timestamp
-    // The array values are returned as hexStrings
-    const getInfo = await zapMaster.getStakerInfo(signers[2].address);
+    })
 
-    // Parses the hexStrings in the array
-    const stakerInfo = getInfo.map(info => parseInt(info._hex));
+    // it("Attempt to Allow and transferFrom more than balance - stake", async () => {
 
-    // Expect staker status to be 0
-    expect(stakerInfo[0]).to.equal(0);
+    //     // Tokens for signer 1
+    //     const tokens1 = 250;
 
-    // Expect staker timestamp to be 0
-    expect(stakerInfo[1]).to.equal(0);
+    //     const tokensToApprove = 500;
+
+    //     // Allocate tokens to signer 1
+    //     await zapToken.allocate(signers[1].address, 5000);
+
+    //     // Connect signer 1 to the Zap contract
+    //     zap = zap.connect(signers[1]);
+
+    //     zap = zap.attach(zapToken.address)
+
+    //     // Transfer 500 tokens from signer 1 to signer 2
+    //     await zap.transfer(signers[2].address, tokens1);
+
+    //     // Gets the balance of signer 2 after transferring as a hexString
+    //     const getSignerTwoBal = await zapMaster.balanceOf(signers[2].address);
+
+    //     // Converts signer 2 balance from a hexString to a number
+    //     const signerTwoBal = parseInt(getSignerTwoBal._hex);
+
+    //     await zap.approve(signers[3].address, tokensToApprove);
+
+    //     zap = zap.connect(signers[3])
+
+    //     zap.transferFrom(signers[2].address, signers[4].address, tokensToApprove)
+
+    //     // await expect(zap.transferFrom(signers[2], signers[4], tokensToApprove)).to.be.reverted
+
+
+    // })
+
+    it("Should test deity functions", async () => {
+
+        // Converts the uintVar "_deity" to a bytes array
+        const deityBytes = ethers.utils.toUtf8Bytes("_deity");
+
+        // Converts the uintVar "_deity" from a bytes array to a keccak256 hash
+        const deityHash = ethers.utils.keccak256(deityBytes)
+
+        // Gets the deity(owner)
+        const initialDeity = await zapMaster.getAddressVars(deityHash);
+
+        // Changes the deity from address 0 to address 1
+        await zapMaster.changeDeity(signers[1].address)
+
+        // Gets the new deity 
+        const newDeity = await zapMaster.getAddressVars(deityHash);
+
+        // Expects the deity to be address 0 
+        expect(initialDeity).to.equal(signers[0].address);
+
+        // Expects the new deity to equal address 1
+        expect(newDeity).to.equal(signers[1].address);
+
+
+    })
+
 
 })
-
-it("Should get the stakeAmount uintVar", async () => {
-
-    // Converts the uintVar "stakeAmount" to a bytes array
-    const stakeAmtBytes = ethers.utils.toUtf8Bytes("stakeAmount");
-
-    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
-    const stakeAmtHash = ethers.utils.keccak256(stakeAmtBytes);
-
-    // Gets the the current stake amount
-    const getStakeAmt = await zapMaster.getUintVar(stakeAmtHash);
-
-    // Parses getStakeAmt from a hexString to a number
-    const stakeAmt = parseInt(getStakeAmt._hex);
-
-    // Expect stakeAmt to equal 1000
-    expect(stakeAmt).to.equal(1000);
-
-})
-
-it("Should get the stakerCount uintVar", async () => {
-
-    // Converts the uintVar "stakerCount" to a bytes array
-    const stakerCountBytes = ethers.utils.toUtf8Bytes("stakerCount");
-
-    // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
-    const stakerCountHash = ethers.utils.keccak256(stakerCountBytes);
-
-    // Gets the number of parties currently staked
-    const getStakerCount = await zapMaster.getUintVar(stakerCountHash);
-
-    // Parsed the getStakerCount from a hexString to a number
-    const stakerCount = parseInt(getStakerCount._hex);
-
-    // Expect stakerCount to equal 6
-    expect(stakerCount).to.equal(6);
-
-})
-
-
-
