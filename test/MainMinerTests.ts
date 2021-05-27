@@ -506,4 +506,11 @@ describe("Main Miner Functions", () => {
         expect(name).to.equal("Zap Token");
     })
 
+
+    it("Test", async () => {
+
+        zap = zap.attach(zapMaster.address)
+        console.log(await zapMaster.getRequestQ())
+    })
+
 })
