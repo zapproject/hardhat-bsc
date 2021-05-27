@@ -444,6 +444,24 @@ describe("Main Miner Functions", () => {
 
     });
 
+    it('Should get the dispute fee', async () => {
+
+        // Converts the uintVar "disputeFee" to a bytes array
+        const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes("disputeFee");
+
+        // Converts the uintVar "disputeFee" from a bytes array to a keccak256 hash
+        const disputeFeeHash: string = ethers.utils.keccak256(disputeFeeBytes)
+
+        // Gets the dispute fee
+        const getDisputeFee: BigNumber = await zapMaster.getUintVar(disputeFeeHash);
+
+        // Parses the dispute fee from a hexString to a number
+        const disputeFee: number = parseInt(getDisputeFee._hex);
+
+        // Expects the dispute fee to equal 970
+        expect(disputeFee).to.equal(970);
+    })
+
     it("Should test deity functions", async () => {
 
         // Converts the uintVar "_deity" to a bytes array
@@ -466,6 +484,16 @@ describe("Main Miner Functions", () => {
 
         // Expects the new deity to equal address 1
         expect(newDeity).to.equal(signers[1].address);
+
+    })
+
+    it("Should get token supply", async () => {
+
+        const getSupply = await zapMaster.totalTokenSupply();
+
+        const supply = parseInt(getSupply._hex);
+
+        expect(supply).to.equal(6000);
 
     })
 
