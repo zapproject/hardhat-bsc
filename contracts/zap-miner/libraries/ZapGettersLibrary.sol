@@ -451,7 +451,7 @@ library ZapGettersLibrary {
         pure
         returns (string memory)
     {
-        return 'TT';
+        return 'ZAP';
     }
 
     /**
