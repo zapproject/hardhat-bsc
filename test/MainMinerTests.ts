@@ -506,19 +506,15 @@ describe("Main Miner Functions", () => {
         expect(name).to.equal("Zap Token");
     })
 
-    it("Get Symbol and decimals", async function () {
-        let symbol = await zapMaster.getSymbol()
+    it("Should get symbol", async () => {
 
-        console.log(symbol)
+        // Gets the token symbol
+        const symbol: string = await zapMaster.getSymbol();
 
+        // Expects the token sybmol to equal ZAP
+        expect(symbol).to.equal("ZAP");
 
     });
 
-
-    it("Test", async () => {
-
-        zap = zap.attach(zapMaster.address)
-        console.log(await zapMaster.getRequestQ())
-    })
 
 })
