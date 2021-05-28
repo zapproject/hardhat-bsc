@@ -135,6 +135,7 @@ describe("Did Mine Test", () => {
 
     it("Test didMine", async () => {
 
+        // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
 
             // Attach the ZapMaster instance to Zap
@@ -150,6 +151,7 @@ describe("Did Mine Test", () => {
         for (var i = 0; i < 52; i++) {
 
             const x = "USD" + i
+
             const apix = api + i
 
             await zap.requestData(apix, x, 1000, 0)
@@ -163,11 +165,9 @@ describe("Did Mine Test", () => {
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);
 
+            // Each Miner will submit a mining solution
             await zap.submitMiningSolution("nonce", 1, 1200);
         }
-
-        console.log(await zap.getNewCurrentVariables())
-
 
     })
 });
