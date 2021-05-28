@@ -19,6 +19,7 @@ import { ZapMaster } from "../typechain/ZapMaster";
 import { Zap } from "../typechain/Zap";
 import { BigNumber, ContractFactory } from "ethers";
 import { exception } from "console";
+import { sign } from "crypto";
 
 const { expect } = chai;
 
@@ -39,8 +40,6 @@ let zapMaster: ZapMaster;
 let zap: Zap;
 
 let signers: any;
-
-var api = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
 
 describe("Did Mine Test", () => {
 
@@ -135,39 +134,59 @@ describe("Did Mine Test", () => {
 
     it("Test didMine", async () => {
 
+        // Request string
+        const api: string = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
+
+        // Allocates 5000 ZAP to signer 0 
+        await zapToken.allocate(signers[0].address, 5000);
+
         // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
 
-            // Connects address 1 as the signer
+            // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
             // Stakes 1000 Zap to initiate a miner
             await zap.depositStake();
         }
 
+        zap = zap.connect(signers[0]);
+
+        // Approves Zap.sol the amount to tip for requestData
+        await zapToken.approve(zap.address, 5000)
+
+        let x
+
+        let apix
+
         for (var i = 0; i < 52; i++) {
 
-            const x = "USD" + i
+            x = "USD" + i
+            apix = api + i
 
-            const apix = api + i
-
-            await zap.requestData(apix, x, 1000, 0)
+            // Submits request query
+            await zap.requestData(apix, x, 1000, 52 - i);
         }
 
-        for (var i = 1; i <= 5; i++) {
+        const reqQ: BigNumber[] = await zapMaster.getRequestQ();
 
-            // Attach the ZapMaster instance to Zap
-            zap = zap.attach(zapMaster.address);
 
-            // Connects address 1 as the signer
-            zap = zap.connect(signers[i]);
+        console.log(reqQ.map(item => parseInt(item._hex)))
+        // for (var i = 1; i <= 5; i++) {
 
-            // Each Miner will submit a mining solution
-            await zap.submitMiningSolution("nonce", 1, 1200);
-        }
+        //     // Attach the ZapMaster instance to Zap
+        //     zap = zap.attach(zapMaster.address);
+
+        //     // Connects address 1 as the signer
+        //     zap = zap.connect(signers[i]);
+
+        //     // Each Miner will submit a mining solution
+        //     await zap.submitMiningSolution("nonce", 1, 1200);
+        // }
+
 
     })
 });
