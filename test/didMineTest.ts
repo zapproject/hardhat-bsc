@@ -40,7 +40,7 @@ let zap: Zap;
 
 let signers: any;
 
-var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+var api = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
 
 describe("Did Mine Test", () => {
 
@@ -125,15 +125,17 @@ describe("Did Mine Test", () => {
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
         await zapMaster.deployed()
 
+        for (var i = 1; i <= 5; i++) {
+
+            await zapToken.allocate(signers[i].address, 2000);
+
+        }
+
     });
 
     it("Test didMine", async () => {
 
-        for(var i = 1;i<=5;i++){
-            await zapToken.allocate(signers[i].address, 2000);
-        }
-
-        for(var i = 1;i<=5;i++) {
+        for (var i = 1; i <= 5; i++) {
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
@@ -145,18 +147,27 @@ describe("Did Mine Test", () => {
             await zap.depositStake();
         }
 
-        console.log(zap);
+        for (var i = 0; i < 52; i++) {
 
-        // zap = zap.attach(zapMaster.address);
+            const x = "USD" + i
+            const apix = api + i
 
-        //for(var i=0; i<52;i++) {
-            
-            const x = "USD";
-            const apix = api;
-            await zap.requestData(apix, x, 1000, 52);
-        //}
+            await zap.requestData(apix, x, 1000, 0)
+        }
 
-        // const getReqQ = await zapMaster.getRequestQ();
-        // console.log("getReqQ ============", getReqQ);
+        for (var i = 1; i <= 5; i++) {
+
+            // Attach the ZapMaster instance to Zap
+            zap = zap.attach(zapMaster.address);
+
+            // Connects address 1 as the signer
+            zap = zap.connect(signers[i]);
+
+            await zap.submitMiningSolution("nonce", 1, 1200);
+        }
+
+        console.log(await zap.getNewCurrentVariables())
+
+
     })
 });
