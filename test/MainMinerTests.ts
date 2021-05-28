@@ -417,16 +417,20 @@ describe("Main Miner Functions", () => {
         // Allocated 5000 tokens to signer 1
         await zapToken.allocate(signers[1].address, 5000);
 
-        // Ge
+        // Ges the balance of signer 1 as a hexString
         const getSigner1Bal: BigNumber = await zapMaster.balanceOf(signers[1].address);
 
+        // Converts the balance of signer 1 to a number
         const signer1Bal: number = parseInt(getSigner1Bal._hex);
 
+        // Transfers 2500 to signers 2
         await zap.transfer(signers[2].address, transferAmt);
 
+        // Gets the balance of signer 1 after transferring as a hexString
         const getPostSigner1Bal: BigNumber = await zapMaster.balanceOf(signers[1].address);
 
-        // Gets the b
+        // Parses the hexString to a number
+        // Balance should have been subtracted by 2500
         const postSigner1Bal: number = parseInt(getPostSigner1Bal._hex);
 
         // Gets the balance of signer 2 and returns the value as a hexString
@@ -489,10 +493,15 @@ describe("Main Miner Functions", () => {
 
     it("Should get token supply", async () => {
 
-        const getSupply = await zapMaster.totalTokenSupply();
+        // Gets the total oracle tokens as a hexString
+        const getSupply: BigNumber = await zapMaster.totalTokenSupply();
 
-        const supply = parseInt(getSupply._hex);
+        // Convert the hexString to a number
+        const supply: number = parseInt(getSupply._hex);
 
+        // Expect the supply to equal 6000
+        // 1 Staked miner = 1000
+        // Staker count = 6
         expect(supply).to.equal(6000);
 
     })
@@ -506,7 +515,7 @@ describe("Main Miner Functions", () => {
         expect(name).to.equal("Zap Token");
     })
 
-    it("Should get symbol", async () => {
+    it("Should get token symbol", async () => {
 
         // Gets the token symbol
         const symbol: string = await zapMaster.getSymbol();
@@ -515,6 +524,38 @@ describe("Main Miner Functions", () => {
         expect(symbol).to.equal("ZAP");
 
     });
+
+
+    it("Should test", async () => {
+
+        // Allocate enough to stake
+        await zapToken.allocate(signers[1].address, 5000)
+
+
+        let newZap: any
+        const zapFactory: ContractFactory = await ethers.getContractFactory("Zap", {
+
+            libraries: {
+                ZapStake: zapStake.address,
+                ZapDispute: zapDispute.address,
+                ZapLibrary: zapLibrary.address,
+            },
+            signer: signers[0]
+
+        })
+
+        newZap = (await zapFactory.deploy(zapToken.address)) as Zap
+        await zap.deployed()
+
+        zap = zap.connect(signers[1])
+
+        await zap.proposeFork(newZap.address)
+
+
+
+
+
+    })
 
 
 })
