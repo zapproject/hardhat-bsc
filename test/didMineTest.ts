@@ -134,6 +134,10 @@ describe("Did Mine Test", () => {
 
     it("Test didMine", async () => {
 
+        let x: string;
+
+        let apix: string;
+
         // Request string
         const api: string = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
 
@@ -158,34 +162,39 @@ describe("Did Mine Test", () => {
         // Approves Zap.sol the amount to tip for requestData
         await zapToken.approve(zap.address, 5000)
 
-        let x
-
-        let apix
-
+        // Iterates the length of the requestQ array
         for (var i = 0; i < 52; i++) {
 
-            x = "USD" + i
-            apix = api + i
+            x = "USD" + i;
+            apix = api + i;
 
-            // Submits request query
+            // Submits the query string as the request
+            // Each request will add a tip starting at 51 and count down until 0
+            // Each tip will be stored inside the requestQ array
             await zap.requestData(apix, x, 1000, 52 - i);
         }
 
+        // Gets the tip amounts stored in the requestQ array
+        // Values are returned as hexStrings
         const reqQ: BigNumber[] = await zapMaster.getRequestQ();
 
+        // console.log(reqQ.map(item => parseInt(item._hex)))
 
-        console.log(reqQ.map(item => parseInt(item._hex)))
-        // for (var i = 1; i <= 5; i++) {
+        for (var i = 1; i <= 5; i++) {
 
-        //     // Attach the ZapMaster instance to Zap
-        //     zap = zap.attach(zapMaster.address);
+            // Attach the ZapMaster instance to Zap
+            zap = zap.attach(zapMaster.address);
 
-        //     // Connects address 1 as the signer
-        //     zap = zap.connect(signers[i]);
+            // Connects address 1 as the signer
+            zap = zap.connect(signers[i]);
 
-        //     // Each Miner will submit a mining solution
-        //     await zap.submitMiningSolution("nonce", 1, 1200);
-        // }
+            // Each Miner will submit a mining solution
+            await zap.submitMiningSolution("nonce", 1, 1200);
+        }
+
+        const newCurrentVars: any = await zap.getNewCurrentVariables();
+
+        console.log(newCurrentVars)
 
 
     })
