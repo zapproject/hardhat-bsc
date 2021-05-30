@@ -18,8 +18,6 @@ import { ZapMaster } from "../typechain/ZapMaster";
 
 import { Zap } from "../typechain/Zap";
 import { BigNumber, ContractFactory } from "ethers";
-import { exception } from "console";
-import { sign } from "crypto";
 
 const { expect } = chai;
 
@@ -126,6 +124,7 @@ describe("Did Mine Test", () => {
 
         for (var i = 1; i <= 5; i++) {
 
+            // Allocates ZAP to signers 1 - 5
             await zapToken.allocate(signers[i].address, 2000);
 
         }
@@ -176,26 +175,45 @@ describe("Did Mine Test", () => {
 
         // Gets the tip amounts stored in the requestQ array
         // Values are returned as hexStrings
-        const reqQ: BigNumber[] = await zapMaster.getRequestQ();
+        const getReqQ: BigNumber[] = await zapMaster.getRequestQ();
 
-        // console.log(reqQ.map(item => parseInt(item._hex)))
+        // Parses the getReqQ array from hexStrings to numbers
+        const reqQ: number[] = getReqQ.map(item => parseInt(item._hex));
 
         for (var i = 1; i <= 5; i++) {
-
-            // Attach the ZapMaster instance to Zap
-            zap = zap.attach(zapMaster.address);
 
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);
 
+            /*
+            Gets the data properties for the current request
+            bytes32 _challenge,
+            uint256[5] memory _requestIds,
+            uint256 _difficutly,
+            uint256 _tip
+            */
+            const newCurrentVars: any = await zap.getNewCurrentVariables();
+
             // Each Miner will submit a mining solution
             await zap.submitMiningSolution("nonce", 1, 1200);
+
+            // Checks if the miners mined the challenge
+            // true = Miner did mine the challenge
+            // false = Miner did not mine the challenge
+            const didMineStatus: boolean = await zapMaster.didMine(
+                newCurrentVars[0],
+                signers[i].address
+            );
+
+            // Expects the challenge hash 66 characters in length
+            expect(newCurrentVars[0]).to.have.length(66);
+
+            // Expects the didMine status of each miner to be true
+            expect(didMineStatus).to.be.true;
+
         }
 
-        const newCurrentVars: any = await zap.getNewCurrentVariables();
-
-        console.log(newCurrentVars)
-
+        expect(reqQ).to.have.length(51);
 
     })
 });
