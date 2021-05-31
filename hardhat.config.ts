@@ -4,6 +4,9 @@ dotEnvConfig();
 import { HardhatUserConfig } from "hardhat/types";
 require("hardhat-gas-reporter")
 
+import "hardhat-gas-reporter"
+
+
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
