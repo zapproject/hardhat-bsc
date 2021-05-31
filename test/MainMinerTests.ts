@@ -160,7 +160,7 @@ describe("Main Miner Functions", () => {
 
             // stakerInfo[0] = Staker Status
             // Expect the staker status to be 1
-            expect(stakerInfo[0]).to.equal(1);
+            expect(stakerInfo[0]).to.equal(1), "Staked";
 
             // stakerInfo[1] = Staker Timestamp
             // Expect the staker timestamp to be greater than 0
@@ -417,16 +417,20 @@ describe("Main Miner Functions", () => {
         // Allocated 5000 tokens to signer 1
         await zapToken.allocate(signers[1].address, 5000);
 
-        // Ge
+        // Ges the balance of signer 1 as a hexString
         const getSigner1Bal: BigNumber = await zapMaster.balanceOf(signers[1].address);
 
+        // Converts the balance of signer 1 to a number
         const signer1Bal: number = parseInt(getSigner1Bal._hex);
 
+        // Transfers 2500 to signers 2
         await zap.transfer(signers[2].address, transferAmt);
 
+        // Gets the balance of signer 1 after transferring as a hexString
         const getPostSigner1Bal: BigNumber = await zapMaster.balanceOf(signers[1].address);
 
-        // Gets the b
+        // Parses the hexString to a number
+        // Balance should have been subtracted by 2500
         const postSigner1Bal: number = parseInt(getPostSigner1Bal._hex);
 
         // Gets the balance of signer 2 and returns the value as a hexString
@@ -443,6 +447,37 @@ describe("Main Miner Functions", () => {
         expect(signer2Bal).to.equal(transferAmt);
 
     });
+
+    it('Should not be able to transfer more than balance', async () => {
+
+        // Allocates 5000 ZAP to signers 0
+        await zapToken.allocate(signers[0].address, 5000);
+
+        // Attaches the ZapToken.sol address to Zap.sol
+        zap = zap.attach(zapToken.address);
+
+        // Gets the balance of signer 0 as a hexString
+        const getSigner0Bal: BigNumber = await zapMaster.balanceOf(signers[0].address);
+
+        // Parses the balance of signer 0 from a hexString to a number
+        const signer0Bal: number = parseInt(getSigner0Bal._hex);
+
+        // Gets the balance of signer 1 as a hexString
+        const getSigner1Bal: BigNumber = await zapMaster.balanceOf(signers[1].address);
+
+        // Parses the balance of signer 1 from a hexString to a number
+        const signer1Bal = parseInt(getSigner1Bal._hex)
+
+        // Expect transferring from signer 0 to signer 1 to fail
+        await expect(zap.transfer(signers[1].address, 5001)).to.be.reverted;
+
+        // Expect the balance to stay the same
+        expect(signer0Bal).to.equal(5000);
+
+        // Expect the balance to stay the same
+        expect(signer1Bal).to.equal(0);
+
+    })
 
     it('Should get the dispute fee', async () => {
 
@@ -489,10 +524,15 @@ describe("Main Miner Functions", () => {
 
     it("Should get token supply", async () => {
 
-        const getSupply = await zapMaster.totalTokenSupply();
+        // Gets the total oracle tokens as a hexString
+        const getSupply: BigNumber = await zapMaster.totalTokenSupply();
 
-        const supply = parseInt(getSupply._hex);
+        // Convert the hexString to a number
+        const supply: number = parseInt(getSupply._hex);
 
+        // Expect the supply to equal 6000
+        // 1 Staked miner = 1000
+        // Staker count = 6
         expect(supply).to.equal(6000);
 
     })
@@ -506,19 +546,14 @@ describe("Main Miner Functions", () => {
         expect(name).to.equal("Zap Token");
     })
 
-    it("Get Symbol and decimals", async function () {
-        let symbol = await zapMaster.getSymbol()
+    it("Should get token symbol", async () => {
 
-        console.log(symbol)
+        // Gets the token symbol
+        const symbol: string = await zapMaster.getSymbol();
 
+        // Expects the token sybmol to equal ZAP
+        expect(symbol).to.equal("ZAP");
 
     });
-
-
-    it("Test", async () => {
-
-        zap = zap.attach(zapMaster.address)
-        console.log(await zapMaster.getRequestQ())
-    })
 
 })
