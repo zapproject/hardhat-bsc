@@ -2,6 +2,7 @@ import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 
 import { HardhatUserConfig } from "hardhat/types";
+require("hardhat-gas-reporter")
 
 import "hardhat-gas-reporter"
 
@@ -34,10 +35,17 @@ const RINKEBY_PRIVATE_KEY =
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
-const config: HardhatUserConfig = {
+
+const config = {
 
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }, { version: "0.5.1", settings: {} }],
+  },
+  gasReporter: {
+    enabled: true,
+    currency: "USD",
+    gasPrice: 39.44,
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
     localhost: {

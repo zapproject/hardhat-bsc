@@ -7,8 +7,6 @@ pragma solidity ^0.5.1;
 
 // Libraries contain reusable Solidity types
 library ZapStorage {
-
-
     //Internal struct for use in proof-of-work submission
     struct Details {
         uint256 value;
