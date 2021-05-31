@@ -4,6 +4,9 @@ dotEnvConfig();
 import { HardhatUserConfig } from "hardhat/types";
 require("hardhat-gas-reporter")
 
+import "hardhat-gas-reporter"
+
+
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
@@ -32,8 +35,7 @@ const RINKEBY_PRIVATE_KEY =
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
-
-const config = {
+const config: HardhatUserConfig = {
 
   solidity: {
     compilers: [{ version: "0.4.24", settings: {} }, { version: "0.5.1", settings: {} }],
