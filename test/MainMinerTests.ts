@@ -19,8 +19,8 @@ import { ZapStake } from "../typechain/ZapStake";
 import { ZapMaster } from "../typechain/ZapMaster";
 
 import { Zap } from "../typechain/Zap";
+
 import { BigNumber, ContractFactory } from "ethers";
-import { exception } from "console";
 
 const { expect } = chai;
 
@@ -504,6 +504,21 @@ describe("Main Miner Functions", () => {
 
         // Expects the token name to equal Zap Token
         expect(name).to.equal("Zap Token");
+    })
+
+    it("Get Symbol and decimals", async function () {
+        let symbol = await zapMaster.getSymbol()
+
+        console.log(symbol)
+
+
+    });
+
+
+    it("Test", async () => {
+
+        zap = zap.attach(zapMaster.address)
+        console.log(await zapMaster.getRequestQ())
     })
 
 })
