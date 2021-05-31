@@ -4,6 +4,7 @@ import { solidity } from "ethereum-waffle";
 
 import chai from "chai";
 
+
 import { ZapToken } from "../typechain/ZapToken";
 
 import { ZapTransfer } from '../typechain/ZapTransfer';
