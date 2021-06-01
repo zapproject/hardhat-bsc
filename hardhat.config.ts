@@ -25,7 +25,10 @@ import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 
-import {getGasPrice} from './scripts/getGasPrice'
+import {getGasPrice, ethPrice} from './scripts/getGasPrice'
+const fs = require('fs').promises;
+const cache = require("node-cache");
+const hh_cache = new cache()
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
@@ -38,7 +41,24 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 
-let latest_gas_usd = getGasPrice()
+getGasPrice()
+ethPrice()
+
+let eth_usd = 0
+let raw_gas = 0
+
+async function gasCalc(){
+  eth_usd = await fs.readFile("./output/eth_usd.txt")
+  eth_usd = Number(eth_usd.toString())
+
+  raw_gas = await fs.readFile("./output/gas.txt")
+  raw_gas = Number(raw_gas.toString())
+
+  fs.writeFile("./output/final_gas.txt", (raw_gas * eth_usd).toString())
+
+  return raw_gas * eth_usd
+
+}
 
 const config = {
 
@@ -48,7 +68,7 @@ const config = {
   gasReporter: {
     enabled: true,
     currency: "USD",
-    gasPrice: latest_gas_usd,
+    gasPrice: 0,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
@@ -77,5 +97,9 @@ const config = {
     apiKey: ETHERSCAN_API_KEY,
   },
 };
+
+gasCalc().then( (r)=>{
+  config.gasReporter.gasPrice = r
+})
 
 export default config;
