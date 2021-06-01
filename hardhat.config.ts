@@ -25,6 +25,8 @@ import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 
+import {getGasPrice} from './scripts/getGasPrice'
+
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
 
@@ -36,6 +38,8 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 
+let latest_gas_usd = getGasPrice()
+
 const config = {
 
   solidity: {
@@ -44,7 +48,7 @@ const config = {
   gasReporter: {
     enabled: true,
     currency: "USD",
-    gasPrice: 39.44,
+    gasPrice: latest_gas_usd,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
