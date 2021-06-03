@@ -25,6 +25,9 @@ import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 
+import {getBSCGasPrice} from './scripts/getGasPrice'
+const fs = require('fs');  // required for reading BSC gas price
+
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
 
@@ -36,6 +39,8 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
 
+getBSCGasPrice()
+
 const config = {
 
   solidity: {
@@ -44,7 +49,7 @@ const config = {
   gasReporter: {
     enabled: true,
     currency: "USD",
-    gasPrice: 39.44,
+    gasPrice: 0.0,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
@@ -53,7 +58,7 @@ const config = {
 
     },
     hardhat: {
-
+      gasPrice: 8000000000,
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
@@ -73,5 +78,17 @@ const config = {
     apiKey: ETHERSCAN_API_KEY,
   },
 };
+
+// read BSC gas price and assign the gas reporter and hardhat network's gas price to it
+try {
+  let data = fs.readFileSync("./output/bscGas.txt", 'utf8')
+  data = data.replaceAll('"', '')
+  data = Number.parseInt(data)
+  config.networks.hardhat.gasPrice = data
+  let parsedData = (data / 1000000000).toFixed(2)  // round to 2 decimal places
+  config.gasReporter.gasPrice = Number(parsedData)
+} catch (err) {
+  console.error(err)
+}
 
 export default config;
