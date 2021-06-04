@@ -127,14 +127,36 @@ describe("Main Miner Functions", () => {
 
     })
 
-    it("Should not have any staked miners  ", async () => {
+    it("Should have an initial stake status of 0", async () => {
 
         for (var i = 0; i < signers.length; i++) {
 
             // Stakes 1000 Zap to initiate a miner
-            console.log(await zapMaster.getStakerInfo(signers[i].address))
+            const getStakeStatus = await zapMaster.getStakerInfo(signers[i].address);
+
+            const stakeStatus = parseInt(getStakeStatus[0]._hex);
+
+            expect(stakeStatus).to.equal(0)
 
         }
+
+    })
+
+    it("Should have an initial staker count of 0", async () => {
+
+        // Converts the uintVar "stakerCount" to a bytes array
+        const stakerCountBytes: Uint8Array = ethers.utils.toUtf8Bytes("stakerCount");
+
+        // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
+        const stakerCountHash: string = ethers.utils.keccak256(stakerCountBytes);
+
+        // Gets the number of parties currently staked
+        const getStakerCount: BigNumber = await zapMaster.getUintVar(stakerCountHash);
+
+        // Parsed the getStakerCount from a hexString to a number
+        const stakerCount: number = parseInt(getStakerCount._hex);
+
+        expect(stakerCount).to.equal(0)
 
     })
 })
