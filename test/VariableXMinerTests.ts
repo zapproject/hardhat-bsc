@@ -21,6 +21,7 @@ import { ZapMaster } from "../typechain/ZapMaster";
 import { Zap } from "../typechain/Zap";
 
 import { BigNumber, ContractFactory } from "ethers";
+import { FormatTypes } from "ethers/lib/utils";
 
 const { expect } = chai;
 
@@ -125,13 +126,19 @@ describe("Main Miner Functions", () => {
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
         await zapMaster.deployed()
 
+        for (var i = 0; i < signers.length; i++) {
+
+            await zapToken.allocate(signers[i].address, 5000);
+
+        }
+
+
     })
 
     it("Should have an initial stake status of 0", async () => {
 
         for (var i = 0; i < signers.length; i++) {
 
-            // Stakes 1000 Zap to initiate a miner
             const getStakeStatus = await zapMaster.getStakerInfo(signers[i].address);
 
             const stakeStatus = parseInt(getStakeStatus[0]._hex);
@@ -159,4 +166,42 @@ describe("Main Miner Functions", () => {
         expect(stakerCount).to.equal(0)
 
     })
+
+    it("Should be able to stake all test accounts", async () => {
+
+        // Iterates through signers 0 through 20
+        for (var i = 0; i < signers.length; i++) {
+
+            // Attach the ZapMaster instance to Zap
+            zap = zap.attach(zapMaster.address);
+
+            // Connects addresses 0-20 as the signer
+            zap = zap.connect(signers[i]);
+
+            // Stakes 1000 Zap to initiate a miner
+            await zap.depositStake();
+
+            const getStakeStatus = await zapMaster.getStakerInfo(signers[i].address);
+
+            const stakeStatus = parseInt(getStakeStatus[0]._hex);
+
+            expect(stakeStatus).to.equal(1);
+        }
+
+        // Converts the uintVar "stakerCount" to a bytes array
+        const stakerCountBytes: Uint8Array = ethers.utils.toUtf8Bytes("stakerCount");
+
+        // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
+        const stakerCountHash: string = ethers.utils.keccak256(stakerCountBytes);
+
+        // Gets the number of parties currently staked
+        const getStakerCount: BigNumber = await zapMaster.getUintVar(stakerCountHash);
+
+        // Parsed the getStakerCount from a hexString to a number
+        const stakerCount: number = parseInt(getStakerCount._hex);
+
+        expect(stakerCount).to.equal(signers.length)
+
+    })
+
 })
