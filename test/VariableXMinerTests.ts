@@ -245,11 +245,7 @@ describe("Main Miner Functions", () => {
 
 
 
-        for (var i = 0; i < 5; i++) {
-
-            console.log(signers[i].address)
-
-            // console.log(await zapMaster.getStakerInfo(signers[i].address))
+        for (var i = 0; i < 20; i++) {
 
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);
