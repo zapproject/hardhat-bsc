@@ -204,4 +204,61 @@ describe("Main Miner Functions", () => {
 
     })
 
+    it("Test mine", async () => {
+
+        let x: string;
+
+        let apix: string;
+
+        // Request string
+        const api: string = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
+
+        // Iterates through signers 0 through 20
+        for (var i = 0; i < signers.length; i++) {
+
+            // Attach the ZapMaster instance to Zap
+            zap = zap.attach(zapMaster.address);
+
+            // Connects addresses 0-20 as the signer
+            zap = zap.connect(signers[i]);
+
+            // Stakes 1000 Zap to initiate a miner
+            await zap.depositStake();
+        }
+
+        zap = zap.connect(signers[0]);
+
+        // Approves Zap.sol the amount to tip for requestData
+        await zapToken.approve(zap.address, 5000)
+
+        // Iterates the length of the requestQ array
+        for (var i = 0; i < 52; i++) {
+
+            x = "USD" + i;
+            apix = api + i;
+
+            // Submits the query string as the request
+            // Each request will add a tip starting at 51 and count down until 0
+            // Each tip will be stored inside the requestQ array
+            await zap.requestData(apix, x, 1000, 52 - i);
+        }
+
+
+
+        for (var i = 0; i < 5; i++) {
+
+            console.log(signers[i].address)
+
+            // console.log(await zapMaster.getStakerInfo(signers[i].address))
+
+            // Connects address 1 as the signer
+            zap = zap.connect(signers[i]);
+
+            // // Each Miner will submit a mining solution
+            await zap.submitMiningSolution("nonce", 1, 1200);
+
+        }
+
+    })
+
 })

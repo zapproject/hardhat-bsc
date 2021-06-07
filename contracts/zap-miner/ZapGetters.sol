@@ -245,7 +245,7 @@ contract ZapGetters {
     function getMinersByRequestIdAndTimestamp(
         uint256 _requestId,
         uint256 _timestamp
-    ) external view returns (address[5] memory) {
+    ) external view returns (address[20] memory) {
         return zap.getMinersByRequestIdAndTimestamp(_requestId, _timestamp);
     }
 
@@ -385,7 +385,7 @@ contract ZapGetters {
     function getSubmissionsByTimestamp(uint256 _requestId, uint256 _timestamp)
         external
         view
-        returns (uint256[5] memory)
+        returns (uint256[20] memory)
     {
         return zap.getSubmissionsByTimestamp(_requestId, _timestamp);
     }

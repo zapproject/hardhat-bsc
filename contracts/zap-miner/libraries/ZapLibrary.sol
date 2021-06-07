@@ -139,7 +139,7 @@ library ZapLibrary {
             (now % 1 minutes);
 
         //The sorting algorithm that sorts the values of the first five values that come in
-        ZapStorage.Details[5] memory a = self.currentMiners;
+        ZapStorage.Details[20] memory a = self.currentMiners;
         uint256 i;
         for (i = 1; i < 5; i++) {
             uint256 temp = a[i].value;
@@ -352,7 +352,7 @@ library ZapLibrary {
         );
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
-        if (self.uintVars[keccak256('slotProgress')] == 5) {
+        if (self.uintVars[keccak256('slotProgress')] == 20) {
             newBlock(self, _nonce, _requestId);
         }
     }
