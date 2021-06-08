@@ -7,6 +7,7 @@ import './ZapTransfer.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System Library
@@ -139,7 +140,8 @@ library ZapLibrary {
             (now % 1 minutes);
 
         //The sorting algorithm that sorts the values of the first five values that come in
-        ZapStorage.Details[20] memory a = self.currentMiners;
+        ZapStorage.Details[] memory a = self.currentMiners;
+
         uint256 i;
         for (i = 1; i < 5; i++) {
             uint256 temp = a[i].value;

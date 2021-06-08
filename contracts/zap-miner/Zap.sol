@@ -6,6 +6,7 @@ import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapToken.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System
@@ -361,7 +362,7 @@ contract Zap {
         view
         returns (
             bytes32 _challenge,
-            uint256[5] memory _requestIds,
+            uint256[] memory _requestIds,
             uint256 _difficutly,
             uint256 _tip
         )

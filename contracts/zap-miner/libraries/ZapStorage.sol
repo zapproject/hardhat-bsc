@@ -64,8 +64,8 @@ library ZapStorage {
         mapping(uint256 => uint256) minedBlockNum; //[apiId][minedTimestamp]=>block.number
         mapping(uint256 => uint256) finalValues; //This the time series of finalValues stored by the contract where uint UNIX timestamp is mapped to value
         mapping(uint256 => bool) inDispute; //checks if API id is in dispute or finalized.
-        mapping(uint256 => address[20]) minersByValue;
-        mapping(uint256 => uint256[20]) valuesByTimestamp;
+        mapping(uint256 => address[]) minersByValue;
+        mapping(uint256 => uint256[]) valuesByTimestamp;
     }
 
     struct ZapStorageStruct {

@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 import './ZapStorage.sol';
 import './ZapTransfer.sol';
 import './ZapDispute.sol';
+import "hardhat/console.sol";
 
 // import "../token/ZapToken.sol";
 
@@ -146,12 +147,14 @@ library ZapStake {
         view
         returns (
             bytes32 _challenge,
-            uint256[5] memory _requestIds,
+            uint256[] memory _requestIds,
             uint256 _difficulty,
             uint256 _tip
         )
     {
+        
         for (uint256 i = 0; i < self.currentMiners.length; i++) {
+
             _requestIds[i] = self.currentMiners[i].value;
         }
         return (

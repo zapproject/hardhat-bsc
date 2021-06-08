@@ -245,7 +245,7 @@ describe("Main Miner Functions", () => {
 
 
 
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < signers.length; i++) {
 
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);
