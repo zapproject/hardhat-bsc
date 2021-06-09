@@ -438,7 +438,7 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         uint256 _requestId,
         uint256 _timestamp
-    ) internal view returns (uint256[20] memory) {
+    ) internal view returns (uint256[] memory) {
         return self.requestDetails[_requestId].valuesByTimestamp[_timestamp];
     }
 
