@@ -252,6 +252,8 @@ describe("Main Miner Functions", () => {
 
         }
 
+        console.log(await zap.getNewCurrentVariables())
+
     })
 
 })
