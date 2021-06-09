@@ -280,7 +280,7 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         uint256 _requestId,
         uint256 _timestamp
-    ) internal view returns (address[20] memory) {
+    ) internal view returns (address[] memory) {
         return self.requestDetails[_requestId].minersByValue[_timestamp];
     }
 
