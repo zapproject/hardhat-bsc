@@ -153,7 +153,7 @@ library ZapStake {
             uint256 _tip
         )
     {
-        for (uint256 i = 0; i < 5; i++) {
+        for (uint256 i = 0; i < self.miners.length; i++) {
             // _requestIds[i] = self.currentMiners[i].value;
         }
         return (
