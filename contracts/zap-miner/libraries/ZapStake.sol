@@ -155,6 +155,9 @@ library ZapStake {
     {
         for (uint256 i = 0; i < self.miners.length; i++) {
             // _requestIds[i] = self.currentMiners[i].value;
+        _requestIds[i] = self.currentMiners[msg.sender].value;
+
+
         }
         return (
             self.currentChallenge,

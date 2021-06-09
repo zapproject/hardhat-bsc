@@ -375,6 +375,7 @@ library ZapLibrary {
         // console.log("MINER ADDRESS", self.miners[self.uintVars[keccak256('slotProgress')]]);
         //Save the miner and value received
         self.currentMiners[miner_address].value = _value;
+
         self.currentMiners[miner_address].miner = msg.sender;
         // self.currentMiners[msg.sender].value = _value;
         // self.currentMiners[msg.sender].miner = msg.sender;
