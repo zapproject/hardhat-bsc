@@ -46,6 +46,7 @@ let signers: any;
 describe("Main Miner Functions", () => {
 
     beforeEach(async () => {
+        console.log('REACHED HERE - A');
 
         signers = await ethers.getSigners();
 
@@ -61,6 +62,7 @@ describe("Main Miner Functions", () => {
             "ZapTransfer",
             signers[0]
         )
+        console.log('REACHED HERE - B');
 
         zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer
         await zapTransfer.deployed();
@@ -85,6 +87,7 @@ describe("Main Miner Functions", () => {
             signer: signers[0]
 
         });
+        console.log('REACHED HERE - C');
 
         zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute
         await zapDispute.deployed();
@@ -115,6 +118,9 @@ describe("Main Miner Functions", () => {
         zap = (await zapFactory.deploy(zapToken.address)) as Zap
         await zap.deployed()
 
+        console.log('REACHED HERE - D');
+
+
         const zapMasterFactory: ContractFactory = await ethers.getContractFactory("ZapMaster", {
             libraries: {
                 ZapTransfer: zapTransfer.address,
@@ -131,6 +137,8 @@ describe("Main Miner Functions", () => {
             await zapToken.allocate(signers[i].address, 5000);
 
         }
+
+        // console.log("REACHED HERE")
 
 
     })
@@ -246,6 +254,10 @@ describe("Main Miner Functions", () => {
 
 
         for (var i = 0; i < signers.length; i++) {
+
+            console.log(signers[i].address)
+
+            // console.log(await zapMaster.getStakerInfo(signers[i].address))
 
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);

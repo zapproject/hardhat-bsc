@@ -72,7 +72,11 @@ library ZapStorage {
         bytes32 currentChallenge; //current challenge to be solved
         uint256[51] requestQ; //uint50 array of the top50 requests by payment amount
         uint256[] newValueTimestamps; //array of all timestamps requested
-        Details[20] currentMiners; //This struct is for organizing the five mined values to find the median
+        
+        address[] miners; // array of miner addresses
+        mapping (address => Details) currentMiners; //mapping of miner addresses to Details structs
+        
+        // Details[20] currentMiners; //This struct is for organizing the five mined values to find the median
         mapping(bytes32 => address) addressVars;
         //Address fields in the Zap contract are saved the addressVars mapping
         //e.g. addressVars[keccak256("zapContract")] = address

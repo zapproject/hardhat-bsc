@@ -129,6 +129,7 @@ library ZapStake {
             self.stakerDetails[staker].currentStatus == 0 ||
                 self.stakerDetails[staker].currentStatus == 2
         );
+
         self.uintVars[keccak256('stakerCount')] += 1;
         self.stakerDetails[staker] = ZapStorage.StakeInfo({
             currentStatus: 1,
@@ -152,10 +153,8 @@ library ZapStake {
             uint256 _tip
         )
     {
-        
-        for (uint256 i = 0; i < self.currentMiners.length; i++) {
-
-            _requestIds[i] = self.currentMiners[i].value;
+        for (uint256 i = 0; i < 5; i++) {
+            // _requestIds[i] = self.currentMiners[i].value;
         }
         return (
             self.currentChallenge,
