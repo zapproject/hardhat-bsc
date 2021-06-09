@@ -169,6 +169,8 @@ library ZapLibrary {
 
         // once it's sorted we can check
 
+        console.log('HELLLO');
+
         //Pay the miners
         for (i = 0; i < self.miners.length; i++) {
             ZapTransfer.doTransfer(
@@ -178,6 +180,7 @@ library ZapLibrary {
                 5 + self.uintVars[keccak256('currentTotalTips')] / 5
             );
         }
+
         emit NewValue(
             _requestId,
             self.uintVars[keccak256('timeOfLastNewValue')],
