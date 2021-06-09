@@ -169,8 +169,6 @@ library ZapLibrary {
 
         // once it's sorted we can check
 
-        console.log('HELLLO');
-
         //Pay the miners
         for (i = 0; i < self.miners.length; i++) {
             ZapTransfer.doTransfer(

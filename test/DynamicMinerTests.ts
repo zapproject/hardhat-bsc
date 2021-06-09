@@ -242,7 +242,7 @@ describe("Main Miner Functions", () => {
             await zap.requestData(apix, x, 1000, 52 - i);
         }
 
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < signers.length; i++) {
 
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);
@@ -251,8 +251,6 @@ describe("Main Miner Functions", () => {
             await zap.submitMiningSolution("nonce", 1, 1200);
 
         }
-
-        console.log(await zap.getNewCurrentVariables())
 
     })
 
