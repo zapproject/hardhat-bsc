@@ -29,8 +29,8 @@ library ZapStake {
         //Give this contract 6000 Zap Token so that it can stake the initial 6 miners
         ZapTransfer.updateBalanceAtNow(self.balances[address(this)], 6000);
 
-        //the initial 5 miner addresses are specfied below
-        //changed payable[5] to 6
+        // //the initial 5 miner addresses are specfied below
+        // //changed payable[5] to 6
         // address payable[6] memory _initalMiners =
         //     [
         //         address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266),
@@ -40,7 +40,7 @@ library ZapStake {
         //         address(0xdD2FD4581271e230360230F9337D5c0430Bf44C0),
         //         address(0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199)
         //     ];
-        //Stake each of the 5 miners specified above
+        // //Stake each of the 5 miners specified above
         // for (uint256 i = 0; i < 6; i++) {
         //     //6th miner to allow for dispute
         //     //Miner balance is set at 1000 at the block that this function is ran
