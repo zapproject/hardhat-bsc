@@ -173,6 +173,17 @@ describe("Dynamic Miner Tests", () => {
             await zap.requestData(apix, x, 1000, 52 - i);
         }
 
+        
+        // fake values for each miner.
+        // 20 values and although it's an even amount, the current median value is 1209.
+        let valuesArray:any = [
+            1203, 1209, 1213, 1204,
+            1206, 1216, 1208, 1207,
+            1201, 1212, 1219, 1218,
+            1214, 1217, 1205, 1200,
+            1210, 1215, 1211, 1202
+        ]
+        
         // Iterates through all 20 signers
         for (var i = 0; i < signers.length; i++) {
 
@@ -180,9 +191,10 @@ describe("Dynamic Miner Tests", () => {
             zap = zap.connect(signers[i]);
 
             // Each Miner connected will submit a mining solution
-            await zap.submitMiningSolution("nonce", 1, 1200);
+            await zap.submitMiningSolution("nonce", 1, valuesArray[i]);
 
         }
+        console.log(await zap.getNewCurrentVariables())
 
     })
 

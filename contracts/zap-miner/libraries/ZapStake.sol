@@ -152,16 +152,14 @@ library ZapStake {
             uint256 _difficulty,
             uint256 _tip
         )
-    {
+    {        
+        uint256[] memory requestIds = new uint[](self.miners.length);
         for (uint256 i = 0; i < self.miners.length; i++) {
-
-
-            _requestIds[i] = self.currentMiners[self.miners[i]].value;
-
+            requestIds[i] = self.currentMiners[self.miners[i]].value;
         }
         return (
             self.currentChallenge,
-            _requestIds,
+            requestIds,
             self.uintVars[keccak256('difficulty')],
             self.uintVars[keccak256('currentTotalTips')]
         );
