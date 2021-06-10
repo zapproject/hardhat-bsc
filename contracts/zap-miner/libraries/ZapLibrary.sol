@@ -360,30 +360,19 @@ library ZapLibrary {
             self.minersByChallenge[self.currentChallenge][msg.sender] == false
         );
 
-        // get the miner address from ZapStorage.miners
-        // console.log("SLOT PROGRESS", self.uintVars[keccak256('slotProgress')]);
-        // console.log("MINER LENGTH", self.miners.length);
-
+        // Stores each miner address submitting a solution to the miners array
         self.miners.push(msg.sender);
+
         address miner_address =
             self.miners[self.uintVars[keccak256('slotProgress')]];
-        // console.log("SLOT PROGRESS", self.uintVars[keccak256('slotProgress')]);
-        // console.log("MINER LENGTH", self.miners.length);
 
-        // console.log("MINER ADDRESS", self.miners[self.uintVars[keccak256('slotProgress')]]);
-        //Save the miner and value received
+        // Saves the submitted value from the msg.sender
         self.currentMiners[miner_address].value = _value;
 
+        // Saves address of the msg.sender
         self.currentMiners[miner_address].miner = msg.sender;
-        // self.currentMiners[msg.sender].value = _value;
-        // self.currentMiners[msg.sender].miner = msg.sender;
 
-        // self.currentMiners[self.uintVars[keccak256('slotProgress')]]
-        //     .value = _value;
-        // self.currentMiners[self.uintVars[keccak256('slotProgress')]].miner = msg
-        //     .sender;
-
-        //Add to the count how many values have been submitted, since only 5 are taken per request
+        //Add to the count how many values have been submitted
         self.uintVars[keccak256('slotProgress')]++;
 
         //Update the miner status to true once they submit a value so they don't submit more than once
@@ -397,7 +386,10 @@ library ZapLibrary {
             self.currentChallenge
         );
 
-        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
+        /*If the dynamic values have been received, 
+        adjust the difficulty otherwise sort the values until all are received
+        */
+        // Need to adjust this number to the amount if validators selected
         if (self.uintVars[keccak256('slotProgress')] == 20) {
             newBlock(self, _nonce, _requestId);
         }

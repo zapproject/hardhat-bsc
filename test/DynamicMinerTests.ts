@@ -43,7 +43,7 @@ let zap: Zap;
 
 let signers: any;
 
-describe("Main Miner Functions", () => {
+describe("Dynamic Miner Tests", () => {
 
     beforeEach(async () => {
 
@@ -134,76 +134,7 @@ describe("Main Miner Functions", () => {
 
     })
 
-    it("Should have an initial stake status of 0", async () => {
-
-        for (var i = 0; i < signers.length; i++) {
-
-            const getStakeStatus = await zapMaster.getStakerInfo(signers[i].address);
-
-            const stakeStatus = parseInt(getStakeStatus[0]._hex);
-
-            expect(stakeStatus).to.equal(0)
-
-        }
-
-    })
-
-    it("Should have an initial staker count of 0", async () => {
-
-        // Converts the uintVar "stakerCount" to a bytes array
-        const stakerCountBytes: Uint8Array = ethers.utils.toUtf8Bytes("stakerCount");
-
-        // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
-        const stakerCountHash: string = ethers.utils.keccak256(stakerCountBytes);
-
-        // Gets the number of parties currently staked
-        const getStakerCount: BigNumber = await zapMaster.getUintVar(stakerCountHash);
-
-        // Parsed the getStakerCount from a hexString to a number
-        const stakerCount: number = parseInt(getStakerCount._hex);
-
-        expect(stakerCount).to.equal(0)
-
-    })
-
-    it("Should be able to stake all test accounts", async () => {
-
-        // Iterates through signers 0 through 20
-        for (var i = 0; i < signers.length; i++) {
-
-            // Attach the ZapMaster instance to Zap
-            zap = zap.attach(zapMaster.address);
-
-            // Connects addresses 0-20 as the signer
-            zap = zap.connect(signers[i]);
-
-            // Stakes 1000 Zap to initiate a miner
-            await zap.depositStake();
-
-            const getStakeStatus = await zapMaster.getStakerInfo(signers[i].address);
-
-            const stakeStatus = parseInt(getStakeStatus[0]._hex);
-
-            expect(stakeStatus).to.equal(1);
-        }
-
-        // Converts the uintVar "stakerCount" to a bytes array
-        const stakerCountBytes: Uint8Array = ethers.utils.toUtf8Bytes("stakerCount");
-
-        // Converts the uintVar "stakerCount" from a bytes array to a keccak256 hash
-        const stakerCountHash: string = ethers.utils.keccak256(stakerCountBytes);
-
-        // Gets the number of parties currently staked
-        const getStakerCount: BigNumber = await zapMaster.getUintVar(stakerCountHash);
-
-        // Parsed the getStakerCount from a hexString to a number
-        const stakerCount: number = parseInt(getStakerCount._hex);
-
-        expect(stakerCount).to.equal(signers.length)
-
-    })
-
-    it("Test mine", async () => {
+    it("Should submit multiple mining solutions", async () => {
 
         let x: string;
 
@@ -212,13 +143,13 @@ describe("Main Miner Functions", () => {
         // Request string
         const api: string = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
 
-        // Iterates through signers 0 through 20
+        // Iterates through all 20 signers
         for (var i = 0; i < signers.length; i++) {
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
 
-            // Connects addresses 0-20 as the signer
+            // Connects the 20 signers to the Zap.sol contract
             zap = zap.connect(signers[i]);
 
             // Stakes 1000 Zap to initiate a miner
@@ -242,12 +173,13 @@ describe("Main Miner Functions", () => {
             await zap.requestData(apix, x, 1000, 52 - i);
         }
 
+        // Iterates through all 20 signers
         for (var i = 0; i < signers.length; i++) {
 
-            // Connects address 1 as the signer
+            // Connects the 20 signers to the Zap.sol contract
             zap = zap.connect(signers[i]);
 
-            // // Each Miner will submit a mining solution
+            // Each Miner connected will submit a mining solution
             await zap.submitMiningSolution("nonce", 1, 1200);
 
         }
