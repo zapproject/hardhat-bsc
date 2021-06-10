@@ -1,14 +1,15 @@
 const { task } = require("hardhat/config");
+const assert = require('assert').strict;
 require("hardhat-deploy-ethers");
 require('hardhat-deploy');
 
 task("checkBalances", "Prints the test account balances")
 
     .setAction(async () => {
-        console.log(process.argv)
+
         // Stores the ZAP balance of each test account
         const balances = [];
-        
+
         // Test accounts
         const signers = await ethers.getSigners();
 
@@ -19,26 +20,8 @@ task("checkBalances", "Prints the test account balances")
         for (var i = 0; i < signers.length; i++) {
 
             // Gets the balance of each test account
-            await token.balanceOf(signers[i].address)
-                .then((balance) => {
+            let b=await token.balanceOf(signers[i].address)
+                
+            }
 
-                    balances.push(balance);
-                })
-                .catch((err) => {
-                    return err;
-                })
-
-            // Log account details
-            console.log(
-                {
-                    signer: i,
-                    address: signers[i].address,
-                    ZAP_Balance: parseInt(balances[i]._hex) + ' ZAP',
-                },
-            );
-        }
-
-    });
-
-
-
+    }

@@ -202,9 +202,9 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
         require(issued + numDots <= dotLimit(oracleAddress, endpoint), "Error: Dot limit exceeded");
 
         uint256 numZap = currentCost._costOfNDots(oracleAddress, endpoint, issued + 1, numDots - 1);
-
+        //require(token.balancnumDots)
         // User must have approved contract to transfer working ZAP
-        console.log(numZap,"cost in dots");
+        require(token.balanceOf(msg.sender)>=numZap,"cost in dots");
         require(token.transferFrom(msg.sender, address(this), numZap), "Error: User must have approved contract to transfer ZAP");
 
         if (!isProviderInitialized(holderAddress, oracleAddress)) {

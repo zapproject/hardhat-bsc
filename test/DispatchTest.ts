@@ -94,7 +94,7 @@ describe('ZapBondage', () => {
   let dispatch: Dispatch;
   let offchainsubscriber: OffChainClient;
   let allocatedAmt: number;
-
+  let priceClient:any;
   let signers: any;
   let subscriberAccount: any;
   let owner: any;
@@ -127,12 +127,14 @@ describe('ZapBondage', () => {
       'OffChainClient',
       signers[0]
     );
+    
     const dbFactory = await ethers.getContractFactory('Database', signers[0]);
 
     const registryFactory = await ethers.getContractFactory(
       'Registry',
       signers[0]
     );
+
     const costFactory = await ethers.getContractFactory(
       'CurrentCost',
       signers[0]
@@ -204,6 +206,7 @@ describe('ZapBondage', () => {
     )) as OffChainClient;
 
     await subscriber.deployed();
+   
     await offchainsubscriber.deployed();
     oracle = (await await oracleFactory.deploy(
       registry.address,
@@ -211,6 +214,16 @@ describe('ZapBondage', () => {
     )) as TestProvider;
 
     oracle = await oracle.deployed();
+   /**  const PriceClient = await ethers.getContractFactory(
+      'priceClient',
+      signers[0]
+    );
+    let priceClient=await PriceClient.deploy( zapToken.address,
+      dispatch.address,
+      bondage.address,
+      registry.address,
+      owner.address, query, spec2, params)
+      **/
   });
 
   async function prepareTokens(allocAddress = subscriberAccount) {
@@ -380,7 +393,7 @@ describe('ZapBondage', () => {
     let result = await offchainsubscriber
       .connect(subscriberAccount)
       .testQuery(owner.address, query, spec2, params);
-
+      
     let r = await result.wait();
     let incoming: any = r.events ?? ([] as Event[]);
 
@@ -403,6 +416,32 @@ describe('ZapBondage', () => {
     expect(Result1.args["response1"]).to.equal("A TEST RESPONSE");
    
   });
+  it('DISPATCH_5-2 - query() - tests query via pricenClient', async function () {
+    await prepareProvider();
+    await prepareTokens();
+    const PriceClient = await ethers.getContractFactory(
+      'priceClient',
+      signers[0]
+    );
+    let priceClient=await PriceClient.deploy( zapToken.address,
+      dispatch.address,
+      bondage.address,
+      registry.address,
+      owner.address, query, spec2, params)
+
+    await priceClient.deployed()
+
+    await zapToken
+      .connect(subscriberAccount)
+      .approve(bondage.address, approveTokens);
+    await bondage
+      .connect(subscriberAccount)
+      .delegateBond(priceClient.address, owner.address, spec2, 100);
+
+      let result = await priceClient
+      .connect(subscriberAccount)
+      .initPriceQuery() ;
+  })
   it('DISPATCH_6 - query() - test a query to an offchain subscriber through dispatch fails from unathorized ', async function () {
     await prepareProvider();
     await prepareTokens();
