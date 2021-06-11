@@ -196,10 +196,7 @@ describe("Dynamic Miner Tests", () => {
         }
 
         let newCurrentVariables = await zap.getNewCurrentVariables();
-        console.log(newCurrentVariables[1].length)
-        // console.log("after submit", await zap.getNewCurrentVariables())
 
-        // expect(newCurrentVariables[1].length).to.have.length(20);
         expect(newCurrentVariables[1]).to.have.lengthOf(20);
         expect(newCurrentVariables[1][10]).to.equal(1210);
 
