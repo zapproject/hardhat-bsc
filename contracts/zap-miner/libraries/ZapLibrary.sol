@@ -7,6 +7,7 @@ import './ZapTransfer.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System Library
@@ -139,36 +140,49 @@ library ZapLibrary {
             (now % 1 minutes);
 
         //The sorting algorithm that sorts the values of the first five values that come in
-        ZapStorage.Details[5] memory a = self.currentMiners;
+        // ZapStorage.Details[20] memory a = self.currentMiners;
+
+        // dynamic array of miner addresses
+        address[] memory a = self.miners;
+
         uint256 i;
-        for (i = 1; i < 5; i++) {
-            uint256 temp = a[i].value;
-            address temp2 = a[i].miner;
+        for (i = 0; i < a.length; i++) {
+            ZapStorage.Details memory det = self.currentMiners[a[i]];
+            uint256 temp = det.value;
+            address temp2 = det.miner;
+
+            // uint256 temp = a[i].value;
+            // address temp2 = a[i].miner;
             uint256 j = i;
-            while (j > 0 && temp < a[j - 1].value) {
-                a[j].value = a[j - 1].value;
-                a[j].miner = a[j - 1].miner;
+            while (j > 0 && temp < self.currentMiners[a[j - 1]].value) {
+                self.currentMiners[a[j]].value = self.currentMiners[a[j - 1]]
+                    .value;
+                self.currentMiners[a[j]].miner = self.currentMiners[a[j - 1]]
+                    .miner;
                 j--;
             }
             if (j < i) {
-                a[j].value = temp;
-                a[j].miner = temp2;
+                self.currentMiners[a[j]].value = temp;
+                self.currentMiners[a[j]].miner = temp2;
             }
         }
 
+        // once it's sorted we can check
+
         //Pay the miners
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < self.miners.length; i++) {
             ZapTransfer.doTransfer(
                 self,
                 address(this),
-                a[i].miner,
+                self.currentMiners[a[i]].miner,
                 5 + self.uintVars[keccak256('currentTotalTips')] / 5
             );
         }
+
         emit NewValue(
             _requestId,
             self.uintVars[keccak256('timeOfLastNewValue')],
-            a[2].value,
+            self.currentMiners[a[2]].value,
             self.uintVars[keccak256('currentTotalTips')] -
                 (self.uintVars[keccak256('currentTotalTips')] % 5),
             self.currentChallenge
@@ -187,17 +201,32 @@ library ZapLibrary {
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
             self.uintVars[keccak256('timeOfLastNewValue')]
-        ] = a[2].value;
+        ] = self.currentMiners[a[2]].value;
         _request.requestTimestamps.push(
             self.uintVars[keccak256('timeOfLastNewValue')]
         );
         //these are miners by timestamp
         _request.minersByValue[
             self.uintVars[keccak256('timeOfLastNewValue')]
-        ] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
+        ] = [
+            self.currentMiners[a[0]].miner,
+            self.currentMiners[a[1]].miner,
+            self.currentMiners[a[2]].miner,
+            self.currentMiners[a[3]].miner,
+            self.currentMiners[a[4]].miner
+        ];
+        // _request.minersByValue[
+        //     self.uintVars[keccak256('timeOfLastNewValue')]
+        // ] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
         _request.valuesByTimestamp[
             self.uintVars[keccak256('timeOfLastNewValue')]
-        ] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
+        ] = [
+            self.currentMiners[a[0]].value,
+            self.currentMiners[a[1]].value,
+            self.currentMiners[a[2]].value,
+            self.currentMiners[a[3]].value,
+            self.currentMiners[a[4]].value
+        ];
         _request.minedBlockNum[
             self.uintVars[keccak256('timeOfLastNewValue')]
         ] = block.number;
@@ -331,13 +360,19 @@ library ZapLibrary {
             self.minersByChallenge[self.currentChallenge][msg.sender] == false
         );
 
-        //Save the miner and value received
-        self.currentMiners[self.uintVars[keccak256('slotProgress')]]
-            .value = _value;
-        self.currentMiners[self.uintVars[keccak256('slotProgress')]].miner = msg
-            .sender;
+        // Stores each miner address submitting a solution to the miners array
+        self.miners.push(msg.sender);
 
-        //Add to the count how many values have been submitted, since only 5 are taken per request
+        address miner_address =
+            self.miners[self.uintVars[keccak256('slotProgress')]];
+
+        // Saves the submitted value from the msg.sender
+        self.currentMiners[miner_address].value = _value;
+
+        // Saves address of the msg.sender
+        self.currentMiners[miner_address].miner = msg.sender;
+
+        //Add to the count how many values have been submitted
         self.uintVars[keccak256('slotProgress')]++;
 
         //Update the miner status to true once they submit a value so they don't submit more than once
@@ -351,8 +386,11 @@ library ZapLibrary {
             self.currentChallenge
         );
 
-        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
-        if (self.uintVars[keccak256('slotProgress')] == 5) {
+        /*If the dynamic values have been received, 
+        adjust the difficulty otherwise sort the values until all are received
+        */
+        // Need to adjust this number to the amount if validators selected
+        if (self.uintVars[keccak256('slotProgress')] == 20) {
             newBlock(self, _nonce, _requestId);
         }
     }

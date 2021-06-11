@@ -64,15 +64,16 @@ library ZapStorage {
         mapping(uint256 => uint256) minedBlockNum; //[apiId][minedTimestamp]=>block.number
         mapping(uint256 => uint256) finalValues; //This the time series of finalValues stored by the contract where uint UNIX timestamp is mapped to value
         mapping(uint256 => bool) inDispute; //checks if API id is in dispute or finalized.
-        mapping(uint256 => address[5]) minersByValue;
-        mapping(uint256 => uint256[5]) valuesByTimestamp;
+        mapping(uint256 => address[]) minersByValue;
+        mapping(uint256 => uint256[]) valuesByTimestamp;
     }
 
     struct ZapStorageStruct {
         bytes32 currentChallenge; //current challenge to be solved
         uint256[51] requestQ; //uint50 array of the top50 requests by payment amount
         uint256[] newValueTimestamps; //array of all timestamps requested
-        Details[5] currentMiners; //This struct is for organizing the five mined values to find the median
+        address[] miners; // array of miner addresses
+        mapping(address => Details) currentMiners; //mapping of miner addresses to Details structs
         mapping(bytes32 => address) addressVars;
         //Address fields in the Zap contract are saved the addressVars mapping
         //e.g. addressVars[keccak256("zapContract")] = address

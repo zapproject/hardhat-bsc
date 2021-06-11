@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 import './ZapStorage.sol';
 import './ZapTransfer.sol';
 import './ZapDispute.sol';
+import "hardhat/console.sol";
 
 // import "../token/ZapToken.sol";
 
@@ -128,6 +129,7 @@ library ZapStake {
             self.stakerDetails[staker].currentStatus == 0 ||
                 self.stakerDetails[staker].currentStatus == 2
         );
+
         self.uintVars[keccak256('stakerCount')] += 1;
         self.stakerDetails[staker] = ZapStorage.StakeInfo({
             currentStatus: 1,
@@ -146,13 +148,16 @@ library ZapStake {
         view
         returns (
             bytes32 _challenge,
-            uint256[5] memory _requestIds,
+            uint256[] memory _requestIds,
             uint256 _difficulty,
             uint256 _tip
         )
     {
-        for (uint256 i = 0; i < 5; i++) {
-            _requestIds[i] = self.currentMiners[i].value;
+        for (uint256 i = 0; i < self.miners.length; i++) {
+
+
+            _requestIds[i] = self.currentMiners[self.miners[i]].value;
+
         }
         return (
             self.currentChallenge,
