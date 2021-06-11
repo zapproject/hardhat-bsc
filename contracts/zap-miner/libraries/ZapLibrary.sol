@@ -205,6 +205,7 @@ library ZapLibrary {
         _request.requestTimestamps.push(
             self.uintVars[keccak256('timeOfLastNewValue')]
         );
+
         //these are miners by timestamp
         _request.minersByValue[
             self.uintVars[keccak256('timeOfLastNewValue')]

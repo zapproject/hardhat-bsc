@@ -173,17 +173,17 @@ describe("Dynamic Miner Tests", () => {
             await zap.requestData(apix, x, 1000, 52 - i);
         }
 
-        
+
         // Fake values for each miner. Values are 1200 to 1219.
         // 20 values and although it's an even amount, the current median value is valuesArray[10] = 1210
-        let valuesArray:any = [
+        let valuesArray: any = [
             1203, 1209, 1213, 1204,
             1206, 1216, 1208, 1207,
             1201, 1212, 1219, 1218,
             1214, 1217, 1205, 1200,
             1210, 1215, 1211, 1202
         ]
-        
+
         // Iterates through all 20 signers
         for (var i = 0; i < signers.length; i++) {
 
@@ -196,6 +196,14 @@ describe("Dynamic Miner Tests", () => {
         }
 
         let newCurrentVariables = await zap.getNewCurrentVariables();
+
+        const getTimestamp = await zapMaster.getTimestampbyRequestIDandIndex(1, 0);
+
+        const timestamp = parseInt(getTimestamp._hex);
+
+        console.log('TESTIN', await zapMaster.getMinersByRequestIdAndTimestamp(1, timestamp));
+
+
 
         expect(newCurrentVariables[1]).to.have.lengthOf(20);
         expect(newCurrentVariables[1][10]).to.equal(1210);
