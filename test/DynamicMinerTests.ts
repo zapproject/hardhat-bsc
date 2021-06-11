@@ -174,8 +174,8 @@ describe("Dynamic Miner Tests", () => {
         }
 
         
-        // fake values for each miner.
-        // 20 values and although it's an even amount, the current median value is 1209.
+        // Fake values for each miner. Values are 1200 to 1219.
+        // 20 values and although it's an even amount, the current median value is valuesArray[10] = 1210
         let valuesArray:any = [
             1203, 1209, 1213, 1204,
             1206, 1216, 1208, 1207,
@@ -194,7 +194,14 @@ describe("Dynamic Miner Tests", () => {
             await zap.submitMiningSolution("nonce", 1, valuesArray[i]);
 
         }
-        console.log(await zap.getNewCurrentVariables())
+
+        let newCurrentVariables = await zap.getNewCurrentVariables();
+        console.log(newCurrentVariables[1].length)
+        // console.log("after submit", await zap.getNewCurrentVariables())
+
+        // expect(newCurrentVariables[1].length).to.have.length(20);
+        expect(newCurrentVariables[1]).to.have.lengthOf(20);
+        expect(newCurrentVariables[1][10]).to.equal(1210);
 
     })
 
