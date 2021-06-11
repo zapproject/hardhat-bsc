@@ -11,7 +11,7 @@ contract OffChainClient is Client1, Client2{
 
     event MadeQuery(address oracle, string query, uint256 id);
     event Result1(uint256 id, string response1);
-    event Result32(uint256 id, bytes32 response1);
+    event Result1(uint256 id, bytes32 response1);
     event Result2(uint256 id, string response1, string response2);
     event Result3(uint256 id, int[] response3);
 
@@ -60,16 +60,16 @@ contract OffChainClient is Client1, Client2{
         // do something with result
     }
     function callback(uint256 id, bytes32[]  calldata response) external  onlyOracle() {
-        emit Result32(id, response[0]);
+        emit Result1(id, response[0]);
         queryBytes32Results[id]=response;
-        queryBytes32IDs[totalBytes32Queries]=id;
+        queryBytes32IDs[totalQueries]=id;
         totalBytes32Queries++;
         // do something with result
     }
     function callback(uint256 id, int[]  calldata response) external  onlyOracle() {
         emit Result3(id, response);
         queryIntResults[id]=response;
-        queryIntIDs[totalIntQueries]=id;
+        queryIntIDs[totalQueries]=id;
         totalIntQueries++;
         // do something with result
     }
