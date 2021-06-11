@@ -182,7 +182,7 @@ library ZapLibrary {
         emit NewValue(
             _requestId,
             self.uintVars[keccak256('timeOfLastNewValue')],
-            self.currentMiners[a[2]].value,
+            self.currentMiners[a[a.length/2]].value,
             self.uintVars[keccak256('currentTotalTips')] -
                 (self.uintVars[keccak256('currentTotalTips')] % 5),
             self.currentChallenge
@@ -201,32 +201,18 @@ library ZapLibrary {
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
             self.uintVars[keccak256('timeOfLastNewValue')]
-        ] = self.currentMiners[a[2]].value;
+        ] = self.currentMiners[a[a.length/2]].value;
         _request.requestTimestamps.push(
             self.uintVars[keccak256('timeOfLastNewValue')]
         );
-        //these are miners by timestamp
-        _request.minersByValue[
-            self.uintVars[keccak256('timeOfLastNewValue')]
-        ] = [
-            self.currentMiners[a[0]].miner,
-            self.currentMiners[a[1]].miner,
-            self.currentMiners[a[2]].miner,
-            self.currentMiners[a[3]].miner,
-            self.currentMiners[a[4]].miner
-        ];
-        // _request.minersByValue[
-        //     self.uintVars[keccak256('timeOfLastNewValue')]
-        // ] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
-        _request.valuesByTimestamp[
-            self.uintVars[keccak256('timeOfLastNewValue')]
-        ] = [
-            self.currentMiners[a[0]].value,
-            self.currentMiners[a[1]].value,
-            self.currentMiners[a[2]].value,
-            self.currentMiners[a[3]].value,
-            self.currentMiners[a[4]].value
-        ];
+
+
+        //set miners and values by timestamp
+        for(uint i = 0; i < a.length; i++) {
+            _request.minersByValue[self.uintVars[keccak256('timeOfLastNewValue')]].push(self.currentMiners[a[i]].miner);
+            _request.valuesByTimestamp[self.uintVars[keccak256('timeOfLastNewValue')]].push(self.currentMiners[a[i]].value);
+        }
+
         _request.minedBlockNum[
             self.uintVars[keccak256('timeOfLastNewValue')]
         ] = block.number;
