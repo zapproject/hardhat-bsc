@@ -354,8 +354,8 @@ contract Zap {
     }
 
     /**
-     * @dev Getter for the current variables that include the 5 requests Id's
-     * @return the challenge, 5 requestsId, difficulty and tip
+     * @dev Getter for the current variables that include the dynamic requests Id's
+     * @return the challenge, dynamic requestsId, difficulty and tip
      */
     function getNewCurrentVariables()
         external
