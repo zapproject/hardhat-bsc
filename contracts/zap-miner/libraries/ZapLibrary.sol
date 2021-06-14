@@ -140,12 +140,13 @@ library ZapLibrary {
             (now % 1 minutes);
 
         //The sorting algorithm that sorts the values of the first five values that come in
-        // ZapStorage.Details[20] memory a = self.currentMiners;
 
         // dynamic array of miner addresses
         address[] memory a = self.miners;
 
+        // Counter
         uint256 i;
+
         for (i = 0; i < a.length; i++) {
             ZapStorage.Details memory det = self.currentMiners[a[i]];
             uint256 temp = det.value;

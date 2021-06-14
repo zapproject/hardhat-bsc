@@ -174,7 +174,8 @@ describe("Dynamic Miner Tests", () => {
         }
 
         // Fake values for each miner. Values are 1200 to 1219.
-        // 20 values and although it's an even amount, the current median value is valuesArray[10] = 1210
+        // 20 values and although it's an even amount, 
+        // the current median value is valuesArray[10] = 1210
         let valuesArray: number[] = [
             1203, 1209, 1213, 1204,
             1206, 1216, 1208, 1207,
