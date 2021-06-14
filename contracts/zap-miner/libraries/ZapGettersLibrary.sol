@@ -429,10 +429,10 @@ library ZapGettersLibrary {
     }
 
     /**
-     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
+     * @dev Gets the miners who mined the value for the specified requestId/_timestamp
      * @param _requestId to look up
      * @param _timestamp is the timestampt to look up miners for
-     * @return address[5] array of 5 addresses ofminers that mined the requestId
+     * @return address[] array of addresses of miners that mined the requestId
      */
     function getSubmissionsByTimestamp(
         ZapStorage.ZapStorageStruct storage self,
