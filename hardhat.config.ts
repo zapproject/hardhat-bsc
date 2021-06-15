@@ -25,7 +25,7 @@ import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 
-import {getBSCGasPrice} from './scripts/getGasPrice'
+import { getBSCGasPrice } from './scripts/getGasPrice'
 const fs = require('fs');  // required for reading BSC gas price
 
 // TODO: reenable solidity-coverage when it works
@@ -42,41 +42,45 @@ const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
 getBSCGasPrice()
 
 const config = {
-
   solidity: {
-    compilers: [{ version: "0.4.24", settings: {} }, { version: "0.5.1", settings: {} }],
+    compilers: [
+      { version: '0.4.24', settings: {} },
+      { version: '0.5.1', settings: {} }
+    ]
   },
   gasReporter: {
     enabled: true,
-    currency: "USD",
+    currency: 'USD',
     gasPrice: 0.0,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
     localhost: {
-      url: "http://127.0.0.1:8545/",
-
+      url: 'http://127.0.0.1:8545/'
     },
     hardhat: {
-      gasPrice: 8000000000,
+      gasPrice: 8000000000
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [RINKEBY_PRIVATE_KEY],
+      accounts: [RINKEBY_PRIVATE_KEY]
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [KOVAN_PRIVATE_KEY],
+      accounts: [KOVAN_PRIVATE_KEY]
     },
     coverage: {
-      url: "http://127.0.0.1:8555", // Coverage launches its own ganache-cli client
-    },
+      url: 'http://127.0.0.1:8555' // Coverage launches its own ganache-cli client
+    }
   },
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: ETHERSCAN_API_KEY
   },
+  mocha: {
+    timeout: 1000000
+  }
 };
 
 // read BSC gas price and assign the gas reporter and hardhat network's gas price to it

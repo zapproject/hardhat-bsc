@@ -48,9 +48,10 @@ Notes:
 Create/modify network config in `hardhat.config.ts` and add API key and private key, then run:
 
 `npx hardhat run --network rinkeby scripts/deploy.ts`
-### -or- Just use Docker
+### -or- Just use Docker NOTE PLEASE BUILD CONTAINERS BEFORE MAKING PULL REQUESTS
 Right click on the dockerfile and click "build image", tag the image (ex) - "zaphardhatdevelop:latest"
 Run  `docker run -td zaphardhatdevelop`, the command `npx hardhat node` will run automatically
 To Deploy to localhost,
+Run `docker build -t zaphardhat:branchname . `
 -Open Docker Desktop, click the cli button marked with ">-"
 Run `npx hardhat run --network localhost scripts/deploy.ts`
