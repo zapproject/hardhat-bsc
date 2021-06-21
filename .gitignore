@@ -3,4 +3,4 @@ node_modules
 typechain
 artifacts
 cache
-.env
+.env 
