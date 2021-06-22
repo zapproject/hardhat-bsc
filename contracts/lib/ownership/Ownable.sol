@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 contract Ownable {
     address payable public owner;
@@ -6,6 +6,10 @@ contract Ownable {
 
     /// @dev The Ownable constructor sets the original `owner` of the contract to the sender account.
     constructor() public { owner = msg.sender; }
+
+    function getOwner() external view returns (address) {
+        return owner;
+    }
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {

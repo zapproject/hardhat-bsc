@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 contract OnChainProvider {
     /// @dev function for requesting data from on-chain provider

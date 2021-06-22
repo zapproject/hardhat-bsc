@@ -1,5 +1,5 @@
 
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 
 import "./Ownable.sol";

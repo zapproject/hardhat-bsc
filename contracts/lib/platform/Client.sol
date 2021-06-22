@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 contract Client1 {
     /// @dev callback that provider will call after Dispatch.query() call

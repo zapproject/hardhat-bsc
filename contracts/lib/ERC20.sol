@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 contract ERC20Basic {
     uint256 public totalSupply;

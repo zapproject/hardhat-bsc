@@ -45,7 +45,7 @@ const config = {
   solidity: {
     compilers: [
       { version: '0.4.24', settings: {} },
-      { version: '0.5.1', settings: {} }
+      { version: '0.5.16', settings: {} }
     ]
   },
   gasReporter: {

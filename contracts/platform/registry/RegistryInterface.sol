@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 contract RegistryInterface {
     function initiateProvider(uint256, bytes32) public returns (bool);

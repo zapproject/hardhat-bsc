@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.5.16;
 
 contract ArbiterInterface {
     function initiateSubscription(address, bytes32, bytes32[] memory, uint256, uint64) public;
