@@ -2,7 +2,7 @@
  *Submitted for verification at BscScan.com on 2021-05-24
 */
 
-pragma solidity ^0.5.166;
+pragma solidity ^0.5.16;
 
 
 
