@@ -1,5 +1,5 @@
 
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "./MPOStorage.sol";
 import "./lib/Destructible.sol";
@@ -46,7 +46,7 @@ contract MultiPartyOracle {
     // @param address registryAddress
     // @param address _dispatchAddress
     // @param address mpoStorageAddress
-    constructor(address _zapCoord, address mpoStorageAddress) public{
+    constructor(address _zapCoord, address mpoStorageAddress) public {
         // require(_responders.length<=stor.getNumResponders(), "Soft Cap reached");
         registryAddress = ZapInterface(_zapCoord).getContract("REGISTRY");
         registry = ZapInterface(registryAddress);
@@ -80,7 +80,7 @@ contract MultiPartyOracle {
 
     
 
-    function receive(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
+    function receiveQuery(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
 
         emit RecievedQuery(userQuery, endpoint, endpointParams, msg.sender);
         require(msg.sender == dispatchAddress && stor.getQueryStatus(id) == 0, "Dispatch only");
@@ -95,7 +95,7 @@ contract MultiPartyOracle {
             uint256 mpoid;
             for(uint i=0; i<stor.getNumResponders(); i++) {      
                 mpoid=uint256(keccak256(abi.encodePacked(
-                                block.number, now, userQuery,id,stor.getResponderAddress(i)
+                                block.number, block.timestamp, userQuery,id,stor.getResponderAddress(i)
                                 )));
                 stor.setClientQueryId(mpoid, id);
 

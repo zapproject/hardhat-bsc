@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "../../lib/lifecycle/Destructible.sol";
 import "../../lib/ownership/Upgradable.sol";
@@ -44,20 +44,20 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
     }
 
     /// @dev will bond to an oracle
-    /// @return total ZAP bound to oracle
+    /// @return bound : total ZAP bound to oracle
     function bond(address oracleAddress, bytes32 endpoint, uint256 numDots) external returns (uint256 bound) {
         bound = _bond(msg.sender, oracleAddress, endpoint, numDots);
         emit Bound(msg.sender, oracleAddress, endpoint, bound, numDots);
     }
 
-    /// @return total ZAP unbound from oracle
+    /// @return unbound : total ZAP unbound from oracle
     function unbond(address oracleAddress, bytes32 endpoint, uint256 numDots) external returns (uint256 unbound) {
         unbound = _unbond(msg.sender, oracleAddress, endpoint, numDots);
         emit Unbound(msg.sender, oracleAddress, endpoint, numDots);
     }
 
     /// @dev will bond to an oracle on behalf of some holder
-    /// @return total ZAP bound to oracle
+    /// @return boundZap : total ZAP bound to oracle
     function delegateBond(address holderAddress, address oracleAddress, bytes32 endpoint, uint256 numDots) external returns (uint256 boundZap) {
         boundZap = _bond(holderAddress, oracleAddress, endpoint, numDots);
         emit Bound(holderAddress, oracleAddress, endpoint, boundZap, numDots);
@@ -176,7 +176,7 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
 
 
     /// @return total ZAP held by contract
-    function getZapBound(address oracleAddress, bytes32 endpoint) public view returns (uint256) {
+    function getZapBound(address oracleAddress, bytes32 endpoint)  public view returns (uint256) {
         return getNumZap(oracleAddress, endpoint);
     }
 
@@ -274,11 +274,11 @@ contract Bondage is Destructible, BondageInterface, Upgradable {
         return db.getNumber(keccak256(abi.encodePacked('totalBound', oracleAddress, endpoint)));
     }
 
-    function getDotsIssued(address oracleAddress, bytes32 endpoint) public view returns (uint256) {
+    function getDotsIssued(address oracleAddress, bytes32 endpoint)  public view returns (uint256) {
         return db.getNumber(keccak256(abi.encodePacked('totalIssued', oracleAddress, endpoint)));
     }
 
-    function getBoundDots(address holderAddress, address oracleAddress, bytes32 endpoint) public view returns (uint256) {
+    function getBoundDots(address holderAddress, address oracleAddress, bytes32 endpoint)  public view returns (uint256) {
         return db.getNumber(keccak256(abi.encodePacked('holders', holderAddress, 'bonds', oracleAddress, endpoint)));
     }
 

@@ -1,11 +1,11 @@
-pragma solidity ^0.5.0;
+pragma solidity =0.5.16;
 
 import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapTransfer.sol';
 import './libraries/ZapGettersLibrary.sol';
 import './libraries/ZapStake.sol';
-import '../token/ZapToken.sol';
+import '../token/ZapTokenBSC.sol';
 
 /**
  * @title Zap Getters
@@ -20,10 +20,10 @@ contract ZapGetters {
     using ZapStake for ZapStorage.ZapStorageStruct;
 
     ZapStorage.ZapStorageStruct zap;
-    ZapToken token;
+    ZapTokenBSC token;
 
-    constructor(address zapToken) public {
-        token = ZapToken(zapToken);
+    constructor(address zapTokenBsc) public {
+        token = ZapTokenBSC(zapTokenBsc);
     }
 
     /**

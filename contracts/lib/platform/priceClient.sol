@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "./Client.sol";
 import "../../platform/dispatch/DispatchInterface.sol";
@@ -67,7 +67,7 @@ contract priceClient is Ownable{
         require(response.length==1,"int resoonse must have length of 1 for prices"); 
         emit Result3(id, response);
         priceResults.push(uint(response[0]));
-        priceTimeStamps.push(now);
+        priceTimeStamps.push(block.timestamp);
         priceQueryIDs.push(id);
         //queryIntResults[id]=response;
        // queryIntIDs[totalIntQueries]=id;

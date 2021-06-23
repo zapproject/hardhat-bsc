@@ -1,8 +1,5 @@
-/**
- *Submitted for verification at BscScan.com on 2021-05-24
-*/
 
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 
 
@@ -52,7 +49,7 @@ library SafeMath {
 
 
 
-contract ERC20Basic {
+ contract ERC20Basic {
 
     uint256 public _totalSupply = 100000000000000000000000000;
 
@@ -60,9 +57,9 @@ contract ERC20Basic {
         return _totalSupply;
     }
 
-    function balanceOf(address who) public view returns (uint256);
+    function balanceOf(address who)  public view returns (uint256);
 
-    function transfer(address to, uint256 value) public returns (bool);
+    function transfer(address to, uint256 value)  public returns (bool);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -78,13 +75,13 @@ contract ERC20Basic {
 
  */
 
-contract ERC20 is ERC20Basic {
+ contract ERC20 is ERC20Basic {
 
-    function allowance(address owner, address spender) public view returns (uint256);
+    function allowance(address owner, address spender)  public view returns (uint256);
 
-    function transferFrom(address from, address to, uint256 value) public returns (bool);
+    function transferFrom(address from, address to, uint256 value)  public returns (bool);
 
-    function approve(address spender, uint256 value) public returns (bool);
+    function approve(address spender, uint256 value)  public returns (bool);
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
@@ -108,7 +105,7 @@ contract BasicToken is ERC20Basic {
 
     */
 
-    function transfer(address _to, uint256 _value) public returns (bool) {
+    function transfer(address _to, uint256 _value)  public returns (bool) {
 
         require(_to != address(0));
 
@@ -130,11 +127,11 @@ contract BasicToken is ERC20Basic {
 
     * @param _owner The address to query the the balance of.
 
-    * @return An uint256 representing the amount owned by the passed address.
+    * @return balance : An uint256 representing the amount owned by the passed address.
 
     */
 
-    function balanceOf(address _owner) public view returns (uint256 balance) {
+    function balanceOf(address _owner)  public view returns (uint256 balance) {
 
         return balances[_owner];
 
@@ -142,7 +139,35 @@ contract BasicToken is ERC20Basic {
 
 }
 
+contract Ownable {
+    address payable public owner;
+    event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
+
+    /// @dev The Ownable constructor sets the original `owner` of the contract to the sender account.
+    constructor() public { owner = msg.sender; }
+
+    function getOwner() external view returns (address) {
+        return owner;
+    }
+
+    /// @dev Throws if called by any contract other than latest designated caller
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    /// @dev Allows the current owner to transfer control of the contract to a newOwner.
+    /// @param newOwner The address to transfer ownership to.
+    function transferOwnership(address payable newOwner) public onlyOwner {
+        require(newOwner != address(0));
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
+    }
+}
+
 contract StandardToken is ERC20, BasicToken {
+
+    using SafeMath for uint256;
 
     mapping (address => mapping (address => uint256)) allowed;
 
@@ -158,7 +183,7 @@ contract StandardToken is ERC20, BasicToken {
 
      */
 
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+    function transferFrom(address _from, address _to, uint256 _value)  public returns (bool) {
 
         require(_to != address(0));
 
@@ -200,7 +225,7 @@ contract StandardToken is ERC20, BasicToken {
 
      */
 
-    function approve(address _spender, uint256 _value) public returns (bool) {
+    function approve(address _spender, uint256 _value)  public returns (bool) {
 
         allowed[msg.sender][_spender] = _value;
 
@@ -218,11 +243,11 @@ contract StandardToken is ERC20, BasicToken {
 
      * @param _spender address The address which will spend the funds.
 
-     * @return A uint256 specifying the amount of tokens still available for the spender.
+     * @return remaining A uint256 specifying the amount of tokens still available for the spender.
 
      */
 
-    function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
+    function allowance(address _owner, address _spender)  public view returns (uint256 remaining) {
 
         return allowed[_owner][_spender];
 
@@ -279,6 +304,8 @@ contract StandardToken is ERC20, BasicToken {
 
 
 contract MintableToken is StandardToken, Ownable {
+
+    using SafeMath for uint256;
 
     event Mint(address indexed to, uint256 amount);
 
@@ -346,11 +373,11 @@ contract MintableToken is StandardToken, Ownable {
 
 
 
-contract ZapToken is MintableToken {
+contract ZapTokenBSC is MintableToken {
 
-    string public _name = "Zap";
+    string public _name = "Zap BEP20";
 
-    string public _symbol = "ZAP";
+    string public _symbol = "ZAPB";
 
     uint8 public _decimals = 18;
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "./DatabaseInterface.sol";
 import "../../lib/ownership/Ownable.sol";
@@ -56,66 +56,66 @@ contract Database is Ownable, DatabaseInterface {
         return string(data_bytes[key]);
     }
 
-    function setString(bytes32 key, string calldata value) external storageOnly {
+    function setString(bytes32 key, string calldata value) external  storageOnly {
         data_bytes[key] = bytes(value);
     }
 
     /*** Bytes Array ***/
-    function getBytesArray(bytes32 key) external view returns (bytes32[] memory) {
+    function getBytesArray(bytes32 key)  external view returns (bytes32[] memory) {
         return data_bytesArray[key];
     }
 
-    function getBytesArrayIndex(bytes32 key, uint256 index) external view returns (bytes32) {
+    function getBytesArrayIndex(bytes32 key, uint256 index)  external view returns (bytes32) {
         return data_bytesArray[key][index];
     }
 
-    function getBytesArrayLength(bytes32 key) external view returns (uint256) {
+    function getBytesArrayLength(bytes32 key)  external view returns (uint256) {
         return data_bytesArray[key].length;
     }
 
-    function pushBytesArray(bytes32 key, bytes32 value) external {
+    function pushBytesArray(bytes32 key, bytes32 value)  external {
         data_bytesArray[key].push(value);
     }
 
-    function setBytesArrayIndex(bytes32 key, uint256 index, bytes32 value) external storageOnly {
+    function setBytesArrayIndex(bytes32 key, uint256 index, bytes32 value) external  storageOnly {
         data_bytesArray[key][index] = value;
     }
 
-    function setBytesArray(bytes32 key, bytes32[] calldata value) external storageOnly {
+    function setBytesArray(bytes32 key, bytes32[] calldata value) external  storageOnly {
         data_bytesArray[key] = value;
     }
 
     /*** Int Array ***/
-    function getIntArray(bytes32 key) external view returns (int[] memory) {
+    function getIntArray(bytes32 key) external  view returns (int[] memory) {
         return data_intArray[key];
     }
 
-    function getIntArrayIndex(bytes32 key, uint256 index) external view returns (int) {
+    function getIntArrayIndex(bytes32 key, uint256 index) external  view returns (int) {
         return data_intArray[key][index];
     }
 
-    function getIntArrayLength(bytes32 key) external view returns (uint256) {
+    function getIntArrayLength(bytes32 key) external  view returns (uint256) {
         return data_intArray[key].length;
     }
 
-    function pushIntArray(bytes32 key, int value) external {
+    function pushIntArray(bytes32 key, int value)  external {
         data_intArray[key].push(value);
     }
 
-    function setIntArrayIndex(bytes32 key, uint256 index, int value) external storageOnly {
+    function setIntArrayIndex(bytes32 key, uint256 index, int value)  external storageOnly {
         data_intArray[key][index] = value;
     }
 
-    function setIntArray(bytes32 key, int[] calldata value) external storageOnly {
+    function setIntArray(bytes32 key, int[] calldata value)  external storageOnly {
         data_intArray[key] = value;
     }
 
     /*** Address Array ***/
-    function getAddressArray(bytes32 key) external view returns (address[] memory) {
+    function getAddressArray(bytes32 key) external  view returns (address[] memory) {
         return data_addressArray[key];
     }
 
-    function getAddressArrayIndex(bytes32 key, uint256 index) external view returns (address) {
+    function getAddressArrayIndex(bytes32 key, uint256 index) external  view returns (address) {
         return data_addressArray[key][index];
     }
 
@@ -127,11 +127,11 @@ contract Database is Ownable, DatabaseInterface {
         data_addressArray[key].push(value);
     }
 
-    function setAddressArrayIndex(bytes32 key, uint256 index, address value) external storageOnly {
+    function setAddressArrayIndex(bytes32 key, uint256 index, address value)  external storageOnly {
         data_addressArray[key][index] = value;
     }
 
-    function setAddressArray(bytes32 key, address[] calldata value) external storageOnly {
+    function setAddressArray(bytes32 key, address[] calldata value)  external storageOnly {
         data_addressArray[key] = value;
     }
 }

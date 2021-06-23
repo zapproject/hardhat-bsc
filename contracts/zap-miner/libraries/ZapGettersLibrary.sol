@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity =0.5.16;
 
 import './SafeMathM.sol';
 import './ZapStorage.sol';
@@ -293,7 +293,7 @@ library ZapGettersLibrary {
         pure
         returns (string memory)
     {
-        return 'Zap Token';
+        return 'Zap BEP20';
     }
 
     /**
@@ -451,7 +451,7 @@ library ZapGettersLibrary {
         pure
         returns (string memory)
     {
-        return 'ZAP';
+        return 'ZAPB';
     }
 
     /**

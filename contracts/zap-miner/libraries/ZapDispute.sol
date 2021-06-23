@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity =0.5.16;
 
 import './ZapStorage.sol';
 import './ZapTransfer.sol';
@@ -79,7 +79,7 @@ library ZapDispute {
             disp.tally = disp.tally - int256(voteWeight);
         }
 
-        //Let the network know the user has voted on the dispute and their casted vote
+        //Let the network kblock.timestamp the user has voted on the dispute and their casted vote
         emit Voted(_disputeId, _supportsDispute, msg.sender);
     }
 
@@ -99,7 +99,7 @@ library ZapDispute {
         require(disp.executed == false);
 
         //Ensure the time for voting has elapsed
-        require(now > disp.disputeUintVars[keccak256('minExecutionDate')]);
+        require(block.timestamp > disp.disputeUintVars[keccak256('minExecutionDate')]);
 
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
@@ -111,7 +111,7 @@ library ZapDispute {
                 //Changing the currentStatus and startDate unstakes the reported miner and allows for the
                 //transfer of the stakeAmount
                 stakes.currentStatus = 0;
-                stakes.startDate = now - (now % 86400);
+                stakes.startDate = block.timestamp - (block.timestamp % 86400);
 
                 //Decreases the stakerCount since the miner's stake is being slashed
                 self.uintVars[keccak256('stakerCount')]--;
@@ -231,7 +231,7 @@ library ZapDispute {
             .uintVars[keccak256('disputeFee')];
         self.disputesById[disputeId].disputeUintVars[
             keccak256('minExecutionDate')
-        ] = now + 7 days;
+        ] = block.timestamp + 7 days;
     }
 
     /**

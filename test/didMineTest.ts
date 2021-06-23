@@ -4,8 +4,7 @@ import { solidity } from "ethereum-waffle";
 
 import chai from "chai";
 
-
-import { ZapToken } from "../typechain/ZapToken";
+import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
 import { ZapTransfer } from '../typechain/ZapTransfer';
 
@@ -24,7 +23,7 @@ const { expect } = chai;
 
 chai.use(solidity);
 
-let zapToken: ZapToken;
+let zapTokenBsc: ZapTokenBSC;
 
 let zapTransfer: ZapTransfer;
 
@@ -51,8 +50,8 @@ describe("Did Mine Test", () => {
             signers[0]
         )
 
-        zapToken = (await zapTokenFactory.deploy()) as ZapToken;
-        await zapToken.deployed()
+        zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+        await zapTokenBsc.deployed()
 
         const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
             "ZapTransfer",
@@ -109,7 +108,7 @@ describe("Did Mine Test", () => {
 
         })
 
-        zap = (await zapFactory.deploy(zapToken.address)) as Zap
+        zap = (await zapFactory.deploy(zapTokenBsc.address)) as Zap
         await zap.deployed()
 
         const zapMasterFactory: ContractFactory = await ethers.getContractFactory("ZapMaster", {
@@ -120,13 +119,13 @@ describe("Did Mine Test", () => {
             signer: signers[0]
         });
 
-        zapMaster = (await zapMasterFactory.deploy(zap.address, zapToken.address)) as ZapMaster
+        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
         await zapMaster.deployed()
 
         for (var i = 1; i <= 5; i++) {
 
             // Allocates ZAP to signers 1 - 5
-            await zapToken.allocate(signers[i].address, 2000);
+            await zapTokenBsc.allocate(signers[i].address, 2000);
 
         }
 
@@ -142,7 +141,7 @@ describe("Did Mine Test", () => {
         const api: string = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
 
         // Allocates 5000 ZAP to signer 0 
-        await zapToken.allocate(signers[0].address, 5000);
+        await zapTokenBsc.allocate(signers[0].address, 5000);
 
         // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
@@ -160,7 +159,7 @@ describe("Did Mine Test", () => {
         zap = zap.connect(signers[0]);
 
         // Approves Zap.sol the amount to tip for requestData
-        await zapToken.approve(zap.address, 5000)
+        await zapTokenBsc.approve(zap.address, 5000)
 
         // Iterates the length of the requestQ array
         for (var i = 0; i < 52; i++) {

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "../../../lib/lifecycle/Destructible.sol";
 import "../../../lib/ownership/Upgradable.sol";
@@ -15,7 +15,7 @@ contract CurrentCost is Destructible, CurrentCostInterface, Upgradable {
         _updateDependencies();
     }
 
-    function _updateDependencies() internal {
+    function _updateDependencies()  internal {
         registry = RegistryInterface(coordinator.getContract("REGISTRY"));
     }
 

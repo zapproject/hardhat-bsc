@@ -1,11 +1,11 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 
 import "./Token.sol";
 import "./TokenFactoryInterface.sol";
-contract TokenFactory is TokenFactoryInterface {
+ contract TokenFactory is TokenFactoryInterface {
     address[] public generatedTokens;
-    constructor() public{
+    constructor() public {
 
     }
 

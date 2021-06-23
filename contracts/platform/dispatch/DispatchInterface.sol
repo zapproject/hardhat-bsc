@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 interface DispatchInterface {
     function query(address, string calldata, bytes32, bytes32[] calldata) external returns (uint256);

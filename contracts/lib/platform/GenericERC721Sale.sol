@@ -1,5 +1,5 @@
 
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 // Replace with 721 Interface
 //import "../token/FactoryTokenInterface.sol";
 import "../ownership/ZapCoordinatorInterface.sol";

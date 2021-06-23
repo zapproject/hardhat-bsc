@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "./Client.sol";
 import "../../platform/dispatch/DispatchInterface.sol";
@@ -7,7 +7,7 @@ import "../../platform/registry/RegistryInterface.sol";
 import "./OnChainProvider.sol";
 import "../ERC20.sol";
 import "hardhat/console.sol";
-contract TestProvider is OnChainProvider {
+ contract TestProvider is OnChainProvider {
     event RecievedQuery(string query, bytes32 endpoint, bytes32[] params);
 
     event TEST(uint res, bytes32 b, string s);
@@ -31,7 +31,7 @@ contract TestProvider is OnChainProvider {
     RegistryInterface registry;
 
     // middleware function for handling queries
-    function receive(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
+    function receiveQuery(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
         emit RecievedQuery(userQuery, endpoint, endpointParams);
         if(AM_A_BAD_ORACLE) return;
         bytes32 _endpoint = endpoint;
@@ -52,7 +52,7 @@ contract TestProvider is OnChainProvider {
         } // else: Do nothing (onchain only)
     }
 
-    constructor(address registryAddress, bool isBad) public{
+    constructor(address registryAddress, bool isBad) public {
         registry = RegistryInterface(registryAddress);
         AM_A_BAD_ORACLE = isBad;
 

@@ -15,7 +15,7 @@ contract DotFactoryFactory{
     address public factory;
     event newDotFactory(address dotfactory,uint PubKey,bytes32 Title );
 
-    constructor(address _coordinator,address _factory) public {
+    constructor(address _coordinator,address _factory)  public {
         coordinator=_coordinator;
         factory=_factory;
     }
@@ -51,7 +51,7 @@ contract TokenDotFactory is Ownable {
         uint256 providerPubKey,
         bytes32 providerTitle 
         
-    ) public {
+    )  public{
         coord = ZapCoordinatorInterface(coordinator); 
         reserveToken = FactoryTokenInterface(coord.getContract("ZAP_TOKEN"));
         //always allow bondage to transfer from wallet

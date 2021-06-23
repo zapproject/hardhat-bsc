@@ -7,7 +7,7 @@ import { ZapCoordinator } from '../typechain/ZapCoordinator';
 import { Database } from '../typechain/Database';
 import { Registry } from '../typechain/Registry';
 import { Bondage } from '../typechain/Bondage';
-import { ZapToken } from '../typechain/ZapToken';
+import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 import { CurrentCost } from '../typechain/CurrentCost';
 chai.use(solidity);
 const { expect } = chai;
@@ -95,7 +95,7 @@ function _calculatePolynomial(terms: any, x: any) {
 }
 
 describe('ZapBondage', () => {
-  let zapToken: ZapToken;
+  let zapToken: ZapTokenBSC;
   let dataBase: Database;
   let bondage: Bondage;
   let cost: CurrentCost;
@@ -120,7 +120,7 @@ describe('ZapBondage', () => {
     escrower2 = signers[5];
     arbiter = signers[6];
     const zapTokenFactory = await ethers.getContractFactory(
-      'ZapToken',
+      'ZapTokenBSC',
       signers[0]
     );
 
@@ -141,7 +141,7 @@ describe('ZapBondage', () => {
     );
     const bondFactory = await ethers.getContractFactory('Bondage', signers[0]);
 
-    zapToken = (await zapTokenFactory.deploy()) as ZapToken;
+    zapToken = (await zapTokenFactory.deploy()) as ZapTokenBSC;
 
     await zapToken.deployed();
 
@@ -643,7 +643,7 @@ describe('ZapBondage', () => {
 });
 
 describe('CurrentCost Test', () => {
-  let zapToken: ZapToken;
+  let zapToken: ZapTokenBSC;
   let dataBase: Database;
   let bondage: Bondage;
   let cost: CurrentCost;
@@ -679,7 +679,7 @@ describe('CurrentCost Test', () => {
     escrower2 = signers[5];
     arbiter = signers[6];
     const zapTokenFactory = await ethers.getContractFactory(
-      'ZapToken',
+      'ZapTokenBSC',
       signers[0]
     );
 
@@ -700,7 +700,7 @@ describe('CurrentCost Test', () => {
     );
     const bondFactory = await ethers.getContractFactory('Bondage', signers[0]);
 
-    zapToken = (await zapTokenFactory.deploy()) as ZapToken;
+    zapToken = (await zapTokenFactory.deploy()) as ZapTokenBSC;
 
     await zapToken.deployed();
 

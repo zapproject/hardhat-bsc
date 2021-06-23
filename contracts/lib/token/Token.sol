@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 
 import "./FactoryTokenInterface.sol";
 
@@ -59,10 +59,10 @@ library SafeMath {
 contract FactoryToken is FactoryTokenInterface {
     using SafeMath for uint256;
 
-    string public name;
-    string public symbol;
-    uint8 public decimals = 3;
-    uint256 totalSupply_;
+    string public _name;
+    string public _symbol;
+    uint8 public _decimals = 3;
+    uint256 _totalSupply;
 
     mapping(address => mapping(address => uint256)) internal allowed;
     mapping(address => uint256) balances;
@@ -85,16 +85,16 @@ contract FactoryToken is FactoryTokenInterface {
         _;
     }
 
-    constructor(string memory _name, string memory _symbol) public {
-        name = _name;
-        symbol = _symbol;
+    constructor(string memory name, string memory symbol) public {
+        _name = name;
+        _symbol = symbol;
     }
 
     /**
     * @dev Total number of tokens in existence
     */
     function totalSupply() public view returns (uint256) {
-        return totalSupply_;
+        return _totalSupply;
     }
 
     /**
@@ -154,7 +154,7 @@ contract FactoryToken is FactoryTokenInterface {
         // sender's balance is greater than the totalSupply, which *should* be an assertion failure
 
         balances[_who] = balances[_who].sub(_value);
-        totalSupply_ = totalSupply_.sub(_value);
+        _totalSupply = _totalSupply.sub(_value);
         emit Burn(_who, _value);
         emit Transfer(_who, address(0), _value);
     }
@@ -175,7 +175,7 @@ contract FactoryToken is FactoryTokenInterface {
     public
     returns (bool)
     {
-        totalSupply_ = totalSupply_.add(_amount);
+        _totalSupply = _totalSupply.add(_amount);
         balances[_to] = balances[_to].add(_amount);
         emit Mint(_to, _amount);
         emit Transfer(address(0), _to, _amount);
@@ -198,7 +198,7 @@ contract FactoryToken is FactoryTokenInterface {
      * @param _to address The address which you want to transfer to
      * @param _value uint256 the amount of tokens to be transferred
      */
-    function transferFrom(
+    function transferFrom (
         address _from,
         address _to,
         uint256 _value
@@ -227,7 +227,7 @@ contract FactoryToken is FactoryTokenInterface {
      * @param _spender The address which will spend the funds.
      * @param _value The amount of tokens to be spent.
      */
-    function approve(address _spender, uint256 _value) public returns (bool) {
+    function approve(address _spender, uint256 _value) public  returns (bool) {
         allowed[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
@@ -298,5 +298,29 @@ contract FactoryToken is FactoryTokenInterface {
         }
         emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
         return true;
+    }
+
+     function decimals() external view returns (uint8) {
+    return _decimals;
+  }
+
+  /**
+   * @dev Returns the token symbol.
+   */
+  function symbol() external view returns (string memory) {
+    return _symbol;
+  }
+
+  /**
+  * @dev Returns the token name.
+  */
+  function name() external view returns (string memory) {
+    return _name;
+  }
+
+    function allocate(address to, uint amount) public{
+
+        mint(to,amount);
+
     }
 }

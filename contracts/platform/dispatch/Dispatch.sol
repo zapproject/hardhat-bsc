@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity =0.5.16;
 // v1.0
 
 import "../../lib/ownership/Upgradable.sol";
@@ -126,11 +126,11 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
             //enough dots
             bondage.escrowDots(msg.sender, provider, endpoint, 1);
 
-            id = uint256(keccak256(abi.encodePacked(block.number, now, userQuery, msg.sender, provider)));
+            id = uint256(keccak256(abi.encodePacked(block.number, block.timestamp, userQuery, msg.sender, provider)));
             console.log("in query");
             createQuery(id, provider, msg.sender, endpoint, userQuery, onchainSubscriber);
             if (onchainProvider) {
-                OnChainProvider(provider).receive(id, userQuery, endpoint, endpointParams, onchainSubscriber);
+                OnChainProvider(provider).receiveQuery(id, userQuery, endpoint, endpointParams, onchainSubscriber);
             } else{
                 emit Incoming(id, provider, msg.sender, userQuery, endpoint, endpointParams, onchainSubscriber);
             }
@@ -201,7 +201,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         uint256 id,
         bytes32[] calldata response
     )
-        external
+        external 
         returns (bool)
     {
         if (getProvider(id) != msg.sender || !fulfillQuery(id))
@@ -221,6 +221,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         int[] calldata response
     )
         external
+         
         returns (bool)
     {
         if (getProvider(id) != msg.sender || !fulfillQuery(id))
@@ -241,6 +242,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         string calldata response
     )
         external
+         
         returns (bool)
     {
         if (getProvider(id) != msg.sender || !fulfillQuery(id))
@@ -262,6 +264,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         string calldata response2
     )
         external
+         
         returns (bool)
     {
         if (getProvider(id) != msg.sender || !fulfillQuery(id))
@@ -285,6 +288,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         string calldata response3
     )
         external
+         
         returns (bool)
     {
         if (getProvider(id) != msg.sender || !fulfillQuery(id))
@@ -309,6 +313,7 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
         string calldata response4
     )
         external
+         
         returns (bool)
     {
         if (getProvider(id) != msg.sender || !fulfillQuery(id))
@@ -328,43 +333,43 @@ contract Dispatch is Destructible, DispatchInterface, Upgradable {
 
     /// @dev get provider address of request
     /// @param id request id
-    function getProvider(uint256 id) public view returns (address) {
+    function getProvider(uint256 id) public view  returns (address) {
         return address(db.getNumber(keccak256(abi.encodePacked('queries', id, 'provider'))));
     }
 
     /// @dev get subscriber address of request
     /// @param id request id
-    function getSubscriber(uint256 id) public view returns (address) {
+    function getSubscriber(uint256 id) public view  returns (address) {
         return address(db.getNumber(keccak256(abi.encodePacked('queries', id, 'subscriber'))));
     }
 
     /// @dev get endpoint of request
     /// @param id request id
-    function getEndpoint(uint256 id) public view returns (bytes32) {
+    function getEndpoint(uint256 id) public view  returns (bytes32) {
         return db.getBytes32(keccak256(abi.encodePacked('queries', id, 'endpoint')));
     }
 
     /// @dev get status of request
     /// @param id request id
-    function getStatus(uint256 id) public view returns (uint256) {
+    function getStatus(uint256 id) public view  returns (uint256) {
         return db.getNumber(keccak256(abi.encodePacked('queries', id, 'status')));
     }
 
     /// @dev get the cancelation block of a request
     /// @param id request id
-    function getCancel(uint256 id) public view returns (uint256) {
+    function getCancel(uint256 id) public view  returns (uint256) {
         return db.getNumber(keccak256(abi.encodePacked('queries', id, 'cancelBlock')));
     }
 
     /// @dev get user specified query of request
     /// @param id request id
-    function getUserQuery(uint256 id) public view returns (string memory) {
+    function getUserQuery(uint256 id) public view  returns (string memory) {
         return db.getString(keccak256(abi.encodePacked('queries', id, 'userQuery')));
     }
 
     /// @dev is subscriber contract or offchain 
     /// @param id request id
-    function getSubscriberOnchain(uint256 id) public view returns (bool) {
+    function getSubscriberOnchain(uint256 id) public view  returns (bool) {
         uint res = db.getNumber(keccak256(abi.encodePacked('queries', id, 'onchainSubscriber')));
         return res == 1 ? true : false;
     }

@@ -45,7 +45,8 @@ const config = {
   solidity: {
     compilers: [
       { version: '0.4.24', settings: {} },
-      { version: '0.5.16', settings: {} }
+      { version: '0.5.16', settings: {} },
+      { version: '0.7.3', settings: {} }
     ]
   },
   gasReporter: {
@@ -57,6 +58,12 @@ const config = {
   networks: {
     localhost: {
       url: 'http://127.0.0.1:8545/'
+    },
+    testnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: {mnemonic: process.env.BNB_TEST_PASS}
     },
     hardhat: {
       gasPrice: 8000000000

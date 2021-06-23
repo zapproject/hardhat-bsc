@@ -1,11 +1,11 @@
-pragma solidity ^0.5.0;
+pragma solidity =0.5.16;
 
 import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
-import '../token/ZapToken.sol';
+import '../token/ZapTokenBSC.sol';
 
 /**
  * @title Zap Oracle System
@@ -62,10 +62,10 @@ contract Zap {
     using ZapStake for ZapStorage.ZapStorageStruct;
 
     ZapStorage.ZapStorageStruct zap;
-    ZapToken public token;
+    ZapTokenBSC public token;
 
-    constructor(address zapToken) public {
-        token = ZapToken(zapToken);
+    constructor(address zapTokenBsc) public {
+        token = ZapTokenBSC(zapTokenBsc);
     }
 
     function balanceOf(address _user) public view returns (uint256 balance) {
