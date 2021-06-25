@@ -59,11 +59,13 @@ const config = {
     localhost: {
       url: 'http://127.0.0.1:8545/'
     },
+    // Will throw an error if the MNEMONIC env variable is non existent
+    // Only used for deploying to the BSC testnet
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
-      // accounts: {mnemonic: process.env.BNB_TEST_PASS}
+      // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gasPrice: 8000000000
