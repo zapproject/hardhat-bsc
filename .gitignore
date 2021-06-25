@@ -4,3 +4,4 @@ typechain
 artifacts
 cache
 .env 
+output
