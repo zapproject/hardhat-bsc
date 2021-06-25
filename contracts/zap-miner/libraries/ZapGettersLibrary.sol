@@ -171,11 +171,14 @@ library ZapGettersLibrary {
             self.currentChallenge,
             self.uintVars[keccak256('currentRequestId')],
             self.uintVars[keccak256('difficulty')],
-            self.requestDetails[self.uintVars[keccak256('currentRequestId')]]
+            self
+                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
                 .queryString,
-            self.requestDetails[self.uintVars[keccak256('currentRequestId')]]
+            self
+                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
                 .apiUintVars[keccak256('granularity')],
-            self.requestDetails[self.uintVars[keccak256('currentRequestId')]]
+            self
+                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
                 .apiUintVars[keccak256('totalTip')]
         );
     }
@@ -477,7 +480,6 @@ library ZapGettersLibrary {
      * self.uintVars[keccak256("stakerCount")]
      * @return uint of specified variable
      */
-
     function getUintVar(ZapStorage.ZapStorageStruct storage self, bytes32 _data)
         internal
         view

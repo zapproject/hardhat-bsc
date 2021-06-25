@@ -6,7 +6,7 @@ import { solidity } from "ethereum-waffle";
 
 import chai from "chai";
 
-import { ZapTokenBSC} from "../typechain/ZapTokenBSC";
+import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
 import { ZapTransfer } from '../typechain/ZapTransfer';
 
@@ -451,7 +451,7 @@ describe("Main Miner Functions", () => {
     it('Should not be able to transfer more than balance', async () => {
 
         // Allocates 5000 ZAP to signers 0
-        await zapTokenBsc.allocate(signers[0].address, 5000);
+        // await zapTokenBsc.allocate(signers[0].address, 5000);
 
         // Attaches the zapTokenBsc.sol address to Zap.sol
         zap = zap.attach(zapTokenBsc.address);
@@ -467,11 +467,11 @@ describe("Main Miner Functions", () => {
 
         // Parses the balance of signer 1 from a hexString to a number
         const signer1Bal = parseInt(getSigner1Bal._hex)
-                
+
         console.log(await zapTokenBsc.balanceOf(signers[0].address))
 
         // Expect transferring from signer 0 to signer 1 to fail
-        await expect(zap.transfer(signers[1].address, 100005001)).to.be.reverted;
+        await expect(zap.transfer(signers[1].address, 10000)).to.be.reverted;
 
         // // Expect the balance to stay the same
         // expect(signer0Bal).to.equal(5000);

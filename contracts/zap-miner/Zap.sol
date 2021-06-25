@@ -74,11 +74,6 @@ contract Zap {
 
     /*Functions*/
 
-    /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(address _address, uint256 _amount) public {
-        zap.theLazyCoon(_address, _amount);
-    }
-
     /**
      * @dev Helps initialize a dispute by assigning it a disputeId
      * when a miner returns a false on the validate array(in Zap.ProofOfWork) it sends the
@@ -102,8 +97,9 @@ contract Zap {
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute
         address _miner = _request.minersByValue[_timestamp][_minerIndex];
-        bytes32 _hash =
-            keccak256(abi.encodePacked(_miner, _requestId, _timestamp));
+        bytes32 _hash = keccak256(
+            abi.encodePacked(_miner, _requestId, _timestamp)
+        );
 
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
@@ -155,7 +151,7 @@ contract Zap {
             keccak256('minerSlot')
         ] = _minerIndex;
         zap.disputesById[disputeId].disputeUintVars[keccak256('fee')] = zap
-            .uintVars[keccak256('disputeFee')];
+        .uintVars[keccak256('disputeFee')];
 
         //Values are sorted as they come in and the official value is the median of the first five
         //So the "official value" miner is always minerIndex==2. If the official value is being
@@ -410,8 +406,8 @@ contract Zap {
             //Removes the stakeAmount from balance if the _user is staked
             if (
                 balanceOf(_user)
-                    .sub(zap.uintVars[keccak256('stakeAmount')])
-                    .sub(_amount) >= 0
+                .sub(zap.uintVars[keccak256('stakeAmount')])
+                .sub(_amount) >= 0
             ) {
                 return true;
             }
@@ -432,13 +428,15 @@ contract Zap {
             (checkpoints.length == 0) ||
             (checkpoints[checkpoints.length - 1].fromBlock < block.number)
         ) {
-            ZapStorage.Checkpoint storage newCheckPoint =
-                checkpoints[checkpoints.length++];
+            ZapStorage.Checkpoint storage newCheckPoint = checkpoints[
+                checkpoints.length++
+            ];
             newCheckPoint.fromBlock = uint128(block.number);
             newCheckPoint.value = uint128(_value);
         } else {
-            ZapStorage.Checkpoint storage oldCheckPoint =
-                checkpoints[checkpoints.length - 1];
+            ZapStorage.Checkpoint storage oldCheckPoint = checkpoints[
+                checkpoints.length - 1
+            ];
             oldCheckPoint.value = uint128(_value);
         }
     }
@@ -509,10 +507,9 @@ contract Zap {
         uint256 onDeckRequestId = ZapGettersLibrary.getTopRequestID(zap);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0) {
-            _request.apiUintVars[keccak256('totalTip')] = _request.apiUintVars[
-                keccak256('totalTip')
-            ]
-                .add(_tip);
+            _request.apiUintVars[keccak256('totalTip')] = _request
+            .apiUintVars[keccak256('totalTip')]
+            .add(_tip);
         }
         //Set _payout for the submitted request
         uint256 _payout = _request.apiUintVars[keccak256('totalTip')];
@@ -535,9 +532,11 @@ contract Zap {
                 zap.currentChallenge,
                 zap.uintVars[keccak256('currentRequestId')],
                 zap.uintVars[keccak256('difficulty')],
-                zap.requestDetails[zap.uintVars[keccak256('currentRequestId')]]
+                zap
+                    .requestDetails[zap.uintVars[keccak256('currentRequestId')]]
                     .apiUintVars[keccak256('granularity')],
-                zap.requestDetails[zap.uintVars[keccak256('currentRequestId')]]
+                zap
+                    .requestDetails[zap.uintVars[keccak256('currentRequestId')]]
                     .queryString,
                 zap.uintVars[keccak256('currentTotalTips')]
             );
@@ -572,8 +571,9 @@ contract Zap {
                 //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars
                 if (_payout > _min || _min == 0) {
                     zap.requestQ[_index] = _payout;
-                    zap.requestDetails[zap.requestIdByRequestQIndex[_index]]
-                        .apiUintVars[keccak256('requestQPosition')] = 0;
+                    zap
+                    .requestDetails[zap.requestIdByRequestQIndex[_index]]
+                    .apiUintVars[keccak256('requestQPosition')] = 0;
                     zap.requestIdByRequestQIndex[_index] = _requestId;
                     _request.apiUintVars[
                         keccak256('requestQPosition')

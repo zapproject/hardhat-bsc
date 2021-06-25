@@ -381,7 +381,6 @@ contract ZapGetters {
      * @param _timestamp is the timestampt to look up miners for
      * @return address[5] array of 5 addresses ofminers that mined the requestId
      */
-
     function getSubmissionsByTimestamp(uint256 _requestId, uint256 _timestamp)
         external
         view
@@ -421,7 +420,6 @@ contract ZapGetters {
      * self.uintVars[keccak256("stakerCount")]
      * @return uint of specified variable
      */
-
     function getUintVar(bytes32 _data) public view returns (uint256) {
         return zap.getUintVar(_data);
     }

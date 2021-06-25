@@ -68,12 +68,12 @@ contract ZapMaster is ZapGetters {
             // revert instead of invalid() bc if the underlying call failed with invalid() it already wasted gas.
             // if the call returned error data, forward it
             switch result
-                case 0 {
-                    revert(ptr, size)
-                }
-                default {
-                    return(ptr, size)
-                }
+            case 0 {
+                revert(ptr, size)
+            }
+            default {
+                return(ptr, size)
+            }
         }
     }
 }

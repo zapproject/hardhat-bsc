@@ -121,8 +121,8 @@ library ZapTransfer {
             //Removes the stakeAmount from balance if the _user is staked
             if (
                 balanceOfAt(self, _user, block.number)
-                    .sub(self.uintVars[keccak256('stakeAmount')])
-                    .sub(_amount) >= 0
+                .sub(self.uintVars[keccak256('stakeAmount')])
+                .sub(_amount) >= 0
             ) {
                 return true;
             }
@@ -145,13 +145,15 @@ library ZapTransfer {
             (checkpoints.length == 0) ||
             (checkpoints[checkpoints.length - 1].fromBlock < block.number)
         ) {
-            ZapStorage.Checkpoint storage newCheckPoint =
-                checkpoints[checkpoints.length++];
+            ZapStorage.Checkpoint storage newCheckPoint = checkpoints[
+                checkpoints.length++
+            ];
             newCheckPoint.fromBlock = uint128(block.number);
             newCheckPoint.value = uint128(_value);
         } else {
-            ZapStorage.Checkpoint storage oldCheckPoint =
-                checkpoints[checkpoints.length - 1];
+            ZapStorage.Checkpoint storage oldCheckPoint = checkpoints[
+                checkpoints.length - 1
+            ];
             oldCheckPoint.value = uint128(_value);
         }
     }
