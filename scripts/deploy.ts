@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { ZapToken } from "../typechain/ZapToken";
 
 const hre = require("hardhat")
 const fs = require('fs')
@@ -300,10 +301,7 @@ async function main() {
       signer: signers[0]
     });
 
-  // The ZapToken address being passed is the Testnet BEP20 contract address not a localhost address
-  // Needs to be changed after deployment
-  // localhost address = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
-  let Zap = await zap.deploy("0x5fbdb2315678afecb367f032d93f642f64180aa3");
+  let Zap = await zap.deploy(zapToken.address);
   await Zap.deployed();
   console.log("Zap Address:", Zap.address);
   console.log("Deployed Zap")
@@ -316,10 +314,7 @@ async function main() {
     signer: signers[0]
   });
 
-  // The ZapToken address being passed is the Testnet BEP20 contract address not a localhost address
-  // Needs to be changed after deployment
-  // localhost address = "0x5fbdb2315678afecb367f032d93f642f64180aa3"
-  const ZapMaster = await zapMaster.deploy(Zap.address, "0x5fbdb2315678afecb367f032d93f642f64180aa3");
+  const ZapMaster = await zapMaster.deploy(Zap.address, zapToken.address);
   await ZapMaster.deployed();
   console.log("ZapMaster Address: " + ZapMaster.address)
   console.log("Deployed ZapMaster")
