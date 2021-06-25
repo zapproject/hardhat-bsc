@@ -241,7 +241,7 @@ async function main() {
   const faucetBal = await zapToken.balanceOf(faucet.address)
 
   console.log("FAUCET BALANCE", parseInt(faucetBal._hex));
-  
+
 
   /**
    * MINERS
@@ -271,29 +271,29 @@ async function main() {
     },
     signer: signers[0]
   });
-  const zapStake= await ZapStake.deploy();
+  const zapStake = await ZapStake.deploy();
   console.log("deployed ZapStake")
 
-  const ZapLibrary = await ethers.getContractFactory("ZapLibrary", 
-  {
-    libraries: {
-      ZapTransfer: zapTransfer.address,
-    },
-    signer: signers[0]
-  });
+  const ZapLibrary = await ethers.getContractFactory("ZapLibrary",
+    {
+      libraries: {
+        ZapTransfer: zapTransfer.address,
+      },
+      signer: signers[0]
+    });
   const zapLibrary = await ZapLibrary.deploy();
   console.log("deployed ZapLibrary: " + zapLibrary.address)
 
-  const Zap = await ethers.getContractFactory("Zap", 
-  {
-    libraries: {
-      ZapStake: zapStake.address,
-      ZapDispute: zapDispute.address,
-      ZapLibrary: zapLibrary.address,
-      // ZapTransfer: zapTransfer.address
-    },
-    signer: signers[0]
-  });
+  const Zap = await ethers.getContractFactory("Zap",
+    {
+      libraries: {
+        ZapStake: zapStake.address,
+        ZapDispute: zapDispute.address,
+        ZapLibrary: zapLibrary.address,
+        // ZapTransfer: zapTransfer.address
+      },
+      signer: signers[0]
+    });
   let zap = await Zap.deploy("0x5fbdb2315678afecb367f032d93f642f64180aa3");
   zap = zap.connect(signers[0])
 
