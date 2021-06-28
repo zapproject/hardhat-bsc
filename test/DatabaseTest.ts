@@ -17,7 +17,7 @@ import {
   hexlify,
   randomBytes
 } from 'ethers/lib/utils';
-import { beforeEach } from 'mocha';
+
 
 chai.use(solidity);
 
