@@ -80,7 +80,6 @@ library ZapStake {
         emit StakeWithdrawRequested(msg.sender);
     }
 
-
     /**
     * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
     */
@@ -94,7 +93,6 @@ library ZapStake {
         stakes.currentStatus = 0;
         emit StakeWithdrawn(msg.sender);
     }
-
 
     /**
     * @dev This function allows miners to deposit their stake.
