@@ -73,7 +73,6 @@ library ZapStake {
         //Change the startDate to now since the lock up period begins now
         //and the miner can only withdraw 7 days later from now(check the withdraw function)
         stakes.startDate = now -(now % 86400);
-        //  stakes.startDate = now;
 
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
@@ -87,6 +86,7 @@ library ZapStake {
     */
     function withdrawStake(ZapStorage.ZapStorageStruct storage self) public {
         ZapStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
+
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
         //passed by since they locked for withdraw
         require(now - (now % 86400) - stakes.startDate >= 7 days);

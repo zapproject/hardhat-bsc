@@ -324,9 +324,6 @@ describe("Main Miner Functions", () => {
         // Allocate enough to stake
         await zapTokenBsc.allocate(signers[1].address, 1000);
 
-        // Attach the ZapMaster instance to Zap
-        zap = zap.attach(zapMaster.address);
-
         // Connects address 1 as the signer
         zap = zap.connect(signers[1]);
 
@@ -345,6 +342,10 @@ describe("Main Miner Functions", () => {
 
         // Parses the hexStrings in the array
         const postReqInfo: number[] = getPostReqInfo.map(info => parseInt(info._hex));
+
+        // Increase the evm time by 8 days
+        // A stake can not be withdrawn until 7 days passed
+        await ethers.provider.send("evm_increaseTime", [691200]);
 
         // Withdraws the stake
         await zap.withdrawStake();
