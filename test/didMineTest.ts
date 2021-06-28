@@ -205,11 +205,6 @@ describe("Did Mine Test", () => {
                 signers[i].address
             );
 
-            await zap.requestStakingWithdraw();
-            await ethers.provider.send("evm_increaseTime", [691200])
-
-            await zap.withdrawStake()
-
             // Expects the challenge hash 66 characters in length
             expect(newCurrentVars[0]).to.have.length(66);
 
