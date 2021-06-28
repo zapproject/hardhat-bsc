@@ -448,34 +448,30 @@ describe("Main Miner Functions", () => {
 
     it('Should not be able to transfer more than balance', async () => {
 
-        // Allocates 5000 ZAP to signers 0
-        // await zapTokenBsc.allocate(signers[0].address, 5000);
+        // Allocates signers 1 1000 tokens
+        await zapTokenBsc.allocate(signers[1].address, 1000);
 
-        // Attaches the zapTokenBsc.sol address to Zap.sol
-        zap = zap.attach(zapTokenBsc.address);
-
-        // Gets the balance of signer 0 as a hexString
-        const getSigner0Bal: BigNumber = await zapMaster.balanceOf(signers[0].address);
-
-        // Parses the balance of signer 0 from a hexString to a number
-        const signer0Bal: number = parseInt(getSigner0Bal._hex);
+        // Connects signers 1 to zap.sol
+        zap = zap.connect(signers[1]);
 
         // Gets the balance of signer 1 as a hexString
         const getSigner1Bal: BigNumber = await zapMaster.balanceOf(signers[1].address);
 
         // Parses the balance of signer 1 from a hexString to a number
-        const signer1Bal = parseInt(getSigner1Bal._hex)
+        const signer1Bal: number = parseInt(getSigner1Bal._hex);
 
-        console.log(await zapTokenBsc.balanceOf(signers[0].address))
+        // Expect transferring from signer 1 to signer 2 to fail
+        await expect(zap.transfer(signers[2].address, 1001)).to.be.reverted;
 
-        // Expect transferring from signer 0 to signer 1 to fail
-        await expect(zap.transfer(signers[1].address, 10000)).to.be.reverted;
+        const getSigner2Bal: BigNumber = await zapMaster.balanceOf(signers[2].address);
 
-        // // Expect the balance to stay the same
-        // expect(signer0Bal).to.equal(5000);
+        const signer2Bal: Number = parseInt(getSigner2Bal._hex);
 
-        // // Expect the balance to stay the same
-        // expect(signer1Bal).to.equal(0);
+        // Expect the balance of signer 1 to stay the same
+        expect(signer1Bal).to.equal(1000);
+
+        // Expect the balance of signer 2 to be 0
+        expect(signer2Bal).to.equal(0);
 
     })
 
