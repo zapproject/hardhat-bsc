@@ -197,7 +197,6 @@ describe('Did Mine Test', () => {
       // Each Miner will submit a mining solution
       const mining = await zap.submitMiningSolution('nonce', 1, 1200);
       const res = await mining.wait();
-      // console.log(res);
 
       // Checks if the miners mined the challenge
       // true = Miner did mine the challenge
@@ -213,59 +212,6 @@ describe('Did Mine Test', () => {
       // Expects the didMine status of each miner to be true
       expect(didMineStatus).to.be.true;
 
-      // let previouFifthMinerBal = await zap.getBalanceAt(
-      //   signers[4].address,
-      //   res.blockNumber - 1
-      // );
-      // let currentFifthMinerBal = await zap.getBalanceAt(
-      //   signers[4].address,
-      //   res.blockNumber
-      // );
-
-      // let rewardAmount = 15;
-      // let diff =
-      //   parseInt(currentFifthMinerBal._hex) -
-      //   parseInt(previouFifthMinerBal._hex);
-      // console.log('previouFifthMinerBal = ', previouFifthMinerBal);
-      // console.log('currentFifthMinerBal = ', currentFifthMinerBal);
-
-      // expect(diff).to.equal(
-      //   rewardAmount,
-      //   'Miner should have been tipped 15 tokens.'
-      // );
-
-      // let previousZapMasterBal = await zap.getBalanceAt(
-      //   zapMaster.address,
-      //   res.blockNumber - 1
-      // );
-      // let currentZapMasterBal = await zap.getBalanceAt(
-      //   zapMaster.address,
-      //   res.blockNumber
-      // );
-
-      // 15 each miner * 5 + 2 = 77 total zap tokens payed out from Zap Master
-      //   let payOutAmount = 77;
-
-      //     diff =
-      //       parseInt(previousZapMasterBal._hex) -
-      //       parseInt(currentZapMasterBal._hex);
-      //     expect(diff).to.equal(payOutAmount);
-
-      //   console.log(
-      //     'previousZapMasterBal = ',
-      //     parseInt(previousZapMasterBal._hex)
-      //   );
-      //   console.log(
-      //     'currentZapMasterBal = ',
-      //     parseInt(currentZapMasterBal._hex)
-      //   );
-      //   console.log(
-      //     diff
-      //   );
-      //   console.log(
-      //     parseInt(currentZapMasterBal._hex) -
-      //       parseInt(previousZapMasterBal._hex)
-      //   );
     }
 
     expect(reqQ).to.have.length(51);
@@ -280,9 +226,6 @@ describe('Did Mine Test', () => {
       signers[4].address,
       blockNumber
     );
-
-    console.log('previouFifthMinerBal = ', previouFifthMinerBal);
-    console.log('currentFifthMinerBal = ', currentFifthMinerBal);
 
     let rewardAmount = 15;
     let diff =
