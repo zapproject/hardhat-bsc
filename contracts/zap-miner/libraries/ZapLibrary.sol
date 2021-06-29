@@ -7,7 +7,6 @@ import './ZapTransfer.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System Library
@@ -118,11 +117,7 @@ library ZapLibrary {
                 self.uintVars[keccak256("currentReward")] = 1;
             }
 
-            console.log("currentReward: ", self.uintVars[keccak256("currentReward")]);
-            console.log("devShare: ", self.uintVars[keccak256("devShare")]);
-
             for (i = 0; i < 5; i++) {
-                console.log("AMOUNT: ", self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
                 ZapTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
             }
             emit NewValue(_requestId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")] % 5,self.currentChallenge);
