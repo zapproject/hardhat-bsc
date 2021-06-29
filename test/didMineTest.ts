@@ -1,23 +1,23 @@
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat';
 
-import { solidity } from "ethereum-waffle";
+import { solidity } from 'ethereum-waffle';
 
-import chai from "chai";
+import chai from 'chai';
 
-import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
+import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import { ZapTransfer } from '../typechain/ZapTransfer';
 
-import { ZapLibrary } from "../typechain/ZapLibrary";
+import { ZapLibrary } from '../typechain/ZapLibrary';
 
-import { ZapDispute } from "../typechain/ZapDispute";
+import { ZapDispute } from '../typechain/ZapDispute';
 
-import { ZapStake } from "../typechain/ZapStake";
+import { ZapStake } from '../typechain/ZapStake';
 
-import { ZapMaster } from "../typechain/ZapMaster";
+import { ZapMaster } from '../typechain/ZapMaster';
 
-import { Zap } from "../typechain/Zap";
-import { BigNumber, ContractFactory } from "ethers";
+import { Zap } from '../typechain/Zap';
+import { BigNumber, ContractFactory } from 'ethers';
 
 const { expect } = chai;
 
@@ -39,181 +39,275 @@ let zap: Zap;
 
 let signers: any;
 
-describe("Did Mine Test", () => {
+describe('Did Mine Test', () => {
+  beforeEach(async () => {
+    signers = await ethers.getSigners();
 
-    beforeEach(async () => {
+    const zapTokenFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapToken',
+      signers[0]
+    );
 
-        signers = await ethers.getSigners();
+    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+    await zapTokenBsc.deployed();
 
-        const zapTokenFactory: ContractFactory = await ethers.getContractFactory(
-            "ZapToken",
-            signers[0]
-        )
+    const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapTransfer',
+      signers[0]
+    );
 
-        zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-        await zapTokenBsc.deployed()
+    zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
+    await zapTransfer.deployed();
 
-        const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-            "ZapTransfer",
-            signers[0]
-        )
+    const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapLibrary',
+      {
+        libraries: {
+          ZapTransfer: zapTransfer.address
+        },
+        signer: signers[0]
+      }
+    );
 
-        zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer
-        await zapTransfer.deployed();
+    zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary;
+    await zapLibrary.deployed();
 
-        const zapLibraryFactory: ContractFactory = await ethers.getContractFactory("ZapLibrary",
-            {
-                libraries: {
-                    ZapTransfer: zapTransfer.address,
-                },
-                signer: signers[0]
-            }
-        );
+    const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapDispute',
+      {
+        libraries: {
+          ZapTransfer: zapTransfer.address
+        },
+        signer: signers[0]
+      }
+    );
 
-        zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary
-        await zapLibrary.deployed()
+    zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute;
+    await zapDispute.deployed();
 
-        const zapDisputeFactory: ContractFactory = await ethers.getContractFactory("ZapDispute", {
+    const zapStakeFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapStake',
+      {
+        libraries: {
+          ZapTransfer: zapTransfer.address,
+          ZapDispute: zapDispute.address
+        },
+        signer: signers[0]
+      }
+    );
 
-            libraries: {
-                ZapTransfer: zapTransfer.address,
-            },
-            signer: signers[0]
+    zapStake = (await zapStakeFactory.deploy()) as ZapStake;
+    await zapStake.deployed();
 
-        });
-
-        zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute
-        await zapDispute.deployed();
-
-        const zapStakeFactory: ContractFactory = await ethers.getContractFactory("ZapStake", {
-
-            libraries: {
-                ZapTransfer: zapTransfer.address,
-                ZapDispute: zapDispute.address
-            },
-            signer: signers[0]
-        })
-
-        zapStake = (await zapStakeFactory.deploy()) as ZapStake
-        await zapStake.deployed()
-
-        const zapFactory: ContractFactory = await ethers.getContractFactory("Zap", {
-
-            libraries: {
-                ZapStake: zapStake.address,
-                ZapDispute: zapDispute.address,
-                ZapLibrary: zapLibrary.address,
-            },
-            signer: signers[0]
-
-        })
-
-        zap = (await zapFactory.deploy(zapTokenBsc.address)) as Zap
-        await zap.deployed()
-
-        const zapMasterFactory: ContractFactory = await ethers.getContractFactory("ZapMaster", {
-            libraries: {
-                ZapTransfer: zapTransfer.address,
-                ZapStake: zapStake.address
-            },
-            signer: signers[0]
-        });
-
-        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
-        await zapMaster.deployed()
-
-        for (var i = 1; i <= 5; i++) {
-
-            // Allocates ZAP to signers 1 - 5
-            await zapTokenBsc.allocate(signers[i].address, 2000);
-
-        }
-
+    const zapFactory: ContractFactory = await ethers.getContractFactory('Zap', {
+      libraries: {
+        ZapStake: zapStake.address,
+        ZapDispute: zapDispute.address,
+        ZapLibrary: zapLibrary.address
+      },
+      signer: signers[0]
     });
 
-    it("Test didMine", async () => {
+    zap = (await zapFactory.deploy(zapTokenBsc.address)) as Zap;
+    await zap.deployed();
 
-        let x: string;
+    const zapMasterFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapMaster',
+      {
+        libraries: {
+          ZapTransfer: zapTransfer.address,
+          ZapStake: zapStake.address
+        },
+        signer: signers[0]
+      }
+    );
 
-        let apix: string;
+    zapMaster = (await zapMasterFactory.deploy(
+      zap.address,
+      zapTokenBsc.address
+    )) as ZapMaster;
+    await zapMaster.deployed();
 
-        // Request string
-        const api: string = "json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price";
+    for (var i = 1; i <= 5; i++) {
+      // Allocates ZAP to signers 1 - 5
+      await zapTokenBsc.allocate(signers[i].address, 2000);
+    }
+  });
 
-        // Allocates 5000 ZAP to signer 0 
-        await zapTokenBsc.allocate(signers[0].address, 5000);
+  it('Test didMine', async () => {
+    let x: string;
 
-        // Iterates through signers 1 through 5
-        for (var i = 1; i <= 5; i++) {
+    let apix: string;
 
-            // Attach the ZapMaster instance to Zap
-            zap = zap.attach(zapMaster.address);
+    // Request string
+    const api: string =
+      'json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price';
 
-            // Connects addresses 1-5 as the signer
-            zap = zap.connect(signers[i]);
+    // Allocates 5000 ZAP to signer 0
+    await zapTokenBsc.allocate(signers[0].address, 5000);
 
-            // Stakes 1000 Zap to initiate a miner
-            await zap.depositStake();
-        }
+    // Iterates through signers 1 through 5
+    for (var i = 1; i <= 5; i++) {
+      // Attach the ZapMaster instance to Zap
+      zap = zap.attach(zapMaster.address);
 
-        zap = zap.connect(signers[0]);
+      // Connects addresses 1-5 as the signer
+      zap = zap.connect(signers[i]);
 
-        // Approves Zap.sol the amount to tip for requestData
-        await zapTokenBsc.approve(zap.address, 5000)
+      // Stakes 1000 Zap to initiate a miner
+      await zap.depositStake();
+    }
 
-        // Iterates the length of the requestQ array
-        for (var i = 0; i < 52; i++) {
+    zap = zap.connect(signers[0]);
 
-            x = "USD" + i;
-            apix = api + i;
+    // Approves Zap.sol the amount to tip for requestData
+    await zapTokenBsc.approve(zap.address, 5000);
 
-            // Submits the query string as the request
-            // Each request will add a tip starting at 51 and count down until 0
-            // Each tip will be stored inside the requestQ array
-            await zap.requestData(apix, x, 1000, 52 - i);
-        }
+    // Iterates the length of the requestQ array
+    for (var i = 0; i < 52; i++) {
+      x = 'USD' + i;
+      apix = api + i;
 
-        // Gets the tip amounts stored in the requestQ array
-        // Values are returned as hexStrings
-        const getReqQ: BigNumber[] = await zapMaster.getRequestQ();
+      // Submits the query string as the request
+      // Each request will add a tip starting at 51 and count down until 0
+      // Each tip will be stored inside the requestQ array
+      await zap.requestData(apix, x, 1000, 52 - i);
+    }
 
-        // Parses the getReqQ array from hexStrings to numbers
-        const reqQ: number[] = getReqQ.map(item => parseInt(item._hex));
+    // Gets the tip amounts stored in the requestQ array
+    // Values are returned as hexStrings
+    const getReqQ: BigNumber[] = await zapMaster.getRequestQ();
 
-        for (var i = 1; i <= 5; i++) {
+    // Parses the getReqQ array from hexStrings to numbers
+    const reqQ: number[] = getReqQ.map((item) => parseInt(item._hex));
 
-            // Connects address 1 as the signer
-            zap = zap.connect(signers[i]);
+    for (var i = 1; i <= 5; i++) {
+      // Connects address 1 as the signer
+      zap = zap.connect(signers[i]);
 
-            /*
+      /*
             Gets the data properties for the current request
             bytes32 _challenge,
             uint256[5] memory _requestIds,
             uint256 _difficutly,
             uint256 _tip
             */
-            const newCurrentVars: any = await zap.getNewCurrentVariables();
+      const newCurrentVars: any = await zap.getNewCurrentVariables();
 
-            // Each Miner will submit a mining solution
-            await zap.submitMiningSolution("nonce", 1, 1200);
+      // Each Miner will submit a mining solution
+      const mining = await zap.submitMiningSolution('nonce', 1, 1200);
+      const res = await mining.wait();
+      // console.log(res);
 
-            // Checks if the miners mined the challenge
-            // true = Miner did mine the challenge
-            // false = Miner did not mine the challenge
-            const didMineStatus: boolean = await zapMaster.didMine(
-                newCurrentVars[0],
-                signers[i].address
-            );
+      // Checks if the miners mined the challenge
+      // true = Miner did mine the challenge
+      // false = Miner did not mine the challenge
+      const didMineStatus: boolean = await zapMaster.didMine(
+        newCurrentVars[0],
+        signers[i].address
+      );
 
-            // Expects the challenge hash 66 characters in length
-            expect(newCurrentVars[0]).to.have.length(66);
+      // Expects the challenge hash 66 characters in length
+      expect(newCurrentVars[0]).to.have.length(66);
 
-            // Expects the didMine status of each miner to be true
-            expect(didMineStatus).to.be.true;
+      // Expects the didMine status of each miner to be true
+      expect(didMineStatus).to.be.true;
 
-        }
+      // let previouFifthMinerBal = await zap.getBalanceAt(
+      //   signers[4].address,
+      //   res.blockNumber - 1
+      // );
+      // let currentFifthMinerBal = await zap.getBalanceAt(
+      //   signers[4].address,
+      //   res.blockNumber
+      // );
 
-        expect(reqQ).to.have.length(51);
+      // let rewardAmount = 15;
+      // let diff =
+      //   parseInt(currentFifthMinerBal._hex) -
+      //   parseInt(previouFifthMinerBal._hex);
+      // console.log('previouFifthMinerBal = ', previouFifthMinerBal);
+      // console.log('currentFifthMinerBal = ', currentFifthMinerBal);
 
-    })
+      // expect(diff).to.equal(
+      //   rewardAmount,
+      //   'Miner should have been tipped 15 tokens.'
+      // );
+
+      // let previousZapMasterBal = await zap.getBalanceAt(
+      //   zapMaster.address,
+      //   res.blockNumber - 1
+      // );
+      // let currentZapMasterBal = await zap.getBalanceAt(
+      //   zapMaster.address,
+      //   res.blockNumber
+      // );
+
+      // 15 each miner * 5 + 2 = 77 total zap tokens payed out from Zap Master
+      //   let payOutAmount = 77;
+
+      //     diff =
+      //       parseInt(previousZapMasterBal._hex) -
+      //       parseInt(currentZapMasterBal._hex);
+      //     expect(diff).to.equal(payOutAmount);
+
+      //   console.log(
+      //     'previousZapMasterBal = ',
+      //     parseInt(previousZapMasterBal._hex)
+      //   );
+      //   console.log(
+      //     'currentZapMasterBal = ',
+      //     parseInt(currentZapMasterBal._hex)
+      //   );
+      //   console.log(
+      //     diff
+      //   );
+      //   console.log(
+      //     parseInt(currentZapMasterBal._hex) -
+      //       parseInt(previousZapMasterBal._hex)
+      //   );
+    }
+
+    expect(reqQ).to.have.length(51);
+
+    // check to see that the miner receeived the reward and for the proper amount.
+    let blockNumber = 76;
+    let previouFifthMinerBal = await zap.getBalanceAt(
+      signers[4].address,
+      blockNumber - 1
+    );
+    let currentFifthMinerBal = await zap.getBalanceAt(
+      signers[4].address,
+      blockNumber
+    );
+
+    console.log('previouFifthMinerBal = ', previouFifthMinerBal);
+    console.log('currentFifthMinerBal = ', currentFifthMinerBal);
+
+    let rewardAmount = 15;
+    let diff =
+      parseInt(currentFifthMinerBal._hex) - parseInt(previouFifthMinerBal._hex);
+
+    expect(diff).to.equal(
+      rewardAmount,
+      'Miner should have been tipped 15 tokens.'
+    );
+
+    // check to see that Zap Master payed out the correct amount of rewards and devshare.
+    let previousZapMasterBal = await zap.getBalanceAt(
+      zapMaster.address,
+      blockNumber - 1
+    );
+    let currentZapMasterBal = await zap.getBalanceAt(
+      zapMaster.address,
+      blockNumber
+    );
+
+    // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
+    let payOutAmount = 77;
+
+    diff =
+      parseInt(previousZapMasterBal._hex) - parseInt(currentZapMasterBal._hex);
+    expect(diff).to.equal(payOutAmount);
+  });
 });
