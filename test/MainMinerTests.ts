@@ -441,7 +441,7 @@ describe("Main Miner Functions", () => {
     it("Should not be able to withdraw unapproved", async () => {
 
         // Allocate enough to stake
-        await zapTokenBsc.allocate(signers[1].address, 1000);
+        await zapTokenBsc.allocate(signers[1].address, 500000);
 
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
