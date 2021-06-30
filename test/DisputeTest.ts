@@ -21,6 +21,7 @@ import { ZapMaster } from "../typechain/ZapMaster";
 import { Zap } from "../typechain/Zap";
 
 import { BigNumber, ContractFactory } from "ethers";
+import { keccak256 } from "ethers/lib/utils";
 
 const { expect } = chai;
 
@@ -124,6 +125,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
         await zapMaster.deployed()
+        await zapTokenBsc.allocate(zapMaster.address, 10000);
 
         // stake signers 1 to 5.
         for (let i=1; i<=5; i++) {
@@ -142,22 +144,71 @@ describe("Test ZapDispute and it's dispute functions", () => {
         zap = zap.connect(signers[0]);
         await zap.requestData(api, symbol, 1000, 52);
 
+        // have each miner submit a solution
+        for (var i = 1; i <= 5; i++) {
+            // Connects address 1 as the signer
+            zap = zap.connect(signers[i]);
+
+            /*
+                Gets the data properties for the current request
+                bytes32 _challenge,
+                uint256[5] memory _requestIds,
+                uint256 _difficutly,
+                uint256 _tip
+                */
+            const newCurrentVars: any = await zap.getNewCurrentVariables();
+
+            // Each Miner will submit a mining solution
+            const mining = await zap.submitMiningSolution('nonce', 1, 1200);
+            // const res = await mining.wait();
+
+            // Checks if the miners mined the challenge
+            // true = Miner did mine the challenge
+            // false = Miner did not mine the challenge
+            const didMineStatus: boolean = await zapMaster.didMine(
+                newCurrentVars[0],
+                signers[i].address
+            );
+
+        }
     })
+    
 
-    it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
+    it("Stake shold be able to dispute a submission.",
+            
+    
         async () => {
-          // expect(stakerInfo[1]).to.greaterThan(0)
-          let bal = await zapTokenBsc.balanceOf(signers[1].address);
-          console.log(bal);
-          expect(bal).to.equal(1300);
-
-
-          const getInfo: BigNumber[] = await zapMaster.getStakerInfo(
-            signers[5].address
+          // convert this to bytes32
+          // let timeStamp = keccak256('timeOfLastNewValue');
+          let bytes32 = ethers.utils.formatBytes32String(
+            keccak256('timeOfLastNewValue')
           );
-          const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
-          expect(stakerInfo[0]).to.equal(1), 'Staked';
-          
+          let timeStamp = await zapMaster.getUintVar(bytes32);
+
+          await zap.beginDispute(0, timeStamp, 4);
+
+          bytes32 = ethers.utils.formatBytes32String(keccak256('disputeCount'));
+          let disputeCount = await zapMaster.getUintVar(bytes32);
+          expect(disputeCount).to.equal(1);
+
+          // signers 0-18 vote for the dispute 0 
+          for (var i = 0; i < 18; i++) {
+            zap = zap.connect(signers[i]);
+            await zap.vote(0, true);
+          }
+
+          // expect(stakerInfo[1]).to.greaterThan(0)
+          //   let bal = await zapTokenBsc.balanceOf(signers[1].address);
+          //   console.log(bal);
+          //   expect(bal).to.equal(1300);
+
+          //   const getInfo: BigNumber[] = await zapMaster.getStakerInfo(
+          //     signers[5].address
+          //   );
+          //   const stakerInfo: number[] = getInfo.map((info) =>
+          //     parseInt(info._hex)
+          //   );
+          //   expect(stakerInfo[0]).to.equal(1), 'Staked';
 
           // // stakerInfo[0] = Staker Status
           // // Expect the staker status to be 1
