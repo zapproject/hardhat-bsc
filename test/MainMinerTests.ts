@@ -187,11 +187,11 @@ describe("Main Miner Functions", () => {
         }
     )
 
-    it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
+    it("Should stake a miner with a balance greater than or equal to 500K ZAP and return a 1 stake status and an above 0 timestamp",
         async () => {
 
             // Allocate enough to stake
-            await zapTokenBsc.allocate(signers[1].address, 600000)
+            await zapTokenBsc.allocate(signers[1].address, 600000);
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
@@ -199,7 +199,7 @@ describe("Main Miner Functions", () => {
             // Connects address 1 as the signer
             zap = zap.connect(signers[1]);
 
-            // Stakes 1000 Zap to initiate a miner
+            // Stakes 500k Zap to initiate a miner
             await zap.depositStake();
 
             // Gets the balance as hexString
@@ -215,7 +215,7 @@ describe("Main Miner Functions", () => {
             // Parses the hexStrings in the array
             const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
 
-            // Expect the balance to be greater than or equal to 1000
+            // Expect the balance to be greater than or equal to 500k
             expect(balance).to.be.greaterThanOrEqual(1000);
 
             // stakerInfo[0] = Staker Status
