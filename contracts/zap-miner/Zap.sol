@@ -8,7 +8,6 @@ import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
 
-
 /**
  * @title Zap Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
@@ -67,6 +66,7 @@ contract Zap {
     ZapStorage.ZapStorageStruct zap;
     ZapTokenBSC public token;
     Vault public vault;
+    address vaultAddress;
 
     address payable public owner;
 
@@ -289,13 +289,14 @@ contract Zap {
     /**
      * @dev This function allows miners to deposit their stake.
      */
-    function depositStake() external {
+    function depositStake(address _vaultAddress) external {
         // require balance is >= here before it hits NewStake()
         require(
             token.balanceOf(msg.sender) >=
                 zap.uintVars[keccak256('stakeAmount')]
         );
         zap.depositStake();
+        token.transferFrom(msg.sender, _vaultAddress, zap.uintVars[keccak256('stakeAmount')]);
     }
 
     /**
@@ -606,8 +607,9 @@ contract Zap {
     /**
      * Sets the Vault instance, available only to owner
      */
-    function setVault(Vault vaultAddress) public onlyOwner {
-        vault = vaultAddress;
+    function setVault(Vault _vault) public onlyOwner {
+        vaultAddress = address(_vault);
+        vault = _vault;
     }
 
     /**

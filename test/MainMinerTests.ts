@@ -199,8 +199,10 @@ describe("Main Miner Functions", () => {
             // Connects address 1 as the signer
             zap = zap.connect(signers[1]);
 
+            await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+
             // Stakes 1000 Zap to initiate a miner
-            await zap.depositStake();
+            await zap.depositStake(vault.address);
 
             // Gets the balance as hexString
             const getBalance: BigNumber = await zapMaster.balanceOf(signers[1].address);
@@ -215,8 +217,10 @@ describe("Main Miner Functions", () => {
             // Parses the hexStrings in the array
             const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
 
+            expect(await zapMaster.balanceOf(vault.address)).to.equal(1000);
+
             // Expect the balance to be greater than or equal to 1000
-            expect(balance).to.be.greaterThanOrEqual(1000);
+            expect(balance).to.be.equal(0);
 
             // stakerInfo[0] = Staker Status
             // Expect the staker status to be 1
@@ -246,8 +250,9 @@ describe("Main Miner Functions", () => {
             // Parses the hexStrings in the array
             const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
 
+            await zapTokenBsc.connect(signers[2]).approve(zapMaster.address, 1000);
             // Expects depositStake to fail and revert the transaction
-            await expect(zap.depositStake()).to.be.reverted;
+            await expect(zap.depositStake(vault.address)).to.be.reverted;
 
             // Expect staker status to be 0
             expect(stakerInfo[0]).to.equal(0);
@@ -323,8 +328,10 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+
         // Stakes 1000 Zap to initiate a miner
-        await zap.depositStake();
+        await zap.depositStake(vault.address);
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
@@ -390,8 +397,10 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+
         // Stakes 1000 Zap to initiate a miner
-        await zap.depositStake();
+        await zap.depositStake(vault.address);
 
         // Request to withdraw stake
         await zap.requestStakingWithdraw();
@@ -417,8 +426,13 @@ describe("Main Miner Functions", () => {
         // Parses the hexStrings in the array
         const postWthDrwInfo: number[] = getPostWthDrwInfo.map(info => parseInt(info._hex));
 
+        // Allocate enough to stake again (** this will be replaced once withdraw works properlly **)
+        await zapTokenBsc.allocate(signers[1].address, 1000);
+
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+
         // Stake deposit
-        await zap.depositStake();
+        await zap.depositStake(vault.address);
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
@@ -452,8 +466,10 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+
         // Stakes 1000 Zap to initiate a miner
-        await zap.depositStake();
+        await zap.depositStake(vault.address);
 
         // Expect withdrawStake to fail and revert the transaction
         // Can not withdrawStake wihthout submitting a request
