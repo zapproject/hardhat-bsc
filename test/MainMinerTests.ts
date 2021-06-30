@@ -227,7 +227,7 @@ describe("Main Miner Functions", () => {
             expect(stakerInfo[1]).to.greaterThan(0)
         })
 
-    it("Should not stake a miner with a balance less than 1000 and return a 0 stake status and timestamp",
+    it("Should not stake a miner with a balance less than 500k and return a 0 stake status and timestamp",
         async () => {
 
             // Allocate enough to not stake
