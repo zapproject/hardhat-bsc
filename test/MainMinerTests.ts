@@ -129,8 +129,8 @@ describe("Main Miner Functions", () => {
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
         await zapMaster.deployed()
 
-        
-        const Vault: ContractFactory = await ethers.getContractFactory('Vault', {signer: signers[0]});
+
+        const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });
         vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
         await vault.deployed();
 
@@ -177,7 +177,7 @@ describe("Main Miner Functions", () => {
 
             // approval should be max uint256 - 100
             expect(approval).to.equal(BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9b"));
-            
+
             // increase approval of vault
             await zap.connect(signers[0]).increaseVaultApproval();
 
@@ -191,7 +191,7 @@ describe("Main Miner Functions", () => {
         async () => {
 
             // Allocate enough to stake
-            await zapTokenBsc.allocate(signers[1].address, 1000)
+            await zapTokenBsc.allocate(signers[1].address, 600000)
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
