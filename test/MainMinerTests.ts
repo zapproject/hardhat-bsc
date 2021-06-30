@@ -315,7 +315,7 @@ describe("Main Miner Functions", () => {
     it("Should request staking withdraw", async () => {
 
         // Allocate enough to stake
-        await zapTokenBsc.allocate(signers[1].address, 1000);
+        await zapTokenBsc.allocate(signers[1].address, 600000);
 
         // Connects address 1 as the signer
         zap = zap.connect(signers[1]);
@@ -323,7 +323,7 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        // Stakes 1000 Zap to initiate a miner
+        // Stakes 500k Zap to initiate a miner
         await zap.depositStake();
 
         // Returns an array containing the staker status and timestamp
