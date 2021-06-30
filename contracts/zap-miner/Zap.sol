@@ -6,6 +6,8 @@ import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
+import './Vault.sol';
+
 
 /**
  * @title Zap Oracle System
@@ -54,6 +56,7 @@ contract Zap {
         uint256 _value
     ); //ERC20 Approval event
     event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
+    event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
 
     using SafeMathM for uint256;
 
@@ -63,10 +66,21 @@ contract Zap {
 
     ZapStorage.ZapStorageStruct zap;
     ZapTokenBSC public token;
+    Vault public vault;
+
+    address payable public owner;
 
     constructor(address zapTokenBsc) public {
         token = ZapTokenBSC(zapTokenBsc);
+        owner = msg.sender;
     }
+
+    /// @dev Throws if called by any contract other than latest designated caller
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
 
     function balanceOf(address _user) public view returns (uint256 balance) {
         return token.balanceOf(_user);
@@ -587,5 +601,19 @@ contract Zap {
                 ] += _tip;
             }
         }
+    }
+
+    /**
+     * Sets the Vault instance, available only to owner
+     */
+    function setVault(Vault vaultAddress) public onlyOwner {
+        vault = vaultAddress;
+    }
+
+    /**
+     * Increase the approval of ZapMaster for the Vault
+     */
+    function increaseVaultApproval() public returns (bool) {
+        return vault.increaseApproval();
     }
 }

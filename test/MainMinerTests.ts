@@ -20,6 +20,8 @@ import { ZapMaster } from "../typechain/ZapMaster";
 
 import { Zap } from "../typechain/Zap";
 
+import { Vault } from "../typechain/Vault";
+
 import { BigNumber, ContractFactory } from "ethers";
 
 const { expect } = chai;
@@ -39,6 +41,8 @@ let zapStake: ZapStake;
 let zapMaster: ZapMaster;
 
 let zap: Zap;
+
+let vault: Vault;
 
 let signers: any;
 
@@ -125,7 +129,63 @@ describe("Main Miner Functions", () => {
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
         await zapMaster.deployed()
 
+        
+        const Vault: ContractFactory = await ethers.getContractFactory('Vault', {signer: signers[0]});
+        vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
+        await vault.deployed();
+
+        await zap.setVault(vault.address);
     })
+
+    it("Should transfer Zap from signers[19] to vault and then to signers[18]",
+        async () => {
+            // Allocate enough for transfer
+            await zapTokenBsc.allocate(signers[19].address, 100)
+
+            // Attach the ZapMaster instance to Zap
+            let master = zap.attach(zapMaster.address) as Zap;
+
+            // Connects address 19 as the signer and approve the Zap Master
+            await zapTokenBsc.connect(signers[19]).approve(zapMaster.address, 10000);
+
+            // transfer Zap from signers[19] to Vault
+            await master.transferFrom(signers[19].address, vault.address, 100);
+
+            // expect vault to have a balance of 100 Zap transferred amount
+            expect(await zapMaster.balanceOf(vault.address)).to.equal(100);
+
+            // transfer Zap from Vault to signers[18]
+            let balance = await zapMaster.balanceOf(signers[18].address);
+            await master.transferFrom(vault.address, signers[18].address, 100);
+
+            // expect signers[1] to have 100 more Zap
+            expect(await zapTokenBsc.balanceOf(signers[18].address)).to.equal(balance.add(100));
+        }
+    )
+
+    it("Should increaseApproval through Vault's function call",
+        async () => {
+            // Allocate enough for transfer
+            await zapTokenBsc.allocate(vault.address, 100)
+
+            // Attach the ZapMaster instance to Zap
+            let master = zap.attach(zapMaster.address) as Zap;
+
+            // transfer 100 Zap to decrease approval
+            await master.transferFrom(vault.address, signers[18].address, 100);
+            let approval = await zapTokenBsc.allowance(vault.address, zapMaster.address);
+
+            // approval should be max uint256 - 100
+            expect(approval).to.equal(BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9b"));
+            
+            // increase approval of vault
+            await zap.connect(signers[0]).increaseVaultApproval();
+
+            // approval sohuld be max uint256
+            approval = await zapTokenBsc.allowance(vault.address, zapMaster.address);
+            expect(approval).to.equal(BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+        }
+    )
 
     it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
         async () => {
