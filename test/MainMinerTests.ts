@@ -216,7 +216,7 @@ describe("Main Miner Functions", () => {
             const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
 
             // Expect the balance to be greater than or equal to 500k
-            expect(balance).to.be.greaterThanOrEqual(1000);
+            expect(balance).to.be.greaterThanOrEqual(500000);
 
             // stakerInfo[0] = Staker Status
             // Expect the staker status to be 1
@@ -452,7 +452,7 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        // Stakes 1000 Zap to initiate a miner
+        // Stakes 500k Zap to initiate a miner
         await zap.depositStake();
 
         // Expect withdrawStake to fail and revert the transaction

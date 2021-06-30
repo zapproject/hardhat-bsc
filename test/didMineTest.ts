@@ -154,7 +154,7 @@ describe('Did Mine Test', () => {
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
-            // Stakes 1000 Zap to initiate a miner
+            // Stakes 600k Zap to initiate a miner
             await zap.depositStake();
         }
 
