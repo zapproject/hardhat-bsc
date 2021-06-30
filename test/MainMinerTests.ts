@@ -231,7 +231,7 @@ describe("Main Miner Functions", () => {
         async () => {
 
             // Allocate enough to not stake
-            await zapTokenBsc.allocate(signers[2].address, 999);
+            await zapTokenBsc.allocate(signers[2].address, 499999);
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
@@ -288,8 +288,8 @@ describe("Main Miner Functions", () => {
         // Parses getStakeAmt from a hexString to a number
         const stakeAmt: number = parseInt(getStakeAmt._hex);
 
-        // Expect stakeAmt to equal 1000
-        expect(stakeAmt).to.equal(1000);
+        // Expect stakeAmt to equal 500k
+        expect(stakeAmt).to.equal(500000);
 
     })
 
