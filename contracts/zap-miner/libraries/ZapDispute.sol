@@ -2,6 +2,7 @@ pragma solidity =0.5.16;
 
 import './ZapStorage.sol';
 import './ZapTransfer.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Dispute
@@ -59,6 +60,7 @@ library ZapDispute {
         require(voteWeight > 0);
 
         //ensures miners that are under dispute cannot vote
+        console.log(msg.sender);
         require(self.stakerDetails[msg.sender].currentStatus != 3);
 
         //Update user voting status to true

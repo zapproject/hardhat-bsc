@@ -202,8 +202,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
   });
 
   it('Should be able to dispute a submission.', async () => {
-    // let cV = await zap.getNewCurrentVariables();
-
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
       'timeOfLastNewValue'
@@ -231,15 +229,17 @@ describe("Test ZapDispute and it's dispute functions", () => {
     let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
 
     // test dispute count before beginDispute
-    expect(disputeId).to.equal(0, "There should be no disputes before beginDispute.");
+    expect(disputeId).to.equal(
+      0,
+      'There should be no disputes before beginDispute.'
+    );
 
     zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
 
     disputeId = await zapMaster.getUintVar(ddisputecount);
     // test dispute count after beginDispute
-    expect(disputeId).to.equal(1, "Dispute count should be 1.");
-
+    expect(disputeId).to.equal(1, 'Dispute count should be 1.');
 
     disputeId = await zapMaster.getUintVar(ddisputecount);
     let disp = await zapMaster.getAllDisputeVars(disputeId);
@@ -252,5 +252,67 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][0]).to.equal(1);
     // expect timestamp to be the same timestamp used when disputed
     expect(disp[7][1]).to.equal(timeStamp);
+  });
+
+  it('Should be able to vote on a dispute.', async () => {
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
+      'timeOfLastNewValue'
+    );
+
+    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
+      timeOfLastNewValueBytes
+    );
+
+    // Gets the the current stake amount
+    let timeStamp: BigNumber = await zapMaster.getUintVar(
+      timeOfLastNewValueHash
+    );
+
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
+
+    zap = zap.connect(signers[1]);
+    await zap.beginDispute(1, timeStamp, 4);
+    // Convert to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+    // Convert to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+    // Gets the disputeID also the dispute count
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    console.log("DISPUTEID: ", disputeId)
+    let disp = await zapMaster.getAllDisputeVars(disputeId);
+    // expect to be the address that begain the dispute
+    expect(disp[4]).to.equal(signers[5].address);
+    // expect to be the address that is being disputed
+    expect(disp[5]).to.equal(signers[1].address);
+    //expect requestID disputed to be 1
+    expect(disp[7][0]).to.equal(1);
+    // expect timestamp to be the same timestamp used when disputed
+    expect(disp[7][1]).to.equal(timeStamp);
+    console.log("111111111111")
+    console.log("111111111111")
+    console.log(disp)
+    console.log("111111111111")
+    console.log("111111111111")
+
+    // vote of a dispute
+    // signers 0-18 vote for the dispute 0
+    for (var i = 0; i < 5; i++) {
+      zap = zap.connect(signers[i]);
+      await zap.vote(disputeId, true);
+    }
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+    console.log('222222222222');
+    console.log('222222222222');
+    console.log(disp);
+    console.log('222222222222');
+    console.log('222222222222');
+    expect(disp[7][6]).to.equal(4)
   });
 });
