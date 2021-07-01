@@ -91,6 +91,18 @@ library ZapStake {
         require(now - (now % 86400) - stakes.startDate >= 7 days);
         require(stakes.currentStatus == 2);
         stakes.currentStatus = 0;
+
+        /*
+            NOT TOTALLY SURE OF THESE FUNCTON NAMES.
+            BUT THE LOGIC SHOULD BE SOMETHING LIKE THIS...
+            // msg.sender is the staker that wants to withdraw their tokens
+            previousBalance = balanceOf(msg.sender); // grab the balance of the staker
+            updateBalanceAtNow(self.balancecs(msg.sender), previousBalance) // update 
+            tranferFrom(vault, msg.sender);
+            
+            // updates the storage portion that keeps track of balances at a block. set it to 0 since staker is unstaking
+            updateBalanceAtNow(self.balancecs(msg.sender), 0) 
+        */
         emit StakeWithdrawn(msg.sender);
     }
 
