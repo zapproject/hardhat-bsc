@@ -17,6 +17,9 @@ import { ZapStake } from '../typechain/ZapStake';
 import { ZapMaster } from '../typechain/ZapMaster';
 
 import { Zap } from '../typechain/Zap';
+
+import { Vault } from "../typechain/Vault";
+
 import { BigNumber, ContractFactory } from 'ethers';
 
 const { expect } = chai;
@@ -36,6 +39,8 @@ let zapStake: ZapStake;
 let zapMaster: ZapMaster;
 
 let zap: Zap;
+
+let vault: Vault;
 
 let signers: any;
 
@@ -128,6 +133,13 @@ describe('Did Mine Test', () => {
         )) as ZapMaster;
         await zapMaster.deployed();
 
+        const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });
+        vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
+
+        await vault.deployed();
+
+        await zap.setVault(vault.address);
+
         for (var i = 1; i <= 5; i++) {
             // Allocates ZAP to signers 1 - 5
             await zapTokenBsc.allocate(signers[i].address, 600000);
@@ -154,8 +166,10 @@ describe('Did Mine Test', () => {
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
+            await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
+
             // Stakes 600k Zap to initiate a miner
-            await zap.depositStake();
+            await zap.depositStake(vault.address);
         }
 
         zap = zap.connect(signers[0]);
@@ -195,8 +209,7 @@ describe('Did Mine Test', () => {
             const newCurrentVars: any = await zap.getNewCurrentVariables();
 
             // Each Miner will submit a mining solution
-            const mining = await zap.submitMiningSolution('nonce', 1, 1200);
-            const res = await mining.wait();
+            await zap.submitMiningSolution('nonce', 1, 1200);
 
             // Checks if the miners mined the challenge
             // true = Miner did mine the challenge
@@ -217,11 +230,13 @@ describe('Did Mine Test', () => {
         expect(reqQ).to.have.length(51);
 
         // check to see that the miner receeived the reward and for the proper amount.
-        let blockNumber = 76;
+        let blockNumber = 83;
+
         let previouFifthMinerBal = await zap.getBalanceAt(
             signers[4].address,
             blockNumber - 1
         );
+
         let currentFifthMinerBal = await zap.getBalanceAt(
             signers[4].address,
             blockNumber
