@@ -184,13 +184,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
         uint256 _tip
       */
       const newCurrentVars: any = await zap.getNewCurrentVariables();
-      // console.log("=================")
-      // console.log("=================")
-      // console.log("=================")
-      // console.log("newCurrentVars: ", newCurrentVars)
-      // console.log("=================")
-      // console.log("=================")
-      // console.log("=================")
 
       // Each Miner will submit a mining solution
       const mining = await zap.submitMiningSolution('nonce', 1, 1200);
@@ -209,16 +202,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
   });
 
   it('Stake shold be able to dispute a submission.', async () => {
-    
     // let cV = await zap.getNewCurrentVariables();
-    // // let cV = await zapMaster.getRequestVars(1);
-    // console.log('PPPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPPP');
-    // console.log('getNewCurrentVariables', cV);
-    // console.log('PPPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPPP');
+
 
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
@@ -235,19 +220,56 @@ describe("Test ZapDispute and it's dispute functions", () => {
       timeOfLastNewValueHash
     );
 
-    console.log("msg.sender: ", 
-      await zapMaster.balanceOf('0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc')
-    );
-    console.log("this: ", 
-      await zapMaster.balanceOf('0x0165878a594ca255338adfa4d48449f69242eb8f')
-    );
+    // requestIdByTimestamp;
+    let reqID = await zapMaster.getRequestIdByTimestamp(timeStamp);
+    console.log('reqID: ', reqID);
 
-    await zapTokenBsc.connect(signers[5]).approve(zapMaster.address, 5000);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 5000);
 
-    console.log('timestamp: ', timeStamp);
+    zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
-    let isInDispute = await zapMaster.isInDispute(1, timeStamp);
+
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+    // // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+    // // Gets the the current stake amount
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+
+    // disputeId = zap.uintVars[keccak256('disputeCount')];
+    // let disp = await zap.disputesById[parseInt(disputeId._hex)];
+    let disp = await zapMaster.getAllDisputeVars(disputeId);
+    console.log('DDDDDDDDD');
+    console.log(disp)
+    console.log('DDDDDDDDD');
+
+
+    // // Converts the uintVar "stakeAmount" to a bytes array
+    // const data: Uint8Array = ethers.utils.toUtf8Bytes('fee');
+
+    // // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    // const ddata: string = ethers.utils.keccak256(data);
+
+    // // Gets the the current stake amount
+    // // let reqID: BigNumber = await zapMaster.getUintVar(ddata);
+    // // console.log('DISPUTE ID: ', disputeId);
+
+    // let disp = await zapMaster.getDisputeUintVars(disputeId, ddata);
+    // console.log('PPPPPPPPPPPPP');
+    // console.log('PPPPPPPPPPPPP');
+    // console.log('PPPPPPPPPPPPP');
+    // console.log(disp)
+    // console.log('PPPPPPPPPPPPP');
+    // console.log('PPPPPPPPPPPPP');
+    // console.log('PPPPPPPPPPPPP');
+
+    let isInDispute = await zapMaster.isInDispute(reqID, timeStamp);
     console.log('isInDispute', isInDispute);
+
+
+
     //   bytes32 = ethers.utils.formatBytes32String(keccak256('disputeCount'));
     //   let disputeCount = await zapMaster.getUintVar(bytes32);
     //   //check dispute count, it's the correct miner, check disput fee
