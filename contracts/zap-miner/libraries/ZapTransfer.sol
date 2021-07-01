@@ -3,6 +3,8 @@ pragma solidity =0.5.16;
 import './SafeMathM.sol';
 import './ZapStorage.sol';
 
+import 'hardhat/console.sol';
+
 /**
  * @title Zap Transfer
  * @dev Contais the methods related to transfers and ERC20. Zap.sol and ZapGetters.sol
@@ -46,6 +48,7 @@ library ZapTransfer {
         uint256 _amount
     ) public {
         require(_amount > 0);
+
         require(_to != address(0));
         require(allowedToTrade(self, _from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
         uint256 previousBalance = balanceOfAt(self, _from, block.number);
