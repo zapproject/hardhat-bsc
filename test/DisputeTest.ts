@@ -147,19 +147,19 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     await zap.setVault(vault.address);
 
-    await zapTokenBsc.allocate(zapMaster.address, 10000);
+    await zapTokenBsc.allocate(zapMaster.address, 1000000);
 
     // stake signers 1 to 5.
     for (let i = 1; i <= 5; i++) {
-      await zapTokenBsc.allocate(signers[i].address, 5000);
+      await zapTokenBsc.allocate(signers[i].address, 600000);
       zap = zap.attach(zapMaster.address);
       zap = zap.connect(signers[i]);
 
-      await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 1000);
+      await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
       await zap.depositStake(vault.address);
 
-      expect(await zapMaster.balanceOf(signers[i].address)).to.equal(4000);
-      expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 1000);
+      expect(await zapMaster.balanceOf(signers[i].address)).to.equal(100000);
+      expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 500000);
     }
 
     let symbol: string = 'BTC/USD';
@@ -167,7 +167,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     const api: string =
       'json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4';
 
-    await zapTokenBsc.approve(zap.address, 5000);
+    await zapTokenBsc.approve(zap.address, 5000000);
     zap = zap.connect(signers[0]);
     await zap.requestData(api, symbol, 10000, 52);
 
@@ -224,7 +224,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     let reqID = await zapMaster.getRequestIdByTimestamp(timeStamp);
     console.log('reqID: ', reqID);
 
-    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 5000);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
     zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
