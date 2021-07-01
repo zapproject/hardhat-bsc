@@ -55,7 +55,10 @@ contract Zap {
         uint256 _value
     ); //ERC20 Approval event
     event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
-    event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     using SafeMathM for uint256;
 
@@ -80,7 +83,6 @@ contract Zap {
         require(msg.sender == owner);
         _;
     }
-
 
     function balanceOf(address _user) public view returns (uint256 balance) {
         return token.balanceOf(_user);
@@ -296,7 +298,11 @@ contract Zap {
                 zap.uintVars[keccak256('stakeAmount')]
         );
         zap.depositStake();
-        token.transferFrom(msg.sender, _vaultAddress, zap.uintVars[keccak256('stakeAmount')]);
+        token.transferFrom(
+            msg.sender,
+            _vaultAddress,
+            zap.uintVars[keccak256('stakeAmount')]
+        );
     }
 
     /**
@@ -311,8 +317,14 @@ contract Zap {
     /**
      * @dev This function allows users to withdraw their stake after a 7 day waiting period from request
      */
-    function withdrawStake() external {
+    function withdrawStake(address _vaultAddress) external {
         zap.withdrawStake();
+
+        token.transferFrom(
+            _vaultAddress,
+            msg.sender,
+            zap.uintVars[keccak256('stakeAmount')]
+        );
     }
 
     /**
