@@ -11,39 +11,13 @@ const specifier = "0x048a2991c2676296b330734992245f5ba6b98174d3f1907d795b7639e92
 // const tokensForSubscriber = ethers.BigNumber.from("50000000000000000000000000000");
 const approveTokens = ethers.BigNumber.from("1000000000000000000000000000000");
 
-const calcNextDotCost = function (structurizedCurve: any, total: any) {
-  if (total < 0) {
-    return 0;
-  }
-
-
-  for (let i = 0; i < structurizedCurve.length; i++) {
-    if (structurizedCurve[i].start <= total && total <= structurizedCurve[i].end) {
-      return _calculatePolynomial(structurizedCurve[i].terms, total);
-    }
-  }
-
-  return 0;
-};
-
 //TODO move these functions to another file
 
-function _calculatePolynomial(terms: any, x: any) {
-  let sum = 0;
-
-  for (let i = 0; i < terms.length; i++) {
-    sum += terms[i] * (x ** i);
-  }
-
-  return sum;
-}
 
 async function main() {
 
   let signers = await ethers.getSigners();
 
-
-  let owner = signers[0]
   const endpoint = ["Zap Price"]
   const specifier = ethers.utils.formatBytes32String(endpoint[0])
   let query = 'zap';
@@ -51,14 +25,8 @@ async function main() {
     ethers.utils.formatBytes32String("int")
 
   ];
-  let subscriberAddress = signers[1];
-
-  let OracleSigner = signers[2];
-  let broker = signers[3];
-
-  let escrower = signers[4];
-  let escrower2 = signers[5];
-  let arbiter_ = signers[6];
+  
+ let broker = signers[3];
 
   const tokenFactory = await ethers.getContractFactory('ZapTokenBSC', signers[0]);
   const zapToken = await tokenFactory.deploy();
