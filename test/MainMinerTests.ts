@@ -23,6 +23,7 @@ import { Zap } from "../typechain/Zap";
 import { Vault } from "../typechain/Vault";
 
 import { BigNumber, ContractFactory } from "ethers";
+import { start } from "pm2";
 
 const { expect } = chai;
 
@@ -251,6 +252,7 @@ describe("Main Miner Functions", () => {
             const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
 
             await zapTokenBsc.connect(signers[2]).approve(zapMaster.address, 1000);
+
             // Expects depositStake to fail and revert the transaction
             await expect(zap.depositStake(vault.address)).to.be.reverted;
 
@@ -330,8 +332,20 @@ describe("Main Miner Functions", () => {
 
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
+        // Signer 1 balance before staking
+        const getStartBal: BigNumber = await zapMaster.balanceOf(signers[1].address);
+        const startBal: number = parseInt(getStartBal._hex);
+
+        // Vault balance before staking
+        const getVaultPreBal: BigNumber = await zapMaster.balanceOf(vault.address);
+        const vaultPreBal: Number = parseInt(getVaultPreBal._hex);
+
         // Stakes 500k Zap to initiate a miner
         await zap.depositStake(vault.address);
+
+        // Balance after stake deposit
+        const getPostBal: BigNumber = await zapMaster.balanceOf(signers[1].address);
+        const postBal: number = parseInt(getPostBal._hex);
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
@@ -354,7 +368,16 @@ describe("Main Miner Functions", () => {
         // A stake can not be withdrawn until 7 days passed
         await ethers.provider.send("evm_increaseTime", [691200]);
 
-        await zap.withdrawStake();
+        // Withdraw the stake amount to signer 1's wallet
+        await zap.withdrawStake(vault.address);
+
+        // Signer 1 balance after withdrawal
+        const getPostWithdrawBal = await zapMaster.balanceOf(signers[1].address);
+        const postWithdrawBal = parseInt(getPostWithdrawBal._hex);
+
+        // Vault balance after withdrawal
+        const getVaultPostBal = await zapMaster.balanceOf(vault.address);
+        const vaultPostBal = parseInt(getVaultPostBal._hex);
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
@@ -362,6 +385,20 @@ describe("Main Miner Functions", () => {
 
         // Parses the hexStrings in the array
         const postWthDrwInfo: number[] = getPostWthDrwInfo.map(info => parseInt(info._hex));
+
+        // Signer 1 balance before staking should be 600k
+        expect(startBal).to.equal(600000);
+
+        // Vault balance should be 0 before staking
+        expect(vaultPreBal).to.equal(0)
+
+        // Signer 1 balance should be 100k after staking
+        expect(postBal).to.equal(startBal - 500000);
+
+        expect(vaultPostBal).to.equal(0);
+
+        // Signer 1 balance should be 600k after withdrawal
+        expect(postWithdrawBal).to.equal(600000);
 
         // Expects the staker status to equal 1 after staking
         // 1 = Staked
@@ -417,7 +454,7 @@ describe("Main Miner Functions", () => {
         await ethers.provider.send("evm_increaseTime", [691200]);
 
         // Withdraws the stake
-        await zap.withdrawStake();
+        await zap.withdrawStake(vault.address);
 
         // Gets the staker info after stake withdrawal
         // Returns an array of hexStrings
@@ -473,7 +510,7 @@ describe("Main Miner Functions", () => {
 
         // Expect withdrawStake to fail and revert the transaction
         // Can not withdrawStake wihthout submitting a request
-        await expect(zap.withdrawStake()).to.be.reverted;
+        await expect(zap.withdrawStake(vault.address)).to.be.reverted;
 
     })
 
