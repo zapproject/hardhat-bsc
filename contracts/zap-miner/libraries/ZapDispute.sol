@@ -60,7 +60,6 @@ library ZapDispute {
         require(voteWeight > 0);
 
         //ensures miners that are under dispute cannot vote
-        console.log(msg.sender);
         require(self.stakerDetails[msg.sender].currentStatus != 3);
 
         //Update user voting status to true
@@ -92,6 +91,8 @@ library ZapDispute {
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId
     ) public {
+        console.log("BEGINNING OF TALLY VOTES");
+
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
         ZapStorage.Request storage _request = self.requestDetails[
             disp.disputeUintVars[keccak256('requestId')]
@@ -120,7 +121,9 @@ library ZapDispute {
                 self.uintVars[keccak256('stakerCount')]--;
                 updateDisputeFee(self);
 
-                //Transfers the StakeAmount from the reporded miner to the reporting party
+                //Transfers the StakeAmount from the reported miner to the reporting party
+                console.log("FROM: ", disp.reportedMiner);
+                console.log("TO: ", disp.reportingParty);
                 ZapTransfer.doTransfer(
                     self,
                     disp.reportedMiner,
@@ -128,7 +131,7 @@ library ZapDispute {
                     self.uintVars[keccak256('stakeAmount')]
                 );
 
-                //Returns the dispute fee to the reportingParty
+                //Returns the dispute fee to the reporting party
                 ZapTransfer.doTransfer(
                     self,
                     address(this),
@@ -196,6 +199,7 @@ library ZapDispute {
             disp.reportingParty,
             disp.disputeVotePassed
         );
+        console.log("END OF TALLY VOTES");
     }
 
     /**

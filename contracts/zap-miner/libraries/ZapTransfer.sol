@@ -48,14 +48,29 @@ library ZapTransfer {
         uint256 _amount
     ) public {
         require(_amount > 0);
-
         require(_to != address(0));
         require(allowedToTrade(self, _from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
+        console.log("FROM: ", _from);
         uint256 previousBalance = balanceOfAt(self, _from, block.number);
+        console.log("previousBalance _from - beforeUpdate: ", previousBalance);
+        
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
+        previousBalance = balanceOfAt(self, _from, block.number);
+        console.log("previousBalance _from - afterUpdate: ", previousBalance);
+        
+
+        console.log("TO: ", _to);
+
         previousBalance = balanceOfAt(self, _to, block.number);
+        console.log("previousBalance _to - beforeUpdate: ", previousBalance);
+        
         require(previousBalance + _amount >= previousBalance); // Check for overflow
+        
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
+
+        previousBalance = balanceOfAt(self, _to, block.number);
+        console.log("previousBalance _to - afterUpdate: ", previousBalance);
+
         emit Transfer(_from, _to, _amount);
     }
 
