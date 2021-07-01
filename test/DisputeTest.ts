@@ -147,18 +147,18 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     await zap.setVault(vault.address);
 
-    await zapTokenBsc.allocate(zapMaster.address, 1000000);
+    await zapTokenBsc.allocate(zapMaster.address, 10000000);
 
     // stake signers 1 to 5.
     for (let i = 1; i <= 5; i++) {
-      await zapTokenBsc.allocate(signers[i].address, 600000);
+      await zapTokenBsc.allocate(signers[i].address, 1100000);
       zap = zap.attach(zapMaster.address);
       zap = zap.connect(signers[i]);
 
       await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
       await zap.depositStake(vault.address);
 
-      expect(await zapMaster.balanceOf(signers[i].address)).to.equal(100000);
+      expect(await zapMaster.balanceOf(signers[i].address)).to.equal(600000);
       expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 500000);
     }
 
@@ -201,9 +201,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
     }
   });
 
-  it('Stake shold be able to dispute a submission.', async () => {
+  it('Should be able to dispute a submission.', async () => {
     // let cV = await zap.getNewCurrentVariables();
-
 
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
@@ -220,112 +219,38 @@ describe("Test ZapDispute and it's dispute functions", () => {
       timeOfLastNewValueHash
     );
 
-    // requestIdByTimestamp;
-    let reqID = await zapMaster.getRequestIdByTimestamp(timeStamp);
-    console.log('reqID: ', reqID);
-
     await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
+
+    // Convert to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+    // Convert to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+    // Gets the disputeID also the dispute count
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+
+    // test dispute count before beginDispute
+    expect(disputeId).to.equal(0, "There should be no disputes before beginDispute.");
 
     zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
 
-    // Converts the uintVar "stakeAmount" to a bytes array
-    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    // test dispute count after beginDispute
+    expect(disputeId).to.equal(1, "Dispute count should be 1.");
 
-    // // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
-    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
 
-    // // Gets the the current stake amount
-    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
-
-    // disputeId = zap.uintVars[keccak256('disputeCount')];
-    // let disp = await zap.disputesById[parseInt(disputeId._hex)];
+    disputeId = await zapMaster.getUintVar(ddisputecount);
     let disp = await zapMaster.getAllDisputeVars(disputeId);
-    console.log('DDDDDDDDD');
-    console.log(disp)
-    console.log('DDDDDDDDD');
 
-
-    // // Converts the uintVar "stakeAmount" to a bytes array
-    // const data: Uint8Array = ethers.utils.toUtf8Bytes('fee');
-
-    // // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
-    // const ddata: string = ethers.utils.keccak256(data);
-
-    // // Gets the the current stake amount
-    // // let reqID: BigNumber = await zapMaster.getUintVar(ddata);
-    // // console.log('DISPUTE ID: ', disputeId);
-
-    // let disp = await zapMaster.getDisputeUintVars(disputeId, ddata);
-    // console.log('PPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPP');
-    // console.log(disp)
-    // console.log('PPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPP');
-    // console.log('PPPPPPPPPPPPP');
-
-    let isInDispute = await zapMaster.isInDispute(reqID, timeStamp);
-    console.log('isInDispute', isInDispute);
-
-
-
-    //   bytes32 = ethers.utils.formatBytes32String(keccak256('disputeCount'));
-    //   let disputeCount = await zapMaster.getUintVar(bytes32);
-    //   //check dispute count, it's the correct miner, check disput fee
-    //   expect(disputeCount).to.equal(1);
-    //   bytes32 = ethers.utils.formatBytes32String(keccak256('minerSlot'));
-    //   let minerSlot = await zapMaster.getUintVar(bytes32);
-    //   expect(minerSlot).to.equal(4);
-    //   bytes32 = ethers.utils.formatBytes32String(keccak256('disputeFee'));
-    //   let disputeFee = await zapMaster.getUintVar(bytes32);
-    //   expect(disputeFee).to.be.greaterThanOrEqual(15);
-    // signers 0-18 vote for the dispute 0
-    //   for (var i = 0; i < 18; i++) {
-    //     zap = zap.connect(signers[i]);
-    //     await zap.vote(0, true);
-    //   }
-    // expect(stakerInfo[1]).to.greaterThan(0)
-    //   let bal = await zapTokenBsc.balanceOf(signers[1].address);
-    //   console.log(bal);
-    //   expect(bal).to.equal(1300);
-    //   const getInfo: BigNumber[] = await zapMaster.getStakerInfo(
-    //     signers[5].address
-    //   );
-    //   const stakerInfo: number[] = getInfo.map((info) =>
-    //     parseInt(info._hex)
-    //   );
-    //   expect(stakerInfo[0]).to.equal(1), 'Staked';
-    // // stakerInfo[0] = Staker Status
-    // // Expect the staker status to be 1
-    // expect(stakerInfo[0]).to.equal(1), "Staked";
-    // // stakerInfo[1] = Staker Timestamp
-    // // Expect the staker timestamp to be greater than 0
-    // expect(stakerInfo[1]).to.greaterThan(0)
-    // // Allocate enough to stake
-    // await zapTokenBsc.allocate(signers[1].address, 1000)
-    // // Attach the ZapMaster instance to Zap
-    // zap = zap.attach(zapMaster.address);
-    // // Connects address 1 as the signer
-    // zap = zap.connect(signers[1]);
-    // // Stakes 1000 Zap to initiate a miner
-    // await zap.depositStake();
-    // // Gets the balance as hexString
-    // const getBalance: BigNumber = await zapMaster.balanceOf(signers[1].address);
-    // // Parses the hexString
-    // const balance: number = parseInt(getBalance._hex);
-    // // Returns an array containing the staker status and timestamp
-    // // The array values are returned as hexStrings
-    // const getInfo: BigNumber[] = await zapMaster.getStakerInfo(signers[1].address);
-    // // Parses the hexStrings in the array
-    // const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
-    // // Expect the balance to be greater than or equal to 1000
-    // expect(balance).to.be.greaterThanOrEqual(1000);
-    //   stakerInfo[0] = Staker Status
-    // // Expect the staker status to be 1
-    // expect(stakerInfo[0]).to.equal(1), "Staked";
-    // // stakerInfo[1] = Staker Timestamp
-    // // Expect the staker timestamp to be greater than 0
-    // expect(stakerInfo[1]).to.greaterThan(0)
+    // expect to be the address that begain the dispute
+    expect(disp[4]).to.equal(signers[5].address);
+    // expect to be the address that is being disputed
+    expect(disp[5]).to.equal(signers[1].address);
+    //expect requestID disputed to be 1
+    expect(disp[7][0]).to.equal(1);
+    // expect timestamp to be the same timestamp used when disputed
+    expect(disp[7][1]).to.equal(timeStamp);
   });
 });

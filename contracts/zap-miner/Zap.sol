@@ -417,18 +417,17 @@ contract Zap {
         view
         returns (bool)
     {
+                // console.log("PPPPPPPPPP");
+                // console.log(balanceOf(_user));
+                // console.log(_amount);
+                // console.log("PPPPPPPPPP");
+
 
         // dont delete until we're production ready
         // dont delete until we're production ready
         // dont delete until we're production ready
             // if (zap.stakerDetails[_user].currentStatus > 0) {
             //     //Removes the stakeAmount from balance if the _user is staked
-            //     console.log("PPPPPPPPPP");
-            //     console.log("PPPPPPPPPP");
-            //     console.log(balanceOf(_user));
-            //     console.log(_amount);
-            //     console.log("PPPPPPPPPP");
-            //     console.log("PPPPPPPPPP");
             //     if (
             //         balanceOf(_user)
             //         .sub(zap.uintVars[keccak256('stakeAmount')])
