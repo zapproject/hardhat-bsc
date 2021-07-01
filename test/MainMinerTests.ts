@@ -129,8 +129,8 @@ describe("Main Miner Functions", () => {
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
         await zapMaster.deployed()
 
-        
-        const Vault: ContractFactory = await ethers.getContractFactory('Vault', {signer: signers[0]});
+
+        const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });
         vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
         await vault.deployed();
 
@@ -177,7 +177,7 @@ describe("Main Miner Functions", () => {
 
             // approval should be max uint256 - 100
             expect(approval).to.equal(BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9b"));
-            
+
             // increase approval of vault
             await zap.connect(signers[0]).increaseVaultApproval();
 
@@ -187,11 +187,11 @@ describe("Main Miner Functions", () => {
         }
     )
 
-    it("Should stake a miner with a balance greater than or equal to 1000 ZAP and return a 1 stake status and an above 0 timestamp",
+    it("Should stake a miner with a balance greater than or equal to 500K ZAP and return a 1 stake status and an above 0 timestamp",
         async () => {
 
             // Allocate enough to stake
-            await zapTokenBsc.allocate(signers[1].address, 1000)
+            await zapTokenBsc.allocate(signers[1].address, 600000);
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
@@ -199,9 +199,9 @@ describe("Main Miner Functions", () => {
             // Connects address 1 as the signer
             zap = zap.connect(signers[1]);
 
-            await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+            await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
-            // Stakes 1000 Zap to initiate a miner
+            // Stakes 500k Zap to initiate a miner
             await zap.depositStake(vault.address);
 
             // Gets the balance as hexString
@@ -217,10 +217,10 @@ describe("Main Miner Functions", () => {
             // Parses the hexStrings in the array
             const stakerInfo: number[] = getInfo.map(info => parseInt(info._hex));
 
-            expect(await zapMaster.balanceOf(vault.address)).to.equal(1000);
+            expect(await zapMaster.balanceOf(vault.address)).to.equal(500000);
 
-            // Expect the balance to be greater than or equal to 1000
-            expect(balance).to.be.equal(0);
+            // Expect the balance to be greater than or equal to 500k
+            expect(balance).to.be.greaterThanOrEqual(100000);
 
             // stakerInfo[0] = Staker Status
             // Expect the staker status to be 1
@@ -231,11 +231,11 @@ describe("Main Miner Functions", () => {
             expect(stakerInfo[1]).to.greaterThan(0)
         })
 
-    it("Should not stake a miner with a balance less than 1000 and return a 0 stake status and timestamp",
+    it("Should not stake a miner with a balance less than 500k and return a 0 stake status and timestamp",
         async () => {
 
             // Allocate enough to not stake
-            await zapTokenBsc.allocate(signers[2].address, 999);
+            await zapTokenBsc.allocate(signers[2].address, 499999);
 
             // Attach the ZapMaster instance to Zap
             zap = zap.attach(zapMaster.address);
@@ -293,8 +293,8 @@ describe("Main Miner Functions", () => {
         // Parses getStakeAmt from a hexString to a number
         const stakeAmt: number = parseInt(getStakeAmt._hex);
 
-        // Expect stakeAmt to equal 1000
-        expect(stakeAmt).to.equal(1000);
+        // Expect stakeAmt to equal 500k
+        expect(stakeAmt).to.equal(500000);
 
     })
 
@@ -320,7 +320,7 @@ describe("Main Miner Functions", () => {
     it("Should request staking withdraw", async () => {
 
         // Allocate enough to stake
-        await zapTokenBsc.allocate(signers[1].address, 1000);
+        await zapTokenBsc.allocate(signers[1].address, 600000);
 
         // Connects address 1 as the signer
         zap = zap.connect(signers[1]);
@@ -328,9 +328,9 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
-        // Stakes 1000 Zap to initiate a miner
+        // Stakes 500k Zap to initiate a miner
         await zap.depositStake(vault.address);
 
         // Returns an array containing the staker status and timestamp
@@ -389,7 +389,7 @@ describe("Main Miner Functions", () => {
     it("Should withdraw and re-stake", async () => {
 
         // Allocate enough to stake
-        await zapTokenBsc.allocate(signers[1].address, 1000);
+        await zapTokenBsc.allocate(signers[1].address, 600000);
 
         // Connects address 1 as the signer
         zap = zap.connect(signers[1]);
@@ -397,9 +397,9 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
-        // Stakes 1000 Zap to initiate a miner
+        // Stakes 500000 Zap to initiate a miner
         await zap.depositStake(vault.address);
 
         // Request to withdraw stake
@@ -427,9 +427,9 @@ describe("Main Miner Functions", () => {
         const postWthDrwInfo: number[] = getPostWthDrwInfo.map(info => parseInt(info._hex));
 
         // Allocate enough to stake again (** this will be replaced once withdraw works properlly **)
-        await zapTokenBsc.allocate(signers[1].address, 1000);
+        await zapTokenBsc.allocate(signers[1].address, 500000);
 
-        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
         // Stake deposit
         await zap.depositStake(vault.address);
@@ -455,7 +455,7 @@ describe("Main Miner Functions", () => {
     it("Should not be able to withdraw unapproved", async () => {
 
         // Allocate enough to stake
-        await zapTokenBsc.allocate(signers[1].address, 1000);
+        await zapTokenBsc.allocate(signers[1].address, 500000);
 
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
@@ -466,9 +466,9 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 1000);
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
-        // Stakes 1000 Zap to initiate a miner
+        // Stakes 500k Zap to initiate a miner
         await zap.depositStake(vault.address);
 
         // Expect withdrawStake to fail and revert the transaction
