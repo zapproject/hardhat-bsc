@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import { Vault } from "../typechain/Vault";
 import { ZapToken } from "../typechain/ZapToken";
 
 const hre = require("hardhat")
@@ -165,12 +166,13 @@ async function main() {
   /**
    * MINERS
    */
+//Vault contract deploy
 
-  const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
-  const ZapGettersLibrary = await zapGettersLibrary.deploy();
-  await ZapGettersLibrary.deployed();
-  console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
-  console.log("deployed ZapGettersLibrary")
+const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
+const ZapGettersLibrary = await zapGettersLibrary.deploy();
+await ZapGettersLibrary.deployed();
+console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
+console.log("deployed ZapGettersLibrary")
 
   const zapTransfer = await ethers.getContractFactory("ZapTransfer", signers[0]);
   const ZapTransfer = await zapTransfer.deploy();
@@ -240,6 +242,11 @@ async function main() {
   console.log("ZapMaster Address: " + ZapMaster.address)
   console.log("Deployed ZapMaster")
 
+const vault = await ethers.getContractFactory("Vault", signers[0]);
+const Vault = await vault.deploy(zapToken.address, ZapMaster.address);
+await Vault.deployed();
+console.log("Vault Address:", Vault.address)
+console.log("deployed Vault")
 }
 
 main()
