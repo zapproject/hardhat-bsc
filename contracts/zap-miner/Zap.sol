@@ -383,6 +383,7 @@ contract Zap {
         uint256 _amount
     ) public returns (bool) {
         // return zap.transferFrom(_from,_to,_amount);
+        console.log("to: ",_from);
         uint256 previousBalance = balanceOf(_from);
         console.log("transferFrom_previousBalance: ", previousBalance);
 
@@ -394,7 +395,7 @@ contract Zap {
         console.log("diff2-from: ", pB - _amount);
         updateBalanceAtNow(_from, pB - _amount);
         // updateBalanceAtNow(_from, previousBalance - _amount);
-        
+        console.log("to: ",_to);
         previousBalance = balanceOf(_to);
         pB = getBalanceAt(_to, block.number);
         console.log(previousBalance);
@@ -402,8 +403,8 @@ contract Zap {
         console.log("diff3-to: ", previousBalance + _amount);
         console.log("diff4-to: ", pB + _amount);
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        updateBalanceAtNow(_to, pB + _amount);
-        // updateBalanceAtNow(_to, previousBalance + _amount);
+        // updateBalanceAtNow(_to, pB + _amount);
+        updateBalanceAtNow(_to, previousBalance + _amount);
         return token.transferFrom(_from, _to, _amount);
     }
 
