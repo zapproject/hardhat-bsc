@@ -131,6 +131,9 @@ library ZapStake {
             //this resets their stake start date to today
             startDate: now - (now % 86400)
         });
+        // self.uintVars[keccak256("stakeAmount")]
+        ZapTransfer.updateBalanceAtNow(self.balances[staker], self.uintVars[keccak256("stakeAmount")]);
+
         emit NewStake(staker);
     }
 

@@ -7,6 +7,7 @@ import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System
@@ -119,11 +120,26 @@ contract Zap {
 
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
+
+        console.log("BEGIN DISPUTE-BALANCE");
+        console.log(address(this));
+        console.log("msg.sender: ", balanceOf(msg.sender));
+        console.log("address this: ", balanceOf(address(this)));
+        console.log("DISPUTE FEE: ", zap.uintVars[keccak256('disputeFee')]);
+        // getBalanceAt(msg.sender, block.number)
+        
         doTransfer(
             msg.sender,
             address(this),
             zap.uintVars[keccak256('disputeFee')]
         );
+        console.log("--------------------------");
+        console.log("msg.sender: ", balanceOf(msg.sender));
+        console.log("address this: ", balanceOf(address(this)));
+        console.log("msg.sender: ", getBalanceAt(msg.sender, block.number));
+        console.log("address this: ", getBalanceAt(address(this), block.number));
+        console.log("BEGIN DISPUTE-BALANCE");
+
 
         //Increase the dispute count by 1
         zap.uintVars[keccak256('disputeCount')] =
@@ -368,10 +384,26 @@ contract Zap {
     ) public returns (bool) {
         // return zap.transferFrom(_from,_to,_amount);
         uint256 previousBalance = balanceOf(_from);
-        updateBalanceAtNow(_from, previousBalance - _amount);
+        console.log("transferFrom_previousBalance: ", previousBalance);
+
+        uint256 pB = getBalanceAt(_from, block.number);
+        console.log("transferFrom_getBalanceAt: ", pB);
+        
+        console.log("transferFrom_amount: ", _amount);
+        console.log("diff1-from: ", previousBalance - _amount);
+        console.log("diff2-from: ", pB - _amount);
+        updateBalanceAtNow(_from, pB - _amount);
+        // updateBalanceAtNow(_from, previousBalance - _amount);
+        
         previousBalance = balanceOf(_to);
+        pB = getBalanceAt(_to, block.number);
+        console.log(previousBalance);
+        console.log(pB);
+        console.log("diff3-to: ", previousBalance + _amount);
+        console.log("diff4-to: ", pB + _amount);
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        updateBalanceAtNow(_to, previousBalance + _amount);
+        updateBalanceAtNow(_to, pB + _amount);
+        // updateBalanceAtNow(_to, previousBalance + _amount);
         return token.transferFrom(_from, _to, _amount);
     }
 
@@ -410,8 +442,8 @@ contract Zap {
         require(_amount > 0);
         require(_to != address(0));
         require(allowedToTrade(_from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
-        uint256 previousBalance = balanceOf(_from);
-        previousBalance = balanceOf(_to);
+        uint256 previousBalance = balanceOf(_from); // actual token balance
+        previousBalance = balanceOf(_to); // actual token balance
         require(previousBalance + _amount >= previousBalance); // Check for overflow
         transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
         emit Transfer(_from, _to, _amount);
@@ -429,36 +461,24 @@ contract Zap {
         view
         returns (bool)
     {
-                // console.log("PPPPPPPPPP");
-                // console.log(balanceOf(_user));
-                // console.log(_amount);
-                // console.log("PPPPPPPPPP");
-
-
         // dont delete until we're production ready
         // dont delete until we're production ready
         // dont delete until we're production ready
-            // if (zap.stakerDetails[_user].currentStatus > 0) {
-            //     //Removes the stakeAmount from balance if the _user is staked
-            //     if (
-            //         balanceOf(_user)
-            //         .sub(zap.uintVars[keccak256('stakeAmount')])
-            //         .sub(_amount) >= 0
-            //     ) {
-            //         return true;
-            //     }
-            // } else if (balanceOf(_user).sub(_amount) >= 0) {
-            //     return true;
-            // }
-        // dont delete until production ready
-        // dont delete until production ready
-        // dont delete until production ready
-        if (zap.stakerDetails[_user].currentStatus > 0) {
-            if (balanceOf(_user).sub(_amount) >= 0){
+            if (zap.stakerDetails[_user].currentStatus > 0) {
+                //Removes the stakeAmount from balance if the _user is staked
+                if (
+                    balanceOf(_user)
+                    .sub(_amount) >= 0
+                    // .sub(zap.uintVars[keccak256('stakeAmount')]) //took this out since we're already taking the stake out of their wallet
+                ) {
+                    return true;
+                }
+            } else if (balanceOf(_user).sub(_amount) >= 0) {
                 return true;
             }
-        }
-        return false;
+        // dont delete until production ready
+        // dont delete until production ready
+        // dont delete until production ready
     }
 
     /**

@@ -139,8 +139,8 @@ library ZapTransfer {
             //Removes the stakeAmount from balance if the _user is staked
             if (
                 balanceOfAt(self, _user, block.number)
-                .sub(self.uintVars[keccak256('stakeAmount')])
                 .sub(_amount) >= 0
+                // .sub(self.uintVars[keccak256('stakeAmount')])
             ) {
                 return true;
             }

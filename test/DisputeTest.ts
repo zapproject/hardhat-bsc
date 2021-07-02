@@ -304,16 +304,48 @@ describe("Test ZapDispute and it's dispute functions", () => {
     disp = await zapMaster.getAllDisputeVars(disputeId);
     expect(disp[7][6]).to.equal(4);
 
-    zapMaster.didVote(disputeId, signers[1].address)
+    zapMaster.didVote(disputeId, signers[1].address);
+
+  console.log("BEFORE TALLY")
+    let blockNumber = await ethers.provider.getBlockNumber();
+    console.log(blockNumber);
+    let reportingMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    let disputedMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    console.log(reportingMiner);
+    console.log(disputedMiner);
+
+
+
+
 
     // Increase the evm time by 8 days
     // A stake can not be withdrawn until 7 days passed
     await ethers.provider.send('evm_increaseTime', [691200]);
     await zap.tallyVotes(disputeId);
 
-    // disp = await zapMaster.getAllDisputeVars(disputeId);
+    disp = await zapMaster.getAllDisputeVars(disputeId);
     // console.log('oooooooooo');
     // console.log(disp);
     // console.log('oooooooooo');
+    // expect voting to have ended
+    expect(disp[1]).to.be.true;
+    // expect dispute to be successful
+    expect(disp[2]).to.be.true;
+
+    // let disputeFee = disp[7][8];
+    console.log("AFTER TALLY")
+    blockNumber = await ethers.provider.getBlockNumber()
+    console.log(blockNumber)
+    reportingMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    disputedMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    console.log(reportingMiner)
+    console.log(disputedMiner)
+    // expect to be the address that begain the dispute
+    // expect(disp[4]).to.equal(signers[5].address);
+    // // expect to be the address that is being disputed
+    // expect(disp[5]).to.equal(signers[1].address);
+    //check balance of disputer
+    //check balance of loser
+    // bal of disputer - balance of loser = stake fee
   });
 });
