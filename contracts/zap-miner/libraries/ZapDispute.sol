@@ -90,7 +90,7 @@ library ZapDispute {
     function tallyVotes(
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId
-    ) public {
+    ) public returns (address _from, address _to, uint _disputeFee) {
         console.log("BEGINNING OF TALLY VOTES");
 
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
@@ -98,6 +98,9 @@ library ZapDispute {
             disp.disputeUintVars[keccak256('requestId')]
         ];
 
+        // uint previousDisputeFee = self.uintVars[keccak256('disputeFee')];
+        uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
+        
         //Ensure this has not already been executed/tallied
         require(disp.executed == false);
 
@@ -140,9 +143,11 @@ library ZapDispute {
                 console.log("//Returns the dispute fee to the reporting party");
                 console.log("FROM: ", address(this));
                 console.log("TO: ", disp.reportingParty);
+                console.log("balance of zapMaster at wallet: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
                 console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
+                console.log("balance of reported miner at wallet: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
-                console.log("Beofre Fee is returned");
+                console.log("Before Fee is returned from master to dispute winner");
                 ZapTransfer.doTransfer(
                     self,
                     address(this),
@@ -150,6 +155,7 @@ library ZapDispute {
                     disp.disputeUintVars[keccak256('fee')]
                 );
                 console.log("END - Returns the dispute fee to the reporting party");
+                console.log("After Fee is returned from master to dispute winner");
                 console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
                 console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 
@@ -170,6 +176,8 @@ library ZapDispute {
                         disp.disputeUintVars[keccak256('timestamp')]
                     ] = 0;
                 }
+                
+                return (address(this), disp.reportingParty, disputeFeeForDisputeId);
 
                 //If the vote for disputing a value is unsuccesful then update the miner status from being on
                 //dispute(currentStatus=3) to staked(currentStatus =1) and tranfer the dispute fee to the miner
@@ -192,6 +200,9 @@ library ZapDispute {
                         disp.disputeUintVars[keccak256('timestamp')]
                     ] = false;
                 }
+                
+                return (address(this), disp.reportedMiner, disputeFeeForDisputeId);
+
             }
             //If the vote is for a proposed fork require a 20% quorum before exceduting the update to the new zap contract address
         } else {

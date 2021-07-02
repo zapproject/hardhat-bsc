@@ -47,6 +47,12 @@ library ZapTransfer {
         address _to,
         uint256 _amount
     ) public {
+
+        console.log(" ");
+        console.log("INSIDE ZapTransfer.doTransfer");
+        console.log("_from: ", balanceOfAt(self, _from, block.number));
+        console.log("to: ", balanceOfAt(self, _to, block.number));
+
         require(_amount > 0);
         require(_to != address(0));
         require(allowedToTrade(self, _from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
@@ -72,6 +78,8 @@ library ZapTransfer {
         console.log("previousBalance _to - afterUpdate: ", previousBalance);
 
         emit Transfer(_from, _to, _amount);
+        console.log("END INSIDE ZapTransfer.doTransfer");
+        console.log(" ");
     }
 
     /**

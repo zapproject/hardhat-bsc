@@ -125,6 +125,8 @@ contract Zap {
         console.log(address(this));
         console.log("msg.sender: ", balanceOf(msg.sender));
         console.log("address this: ", balanceOf(address(this)));
+        console.log("msg.sender: ", getBalanceAt(msg.sender, block.number));
+        console.log("address this: ", getBalanceAt(address(this), block.number));
         console.log("DISPUTE FEE: ", zap.uintVars[keccak256('disputeFee')]);
         // getBalanceAt(msg.sender, block.number)
         
@@ -133,12 +135,19 @@ contract Zap {
             address(this),
             zap.uintVars[keccak256('disputeFee')]
         );
+        
+        // console.log("msg.sender: ", getBalanceAt(msg.sender, block.number));
+        // console.log("address this: ", getBalanceAt(address(this), block.number));
+        
+        
         console.log("--------------------------");
         console.log("msg.sender: ", balanceOf(msg.sender));
         console.log("address this: ", balanceOf(address(this)));
+
         console.log("msg.sender: ", getBalanceAt(msg.sender, block.number));
         console.log("address this: ", getBalanceAt(address(this), block.number));
-        console.log("BEGIN DISPUTE-BALANCE");
+
+        console.log("END BEGIN DISPUTE-BALANCE");
 
 
         //Increase the dispute count by 1
@@ -209,7 +218,24 @@ contract Zap {
      * @param _disputeId is the dispute id
      */
     function tallyVotes(uint256 _disputeId) external {
-        zap.tallyVotes(_disputeId);
+        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
+
+        console.log("TALLY VOTES RUNS");
+        console.log("before transfer");
+        console.log(_from);
+        console.log("balanceOf _from: ", balanceOf(_from));
+        console.log(_to);
+        console.log("balanceOf to: ",balanceOf(_to));
+
+        approve(_from, _disputeFee);
+        token.transferFrom(_from, _to, _disputeFee);
+
+        console.log("After Transfer");
+        console.log("balanceOf _from: ", balanceOf(_from));
+        console.log("balanceOf to: ", balanceOf(_to));
+
+        console.log("Tjergfakerughaiulerhailehriahr");
+
     }
 
     /**
@@ -383,28 +409,32 @@ contract Zap {
         uint256 _amount
     ) public returns (bool) {
         // return zap.transferFrom(_from,_to,_amount);
-        console.log("to: ",_from);
-        uint256 previousBalance = balanceOf(_from);
-        console.log("transferFrom_previousBalance: ", previousBalance);
+        console.log(" ");
+        console.log(" INSIDE TRANSFER FROM ");
 
-        uint256 pB = getBalanceAt(_from, block.number);
-        console.log("transferFrom_getBalanceAt: ", pB);
-        
+        console.log("from: ",_from);
         console.log("transferFrom_amount: ", _amount);
-        console.log("diff1-from: ", previousBalance - _amount);
-        console.log("diff2-from: ", pB - _amount);
-        updateBalanceAtNow(_from, pB - _amount);
-        // updateBalanceAtNow(_from, previousBalance - _amount);
+        uint256 previousBalance = balanceOf(_from); // actual wallet balance
+        uint256 pB = getBalanceAt(_from, block.number);
+        console.log("transferFrom_previousBalance: ", previousBalance);      
+        console.log("diff1-from_previousBalance - amount: ", previousBalance.sub(_amount)); //wallet bal - fee        
+        updateBalanceAtNow(_from, previousBalance - _amount);
+        console.log("previousBaLANCE-after update: ", getBalanceAt(_from, block.number));
+        
+        console.log("====================================");
         console.log("to: ",_to);
         previousBalance = balanceOf(_to);
         pB = getBalanceAt(_to, block.number);
         console.log(previousBalance);
         console.log(pB);
-        console.log("diff3-to: ", previousBalance + _amount);
-        console.log("diff4-to: ", pB + _amount);
-        require(previousBalance + _amount >= previousBalance); // Check for overflow
+        console.log("diff3-to_previousBalance + amount: ", previousBalance + _amount);
+        console.log("diff4-to_pB + amount: ", pB + _amount);
+        require(pB + _amount >= pB); // Check for overflow
         // updateBalanceAtNow(_to, pB + _amount);
-        updateBalanceAtNow(_to, previousBalance + _amount);
+        updateBalanceAtNow(_to, pB + _amount);
+        console.log("pB-after update: ", getBalanceAt(_to, block.number));
+        console.log(" END INSIDE TRANSFER FROM ");
+        console.log(" ");
         return token.transferFrom(_from, _to, _amount);
     }
 

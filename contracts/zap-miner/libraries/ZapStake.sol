@@ -26,7 +26,7 @@ library ZapStake {
         require(self.uintVars[keccak256("decimals")] == 0);
         //Give this contract 6000 Zap Token so that it can stake the initial 6 miners
 
-        ZapTransfer.updateBalanceAtNow(self.balances[address(this)], 2500000);
+        ZapTransfer.updateBalanceAtNow(self.balances[address(this)], 10000000);
 
         // //the initial 5 miner addresses are specfied below
         // //changed payable[5] to 6
@@ -47,7 +47,7 @@ library ZapStake {
         }
 
         //update the total suppply
-        self.uintVars[keccak256("total_supply")] += 2500000;//6th miner to allow for dispute
+        self.uintVars[keccak256("total_supply")] += 3000000;//6th miner to allow for dispute
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("targetMiners")] = 200;

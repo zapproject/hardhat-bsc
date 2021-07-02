@@ -202,58 +202,58 @@ describe("Test ZapDispute and it's dispute functions", () => {
     }
   });
 
-  // it('Should be able to dispute a submission.', async () => {
-  //   // Converts the uintVar "stakeAmount" to a bytes array
-  //   const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
-  //     'timeOfLastNewValue'
-  //   );
+  it('Should be able to dispute a submission.', async () => {
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
+      'timeOfLastNewValue'
+    );
 
-  //   // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
-  //   const timeOfLastNewValueHash: string = ethers.utils.keccak256(
-  //     timeOfLastNewValueBytes
-  //   );
+    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
+      timeOfLastNewValueBytes
+    );
 
-  //   // Gets the the current stake amount
-  //   let timeStamp: BigNumber = await zapMaster.getUintVar(
-  //     timeOfLastNewValueHash
-  //   );
+    // Gets the the current stake amount
+    let timeStamp: BigNumber = await zapMaster.getUintVar(
+      timeOfLastNewValueHash
+    );
 
-  //   await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
-  //   // Convert to a bytes array
-  //   const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+    // Convert to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
 
-  //   // Convert to a keccak256 hash
-  //   const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+    // Convert to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
 
-  //   // Gets the disputeID also the dispute count
-  //   let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+    // Gets the disputeID also the dispute count
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
 
-  //   // test dispute count before beginDispute
-  //   expect(disputeId).to.equal(
-  //     0,
-  //     'There should be no disputes before beginDispute.'
-  //   );
+    // test dispute count before beginDispute
+    expect(disputeId).to.equal(
+      0,
+      'There should be no disputes before beginDispute.'
+    );
 
-  //   zap = zap.connect(signers[1]);
-  //   await zap.beginDispute(1, timeStamp, 4);
+    zap = zap.connect(signers[1]);
+    await zap.beginDispute(1, timeStamp, 4);
 
-  //   disputeId = await zapMaster.getUintVar(ddisputecount);
-  //   // test dispute count after beginDispute
-  //   expect(disputeId).to.equal(1, 'Dispute count should be 1.');
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    // test dispute count after beginDispute
+    expect(disputeId).to.equal(1, 'Dispute count should be 1.');
 
-  //   disputeId = await zapMaster.getUintVar(ddisputecount);
-  //   let disp = await zapMaster.getAllDisputeVars(disputeId);
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    let disp = await zapMaster.getAllDisputeVars(disputeId);
 
-  //   // expect to be the address that begain the dispute
-  //   expect(disp[4]).to.equal(signers[5].address);
-  //   // expect to be the address that is being disputed
-  //   expect(disp[5]).to.equal(signers[1].address);
-  //   //expect requestID disputed to be 1
-  //   expect(disp[7][0]).to.equal(1);
-  //   // expect timestamp to be the same timestamp used when disputed
-  //   expect(disp[7][1]).to.equal(timeStamp);
-  // });
+    // expect to be the address that begain the dispute
+    expect(disp[4]).to.equal(signers[5].address);
+    // expect to be the address that is being disputed
+    expect(disp[5]).to.equal(signers[1].address);
+    //expect requestID disputed to be 1
+    expect(disp[7][0]).to.equal(1);
+    // expect timestamp to be the same timestamp used when disputed
+    expect(disp[7][1]).to.equal(timeStamp);
+  });
 
   it('Should be able to vote on a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
@@ -310,12 +310,14 @@ describe("Test ZapDispute and it's dispute functions", () => {
   console.log("BEFORE TALLY")
     let blockNumber = await ethers.provider.getBlockNumber();
     console.log(blockNumber);
-    let reportingMiner = await zap.getBalanceAt(disp[4], blockNumber);
-    let disputedMiner = await zap.getBalanceAt(disp[5], blockNumber);
-    let reportingMiner2 = await zapMaster.balanceOf(disp[4].address);
-    let disputedMiner2 = await zapMaster.balanceOf(disp[5].address);
-    console.log(reportingMiner, ' : ', reportingMiner);
-    console.log(disputedMiner, ' : ', disputedMiner);
+    let reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    let reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    let reportedMiner2 = await zapMaster.balanceOf(disp[4]);
+    let reportingMiner2 = await zapMaster.balanceOf(disp[5]);
+    console.log("reportingMiner", ' : ', reportingMiner);
+    console.log('reportedMiner', ' : ', reportedMiner);
+    console.log('reportedMiner2', ' : ', reportedMiner2);
+    console.log('reportingMiner2', ' : ', reportingMiner2);
 
 
 
@@ -339,17 +341,20 @@ describe("Test ZapDispute and it's dispute functions", () => {
     console.log("AFTER TALLY")
     blockNumber = await ethers.provider.getBlockNumber()
     console.log(blockNumber)
-    disputedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
     reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
-
+    
     // expect balance of winner to be 500k(original stake amount) + 15(reward for mining ) + 500K(take losers stake amount) = 1000015.
     expect(reportingMiner).to.equal(1000015);
     // expect balance of loser to be 500k (original stake amount) + 15(reward for mining) - 500k(lose staked tokens) = 15.
-    expect(disputedMiner).to.equal(15);
-
+    expect(reportedMiner).to.equal(15);
+    
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
-    let zMBal = await zapMaster.balanceOf(zapMaster.address);
+    blockNumber = await ethers.provider.getBlockNumber()
+    let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
+    let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
     console.log('zMBal: ', zMBal);
+    console.log('zMBal2: ', zMBal2);
     console.log(zapMaster.address)
     
   });
