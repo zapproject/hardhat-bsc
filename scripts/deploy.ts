@@ -2,95 +2,22 @@ import { ethers } from "hardhat";
 import { ZapToken } from "../typechain/ZapToken";
 
 const hre = require("hardhat")
-const fs = require('fs')
 
-const curveParams1 = [3, 0, 0, 2, 1000];
-const curveParams2 = [3, 1, 2, 3, 1000];
-const curveParams3 = [1, 10, 1000];
-const curveParams4 = [3, 1, 2, 3, 10, 1, 2, 20];
-
-const publicKey = 77
-const title = '0x048a2991c2676296b330734992245f5ba6b98174d3f1907d795b7639e92ce532';
-const routeKeys = [1];
 const params = ["param1", "param2"];
 
 const specifier = "0x048a2991c2676296b330734992245f5ba6b98174d3f1907d795b7639e92ce577";
-const zeroAddress = '0x0000000000000000000000000000000000000000'
 
-const piecewiseFunction = [3, 0, 0, 2, 10000];
 // const tokensForOwner = ethers.BigNumber.from("1500000000000000000000000000000");
 // const tokensForSubscriber = ethers.BigNumber.from("50000000000000000000000000000");
 const approveTokens = ethers.BigNumber.from("1000000000000000000000000000000");
 
-const dotBound = ethers.BigNumber.from("999");
-
-const structurizeCurve = function (parts: any) {
-  const pieces = Array();
-
-  let index = 0;
-  let start = 1;
-
-  while (index < parts.length) {
-    const length = parts[index];
-    const base = index + 1;
-    const terms = parts.slice(base, base + length);
-    const end = parts[base + length];
-
-    pieces.push({
-      terms,
-      start,
-      end
-    });
-
-    index = base + length + 1;
-    start = end;
-  }
-
-  return pieces;
-};
-const calcNextDotCost = function (structurizedCurve: any, total: any) {
-  if (total < 0) {
-    return 0;
-  }
-
-
-  for (let i = 0; i < structurizedCurve.length; i++) {
-    if (structurizedCurve[i].start <= total && total <= structurizedCurve[i].end) {
-      return _calculatePolynomial(structurizedCurve[i].terms, total);
-    }
-  }
-
-  return 0;
-};
-
-const calcDotsCost = function (structurizedCurve: any, numDots: any) {
-  let cost = 0;
-
-  for (let i = 1; i <= numDots; i++) {
-    cost += calcNextDotCost(structurizedCurve, i);
-  }
-
-  return cost;
-};
-
 //TODO move these functions to another file
 
-function _calculatePolynomial(terms: any, x: any) {
-  let sum = 0;
-
-  for (let i = 0; i < terms.length; i++) {
-    sum += terms[i] * (x ** i);
-  }
-
-  return sum;
-}
 
 async function main() {
 
   let signers = await ethers.getSigners();
 
-
-  let owner = signers[0]
   const endpoint = ["Zap Price"]
   const specifier = ethers.utils.formatBytes32String(endpoint[0])
   let query = 'zap';
@@ -98,14 +25,8 @@ async function main() {
     ethers.utils.formatBytes32String("int")
 
   ];
-  let subscriberAddress = signers[1];
-
-  let OracleSigner = signers[2];
-  let broker = signers[3];
-
-  let escrower = signers[4];
-  let escrower2 = signers[5];
-  let arbiter_ = signers[6];
+  
+ let broker = signers[3];
 
   const tokenFactory = await ethers.getContractFactory('ZapTokenBSC', signers[0]);
   const zapToken = await tokenFactory.deploy();
