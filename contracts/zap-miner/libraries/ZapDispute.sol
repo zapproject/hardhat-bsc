@@ -122,8 +122,10 @@ library ZapDispute {
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
-                console.log("FROM: ", disp.reportedMiner);
-                console.log("TO: ", disp.reportingParty);
+                // console.log("FROM: ", disp.reportedMiner);
+                // console.log("TO: ", disp.reportingParty);
+                // console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportedMiner, block.number));
+                // console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 ZapTransfer.doTransfer(
                     self,
                     disp.reportedMiner,
@@ -131,13 +133,28 @@ library ZapDispute {
                     self.uintVars[keccak256('stakeAmount')]
                 );
 
+
                 //Returns the dispute fee to the reporting party
+                console.log(" ");
+
+                console.log("//Returns the dispute fee to the reporting party");
+                console.log("FROM: ", address(this));
+                console.log("TO: ", disp.reportingParty);
+                console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
+                console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
+                console.log("Beofre Fee is returned");
                 ZapTransfer.doTransfer(
                     self,
                     address(this),
                     disp.reportingParty,
                     disp.disputeUintVars[keccak256('fee')]
                 );
+                console.log("END - Returns the dispute fee to the reporting party");
+                console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
+                console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
+                
+                console.log(" ");
+
 
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;

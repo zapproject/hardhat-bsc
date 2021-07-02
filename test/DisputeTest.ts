@@ -24,6 +24,7 @@ import { Vault } from '../typechain/Vault';
 
 import { BigNumber, ContractFactory } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
+import { Address } from 'hardhat-deploy/dist/types';
 
 const { expect } = chai;
 
@@ -311,8 +312,10 @@ describe("Test ZapDispute and it's dispute functions", () => {
     console.log(blockNumber);
     let reportingMiner = await zap.getBalanceAt(disp[4], blockNumber);
     let disputedMiner = await zap.getBalanceAt(disp[5], blockNumber);
-    console.log(reportingMiner);
-    console.log(disputedMiner);
+    let reportingMiner2 = await zapMaster.balanceOf(disp[4].address);
+    let disputedMiner2 = await zapMaster.balanceOf(disp[5].address);
+    console.log(reportingMiner, ' : ', reportingMiner);
+    console.log(disputedMiner, ' : ', disputedMiner);
 
 
 
@@ -336,16 +339,18 @@ describe("Test ZapDispute and it's dispute functions", () => {
     console.log("AFTER TALLY")
     blockNumber = await ethers.provider.getBlockNumber()
     console.log(blockNumber)
-    reportingMiner = await zap.getBalanceAt(disp[4], blockNumber);
-    disputedMiner = await zap.getBalanceAt(disp[5], blockNumber);
-    console.log(reportingMiner)
-    console.log(disputedMiner)
-    // expect to be the address that begain the dispute
-    // expect(disp[4]).to.equal(signers[5].address);
-    // // expect to be the address that is being disputed
-    // expect(disp[5]).to.equal(signers[1].address);
-    //check balance of disputer
-    //check balance of loser
-    // bal of disputer - balance of loser = stake fee
+    disputedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
+
+    // expect balance of winner to be 500k(original stake amount) + 15(reward for mining ) + 500K(take losers stake amount) = 1000015.
+    expect(reportingMiner).to.equal(1000015);
+    // expect balance of loser to be 500k (original stake amount) + 15(reward for mining) - 500k(lose staked tokens) = 15.
+    expect(disputedMiner).to.equal(15);
+
+    // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
+    let zMBal = await zapMaster.balanceOf(zapMaster.address);
+    console.log('zMBal: ', zMBal);
+    console.log(zapMaster.address)
+    
   });
 });
