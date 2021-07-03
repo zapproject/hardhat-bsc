@@ -628,17 +628,11 @@ contract Zap {
     }
 
     /**
-     * Sets the Vault instance, available only to owner
-     */
-    function setVault(Vault _vault) public onlyOwner {
-        vaultAddress = address(_vault);
-        vault = _vault;
-    }
-
-    /**
      * Increase the approval of ZapMaster for the Vault
      */
     function increaseVaultApproval() public returns (bool) {
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
     }
 }
