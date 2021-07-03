@@ -78,8 +78,10 @@ library ZapStorage {
         //e.g. addressVars[keccak256("zapContract")] = address
         //These are the variables saved in this mapping:
         // address keccak256("zapContract");//Zap address
+        // address  keccak256("zapTokenContract");//ZapToken address
         // address  keccak256("_owner");//Zap Owner address
         // address  keccak256("_deity");//Zap Owner that can do things at will
+        // address  keccak256("_vault");//Address of the vault contract set in Zap.sol
         mapping(bytes32 => uint256) uintVars;
         //uint fields in the Zap contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
