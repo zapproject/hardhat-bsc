@@ -284,19 +284,42 @@ contract Zap {
         uint256 _value
     ) external {
         zap.submitMiningSolution(_nonce, _requestId, _value);
+
+        ZapStorage.Details[5] memory a = zap.currentMiners;
+
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
+        uint256 baseReward = zap.uintVars[keccak256('currentReward')] / 1e18;
+        uint256 minerReward = baseReward + zap.uintVars[keccak256('currentTotalTips')] / 5;
+
+        for (uint256 i = 0; i < 5; i++) {
+            if (a[i].miner != address(0)){
+                token.approve(address(this), minerReward);
+                token.transferFrom(address(this), address(vault), minerReward);
+                vault.deposit(a[i].miner, minerReward);
+            }
+        }
     }
 
     /**
      * @dev This function allows miners to deposit their stake.
      */
-    function depositStake(address _vaultAddress) external {
+    function depositStake() external {
         // require balance is >= here before it hits NewStake()
+        uint256 stakeAmount = zap.uintVars[keccak256('stakeAmount')];
         require(
             token.balanceOf(msg.sender) >=
-                zap.uintVars[keccak256('stakeAmount')]
+                stakeAmount
         );
         zap.depositStake();
-        token.transferFrom(msg.sender, _vaultAddress, zap.uintVars[keccak256('stakeAmount')]);
+
+        // address vaultAddress = zap.addressVars[keccak256('_vault')];
+        // Vault vault = Vault(vaultAddress);
+
+        // token.approve(address(this), stakeAmount);
+        // token.transferFrom(address(this), address(vault), stakeAmount);
+        // vault.deposit(msg.sender, stakeAmount);
     }
 
     /**
