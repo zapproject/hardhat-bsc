@@ -65,8 +65,8 @@ contract Zap {
 
     ZapStorage.ZapStorageStruct zap;
     ZapTokenBSC public token;
-    Vault public vault;
-    address vaultAddress;
+    // Vault public vault;
+    // address public vaultAddress;
 
     address payable public owner;
 
