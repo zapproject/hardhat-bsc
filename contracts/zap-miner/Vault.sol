@@ -25,7 +25,16 @@ contract Vault {
         uint256 amount = MAX_INT.sub(toUint256(balance, 0));
         (bool success, bytes memory data) = zapToken.call(abi.encodeWithSignature("increaseApproval(address,uint256)", zapMaster, amount));
         return success;
-    }    
+    }
+
+    function lockSmith(address miniVault, address authorizedUser) public {
+        require(msg.sender == miniVault, "You do not own this vault.");
+        keys[miniVault][authorizedUser] = true;
+    }
+
+    function hasAccess(address user, address miniVault) public view returns (bool) {
+        return keys[miniVault][user];
+    }
 
     function toUint256(bytes memory _bytes, uint256 _start) internal pure returns (uint256) {
         require(_bytes.length >= _start + 32, "toUint256_outOfBounds");
@@ -36,5 +45,21 @@ contract Vault {
         }
 
         return tempUint;
+    }
+
+    function deposit(address userAddress, uint256 value) public {
+        require(userAddress != address(0), "The zero address does not own a vault.");
+        require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
+        balances[userAddress] = balances[userAddress].add(value);
+    }
+
+    function withdraw(address userAddress, uint256 value) public {
+        require(userAddress != address(0), "The zero address does not own a vault.");
+        require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
+        balances[userAddress] = balances[userAddress].sub(value);
+    }
+
+    function userBalance(address userAddress) public view returns (uint256 balance) {
+        return balances[userAddress];
     }
 }
