@@ -1,18 +1,21 @@
 pragma solidity =0.5.16;
 
 import './libraries/SafeMathM.sol';
+import './ZapMaster.sol';
 
 contract Vault {
     using SafeMathM for uint256;
 
     address public zapToken;
-    address public zapMaster;
+    ZapMaster zapMaster;
+    mapping(address => uint256) balances;
+    mapping(address => mapping(address => bool)) keys;
 
     uint256 constant MAX_INT = 2**256 - 1;
 
     constructor (address token, address master) public {
         zapToken = token;
-        zapMaster = master;
+        zapMaster = ZapMaster(address(uint160(master)));
         
         token.call(abi.encodeWithSignature("approve(address,uint256)", master, MAX_INT));
     }
