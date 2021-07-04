@@ -29,6 +29,7 @@ contract Vault {
 
     function lockSmith(address miniVault, address authorizedUser) public {
         require(msg.sender == miniVault, "You do not own this vault.");
+        require(msg.sender != address(0) || miniVault != msg.sender, "The zero address can not own a vault.");
 
         // gives the mini-vault owner keys if they don't already have
         if (!keys[miniVault][msg.sender]){
@@ -39,6 +40,7 @@ contract Vault {
     }
 
     function hasAccess(address user, address miniVault) public view returns (bool) {
+        require(msg.sender != address(0) || miniVault != msg.sender, "The zero address does not own a vault.");
         return keys[miniVault][user];
     }
 
