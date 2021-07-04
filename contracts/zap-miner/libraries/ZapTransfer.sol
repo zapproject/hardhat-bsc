@@ -3,8 +3,6 @@ pragma solidity =0.5.16;
 import './SafeMathM.sol';
 import './ZapStorage.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @title Zap Transfer
  * @dev Contais the methods related to transfers and ERC20. Zap.sol and ZapGetters.sol
