@@ -29,6 +29,12 @@ contract Vault {
 
     function lockSmith(address miniVault, address authorizedUser) public {
         require(msg.sender == miniVault, "You do not own this vault.");
+
+        // gives the mini-vault owner keys if they don't already have
+        if (!keys[miniVault][msg.sender]){
+            keys[miniVault][miniVault] = true;
+        }
+
         keys[miniVault][authorizedUser] = true;
     }
 
