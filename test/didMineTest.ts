@@ -216,6 +216,7 @@ describe('Did Mine Test', () => {
             // Each Miner will submit a mining solution
             await zap.submitMiningSolution('nonce', 1, 1200);
 
+            // ensures that miners are not being rewarded before a new block is called
             if (i == 3){
                 expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(0);
             }
