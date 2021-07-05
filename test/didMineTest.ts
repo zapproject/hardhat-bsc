@@ -216,6 +216,10 @@ describe('Did Mine Test', () => {
             // Each Miner will submit a mining solution
             await zap.submitMiningSolution('nonce', 1, 1200);
 
+            if (i == 3){
+                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(0);
+            }
+
             // Checks if the miners mined the challenge
             // true = Miner did mine the challenge
             // false = Miner did not mine the challenge
