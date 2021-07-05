@@ -292,13 +292,17 @@ contract Zap {
 
         uint256 minerReward = zap.uintVars[keccak256('currentMinerReward')];
 
-        for (uint256 i = 0; i < 5; i++) {
-            if (a[i].miner != address(0)){
-                token.approve(address(this), minerReward);
-                token.transferFrom(address(this), address(vault), minerReward);
-                vault.deposit(a[i].miner, minerReward);
+        if (minerReward != 0){
+            for (uint256 i = 0; i < 5; i++) {
+                if (a[i].miner != address(0)){
+                    token.approve(address(this), minerReward);
+                    token.transferFrom(address(this), address(vault), minerReward);
+                    vault.deposit(a[i].miner, minerReward);
+                }
             }
         }
+
+        zap.uintVars[keccak256('currentMinerReward')] = 0;
     }
 
     /**
