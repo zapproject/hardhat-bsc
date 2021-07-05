@@ -21,6 +21,7 @@ import { Zap } from '../typechain/Zap';
 import { Vault } from "../typechain/Vault";
 
 import { BigNumber, ContractFactory } from 'ethers';
+import { collect } from 'underscore';
 
 const { expect } = chai;
 
@@ -138,7 +139,8 @@ describe('Did Mine Test', () => {
 
         await vault.deployed();
 
-        await zap.setVault(vault.address);
+        await zapMaster.functions.changeVaultContract(vault.address);
+
 
         for (var i = 1; i <= 5; i++) {
             // Allocates ZAP to signers 1 - 5
@@ -158,20 +160,23 @@ describe('Did Mine Test', () => {
         // Allocates 5000 ZAP to signer 0
         await zapTokenBsc.allocate(signers[0].address, 600000);
 
-        // Iterates through signers 1 through 5
-        for (var i = 1; i <= 5; i++) {
-            // Attach the ZapMaster instance to Zap
-            zap = zap.attach(zapMaster.address);
+        // Attach the ZapMaster instance to Zap
+        zap = zap.attach(zapMaster.address);
 
+        
+        // Iterates through signers 1 through 5
+        for (var i = 1; i <= 5; i++) {            
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
             await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
 
+            await vault.connect(signers[i]).lockSmith(signers[i].address, zap.address);
+            
             // Stakes 600k Zap to initiate a miner
-            await zap.depositStake(vault.address);
+            await zap.depositStake();
         }
-
+        
         zap = zap.connect(signers[0]);
 
         // Approves Zap.sol the amount to tip for requestData
@@ -211,6 +216,11 @@ describe('Did Mine Test', () => {
             // Each Miner will submit a mining solution
             await zap.submitMiningSolution('nonce', 1, 1200);
 
+            // ensures that miners are not being rewarded before a new block is called
+            if (i == 3){
+                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(0);
+            }
+
             // Checks if the miners mined the challenge
             // true = Miner did mine the challenge
             // false = Miner did not mine the challenge
@@ -230,16 +240,16 @@ describe('Did Mine Test', () => {
         expect(reqQ).to.have.length(51);
 
         // check to see that the miner receeived the reward and for the proper amount.
-        let blockNumber = 83;
+        let currentBlock = await ethers.provider.getBlockNumber();
 
         let previouFifthMinerBal = await zap.getBalanceAt(
             signers[4].address,
-            blockNumber - 1
+            currentBlock - 1
         );
 
         let currentFifthMinerBal = await zap.getBalanceAt(
             signers[4].address,
-            blockNumber
+            currentBlock
         );
 
         let rewardAmount = 15;
@@ -250,15 +260,21 @@ describe('Did Mine Test', () => {
             rewardAmount,
             'Miner should have been tipped 15 tokens.'
         );
+        
+        let signerFourVaultBalance = await vault.userBalance(signers[4].address);
+        expect(signerFourVaultBalance).to.equal(
+            15, 
+            "Miner's personal vault should have a balance of 25 tokens."
+        );
 
         // check to see that Zap Master payed out the correct amount of rewards and devshare.
         let previousZapMasterBal = await zap.getBalanceAt(
             zapMaster.address,
-            blockNumber - 1
+            currentBlock - 1
         );
         let currentZapMasterBal = await zap.getBalanceAt(
             zapMaster.address,
-            blockNumber
+            currentBlock
         );
 
         // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master

@@ -78,8 +78,10 @@ library ZapStorage {
         //e.g. addressVars[keccak256("zapContract")] = address
         //These are the variables saved in this mapping:
         // address keccak256("zapContract");//Zap address
+        // address  keccak256("zapTokenContract");//ZapToken address
         // address  keccak256("_owner");//Zap Owner address
         // address  keccak256("_deity");//Zap Owner that can do things at will
+        // address  keccak256("_vault");//Address of the vault contract set in Zap.sol
         mapping(bytes32 => uint256) uintVars;
         //uint fields in the Zap contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
@@ -98,6 +100,7 @@ library ZapStorage {
         // keccak256("slotProgress");//Number of miners who have mined this value so far
         // keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
         // keccak256("timeTarget"); //The time between blocks (mined Oracle values)
+        // keccak256("currentMinerReward"); //The last reward given to miners on creation of a new block
         mapping(bytes32 => mapping(address => bool)) minersByChallenge; //This is a boolean that tells you if a given challenge has been completed by a given miner
         mapping(uint256 => uint256) requestIdByTimestamp; //minedTimestamp to apiId
         mapping(uint256 => uint256) requestIdByRequestQIndex; //link from payoutPoolIndex (position in payout pool array) to apiId
