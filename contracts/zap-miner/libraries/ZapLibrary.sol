@@ -312,6 +312,9 @@ library ZapLibrary {
             self.minersByChallenge[self.currentChallenge][msg.sender] == false
         );
 
+        // Set miner reward to zero to prevent it from giving rewards before a block is mined
+        zap.uintVars[keccak256('currentMinerReward')] = 0;
+
         //Save the miner and value received
         self
         .currentMiners[self.uintVars[keccak256('slotProgress')]]
