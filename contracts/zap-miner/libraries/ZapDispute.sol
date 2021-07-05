@@ -98,8 +98,9 @@ library ZapDispute {
             disp.disputeUintVars[keccak256('requestId')]
         ];
 
-        // uint previousDisputeFee = self.uintVars[keccak256('disputeFee')];
+        
         uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
+        address disputeFeeWinnerAddress;
         
         //Ensure this has not already been executed/tallied
         require(disp.executed == false);
@@ -148,12 +149,13 @@ library ZapDispute {
                 console.log("balance of reported miner at wallet: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 console.log("Before Fee is returned from master to dispute winner");
-                ZapTransfer.doTransfer(
-                    self,
-                    address(this),
-                    disp.reportingParty,
-                    disp.disputeUintVars[keccak256('fee')]
-                );
+                // don't need to run this because tokens transfer will be actualy state change.
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     address(this),
+                //     disp.reportingParty,
+                //     disp.disputeUintVars[keccak256('fee')]
+                // );
                 console.log("END - Returns the dispute fee to the reporting party");
                 console.log("After Fee is returned from master to dispute winner");
                 console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
@@ -177,20 +179,26 @@ library ZapDispute {
                     ] = 0;
                 }
                 
-                return (address(this), disp.reportingParty, disputeFeeForDisputeId);
+
+                disputeFeeWinnerAddress = disp.reportingParty;
+
+                // return (address(this), disp.reportingParty, disputeFeeForDisputeId);
 
                 //If the vote for disputing a value is unsuccesful then update the miner status from being on
                 //dispute(currentStatus=3) to staked(currentStatus =1) and tranfer the dispute fee to the miner
             } else {
                 //Update the miner's current status to staked(currentStatus = 1)
                 stakes.currentStatus = 1;
+
                 //tranfer the dispute fee to the miner
-                ZapTransfer.doTransfer(
-                    self,
-                    address(this),
-                    disp.reportedMiner,
-                    disp.disputeUintVars[keccak256('fee')]
-                );
+                // // token is transfer using token.transferFrom right after tallyVotes() in zap.sol
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     address(this),
+                //     disp.reportedMiner,
+                //     disp.disputeUintVars[keccak256('fee')]
+                // );
+
                 if (
                     _request.inDispute[
                         disp.disputeUintVars[keccak256('timestamp')]
@@ -201,7 +209,9 @@ library ZapDispute {
                     ] = false;
                 }
                 
-                return (address(this), disp.reportedMiner, disputeFeeForDisputeId);
+                disputeFeeWinnerAddress = disp.reportedMiner;
+
+                // return (address(this), disp.reportedMiner, disputeFeeForDisputeId);
 
             }
             //If the vote is for a proposed fork require a 20% quorum before exceduting the update to the new zap contract address
@@ -227,6 +237,8 @@ library ZapDispute {
             disp.reportingParty,
             disp.disputeVotePassed
         );
+        return (address(this), disputeFeeWinnerAddress, disputeFeeForDisputeId);
+
         console.log("END OF TALLY VOTES");
     }
 

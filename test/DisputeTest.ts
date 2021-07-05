@@ -112,7 +112,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
       libraries: {
         ZapStake: zapStake.address,
         ZapDispute: zapDispute.address,
-        ZapLibrary: zapLibrary.address
+        ZapLibrary: zapLibrary.address,
+        // ZapTransfer: zapTransfer.address,
       },
       signer: signers[0]
     });
@@ -125,7 +126,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       {
         libraries: {
           ZapTransfer: zapTransfer.address,
-          ZapStake: zapStake.address
+          ZapStake: zapStake.address,
         },
         signer: signers[0]
       }
@@ -255,7 +256,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
   });
 
-  it('Should be able to vote on a dispute.', async () => {
+  it('Should be able to vote for (true) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
       'timeOfLastNewValue'
@@ -286,6 +287,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     disputeId = await zapMaster.getUintVar(ddisputecount);
     let disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+
+    expect(reporting_miner_wallet_bal).to.equal(127500);
+
     // expect to be the address that begain the dispute
     expect(disp[4]).to.equal(signers[5].address);
     // expect to be the address that is being disputed
@@ -307,21 +313,34 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     zapMaster.didVote(disputeId, signers[1].address);
 
-  console.log("BEFORE TALLY")
+    console.log('BEFORE TALLY');
     let blockNumber = await ethers.provider.getBlockNumber();
     console.log(blockNumber);
     let reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
-    let reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
     let reportedMiner2 = await zapMaster.balanceOf(disp[4]);
+    console.log(
+      'reportedMiner-getBalanceAt',
+      ' : ',
+      parseInt(reportedMiner._hex)
+    );
+    console.log(
+      'reportedMiner-balanceOf',
+      ' : ',
+      parseInt(reportedMiner2._hex)
+    );
+
+    let reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
     let reportingMiner2 = await zapMaster.balanceOf(disp[5]);
-    console.log("reportingMiner", ' : ', reportingMiner);
-    console.log('reportedMiner', ' : ', reportedMiner);
-    console.log('reportedMiner2', ' : ', reportedMiner2);
-    console.log('reportingMiner2', ' : ', reportingMiner2);
-
-
-
-
+    console.log(
+      'reportingMiner-getBalanceAt',
+      ' : ',
+      parseInt(reportingMiner._hex)
+    );
+    console.log(
+      'reportingMiner2-balanceOf',
+      ' : ',
+      parseInt(reportingMiner2._hex)
+    );
 
     // Increase the evm time by 8 days
     // A stake can not be withdrawn until 7 days passed
@@ -332,30 +351,175 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // console.log('oooooooooo');
     // console.log(disp);
     // console.log('oooooooooo');
+
     // expect voting to have ended
     expect(disp[1]).to.be.true;
+
     // expect dispute to be successful
     expect(disp[2]).to.be.true;
 
     // let disputeFee = disp[7][8];
-    console.log("AFTER TALLY")
-    blockNumber = await ethers.provider.getBlockNumber()
-    console.log(blockNumber)
+
+    console.log('AFTER TALLY');
+
+    blockNumber = await ethers.provider.getBlockNumber();
+    console.log(blockNumber);
     reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
     reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
-    
-    // expect balance of winner to be 500k(original stake amount) + 15(reward for mining ) + 500K(take losers stake amount) = 1000015.
-    expect(reportingMiner).to.equal(1000015);
+    reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+
+    console.log(parseInt(reporting_miner_wallet_bal._hex));
+    console.log('AAAAAAAAAAAA');
+    // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
+    blockNumber = await ethers.provider.getBlockNumber();
+    // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
+    let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
+    // console.log('zMBal: ', parseInt(zMBal._hex));
+    console.log('zMBal2: ', parseInt(zMBal2._hex));
+    console.log(zapMaster.address);
+    console.log('AAAAAAAAAAAA');
+
     // expect balance of loser to be 500k (original stake amount) + 15(reward for mining) - 500k(lose staked tokens) = 15.
     expect(reportedMiner).to.equal(15);
-    
+    // expect balance of winner's wallet to be 600K: 600k(leftover bal. after staking) - 427500 (pay dispute fee) + 427500 (win back dispute fee)  = 600K.
+    expect (reporting_miner_wallet_bal).to.equal(600000);
+    // expect balance of winner to be 500k(original stake amount) + 15(reward for mining ) + 500K(take losers stake amount) = 1000015.
+    expect(reportingMiner).to.equal(1000015);
+  });
+  it('Should be able to vote against (false) a dispute.', async () => {
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
+      'timeOfLastNewValue'
+    );
+
+    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
+      timeOfLastNewValueBytes
+    );
+
+    // Gets the the current stake amount
+    let timeStamp: BigNumber = await zapMaster.getUintVar(
+      timeOfLastNewValueHash
+    );
+
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
+
+    zap = zap.connect(signers[1]);
+    await zap.beginDispute(1, timeStamp, 4);
+    // Convert to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+    // Convert to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+    // Gets the disputeID also the dispute count
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    let disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+
+    expect(reporting_miner_wallet_bal).to.equal(127500);
+
+    // expect to be the address that begain the dispute
+    expect(disp[4]).to.equal(signers[5].address);
+    // expect to be the address that is being disputed
+    expect(disp[5]).to.equal(signers[1].address);
+    //expect requestID disputed to be 1
+    expect(disp[7][0]).to.equal(1);
+    // expect timestamp to be the same timestamp used when disputed
+    expect(disp[7][1]).to.equal(timeStamp);
+
+    // vote of a dispute
+    // signers 0-4 vote for the dispute 1
+    for (var i = 0; i < 5; i++) {
+      zap = zap.connect(signers[i]);
+      await zap.vote(disputeId, false);
+    }
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+    expect(disp[7][6]).to.equal(4);
+
+    zapMaster.didVote(disputeId, signers[1].address);
+
+    console.log('BEFORE TALLY');
+    let blockNumber = await ethers.provider.getBlockNumber();
+    console.log(blockNumber);
+    let reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    let reportedMiner2 = await zapMaster.balanceOf(disp[4]);
+    console.log(
+      'reportedMiner-getBalanceAt',
+      ' : ',
+      parseInt(reportedMiner._hex)
+    );
+    console.log(
+      'reportedMiner-balanceOf',
+      ' : ',
+      parseInt(reportedMiner2._hex)
+    );
+
+    let reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    let reportingMiner2 = await zapMaster.balanceOf(disp[5]);
+    console.log(
+      'reportingMiner-getBalanceAt',
+      ' : ',
+      parseInt(reportingMiner._hex)
+    );
+    console.log(
+      'reportingMiner2-balanceOf',
+      ' : ',
+      parseInt(reportingMiner2._hex)
+    );
+
+    // Increase the evm time by 8 days
+    // A stake can not be withdrawn until 7 days passed
+    await ethers.provider.send('evm_increaseTime', [691200]);
+    await zap.tallyVotes(disputeId);
+
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+    // console.log('oooooooooo');
+    // console.log(disp);
+    // console.log('oooooooooo');
+
+    // expect voting to have ended
+    expect(disp[1]).to.be.true;
+
+    // expect dispute to be successful
+    expect(disp[2]).to.be.false;
+
+    // let disputeFee = disp[7][8];
+
+    console.log('AFTER TALLY');
+
+    blockNumber = await ethers.provider.getBlockNumber();
+    console.log(blockNumber);
+    reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    let reported_miner_wallet_bal = await zapMaster.balanceOf(disp[4]);
+    reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+
+    console.log(parseInt(reported_miner_wallet_bal._hex));
+    console.log(parseInt(reporting_miner_wallet_bal._hex));
+    console.log('AAAAAAAAAAAA');
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
-    blockNumber = await ethers.provider.getBlockNumber()
-    let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
+    blockNumber = await ethers.provider.getBlockNumber();
+    // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
-    console.log('zMBal: ', zMBal);
-    console.log('zMBal2: ', zMBal2);
-    console.log(zapMaster.address)
-    
+    // console.log('zMBal: ', parseInt(zMBal._hex));
+    console.log('zMBal2: ', parseInt(zMBal2._hex));
+    console.log(zapMaster.address);
+    console.log('AAAAAAAAAAAA');
+
+    // 972515. expect balance of reported miner (winner) to be 500k (original stake amount) + 15(reward for mining) = 500015 since miner didn't lose stake amount to disputer.
+    console.log('A');
+    expect(reportedMiner).to.equal(500015);
+    // expect balance of loser's wallet to be 127500: 600k(leftover bal. after staking) - 427500 (pay dispute fee) = 127500 since reporter lost their fee to disputed miner.
+    console.log('B');
+    expect(reported_miner_wallet_bal).to.equal(1072500); //600K + 472500(dispute fee)
+    expect(reporting_miner_wallet_bal).to.equal(127500); // 600k - 472500(dispute fee)
+    // expect balance of loser to be 500k(original stake amount) + 15(reward for mining ) = 500015 for not winning the disputed miners stake.
+    console.log('C');
+    expect(reportingMiner).to.equal(500015);
   });
 });
