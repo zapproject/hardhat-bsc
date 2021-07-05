@@ -91,7 +91,6 @@ library ZapDispute {
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId
     ) public returns (address _from, address _to, uint _disputeFee) {
-        console.log("BEGINNING OF TALLY VOTES");
 
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
         ZapStorage.Request storage _request = self.requestDetails[
@@ -126,10 +125,6 @@ library ZapDispute {
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
-                // console.log("FROM: ", disp.reportedMiner);
-                // console.log("TO: ", disp.reportingParty);
-                // console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportedMiner, block.number));
-                // console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 ZapTransfer.doTransfer(
                     self,
                     disp.reportedMiner,
@@ -139,31 +134,14 @@ library ZapDispute {
 
 
                 //Returns the dispute fee to the reporting party
-                console.log(" ");
-
-                console.log("//Returns the dispute fee to the reporting party");
-                console.log("FROM: ", address(this));
-                console.log("TO: ", disp.reportingParty);
-                console.log("balance of zapMaster at wallet: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
-                console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
-                console.log("balance of reported miner at wallet: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
-                console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
-                console.log("Before Fee is returned from master to dispute winner");
-                // don't need to run this because tokens transfer will be actualy state change.
+                // don't need to run this because tokens transfer will be an actual state change.
                 // ZapTransfer.doTransfer(
                 //     self,
                 //     address(this),
                 //     disp.reportingParty,
                 //     disp.disputeUintVars[keccak256('fee')]
                 // );
-                console.log("END - Returns the dispute fee to the reporting party");
-                console.log("After Fee is returned from master to dispute winner");
-                console.log("balance of zapMaster at block: ", ZapTransfer.balanceOfAt(self, address(this), block.number));
-                console.log("balance of reported miner at block: ", ZapTransfer.balanceOfAt(self, disp.reportingParty, block.number));
                 
-                console.log(" ");
-
-
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
 
@@ -238,8 +216,6 @@ library ZapDispute {
             disp.disputeVotePassed
         );
         return (address(this), disputeFeeWinnerAddress, disputeFeeForDisputeId);
-
-        console.log("END OF TALLY VOTES");
     }
 
     /**

@@ -47,39 +47,16 @@ library ZapTransfer {
         address _to,
         uint256 _amount
     ) public {
-
-        console.log(" ");
-        console.log("INSIDE ZapTransfer.doTransfer");
-        console.log("_from: ", balanceOfAt(self, _from, block.number));
-        console.log("to: ", balanceOfAt(self, _to, block.number));
-
         require(_amount > 0);
         require(_to != address(0));
         require(allowedToTrade(self, _from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
-        console.log("FROM: ", _from);
         uint256 previousBalance = balanceOfAt(self, _from, block.number);
-        console.log("previousBalance _from - beforeUpdate: ", previousBalance);
-        
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
-        previousBalance = balanceOfAt(self, _from, block.number);
-        console.log("previousBalance _from - afterUpdate: ", previousBalance);
-        
-
-        console.log("TO: ", _to);
-
         previousBalance = balanceOfAt(self, _to, block.number);
-        console.log("previousBalance _to - beforeUpdate: ", previousBalance);
-        
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
-
         previousBalance = balanceOfAt(self, _to, block.number);
-        console.log("previousBalance _to - afterUpdate: ", previousBalance);
-
         emit Transfer(_from, _to, _amount);
-        console.log("END INSIDE ZapTransfer.doTransfer");
-        console.log(" ");
     }
 
     /**
@@ -146,8 +123,7 @@ library ZapTransfer {
         if (self.stakerDetails[_user].currentStatus > 0) {
             //Removes the stakeAmount from balance if the _user is staked
             if (
-                balanceOfAt(self, _user, block.number)
-                .sub(_amount) >= 0
+                balanceOfAt(self, _user, block.number).sub(_amount) >= 0
                 // .sub(self.uintVars[keccak256('stakeAmount')])
             ) {
                 return true;
