@@ -64,6 +64,7 @@ contract Vault {
     function withdraw(address userAddress, uint256 value) public {
         require(userAddress != address(0), "The zero address does not own a vault.");
         require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
+        require(userBalance(userAddress) >= value, "Your balance is insufficient.");
         balances[userAddress] = balances[userAddress].sub(value);
     }
 
