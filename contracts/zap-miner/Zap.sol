@@ -332,7 +332,7 @@ contract Zap {
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
-        console.log("stakeAmount: ", stakeAmount);
+        // console.log("stakeAmount: ", stakeAmount);
         token.transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
 
@@ -350,11 +350,11 @@ contract Zap {
     /**
      * @dev This function allows users to withdraw their stake after a 7 day waiting period from request
      */
-    function withdrawStake(address _vaultAddress) external {
+    function withdrawStake() external {
         zap.withdrawStake();
 
         token.transferFrom(
-            _vaultAddress,
+            zap.addressVars[keccak256('_vault')],
             msg.sender,
             zap.uintVars[keccak256('stakeAmount')]
         );

@@ -2,7 +2,6 @@ pragma solidity =0.5.16;
 
 import './ZapStorage.sol';
 import './ZapTransfer.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Zap Dispute
