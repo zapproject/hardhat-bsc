@@ -5,6 +5,7 @@ import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
+import './libraries/ZapTransfer.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
 
@@ -119,6 +120,7 @@ contract Zap {
 
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
+        
         doTransfer(
             msg.sender,
             address(this),
@@ -193,7 +195,13 @@ contract Zap {
      * @param _disputeId is the dispute id
      */
     function tallyVotes(uint256 _disputeId) external {
-        zap.tallyVotes(_disputeId);
+
+        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
+
+        approve(_from, _disputeFee);
+        // token.transferFrom(_from, _to, _disputeFee);
+        doTransfer(_from, _to, _disputeFee);
+
     }
 
     /**
@@ -320,12 +328,13 @@ contract Zap {
         zap.depositStake();
         
         // EXPERIMENTAL, needs to be tested
-        // address vaultAddress = zap.addressVars[keccak256('_vault')];
-        // Vault vault = Vault(vaultAddress);
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
 
-        // token.approve(address(this), stakeAmount);
-        // token.transferFrom(msg.sender, vaultAddress, stakeAmount);
-        // vault.deposit(msg.sender, stakeAmount);
+        token.approve(address(this), stakeAmount);
+        console.log("stakeAmount: ", stakeAmount);
+        token.transferFrom(msg.sender, vaultAddress, stakeAmount);
+        vault.deposit(msg.sender, stakeAmount);
 
     }
 
@@ -434,10 +443,11 @@ contract Zap {
         require(_amount > 0);
         require(_to != address(0));
         require(allowedToTrade(_from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
-        uint256 previousBalance = balanceOf(_from);
-        previousBalance = balanceOf(_to);
+        uint256 previousBalance = balanceOf(_from); // actual token balance
+        previousBalance = balanceOf(_to); // actual token balance
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
+        // transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
+        token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
         emit Transfer(_from, _to, _amount);
     }
 
@@ -453,19 +463,24 @@ contract Zap {
         view
         returns (bool)
     {
-        if (zap.stakerDetails[_user].currentStatus > 0) {
-            //Removes the stakeAmount from balance if the _user is staked
-            if (
-                balanceOf(_user)
-                .sub(zap.uintVars[keccak256('stakeAmount')])
-                .sub(_amount) >= 0
-            ) {
+        // dont delete until we're production ready
+        // dont delete until we're production ready
+        // dont delete until we're production ready
+            if (zap.stakerDetails[_user].currentStatus > 0) {
+                //Removes the stakeAmount from balance if the _user is staked
+                if (
+                    balanceOf(_user)
+                    .sub(_amount) >= 0
+                    // .sub(zap.uintVars[keccak256('stakeAmount')]) //took this out since we're already taking the stake out of their wallet
+                ) {
+                    return true;
+                }
+            } else if (balanceOf(_user).sub(_amount) >= 0) {
                 return true;
             }
-        } else if (balanceOf(_user).sub(_amount) >= 0) {
-            return true;
-        }
-        return false;
+        // dont delete until production ready
+        // dont delete until production ready
+        // dont delete until production ready
     }
 
     /**
