@@ -69,8 +69,8 @@ contract Zap {
 
     ZapStorage.ZapStorageStruct zap;
     ZapTokenBSC public token;
-    Vault public vault;
-    address vaultAddress;
+    // Vault public vault;
+    // address public vaultAddress;
 
     address payable public owner;
 
@@ -294,23 +294,48 @@ contract Zap {
         uint256 _value
     ) external {
         zap.submitMiningSolution(_nonce, _requestId, _value);
+
+        ZapStorage.Details[5] memory a = zap.currentMiners;
+
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
+        uint256 minerReward = zap.uintVars[keccak256('currentMinerReward')];
+
+        if (minerReward != 0){
+            for (uint256 i = 0; i < 5; i++) {
+                if (a[i].miner != address(0)){
+                    token.approve(address(this), minerReward);
+                    token.transferFrom(address(this), address(vault), minerReward);
+                    vault.deposit(a[i].miner, minerReward);
+                }
+            }
+        }
+
+        zap.uintVars[keccak256('currentMinerReward')] = 0;
     }
 
     /**
      * @dev This function allows miners to deposit their stake.
      */
-    function depositStake(address _vaultAddress) external {
+    function depositStake() external {
         // require balance is >= here before it hits NewStake()
+        uint256 stakeAmount = zap.uintVars[keccak256('stakeAmount')];
         require(
             token.balanceOf(msg.sender) >=
-                zap.uintVars[keccak256('stakeAmount')]
+                stakeAmount
         );
         zap.depositStake();
-        token.transferFrom(
-            msg.sender,
-            _vaultAddress,
-            zap.uintVars[keccak256('stakeAmount')]
-        );
+        
+        // EXPERIMENTAL, needs to be tested
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
+        token.approve(address(this), stakeAmount);
+        console.log("stakeAmount: ", stakeAmount);
+        token.transferFrom(msg.sender, vaultAddress, stakeAmount);
+        vault.deposit(msg.sender, stakeAmount);
+
     }
 
     /**
@@ -631,17 +656,11 @@ contract Zap {
     }
 
     /**
-     * Sets the Vault instance, available only to owner
-     */
-    function setVault(Vault _vault) public onlyOwner {
-        vaultAddress = address(_vault);
-        vault = _vault;
-    }
-
-    /**
      * Increase the approval of ZapMaster for the Vault
      */
     function increaseVaultApproval() public returns (bool) {
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
     }
 }

@@ -112,8 +112,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       libraries: {
         ZapStake: zapStake.address,
         ZapDispute: zapDispute.address,
-        ZapLibrary: zapLibrary.address,
-        // ZapTransfer: zapTransfer.address,
+        ZapLibrary: zapLibrary.address
       },
       signer: signers[0]
     });
@@ -126,7 +125,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       {
         libraries: {
           ZapTransfer: zapTransfer.address,
-          ZapStake: zapStake.address,
+          ZapStake: zapStake.address
         },
         signer: signers[0]
       }
@@ -147,19 +146,21 @@ describe("Test ZapDispute and it's dispute functions", () => {
     )) as Vault;
     await vault.deployed();
 
-    await zap.setVault(vault.address);
+    // await zap.setVault(vault.address);
+    await zapMaster.functions.changeVaultContract(vault.address);
 
     await zapTokenBsc.allocate(zapMaster.address, 10000000);
+
+    zap = zap.attach(zapMaster.address);
 
     // stake signers 1 to 5.
     for (let i = 1; i <= 5; i++) {
       await zapTokenBsc.allocate(signers[i].address, 1100000);
-      zap = zap.attach(zapMaster.address);
       zap = zap.connect(signers[i]);
+      await vault.connect(signers[i]).lockSmith(signers[i].address, zap.address);
 
       await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
-      await zap.depositStake(vault.address);
-
+      await zap.depositStake();
       expect(await zapMaster.balanceOf(signers[i].address)).to.equal(600000);
       expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 500000);
     }

@@ -44,6 +44,14 @@ library ZapGettersLibrary {
         emit NewZapAddress(_zapContract);
     }
 
+    function changeVaultContract(
+        ZapStorage.ZapStorageStruct storage self,
+        address _vaultAddress
+    ) internal {
+        require(self.addressVars[keccak256('_owner')] == msg.sender);
+        self.addressVars[keccak256('_vault')] = _vaultAddress;
+    }
+
     /*Zap Getters*/
 
     /**
