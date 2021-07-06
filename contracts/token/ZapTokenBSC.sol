@@ -51,11 +51,7 @@ library SafeMath {
 
  contract ERC20Basic {
 
-    uint256 public _totalSupply = 100000000000000000000000000;
-
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
+    uint256 public totalSupply = 100000000000000000000000000;
 
     function balanceOf(address who)  public view returns (uint256);
 
@@ -337,7 +333,7 @@ contract MintableToken is StandardToken, Ownable {
 
     function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
 
-        _totalSupply = _totalSupply.add(_amount);
+        totalSupply = totalSupply.add(_amount);
 
         balances[_to] = balances[_to].add(_amount);
 
@@ -375,38 +371,17 @@ contract MintableToken is StandardToken, Ownable {
 
 contract ZapTokenBSC is MintableToken {
 
-    string public _name = "Zap BEP20";
+    string public name = "Zap BEP20";
 
-    string public _symbol = "ZAPB";
+    string public symbol = "ZAPB";
 
-    uint8 public _decimals = 18;
+    uint8 public decimals = 18;
 
     constructor() public {
-        balances[msg.sender] = _totalSupply;
+        balances[msg.sender] = totalSupply;
         
-        emit Transfer(address(0), msg.sender, _totalSupply);
+        emit Transfer(address(0), msg.sender, totalSupply);
     }
-
-    /**
-   * @dev Returns the token decimals.
-   */
-  function decimals() external view returns (uint8) {
-    return _decimals;
-  }
-
-  /**
-   * @dev Returns the token symbol.
-   */
-  function symbol() external view returns (string memory) {
-    return _symbol;
-  }
-
-  /**
-  * @dev Returns the token name.
-  */
-  function name() external view returns (string memory) {
-    return _name;
-  }
 
     function allocate(address to, uint amount) public{
 
