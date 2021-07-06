@@ -141,11 +141,14 @@ describe('Did Mine Test', () => {
 
         await zapMaster.functions.changeVaultContract(vault.address);
 
-
         for (var i = 1; i <= 5; i++) {
+
             // Allocates ZAP to signers 1 - 5
             await zapTokenBsc.allocate(signers[i].address, 600000);
+
         }
+
+
     });
 
     it('Test didMine', async () => {
@@ -165,6 +168,7 @@ describe('Did Mine Test', () => {
 
         // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
+
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
@@ -200,37 +204,56 @@ describe('Did Mine Test', () => {
         // Parses the getReqQ array from hexStrings to numbers
         const reqQ: number[] = getReqQ.map((item) => parseInt(item._hex));
 
+        /*
+        Gets the data properties for the current request
+        bytes32 _challenge,
+        int256[5] memory _requestIds,
+        uint256 _difficutly,
+        uint256 _tip
+        */
+        const newCurrentVars: any = await zap.getNewCurrentVariables();
+
         for (var i = 1; i <= 5; i++) {
+
             // Connects address 1 as the signer
             zap = zap.connect(signers[i]);
 
-            /*
-                  Gets the data properties for the current request
-                  bytes32 _challenge,
-                  uint256[5] memory _requestIds,
-                  uint256 _difficutly,
-                  uint256 _tip
-                  */
-            const newCurrentVars: any = await zap.getNewCurrentVariables();
-
             // Each Miner will submit a mining solution
-            await zap.submitMiningSolution('nonce', 1, 1200)
+            // Expects the "NonceSubmitted" event to emit
+            await expect(zap.submitMiningSolution('nonce', 1, 1200)).to.emit(zap, "NonceSubmitted")
 
             // interface for events
-            const iface = new ethers.utils.Interface([
+            const nonceSubmittedIface = new ethers.utils.Interface([
                 zap.interface.events['NonceSubmitted(address,string,uint256,uint256,bytes32)']
             ]);
 
-            // event filter
-            let filter = zap.filters.NonceSubmitted(null, null, null, null, null)
+            // nonceSubmitted event filter
+            let nonceSubmittedFilter = zap.filters.NonceSubmitted(null, null, null, null, null);
 
-            // event listener
-            ethers.provider.on(filter, (log, events) => {
-                console.log('Log: ', log);
-                console.log('Events: ', events);
-                const event = iface.parseLog(log);
-                // const event = iface.decodeEventLog("NewDispute", log.data, log.topics)
-                console.log('PARSED EVENT: ', event);
+            // event listener for the NonceSubmitted
+            ethers.provider.on(nonceSubmittedFilter, (log) => {
+
+                const event = nonceSubmittedIface.parseLog(log);
+
+                // Expects the event name to equal NonceSubmitted
+                expect(event.name).to.equal('NonceSubmitted');
+
+                // Expects the nonce arg returned from the event to equal the nonce submitted
+                expect(event.args[1]).to.equal('nonce');
+
+                // Expects the requestId arg returned from the event to equal the requestId mined
+                // ethers.utils.hexlify(1) = 0x01
+                // 0x01 is the requestId value returned from the event
+                expect(event.args[2]).to.equal(ethers.utils.hexlify(1));
+
+                // Expects the value arg returned from the event to equal the value submitted
+                // ethers.utils.hexlify(1200) = 0x04b0
+                // 0x04b0 is the value returned from the event
+                expect(event.args[3]).to.equal(ethers.utils.hexlify(1200));
+
+                // Expects the currentChallenge arg returned from the event to equal the challenge mined
+                expect(event.args[4]).to.equal(newCurrentVars[0])
+
             });
 
 

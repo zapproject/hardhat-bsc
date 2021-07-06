@@ -51,13 +51,6 @@ library ZapLibrary {
         uint256 _totalTips,
         bytes32 _currentChallenge
     ); //Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
-    event NonceSubmitted(
-        address indexed _miner,
-        string _nonce,
-        uint256 indexed _requestId,
-        uint256 _value,
-        bytes32 _currentChallenge
-    ); //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event OwnershipTransferred(
         address indexed _previousOwner,
         address indexed _newOwner
@@ -330,14 +323,6 @@ library ZapLibrary {
 
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-
-        emit NonceSubmitted(
-            msg.sender,
-            _nonce,
-            _requestId,
-            _value,
-            self.currentChallenge
-        );
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
         if (self.uintVars[keccak256('slotProgress')] == 5) {
