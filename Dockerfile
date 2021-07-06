@@ -2,7 +2,10 @@ FROM node:alpine
 # RUN useradd -u 8877 prod
 # Change to non-root privilege
 # USER prod
-
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
 ARG pm2_public
 ARG pm2_secret
 # Install app dependencies
