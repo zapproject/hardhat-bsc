@@ -89,12 +89,17 @@ library ZapDispute {
     function tallyVotes(
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId
-    ) public {
+    ) public returns (address _from, address _to, uint _disputeFee) {
+
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
         ZapStorage.Request storage _request = self.requestDetails[
             disp.disputeUintVars[keccak256('requestId')]
         ];
 
+        
+        uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
+        address disputeFeeWinnerAddress;
+        
         //Ensure this has not already been executed/tallied
         require(disp.executed == false);
 
@@ -118,7 +123,7 @@ library ZapDispute {
                 self.uintVars[keccak256('stakerCount')]--;
                 updateDisputeFee(self);
 
-                //Transfers the StakeAmount from the reporded miner to the reporting party
+                //Transfers the StakeAmount from the reported miner to the reporting party
                 ZapTransfer.doTransfer(
                     self,
                     disp.reportedMiner,
@@ -126,14 +131,16 @@ library ZapDispute {
                     self.uintVars[keccak256('stakeAmount')]
                 );
 
-                //Returns the dispute fee to the reportingParty
-                ZapTransfer.doTransfer(
-                    self,
-                    address(this),
-                    disp.reportingParty,
-                    disp.disputeUintVars[keccak256('fee')]
-                );
 
+                //Returns the dispute fee to the reporting party
+                // don't need to run this because tokens transfer will be an actual state change.
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     address(this),
+                //     disp.reportingParty,
+                //     disp.disputeUintVars[keccak256('fee')]
+                // );
+                
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
 
@@ -148,19 +155,27 @@ library ZapDispute {
                         disp.disputeUintVars[keccak256('timestamp')]
                     ] = 0;
                 }
+                
+
+                disputeFeeWinnerAddress = disp.reportingParty;
+
+                // return (address(this), disp.reportingParty, disputeFeeForDisputeId);
 
                 //If the vote for disputing a value is unsuccesful then update the miner status from being on
                 //dispute(currentStatus=3) to staked(currentStatus =1) and tranfer the dispute fee to the miner
             } else {
                 //Update the miner's current status to staked(currentStatus = 1)
                 stakes.currentStatus = 1;
+
                 //tranfer the dispute fee to the miner
-                ZapTransfer.doTransfer(
-                    self,
-                    address(this),
-                    disp.reportedMiner,
-                    disp.disputeUintVars[keccak256('fee')]
-                );
+                // // token is transfer using token.transferFrom right after tallyVotes() in zap.sol
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     address(this),
+                //     disp.reportedMiner,
+                //     disp.disputeUintVars[keccak256('fee')]
+                // );
+
                 if (
                     _request.inDispute[
                         disp.disputeUintVars[keccak256('timestamp')]
@@ -170,6 +185,11 @@ library ZapDispute {
                         disp.disputeUintVars[keccak256('timestamp')]
                     ] = false;
                 }
+                
+                disputeFeeWinnerAddress = disp.reportedMiner;
+
+                // return (address(this), disp.reportedMiner, disputeFeeForDisputeId);
+
             }
             //If the vote is for a proposed fork require a 20% quorum before exceduting the update to the new zap contract address
         } else {
@@ -194,6 +214,7 @@ library ZapDispute {
             disp.reportingParty,
             disp.disputeVotePassed
         );
+        return (address(this), disputeFeeWinnerAddress, disputeFeeForDisputeId);
     }
 
     /**

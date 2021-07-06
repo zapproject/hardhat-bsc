@@ -46,7 +46,6 @@ library ZapTransfer {
         uint256 _amount
     ) public {
         require(_amount > 0);
-
         require(_to != address(0));
         require(allowedToTrade(self, _from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
         uint256 previousBalance = balanceOfAt(self, _from, block.number);
@@ -54,6 +53,7 @@ library ZapTransfer {
         previousBalance = balanceOfAt(self, _to, block.number);
         require(previousBalance + _amount >= previousBalance); // Check for overflow
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
+        previousBalance = balanceOfAt(self, _to, block.number);
         emit Transfer(_from, _to, _amount);
     }
 
@@ -121,9 +121,8 @@ library ZapTransfer {
         if (self.stakerDetails[_user].currentStatus > 0) {
             //Removes the stakeAmount from balance if the _user is staked
             if (
-                balanceOfAt(self, _user, block.number)
-                .sub(self.uintVars[keccak256('stakeAmount')])
-                .sub(_amount) >= 0
+                balanceOfAt(self, _user, block.number).sub(_amount) >= 0
+                // .sub(self.uintVars[keccak256('stakeAmount')])
             ) {
                 return true;
             }
