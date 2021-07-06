@@ -163,7 +163,6 @@ describe('Did Mine Test', () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-
         // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
             // Connects addresses 1-5 as the signer
@@ -191,6 +190,7 @@ describe('Did Mine Test', () => {
             // Each request will add a tip starting at 51 and count down until 0
             // Each tip will be stored inside the requestQ array
             await zap.requestData(apix, x, 1000, 52 - i);
+
         }
 
         // Gets the tip amounts stored in the requestQ array
@@ -214,7 +214,25 @@ describe('Did Mine Test', () => {
             const newCurrentVars: any = await zap.getNewCurrentVariables();
 
             // Each Miner will submit a mining solution
-            await zap.submitMiningSolution('nonce', 1, 1200);
+            await zap.submitMiningSolution('nonce', 1, 1200)
+
+            // interface for events
+            const iface = new ethers.utils.Interface([
+                zap.interface.events['NonceSubmitted(address,string,uint256,uint256,bytes32)']
+            ]);
+
+            // event filter
+            let filter = zap.filters.NonceSubmitted(null, null, null, null, null)
+
+            // event listener
+            ethers.provider.on(filter, (log, events) => {
+                console.log('Log: ', log);
+                console.log('Events: ', events);
+                const event = iface.parseLog(log);
+                // const event = iface.decodeEventLog("NewDispute", log.data, log.topics)
+                console.log('PARSED EVENT: ', event);
+            });
+
 
             // ensures that miners are not being rewarded before a new block is called
             if (i == 3) {
@@ -236,6 +254,7 @@ describe('Did Mine Test', () => {
             expect(didMineStatus).to.be.true;
 
         }
+
 
         expect(reqQ).to.have.length(51);
 
