@@ -20,9 +20,7 @@ import { Zap } from '../typechain/Zap';
 
 import { Vault } from "../typechain/Vault";
 
-import { BigNumber, ContractFactory, ContractReceipt } from 'ethers';
-import { hexZeroPad } from 'ethers/lib/utils';
-import { request } from 'http';
+import { BigNumber, ContractFactory } from 'ethers';
 
 const { expect } = chai;
 

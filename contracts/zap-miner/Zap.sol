@@ -8,7 +8,6 @@ import './libraries/ZapLibrary.sol';
 import './libraries/ZapTransfer.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System
