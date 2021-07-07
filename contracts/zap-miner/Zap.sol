@@ -271,6 +271,7 @@ contract Zap {
             zap.requestIdByQueryHash[_queryHash] = _requestId;
 
             //If the tip > 0 it tranfers the tip to this contract
+
             if (_tip > 0) {
                 doTransfer(msg.sender, address(this), _tip);
             }
@@ -570,6 +571,7 @@ contract Zap {
 
         //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(_requestId, _tip);
+
         emit TipAdded(
             msg.sender,
             _requestId,
