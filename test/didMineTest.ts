@@ -214,8 +214,6 @@ describe('Did Mine Test', () => {
         // Resolves the transaction receipt
         const request_1_Receipt: any = await request_1.wait();
 
-        console.log(request_1_Receipt.events[3])
-
         expect(request_1_Receipt.events[3].event).to.equal('DataRequested');
 
         expect(request_1_Receipt.events[3].args[0]).to.equal(owner);
