@@ -43,11 +43,11 @@ Notes:
 
 - running a coverage report currently deletes artifacts, so after each coverage run you will then need to run `npx hardhat clean` followed by `npm run build` before re-running tests
 
-### Deploy to Ethereum
+### Deploy to BSC
 
 Create/modify network config in `hardhat.config.ts` and add API key and private key, then run:
 
-`npx hardhat run --network rinkeby scripts/deploy.ts`
+`npx hardhat run --network testnet scripts/deploy.ts`
 ### -or- Just use Docker NOTE PLEASE BUILD CONTAINERS BEFORE MAKING PULL REQUESTS
 Right click on the dockerfile and click "build image", tag the image (ex) - "zaphardhatdevelop:latest"
 Run  `docker run -td zaphardhatdevelop`, the command `npx hardhat node` will run automatically
