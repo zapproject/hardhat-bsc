@@ -26,6 +26,8 @@ import './tasks/dispatchBittrex';
 import './tasks/checkClient';
 import './tasks/mine';
 
+require("hardhat-tracer");
+
 import { getBSCGasPrice } from './scripts/getGasPrice'
 const fs = require('fs');  // required for reading BSC gas price
 
