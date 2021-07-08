@@ -8,11 +8,11 @@ export function getGasPrice() {
     .then((res: any)=>{
         // console.log(typeof Number.parseInt(res.data.fastest))
         fs.writeFile("./output/gas.txt", (res.data.fastest / 10).toString(), function(err: any){
-            console.log(err)
+            // console.log(err)
         })
     })
     .catch((err: any)=>{
-        console.log(err)
+        // console.log(err)
         return null
     })
 }
@@ -37,11 +37,11 @@ export function getBSCGasPrice() {
 
         // write latest gas price to file
         fs.writeFile("./output/bscGas.txt", (latestGas), function(err: any){
-            console.log(err)
+            // console.log(err)
         })
     })
     .catch((err: any)=>{
-        console.log(err)
+        // console.log(err)
         return null
     })
 }

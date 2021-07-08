@@ -24,7 +24,7 @@ import './tasks/dispatchCoinGecko';
 import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
-import './tasks/mine';
+// import './tasks/mine';
 
 require("hardhat-tracer");
 

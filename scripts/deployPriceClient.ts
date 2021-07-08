@@ -10,7 +10,7 @@ const fs = require('fs')
 async function main() {
 
   let signers = await ethers.getSigners();
-  console.log(process.argv)
+  // console.log(process.argv)
   
   let owner = signers[0]
   const endpoint = ["Zap Price"]
@@ -52,7 +52,7 @@ async function main() {
     specifier, 
     params 
   ))
-  console.log(priceClient)
+  // console.log(priceClient)
 }
 
 main()
