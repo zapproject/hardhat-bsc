@@ -8,7 +8,6 @@ import './libraries/ZapLibrary.sol';
 import './libraries/ZapTransfer.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System
@@ -37,13 +36,6 @@ contract Zap {
         uint256 _tip,
         uint256 _totalTips
     );
-    event NonceSubmitted(
-        address indexed _miner,
-        string _nonce,
-        uint256 indexed _requestId,
-        uint256 _value,
-        bytes32 _currentChallenge
-    ); //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event NewRequestOnDeck(
         uint256 indexed _requestId,
         string _query,
@@ -128,7 +120,7 @@ contract Zap {
 
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
-
+        
         doTransfer(
             msg.sender,
             address(this),
@@ -203,13 +195,13 @@ contract Zap {
      * @param _disputeId is the dispute id
      */
     function tallyVotes(uint256 _disputeId) external {
-        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(
-            _disputeId
-        );
+
+        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         approve(_from, _disputeFee);
         // token.transferFrom(_from, _to, _disputeFee);
         doTransfer(_from, _to, _disputeFee);
+
     }
 
     /**
@@ -271,7 +263,6 @@ contract Zap {
             zap.requestIdByQueryHash[_queryHash] = _requestId;
 
             //If the tip > 0 it tranfers the tip to this contract
-
             if (_tip > 0) {
                 doTransfer(msg.sender, address(this), _tip);
             }
@@ -311,29 +302,17 @@ contract Zap {
 
         uint256 minerReward = zap.uintVars[keccak256('currentMinerReward')];
 
-        if (minerReward != 0) {
+        if (minerReward != 0){
             for (uint256 i = 0; i < 5; i++) {
-                if (a[i].miner != address(0)) {
+                if (a[i].miner != address(0)){
                     token.approve(address(this), minerReward);
-                    token.transferFrom(
-                        address(this),
-                        address(vault),
-                        minerReward
-                    );
+                    token.transferFrom(address(this), address(vault), minerReward);
                     vault.deposit(a[i].miner, minerReward);
                 }
             }
         }
 
         zap.uintVars[keccak256('currentMinerReward')] = 0;
-
-        emit NonceSubmitted(
-            msg.sender,
-            _nonce,
-            _requestId,
-            _value,
-            zap.currentChallenge
-        );
     }
 
     /**
@@ -342,22 +321,21 @@ contract Zap {
     function depositStake() external {
         // require balance is >= here before it hits NewStake()
         uint256 stakeAmount = zap.uintVars[keccak256('stakeAmount')];
-        require(token.balanceOf(msg.sender) >= stakeAmount);
+        require(
+            token.balanceOf(msg.sender) >=
+                stakeAmount
+        );
         zap.depositStake();
-
+        
         // EXPERIMENTAL, needs to be tested
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
         // console.log("stakeAmount: ", stakeAmount);
-        
-        // vault.lockSmith(msg.sender, address(this));
-        // vault locksmith to zap not zapmaster
-        vault.lockSmith(msg.sender, zap.addressVars[keccak256('zapContract')]);
-
-        transferFrom(msg.sender, vaultAddress, stakeAmount);
+        token.transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
+
     }
 
     /**
@@ -488,17 +466,18 @@ contract Zap {
         // dont delete until we're production ready
         // dont delete until we're production ready
         // dont delete until we're production ready
-        if (zap.stakerDetails[_user].currentStatus > 0) {
-            //Removes the stakeAmount from balance if the _user is staked
-            if (
-                balanceOf(_user).sub(_amount) >= 0
-                // .sub(zap.uintVars[keccak256('stakeAmount')]) //took this out since we're already taking the stake out of their wallet
-            ) {
+            if (zap.stakerDetails[_user].currentStatus > 0) {
+                //Removes the stakeAmount from balance if the _user is staked
+                if (
+                    balanceOf(_user)
+                    .sub(_amount) >= 0
+                    // .sub(zap.uintVars[keccak256('stakeAmount')]) //took this out since we're already taking the stake out of their wallet
+                ) {
+                    return true;
+                }
+            } else if (balanceOf(_user).sub(_amount) >= 0) {
                 return true;
             }
-        } else if (balanceOf(_user).sub(_amount) >= 0) {
-            return true;
-        }
         // dont delete until production ready
         // dont delete until production ready
         // dont delete until production ready
@@ -576,7 +555,6 @@ contract Zap {
 
         //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(_requestId, _tip);
-
         emit TipAdded(
             msg.sender,
             _requestId,
