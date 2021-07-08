@@ -135,7 +135,8 @@ describe("Main Miner Functions", () => {
         vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
         await vault.deployed();
 
-        await zap.setVault(vault.address);
+        await zapMaster.functions.changeVaultContract(vault.address);
+
     })
 
     it("Should transfer Zap from signers[19] to vault and then to signers[18]",
@@ -203,7 +204,7 @@ describe("Main Miner Functions", () => {
             await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
             // Stakes 500k Zap to initiate a miner
-            await zap.depositStake(vault.address);
+            await zap.depositStake();
 
             // Gets the balance as hexString
             const getBalance: BigNumber = await zapMaster.balanceOf(signers[1].address);
@@ -254,7 +255,7 @@ describe("Main Miner Functions", () => {
             await zapTokenBsc.connect(signers[2]).approve(zapMaster.address, 1000);
 
             // Expects depositStake to fail and revert the transaction
-            await expect(zap.depositStake(vault.address)).to.be.reverted;
+            await expect(zap.depositStake()).to.be.reverted;
 
             // Expect staker status to be 0
             expect(stakerInfo[0]).to.equal(0);
@@ -341,7 +342,7 @@ describe("Main Miner Functions", () => {
         const vaultPreBal: Number = parseInt(getVaultPreBal._hex);
 
         // Stakes 500k Zap to initiate a miner
-        await zap.depositStake(vault.address);
+        await zap.depositStake();
 
         // Balance after stake deposit
         const getPostBal: BigNumber = await zapMaster.balanceOf(signers[1].address);
@@ -369,7 +370,7 @@ describe("Main Miner Functions", () => {
         await ethers.provider.send("evm_increaseTime", [691200]);
 
         // Withdraw the stake amount to signer 1's wallet
-        await zap.withdrawStake(vault.address);
+        await zap.withdrawStake();
 
         // Signer 1 balance after withdrawal
         const getPostWithdrawBal = await zapMaster.balanceOf(signers[1].address);
@@ -437,7 +438,7 @@ describe("Main Miner Functions", () => {
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
         // Stakes 500000 Zap to initiate a miner
-        await zap.depositStake(vault.address);
+        await zap.depositStake();
 
         // Request to withdraw stake
         await zap.requestStakingWithdraw();
@@ -454,7 +455,7 @@ describe("Main Miner Functions", () => {
         await ethers.provider.send("evm_increaseTime", [691200]);
 
         // Withdraws the stake
-        await zap.withdrawStake(vault.address);
+        await zap.withdrawStake();
 
         // Gets the staker info after stake withdrawal
         // Returns an array of hexStrings
@@ -469,7 +470,7 @@ describe("Main Miner Functions", () => {
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
         // Stake deposit
-        await zap.depositStake(vault.address);
+        await zap.depositStake();
 
         // Returns an array containing the staker status and timestamp
         // The array values are returned as hexStrings
@@ -506,11 +507,11 @@ describe("Main Miner Functions", () => {
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
         // Stakes 500k Zap to initiate a miner
-        await zap.depositStake(vault.address);
+        await zap.depositStake();
 
         // Expect withdrawStake to fail and revert the transaction
         // Can not withdrawStake wihthout submitting a request
-        await expect(zap.withdrawStake(vault.address)).to.be.reverted;
+        await expect(zap.withdrawStake()).to.be.reverted;
 
     })
 
