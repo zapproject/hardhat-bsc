@@ -24,6 +24,7 @@ import './tasks/dispatchCoinGecko';
 import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
+import './tasks/mine';
 
 import { getBSCGasPrice } from './scripts/getGasPrice'
 const fs = require('fs');  // required for reading BSC gas price
