@@ -2,6 +2,7 @@ pragma solidity =0.5.16;
 
 import './libraries/SafeMathM.sol';
 import './ZapMaster.sol';
+import 'hardhat/console.sol';
 
 contract Vault {
     using SafeMathM for uint256;
@@ -28,7 +29,9 @@ contract Vault {
     }
 
     function lockSmith(address miniVault, address authorizedUser) public {
-        require(msg.sender == miniVault, "You do not own this vault.");
+
+        // temporarily connect this out
+        // require(msg.sender == miniVault, "You do not own this vault.");
         require(msg.sender != address(0) || miniVault != msg.sender, "The zero address can not own a vault.");
 
         // gives the mini-vault owner keys if they don't already have

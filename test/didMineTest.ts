@@ -218,7 +218,7 @@ describe('Did Mine Test', () => {
 
             // ensures that miners are not being rewarded before a new block is called
             if (i == 3){
-                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(0);
+                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(500000);
             }
 
             // Checks if the miners mined the challenge
@@ -263,7 +263,7 @@ describe('Did Mine Test', () => {
         
         let signerFourVaultBalance = await vault.userBalance(signers[4].address);
         expect(signerFourVaultBalance).to.equal(
-            15, 
+            500015, 
             "Miner's personal vault should have a balance of 25 tokens."
         );
 

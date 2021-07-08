@@ -8,6 +8,7 @@ import './libraries/ZapLibrary.sol';
 import './libraries/ZapTransfer.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System
@@ -333,7 +334,12 @@ contract Zap {
 
         token.approve(address(this), stakeAmount);
         // console.log("stakeAmount: ", stakeAmount);
-        token.transferFrom(msg.sender, vaultAddress, stakeAmount);
+        
+        // vault.lockSmith(msg.sender, address(this));
+        // vault locksmith to zap not zapmaster
+        vault.lockSmith(msg.sender, zap.addressVars[keccak256('zapContract')]);
+
+        transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
 
     }
