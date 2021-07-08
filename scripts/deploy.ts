@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { Vault } from "../typechain/Vault";
 import { ZapToken } from "../typechain/ZapToken";
+import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
 const hre = require("hardhat")
 
@@ -163,16 +164,16 @@ async function main() {
   console.log("FAUCET BALANCE", parseInt(faucetBal._hex));
 
 
-  /**
-   * MINERS
-   */
-//Vault contract deploy
+    /**
+     * MINERS
+     */
+  //Vault contract deploy
 
-const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
-const ZapGettersLibrary = await zapGettersLibrary.deploy();
-await ZapGettersLibrary.deployed();
-console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
-console.log("deployed ZapGettersLibrary")
+  const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
+  const ZapGettersLibrary = await zapGettersLibrary.deploy();
+  await ZapGettersLibrary.deployed();
+  console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
+  console.log("deployed ZapGettersLibrary")
 
   const zapTransfer = await ethers.getContractFactory("ZapTransfer", signers[0]);
   const ZapTransfer = await zapTransfer.deploy();
@@ -249,7 +250,14 @@ console.log("deployed ZapGettersLibrary")
   console.log("deployed Vault")
 
   await ZapMaster.changeVaultContract(Vault.address)
+
+  for (let i = 0; i<signers.length; i++){
+    await Vault.connect(signers[i]).lockSmith(signers[i].address, ZapMaster.address);
+  }
+
+
 }
+
 
 main()
   .then(() =>
