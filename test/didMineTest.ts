@@ -295,42 +295,7 @@ describe('Did Mine Test', () => {
             zap = zap.connect(signers[i]);
 
             // Each Miner will submit a mining solution
-            // Expects the "NonceSubmitted" event to emit
-            await expect(zap.submitMiningSolution('nonce', 1, 1200)).to.emit(zap, 'NonceSubmitted')
-
-            // interface for events
-            const nonceSubmittedIface: any = new ethers.utils.Interface([
-                zap.interface.events['NonceSubmitted(address,string,uint256,uint256,bytes32)']
-            ]);
-
-            // nonceSubmitted event filter
-            let nonceSubmittedFilter = zap.filters.NonceSubmitted(null, null, null, null, null);
-
-            // event listener for the NonceSubmitted
-            ethers.provider.on(nonceSubmittedFilter, (log) => {
-
-                const event = nonceSubmittedIface.parseLog(log);
-
-                // Expects the event name to equal NonceSubmitted
-                expect(event.name).to.equal('NonceSubmitted');
-
-                // Expects the nonce arg returned from the event to equal the nonce submitted
-                expect(event.args[1]).to.equal('nonce');
-
-                // Expects the requestId arg returned from the event to equal the requestId mined
-                // ethers.utils.hexlify(1) = 0x01
-                // 0x01 is the requestId value returned from the event
-                expect(event.args[2]).to.equal(ethers.utils.hexlify(1));
-
-                // Expects the value arg returned from the event to equal the value submitted
-                // ethers.utils.hexlify(1200) = 0x04b0
-                // 0x04b0 is the value returned from the event
-                expect(event.args[3]).to.equal(ethers.utils.hexlify(1200));
-
-                // Expects the currentChallenge arg returned from the event to equal the challenge mined
-                expect(event.args[4]).to.equal(newCurrentVars[0])
-
-            });
+            await zap.submitMiningSolution('nonce', 1, 1200)
 
             // ensures that miners are not being rewarded before a new block is called
             if (i == 3) {
