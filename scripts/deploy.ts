@@ -172,62 +172,62 @@ async function main() {
 
     const zapTokenBSCAddress = "0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8"
 
-    const zapGettersLibrary = await ethers.getContractFactory(
-        "ZapGettersLibrary",
-        signers[0]
-    );
-    const ZapGettersLibrary = await zapGettersLibrary.deploy();
-    await ZapGettersLibrary.deployed();
-    console.log("ZapGettersLibary Address:", ZapGettersLibrary.address);
-    console.log("deployed ZapGettersLibrary");
+    // const zapGettersLibrary = await ethers.getContractFactory(
+    //     "ZapGettersLibrary",
+    //     signers[0]
+    // );
+    // const ZapGettersLibrary = await zapGettersLibrary.deploy();
+    // await ZapGettersLibrary.deployed();
+    // console.log("ZapGettersLibary Address:", ZapGettersLibrary.address);
+    // console.log("deployed ZapGettersLibrary");
 
-    const zapTransfer = await ethers.getContractFactory(
-        "ZapTransfer",
-        signers[0]
-    );
-    const ZapTransfer = await zapTransfer.deploy();
-    console.log("ZapTransfer Address:", ZapTransfer.address);
-    console.log("deployed ZapTransfer");
+    // const zapTransfer = await ethers.getContractFactory(
+    //     "ZapTransfer",
+    //     signers[0]
+    // );
+    // const ZapTransfer = await zapTransfer.deploy();
+    // console.log("ZapTransfer Address:", ZapTransfer.address);
+    // console.log("deployed ZapTransfer");
 
-    const zapDispute = await ethers.getContractFactory("ZapDispute", {
-        libraries: {
-            ZapTransfer: ZapTransfer.address,
-        },
-        signer: signers[0],
-    });
-    const ZapDispute = await zapDispute.deploy();
-    await ZapDispute.deployed();
-    console.log("ZapDispute Address:", ZapDispute.address);
-    console.log("Deployed ZapDispute");
+    // const zapDispute = await ethers.getContractFactory("ZapDispute", {
+    //     libraries: {
+    //         ZapTransfer: ZapTransfer.address,
+    //     },
+    //     signer: signers[0],
+    // });
+    // const ZapDispute = await zapDispute.deploy();
+    // await ZapDispute.deployed();
+    // console.log("ZapDispute Address:", ZapDispute.address);
+    // console.log("Deployed ZapDispute");
 
-    const zapStake = await ethers.getContractFactory("ZapStake", {
-        libraries: {
-            ZapTransfer: ZapTransfer.address,
-            ZapDispute: ZapDispute.address,
-        },
-        signer: signers[0],
-    });
-    const ZapStake = await zapStake.deploy();
-    await ZapStake.deployed();
-    console.log("ZapStake Address:", ZapStake.address);
-    console.log("Deployed ZapStake");
+    // const zapStake = await ethers.getContractFactory("ZapStake", {
+    //     libraries: {
+    //         ZapTransfer: ZapTransfer.address,
+    //         ZapDispute: ZapDispute.address,
+    //     },
+    //     signer: signers[0],
+    // });
+    // const ZapStake = await zapStake.deploy();
+    // await ZapStake.deployed();
+    // console.log("ZapStake Address:", ZapStake.address);
+    // console.log("Deployed ZapStake");
 
-    const zapLibrary = await ethers.getContractFactory("ZapLibrary", {
-        libraries: {
-            ZapTransfer: ZapTransfer.address,
-        },
-        signer: signers[0],
-    });
-    const ZapLibrary = await zapLibrary.deploy();
-    await ZapLibrary.deployed();
-    console.log("ZapLibrary Address:", ZapLibrary.address);
-    console.log("Deployed ZapLibrary");
+    // const zapLibrary = await ethers.getContractFactory("ZapLibrary", {
+    //     libraries: {
+    //         ZapTransfer: ZapTransfer.address,
+    //     },
+    //     signer: signers[0],
+    // });
+    // const ZapLibrary = await zapLibrary.deploy();
+    // await ZapLibrary.deployed();
+    // console.log("ZapLibrary Address:", ZapLibrary.address);
+    // console.log("Deployed ZapLibrary");
 
     const zap = await ethers.getContractFactory("Zap", {
         libraries: {
-            ZapStake: ZapStake.address,
-            ZapDispute: ZapDispute.address,
-            ZapLibrary: ZapLibrary.address,
+            ZapStake: "0x00cf02aB915A9026C2328B07E9E45A854CCb28fd",
+            ZapDispute: "0xF23937335c0794ea9920aC06c0f7947407919718",
+            ZapLibrary: "0x5896c4024de2DA768433123d442d8Ff2C1Ec694B",
         },
         signer: signers[0],
     });
@@ -239,8 +239,8 @@ async function main() {
 
     const zapMaster = await ethers.getContractFactory("ZapMaster", {
         libraries: {
-            ZapTransfer: ZapTransfer.address,
-            ZapStake: ZapStake.address,
+            ZapTransfer: "0xAd6f4151ef0c7D49fb40CDd6e7d3Ed8977543080",
+            ZapStake: "0x00cf02aB915A9026C2328B07E9E45A854CCb28fd",
         },
         signer: signers[0],
     });

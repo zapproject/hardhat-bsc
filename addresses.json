@@ -32,7 +32,7 @@
     },
     {
         "name": "Zap",
-        "address": "0xaa27a01686DD86ce29e9e400d9Ef910F73aF111f",
+        "address": "0x4646939E9336139b16213B06EaCbA0a53b999f94",
         "arguments": [
             "0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8"
         ],
@@ -44,11 +44,13 @@
     },
     {
         "name": "ZapMaster",
-        "address": "0x54712D29461647b0080eB5C8BB75b036240ACaDF",
-        "arguments": ["0xaa27a01686DD86ce29e9e400d9Ef910F73aF111f", "0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8"],
+        "address": "0xe623305CC15792f4e3E4Cd8880B5B9D665976df5",
+        "arguments": ["0x4646939E9336139b16213B06EaCbA0a53b999f94", "0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8"],
         "libraries": {
             "ZapTransfer": "0xAd6f4151ef0c7D49fb40CDd6e7d3Ed8977543080",
             "ZapStake": "0x00cf02aB915A9026C2328B07E9E45A854CCb28fd"
         }
     }
 ]
+
+
