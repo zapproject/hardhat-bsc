@@ -139,14 +139,15 @@ library ZapLibrary {
             self.uintVars[keccak256('currentTotalTips')] /
             5;
 
-        for (i = 0; i < 5; i++) {
-            ZapTransfer.doTransfer(
-                self,
-                address(this),
-                a[i].miner,
-                baseReward + self.uintVars[keccak256('currentTotalTips')] / 5
-            );
-        }
+        // this transfer is being done in Zap.sol to the vault
+        // for (i = 0; i < 5; i++) {
+        //     ZapTransfer.doTransfer(
+        //         self,
+        //         address(this),
+        //         a[i].miner,
+        //         baseReward + self.uintVars[keccak256('currentTotalTips')] / 5
+        //     );
+        // }
         emit NewValue(
             _requestId,
             self.uintVars[keccak256('timeOfLastNewValue')],
@@ -158,7 +159,7 @@ library ZapLibrary {
 
         //update the total supply
         // self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 - (self.uintVars[keccak256("currentTotalTips")]);
-        self.uintVars[keccak256('total_supply')] += 275;
+        self.uintVars[keccak256('total_supply')] += 275e17;
 
         //pay the dev-share
         ZapTransfer.doTransfer(

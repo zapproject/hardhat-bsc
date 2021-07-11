@@ -353,10 +353,13 @@ contract Zap {
     function withdrawStake() external {
         zap.withdrawStake();
 
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
         token.transferFrom(
             zap.addressVars[keccak256('_vault')],
             msg.sender,
-            zap.uintVars[keccak256('stakeAmount')]
+            vault.userBalance(msg.sender);
         );
     }
 
