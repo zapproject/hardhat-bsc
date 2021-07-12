@@ -159,7 +159,7 @@ library ZapLibrary {
 
         //update the total supply
         // self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 - (self.uintVars[keccak256("currentTotalTips")]);
-        self.uintVars[keccak256('total_supply')] += 275e17;
+        self.uintVars[keccak256('total_supply')] += 275;
 
         //pay the dev-share
         ZapTransfer.doTransfer(
