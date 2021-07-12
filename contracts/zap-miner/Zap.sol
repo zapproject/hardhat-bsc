@@ -55,7 +55,7 @@ contract Zap {
         address indexed _spender,
         uint256 _value
     ); //ERC20 Approval event
-    event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
+    // event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
     event OwnershipTransferred(
         address indexed previousOwner,
         address indexed newOwner
@@ -359,7 +359,7 @@ contract Zap {
         token.transferFrom(
             zap.addressVars[keccak256('_vault')],
             msg.sender,
-            vault.userBalance(msg.sender);
+            vault.userBalance(msg.sender)
         );
     }
 
@@ -449,9 +449,9 @@ contract Zap {
         uint256 previousBalance = balanceOf(_from); // actual token balance
         previousBalance = balanceOf(_to); // actual token balance
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        // transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-        token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-        emit Transfer(_from, _to, _amount);
+        transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
+        // token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
+        // emit Transfer(_from, _to, _amount);
     }
 
     /**
