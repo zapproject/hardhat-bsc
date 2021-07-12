@@ -55,7 +55,6 @@ contract Zap {
         address indexed _spender,
         uint256 _value
     ); //ERC20 Approval event
-    // event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
     event OwnershipTransferred(
         address indexed previousOwner,
         address indexed newOwner
@@ -332,7 +331,6 @@ contract Zap {
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
-        // console.log("stakeAmount: ", stakeAmount);
         token.transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
 
@@ -380,7 +378,6 @@ contract Zap {
      * @return true if transfer is successful
      */
     function transfer(address _to, uint256 _amount) public returns (bool) {
-        // return zap.transfer(_to,_amount);
         uint256 previousBalance = balanceOf(msg.sender);
         updateBalanceAtNow(msg.sender, previousBalance - _amount);
         previousBalance = balanceOf(_to);
@@ -402,7 +399,6 @@ contract Zap {
         address _to,
         uint256 _amount
     ) public returns (bool) {
-        // return zap.transferFrom(_from,_to,_amount);
         uint256 previousBalance = balanceOf(_from);
         updateBalanceAtNow(_from, previousBalance - _amount);
         previousBalance = balanceOf(_to);
@@ -451,7 +447,6 @@ contract Zap {
         require(previousBalance + _amount >= previousBalance); // Check for overflow
         transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
         // token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-        // emit Transfer(_from, _to, _amount);
     }
 
     /**

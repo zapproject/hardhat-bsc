@@ -16,7 +16,6 @@ library ZapTransfer {
         address indexed _spender,
         uint256 _value
     ); //ERC20 Approval event
-    event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
 
     /*Functions*/
 
@@ -54,7 +53,6 @@ library ZapTransfer {
         require(previousBalance + _amount >= previousBalance); // Check for overflow
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         previousBalance = balanceOfAt(self, _to, block.number);
-        emit Transfer(_from, _to, _amount);
     }
 
     /**
@@ -122,7 +120,6 @@ library ZapTransfer {
             //Removes the stakeAmount from balance if the _user is staked
             if (
                 balanceOfAt(self, _user, block.number).sub(_amount) >= 0
-                // .sub(self.uintVars[keccak256('stakeAmount')])
             ) {
                 return true;
             }
