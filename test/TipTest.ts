@@ -48,7 +48,7 @@ let vault: Vault;
 
 let signers: any;
 
-describe("Test ZapDispute and it's dispute functions", () => {
+describe("Test adding tip to a request.", () => {
   beforeEach(async () => {
     signers = await ethers.getSigners();
 

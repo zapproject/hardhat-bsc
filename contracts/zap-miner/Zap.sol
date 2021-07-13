@@ -55,7 +55,6 @@ contract Zap {
         address indexed _spender,
         uint256 _value
     ); //ERC20 Approval event
-    event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
     event OwnershipTransferred(
         address indexed previousOwner,
         address indexed newOwner
@@ -69,8 +68,6 @@ contract Zap {
 
     ZapStorage.ZapStorageStruct zap;
     ZapTokenBSC public token;
-    // Vault public vault;
-    // address public vaultAddress;
 
     address payable public owner;
 
@@ -304,22 +301,17 @@ contract Zap {
 
         ZapStorage.Details[5] memory a = zap.currentMiners;
 
-        address vaultAddress = zap.addressVars[keccak256("_vault")];
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
 
         uint256 minerReward = zap.uintVars[keccak256("currentMinerReward")];
 
-        if (minerReward != 0) {
-            for (uint256 i = 0; i < 5; i++) {
-                if (a[i].miner != address(0)) {
-                    token.approve(address(this), minerReward);
-                    token.transferFrom(
-                        address(this),
-                        address(vault),
-                        minerReward
-                    );
-                    vault.deposit(a[i].miner, minerReward);
-                }
+        for (uint256 i = 0; i < 5; i++) {
+            if (a[i].miner != address(0)){
+                token.approve(address(this), minerReward);
+                token.transferFrom(address(this), address(vault), minerReward);
+                vault.deposit(a[i].miner, minerReward);
             }
         }
 
@@ -336,7 +328,8 @@ contract Zap {
         zap.depositStake();
 
         // EXPERIMENTAL, needs to be tested
-        address vaultAddress = zap.addressVars[keccak256("_vault")];
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
@@ -359,10 +352,14 @@ contract Zap {
     function withdrawStake() external {
         zap.withdrawStake();
 
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
+        Vault vault = Vault(vaultAddress);
+
         token.transferFrom(
-            zap.addressVars[keccak256("_vault")],
+            vaultAddress,
             msg.sender,
-            zap.uintVars[keccak256("stakeAmount")]
+            vault.userBalance(msg.sender)
         );
     }
 
@@ -452,10 +449,8 @@ contract Zap {
         uint256 previousBalance = balanceOf(_from); // actual token balance
         previousBalance = balanceOf(_to); // actual token balance
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        // transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-        token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-        previousBalance = balanceOf(_from);
-        emit Transfer(_from, _to, _amount);
+        transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
+        // token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
     }
 
     /**
@@ -676,7 +671,8 @@ contract Zap {
      * Increase the approval of ZapMaster for the Vault
      */
     function increaseVaultApproval() public returns (bool) {
-        address vaultAddress = zap.addressVars[keccak256("_vault")];
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
     }

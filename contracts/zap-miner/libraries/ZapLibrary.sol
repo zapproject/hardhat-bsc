@@ -139,14 +139,14 @@ library ZapLibrary {
             self.uintVars[keccak256('currentTotalTips')] /
             5;
 
-        for (i = 0; i < 5; i++) {
-            ZapTransfer.doTransfer(
-                self,
-                address(this),
-                a[i].miner,
-                baseReward + self.uintVars[keccak256('currentTotalTips')] / 5
-            );
-        }
+        // for (i = 0; i < 5; i++) {
+        //     ZapTransfer.doTransfer(
+        //         self,
+        //         address(this),
+        //         a[i].miner,
+        //         baseReward + self.uintVars[keccak256('currentTotalTips')] / 5
+        //     );
+        // }
         emit NewValue(
             _requestId,
             self.uintVars[keccak256('timeOfLastNewValue')],
