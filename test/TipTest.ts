@@ -166,47 +166,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
       expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 500000);
     }
 
-    // let symbol: string = 'BTC/USD';
-    // // Request string
-    // const api: string =
-    //   'json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4';
-
-    // await zapTokenBsc.approve(zap.address, 5000000);
-    // zap = zap.connect(signers[0]);
-    // await zap.requestData(api, symbol, 10000, 52);
-    
-    // zap = zap.connect(signers[0]);
-    // await zap.addTip(1, 13);
-    
-
-    // // have each miner submit a solution
-    // for (var i = 1; i <= 5; i++) {
-    //   // Connects address 1 as the signer
-    //   zap = zap.connect(signers[i]);
-
-    //   /*
-    //     Gets the data properties for the current request
-    //     bytes32 _challenge,
-    //     uint256[5] memory _requestIds,
-    //     uint256 _difficutly,
-    //     uint256 _tip
-    //   */
-    //   const newCurrentVars: any = await zap.getNewCurrentVariables();
-
-    //   // Each Miner will submit a mining solution
-    //   const mining = await zap.submitMiningSolution('nonce', 1, 1200);
-    //   //   const res = await mining.wait();
-    //   //   console.log(res)
-
-    //   // Checks if the miners mined the challenge
-    //   // true = Miner did mine the challenge
-    //   // false = Miner did not mine the challenge
-    //   const didMineStatus: boolean = await zapMaster.didMine(
-    //     newCurrentVars[0],
-    //     signers[i].address
-    //   );
-    //   expect(didMineStatus).to.be.true;
-    // }
   });
 
   it('Should be able to add tip when requesting data.', async () => {
