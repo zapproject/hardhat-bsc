@@ -295,7 +295,7 @@ contract Zap {
         ZapStorage.Details[5] memory a = zap.currentMiners;
 
         address vaultAddress = zap.addressVars[keccak256('_vault')];
-        require (minerReward != address(0));
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
 
         uint256 minerReward = zap.uintVars[keccak256('currentMinerReward')];
@@ -547,7 +547,6 @@ contract Zap {
      */
     function addTip(uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0);
-        require(_tip <= balanceOf(msg.sender));
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
