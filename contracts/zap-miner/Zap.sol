@@ -295,17 +295,16 @@ contract Zap {
         ZapStorage.Details[5] memory a = zap.currentMiners;
 
         address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require (minerReward != address(0));
         Vault vault = Vault(vaultAddress);
 
         uint256 minerReward = zap.uintVars[keccak256('currentMinerReward')];
 
-        if (minerReward != 0){
-            for (uint256 i = 0; i < 5; i++) {
-                if (a[i].miner != address(0)){
-                    token.approve(address(this), minerReward);
-                    token.transferFrom(address(this), address(vault), minerReward);
-                    vault.deposit(a[i].miner, minerReward);
-                }
+        for (uint256 i = 0; i < 5; i++) {
+            if (a[i].miner != address(0)){
+                token.approve(address(this), minerReward);
+                token.transferFrom(address(this), address(vault), minerReward);
+                vault.deposit(a[i].miner, minerReward);
             }
         }
 
@@ -326,6 +325,7 @@ contract Zap {
         
         // EXPERIMENTAL, needs to be tested
         address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
@@ -351,6 +351,7 @@ contract Zap {
         zap.withdrawStake();
 
         address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
 
         token.transferFrom(
@@ -659,6 +660,7 @@ contract Zap {
      */
     function increaseVaultApproval() public returns (bool) {
         address vaultAddress = zap.addressVars[keccak256('_vault')];
+        require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
     }
