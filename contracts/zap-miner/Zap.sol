@@ -547,6 +547,7 @@ contract Zap {
      */
     function addTip(uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0);
+        require(_tip <= balanceOf(msg.sender));
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
