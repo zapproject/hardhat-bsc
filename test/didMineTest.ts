@@ -173,11 +173,14 @@ describe('Did Mine Test', () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
+        let balance = await zapTokenBsc.connect(signers[1]).balanceOf(signers[1].address);
         // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
 
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
+
+            
 
             await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
 
@@ -364,5 +367,8 @@ describe('Did Mine Test', () => {
         diff =
             parseInt(previousZapMasterBal._hex) - parseInt(currentZapMasterBal._hex);
         expect(diff).to.equal(payOutAmount);
+
+        let bal = await zapTokenBsc.balanceOf(signers[1].address);
+        expect(bal > balance);
     });
 });
