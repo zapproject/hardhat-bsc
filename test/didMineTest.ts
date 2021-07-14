@@ -216,38 +216,39 @@ describe('Did Mine Test', () => {
 
         // Resolves the transaction receipt
         const request_1_Receipt: any = await request_1.wait();
+        console.log(request_1_Receipt);
 
-        expect(request_1_Receipt.events[3].event).to.equal('DataRequested');
+        expect(request_1_Receipt.events[2].event).to.equal('DataRequested');
 
-        expect(request_1_Receipt.events[3].args[0]).to.equal(owner);
+        expect(request_1_Receipt.events[2].args[0]).to.equal(owner);
 
-        expect(request_1_Receipt.events[3].args[1]).to.equal(api);
+        expect(request_1_Receipt.events[2].args[1]).to.equal(api);
 
-        expect(request_1_Receipt.events[3].args[2]).to.equal("USD");
+        expect(request_1_Receipt.events[2].args[2]).to.equal("USD");
 
-        expect(request_1_Receipt.events[3].args[3]).to.equal(ethers.utils.hexlify(1000));
+        expect(request_1_Receipt.events[2].args[3]).to.equal(ethers.utils.hexlify(1000));
 
-        expect(request_1_Receipt.events[3].args[4]).to.equal(ethers.utils.hexlify(1));
+        expect(request_1_Receipt.events[2].args[4]).to.equal(ethers.utils.hexlify(1));
 
-        expect(request_1_Receipt.events[3].args[5]).to.equal(ethers.utils.hexlify(52));
+        expect(request_1_Receipt.events[2].args[5]).to.equal(ethers.utils.hexlify(52));
 
         // Expect the event name to equal NewChallenge
-        expect(request_1_Receipt.events[2].event).to.equal('NewChallenge');
+        expect(request_1_Receipt.events[1].event).to.equal('NewChallenge');
 
         // Expect NewChallenge _currentChallenge property to equal the returned challenge
-        expect(request_1_Receipt.events[2].args[0]).to.equal(newCurrentVars[0])
+        expect(request_1_Receipt.events[1].args[0]).to.equal(newCurrentVars[0])
 
         // Expect the NewChallenge _currentRequestId property to equal 1
-        expect(request_1_Receipt.events[2].args[1]).to.equal(ethers.utils.hexlify(1))
+        expect(request_1_Receipt.events[1].args[1]).to.equal(ethers.utils.hexlify(1))
 
         /// Expect the NewChallenge _difficulty property to equal 1
-        expect(request_1_Receipt.events[2].args[2]).to.equal(ethers.utils.hexlify(1))
+        expect(request_1_Receipt.events[1].args[2]).to.equal(ethers.utils.hexlify(1))
 
         // Expect the NewChallenge _multiplier property to equal 1
-        expect(request_1_Receipt.events[2].args[3]).to.equal(ethers.utils.hexlify(1000))
+        expect(request_1_Receipt.events[1].args[3]).to.equal(ethers.utils.hexlify(1000))
 
         // Expect the NewChallenge _query property to equal the api variable
-        expect(request_1_Receipt.events[2].args[4]).to.equal(api)
+        expect(request_1_Receipt.events[1].args[4]).to.equal(api)
 
         // Expect the new NewChallenge _totalTips property to equal 52
         expect(request_1_Receipt.events[2].args[5]).to.equal(52)
@@ -257,33 +258,33 @@ describe('Did Mine Test', () => {
         // Resolves the transaction receipt
         const request_2_Receipt: any = await request_2.wait();
 
-        expect(request_2_Receipt.events[2].event).to.equal('NewRequestOnDeck');
+        expect(request_2_Receipt.events[1].event).to.equal('NewRequestOnDeck');
 
-        expect(request_2_Receipt.events[2].args[0]).to.equal(ethers.utils.hexlify(1));
+        expect(request_2_Receipt.events[1].args[0]).to.equal(ethers.utils.hexlify(1));
 
-        expect(request_2_Receipt.events[2].args[1]).to.equal(api);
+        expect(request_2_Receipt.events[1].args[1]).to.equal(api);
 
-        expect(request_2_Receipt.events[2].args[3]).to.equal(ethers.utils.hexlify(52));
+        expect(request_2_Receipt.events[1].args[3]).to.equal(ethers.utils.hexlify(52));
 
 
         // Expect the event name to equal TipAdded
-        expect(request_2_Receipt.events[3].event).to.equal('TipAdded')
+        expect(request_2_Receipt.events[2].event).to.equal('TipAdded')
 
         // Expect the TipAdded _sender property to equal signers[0] address
-        expect(request_2_Receipt.events[3].args[0]).to.equal(owner)
+        expect(request_2_Receipt.events[2].args[0]).to.equal(owner)
 
         // Expect the TipAdded _requestId property to equal 1
-        expect(request_2_Receipt.events[3].args[1]).to.equal(
+        expect(request_2_Receipt.events[2].args[1]).to.equal(
             ethers.utils.hexlify(1)
         )
 
         // Expect the TipAdded _tip property to equal 52
-        expect(request_2_Receipt.events[3].args[2]).to.equal(
+        expect(request_2_Receipt.events[2].args[2]).to.equal(
             ethers.utils.hexlify(52)
         )
 
         // Expect the TipAdded _totalTips property to equal 52
-        expect(request_2_Receipt.events[3].args[3]).to.equal(
+        expect(request_2_Receipt.events[2].args[3]).to.equal(
             ethers.utils.hexlify(52)
         )
 
@@ -340,10 +341,10 @@ describe('Did Mine Test', () => {
         let diff =
             parseInt(currentFifthMinerBal._hex) - parseInt(previouFifthMinerBal._hex);
 
-        expect(diff).to.equal(
-            rewardAmount,
-            'Miner should have been tipped 15 tokens.'
-        );
+        // expect(diff).to.equal(
+        //     rewardAmount,
+        //     'Miner should have been tipped 15 tokens.'
+        // );
 
         let signerFourVaultBalance = await vault.userBalance(signers[4].address);
         expect(signerFourVaultBalance).to.equal(
@@ -361,8 +362,12 @@ describe('Did Mine Test', () => {
             currentBlock
         );
 
-        // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
-        let payOutAmount = 77;
+        let currentZapMasterWalletBal = await zapTokenBsc.balanceOf(zapMaster.address);
+
+        // // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
+        // let payOutAmount = 77;
+        // reward amount goes to vault. only 2 tokens are paid out.
+        let payOutAmount = 2;
 
         diff =
             parseInt(previousZapMasterBal._hex) - parseInt(currentZapMasterBal._hex);
