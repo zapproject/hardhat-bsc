@@ -198,8 +198,8 @@ contract Zap {
         (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         approve(_from, _disputeFee);
-        // token.transferFrom(_from, _to, _disputeFee);
-        doTransfer(_from, _to, _disputeFee);
+        token.transferFrom(_from, _to, _disputeFee);
+        // doTransfer(_from, _to, _disputeFee);
 
     }
 
@@ -209,6 +209,7 @@ contract Zap {
      */
     function proposeFork(address _propNewZapAddress) external {
         zap.proposeFork(_propNewZapAddress);
+        token.transferFrom(msg.sender, address(this), zap.uintVars[keccak256('disputeFee')]);
     }
 
     /**
@@ -263,7 +264,8 @@ contract Zap {
 
             //If the tip > 0 it tranfers the tip to this contract
             if (_tip > 0) {
-                doTransfer(msg.sender, address(this), _tip);
+                // doTransfer(msg.sender, address(this), _tip);
+                token.transferFrom(msg.sender, address(this), _tip);
             }
             updateOnDeck(_requestId, _tip);
             emit DataRequested(
@@ -548,7 +550,8 @@ contract Zap {
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
-            doTransfer(msg.sender, address(this), _tip);
+            // doTransfer(msg.sender, address(this), _tip);
+            token.transferFrom(msg.sender, address(this), _tip);
         }
 
         //Update the information for the request that should be mined next based on the tip submitted
