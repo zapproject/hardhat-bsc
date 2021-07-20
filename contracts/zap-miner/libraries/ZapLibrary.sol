@@ -162,12 +162,12 @@ library ZapLibrary {
         self.uintVars[keccak256('total_supply')] += 275;
 
         //pay the dev-share
-        ZapTransfer.doTransfer(
-            self,
-            address(this),
-            self.addressVars[keccak256('_owner')],
-            self.uintVars[keccak256('devShare')]
-        ); //The ten there is the devshare
+        // ZapTransfer.doTransfer(
+        //     self,
+        //     address(this),
+        //     self.addressVars[keccak256('_owner')],
+        //     self.uintVars[keccak256('devShare')]
+        // ); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
             self.uintVars[keccak256('timeOfLastNewValue')]
