@@ -186,7 +186,8 @@ contract Zap {
      * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
      */
     function vote(uint256 _disputeId, bool _supportsDispute) external {
-        zap.vote(_disputeId, _supportsDispute);
+        uint256 voteWeight = token.balanceOf(msg.sender);
+        zap.vote(_disputeId, _supportsDispute, voteWeight);
     }
 
     /**

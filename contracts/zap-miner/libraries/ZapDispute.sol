@@ -40,16 +40,17 @@ library ZapDispute {
     function vote(
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId,
-        bool _supportsDispute
+        bool _supportsDispute,
+        uint256 voteWeight
     ) public {
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
 
         //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
-        uint256 voteWeight = ZapTransfer.balanceOfAt(
-            self,
-            msg.sender,
-            disp.disputeUintVars[keccak256('blockNumber')]
-        );
+        // uint256 voteWeight = ZapTransfer.balanceOfAt(
+        //     self,
+        //     msg.sender,
+        //     disp.disputeUintVars[keccak256('blockNumber')]
+        // );
 
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true);
