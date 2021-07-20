@@ -71,9 +71,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
       {
-        libraries: {
-          ZapTransfer: zapTransfer.address
-        },
         signer: signers[0]
       }
     );
@@ -84,9 +81,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
     const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
       'ZapDispute',
       {
-        libraries: {
-          ZapTransfer: zapTransfer.address
-        },
         signer: signers[0]
       }
     );
@@ -316,11 +310,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let blockNumber = await ethers.provider.getBlockNumber();
 
-    let reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    let reportedMiner = await vault.userBalance(disp[4]);
     let reportedMiner2 = await zapMaster.balanceOf(disp[4]);
 
 
-    let reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    let reportingMiner = await vault.userBalance(disp[5]);
     let reportingMiner2 = await zapMaster.balanceOf(disp[5]);
 
     // Increase the evm time by 8 days
@@ -340,11 +334,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     blockNumber = await ethers.provider.getBlockNumber();
 
-    reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
-
-    reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
-
-    reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+    reporting_miner_wallet_bal = await zapTokenBsc.balanceOf(disp[5]);
 
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     blockNumber = await ethers.provider.getBlockNumber();
@@ -352,14 +342,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
 
-    // expect balance of loser to be 500k (original stake amount) + 15(reward for mining) - 500k(lose staked tokens) = 15.
-    expect(reportedMiner).to.equal(15);
-
     // expect balance of winner's wallet to be 600K: 600k(leftover bal. after staking) - 427500 (pay dispute fee) + 427500 (win back dispute fee)  = 600K.
     expect(reporting_miner_wallet_bal).to.equal(600000);
 
-    // expect balance of winner to be 500k(original stake amount) + 15(reward for mining ) + 500K(take losers stake amount) = 1000015.
-    expect(reportingMiner).to.equal(1000015);
   });
   it('Should be able to vote against (false) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
@@ -393,7 +378,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     disputeId = await zapMaster.getUintVar(ddisputecount);
     let disp = await zapMaster.getAllDisputeVars(disputeId);
 
-    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+    let reporting_miner_wallet_bal = await zapTokenBsc.balanceOf(disp[5]);
 
     expect(reporting_miner_wallet_bal).to.equal(127500);
 
@@ -420,11 +405,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let blockNumber = await ethers.provider.getBlockNumber();
 
-    let reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
+    let reportedMiner = await zapTokenBsc.balanceOf(disp[4]);
 
     let reportedMiner2 = await zapMaster.balanceOf(disp[4]);
 
-    let reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
+    let reportingMiner = await zapTokenBsc.balanceOf(disp[5]);
 
     let reportingMiner2 = await zapMaster.balanceOf(disp[5]);
 
@@ -445,10 +430,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     blockNumber = await ethers.provider.getBlockNumber();
 
-    reportedMiner = await zap.getBalanceAt(disp[4], blockNumber);
-
-    reportingMiner = await zap.getBalanceAt(disp[5], blockNumber);
-
     let reported_miner_wallet_bal = await zapMaster.balanceOf(disp[4]);
 
     reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
@@ -459,15 +440,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
 
-    // 972515. expect balance of reported miner (winner) to be 500k (original stake amount) + 15(reward for mining) = 500015 since miner didn't lose stake amount to disputer.
-    expect(reportedMiner).to.equal(500015);
-
     // expect balance of loser's wallet to be 127500: 600k(leftover bal. after staking) - 427500 (pay dispute fee) = 127500 since reporter lost their fee to disputed miner.
     expect(reported_miner_wallet_bal).to.equal(1072500); //600K + 472500(dispute fee)
 
     expect(reporting_miner_wallet_bal).to.equal(127500); // 600k - 472500(dispute fee)
     // expect balance of loser to be 500k(original stake amount) + 15(reward for mining ) = 500015 for not winning the disputed miners stake.
 
-    expect(reportingMiner).to.equal(500015);
   });
 });
