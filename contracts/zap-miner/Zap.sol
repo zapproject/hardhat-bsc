@@ -315,6 +315,7 @@ contract Zap {
             }
 
             // Pay the devshare
+            token.approve(address(this), zap.uintVars[keccak256('devShare')]);
             token.transferFrom(
                 address(this),
                 zap.addressVars[keccak256('_owner')],
@@ -335,8 +336,7 @@ contract Zap {
                 stakeAmount
         );
         zap.depositStake();
-        
-        // EXPERIMENTAL, needs to be tested
+
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
@@ -667,8 +667,7 @@ contract Zap {
     /**
      * Increase the approval of ZapMaster for the Vault
      */
-    function increaseVaultApproval() public returns (bool) {
-        address vaultAddress = zap.addressVars[keccak256('_vault')];
+    function increaseVaultApproval(address vaultAddress) public returns (bool) {
         Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
     }
