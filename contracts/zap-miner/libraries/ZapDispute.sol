@@ -124,12 +124,12 @@ library ZapDispute {
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
-                ZapTransfer.doTransfer(
-                    self,
-                    disp.reportedMiner,
-                    disp.reportingParty,
-                    self.uintVars[keccak256('stakeAmount')]
-                );
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     disp.reportedMiner,
+                //     disp.reportingParty,
+                //     self.uintVars[keccak256('stakeAmount')]
+                // );
 
 
                 //Returns the dispute fee to the reporting party
@@ -227,12 +227,12 @@ library ZapDispute {
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
-        ZapTransfer.doTransfer(
-            self,
-            msg.sender,
-            address(this),
-            self.uintVars[keccak256('disputeFee')]
-        ); //This is the fork fee
+        // ZapTransfer.doTransfer(
+        //     self,
+        //     msg.sender,
+        //     address(this),
+        //     self.uintVars[keccak256('disputeFee')]
+        // ); //This is the fork fee
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
         self.disputeIdByDisputeHash[_hash] = disputeId;
