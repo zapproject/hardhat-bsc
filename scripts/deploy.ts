@@ -181,9 +181,6 @@ async function main() {
   console.log("deployed ZapTransfer")
 
   const zapDispute = await ethers.getContractFactory("ZapDispute", {
-    libraries: {
-      ZapTransfer: ZapTransfer.address,
-    },
     signer: signers[0]
   });
   const ZapDispute = await zapDispute.deploy();
@@ -193,7 +190,6 @@ async function main() {
 
   const zapStake = await ethers.getContractFactory("ZapStake", {
     libraries: {
-      ZapTransfer: ZapTransfer.address,
       ZapDispute: ZapDispute.address
     },
     signer: signers[0]
@@ -205,9 +201,6 @@ async function main() {
 
   const zapLibrary = await ethers.getContractFactory("ZapLibrary",
     {
-      libraries: {
-        ZapTransfer: ZapTransfer.address,
-      },
       signer: signers[0]
     });
   const ZapLibrary = await zapLibrary.deploy();
@@ -232,7 +225,6 @@ async function main() {
 
   const zapMaster = await ethers.getContractFactory("ZapMaster", {
     libraries: {
-      ZapTransfer: ZapTransfer.address,
       ZapStake: ZapStake.address
     },
     signer: signers[0]

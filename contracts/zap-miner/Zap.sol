@@ -5,15 +5,13 @@ import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
-import './libraries/ZapTransfer.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
 
 /**
  * @title Zap Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
- * The logic for this contract is in ZapLibrary.sol, ZapDispute.sol, ZapStake.sol,
- * and ZapTransfer.sol
+ * The logic for this contract is in ZapLibrary.sol, ZapDispute.sol and ZapStake.sol
  */
 contract Zap {
     event NewDispute(
@@ -119,12 +117,8 @@ contract Zap {
 
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
-        
-        doTransfer(
-            msg.sender,
-            address(this),
-            zap.uintVars[keccak256('disputeFee')]
-        );
+
+        transferFrom(msg.sender, address(this), zap.uintVars[keccak256('disputeFee')]);
 
         //Increase the dispute count by 1
         zap.uintVars[keccak256('disputeCount')] =
@@ -388,11 +382,6 @@ contract Zap {
      * @return true if transfer is successful
      */
     function transfer(address _to, uint256 _amount) public returns (bool) {
-        uint256 previousBalance = balanceOf(msg.sender);
-        updateBalanceAtNow(msg.sender, previousBalance - _amount);
-        previousBalance = balanceOf(_to);
-        require(previousBalance + _amount >= previousBalance); // Check for overflow
-        updateBalanceAtNow(_to, previousBalance + _amount);
         return token.transfer(_to, _amount);
     }
 
@@ -409,11 +398,6 @@ contract Zap {
         address _to,
         uint256 _amount
     ) public returns (bool) {
-        uint256 previousBalance = balanceOf(_from);
-        updateBalanceAtNow(_from, previousBalance - _amount);
-        previousBalance = balanceOf(_to);
-        require(previousBalance + _amount >= previousBalance); // Check for overflow
-        updateBalanceAtNow(_to, previousBalance + _amount);
         return token.transferFrom(_from, _to, _amount);
     }
 
@@ -432,116 +416,6 @@ contract Zap {
         )
     {
         return zap.getNewCurrentVariables();
-    }
-
-    /**
-        Migrated functions from ZapTransfer.sol
-     */
-
-    /**
-     * @dev Completes POWO transfers by updating the balances on the current block number
-     * @param _from address to transfer from
-     * @param _to addres to transfer to
-     * @param _amount to transfer
-     */
-    function doTransfer(
-        address _from,
-        address _to,
-        uint256 _amount
-    ) public {
-        require(_amount > 0);
-        require(_to != address(0));
-        require(allowedToTrade(_from, _amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
-        uint256 previousBalance = balanceOf(_from); // actual token balance
-        previousBalance = balanceOf(_to); // actual token balance
-        require(previousBalance + _amount >= previousBalance); // Check for overflow
-        transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-        // token.transferFrom(_from, _to, _amount); // do the actual transfer to ZapToken
-    }
-
-    /**
-     * @dev This function returns whether or not a given user is allowed to trade a given amount
-     * and removing the staked amount from their balance if they are staked
-     * @param _user address of user
-     * @param _amount to check if the user can spend
-     * @return true if they are allowed to spend the amount being checked
-     */
-    function allowedToTrade(address _user, uint256 _amount)
-        public
-        view
-        returns (bool)
-    {
-        // dont delete until we're production ready
-        // dont delete until we're production ready
-        // dont delete until we're production ready
-            if (zap.stakerDetails[_user].currentStatus > 0) {
-                //Removes the stakeAmount from balance if the _user is staked
-                if (
-                    balanceOf(_user)
-                    .sub(_amount) >= 0
-                    // .sub(zap.uintVars[keccak256('stakeAmount')]) //took this out since we're already taking the stake out of their wallet
-                ) {
-                    return true;
-                }
-            } else if (balanceOf(_user).sub(_amount) >= 0) {
-                return true;
-            }
-        // dont delete until production ready
-        // dont delete until production ready
-        // dont delete until production ready
-    }
-
-    /**
-     * @dev Updates balance for from and to on the current block number via doTransfer
-     * @param _value is the new balance
-     */
-    // remove checkpoints and pass in address _user to retrieve directly from storage
-    function updateBalanceAtNow(address _user, uint256 _value) public {
-        ZapStorage.Checkpoint[] storage checkpoints = zap.balances[_user];
-        if (
-            (checkpoints.length == 0) ||
-            (checkpoints[checkpoints.length - 1].fromBlock < block.number)
-        ) {
-            ZapStorage.Checkpoint storage newCheckPoint = checkpoints[
-                checkpoints.length++
-            ];
-            newCheckPoint.fromBlock = uint128(block.number);
-            newCheckPoint.value = uint128(_value);
-        } else {
-            ZapStorage.Checkpoint storage oldCheckPoint = checkpoints[
-                checkpoints.length - 1
-            ];
-            oldCheckPoint.value = uint128(_value);
-        }
-    }
-
-    /**
-     * @dev Getter for balance for owner on the specified _block number
-     * @param _block is the block number to search the balance on
-     * @return the balance at the checkpoint
-     */
-    function getBalanceAt(address _user, uint256 _block)
-        public
-        view
-        returns (uint256)
-    {
-        ZapStorage.Checkpoint[] storage checkpoints = zap.balances[_user];
-        if (checkpoints.length == 0) return 0;
-        if (_block >= checkpoints[checkpoints.length - 1].fromBlock)
-            return checkpoints[checkpoints.length - 1].value;
-        if (_block < checkpoints[0].fromBlock) return 0;
-        // Binary search of the value in the array
-        uint256 min = 0;
-        uint256 max = checkpoints.length - 1;
-        while (max > min) {
-            uint256 mid = (max + min + 1) / 2;
-            if (checkpoints[mid].fromBlock <= _block) {
-                min = mid;
-            } else {
-                max = mid - 1;
-            }
-        }
-        return checkpoints[min].value;
     }
 
     /**

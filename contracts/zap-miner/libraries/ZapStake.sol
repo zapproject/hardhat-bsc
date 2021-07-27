@@ -1,7 +1,6 @@
 pragma solidity =0.5.16;
 
 import "./ZapStorage.sol";
-import "./ZapTransfer.sol";
 import "./ZapDispute.sol";
 // import "hardhat/console.sol";
 
@@ -24,30 +23,7 @@ library ZapStake {
     */
     function init(ZapStorage.ZapStorageStruct storage self) public{
         require(self.uintVars[keccak256("decimals")] == 0);
-        //Give this contract 10000000 Zap Token as the starting balance within Zap-Miner
-
-        ZapTransfer.updateBalanceAtNow(self.balances[address(this)], 10000000);
-
-        // //the initial 5 miner addresses are specfied below
-        // //changed payable[5] to 6
-        address payable[6] memory _initalMiners = [
-            address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266),
-            address(0xcd3B766CCDd6AE721141F452C550Ca635964ce71),
-            address(0x2546BcD3c84621e976D8185a91A922aE77ECEc30),
-            address(0xbDA5747bFD65F08deb54cb465eB87D40e51B197E),
-            address(0xdD2FD4581271e230360230F9337D5c0430Bf44C0),
-            address(0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199)
-        ];
-        //Stake each of the 5 miners specified above
-        for(uint i=0;i<6;i++){//6th miner to allow for dispute
-            //Miner balance is set at 1000 at the block that this function is ran
-            ZapTransfer.updateBalanceAtNow(self.balances[_initalMiners[i]],500000);
-
-            newStake(self, _initalMiners[i]);
-        }
-
-        //update the total suppply
-        self.uintVars[keccak256("total_supply")] += 3000000;//6th miner to allow for dispute
+        
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("targetMiners")] = 200;
@@ -133,7 +109,7 @@ library ZapStake {
             startDate: now - (now % 86400)
         });
         // self.uintVars[keccak256("stakeAmount")]
-        ZapTransfer.updateBalanceAtNow(self.balances[staker], self.uintVars[keccak256("stakeAmount")]);
+        // ZapTransfer.updateBalanceAtNow(self.balances[staker], self.uintVars[keccak256("stakeAmount")]);
 
         emit NewStake(staker);
     }
