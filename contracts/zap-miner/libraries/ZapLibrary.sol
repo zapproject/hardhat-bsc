@@ -133,7 +133,7 @@ library ZapLibrary {
             self.uintVars[keccak256('currentReward')] = 1e18;
         }
 
-        uint256 baseReward = self.uintVars[keccak256('currentReward')] / 1e18;
+        uint256 baseReward = self.uintVars[keccak256('currentReward')] / 1e18 * 1e18;
         self.uintVars[keccak256('currentMinerReward')] =
             baseReward +
             self.uintVars[keccak256('currentTotalTips')] /
