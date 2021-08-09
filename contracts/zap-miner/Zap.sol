@@ -7,6 +7,7 @@ import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './Vault.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System
@@ -302,8 +303,22 @@ contract Zap {
             // Pay the miners
             for (uint256 i = 0; i < 5; i++) {
                 if (a[i].miner != address(0)){
+                    console.log("++++++++++++++++");
+                    console.log("++++++++++++++++");
+                    console.log("++++++++++++++++");
+                    console.log("miner: ", a[i].miner);
+                    console.log("address(this): ", address(this));
+                    console.log("master balance: ", token.balanceOf(address(this)));
+                    console.log("vault balance: ", token.balanceOf(address(vault)));
+                    console.log("minerReward: ", minerReward);
+                    console.log("++++++++++++++++");
+                    console.log("++++++++++++++++");
+                    console.log("++++++++++++++++");
                     token.approve(address(this), minerReward);
                     token.transferFrom(address(this), address(vault), minerReward);
+                    console.log("++++++++++++++++");
+                    console.log("vault balance after: ", token.balanceOf(address(vault)));
+                    console.log("++++++++++++++++");
                     vault.deposit(a[i].miner, minerReward);
                 }
             }
