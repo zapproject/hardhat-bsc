@@ -8,14 +8,14 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Decimal} from "./Decimal.sol";
-import {Media} from "./Media.sol";
+import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 
 /**
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract Market is IMarket {
+contract ZapMarket is IMarket {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -336,17 +336,17 @@ contract Market is IMarket {
         );
         // Transfer bid share to creator of media
         token.safeTransfer(
-            Media(mediaContract).tokenCreators(tokenId),
+            ZapMedia(mediaContract).tokenCreators(tokenId),
             splitShare(bidShares.creator, bid.amount)
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            Media(mediaContract).previousTokenOwners(tokenId),
+            ZapMedia(mediaContract).previousTokenOwners(tokenId),
             splitShare(bidShares.prevOwner, bid.amount)
         );
 
         // Transfer media to bid recipient
-        Media(mediaContract).auctionTransfer(tokenId, bid.recipient);
+        ZapMedia(mediaContract).auctionTransfer(tokenId, bid.recipient);
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare

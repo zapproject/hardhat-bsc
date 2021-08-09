@@ -19,7 +19,7 @@ import "./interfaces/IMedia.sol";
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-abstract contract Media is IMedia, ERC721Burnable, ReentrancyGuard {
+abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
