@@ -19,7 +19,7 @@ import "./interfaces/IMedia.sol";
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract Media is IMedia, ERC721Burnable, ReentrancyGuard {
+abstract contract Media is IMedia, ERC721Burnable, ReentrancyGuard {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
@@ -151,7 +151,7 @@ contract Media is IMedia, ERC721Burnable, ReentrancyGuard {
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
      */
-    constructor(address marketContractAddr) public ERC721("Zora", "ZORA") {
+    constructor(address marketContractAddr) ERC721("Zora", "ZORA") {
         marketContract = marketContractAddr;
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
@@ -168,10 +168,9 @@ contract Media is IMedia, ERC721Burnable, ReentrancyGuard {
      * protocol does not support a base URI, so relevant conditionals are removed.
      * @return the URI for a token
      */
-    function tokenURI(uint256 tokenId)
+    function tokenUri(uint256 tokenId)
         public
         view
-        override
         onlyTokenCreated(tokenId)
         returns (string memory)
     {
@@ -483,7 +482,7 @@ contract Media is IMedia, ERC721Burnable, ReentrancyGuard {
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
         _setTokenURI(tokenId, data.tokenURI);
-        _creatorTokens[creator].add(tokenId);
+        // _creatorTokens[creator].add(tokenId);
         _contentHashes[data.contentHash] = true;
 
         tokenCreators[tokenId] = creator;

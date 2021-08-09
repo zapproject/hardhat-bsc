@@ -30,7 +30,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  * @title ERC721 Non-Fungible Token Standard basic implementation
  * @dev see https://eips.ethereum.org/EIPS/eip-721
  */
-contract ERC721 is
+abstract contract ERC721 is
     Context,
     ERC165,
     IERC721,
@@ -99,7 +99,7 @@ contract ERC721 is
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor(string memory name, string memory symbol) public {
+    constructor(string memory name, string memory symbol) {
         _name = name;
         _symbol = symbol;
 
@@ -134,14 +134,14 @@ contract ERC721 is
     /**
      * @dev See {IERC721Metadata-name}.
      */
-    function name() public view override returns (string memory) {
+    function getName() public view returns (string memory) {
         return _name;
     }
 
     /**
      * @dev See {IERC721Metadata-symbol}.
      */
-    function symbol() public view override returns (string memory) {
+    function getSymbol() public view returns (string memory) {
         return _symbol;
     }
 
