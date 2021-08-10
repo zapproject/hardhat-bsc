@@ -93,6 +93,11 @@ const config = {
     // Obtain one at https://etherscan.io/
     apiKey: BSC_API_KEY
   },
+  namedAccounts: {
+    deployer: {
+      31337: 0
+    }
+  },
   mocha: {
     timeout: 1000000
   }
