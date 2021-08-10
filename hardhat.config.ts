@@ -1,12 +1,8 @@
 import { config as dotEnvConfig } from "dotenv";
+
 dotEnvConfig();
 
-import { HardhatUserConfig } from "hardhat/types";
-require("hardhat-gas-reporter")
-
 import "hardhat-gas-reporter"
-
-
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
@@ -63,7 +59,10 @@ const config = {
   },
   networks: {
     localhost: {
-      url: 'http://127.0.0.1:8545/'
+      url: 'http://127.0.0.1:8545/',
+      live: false,
+      saveDeployments: true,
+      tags: ["local"]
     },
     // Will throw an error if the MNEMONIC env variable is non existent
     // Only used for deploying to the BSC testnet
@@ -88,16 +87,19 @@ const config = {
       url: 'http://127.0.0.1:8555' // Coverage launches its own ganache-cli client
     }
   },
+
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: BSC_API_KEY
   },
+
   namedAccounts: {
     deployer: {
-      31337: 0
+      31337: 0,
     }
   },
+
   mocha: {
     timeout: 1000000
   }
