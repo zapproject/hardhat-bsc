@@ -127,7 +127,7 @@ library ZapLibrary {
                 (self.uintVars[keccak256('currentReward')] * 30612633181126) /
                 1e18;
             self.uintVars[keccak256('devShare')] =
-                ((self.uintVars[keccak256('currentReward')] / 1e18) * 50) /
+                ((self.uintVars[keccak256('currentReward')]) * 50) /
                 100;
         } else {
             self.uintVars[keccak256('currentReward')] = 1e18;

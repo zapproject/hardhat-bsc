@@ -27,8 +27,8 @@ library ZapStake {
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("targetMiners")] = 200;
-        self.uintVars[keccak256("stakeAmount")] = 500000;
-        self.uintVars[keccak256("disputeFee")] = 970;
+        self.uintVars[keccak256("stakeAmount")] = 500000 * 1e18;
+        self.uintVars[keccak256("disputeFee")] = 970 * 1e18;
         self.uintVars[keccak256("timeTarget")]= 600;
         self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
         self.uintVars[keccak256("difficulty")] = 1;

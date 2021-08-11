@@ -327,7 +327,8 @@ contract Zap {
         uint256 stakeAmount = zap.uintVars[keccak256('stakeAmount')];
         require(
             token.balanceOf(msg.sender) >=
-                stakeAmount
+                stakeAmount,
+            "Not enough ZAP to stake"
         );
         zap.depositStake();
 
@@ -358,8 +359,9 @@ contract Zap {
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
+        // token.approve(address(vault), vault.userBalance(msg.sender) );
         token.transferFrom(
-            zap.addressVars[keccak256('_vault')],
+            address(vault),
             msg.sender,
             vault.userBalance(msg.sender)
         );
