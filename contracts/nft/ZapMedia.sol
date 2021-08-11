@@ -2,8 +2,8 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {ERC721Burnable} from "./ERC721Burnable.sol";
-import {ERC721} from "./ERC721.sol";
+import "./ERC721Burnable.sol";
+
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -12,16 +12,17 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Decimal} from "./Decimal.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
-import "./interfaces/IMedia.sol";
+import {IMedia} from "./interfaces/IMedia.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
+contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.UintSet;
 
     /* *******
      * Globals
@@ -482,7 +483,7 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
         _setTokenURI(tokenId, data.tokenURI);
-        // _creatorTokens[creator].add(tokenId);
+        _creatorTokens[creator].add(tokenId);
         _contentHashes[data.contentHash] = true;
 
         tokenCreators[tokenId] = creator;
