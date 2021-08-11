@@ -137,19 +137,19 @@ describe('Did Mine Test', () => {
         for (var i = 1; i <= 5; i++) {
 
             // Allocates ZAP to signers 1 - 5
-            await zapTokenBsc.allocate(signers[i].address, 600000);
+            await zapTokenBsc.allocate(signers[i].address, (BigNumber.from("600000000000000000000000")));
 
         }
 
         owner = signers[0].address
 
-        await zapTokenBsc.allocate(zapMaster.address, 500000);
+        await zapTokenBsc.allocate(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
 
 
     });
 
-    it('Test didMine', async () => {
+    it.only('Test didMine', async () => {
 
         let x: string;
 
@@ -160,7 +160,7 @@ describe('Did Mine Test', () => {
             'json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price';
 
         // Allocates 5000 ZAP to signer 0
-        await zapTokenBsc.allocate(signers[0].address, 600000);
+        await zapTokenBsc.allocate(signers[0].address, (BigNumber.from("600000000000000000000000")));
 
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
@@ -171,7 +171,7 @@ describe('Did Mine Test', () => {
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
-            await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
+            await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
             await vault.connect(signers[i]).lockSmith(signers[i].address, zap.address);
 
@@ -222,7 +222,7 @@ describe('Did Mine Test', () => {
 
             // ensures that miners are not being rewarded before a new block is called
             if (i == 3) {
-                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(500000);
+                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(BigNumber.from("500000000000000000000000"));
             }
 
             // Checks if the miners mined the challenge
@@ -248,15 +248,15 @@ describe('Did Mine Test', () => {
 
         let signerFourVaultBalance = await vault.userBalance(signers[4].address);
         expect(signerFourVaultBalance).to.equal(
-            500015,
-            "Miner's personal vault should have a balance of 25 tokens."
+            BigNumber.from("500005000000000000000010"),
+            "Miner's personal vault should have a balance of ~500005 tokens."
         );
 
         // check to see that Zap Master payed out the correct amount of rewards and devshare.
         let currentZapMasterBal = await zapTokenBsc.balanceOf(zapMaster.address);
 
-        // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
-        let payOutAmount = 77;
+        // need to redo math for new decimals
+        let payOutAmount = BigNumber.from("27999908162100456672");
 
         let diff = previousZapMasterBal.sub(currentZapMasterBal);
         expect(diff).to.equal(payOutAmount);
