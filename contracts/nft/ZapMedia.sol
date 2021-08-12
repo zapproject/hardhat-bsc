@@ -13,6 +13,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Decimal} from "./Decimal.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
+import {ZapMarket} from "./ZapMarket.sol";
+import "hardhat/console.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -158,6 +160,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         address marketContractAddr
     ) ERC721(name, symbol) {
         marketContract = marketContractAddr;
+
+        ZapMarket zapMarket = ZapMarket(marketContract);
+
+        zapMarket.configure(address(this));
+
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
