@@ -36,27 +36,6 @@ describe("ZapMarket Test", () => {
 
         it('should revert if not called by the owner', async () => {
 
-            await zapMarket.configure(zapMedia.address);
-
-            const data = {
-                tokenURI: 'www.example.com',
-                metadataURI: "www.example.com",
-                contentHash: 'test',
-                metadataHash: 'test',
-            }
-
-            const test = ethers.BigNumber.from(20)
-
-            let defaultBidShares = {
-                prevOwner: test._hex,
-                owner: ethers.BigNumber.from(80),
-                creator: ethers.BigNumber.from(10),
-            }
-
-            await zapMedia.connect(signers[1]).mint(data, defaultBidShares)
-
-
-
         });
 
     })
