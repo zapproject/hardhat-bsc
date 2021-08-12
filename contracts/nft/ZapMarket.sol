@@ -39,6 +39,9 @@ contract ZapMarket is IMarket {
     // Mapping from token to the current ask for the token
     mapping(uint256 => Ask) private _tokenAsks;
 
+    // Mapping from Media address to the Market configuration status
+    mapping(address => bool) public isConfigured;
+
     /* *********
      * Modifiers
      * *********
@@ -149,16 +152,20 @@ contract ZapMarket is IMarket {
      * @notice Sets the media contract address. This address is the only permitted address that
      * can call the mutable functions. This method can only be called once.
      */
+
     function configure(address mediaContractAddress) external override {
         // require(msg.sender == _owner, "Market: Only owner");
 
-        console.log(mediaContract);
-        require(mediaContract == address(0), "Market: Already configured");
+        require(
+            isConfigured[mediaContractAddress] != true,
+            "Market: Already configured"
+        );
         require(
             mediaContractAddress != address(0),
             "Market: cannot set media contract as zero address"
         );
 
+        isConfigured[mediaContractAddress] = true;
         mediaContract = mediaContractAddress;
     }
 
