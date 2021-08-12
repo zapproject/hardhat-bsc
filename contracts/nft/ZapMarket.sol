@@ -10,6 +10,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
+import "hardhat/console.sol";
 
 /**
  * @title A Market for pieces of media
@@ -150,7 +151,7 @@ contract ZapMarket is IMarket {
      */
     function configure(address mediaContractAddress) external override {
         require(msg.sender == _owner, "Market: Only owner");
-        require(mediaContract == address(0), "Market: Already configured");
+        // require(mediaContract == address(0), "Market: Already configured");
         require(
             mediaContractAddress != address(0),
             "Market: cannot set media contract as zero address"

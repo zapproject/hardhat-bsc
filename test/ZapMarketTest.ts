@@ -11,7 +11,7 @@ chai.use(solidity);
 describe("ZapMarket Test", () => {
 
     let zapMarket: any
-    let zapMedia: ZapMedia
+    let zapMedia1: ZapMedia
     let zapMedia2: any
     let signers: any
 
@@ -21,16 +21,27 @@ describe("ZapMarket Test", () => {
 
             signers = await ethers.getSigners()
 
-            const test = await deployments.fixture(['ZapMarket'])
+            const marketFixture = await deployments.fixture(['ZapMarket'])
 
-            zapMarket = await ethers.getContractAt("ZapMarket", test.ZapMarket.address)
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address)
 
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[0]);
 
-            zapMedia = (await mediaFactory.deploy(zapMarket.address)) as ZapMedia
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
 
-            await zapMedia.deployed();
+            await zapMedia1.deployed();
+
+            await zapMarket.configure(zapMedia1.address)
+
+
+            const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[1]);
+
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
+
+            await zapMedia2.deployed();
+
+            await zapMarket.configure(zapMedia2.address)
 
         })
 
