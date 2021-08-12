@@ -40,15 +40,19 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it('should revert if not called by the owner', async () => {
+        it('Should reject if called twice', async () => {
 
+            await expect(zapMarket.configure(zapMedia1.address))
+                .to.be.revertedWith("Market: Already configured");
+
+            await expect(zapMarket.configure(zapMedia2.address))
+                .to.be.revertedWith("Market: Already configured");
+
+            expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
+
+            expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true
 
         });
-
-        it('should be callable by the owner', async () => {
-
-        });
-
 
     })
 })
