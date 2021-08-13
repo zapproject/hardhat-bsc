@@ -53,26 +53,30 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it.only('should be callable by the owner', async () => {
+        it.only('Should get media owner', async () => {
 
-            const tokenContractAddress = await zapMarket.mediaContract(zapMedia1.address)
+            const zapMedia1Address = await zapMarket.mediaContract(zapMedia1.address);
 
-            console.log(tokenContractAddress)
+            const zapMedia2Address = await zapMarket.mediaContract(zapMedia2.address);
+
+            expect(await zapMedia1Address).to.equal(signers[1].address);
+
+            expect(await zapMedia2Address).to.equal(signers[2].address);
 
 
         });
 
-        it('Should reject if called twice', async () => {
+        it.only('Should reject if called twice', async () => {
 
-            await expect(zapMarket.configure(zapMedia1.address))
+            await expect(zapMarket.configure(signers[1].address))
                 .to.be.revertedWith("Market: Already configured");
 
-            await expect(zapMarket.configure(zapMedia2.address))
+            await expect(zapMarket.configure(signers[2].address))
                 .to.be.revertedWith("Market: Already configured");
 
-            expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
+            expect(await zapMarket.isConfigured(signers[1].address)).to.be.true
 
-            expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true
+            expect(await zapMarket.isConfigured(signers[2].address)).to.be.true
 
         });
     })
