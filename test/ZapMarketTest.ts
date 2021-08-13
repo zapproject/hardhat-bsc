@@ -55,10 +55,10 @@ describe("ZapMarket Test", () => {
 
         it.only('should be callable by the owner', async () => {
 
-            console.log("signer 1", signers[1].address)
-            console.log("signer 2", signers[2].address)
+            const tokenContractAddress = await zapMarket.mediaContract(zapMedia1.address)
 
-            console.log("media Contract", await zapMarket.mediaContract())
+            console.log(tokenContractAddress)
+
 
         });
 
@@ -89,7 +89,7 @@ describe("ZapMarket Test", () => {
 
         it('should set the bid shares if called by the media address', async () => {
 
-            await zapMarket.connect(zapMedia1.address, signers[1]).setBidShares(1, bidShares)
+            await zapMarket.connect(signers[2]).setBidShares(1, bidShares)
         })
     })
 })
