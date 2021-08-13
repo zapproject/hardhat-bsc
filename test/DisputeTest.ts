@@ -8,7 +8,7 @@ import chai from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { ZapTransfer } from '../typechain/ZapTransfer';
+// import { ZapTransfer } from '../typechain/ZapTransfer';
 
 import { ZapLibrary } from '../typechain/ZapLibrary';
 
@@ -32,7 +32,7 @@ chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
 
-let zapTransfer: ZapTransfer;
+// let zapTransfer: ZapTransfer;
 
 let zapLibrary: ZapLibrary;
 
@@ -60,13 +60,13 @@ describe("Test ZapDispute and it's dispute functions", () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
 
-    const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-      'ZapTransfer',
-      signers[0]
-    );
+    // const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
+    //   'ZapTransfer',
+    //   signers[0]
+    // );
 
-    zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
-    await zapTransfer.deployed();
+    // zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
+    // await zapTransfer.deployed();
 
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
@@ -92,7 +92,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'ZapStake',
       {
         libraries: {
-          ZapTransfer: zapTransfer.address,
+          // ZapTransfer: zapTransfer.address,
           ZapDispute: zapDispute.address
         },
         signer: signers[0]
@@ -118,7 +118,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'ZapMaster',
       {
         libraries: {
-          ZapTransfer: zapTransfer.address,
+          // ZapTransfer: zapTransfer.address,
           ZapStake: zapStake.address
         },
         signer: signers[0]
@@ -142,8 +142,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     // await zap.setVault(vault.address);
     await zapMaster.functions.changeVaultContract(vault.address);
+    const zmBalance = ethers.BigNumber.from('10000000000000000000000000');
 
-    await zapTokenBsc.allocate(zapMaster.address, 10000000);
+    await zapTokenBsc.allocate(zapMaster.address, zmBalance);
 
     zap = zap.attach(zapMaster.address);
 
@@ -163,10 +164,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // Request string
     const api: string =
       'json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4';
+    const tipAmount: BigNumber = ethers.BigNumber.from('52000000000000000000');
 
-    await zapTokenBsc.approve(zap.address, 5000000);
+    await zapTokenBsc.approve(zap.address, tipAmount);
     zap = zap.connect(signers[0]);
-    await zap.requestData(api, symbol, 10000, 52);
+    await zap.requestData(api, symbol, 1000000, tipAmount);
 
     // have each miner submit a solution
     for (var i = 1; i <= 5; i++) {
@@ -253,9 +255,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
   it('Should be able to vote for (true) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
-    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
-      'timeOfLastNewValue'
-    );
+    const timeOfLastNewValueBytes: Uint8Array =
+      ethers.utils.toUtf8Bytes('timeOfLastNewValue');
 
     // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
     const timeOfLastNewValueHash: string = ethers.utils.keccak256(
@@ -269,8 +270,13 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000);
 
+    const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes('disputeFee'); // keccak256('disputeFee');
+    const disputeFeeHash: string = ethers.utils.keccak256(disputeFeeBytes); // keccak256('disputeFee');
+    const disputeFee: BigNumber = await zapMaster.getUintVar(disputeFeeHash); // keccak256('disputeFee');
+
     zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
+
     // Convert to a bytes array
     const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
 
@@ -285,7 +291,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
 
-    expect(reporting_miner_wallet_bal).to.equal(127500);
+    expect(reporting_miner_wallet_bal).to.equal(112500);
 
     // expect to be the address that begain the dispute
     expect(disp[4]).to.equal(signers[5].address);
@@ -312,7 +318,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let reportedMiner = await vault.userBalance(disp[4]);
     let reportedMiner2 = await zapMaster.balanceOf(disp[4]);
-
 
     let reportingMiner = await vault.userBalance(disp[5]);
     let reportingMiner2 = await zapMaster.balanceOf(disp[5]);
@@ -342,15 +347,13 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
 
-    // expect balance of winner's wallet to be 600K: 600k(leftover bal. after staking) - 427500 (pay dispute fee) + 427500 (win back dispute fee)  = 600K.
+    // expect balance of winner's wallet to be 600K: 600k(leftover bal. after staking) - 487500 (pay dispute fee) + 487500 (win back dispute fee)  = 600K.
     expect(reporting_miner_wallet_bal).to.equal(600000);
-
   });
   it('Should be able to vote against (false) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
-    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
-      'timeOfLastNewValue'
-    );
+    const timeOfLastNewValueBytes: Uint8Array =
+      ethers.utils.toUtf8Bytes('timeOfLastNewValue');
 
     // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
     const timeOfLastNewValueHash: string = ethers.utils.keccak256(
@@ -380,7 +383,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let reporting_miner_wallet_bal = await zapTokenBsc.balanceOf(disp[5]);
 
-    expect(reporting_miner_wallet_bal).to.equal(127500);
+    expect(reporting_miner_wallet_bal).to.equal(112500);
 
     // expect to be the address that begain the dispute
     expect(disp[4]).to.equal(signers[5].address);
@@ -440,11 +443,10 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
 
-    // expect balance of loser's wallet to be 127500: 600k(leftover bal. after staking) - 427500 (pay dispute fee) = 127500 since reporter lost their fee to disputed miner.
-    expect(reported_miner_wallet_bal).to.equal(1072500); //600K + 472500(dispute fee)
+    // expect balance of winner's wallet to be 1087500: 600k(leftover bal. after staking) + 487500 (win dispute fee) = 1087500 since reporter lost their fee to disputed miner.
+    expect(reported_miner_wallet_bal).to.equal(1087500); //600K + 487500(dispute fee)
 
-    expect(reporting_miner_wallet_bal).to.equal(127500); // 600k - 472500(dispute fee)
+    expect(reporting_miner_wallet_bal).to.equal(112500); // 600k - 487500(dispute fee)
     // expect balance of loser to be 500k(original stake amount) + 15(reward for mining ) = 500015 for not winning the disputed miners stake.
-
   });
 });
