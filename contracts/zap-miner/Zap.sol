@@ -104,8 +104,10 @@ contract Zap {
         uint256 _minerIndex
     ) external {
         ZapStorage.Request storage _request = zap.requestDetails[_requestId];
-        //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
-        require(block.number - _request.minedBlockNum[_timestamp] <= 144);
+        // FOR BTC:require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
+        // FOR BSC:require that no more than a day( (24 hours * 60 minutes * 60 seconds)/3 seconds=28800 blocks) has gone by since the value was "mined"
+        // FOR ETH:require that no more than a day( (24 hours * 60 minutes * 60 seconds)/13 seconds=6646 blocks) has gone by since the value was "mined"
+        require(block.number - _request.minedBlockNum[_timestamp] <= 28800, "Must dispute within 1 day of being mined.");
         require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
 
