@@ -15,6 +15,19 @@ describe("ZapMarket Test", () => {
     let zapMedia2: any
     let signers: any
 
+    let bidShares = {
+
+        prevOwner: {
+            value: 10
+        },
+        owner: {
+            value: 80
+        },
+        creator: {
+            value: 10
+        },
+    };
+
     describe("Configure", () => {
 
         beforeEach(async () => {
@@ -40,6 +53,15 @@ describe("ZapMarket Test", () => {
 
         })
 
+        it.only('should be callable by the owner', async () => {
+
+            console.log("signer 1", signers[1].address)
+            console.log("signer 2", signers[2].address)
+
+            console.log("media Contract", await zapMarket.mediaContract())
+
+        });
+
         it('Should reject if called twice', async () => {
 
             await expect(zapMarket.configure(zapMedia1.address))
@@ -53,6 +75,21 @@ describe("ZapMarket Test", () => {
             expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true
 
         });
+    })
 
+    describe('#setBidShares', () => {
+
+        it('should reject if not called by the media address', async () => {
+
+            await expect(zapMarket.setBidShares(1, bidShares)).to.be.revertedWith(
+                "Market: Only media contract'"
+            )
+
+        });
+
+        it('should set the bid shares if called by the media address', async () => {
+
+            await zapMarket.connect(zapMedia1.address, signers[1]).setBidShares(1, bidShares)
+        })
     })
 })

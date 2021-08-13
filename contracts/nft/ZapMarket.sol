@@ -51,6 +51,8 @@ contract ZapMarket is IMarket {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
+        console.log("Sedner", msg.sender);
+        console.log("Media", mediaContract);
         require(mediaContract == msg.sender, "Market: Only media contract");
         _;
     }
