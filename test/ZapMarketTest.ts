@@ -83,17 +83,17 @@ describe("ZapMarket Test", () => {
 
     describe('#setBidShares', () => {
 
-        it('should reject if not called by the media address', async () => {
+        it.only('Should reject if not called by the media address', async () => {
 
-            await expect(zapMarket.setBidShares(1, bidShares)).to.be.revertedWith(
-                "Market: Only media contract'"
+            await expect(zapMarket.connect(signers[1]).setBidShares(1, bidShares)).to.be.revertedWith(
+                "Market: Only media contract"
             )
 
         });
 
         it('should set the bid shares if called by the media address', async () => {
 
-            await zapMarket.connect(signers[2]).setBidShares(1, bidShares)
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares)
         })
     })
 })
