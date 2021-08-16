@@ -5,3 +5,4 @@ artifacts
 cache
 .env 
 output
+deployments
