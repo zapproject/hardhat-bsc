@@ -95,9 +95,21 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('should set the bid shares if called by the media address', async () => {
+        it.only('Should set the bid shares if called by the media address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares)
+            const tokenBidShares1 = await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+
+            const bidSharesReceipt1 = await tokenBidShares1.wait();
+
+            const eventLog1 = bidSharesReceipt1.events[0]
+
+            expect(eventLog1.event).to.equal("BidShareUpdated");
+
+            expect(eventLog1.args.tokenId.toNumber()).to.equal(1);
+
+            // expect(eventLog1.args)
+
+            // const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
         })
     })
 })
