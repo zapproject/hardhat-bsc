@@ -176,6 +176,19 @@ describe("ZapMarket Test", () => {
             )
         });
 
+        it.only('Should set the ask if called by the media address', async () => {
+
+            await zapMarket.connect(signers[1]).setAsk(1, ask);
+
+            const getAsk = await zapMarket.currentAskForToken(1)
+
+            expect(getAsk.amount.toNumber()).to.equal(ask.amount);
+
+            expect(getAsk.currency).to.equal(zapTokenBsc.address);
+
+
+        });
+
 
     })
 
