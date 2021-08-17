@@ -149,7 +149,7 @@ describe('Did Mine Test', () => {
 
     });
 
-    it.only('Test didMine', async () => {
+    it('Test didMine', async () => {
 
         let x: string;
 
@@ -255,7 +255,8 @@ describe('Did Mine Test', () => {
         // check to see that Zap Master payed out the correct amount of rewards and devshare.
         let currentZapMasterBal = await zapTokenBsc.balanceOf(zapMaster.address);
 
-        // need to redo math for new decimals
+        // totalMinerRewards = 5e18 * 5; devshare = 3e18
+        // totalMinerRewards + devshare = 28e18
         let payOutAmount = BigNumber.from("27999908162100456672");
 
         let diff = previousZapMasterBal.sub(currentZapMasterBal);
