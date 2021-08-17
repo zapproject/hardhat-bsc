@@ -167,6 +167,29 @@ describe("ZapMarket Test", () => {
 
     describe("#setAsk", () => {
 
+        beforeEach(async () => {
+
+            signers = await ethers.getSigners()
+
+            const marketFixture = await deployments.fixture(['ZapMarket'])
+
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address)
+
+
+            const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
+
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address))
+
+            await zapMedia1.deployed();
+
+            const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
+
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address))
+
+            await zapMedia2.deployed();
+
+        })
+
         it.only('Should reject if not called by the media address', async () => {
 
             await expect(zapMarket.connect(signers[5]).setAsk(1, ask)).to.be.revertedWith(
@@ -175,6 +198,8 @@ describe("ZapMarket Test", () => {
         });
 
         it.only('Should set the ask if called by the media address', async () => {
+
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
             await zapMarket.connect(signers[1]).setAsk(1, ask);
 
@@ -200,10 +225,13 @@ describe("ZapMarket Test", () => {
                 currency: zapTokenBsc.address
             })).to.be.revertedWith('Market: Ask invalid for share splitting')
 
-            await expect(zapMarket.connect(signers[2]).setAsk(1, {
-                amount: 1,
-                currency: zapTokenBsc.address
-            })).to.be.revertedWith('Market: Ask invalid for share splitting')
+        });
+
+        it.only("Should reject if the bid shares haven't been set yet", async () => {
+
+            await expect(zapMarket.connect(signers[1]).setAsk(1, ask)).to.be.revertedWith(
+                'Market: Invalid bid shares for token'
+            )
 
         });
 
