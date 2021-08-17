@@ -28,6 +28,8 @@ contract ZapMarket is IMarket {
     // address[] public mediaContract;
     mapping(address => address) public mediaContract;
 
+    mapping(address => address) public zapMediaAddress;
+
     // Deployment Address
     address private _owner;
 
@@ -43,8 +45,6 @@ contract ZapMarket is IMarket {
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
-    address testThis;
-
     /* *********
      * Modifiers
      * *********
@@ -54,12 +54,8 @@ contract ZapMarket is IMarket {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
-        console.log("Sender From onlyMediaCaller", msg.sender);
-
-        console.log(mediaContract[testThis]);
-
         require(
-            mediaContract[testThis] == msg.sender,
+            mediaContract[zapMediaAddress[msg.sender]] == msg.sender,
             "Market: Only media contract"
         );
         _;
@@ -177,10 +173,13 @@ contract ZapMarket is IMarket {
 
         isConfigured[mediaContractAddress] = true;
 
-        // mediaContract = mediaContractAddress;
+        // msg.sender is the address of the ZapMedia contract
+        // msg.sender is passed into the mediaContract to add the signer address
         mediaContract[msg.sender] = mediaContractAddress;
 
-        testThis = mediaContractAddress;
+        zapMediaAddress[mediaContractAddress] = msg.sender;
+
+        // testThis = mediaContractAddress;
     }
 
     /**

@@ -85,11 +85,7 @@ describe("ZapMarket Test", () => {
 
         it.only('Should reject if not called by the media address', async () => {
 
-            // await expect(zapMarket.connect(signers[]).setBidShares(1, bidShares)).to.be.revertedWith(
-            //     "Market: Only media contract"
-            // )
 
-            console.log("ZapMedia 1 address:", zapMedia1.address)
             await zapMarket.connect(signers[1]).setBidShares(1, bidShares)
 
         });
