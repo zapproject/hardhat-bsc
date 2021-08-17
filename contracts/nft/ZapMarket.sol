@@ -43,6 +43,8 @@ contract ZapMarket is IMarket {
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
+    address testThis;
+
     /* *********
      * Modifiers
      * *********
@@ -52,11 +54,14 @@ contract ZapMarket is IMarket {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
-        // console.log("Sender", msg.sender);
-        // require(
-        //     mediaContract[mediaContractAddress] == msg.sender,
-        //     "Market: Only media contract"
-        // );
+        console.log("Sender From onlyMediaCaller", msg.sender);
+
+        console.log(mediaContract[testThis]);
+
+        require(
+            mediaContract[testThis] == msg.sender,
+            "Market: Only media contract"
+        );
         _;
     }
 
@@ -174,6 +179,8 @@ contract ZapMarket is IMarket {
 
         // mediaContract = mediaContractAddress;
         mediaContract[msg.sender] = mediaContractAddress;
+
+        testThis = mediaContractAddress;
     }
 
     /**
