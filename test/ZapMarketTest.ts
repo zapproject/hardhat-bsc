@@ -4,7 +4,8 @@ import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
 
-import { ZapMedia } from '../typechain/ZapMedia';
+import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
+
 
 chai.use(solidity);
 
@@ -13,6 +14,7 @@ describe("ZapMarket Test", () => {
     let zapMarket: any
     let zapMedia1: any
     let zapMedia2: any
+    let zapTokenBsc: any
     let signers: any
 
     let bidShares = {
@@ -41,6 +43,12 @@ describe("ZapMarket Test", () => {
         },
     };
 
+    let ask = {
+        amount: 100,
+        currency: '',
+        sellOnShare: 0
+    }
+
     describe("Configure", () => {
 
         beforeEach(async () => {
@@ -63,6 +71,16 @@ describe("ZapMarket Test", () => {
             zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address))
 
             await zapMedia2.deployed();
+
+            const zapTokenFactory = await ethers.getContractFactory(
+                'ZapTokenBSC',
+                signers[0]
+            );
+
+            zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+            await zapTokenBsc.deployed();
+
+            ask.currency = zapTokenBsc.address
 
         })
 
@@ -146,9 +164,20 @@ describe("ZapMarket Test", () => {
                 be.revertedWith(
                     'Market: Invalid bid shares, must sum to 100'
                 )
+        });
+    })
 
+    describe("#setAsk", () => {
+
+        it.only('Should reject if not called by the media address', async () => {
+
+            await expect(zapMarket.connect(signers[5]).setAsk(1, ask)).to.be.revertedWith(
+                'Market: Only media contract'
+            )
         });
 
 
     })
+
+
 })
