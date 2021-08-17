@@ -149,9 +149,7 @@ describe("ZapMarket Test", () => {
 
             const block = await ethers.provider.getBlockNumber();
 
-
         });
-
 
         it.only('Should reject if the bid shares are invalid', async () => {
 
@@ -186,9 +184,28 @@ describe("ZapMarket Test", () => {
 
             expect(getAsk.currency).to.equal(zapTokenBsc.address);
 
+        });
+
+        it('should emit an event if the ask is updated', async () => {
+
 
         });
 
+        it.only('Should reject if the ask is too low', async () => {
+
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+
+            await expect(zapMarket.connect(signers[1]).setAsk(1, {
+                amount: 1,
+                currency: zapTokenBsc.address
+            })).to.be.revertedWith('Market: Ask invalid for share splitting')
+
+            await expect(zapMarket.connect(signers[2]).setAsk(1, {
+                amount: 1,
+                currency: zapTokenBsc.address
+            })).to.be.revertedWith('Market: Ask invalid for share splitting')
+
+        });
 
     })
 
