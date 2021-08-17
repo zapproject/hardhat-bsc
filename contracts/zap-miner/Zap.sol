@@ -259,7 +259,6 @@ contract Zap {
 
             //If the tip > 0 it tranfers the tip to this contract
             if (_tip > 0) {
-                // doTransfer(msg.sender, address(this), _tip);
                 token.transferFrom(msg.sender, address(this), _tip);
             }
             updateOnDeck(_requestId, _tip);
