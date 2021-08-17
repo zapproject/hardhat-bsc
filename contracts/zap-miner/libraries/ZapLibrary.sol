@@ -127,7 +127,7 @@ library ZapLibrary {
                 (self.uintVars[keccak256('currentReward')] * 30612633181126) /
                 1e18;
             self.uintVars[keccak256('devShare')] =
-                ((self.uintVars[keccak256('currentReward')] / 1e18) * 50) /
+                ((self.uintVars[keccak256('currentReward')]) * 50) /
                 100;
         } else {
             self.uintVars[keccak256('currentReward')] = 1e18;
@@ -139,15 +139,6 @@ library ZapLibrary {
             self.uintVars[keccak256('currentTotalTips')] /
             5;
 
-        // this transfer is being done in Zap.sol to the vault
-        // for (i = 0; i < 5; i++) {
-        //     ZapTransfer.doTransfer(
-        //         self,
-        //         address(this),
-        //         a[i].miner,
-        //         baseReward + self.uintVars[keccak256('currentTotalTips')] / 5
-        //     );
-        // }
         emit NewValue(
             _requestId,
             self.uintVars[keccak256('timeOfLastNewValue')],
@@ -158,16 +149,9 @@ library ZapLibrary {
         );
 
         //update the total supply
-        // self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 - (self.uintVars[keccak256("currentTotalTips")]);
-        self.uintVars[keccak256('total_supply')] += 275;
+        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentMinerReward")]*5;
+        // self.uintVars[keccak256('total_supply')] += 275;
 
-        //pay the dev-share
-        // ZapTransfer.doTransfer(
-        //     self,
-        //     address(this),
-        //     self.addressVars[keccak256('_owner')],
-        //     self.uintVars[keccak256('devShare')]
-        // ); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
             self.uintVars[keccak256('timeOfLastNewValue')]

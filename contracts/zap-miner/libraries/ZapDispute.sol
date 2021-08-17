@@ -228,12 +228,7 @@ library ZapDispute {
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
-        // ZapTransfer.doTransfer(
-        //     self,
-        //     msg.sender,
-        //     address(this),
-        //     self.uintVars[keccak256('disputeFee')]
-        // ); //This is the fork fee
+        //This is the fork fee
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
         self.disputeIdByDisputeHash[_hash] = disputeId;
