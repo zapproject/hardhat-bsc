@@ -21,10 +21,23 @@ describe("ZapMarket Test", () => {
             value: BigInt(10000000000000000000)
         },
         owner: {
-            value: BigInt(0x04563918244f400000)
+            value: BigInt(80000000000000000000)
         },
         creator: {
-            value: BigInt(0x8ac7230489e80000)
+            value: BigInt(10000000000000000000)
+        },
+    };
+
+    let invalidBidShares = {
+
+        prevOwner: {
+            value: BigInt(90000000000000000000)
+        },
+        owner: {
+            value: BigInt(79000000000000000000)
+        },
+        creator: {
+            value: BigInt(90000000000000000000)
         },
     };
 
@@ -99,17 +112,43 @@ describe("ZapMarket Test", () => {
 
             const tokenBidShares1 = await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
-            const bidSharesReceipt1 = await tokenBidShares1.wait();
+            const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
 
-            const eventLog1 = bidSharesReceipt1.events[0]
+            // const bidSharesReceipt1 = await tokenBidShares1.wait();
 
-            expect(eventLog1.event).to.equal("BidShareUpdated");
+            // const eventLog1 = bidSharesReceipt1.events[0]
 
-            expect(eventLog1.args.tokenId.toNumber()).to.equal(1);
+            // expect(eventLog1.event).to.equal("BidShareUpdated");
+
+            // expect(eventLog1.args.tokenId.toNumber()).to.equal(1);
 
             // expect(eventLog1.args)
 
             // const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
         })
+
+        it('should emit an event when bid shares are updated', async () => {
+
+            const block = await ethers.provider.getBlockNumber();
+
+
+        });
+
+
+        it.only('Should reject if the bid shares are invalid', async () => {
+
+            await expect(zapMarket.connect(signers[1]).setBidShares(1, invalidBidShares)).to.
+                be.revertedWith(
+                    'Market: Invalid bid shares, must sum to 100'
+                )
+
+            await expect(zapMarket.connect(signers[2]).setBidShares(1, invalidBidShares)).to.
+                be.revertedWith(
+                    'Market: Invalid bid shares, must sum to 100'
+                )
+
+        });
+
+
     })
 })
