@@ -18,13 +18,13 @@ describe("ZapMarket Test", () => {
     let bidShares = {
 
         prevOwner: {
-            value: 10
+            value: BigInt(10000000000000000000)
         },
         owner: {
-            value: 80
+            value: BigInt(0x04563918244f400000)
         },
         creator: {
-            value: 10
+            value: BigInt(0x8ac7230489e80000)
         },
     };
 
@@ -85,8 +85,13 @@ describe("ZapMarket Test", () => {
 
         it.only('Should reject if not called by the media address', async () => {
 
+            await expect(zapMarket.connect(signers[3]).setBidShares(1, bidShares)).to.be.revertedWith(
+                'Market: Only media contract'
+            );
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares)
+            await expect(zapMarket.connect(signers[4]).setBidShares(1, bidShares)).to.be.revertedWith(
+                'Market: Only media contract'
+            );
 
         });
 

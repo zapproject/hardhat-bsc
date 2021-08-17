@@ -173,13 +173,9 @@ contract ZapMarket is IMarket {
 
         isConfigured[mediaContractAddress] = true;
 
-        // msg.sender is the address of the ZapMedia contract
-        // msg.sender is passed into the mediaContract to add the signer address
         mediaContract[msg.sender] = mediaContractAddress;
 
         zapMediaAddress[mediaContractAddress] = msg.sender;
-
-        // testThis = mediaContractAddress;
     }
 
     /**
