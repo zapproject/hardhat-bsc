@@ -55,6 +55,9 @@ library ZapDispute {
         //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3);
 
+        //ensure voter is staked
+        require(self.stakerDetails[msg.sender].currentStatus != 0, "You must be staked to vote on a dispute.");
+
         //Update user voting status to true
         disp.voted[msg.sender] = true;
 

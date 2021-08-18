@@ -111,6 +111,10 @@ contract Zap {
         require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
 
+        //ensure the msg.sender is staked and not in dispute
+        require(zap.stakerDetails[msg.sender].currentStatus != 0, "You must be staked to begin a dispute.");
+        require(zap.stakerDetails[msg.sender].currentStatus != 3, "You must not be in dispute to begin one.");
+
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute
         address _miner = _request.minersByValue[_timestamp][_minerIndex];
