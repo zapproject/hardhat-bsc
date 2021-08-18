@@ -28,8 +28,6 @@ contract ZapMarket is IMarket {
     // address[] public mediaContract;
     mapping(address => address) public mediaContract;
 
-    mapping(address => address) public zapMediaAddress;
-
     // Deployment Address
     address private _owner;
 
@@ -53,16 +51,7 @@ contract ZapMarket is IMarket {
     /**
      * @notice require that the msg.sender is the configured media contract
      */
-    // modifier onlyMediaCaller(address mediaContractAddress) {
-
-    //     require(
-    //         mediaContract[zapMediaAddress[msg.sender]] == msg.sender,
-    //         "Market: Only media contract"
-    //     );
-    //     _;
-    // }
-
-    modifier onlyMediaCallerTest(address mediaContractAddress) {
+    modifier onlyMediaCaller(address mediaContractAddress) {
         require(
             mediaContract[mediaContractAddress] == msg.sender,
             "Market: Only media contract"
@@ -190,11 +179,11 @@ contract ZapMarket is IMarket {
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
      */
-    function setBidShares(uint256 tokenId, BidShares memory bidShares)
-        public
-        override
-        onlyMediaCaller
-    {
+    function setBidShares(
+        address mediaContractAddress,
+        uint256 tokenId,
+        BidShares memory bidShares
+    ) public override onlyMediaCaller(mediaContractAddress) {
         require(
             isValidBidShares(bidShares),
             "Market: Invalid bid shares, must sum to 100"
@@ -207,11 +196,11 @@ contract ZapMarket is IMarket {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAsk(uint256 tokenId, Ask memory ask)
-        public
-        override
-        onlyMediaCaller
-    {
+    function setAsk(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Ask memory ask
+    ) public override onlyMediaCaller(mediaContractAddress) {
         require(
             isValidBid(tokenId, ask.amount),
             "Market: Ask invalid for share splitting"
@@ -224,7 +213,11 @@ contract ZapMarket is IMarket {
     /**
      * @notice removes an ask for a token and emits an AskRemoved event
      */
-    function removeAsk(uint256 tokenId) external override onlyMediaCaller {
+    function removeAsk(address mediaContractAddress, uint256 tokenId)
+        external
+        override
+        onlyMediaCaller(mediaContractAddress)
+    {
         emit AskRemoved(tokenId, _tokenAsks[tokenId]);
         delete _tokenAsks[tokenId];
     }
@@ -235,10 +228,11 @@ contract ZapMarket is IMarket {
      * If another bid already exists for the bidder, it is refunded.
      */
     function setBid(
+        address mediaContractAddress,
         uint256 tokenId,
         Bid memory bid,
         address spender
-    ) public override onlyMediaCaller {
+    ) public override onlyMediaCaller(mediaContractAddress) {
         BidShares memory bidShares = _bidShares[tokenId];
 
         require(
@@ -261,7 +255,7 @@ contract ZapMarket is IMarket {
 
         // If there is an existing bid, refund it before continuing
         if (existingBid.amount > 0) {
-            removeBid(tokenId, bid.bidder);
+            removeBid(mediaContractAddress, tokenId, bid.bidder);
         }
 
         IERC20 token = IERC20(bid.currency);
@@ -298,11 +292,11 @@ contract ZapMarket is IMarket {
      * @notice Removes the bid on a particular media for a bidder. The bid amount
      * is transferred from this contract to the bidder, if they have a bid placed.
      */
-    function removeBid(uint256 tokenId, address bidder)
-        public
-        override
-        onlyMediaCaller
-    {
+    function removeBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) public override onlyMediaCaller(mediaContractAddress) {
         Bid storage bid = _tokenBidders[tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
@@ -325,11 +319,11 @@ contract ZapMarket is IMarket {
      * This should only revert in rare instances (example, a low bid with a zero-decimal token),
      * but is necessary to ensure fairness to all shareholders.
      */
-    function acceptBid(uint256 tokenId, Bid calldata expectedBid)
-        external
-        override
-        onlyMediaCaller
-    {
+    function acceptBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Bid calldata expectedBid
+    ) external override onlyMediaCaller(mediaContractAddress) {
         Bid memory bid = _tokenBidders[tokenId][expectedBid.bidder];
         require(bid.amount > 0, "Market: cannot accept bid of 0");
         require(
