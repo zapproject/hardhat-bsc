@@ -239,29 +239,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
   });
 
-  it('Should not be able to begin a dispute if not staked', async () => {
-    const disputer = signers[6];
-
-    zap = zap.connect(disputer);
-
-    // Converts the uintVar "stakeAmount" to a bytes array
-    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
-      'timeOfLastNewValue'
-    );
-
-    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
-    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
-      timeOfLastNewValueBytes
-    );
-
-    // Gets the the current stake amount
-    let timeStamp: BigNumber = await zapMaster.getUintVar(
-      timeOfLastNewValueHash
-    );
-
-    await expect(zap.beginDispute(1, timeStamp, 3)).to.be.revertedWith("You must be staked to begin a dispute.");
-  });
-
   it('Should be able to vote for (true) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
@@ -442,43 +419,5 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(reporting_miner_wallet_bal).to.equal(BigNumber.from("112500000000000000000000")); // 600k - 472500(dispute fee)
     // expect balance of loser to be 500k(original stake amount) + 15(reward for mining ) = 500015 for not winning the disputed miners stake.
 
-  });
-
-  it("Should not be able to vote when not staked", async () => {
-    // Converts the uintVar "stakeAmount" to a bytes array
-    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
-      'timeOfLastNewValue'
-    );
-
-    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
-    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
-      timeOfLastNewValueBytes
-    );
-
-    // Gets the the current stake amount
-    let timeStamp: BigNumber = await zapMaster.getUintVar(
-      timeOfLastNewValueHash
-    );
-
-    const voter = signers[6];
-    const disputer = signers[1];
-
-    await zapTokenBsc.connect(disputer).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
-
-    zap = zap.connect(disputer);
-    await zap.beginDispute(1, timeStamp, 4);
-    // Convert to a bytes array
-    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
-
-    // Convert to a keccak256 hash
-    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
-
-    // Gets the disputeID also the dispute count
-    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
-
-    disputeId = await zapMaster.getUintVar(ddisputecount);
-      
-    zap = zap.connect(voter);
-    await expect(zap.vote(disputeId, true)).to.be.revertedWith("You must be staked to vote on a dispute.");
   });
 });
