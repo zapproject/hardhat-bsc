@@ -97,7 +97,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should reject if called twice', async () => {
+        it('Should reject if called twice', async () => {
 
             await expect(zapMarket.configure(signers[1].address))
                 .to.be.revertedWith("Market: Already configured");
@@ -114,7 +114,7 @@ describe("ZapMarket Test", () => {
 
     describe('#setBidShares', () => {
 
-        it.only('Should reject if not called by the media address', async () => {
+        it('Should reject if not called by the media address', async () => {
 
             await expect(zapMarket.connect(signers[3]).setBidShares(1, bidShares)).to.be.revertedWith(
                 'Market: Only media contract'
@@ -126,7 +126,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should set the bid shares if called by the media address', async () => {
+        it('Should set the bid shares if called by the media address', async () => {
 
             const tokenBidShares1 = await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
@@ -151,7 +151,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should reject if the bid shares are invalid', async () => {
+        it('Should reject if the bid shares are invalid', async () => {
 
             await expect(zapMarket.connect(signers[1]).setBidShares(1, invalidBidShares)).to.
                 be.revertedWith(
@@ -190,14 +190,14 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it.only('Should reject if not called by the media address', async () => {
+        it('Should reject if not called by the media address', async () => {
 
             await expect(zapMarket.connect(signers[5]).setAsk(1, ask)).to.be.revertedWith(
                 'Market: Only media contract'
             )
         });
 
-        it.only('Should set the ask if called by the media address', async () => {
+        it('Should set the ask if called by the media address', async () => {
 
             await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
@@ -216,7 +216,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should reject if the ask is too low', async () => {
+        it('Should reject if the ask is too low', async () => {
 
             await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
@@ -227,7 +227,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only("Should reject if the bid shares haven't been set yet", async () => {
+        it("Should reject if the bid shares haven't been set yet", async () => {
 
             await expect(zapMarket.connect(signers[1]).setAsk(1, ask)).to.be.revertedWith(
                 'Market: Invalid bid shares for token'
@@ -279,7 +279,7 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it.only('should revert if not called by the media contract', async () => {
+        it('should revert if not called by the media contract', async () => {
 
             await expect(zapMarket.connect(signers[4]).setBid(1, bid, bid.spender)).to.
                 be.revertedWith(
@@ -289,7 +289,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
+        it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
             await zapTokenBsc.mint(zapTokenBsc.address, 100000)
 
@@ -297,7 +297,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.skip('Should revert if the bid currency is 0 address', async () => {
+        it('Should revert if the bid currency is 0 address', async () => {
 
             await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
@@ -313,7 +313,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should revert if the bid recipient is 0 address', async () => {
+        it('Should revert if the bid recipient is 0 address', async () => {
 
             await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
@@ -329,7 +329,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should revert if the bidder bids 0 tokens', async () => {
+        it('Should revert if the bidder bids 0 tokens', async () => {
 
             await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
 
@@ -345,7 +345,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('should accept a valid bid', async () => {
+        it('should accept a valid bid', async () => {
 
             bid.amount = 100
 
