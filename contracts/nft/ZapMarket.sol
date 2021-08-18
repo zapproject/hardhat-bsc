@@ -173,6 +173,8 @@ contract ZapMarket is IMarket {
 
         isConfigured[mediaContractAddress] = true;
 
+        // msg.sender is the address of the ZapMedia contract
+        // msg.sender is passed into the mediaContract to add the signer address
         mediaContract[msg.sender] = mediaContractAddress;
 
         zapMediaAddress[mediaContractAddress] = msg.sender;
@@ -232,6 +234,7 @@ contract ZapMarket is IMarket {
         address spender
     ) public override onlyMediaCaller {
         BidShares memory bidShares = _bidShares[tokenId];
+
         require(
             bidShares.creator.value.add(bid.sellOnShare.value) <=
                 uint256(100).mul(Decimal.BASE),
@@ -261,6 +264,7 @@ contract ZapMarket is IMarket {
         // as some tokens impose a transfer fee and would not actually transfer the
         // full amount to the market, resulting in locked funds for refunds & bid acceptance
         uint256 beforeBalance = token.balanceOf(address(this));
+
         token.safeTransferFrom(spender, address(this), bid.amount);
         uint256 afterBalance = token.balanceOf(address(this));
         _tokenBidders[tokenId][bid.bidder] = Bid(
@@ -334,7 +338,7 @@ contract ZapMarket is IMarket {
             "Market: Bid invalid for share splitting"
         );
 
-        // _finalizeNFTTransfer(tokenId, bid.bidder);
+        _finalizeNFTTransfer(tokenId, bid.bidder);
     }
 
     /**
