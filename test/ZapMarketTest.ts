@@ -97,7 +97,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should reject if called twice', async () => {
+        it.only('Should reject if called twice', async () => {
 
             await expect(zapMarket.configure(signers[1].address))
                 .to.be.revertedWith("Market: Already configured");
