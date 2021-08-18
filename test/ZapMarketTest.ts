@@ -345,7 +345,21 @@ describe("ZapMarket Test", () => {
 
         });
 
+        it.only('should accept a valid bid', async () => {
 
-    })
+            bid.amount = 100
+
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc.connect(signers[0]).approve(bid.bidder, bid.amount)
+
+            const beforeBalance = await zapTokenBsc.balanceOf(bid.bidder)
+
+            await zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)
+        })
+
+    });
 
 })

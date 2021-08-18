@@ -53,9 +53,18 @@ contract ZapMarket is IMarket {
     /**
      * @notice require that the msg.sender is the configured media contract
      */
-    modifier onlyMediaCaller() {
+    // modifier onlyMediaCaller(address mediaContractAddress) {
+
+    //     require(
+    //         mediaContract[zapMediaAddress[msg.sender]] == msg.sender,
+    //         "Market: Only media contract"
+    //     );
+    //     _;
+    // }
+
+    modifier onlyMediaCallerTest(address mediaContractAddress) {
         require(
-            mediaContract[zapMediaAddress[msg.sender]] == msg.sender,
+            mediaContract[mediaContractAddress] == msg.sender,
             "Market: Only media contract"
         );
         _;
@@ -173,11 +182,8 @@ contract ZapMarket is IMarket {
 
         isConfigured[mediaContractAddress] = true;
 
-        // msg.sender is the address of the ZapMedia contract
-        // msg.sender is passed into the mediaContract to add the signer address
+        // mediaContract = mediaContractAddress;
         mediaContract[msg.sender] = mediaContractAddress;
-
-        zapMediaAddress[mediaContractAddress] = msg.sender;
     }
 
     /**
