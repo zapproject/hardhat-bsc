@@ -28,8 +28,6 @@ contract ZapMarket is IMarket {
     // address[] public mediaContract;
     mapping(address => address) public mediaContract;
 
-    mapping(address => address) public zapMediaAddress;
-
     // Deployment Address
     address private _owner;
 
@@ -176,8 +174,6 @@ contract ZapMarket is IMarket {
         // msg.sender is the address of the ZapMedia contract
         // msg.sender is passed into the mediaContract to add the signer address
         mediaContract[msg.sender] = mediaContractAddress;
-
-        zapMediaAddress[mediaContractAddress] = msg.sender;
     }
 
     /**
