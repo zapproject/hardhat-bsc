@@ -73,7 +73,7 @@ contract ZapMarket is IMarket {
         return _tokenBidders[tokenId][bidder];
     }
 
-    function currentAskForToken(uint256 tokenId)
+    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
         external
         view
         override
