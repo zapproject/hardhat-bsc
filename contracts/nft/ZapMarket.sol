@@ -35,7 +35,8 @@ contract ZapMarket is IMarket {
     mapping(uint256 => mapping(address => Bid)) private _tokenBidders;
 
     // Mapping from token to the bid shares for the token
-    mapping(uint256 => BidShares) private _bidShares;
+    mapping(address => mapping(uint256 => BidShares)) private _bidShares;
+    // mapping(uint256 => BidShares) private _bidShares;
 
     // Mapping from token to the current ask for the token
     mapping(uint256 => Ask) private _tokenAsks;
@@ -81,13 +82,13 @@ contract ZapMarket is IMarket {
         return _tokenAsks[tokenId];
     }
 
-    function bidSharesForToken(uint256 tokenId)
+    function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
         public
         view
         override
         returns (BidShares memory)
     {
-        return _bidShares[tokenId];
+        return _bidShares[mediaContractAddress][tokenId];
     }
 
     /**
@@ -96,13 +97,13 @@ contract ZapMarket is IMarket {
      *  the splitShare function uses integer division, any inconsistencies with the original and split sums would be due to
      *  a bid splitting that does not perfectly divide the bid amount.
      */
-    function isValidBid(uint256 tokenId, uint256 bidAmount)
+    function isValidBid(address mediaContractAddress, uint256 tokenId, uint256 bidAmount)
         public
         view
         override
         returns (bool)
     {
-        BidShares memory bidShares = bidSharesForToken(tokenId);
+        BidShares memory bidShares = bidSharesForToken(mediaContractAddress, tokenId);
         require(
             isValidBidShares(bidShares),
             "Market: Invalid bid shares for token"
@@ -188,7 +189,7 @@ contract ZapMarket is IMarket {
             isValidBidShares(bidShares),
             "Market: Invalid bid shares, must sum to 100"
         );
-        _bidShares[tokenId] = bidShares;
+        _bidShares[mediaContractAddress][tokenId] = bidShares;
         emit BidShareUpdated(tokenId, bidShares);
     }
 
@@ -202,7 +203,7 @@ contract ZapMarket is IMarket {
         Ask memory ask
     ) public override onlyMediaCaller(mediaContractAddress) {
         require(
-            isValidBid(tokenId, ask.amount),
+            isValidBid(mediaContractAddress, tokenId, ask.amount),
             "Market: Ask invalid for share splitting"
         );
 
@@ -233,7 +234,7 @@ contract ZapMarket is IMarket {
         Bid memory bid,
         address spender
     ) public override onlyMediaCaller(mediaContractAddress) {
-        BidShares memory bidShares = _bidShares[tokenId];
+        BidShares memory bidShares = _bidShares[mediaContractAddress][tokenId];
 
         require(
             bidShares.creator.value.add(bid.sellOnShare.value) <=
@@ -284,7 +285,7 @@ contract ZapMarket is IMarket {
             bid.amount >= _tokenAsks[tokenId].amount
         ) {
             // Finalize exchange
-            _finalizeNFTTransfer(tokenId, bid.bidder);
+            _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
         }
     }
 
@@ -334,11 +335,11 @@ contract ZapMarket is IMarket {
             "Market: Unexpected bid found."
         );
         require(
-            isValidBid(tokenId, bid.amount),
+            isValidBid(mediaContractAddress, tokenId, bid.amount),
             "Market: Bid invalid for share splitting"
         );
 
-        _finalizeNFTTransfer(tokenId, bid.bidder);
+        _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
     }
 
     /**
@@ -346,9 +347,9 @@ contract ZapMarket is IMarket {
      * the bid to the shareholders. It also transfers the ownership of the media
      * to the bid recipient. Finally, it removes the accepted bid and the current ask.
      */
-    function _finalizeNFTTransfer(uint256 tokenId, address bidder) private {
+    function _finalizeNFTTransfer(address mediaContractAddress, uint256 tokenId, address bidder) private {
         Bid memory bid = _tokenBidders[tokenId][bidder];
-        BidShares storage bidShares = _bidShares[tokenId];
+        BidShares storage bidShares = _bidShares[mediaContractAddress][tokenId];
 
         IERC20 token = IERC20(bid.currency);
 
@@ -376,7 +377,7 @@ contract ZapMarket is IMarket {
         bidShares.owner = Decimal.D256(
             uint256(100)
                 .mul(Decimal.BASE)
-                .sub(_bidShares[tokenId].creator.value)
+                .sub(_bidShares[mediaContractAddress][tokenId].creator.value)
                 .sub(bid.sellOnShare.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
