@@ -415,9 +415,21 @@ describe("ZapMarket Test", () => {
 
         it("Should reject if the bid shares haven't been set yet", async () => {
 
-            await expect(zapMarket.connect(signers[1]).setAsk(1, ask1)).to.be.revertedWith(
+            await expect(zapMarket.connect(signers[1]).setAsk(
+                zapMedia1.address,
+                1,
+                ask1
+            )).to.be.revertedWith(
                 'Market: Invalid bid shares for token'
-            )
+            );
+
+            await expect(zapMarket.connect(signers[2]).setAsk(
+                zapMedia2.address,
+                1,
+                ask1
+            )).to.be.revertedWith(
+                'Market: Invalid bid shares for token'
+            );
 
         });
 
