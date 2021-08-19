@@ -55,12 +55,12 @@ interface IMarket {
         view
         returns (Ask memory);
 
-    function bidSharesForToken(uint256 tokenId)
+    function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
         external
         view
         returns (BidShares memory);
 
-    function isValidBid(uint256 tokenId, uint256 bidAmount)
+    function isValidBid(address mediaContractAddress, uint256 tokenId, uint256 bidAmount)
         external
         view
         returns (bool);
