@@ -211,7 +211,7 @@ contract ZapMarket is IMarket {
             "Market: Ask invalid for share splitting"
         );
 
-        _tokenAsks[tokenId] = ask;
+        _tokenAsks[mediaContractAddress][tokenId] = ask;
         emit AskCreated(tokenId, ask);
     }
 
@@ -223,8 +223,8 @@ contract ZapMarket is IMarket {
         override
         onlyMediaCaller(mediaContractAddress)
     {
-        emit AskRemoved(tokenId, _tokenAsks[tokenId]);
-        delete _tokenAsks[tokenId];
+        emit AskRemoved(tokenId, _tokenAsks[mediaContractAddress][tokenId]);
+        delete _tokenAsks[mediaContractAddress][tokenId];
     }
 
     /**
@@ -284,9 +284,10 @@ contract ZapMarket is IMarket {
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[tokenId].currency &&
-            bid.amount >= _tokenAsks[tokenId].amount
+            _tokenAsks[mediaContractAddress][tokenId].currency != address(0) &&
+            bid.currency ==
+            _tokenAsks[mediaContractAddress][tokenId].currency &&
+            bid.amount >= _tokenAsks[mediaContractAddress][tokenId].amount
         ) {
             // Finalize exchange
             _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);

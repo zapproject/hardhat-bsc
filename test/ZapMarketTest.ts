@@ -63,7 +63,7 @@ describe("ZapMarket Test", () => {
     }
 
     let ask2 = {
-        amount: 150,
+        amount: 200,
         currency: '',
         sellOnShare: 0
     }
@@ -313,9 +313,17 @@ describe("ZapMarket Test", () => {
                 zapMedia2.address,
                 1,
                 ask2
-            );
+            )
 
-            const getAsk1 = await zapMarket.currentAskForToken(1)
+            const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 1)
+
+            const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 1)
+
+
+            console.log(getAsk1.amount.toNumber())
+
+            console.log(getAsk2.amount.toNumber())
+
 
             // expect(getAsk.amount.toNumber()).to.equal(ask.amount);
 
