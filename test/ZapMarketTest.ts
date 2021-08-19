@@ -17,7 +17,7 @@ describe("ZapMarket Test", () => {
     let zapTokenBsc: any
     let signers: any
 
-    let bidShares = {
+    let bidShares1 = {
 
         prevOwner: {
             value: BigInt(10000000000000000000)
@@ -27,6 +27,19 @@ describe("ZapMarket Test", () => {
         },
         creator: {
             value: BigInt(10000000000000000000)
+        },
+    };
+
+    let bidShares2 = {
+
+        prevOwner: {
+            value: BigInt(15000000000000000000)
+        },
+        owner: {
+            value: BigInt(70000000000000000000)
+        },
+        creator: {
+            value: BigInt(15000000000000000000)
         },
     };
 
@@ -43,8 +56,14 @@ describe("ZapMarket Test", () => {
         },
     };
 
-    let ask = {
+    let ask1 = {
         amount: 100,
+        currency: '',
+        sellOnShare: 0
+    }
+
+    let ask2 = {
+        amount: 200,
         currency: '',
         sellOnShare: 0
     }
@@ -80,7 +99,7 @@ describe("ZapMarket Test", () => {
             zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
             await zapTokenBsc.deployed();
 
-            ask.currency = zapTokenBsc.address
+            ask1.currency = zapTokenBsc.address
 
         })
 
@@ -116,49 +135,115 @@ describe("ZapMarket Test", () => {
 
         it.only('Should reject if not called by the media address', async () => {
 
-            await expect(zapMarket.connect(signers[3]).setBidShares(1, bidShares)).to.be.revertedWith(
-                'Market: Only media contract'
-            );
+            await expect(zapMarket.connect(signers[3]).setBidShares(
+                zapMedia1.address,
+                1, bidShares1
+            ))
+                .to.be.revertedWith(
+                    'Market: Only media contract'
+                );
 
-            await expect(zapMarket.connect(signers[4]).setBidShares(1, bidShares)).to.be.revertedWith(
-                'Market: Only media contract'
-            );
+            await expect(zapMarket.connect(signers[4]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares1
+            ))
+                .to.be.revertedWith(
+                    'Market: Only media contract'
+                );
 
         });
 
         it.only('Should set the bid shares if called by the media address', async () => {
 
-            const tokenBidShares1 = await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(zapMedia1.address, 1, bidShares1);
 
-            const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[2]).setBidShares(zapMedia2.address, 1, bidShares2);
 
-            // const bidSharesReceipt1 = await tokenBidShares1.wait();
+            const sharesForToken1 = await zapMarket.bidSharesForToken(zapMedia1.address, 1);
 
-            // const eventLog1 = bidSharesReceipt1.events[0]
+            const sharesForToken2 = await zapMarket.bidSharesForToken(zapMedia2.address, 1);
 
-            // expect(eventLog1.event).to.equal("BidShareUpdated");
+            expect(BigInt(parseInt(sharesForToken1.prevOwner.value))).to.be.equal(bidShares1.prevOwner.value);
 
-            // expect(eventLog1.args.tokenId.toNumber()).to.equal(1);
+            expect(BigInt(parseInt(sharesForToken1.creator.value))).to.be.equal(bidShares1.creator.value);
 
-            // expect(eventLog1.args)
+            expect(BigInt(parseInt(sharesForToken1.owner.value))).to.be.equal(bidShares1.owner.value);
 
-            // const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
+            expect(BigInt(parseInt(sharesForToken2.prevOwner.value))).to.be.equal(bidShares2.prevOwner.value);
+
+            expect(BigInt(parseInt(sharesForToken2.creator.value))).to.be.equal(bidShares2.creator.value);
+
+            expect(BigInt(parseInt(sharesForToken2.owner.value))).to.be.equal(bidShares2.owner.value);
+
         })
 
-        it('should emit an event when bid shares are updated', async () => {
+        it.only('Should emit an event when bid shares are updated', async () => {
 
-            const block = await ethers.provider.getBlockNumber();
+            const bidShares1Tx = await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
+
+            const bidShares2Tx = await zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares2
+            );
+
+            const receipt1 = await bidShares1Tx.wait();
+
+            const eventLog1 = receipt1.events[0];
+
+            const receipt2 = await bidShares2Tx.wait();
+
+            const eventLog2 = receipt2.events[0];
+
+            expect(eventLog1.event).to.be.equal('BidShareUpdated');
+
+            expect(eventLog1.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(BigInt(parseInt(eventLog1.args.bidShares.prevOwner.value))).to
+                .be.equal(bidShares1.prevOwner.value);
+
+            expect(BigInt(parseInt(eventLog1.args.bidShares.creator.value))).to
+                .be.equal(bidShares1.creator.value);
+
+            expect(BigInt(parseInt(eventLog1.args.bidShares.owner.value))).to
+                .be.equal(bidShares1.owner.value);
+
+            expect(eventLog2.event).to.be.equal('BidShareUpdated');
+
+            expect(eventLog2.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(BigInt(parseInt(eventLog2.args.bidShares.prevOwner.value))).to
+                .be.equal(bidShares2.prevOwner.value);
+
+            expect(BigInt(parseInt(eventLog2.args.bidShares.creator.value))).to
+                .be.equal(bidShares2.creator.value);
+
+            expect(BigInt(parseInt(eventLog2.args.bidShares.owner.value))).to
+                .be.equal(bidShares2.owner.value);
 
         });
 
         it.only('Should reject if the bid shares are invalid', async () => {
 
-            await expect(zapMarket.connect(signers[1]).setBidShares(1, invalidBidShares)).to.
+            await expect(zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                invalidBidShares
+            )).to.
                 be.revertedWith(
                     'Market: Invalid bid shares, must sum to 100'
                 )
 
-            await expect(zapMarket.connect(signers[2]).setBidShares(1, invalidBidShares)).to.
+            await expect(zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                invalidBidShares
+            )).to.
                 be.revertedWith(
                     'Market: Invalid bid shares, must sum to 100'
                 )
@@ -168,8 +253,6 @@ describe("ZapMarket Test", () => {
     describe("#setAsk", () => {
 
         beforeEach(async () => {
-
-            signers = await ethers.getSigners()
 
             const marketFixture = await deployments.fixture(['ZapMarket'])
 
@@ -188,37 +271,117 @@ describe("ZapMarket Test", () => {
 
             await zapMedia2.deployed();
 
+            ask1.currency = zapTokenBsc.address
+            ask2.currency = zapTokenBsc.address
+
         })
 
         it.only('Should reject if not called by the media address', async () => {
 
-            await expect(zapMarket.connect(signers[5]).setAsk(1, ask)).to.be.revertedWith(
-                'Market: Only media contract'
-            )
+            await expect(zapMarket.connect(signers[5]).setAsk(zapMedia1.address, 1, ask1))
+                .to.be.revertedWith(
+                    'Market: Only media contract'
+                )
+
+            await expect(zapMarket.connect(signers[5]).setAsk(zapMedia2.address, 1, ask1))
+                .to.be.revertedWith(
+                    'Market: Only media contract'
+                )
         });
 
         it.only('Should set the ask if called by the media address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
 
-            await zapMarket.connect(signers[1]).setAsk(1, ask);
+            await zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares2
+            );
 
-            const getAsk = await zapMarket.currentAskForToken(1)
+            await zapMarket.connect(signers[1]).setAsk(
+                zapMedia1.address,
+                1,
+                ask1
+            );
 
-            expect(getAsk.amount.toNumber()).to.equal(ask.amount);
+            await zapMarket.connect(signers[2]).setAsk(
+                zapMedia2.address,
+                1,
+                ask2
+            )
 
-            expect(getAsk.currency).to.equal(zapTokenBsc.address);
+            const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 1);
+
+            const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 1);
+
+            expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
+
+            expect(getAsk2.amount.toNumber()).to.equal(ask2.amount);
+
+            expect(getAsk1.currency).to.equal(zapTokenBsc.address);
 
         });
 
-        it('should emit an event if the ask is updated', async () => {
+        it.only('Should emit an event if the ask is updated', async () => {
 
+            await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
+
+            await zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares2
+            );
+
+            const askTx1 = await zapMarket.connect(signers[1]).setAsk(
+                zapMedia1.address,
+                1,
+                ask1
+            );
+
+            const askTx2 = await zapMarket.connect(signers[2]).setAsk(
+                zapMedia2.address,
+                1,
+                ask2
+            );
+
+            const receipt1 = await askTx1.wait();
+
+            const eventLog1 = receipt1.events[0];
+
+            const receipt2 = await askTx2.wait();
+
+            const eventLog2 = receipt2.events[0];
+
+            expect(eventLog1.event).to.be.equal('AskCreated');
+
+            expect(eventLog1.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(eventLog1.args.ask.amount.toNumber()).to.be.equal(ask1.amount);
+
+            expect(eventLog1.args.ask.currency).to.be.equal(zapTokenBsc.address);
+
+            expect(eventLog2.event).to.be.equal('AskCreated');
+
+            expect(eventLog2.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(eventLog2.args.ask.amount.toNumber()).to.be.equal(ask2.amount);
+
+            expect(eventLog2.args.ask.currency).to.be.equal(zapTokenBsc.address);
 
         });
 
-        it.only('Should reject if the ask is too low', async () => {
+        it('Should reject if the ask is too low', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await expect(zapMarket.connect(signers[1]).setAsk(1, {
                 amount: 1,
@@ -227,9 +390,9 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only("Should reject if the bid shares haven't been set yet", async () => {
+        it("Should reject if the bid shares haven't been set yet", async () => {
 
-            await expect(zapMarket.connect(signers[1]).setAsk(1, ask)).to.be.revertedWith(
+            await expect(zapMarket.connect(signers[1]).setAsk(1, ask1)).to.be.revertedWith(
                 'Market: Invalid bid shares for token'
             )
 
@@ -279,7 +442,7 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it.only('should revert if not called by the media contract', async () => {
+        it('should revert if not called by the media contract', async () => {
 
             await expect(zapMarket.connect(signers[4]).setBid(1, bid, bid.spender)).to.
                 be.revertedWith(
@@ -289,7 +452,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
+        it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
             await zapTokenBsc.mint(zapTokenBsc.address, 100000)
 
@@ -297,9 +460,9 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.skip('Should revert if the bid currency is 0 address', async () => {
+        it('Should revert if the bid currency is 0 address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -313,9 +476,9 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should revert if the bid recipient is 0 address', async () => {
+        it('Should revert if the bid recipient is 0 address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -329,9 +492,9 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should revert if the bidder bids 0 tokens', async () => {
+        it('Should revert if the bidder bids 0 tokens', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -345,7 +508,21 @@ describe("ZapMarket Test", () => {
 
         });
 
+        it('should accept a valid bid', async () => {
 
-    })
+            bid.amount = 100
+
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc.connect(signers[0]).approve(bid.bidder, bid.amount)
+
+            const beforeBalance = await zapTokenBsc.balanceOf(bid.bidder)
+
+            await zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)
+        })
+
+    });
 
 })

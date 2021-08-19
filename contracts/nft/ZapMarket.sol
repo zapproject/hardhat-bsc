@@ -39,7 +39,9 @@ contract ZapMarket is IMarket {
     // mapping(uint256 => BidShares) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    mapping(uint256 => Ask) private _tokenAsks;
+    // mapping(uint256 => Ask) private _tokenAsks;
+
+    mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
@@ -73,13 +75,13 @@ contract ZapMarket is IMarket {
         return _tokenBidders[tokenId][bidder];
     }
 
-    function currentAskForToken(uint256 tokenId)
+    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
         external
         view
         override
         returns (Ask memory)
     {
-        return _tokenAsks[tokenId];
+        return _tokenAsks[mediaContractAddress][tokenId];
     }
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
@@ -97,13 +99,15 @@ contract ZapMarket is IMarket {
      *  the splitShare function uses integer division, any inconsistencies with the original and split sums would be due to
      *  a bid splitting that does not perfectly divide the bid amount.
      */
-    function isValidBid(address mediaContractAddress, uint256 tokenId, uint256 bidAmount)
-        public
-        view
-        override
-        returns (bool)
-    {
-        BidShares memory bidShares = bidSharesForToken(mediaContractAddress, tokenId);
+    function isValidBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        uint256 bidAmount
+    ) public view override returns (bool) {
+        BidShares memory bidShares = bidSharesForToken(
+            mediaContractAddress,
+            tokenId
+        );
         require(
             isValidBidShares(bidShares),
             "Market: Invalid bid shares for token"
@@ -172,8 +176,7 @@ contract ZapMarket is IMarket {
 
         isConfigured[mediaContractAddress] = true;
 
-        // msg.sender is the address of the ZapMedia contract
-        // msg.sender is passed into the mediaContract to add the signer address
+        // mediaContract = mediaContractAddress;
         mediaContract[msg.sender] = mediaContractAddress;
     }
 
@@ -181,11 +184,11 @@ contract ZapMarket is IMarket {
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
      */
-    function setBidShares(address mediaContractAddress, uint256 tokenId, BidShares memory bidShares)
-        public
-        override
-        onlyMediaCaller(mediaContractAddress)
-    {
+    function setBidShares(
+        address mediaContractAddress,
+        uint256 tokenId,
+        BidShares memory bidShares
+    ) public override onlyMediaCaller(mediaContractAddress) {
         require(
             isValidBidShares(bidShares),
             "Market: Invalid bid shares, must sum to 100"
@@ -198,26 +201,30 @@ contract ZapMarket is IMarket {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAsk(address mediaContractAddress, uint256 tokenId, Ask memory ask)
-        public
-        override
-        onlyMediaCaller(mediaContractAddress)
-    {
+    function setAsk(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Ask memory ask
+    ) public override onlyMediaCaller(mediaContractAddress) {
         require(
             isValidBid(mediaContractAddress, tokenId, ask.amount),
             "Market: Ask invalid for share splitting"
         );
 
-        _tokenAsks[tokenId] = ask;
+        _tokenAsks[mediaContractAddress][tokenId] = ask;
         emit AskCreated(tokenId, ask);
     }
 
     /**
      * @notice removes an ask for a token and emits an AskRemoved event
      */
-    function removeAsk(address mediaContractAddress, uint256 tokenId) external override onlyMediaCaller(mediaContractAddress) {
-        emit AskRemoved(tokenId, _tokenAsks[tokenId]);
-        delete _tokenAsks[tokenId];
+    function removeAsk(address mediaContractAddress, uint256 tokenId)
+        external
+        override
+        onlyMediaCaller(mediaContractAddress)
+    {
+        emit AskRemoved(tokenId, _tokenAsks[mediaContractAddress][tokenId]);
+        delete _tokenAsks[mediaContractAddress][tokenId];
     }
 
     /**
@@ -226,7 +233,7 @@ contract ZapMarket is IMarket {
      * If another bid already exists for the bidder, it is refunded.
      */
     function setBid(
-        address mediaContractAddress, 
+        address mediaContractAddress,
         uint256 tokenId,
         Bid memory bid,
         address spender
@@ -277,9 +284,10 @@ contract ZapMarket is IMarket {
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[tokenId].currency &&
-            bid.amount >= _tokenAsks[tokenId].amount
+            _tokenAsks[mediaContractAddress][tokenId].currency != address(0) &&
+            bid.currency ==
+            _tokenAsks[mediaContractAddress][tokenId].currency &&
+            bid.amount >= _tokenAsks[mediaContractAddress][tokenId].amount
         ) {
             // Finalize exchange
             _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
@@ -290,11 +298,11 @@ contract ZapMarket is IMarket {
      * @notice Removes the bid on a particular media for a bidder. The bid amount
      * is transferred from this contract to the bidder, if they have a bid placed.
      */
-    function removeBid(address mediaContractAddress, uint256 tokenId, address bidder)
-        public
-        override
-        onlyMediaCaller(mediaContractAddress)
-    {
+    function removeBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) public override onlyMediaCaller(mediaContractAddress) {
         Bid storage bid = _tokenBidders[tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
@@ -317,11 +325,11 @@ contract ZapMarket is IMarket {
      * This should only revert in rare instances (example, a low bid with a zero-decimal token),
      * but is necessary to ensure fairness to all shareholders.
      */
-    function acceptBid(address mediaContractAddress, uint256 tokenId, Bid calldata expectedBid)
-        external
-        override
-        onlyMediaCaller(mediaContractAddress)
-    {
+    function acceptBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Bid calldata expectedBid
+    ) external override onlyMediaCaller(mediaContractAddress) {
         Bid memory bid = _tokenBidders[tokenId][expectedBid.bidder];
         require(bid.amount > 0, "Market: cannot accept bid of 0");
         require(
@@ -344,7 +352,11 @@ contract ZapMarket is IMarket {
      * the bid to the shareholders. It also transfers the ownership of the media
      * to the bid recipient. Finally, it removes the accepted bid and the current ask.
      */
-    function _finalizeNFTTransfer(address mediaContractAddress, uint256 tokenId, address bidder) private {
+    function _finalizeNFTTransfer(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) private {
         Bid memory bid = _tokenBidders[tokenId][bidder];
         BidShares storage bidShares = _bidShares[mediaContractAddress][tokenId];
 
