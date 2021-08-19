@@ -315,19 +315,15 @@ describe("ZapMarket Test", () => {
                 ask2
             )
 
-            const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 1)
+            const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 1);
 
-            const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 1)
+            const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 1);
 
+            expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
 
-            console.log(getAsk1.amount.toNumber())
+            expect(getAsk2.amount.toNumber()).to.equal(ask2.amount);
 
-            console.log(getAsk2.amount.toNumber())
-
-
-            // expect(getAsk.amount.toNumber()).to.equal(ask.amount);
-
-            // expect(getAsk.currency).to.equal(zapTokenBsc.address);
+            expect(getAsk1.currency).to.equal(zapTokenBsc.address);
 
         });
 
