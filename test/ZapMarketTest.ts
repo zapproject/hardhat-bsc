@@ -437,20 +437,9 @@ describe("ZapMarket Test", () => {
 
     describe("#setBid", () => {
 
-        const bid = {
-            amount: 100,
-            currency: '',
-            bidder: '',
-            recipient: '',
-            spender: '',
-            sellOnShare: {
-                value: BigInt(10000000000000000000)
-            }
-        };
-        let zapMedia1: any
+        let bid: any;
 
         beforeEach(async () => {
-
 
             const marketFixture = await deployments.fixture(['ZapMarket'])
 
@@ -470,34 +459,66 @@ describe("ZapMarket Test", () => {
             zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
             await zapTokenBsc.deployed();
 
-            bid.currency = zapTokenBsc.address
-            bid.bidder = signers[7].address
-            bid.recipient = signers[8].address
-            bid.spender = signers[9].address
+            bid = {
+                amount: 100,
+                currency: zapTokenBsc.address,
+                bidder: signers[7].address,
+                recipient: signers[8].address,
+                spender: signers[9].address,
+                sellOnShare: {
+                    value: BigInt(10000000000000000000)
+                }
+            };
 
         })
 
-        it('should revert if not called by the media contract', async () => {
+        it.only('Should revert if not called by the media contract', async () => {
 
-            await expect(zapMarket.connect(signers[4]).setBid(1, bid, bid.spender)).to.
-                be.revertedWith(
-                    'Market: Only media contract'
-                )
+            await expect(zapMarket.connect(signers[4]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith(
+                'Market: Only media contract'
+            )
+
+            await expect(zapMarket.connect(signers[5]).setBid(
+                zapMedia2.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith(
+                'Market: Only media contract'
+            )
 
 
         });
 
         it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
-            await zapTokenBsc.mint(zapTokenBsc.address, 100000)
+            await zapTokenBsc.mint(zapTokenBsc.address, bid.amount)
 
-            await zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)
+            await zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            )
+
+        });
+
+        it.('Should revert if the bidder does not have enough tokens to bid with', async () => {
 
         });
 
         it('Should revert if the bid currency is 0 address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
+            await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
