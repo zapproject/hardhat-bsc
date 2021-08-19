@@ -327,8 +327,55 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('should emit an event if the ask is updated', async () => {
+        it.only('Should emit an event if the ask is updated', async () => {
 
+            await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
+
+            await zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares2
+            );
+
+            const askTx1 = await zapMarket.connect(signers[1]).setAsk(
+                zapMedia1.address,
+                1,
+                ask1
+            );
+
+            const askTx2 = await zapMarket.connect(signers[2]).setAsk(
+                zapMedia2.address,
+                1,
+                ask2
+            );
+
+            const receipt1 = await askTx1.wait();
+
+            const eventLog1 = receipt1.events[0];
+
+            const receipt2 = await askTx2.wait();
+
+            const eventLog2 = receipt2.events[0];
+
+            expect(eventLog1.event).to.be.equal('AskCreated');
+
+            expect(eventLog1.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(eventLog1.args.ask.amount.toNumber()).to.be.equal(ask1.amount);
+
+            expect(eventLog1.args.ask.currency).to.be.equal(zapTokenBsc.address);
+
+            expect(eventLog2.event).to.be.equal('AskCreated');
+
+            expect(eventLog2.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(eventLog2.args.ask.amount.toNumber()).to.be.equal(ask2.amount);
+
+            expect(eventLog2.args.ask.currency).to.be.equal(zapTokenBsc.address);
 
         });
 
