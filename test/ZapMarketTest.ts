@@ -164,7 +164,6 @@ describe("ZapMarket Test", () => {
 
             expect(BigInt(parseInt(sharesForToken1.owner.value))).to.be.equal(bidShares1.owner.value);
 
-
             expect(BigInt(parseInt(sharesForToken2.prevOwner.value))).to.be.equal(bidShares2.prevOwner.value);
 
             expect(BigInt(parseInt(sharesForToken2.creator.value))).to.be.equal(bidShares2.creator.value);
@@ -173,9 +172,53 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it('should emit an event when bid shares are updated', async () => {
+        it.only('Should emit an event when bid shares are updated', async () => {
 
-            const block = await ethers.provider.getBlockNumber();
+            const bidShares1Tx = await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
+
+            const bidShares2Tx = await zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares2
+            );
+
+            const receipt1 = await bidShares1Tx.wait();
+
+            const eventLog1 = receipt1.events[0];
+
+            const receipt2 = await bidShares2Tx.wait();
+
+            const eventLog2 = receipt2.events[0];
+
+            expect(eventLog1.event).to.be.equal('BidShareUpdated');
+
+            expect(eventLog1.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(BigInt(parseInt(eventLog1.args.bidShares.prevOwner.value))).to
+                .be.equal(bidShares1.prevOwner.value);
+
+            expect(BigInt(parseInt(eventLog1.args.bidShares.creator.value))).to
+                .be.equal(bidShares1.creator.value);
+
+            expect(BigInt(parseInt(eventLog1.args.bidShares.owner.value))).to
+                .be.equal(bidShares1.owner.value);
+
+            expect(eventLog2.event).to.be.equal('BidShareUpdated');
+
+            expect(eventLog2.args.tokenId.toNumber()).to.be.equal(1);
+
+            expect(BigInt(parseInt(eventLog2.args.bidShares.prevOwner.value))).to
+                .be.equal(bidShares2.prevOwner.value);
+
+            expect(BigInt(parseInt(eventLog2.args.bidShares.creator.value))).to
+                .be.equal(bidShares2.creator.value);
+
+            expect(BigInt(parseInt(eventLog2.args.bidShares.owner.value))).to
+                .be.equal(bidShares2.owner.value);
 
         });
 
