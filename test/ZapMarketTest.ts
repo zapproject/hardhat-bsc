@@ -17,7 +17,7 @@ describe("ZapMarket Test", () => {
     let zapTokenBsc: any
     let signers: any
 
-    let bidShares = {
+    let bidShares1 = {
 
         prevOwner: {
             value: BigInt(10000000000000000000)
@@ -27,6 +27,19 @@ describe("ZapMarket Test", () => {
         },
         creator: {
             value: BigInt(10000000000000000000)
+        },
+    };
+
+    let bidShares2 = {
+
+        prevOwner: {
+            value: BigInt(15000000000000000000)
+        },
+        owner: {
+            value: BigInt(70000000000000000000)
+        },
+        creator: {
+            value: BigInt(15000000000000000000)
         },
     };
 
@@ -118,7 +131,7 @@ describe("ZapMarket Test", () => {
 
             await expect(zapMarket.connect(signers[3]).setBidShares(
                 zapMedia1.address,
-                1, bidShares
+                1, bidShares1
             ))
                 .to.be.revertedWith(
                     'Market: Only media contract'
@@ -127,7 +140,7 @@ describe("ZapMarket Test", () => {
             await expect(zapMarket.connect(signers[4]).setBidShares(
                 zapMedia2.address,
                 1,
-                bidShares
+                bidShares1
             ))
                 .to.be.revertedWith(
                     'Market: Only media contract'
@@ -135,23 +148,29 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should set the bid shares if called by the media address', async () => {
+        it.only('Should set the bid shares if called by the media address', async () => {
 
-            const tokenBidShares1 = await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(zapMedia1.address, 1, bidShares1);
 
-            const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[2]).setBidShares(zapMedia2.address, 1, bidShares2);
 
-            // const bidSharesReceipt1 = await tokenBidShares1.wait();
+            const sharesForToken1 = await zapMarket.bidSharesForToken(zapMedia1.address, 1);
 
-            // const eventLog1 = bidSharesReceipt1.events[0]
+            const sharesForToken2 = await zapMarket.bidSharesForToken(zapMedia2.address, 1);
 
-            // expect(eventLog1.event).to.equal("BidShareUpdated");
+            expect(BigInt(parseInt(sharesForToken1.prevOwner.value))).to.be.equal(bidShares1.prevOwner.value);
 
-            // expect(eventLog1.args.tokenId.toNumber()).to.equal(1);
+            expect(BigInt(parseInt(sharesForToken1.creator.value))).to.be.equal(bidShares1.creator.value);
 
-            // expect(eventLog1.args)
+            expect(BigInt(parseInt(sharesForToken1.owner.value))).to.be.equal(bidShares1.owner.value);
 
-            // const tokenBidShares2 = await zapMarket.connect(signers[2]).setBidShares(1, bidShares);
+
+            expect(BigInt(parseInt(sharesForToken2.prevOwner.value))).to.be.equal(bidShares2.prevOwner.value);
+
+            expect(BigInt(parseInt(sharesForToken2.creator.value))).to.be.equal(bidShares2.creator.value);
+
+            expect(BigInt(parseInt(sharesForToken2.owner.value))).to.be.equal(bidShares2.owner.value);
+
         })
 
         it('should emit an event when bid shares are updated', async () => {
@@ -208,7 +227,7 @@ describe("ZapMarket Test", () => {
 
         it('Should set the ask if called by the media address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapMarket.connect(signers[1]).setAsk(1, ask);
 
@@ -227,7 +246,7 @@ describe("ZapMarket Test", () => {
 
         it('Should reject if the ask is too low', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await expect(zapMarket.connect(signers[1]).setAsk(1, {
                 amount: 1,
@@ -308,7 +327,7 @@ describe("ZapMarket Test", () => {
 
         it('Should revert if the bid currency is 0 address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -324,7 +343,7 @@ describe("ZapMarket Test", () => {
 
         it('Should revert if the bid recipient is 0 address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -340,7 +359,7 @@ describe("ZapMarket Test", () => {
 
         it('Should revert if the bidder bids 0 tokens', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -358,7 +377,7 @@ describe("ZapMarket Test", () => {
 
             bid.amount = 100
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares);
+            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 

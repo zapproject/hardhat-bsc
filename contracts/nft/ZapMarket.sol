@@ -97,13 +97,15 @@ contract ZapMarket is IMarket {
      *  the splitShare function uses integer division, any inconsistencies with the original and split sums would be due to
      *  a bid splitting that does not perfectly divide the bid amount.
      */
-    function isValidBid(address mediaContractAddress, uint256 tokenId, uint256 bidAmount)
-        public
-        view
-        override
-        returns (bool)
-    {
-        BidShares memory bidShares = bidSharesForToken(mediaContractAddress, tokenId);
+    function isValidBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        uint256 bidAmount
+    ) public view override returns (bool) {
+        BidShares memory bidShares = bidSharesForToken(
+            mediaContractAddress,
+            tokenId
+        );
         require(
             isValidBidShares(bidShares),
             "Market: Invalid bid shares for token"
@@ -347,7 +349,11 @@ contract ZapMarket is IMarket {
      * the bid to the shareholders. It also transfers the ownership of the media
      * to the bid recipient. Finally, it removes the accepted bid and the current ask.
      */
-    function _finalizeNFTTransfer(address mediaContractAddress, uint256 tokenId, address bidder) private {
+    function _finalizeNFTTransfer(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) private {
         Bid memory bid = _tokenBidders[tokenId][bidder];
         BidShares storage bidShares = _bidShares[mediaContractAddress][tokenId];
 
