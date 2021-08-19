@@ -39,7 +39,9 @@ contract ZapMarket is IMarket {
     // mapping(uint256 => BidShares) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    mapping(uint256 => Ask) private _tokenAsks;
+    // mapping(uint256 => Ask) private _tokenAsks;
+
+    mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
@@ -79,7 +81,7 @@ contract ZapMarket is IMarket {
         override
         returns (Ask memory)
     {
-        return _tokenAsks[tokenId];
+        return _tokenAsks[mediaContractAddress][tokenId];
     }
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
