@@ -379,14 +379,37 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should reject if the ask is too low', async () => {
+        it.only('Should reject if the ask is too low', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
+            await zapMarket.connect(signers[1]).setBidShares(
+                zapMedia1.address,
+                1,
+                bidShares1
+            );
 
-            await expect(zapMarket.connect(signers[1]).setAsk(1, {
-                amount: 1,
-                currency: zapTokenBsc.address
-            })).to.be.revertedWith('Market: Ask invalid for share splitting')
+            await zapMarket.connect(signers[2]).setBidShares(
+                zapMedia2.address,
+                1,
+                bidShares2
+            );
+
+            await expect(zapMarket.connect(signers[1]).setAsk(
+                zapMedia1.address,
+                1,
+                {
+                    amount: 1,
+                    currency: zapTokenBsc.address
+                }))
+                .to.be.revertedWith('Market: Ask invalid for share splitting')
+
+            await expect(zapMarket.connect(signers[2]).setAsk(
+                zapMedia2.address,
+                1,
+                {
+                    amount: 13,
+                    currency: zapTokenBsc.address
+                }))
+                .to.be.revertedWith('Market: Ask invalid for share splitting')
 
         });
 
