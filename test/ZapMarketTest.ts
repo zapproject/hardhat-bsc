@@ -463,9 +463,9 @@ describe("ZapMarket Test", () => {
             bid = {
                 amount: 100,
                 currency: zapTokenBsc.address,
-                bidder: signers[7].address,
+                bidder: signers[1].address,
                 recipient: signers[8].address,
-                spender: signers[9].address,
+                spender: signers[1].address,
                 sellOnShare: {
                     value: BigInt(10000000000000000000)
                 }
@@ -497,20 +497,35 @@ describe("ZapMarket Test", () => {
 
         it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
-            await zapMarket.connect(signers[1]).setBid(
+            await zapTokenBsc.mint(signers[1].address, bid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid.amount - 1);
+
+            await expect(zapMarket.connect(signers[1]).setBid(
                 zapMedia1.address,
                 1,
                 bid,
                 bid.spender
-            )
+            )).to.be.revertedWith('SafeERC20: low-level call failed');
 
         });
 
-        it('Should revert if the bidder does not have enough tokens to bid with', async () => {
+        it.only('Should revert if the bidder does not have enough tokens to bid with', async () => {
+
+            await zapTokenBsc.mint(signers[1].address, bid.amount - 1);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid.amount);
+
+            await expect(zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith('SafeERC20: low-level call failed')
 
         });
 
-        it('Should revert if the bid currency is 0 address', async () => {
+        it.only('Should revert if the bid currency is 0 address', async () => {
 
             await zapMarket.connect(signers[1]).setBidShares(
                 zapMedia1.address,
@@ -524,57 +539,74 @@ describe("ZapMarket Test", () => {
 
             bid.currency = '0x0000000000000000000000000000000000000000';
 
-            await expect(zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)).to.be.revertedWith(
+            await expect(zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith(
                 'Market: bid currency cannot be 0 address'
             )
 
         });
 
-        it('Should revert if the bid recipient is 0 address', async () => {
+        it.only('Should revert if the bid recipient is 0 address', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
+            await zapTokenBsc.mint(signers[1].address, bid.amount);
 
-            await zapTokenBsc.mint(bid.bidder, bid.amount);
-
-            await zapTokenBsc.connect(signers[0]).approve(bid.bidder, bid.amount)
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid.amount - 1);
 
             bid.recipient = '0x0000000000000000000000000000000000000000';
 
-            await expect(zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)).to.be.revertedWith(
+            await expect(zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith(
                 'Market: bid recipient cannot be 0 address'
             )
 
         });
 
-        it('Should revert if the bidder bids 0 tokens', async () => {
+        it.only('Should revert if the bidder bids 0 tokens', async () => {
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
+            await zapTokenBsc.mint(signers[1].address, bid.amount);
 
-            await zapTokenBsc.mint(bid.bidder, bid.amount);
-
-            await zapTokenBsc.connect(signers[0]).approve(bid.bidder, bid.amount)
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid.amount);
 
             bid.amount = 0
 
-            await expect(zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)).to.be.revertedWith(
+            await expect(zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith(
                 'Market: cannot bid amount of 0'
             )
 
         });
 
-        it('should accept a valid bid', async () => {
+        it.only('Should accept a valid bid', async () => {
 
-            bid.amount = 100
+            await zapTokenBsc.mint(signers[1].address, bid.amount);
 
-            await zapMarket.connect(signers[1]).setBidShares(1, bidShares1);
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid.amount);
 
-            await zapTokenBsc.mint(bid.bidder, bid.amount);
-
-            await zapTokenBsc.connect(signers[0]).approve(bid.bidder, bid.amount)
+            await zapMarket.connect(signers[1]).setBidShares(zapMedia1.address, 1, bidShares1);
 
             const beforeBalance = await zapTokenBsc.balanceOf(bid.bidder)
 
-            await zapMarket.connect(signers[1]).setBid(1, bid, bid.spender)
+            await zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid,
+                bid.spender
+            );
+
+            const afterBalance = await zapTokenBsc.balanceOf(bid.bidder);
+
         })
 
     });

@@ -10,7 +10,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
-import "hardhat/console.sol";
 
 /**
  * @title A Market for pieces of media
@@ -263,21 +262,14 @@ contract ZapMarket is IMarket {
             removeBid(mediaContractAddress, tokenId, bid.bidder);
         }
 
-        console.log("Testing 1");
         IERC20 token = IERC20(bid.currency);
-        console.log("Testing 2");
 
         // We must check the balance that was actually transferred to the market,
         // as some tokens impose a transfer fee and would not actually transfer the
         // full amount to the market, resulting in locked funds for refunds & bid acceptance
         uint256 beforeBalance = token.balanceOf(address(this));
 
-        console.log("Testing 3");
-
-        token.approve(address(this), bid.amount);
         token.safeTransferFrom(spender, address(this), bid.amount);
-
-        console.log("Testing 5");
 
         uint256 afterBalance = token.balanceOf(address(this));
 
