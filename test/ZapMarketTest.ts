@@ -438,6 +438,7 @@ describe("ZapMarket Test", () => {
     describe("#setBid", () => {
 
         let bid: any;
+        let zapTokenBsc: any;
 
         beforeEach(async () => {
 
@@ -456,7 +457,7 @@ describe("ZapMarket Test", () => {
                 signers[0]
             );
 
-            zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+            zapTokenBsc = (await zapTokenFactory.deploy())
             await zapTokenBsc.deployed();
 
             bid = {
@@ -492,12 +493,9 @@ describe("ZapMarket Test", () => {
                 'Market: Only media contract'
             )
 
-
         });
 
-        it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
-
-            await zapTokenBsc.mint(zapTokenBsc.address, bid.amount)
+        it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
             await zapMarket.connect(signers[1]).setBid(
                 zapMedia1.address,
@@ -508,7 +506,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.('Should revert if the bidder does not have enough tokens to bid with', async () => {
+        it('Should revert if the bidder does not have enough tokens to bid with', async () => {
 
         });
 

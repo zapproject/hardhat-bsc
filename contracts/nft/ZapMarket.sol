@@ -263,15 +263,24 @@ contract ZapMarket is IMarket {
             removeBid(mediaContractAddress, tokenId, bid.bidder);
         }
 
+        console.log("Testing 1");
         IERC20 token = IERC20(bid.currency);
+        console.log("Testing 2");
 
         // We must check the balance that was actually transferred to the market,
         // as some tokens impose a transfer fee and would not actually transfer the
         // full amount to the market, resulting in locked funds for refunds & bid acceptance
         uint256 beforeBalance = token.balanceOf(address(this));
 
+        console.log("Testing 3");
+
+        token.approve(address(this), bid.amount);
         token.safeTransferFrom(spender, address(this), bid.amount);
+
+        console.log("Testing 5");
+
         uint256 afterBalance = token.balanceOf(address(this));
+
         _tokenBidders[tokenId][bid.bidder] = Bid(
             afterBalance.sub(beforeBalance),
             bid.currency,
@@ -362,24 +371,31 @@ contract ZapMarket is IMarket {
 
         IERC20 token = IERC20(bid.currency);
 
-        // // Transfer bid share to owner of media
-        // token.safeTransfer(
-        //     IERC721(mediaContract).ownerOf(tokenId),
-        //     splitShare(bidShares.owner, bid.amount)
-        // );
-        // // Transfer bid share to creator of media
-        // token.safeTransfer(
-        //     ZapMedia(mediaContract).tokenCreators(tokenId),
-        //     splitShare(bidShares.creator, bid.amount)
-        // );
-        // // Transfer bid share to previous owner of media (if applicable)
-        // token.safeTransfer(
-        //     ZapMedia(mediaContract).previousTokenOwners(tokenId),
-        //     splitShare(bidShares.prevOwner, bid.amount)
-        // );
+        // Transfer bid share to owner of media
+        token.safeTransfer(
+            IERC721(mediaContract[mediaContractAddress]).ownerOf(tokenId),
+            splitShare(bidShares.owner, bid.amount)
+        );
+        // Transfer bid share to creator of media
+        token.safeTransfer(
+            ZapMedia(mediaContract[mediaContractAddress]).tokenCreators(
+                tokenId
+            ),
+            splitShare(bidShares.creator, bid.amount)
+        );
+        // Transfer bid share to previous owner of media (if applicable)
+        token.safeTransfer(
+            ZapMedia(mediaContract[mediaContractAddress]).previousTokenOwners(
+                tokenId
+            ),
+            splitShare(bidShares.prevOwner, bid.amount)
+        );
 
         // Transfer media to bid recipient
-        // ZapMedia(mediaContract).auctionTransfer(tokenId, bid.recipient);
+        ZapMedia(mediaContract[mediaContractAddress]).auctionTransfer(
+            tokenId,
+            bid.recipient
+        );
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
