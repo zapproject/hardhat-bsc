@@ -214,4 +214,77 @@ describe("ZapMedia Test", async () => {
         //     ).revertedWith('Market: Invalid bid shares, must sum to 100');
         // });
     });
+
+    describe('#mintWithSig', () => {
+        let sig: any;
+
+        beforeEach(async () => {
+            tokenURI =  String('media contract 1 - token 1 uri');
+            metadataURI = String('media contract 1 - metadata 1 uri');
+
+            metadataHex = ethers.utils.formatBytes32String('{}');
+            metadataHash = await ethers.utils.sha256(metadataHex);
+            metadataHashBytes = ethers.utils.arrayify(metadataHash);
+
+            contentHex = ethers.utils.formatBytes32String('invert');
+            contentHash = await ethers.utils.sha256(contentHex);
+            contentHashBytes = ethers.utils.arrayify(contentHash);
+
+            zeroContentHashBytes = ethers.utils.arrayify(ethers.constants.HashZero);
+
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+
+            let nonce = (await zapMedia1.mintWithSigNonces(signers[1].address)).toNumber();
+            const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
+            const name = await zapMedia1.name();
+
+            const chainId = 1;
+            const creatorShare = BigInt(50000000000000000000).valueOf().toString();
+            const domain = {
+                name,
+                version: '1',
+                chainId,
+                verifyingContract: zapMedia1.address,
+            };
+            const types = {
+                // primaryType: 'MintWithSig',
+                // EIP712Domain: [
+                //     { name: 'name', type: 'string' },
+                //     { name: 'version', type: 'string' },
+                //     { name: 'chainId', type: 'uint256' },
+                //     { name: 'verifyingContract', type: 'address' },
+                // ],
+                MintWithSig: [
+                    { name: 'contentHash', type: 'bytes32' },
+                    { name: 'metadataHash', type: 'bytes32' },
+                    { name: 'creatorShare', type: 'uint256' },
+                    { name: 'nonce', type: 'uint256' },
+                    { name: 'deadline', type: 'uint256' },
+                ],
+            };
+            const value = {
+                contentHash,
+                metadataHash,
+                creatorShare,
+                nonce,
+                deadline,
+            };
+            sig = await signers[1]._signTypedData(
+                domain,
+                types,
+                value
+                // primaryType: 'MintWithSig',
+            );
+            console.log(creatorShare, sig);
+        });
+
+        it.only('test', async () => {
+            await zapMedia1.mintWithSig(signers[1].address, mediaData, bidShares, sig);
+        });
+    });
 });
