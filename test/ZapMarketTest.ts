@@ -540,7 +540,6 @@ describe("ZapMarket Test", () => {
             await zapTokenBsc.mint(signers[1].address, bid1.amount - 1);
             await zapTokenBsc.mint(signers[2].address, bid2.amount - 1);
 
-
             await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount);
             await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, bid2.amount);
 
@@ -818,7 +817,7 @@ describe("ZapMarket Test", () => {
             await zapTokenBsc.mint(signers[2].address, 5000);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, bid2.amount);
+            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
 
             await zapMarket.connect(signers[1]).setBidShares(zapMedia1.address, 1, bidShares1);
             await zapMarket.connect(signers[2]).setBidShares(zapMedia2.address, 1, bidShares2);
@@ -834,7 +833,15 @@ describe("ZapMarket Test", () => {
                 bid1.spender
             );
 
+            await zapMarket.connect(signers[2]).setBid(
+                zapMedia2.address,
+                1,
+                bid2,
+                bid2.spender
+            );
+
             bid1.amount = bid1.amount * 2
+            bid2.amount = bid2.amount * 2
 
             await zapMarket.connect(signers[1]).setBid(
                 zapMedia1.address,
@@ -843,12 +850,73 @@ describe("ZapMarket Test", () => {
                 bid1.spender
             );
 
-            const afterBalance = await zapMarket.balanceOf(bid1.bidder)
+            await zapMarket.connect(signers[2]).setBid(
+                zapMedia2.address,
+                1,
+                bid2,
+                bid2.spender
+            );
 
+            const afterBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
 
+            const afterBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
+
+            expect(afterBalance1.toNumber()).to.equal(bidderBal1.toNumber() - bid1.amount);
+            expect(afterBalance2.toNumber()).to.equal(bidderBal2.toNumber() - bid2.amount);
 
         })
 
+        it('Should emit a bid event', async () => {
+
+            await zapTokenBsc.mint(signers[1].address, 5000);
+            await zapTokenBsc.mint(signers[2].address, 5000);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
+            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
+
+            await zapMarket.connect(signers[1]).setBidShares(zapMedia1.address, 1, bidShares1);
+            await zapMarket.connect(signers[2]).setBidShares(zapMedia2.address, 1, bidShares2);
+
+            const setBid1 = await zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid1,
+                bid1.spender
+            );
+
+            const setBid2 = await zapMarket.connect(signers[2]).setBid(
+                zapMedia2.address,
+                1,
+                bid2,
+                bid2.spender
+            );
+
+            const receipt1 = await setBid1.wait()
+
+            const receipt2 = await setBid2.wait()
+
+            const eventLog1 = receipt1.events[1]
+
+            const eventLog2 = receipt2.events[1]
+
+            expect(eventLog1.event).to.be.equal('BidCreated');
+
+            expect(eventLog1.args.tokenId).to.equal(1);
+
+            expect(eventLog1.args.bid.amount.toNumber()).to.equal(bid1.amount);
+
+            expect(eventLog1.args.bid.currency).to.equal(bid1.currency);
+
+            expect(eventLog2.event).to.be.equal('BidCreated');
+
+            expect(eventLog2.args.tokenId).to.equal(1);
+
+            expect(eventLog2.args.bid.amount.toNumber()).to.equal(bid2.amount);
+
+            expect(eventLog2.args.bid.currency).to.equal(bid2.currency);
+
+
+        });
 
     });
 
