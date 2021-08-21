@@ -817,7 +817,7 @@ describe("ZapMarket Test", () => {
             await zapTokenBsc.mint(signers[1].address, 5000);
             await zapTokenBsc.mint(signers[2].address, 5000);
 
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount);
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
             await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, bid2.amount);
 
             await zapMarket.connect(signers[1]).setBidShares(zapMedia1.address, 1, bidShares1);
@@ -826,6 +826,25 @@ describe("ZapMarket Test", () => {
             const bidderBal1 = await zapTokenBsc.balanceOf(bid1.bidder);
 
             const bidderBal2 = await zapTokenBsc.balanceOf(bid2.bidder);
+
+            await zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid1,
+                bid1.spender
+            );
+
+            bid1.amount = bid1.amount * 2
+
+            await zapMarket.connect(signers[1]).setBid(
+                zapMedia1.address,
+                1,
+                bid1,
+                bid1.spender
+            );
+
+            const afterBalance = await zapMarket.balanceOf(bid1.bidder)
+
 
 
         })
