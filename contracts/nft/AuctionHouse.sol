@@ -78,6 +78,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     function createAuction(
         uint256 tokenId,
         address tokenContract,
+        address mediaContract,
         uint256 duration,
         uint256 reservePrice,
         address payable curator,
@@ -96,6 +97,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         auctions[auctionId] = Auction({
             tokenId: tokenId,
             tokenContract: tokenContract,
+            mediaContract: mediaContract,
             approved: false,
             amount: 0,
             duration: duration,
@@ -112,7 +114,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         _auctionIdTracker.increment();
 
-        emit AuctionCreated(auctionId, tokenId, tokenContract, duration, reservePrice, tokenOwner, curator, curatorFeePercentage, auctionCurrency);
+        emit AuctionCreated(auctionId, tokenId, tokenContract, mediaContract, duration, reservePrice, tokenOwner, curator, curatorFeePercentage, auctionCurrency);
 
 
         if(auctions[auctionId].curator == address(0) || curator == tokenOwner) {

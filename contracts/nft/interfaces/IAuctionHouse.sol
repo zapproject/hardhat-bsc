@@ -12,6 +12,8 @@ interface IAuctionHouse {
         uint256 tokenId;
         // Address for the ERC721 contract
         address tokenContract;
+        // Address of the media that minted the token
+        address mediaContract;
         // Whether or not the auction curator has approved the auction to start
         bool approved;
         // The current highest bid amount
@@ -38,8 +40,9 @@ interface IAuctionHouse {
 
     event AuctionCreated(
         uint256 indexed auctionId,
-        uint256 indexed tokenId,
+        uint256 tokenId,
         address indexed tokenContract,
+        address indexed mediaContract,
         uint256 duration,
         uint256 reservePrice,
         address tokenOwner,
@@ -101,6 +104,7 @@ interface IAuctionHouse {
     function createAuction(
         uint256 tokenId,
         address tokenContract,
+        address mediaContract,
         uint256 duration,
         uint256 reservePrice,
         address payable curator,
