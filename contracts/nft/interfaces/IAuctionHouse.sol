@@ -67,8 +67,9 @@ interface IAuctionHouse {
 
     event AuctionBid(
         uint256 indexed auctionId,
-        uint256 indexed tokenId,
+        uint256 tokenId,
         address indexed tokenContract,
+        address mediaContract,
         address sender,
         uint256 value,
         bool firstBid,
@@ -77,15 +78,17 @@ interface IAuctionHouse {
 
     event AuctionDurationExtended(
         uint256 indexed auctionId,
-        uint256 indexed tokenId,
+        uint256 tokenId,
         address indexed tokenContract,
+        address indexed mediaContract,
         uint256 duration
     );
 
     event AuctionEnded(
         uint256 indexed auctionId,
-        uint256 indexed tokenId,
+        uint256 tokenId,
         address indexed tokenContract,
+        address indexed mediaContract,
         address tokenOwner,
         address curator,
         address winner,
