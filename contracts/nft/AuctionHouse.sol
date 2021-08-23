@@ -103,7 +103,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             reservePrice: reservePrice,
             curatorFeePercentage: curatorFeePercentage,
             tokenOwner: tokenOwner,
-            bidder: address(0),
+            bidder: payable(address(0)),
             curator: curator,
             auctionCurrency: auctionCurrency
         });
@@ -195,7 +195,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
 
         auctions[auctionId].amount = amount;
-        auctions[auctionId].bidder = msg.sender;
+        auctions[auctionId].bidder = payable(msg.sender);
 
 
         bool extended = false;
