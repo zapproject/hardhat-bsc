@@ -35,14 +35,16 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     // The minimum percentage difference between the last bid amount and the current bid.
     uint8 public minBidIncrementPercentage;
 
-    // The address of the zora protocol to use via this contract
-    address public zora;
+    // The address of the zapMedia protocol to use via this contract
+    address public zapMedia;
 
     // / The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
     address public wethAddress;
 
     // A mapping of all of the auctions currently running.
     mapping(uint256 => IAuctionHouse.Auction) public auctions;
+
+    mapping(address => mapping(uint => TokenDetails)) tokenDetails;
 
     bytes4 constant interfaceId = 0x80ac58cd; // 721 interface id
 
@@ -59,15 +61,29 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     /*
      * Constructor
      */
-    constructor(address _zora, address _weth) public {
+    constructor(address _zapMedia, address _weth) public {
         require(
-            IERC165(_zora).supportsInterface(interfaceId),
+            IERC165(_zapMedia).supportsInterface(interfaceId),
             "Doesn't support NFT interface"
         );
-        zora = _zora;
+        zapMedia = _zapMedia;
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
+    }
+
+    function setTokenDetails(
+        uint256 tokenId,
+        address tokenContract,
+        address mediaContract
+    ) external returns (bool) {
+        tokenDetails[mediaContract][tokenId] = TokenDetails({
+            tokenId: tokenId,
+            tokenContract: tokenContract,
+            mediaContract: mediaContract
+        });
+
+        return true;
     }
 
     /**
@@ -94,10 +110,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         require(msg.sender == IERC721(tokenContract).getApproved(tokenId) || msg.sender == tokenOwner, "Caller must be approved or owner for token id");
         uint256 auctionId = _auctionIdTracker.current();
 
+
         auctions[auctionId] = Auction({
-            tokenId: tokenId,
-            tokenContract: tokenContract,
-            mediaContract: mediaContract,
+            token: tokenDetails[mediaContract][tokenId],
             approved: false,
             amount: 0,
             duration: duration,
@@ -140,7 +155,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         auctions[auctionId].reservePrice = reservePrice;
 
-        emit AuctionReservePriceUpdated(auctionId, auctions[auctionId].tokenId, auctions[auctionId].tokenContract, reservePrice);
+        emit AuctionReservePriceUpdated(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, reservePrice);
     }
 
     /**
@@ -176,11 +191,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         );
 
         // For Zora Protocol, ensure that the bid is valid for the current bidShare configuration
-        if(auctions[auctionId].tokenContract == zora) {
+        if(auctions[auctionId].token.tokenContract == zapMedia) {
             require(
-                IMarket(IMediaExtended(zora).marketContract()).isValidBid(
+                IMarket(IMediaExtended(zapMedia).marketContract()).isValidBid(
                     mediaContract,
-                    auctions[auctionId].tokenId,
+                    auctions[auctionId].token.tokenId,
                     amount
                 ),
                 "Bid invalid for share splitting"
@@ -223,8 +238,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         emit AuctionBid(
             auctionId,
-            auctions[auctionId].tokenId,
-            auctions[auctionId].tokenContract,
+            auctions[auctionId].token.tokenId,
+            auctions[auctionId].token.tokenContract,
+            auctions[auctionId].token.mediaContract,
             msg.sender,
             amount,
             lastBidder == address(0), // firstBid boolean
@@ -234,8 +250,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         if (extended) {
             emit AuctionDurationExtended(
                 auctionId,
-                auctions[auctionId].tokenId,
-                auctions[auctionId].tokenContract,
+                auctions[auctionId].token.tokenId,
+                auctions[auctionId].token.tokenContract,
+                auctions[auctionId].token.mediaContract,
                 auctions[auctionId].duration
             );
         }
@@ -262,8 +279,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         uint256 tokenOwnerProfit = auctions[auctionId].amount;
 
-        if(auctions[auctionId].tokenContract == zora) {
-            // If the auction is running on zora, settle it on the protocol
+        if(auctions[auctionId].token.tokenContract == zapMedia) {
+            // If the auction is running on zapMedia, settle it on the protocol
             (bool success, uint256 remainingProfit) = _handleZoraAuctionSettlement(auctionId);
             tokenOwnerProfit = remainingProfit;
             if(success != true) {
@@ -273,7 +290,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             }
         } else {
             // Otherwise, transfer the token to the winner and pay out the participants below
-            try IERC721(auctions[auctionId].tokenContract).safeTransferFrom(address(this), auctions[auctionId].bidder, auctions[auctionId].tokenId) {} catch {
+            try IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), auctions[auctionId].bidder, auctions[auctionId].token.tokenId) {} catch {
                 _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
                 _cancelAuction(auctionId);
                 return;
@@ -290,8 +307,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         emit AuctionEnded(
             auctionId,
-            auctions[auctionId].tokenId,
-            auctions[auctionId].tokenContract,
+            auctions[auctionId].token.tokenId,
+            auctions[auctionId].token.tokenContract,
+            auctions[auctionId].token.mediaContract,
             auctions[auctionId].tokenOwner,
             auctions[auctionId].curator,
             auctions[auctionId].bidder,
@@ -361,15 +379,15 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
-        IERC721(auctions[auctionId].tokenContract).safeTransferFrom(address(this), tokenOwner, auctions[auctionId].tokenId);
+        IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), tokenOwner, auctions[auctionId].token.tokenId);
 
-        emit AuctionCanceled(auctionId, auctions[auctionId].tokenId, auctions[auctionId].tokenContract, tokenOwner);
+        emit AuctionCanceled(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, tokenOwner);
         delete auctions[auctionId];
     }
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
         auctions[auctionId].approved = approved;
-        emit AuctionApprovalUpdated(auctionId, auctions[auctionId].tokenId, auctions[auctionId].tokenContract, approved);
+        emit AuctionApprovalUpdated(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, approved);
     }
 
     function _exists(uint256 auctionId) internal view returns(bool) {
@@ -387,12 +405,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             sellOnShare: Decimal.D256(0)
         });
 
-        IERC20(currency).approve(IMediaExtended(zora).marketContract(), bid.amount);
-        IMedia(zora).setBid(auctions[auctionId].tokenId, bid);
+        IERC20(currency).approve(IMediaExtended(zapMedia).marketContract(), bid.amount);
+        IMedia(zapMedia).setBid(auctions[auctionId].token.tokenId, bid);
         uint256 beforeBalance = IERC20(currency).balanceOf(address(this));
-        try IMedia(zora).acceptBid(auctions[auctionId].tokenId, bid) {} catch {
+        try IMedia(zapMedia).acceptBid(auctions[auctionId].token.tokenId, bid) {} catch {
             // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
-            IMediaExtended(zora).removeBid(auctions[auctionId].tokenId);
+            IMediaExtended(zapMedia).removeBid(auctions[auctionId].token.tokenId);
             return (false, 0);
         }
         uint256 afterBalance = IERC20(currency).balanceOf(address(this));

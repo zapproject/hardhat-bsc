@@ -7,13 +7,16 @@ pragma experimental ABIEncoderV2;
  * @title Interface for Auction Houses
  */
 interface IAuctionHouse {
-    struct Auction {
+    struct TokenDetails {
         // ID for the ERC721 token
         uint256 tokenId;
         // Address for the ERC721 contract
         address tokenContract;
         // Address of the media that minted the token
         address mediaContract;
+    }
+    struct Auction {
+        TokenDetails token;
         // Whether or not the auction curator has approved the auction to start
         bool approved;
         // The current highest bid amount
