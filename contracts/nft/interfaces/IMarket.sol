@@ -45,25 +45,27 @@ interface IMarket {
     event AskRemoved(uint256 indexed tokenId, Ask ask);
     event BidShareUpdated(uint256 indexed tokenId, BidShares bidShares);
 
-    function bidForTokenBidder(uint256 tokenId, address bidder)
-        external
-        view
-        returns (Bid memory);
+    function bidForTokenBidder(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) external view returns (Bid memory);
 
-    function currentAskForToken(uint256 tokenId)
+    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
         external
         view
         returns (Ask memory);
 
-    function bidSharesForToken(uint256 tokenId)
+    function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
         external
         view
         returns (BidShares memory);
 
-    function isValidBid(uint256 tokenId, uint256 bidAmount)
-        external
-        view
-        returns (bool);
+    function isValidBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        uint256 bidAmount
+    ) external view returns (bool);
 
     function isValidBidShares(BidShares calldata bidShares)
         external
@@ -77,20 +79,36 @@ interface IMarket {
 
     function configure(address mediaContractAddress) external;
 
-    function setBidShares(uint256 tokenId, BidShares calldata bidShares)
-        external;
+    function setBidShares(
+        address mediaContractAddress,
+        uint256 tokenId,
+        BidShares calldata bidShares
+    ) external;
 
-    function setAsk(uint256 tokenId, Ask calldata ask) external;
+    function setAsk(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Ask calldata ask
+    ) external;
 
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(address mediaContractAddress, uint256 tokenId) external;
 
     function setBid(
+        address mediaContractAddress,
         uint256 tokenId,
         Bid calldata bid,
         address spender
     ) external;
 
-    function removeBid(uint256 tokenId, address bidder) external;
+    function removeBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) external;
 
-    function acceptBid(uint256 tokenId, Bid calldata expectedBid) external;
+    function acceptBid(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Bid calldata expectedBid
+    ) external;
 }

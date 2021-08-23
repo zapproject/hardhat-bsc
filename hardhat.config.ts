@@ -62,7 +62,9 @@ const config = {
       url: 'http://127.0.0.1:8545/',
       live: false,
       saveDeployments: true,
-      tags: ["local"]
+      tags: ["local"],
+      allowUnlimitedContractSize: true,
+
     },
     // Will throw an error if the MNEMONIC env variable is non existent
     // Only used for deploying to the BSC testnet
@@ -73,7 +75,9 @@ const config = {
       // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
-      gasPrice: 8000000000
+      gasPrice: 8000000000,
+      allowUnlimitedContractSize: true,
+
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,

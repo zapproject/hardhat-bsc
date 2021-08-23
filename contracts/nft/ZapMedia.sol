@@ -2,8 +2,8 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {ERC721Burnable} from "./ERC721Burnable.sol";
-import {ERC721} from "./ERC721.sol";
+import "./ERC721Burnable.sol";
+
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -12,16 +12,19 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Decimal} from "./Decimal.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
-import "./interfaces/IMedia.sol";
+import {IMedia} from "./interfaces/IMedia.sol";
+import {ZapMarket} from "./ZapMarket.sol";
+import "hardhat/console.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
+contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
+    using EnumerableSet for EnumerableSet.UintSet;
 
     /* *******
      * Globals
@@ -151,8 +154,16 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
      */
-    constructor(address marketContractAddr) ERC721("Zora", "ZORA") {
+    constructor(
+        string memory name,
+        string memory symbol,
+        address marketContractAddr
+    ) ERC721(name, symbol) {
         marketContract = marketContractAddr;
+        ZapMarket zapMarket = ZapMarket(marketContract);
+
+        zapMarket.configure(msg.sender);
+
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
@@ -273,7 +284,8 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
     {
-        IMarket(marketContract).setAsk(tokenId, ask);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).setAsk(mediaContractAddress, tokenId, ask);
     }
 
     /**
@@ -285,7 +297,8 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
     {
-        IMarket(marketContract).removeAsk(tokenId);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).removeAsk(mediaContractAddress, tokenId);
     }
 
     /**
@@ -298,7 +311,8 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, "Market: Bidder must be msg sender");
-        IMarket(marketContract).setBid(tokenId, bid, msg.sender);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).setBid(mediaContractAddress, tokenId, bid, msg.sender);
     }
 
     /**
@@ -310,7 +324,8 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        IMarket(marketContract).removeBid(tokenId, msg.sender);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).removeBid(mediaContractAddress, tokenId, msg.sender);
     }
 
     /**
@@ -322,7 +337,8 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
     {
-        IMarket(marketContract).acceptBid(tokenId, bid);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).acceptBid(mediaContractAddress, tokenId, bid);
     }
 
     /**
@@ -482,12 +498,15 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
         _setTokenURI(tokenId, data.tokenURI);
-        // _creatorTokens[creator].add(tokenId);
+        _creatorTokens[creator].add(tokenId);
         _contentHashes[data.contentHash] = true;
 
         tokenCreators[tokenId] = creator;
         previousTokenOwners[tokenId] = creator;
-        IMarket(marketContract).setBidShares(tokenId, bidShares);
+
+        // address mediaContractAddress = address(this);
+        // console.log("=== _mintForCreator ===", mediaContractAddress);
+        // IMarket(marketContract).setBidShares(mediaContractAddress, tokenId, bidShares);
     }
 
     function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)
@@ -540,7 +559,8 @@ abstract contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         address to,
         uint256 tokenId
     ) internal override {
-        IMarket(marketContract).removeAsk(tokenId);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).removeAsk(mediaContractAddress, tokenId);
 
         super._transfer(from, to, tokenId);
     }
