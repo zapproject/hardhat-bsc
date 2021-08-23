@@ -10,7 +10,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
-import "hardhat/console.sol";
 
 /**
  * @title A Market for pieces of media
@@ -32,7 +31,8 @@ contract ZapMarket is IMarket {
     address private _owner;
 
     // Mapping from token to mapping from bidder to bid
-    mapping(uint256 => mapping(address => Bid)) private _tokenBidders;
+    mapping(address => mapping(uint256 => mapping(address => Bid)))
+        private _tokenBidders;
 
     // Mapping from token to the bid shares for the token
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
@@ -66,13 +66,12 @@ contract ZapMarket is IMarket {
      * View Functions
      * ****************
      */
-    function bidForTokenBidder(uint256 tokenId, address bidder)
-        external
-        view
-        override
-        returns (Bid memory)
-    {
-        return _tokenBidders[tokenId][bidder];
+    function bidForTokenBidder(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) external view override returns (Bid memory) {
+        return _tokenBidders[mediaContractAddress][tokenId][bidder];
     }
 
     function currentAskForToken(address mediaContractAddress, uint256 tokenId)
@@ -256,32 +255,27 @@ contract ZapMarket is IMarket {
             "Market: bid recipient cannot be 0 address"
         );
 
-        Bid storage existingBid = _tokenBidders[tokenId][bid.bidder];
+        Bid storage existingBid = _tokenBidders[mediaContractAddress][tokenId][
+            bid.bidder
+        ];
 
         // If there is an existing bid, refund it before continuing
         if (existingBid.amount > 0) {
             removeBid(mediaContractAddress, tokenId, bid.bidder);
         }
 
-        console.log("Testing 1");
         IERC20 token = IERC20(bid.currency);
-        console.log("Testing 2");
 
         // We must check the balance that was actually transferred to the market,
         // as some tokens impose a transfer fee and would not actually transfer the
         // full amount to the market, resulting in locked funds for refunds & bid acceptance
         uint256 beforeBalance = token.balanceOf(address(this));
 
-        console.log("Testing 3");
-
-        token.approve(address(this), bid.amount);
         token.safeTransferFrom(spender, address(this), bid.amount);
-
-        console.log("Testing 5");
 
         uint256 afterBalance = token.balanceOf(address(this));
 
-        _tokenBidders[tokenId][bid.bidder] = Bid(
+        _tokenBidders[mediaContractAddress][tokenId][bid.bidder] = Bid(
             afterBalance.sub(beforeBalance),
             bid.currency,
             bid.bidder,
@@ -312,7 +306,7 @@ contract ZapMarket is IMarket {
         uint256 tokenId,
         address bidder
     ) public override onlyMediaCaller(mediaContractAddress) {
-        Bid storage bid = _tokenBidders[tokenId][bidder];
+        Bid storage bid = _tokenBidders[mediaContractAddress][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
 
@@ -321,7 +315,7 @@ contract ZapMarket is IMarket {
         IERC20 token = IERC20(bidCurrency);
 
         emit BidRemoved(tokenId, bid);
-        delete _tokenBidders[tokenId][bidder];
+        delete _tokenBidders[mediaContractAddress][tokenId][bidder];
         token.safeTransfer(bidder, bidAmount);
     }
 
@@ -339,7 +333,9 @@ contract ZapMarket is IMarket {
         uint256 tokenId,
         Bid calldata expectedBid
     ) external override onlyMediaCaller(mediaContractAddress) {
-        Bid memory bid = _tokenBidders[tokenId][expectedBid.bidder];
+        Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
+            expectedBid.bidder
+        ];
         require(bid.amount > 0, "Market: cannot accept bid of 0");
         require(
             bid.amount == expectedBid.amount &&
@@ -366,7 +362,7 @@ contract ZapMarket is IMarket {
         uint256 tokenId,
         address bidder
     ) private {
-        Bid memory bid = _tokenBidders[tokenId][bidder];
+        Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][bidder];
         BidShares storage bidShares = _bidShares[mediaContractAddress][tokenId];
 
         IERC20 token = IERC20(bid.currency);
@@ -409,7 +405,7 @@ contract ZapMarket is IMarket {
         bidShares.prevOwner = bid.sellOnShare;
 
         // Remove the accepted bid
-        delete _tokenBidders[tokenId][bidder];
+        delete _tokenBidders[mediaContractAddress][tokenId][bidder];
 
         emit BidShareUpdated(tokenId, bidShares);
         emit BidFinalized(tokenId, bid);

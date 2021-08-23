@@ -45,10 +45,11 @@ interface IMarket {
     event AskRemoved(uint256 indexed tokenId, Ask ask);
     event BidShareUpdated(uint256 indexed tokenId, BidShares bidShares);
 
-    function bidForTokenBidder(uint256 tokenId, address bidder)
-        external
-        view
-        returns (Bid memory);
+    function bidForTokenBidder(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder
+    ) external view returns (Bid memory);
 
     function currentAskForToken(address mediaContractAddress, uint256 tokenId)
         external
