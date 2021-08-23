@@ -147,7 +147,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      * If the auction is run in native ETH, the ETH is wrapped so it can be identically to other
      * auction currencies in this contract.
      */
-    function createBid(uint256 auctionId, uint256 amount)
+    function createBid(uint256 auctionId, uint256 amount, address mediaContract)
     external
     override
     payable
@@ -177,6 +177,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         if(auctions[auctionId].tokenContract == zora) {
             require(
                 IMarket(IMediaExtended(zora).marketContract()).isValidBid(
+                    mediaContract,
                     auctions[auctionId].tokenId,
                     amount
                 ),
