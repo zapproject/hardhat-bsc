@@ -113,7 +113,7 @@ interface IAuctionHouse {
     function setAuctionReservePrice(uint256 auctionId, uint256 reservePrice)
         external;
 
-    function createBid(uint256 auctionId, uint256 amount) external payable;
+    function createBid(uint256 auctionId, uint256 amount, address mediaContract) external payable;
 
     function endAuction(uint256 auctionId) external;
 
