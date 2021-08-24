@@ -8,6 +8,9 @@ import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import { sha256 } from 'ethers/lib/utils'
 import { BigNumber, Bytes } from 'ethers'
+import { BigNumber, Bytes, Contract, EventFilter, Event } from 'ethers'
+
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { ZapMedia } from '../typechain/ZapMedia';
 
@@ -45,6 +48,10 @@ describe("ZapMarket Test", () => {
         await zapTokenBsc.deployed();
     });
 
+    let zapMarket: Contract
+    let zapMedia1: Contract
+    let zapMedia2: Contract
+    let signers: SignerWithAddress[]
     let zapMarket: any
     let zapMedia1: any
     let zapMedia2: any
