@@ -44,6 +44,7 @@ interface IMarket {
     event AskCreated(address indexed mediaContract, uint256 indexed tokenId, Ask ask);
     event AskRemoved(uint256 indexed tokenId, Ask ask);
     event BidShareUpdated(uint256 indexed tokenId, BidShares bidShares);
+    event MediaContractCreated(address indexed mediaContract);
 
     function bidForTokenBidder(
         address mediaContractAddress,

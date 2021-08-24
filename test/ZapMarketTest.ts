@@ -176,9 +176,9 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should emit a MediaContractCreated event on media contract deployment', async () => {
-            const zapMedia1Filter: EventFilter = zapMedia1.filters.MediaContractCreated(zapMedia1.address)
-            const event: Event = (await zapMedia1.queryFilter(zapMedia1Filter))[0];
+        it.only('Should emit a MediaContractCreated event on media contract deployment', async () => {
+            const zapMedia1Filter: EventFilter = zapMarket.filters.MediaContractCreated(zapMedia1.address)
+            const event: Event = (await zapMarket.queryFilter(zapMedia1Filter))[0];
 
             expect(event).to.not.be.undefined;
             expect(event.event).to.eq("MediaContractCreated");

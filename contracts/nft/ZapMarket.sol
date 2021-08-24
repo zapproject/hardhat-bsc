@@ -176,6 +176,8 @@ contract ZapMarket is IMarket {
         isConfigured[mediaContract] = true;
 
         mediaContracts[deployer].push(mediaContract);
+
+        emit MediaContractCreated(mediaContract);
     }
 
     /**
