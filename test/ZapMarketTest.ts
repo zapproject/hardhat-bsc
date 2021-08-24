@@ -28,6 +28,9 @@ let metadataURI = 'www.example2.com';
 let contentHashBytes: Bytes;
 let metadataHashBytes: Bytes;
 
+let mint_tx1: any;
+let mint_tx2: any;
+
 describe("ZapMarket Test", () => {
 
     beforeEach(async () => {
@@ -160,9 +163,6 @@ describe("ZapMarket Test", () => {
     })
 
     describe('#setBidShares', () => {
-
-        let mint_tx1: any;
-        let mint_tx2: any;
 
         beforeEach(async () => {
 
@@ -333,6 +333,27 @@ describe("ZapMarket Test", () => {
             ask1.currency = zapTokenBsc.address
             ask2.currency = zapTokenBsc.address
 
+            let metadataHex = ethers.utils.formatBytes32String('{}');
+            let metadataHashRaw = await sha256(metadataHex);
+            metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+            let contentHex = ethers.utils.formatBytes32String('invert');
+            let contentHashRaw = await sha256(contentHex);
+            contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+            let contentHash = contentHashBytes;
+            let metadataHash = metadataHashBytes;
+            
+            const data: MediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash,
+                metadataHash,
+            };
+
+            mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+            mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+
         })
 
         it('Should reject if not called by the media address', async () => {
@@ -348,16 +369,14 @@ describe("ZapMarket Test", () => {
                 )
         });
 
-        it.only('Should set the ask if called by the media address', async () => {
+        it('Should set the ask if called by the media address', async () => {
 
-            await zapMarket.connect(signers[1]).setAsk(
-                zapMedia1.address,
+            await zapMedia1.connect(signers[1]).setAsk(
                 0,
                 ask1
             );
 
-            await zapMarket.connect(signers[2]).setAsk(
-                zapMedia2.address,
+            await zapMedia2.connect(signers[2]).setAsk(
                 0,
                 ask2
             )
