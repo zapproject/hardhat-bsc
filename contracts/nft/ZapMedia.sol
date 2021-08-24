@@ -14,7 +14,6 @@ import {Decimal} from "./Decimal.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
 import {ZapMarket} from "./ZapMarket.sol";
-import "hardhat/console.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -162,9 +161,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         marketContract = marketContractAddr;
         ZapMarket zapMarket = ZapMarket(marketContract);
 
-        zapMarket.configure(address(this));
+        zapMarket.configure(msg.sender, address(this));
 
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
+
+        emit MediaContractCreated(address(this));
     }
 
     /* **************
@@ -505,7 +506,6 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         previousTokenOwners[tokenId] = creator;
 
         address mediaContractAddress = address(this);
-        // console.log("=== _mintForCreator ===", mediaContractAddress);
         IMarket(marketContract).setBidShares(mediaContractAddress, tokenId, bidShares);
     }
 

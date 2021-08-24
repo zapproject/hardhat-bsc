@@ -39,19 +39,20 @@ describe("ZapMarket Test", () => {
 
     beforeEach(async () => {
         signers = await ethers.getSigners();
-        
+
         const zapTokenFactory = await ethers.getContractFactory(
-                        'ZapTokenBSC',
-                        signers[0]
-                    );
-        
+            'ZapTokenBSC',
+            signers[0]
+        );
+
         zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
         await zapTokenBsc.deployed();
     });
 
-    let zapMarket: Contract
-    let zapMedia1: Contract
-    let zapMedia2: Contract
+    let zapMarket: ZapMarket
+    let zapMedia1: ZapMedia
+    let zapMedia2: ZapMedia
+    let zapMedia3: ZapMedia
     let signers: SignerWithAddress[]
 
     let bidShares1 = {
@@ -105,31 +106,13 @@ describe("ZapMarket Test", () => {
         sellOnShare: 0
     }
 
-    let metadataHex = ethers.utils.formatBytes32String('{}');
-    let metadataHashRaw = sha256(metadataHex);
-    metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
-
-    let contentHex = ethers.utils.formatBytes32String('invert');
-    let contentHashRaw = sha256(contentHex);
-    contentHashBytes = ethers.utils.arrayify(contentHashRaw);
-
-    let contentHash = contentHashBytes;
-    let metadataHash = metadataHashBytes;
-
-    const data: MediaData = {
-        tokenURI,
-        metadataURI,
-        contentHash,
-        metadataHash,
-    };
-
     describe("Configure", () => {
 
         beforeEach(async () => {
 
             const marketFixture = await deployments.fixture(['ZapMarket'])
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address)
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
 
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
@@ -143,6 +126,14 @@ describe("ZapMarket Test", () => {
             zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
 
             await zapMedia2.deployed();
+
+
+            const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[2]);
+
+            zapMedia3 = (await mediaFactory3.deploy("TEST MEDIA 3", "TM3", zapMarket.address)) as ZapMedia
+
+            await zapMedia3.deployed();
+
 
             ask1.currency = zapTokenBsc.address
 
@@ -158,28 +149,40 @@ describe("ZapMarket Test", () => {
 
         it('Should get media owner', async () => {
 
-            const zapMedia1Address = await zapMarket.mediaContract(zapMedia1.address);
+            const zapMedia1Address = await zapMarket.mediaContracts(signers[1].address, BigNumber.from("0"));
 
-            const zapMedia2Address = await zapMarket.mediaContract(zapMedia2.address);
+            const zapMedia2Address = await zapMarket.mediaContracts(signers[2].address, BigNumber.from("0"));
 
-            expect(await zapMedia1Address).to.equal(signers[1].address);
+            expect(zapMedia1Address).to.contain(zapMedia1.address);
 
-            expect(await zapMedia2Address).to.equal(signers[2].address);
+            expect(zapMedia2Address).to.contain(zapMedia2.address);
 
         });
 
         it('Should reject if called twice', async () => {
 
-            await expect(zapMarket.configure(zapMedia1.address))
+            await expect(zapMarket.connect(signers[1]).configure(signers[1].address, zapMedia1.address))
                 .to.be.revertedWith("Market: Already configured");
 
-            await expect(zapMarket.configure(zapMedia2.address))
+            await expect(zapMarket.connect(signers[2]).configure(signers[2].address, zapMedia2.address))
+                .to.be.revertedWith("Market: Already configured");
+
+            await expect(zapMarket.connect(signers[3]).configure(signers[3].address, zapMedia3.address))
                 .to.be.revertedWith("Market: Already configured");
 
             expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
 
             expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true
 
+        });
+
+        it('Should emit a MediaContractCreated event on media contract deployment', async () => {
+            const zapMedia1Filter: EventFilter = zapMedia1.filters.MediaContractCreated(zapMedia1.address)
+            const event: Event = (await zapMedia1.queryFilter(zapMedia1Filter))[0];
+
+            expect(event).to.not.be.undefined;
+            expect(event.event).to.eq("MediaContractCreated");
+            expect(event.args?.mediaContract).to.eq(zapMedia1.address);
         });
     })
 
@@ -191,18 +194,18 @@ describe("ZapMarket Test", () => {
 
             const marketFixture = await deployments.fixture(['ZapMarket'])
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address)
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
 
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address))
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
 
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address))
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
 
             await zapMedia2.deployed();
 
@@ -226,7 +229,7 @@ describe("ZapMarket Test", () => {
 
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
-            
+
             const data: MediaData = {
                 tokenURI,
                 metadataURI,
@@ -266,17 +269,17 @@ describe("ZapMarket Test", () => {
 
             const sharesForToken2 = await zapMarket.bidSharesForToken(zapMedia2.address, 0);
 
-            expect(BigInt(parseInt(sharesForToken1.prevOwner.value))).to.be.equal(bidShares1.prevOwner.value);
+            expect(sharesForToken1.prevOwner.value).to.be.equal(bidShares1.prevOwner.value);
 
-            expect(BigInt(parseInt(sharesForToken1.creator.value))).to.be.equal(bidShares1.creator.value);
+            expect(sharesForToken1.creator.value).to.be.equal(bidShares1.creator.value);
 
-            expect(BigInt(parseInt(sharesForToken1.owner.value))).to.be.equal(bidShares1.owner.value);
+            expect(sharesForToken1.owner.value).to.be.equal(bidShares1.owner.value);
 
-            expect(BigInt(parseInt(sharesForToken2.prevOwner.value))).to.be.equal(bidShares2.prevOwner.value);
+            expect(sharesForToken2.prevOwner.value).to.be.equal(bidShares2.prevOwner.value);
 
-            expect(BigInt(parseInt(sharesForToken2.creator.value))).to.be.equal(bidShares2.creator.value);
+            expect(sharesForToken2.creator.value).to.be.equal(bidShares2.creator.value);
 
-            expect(BigInt(parseInt(sharesForToken2.owner.value))).to.be.equal(bidShares2.owner.value);
+            expect(sharesForToken2.owner.value).to.be.equal(bidShares2.owner.value);
 
         })
 
@@ -312,7 +315,7 @@ describe("ZapMarket Test", () => {
 
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
-            
+
             const data: MediaData = {
                 tokenURI,
                 metadataURI,
@@ -334,18 +337,18 @@ describe("ZapMarket Test", () => {
 
             const marketFixture = await deployments.fixture(['ZapMarket'])
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address)
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
 
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address))
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
 
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address))
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
 
             await zapMedia2.deployed();
 
@@ -362,7 +365,7 @@ describe("ZapMarket Test", () => {
 
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
-            
+
             const data: MediaData = {
                 tokenURI,
                 metadataURI,
@@ -424,8 +427,8 @@ describe("ZapMarket Test", () => {
                 ask2
             );
 
-            const filter_media1: EventFilter = zapMarket.filters.AskCreated(zapMedia1.address)
-            const filter_media2: EventFilter = zapMarket.filters.AskCreated(zapMedia2.address)
+            const filter_media1: EventFilter = zapMarket.filters.AskCreated(zapMedia1.address, null, null)
+            const filter_media2: EventFilter = zapMarket.filters.AskCreated(zapMedia2.address, null, null)
 
             const event_media1: Event = (await zapMarket.queryFilter(filter_media1))[0]
             const event_media2: Event = (await zapMarket.queryFilter(filter_media2))[0]
@@ -470,7 +473,7 @@ describe("ZapMarket Test", () => {
 
         it.skip("Should reject if the bid shares haven't been set yet", async () => {
 
-            // Bid shares aren't set only when they have not been minted
+            // Bid shares are't set only when they have not been minted
 
             await expect(zapMarket.connect(signers[1]).setAsk(
                 zapMedia1.address,
@@ -492,7 +495,7 @@ describe("ZapMarket Test", () => {
 
     })
 
-    describe.only("#setBid", () => {
+    describe.skip("#setBid", () => {
 
         let bid1: any;
         let bid2: any;
@@ -501,7 +504,7 @@ describe("ZapMarket Test", () => {
 
             const marketFixture = await deployments.fixture(['ZapMarket'])
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address)
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
@@ -522,7 +525,7 @@ describe("ZapMarket Test", () => {
                 recipient: signers[8].address,
                 spender: signers[1].address,
                 sellOnShare: {
-                    value: BigNumber.from("10000000000000000000")
+                    value: BigInt(10000000000000000000)
                 }
             };
 
@@ -533,8 +536,26 @@ describe("ZapMarket Test", () => {
                 recipient: signers[9].address,
                 spender: signers[2].address,
                 sellOnShare: {
-                    value: BigNumber.from("10000000000000000000")
+                    value: BigInt(10000000000000000000)
                 }
+            };
+
+            let metadataHex = ethers.utils.formatBytes32String('{}');
+            let metadataHashRaw = await sha256(metadataHex);
+            metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+            let contentHex = ethers.utils.formatBytes32String('invert');
+            let contentHashRaw = await sha256(contentHex);
+            contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+            let contentHash = contentHashBytes;
+            let metadataHash = metadataHashBytes;
+
+            const data: MediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash,
+                metadataHash,
             };
 
             await zapMedia1.connect(signers[1]).mint(data, bidShares1);
@@ -544,7 +565,7 @@ describe("ZapMarket Test", () => {
 
         it('Should revert if not called by the media contract', async () => {
 
-            await expect(zapMarket.connect(signers[1]).setBid(
+            await expect(zapMarket.connect(signers[2]).setBid(
                 zapMedia1.address,
                 0,
                 bid1,
@@ -553,15 +574,14 @@ describe("ZapMarket Test", () => {
                 'Market: Only media contract'
             );
 
-            await expect(zapMarket.connect(signers[2]).setBid(
+            await expect(zapMarket.connect(signers[1]).setBid(
                 zapMedia2.address,
                 0,
-                bid1,
-                bid1.spender
+                bid2,
+                bid2.spender
             )).to.be.revertedWith(
                 'Market: Only media contract'
             );
-
         });
 
         it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
@@ -692,7 +712,7 @@ describe("ZapMarket Test", () => {
             await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, bid2.amount);
 
             const beforeBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
-            const beforeBalance2 = await zapTokenBsc.balanceOf(bid2.bidder)
+            const beforeBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
 
             await zapMedia1.connect(signers[1]).setBid(
                 0,
@@ -878,10 +898,10 @@ describe("ZapMarket Test", () => {
                 bid2,
             );
 
-            const filter1: EventFilter = zapMarket.filters.BidCreated(zapMedia1.address)
+            const filter1: EventFilter = zapMarket.filters.BidCreated(zapMedia1.address, null, null)
             const eventLog1: Event = (await zapMarket.queryFilter(filter1))[0]
 
-            const filter2: EventFilter = zapMarket.filters.BidCreated(zapMedia2.address)
+            const filter2: EventFilter = zapMarket.filters.BidCreated(zapMedia2.address, null, null)
             const eventLog2: Event = (await zapMarket.queryFilter(filter2))[0]
 
             expect(eventLog1.event).to.be.equal('BidCreated');

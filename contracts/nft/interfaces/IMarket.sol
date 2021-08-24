@@ -77,7 +77,7 @@ interface IMarket {
         pure
         returns (uint256);
 
-    function configure(address mediaContractAddress) external;
+    function configure(address deployer, address mediaContract) external;
 
     function setBidShares(
         address mediaContractAddress,
