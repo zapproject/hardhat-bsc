@@ -125,98 +125,98 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    // describe('#mint', () => {
-    //     beforeEach(async () => {
-    //         tokenURI =  String('media contract 1 - token 1 uri');
-    //         metadataURI = String('media contract 1 - metadata 1 uri');
+    describe('#mint', () => {
+        beforeEach(async () => {
+            tokenURI =  String('media contract 1 - token 1 uri');
+            metadataURI = String('media contract 1 - metadata 1 uri');
 
-    //         metadataHex = ethers.utils.formatBytes32String('{}');
-    //         metadataHash = await ethers.utils.sha256(metadataHex);
-    //         metadataHashBytes = ethers.utils.arrayify(metadataHash);
+            metadataHex = ethers.utils.formatBytes32String('{}');
+            metadataHash = await ethers.utils.sha256(metadataHex);
+            metadataHashBytes = ethers.utils.arrayify(metadataHash);
         
-    //         randomString = Date.now().toString();
-    //         contentHex = ethers.utils.formatBytes32String(randomString);
-    //         contentHash = await ethers.utils.sha256(contentHex);
-    //         contentHashBytes = ethers.utils.arrayify(contentHash);
+            randomString = Date.now().toString();
+            contentHex = ethers.utils.formatBytes32String(randomString);
+            contentHash = await ethers.utils.sha256(contentHex);
+            contentHashBytes = ethers.utils.arrayify(contentHash);
 
-    //         zeroContentHashBytes = ethers.utils.arrayify(ethers.constants.HashZero);
+            zeroContentHashBytes = ethers.utils.arrayify(ethers.constants.HashZero);
         
-    //         mediaData = {
-    //             tokenURI,
-    //             metadataURI,
-    //             contentHash: contentHashBytes,
-    //             metadataHash: metadataHashBytes,
-    //         };
-    //     });
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+        });
 
-    //     it.only('should mint token', async () => {
-    //         await zapMedia1.mint(mediaData, bidShares);
+        it.only('should mint token', async () => {
+            await zapMedia1.mint(mediaData, bidShares);
 
-    //         const ownerOf = await zapMedia1.ownerOf(0);
-    //         const creator = await zapMedia1.tokenCreators(0);
-    //         const prevOwner = await zapMedia1.previousTokenOwners(0);
-    //         const tokenContentHash = await zapMedia1.tokenContentHashes(0);
-    //         const metadataContentHash = await zapMedia1.tokenMetadataHashes(0);
-    //         const savedTokenURI = await zapMedia1.tokenURI(0);
-    //         const savedMetadataURI = await zapMedia1.tokenMetadataURI(0);
+            const ownerOf = await zapMedia1.ownerOf(0);
+            const creator = await zapMedia1.tokenCreators(0);
+            const prevOwner = await zapMedia1.previousTokenOwners(0);
+            const tokenContentHash = await zapMedia1.tokenContentHashes(0);
+            const metadataContentHash = await zapMedia1.tokenMetadataHashes(0);
+            const savedTokenURI = await zapMedia1.tokenURI(0);
+            const savedMetadataURI = await zapMedia1.tokenMetadataURI(0);
       
-    //         expect(ownerOf).eq(signers[1].address);
-    //         expect(creator).eq(signers[1].address);
-    //         expect(prevOwner).eq(signers[1].address);
-    //         expect(tokenContentHash).eq(contentHash);
-    //         expect(metadataContentHash).eq(metadataHash);
-    //         expect(savedTokenURI).eq(tokenURI);
-    //         expect(savedMetadataURI).eq(metadataURI);
-    //     });
+            expect(ownerOf).eq(signers[1].address);
+            expect(creator).eq(signers[1].address);
+            expect(prevOwner).eq(signers[1].address);
+            expect(tokenContentHash).eq(contentHash);
+            expect(metadataContentHash).eq(metadataHash);
+            expect(savedTokenURI).eq(tokenURI);
+            expect(savedMetadataURI).eq(metadataURI);
+        });
 
-    //     it.only('should revert if an empty content hash is specified', async () => {      
-    //         await expect(
-    //             zapMedia1.mint(
-    //                 {...mediaData, contentHash: zeroContentHashBytes}, bidShares
-    //             )
-    //         ).revertedWith('Media: content hash must be non-zero');
-    //     });
+        it.only('should revert if an empty content hash is specified', async () => {      
+            await expect(
+                zapMedia1.mint(
+                    {...mediaData, contentHash: zeroContentHashBytes}, bidShares
+                )
+            ).revertedWith('Media: content hash must be non-zero');
+        });
     
-    //     it.only('should revert if the content hash already exists for a created token', async () => {
-    //         await zapMedia2.mint(mediaData, bidShares);
+        it.only('should revert if the content hash already exists for a created token', async () => {
+            await zapMedia2.mint(mediaData, bidShares);
         
-    //         await expect(
-    //             zapMedia2.mint(mediaData, bidShares)
-    //         ).revertedWith('Media: a token has already been created with this content hash');
-    //     });
+            await expect(
+                zapMedia2.mint(mediaData, bidShares)
+            ).revertedWith('Media: a token has already been created with this content hash');
+        });
       
-    //     it.only('should revert if the metadataHash is empty', async () => {
-    //         const secondContentHex = ethers.utils.formatBytes32String('invert2');
-    //         const secondContentHash = await ethers.utils.sha256(secondContentHex);
+        it.only('should revert if the metadataHash is empty', async () => {
+            const secondContentHex = ethers.utils.formatBytes32String('invert2');
+            const secondContentHash = await ethers.utils.sha256(secondContentHex);
 
-    //         await expect(
-    //             zapMedia1.mint(
-    //                 {...mediaData, contentHash: secondContentHash, metadataHash: zeroContentHashBytes},
-    //                 bidShares
-    //             )
-    //         ).revertedWith('Media: metadata hash must be non-zero');
-    //     });
+            await expect(
+                zapMedia1.mint(
+                    {...mediaData, contentHash: secondContentHash, metadataHash: zeroContentHashBytes},
+                    bidShares
+                )
+            ).revertedWith('Media: metadata hash must be non-zero');
+        });
     
-    //     it.only('should revert if the tokenURI is empty', async () => {
-    //         await expect(
-    //             zapMedia1.mint({...mediaData, tokenURI: ''}, bidShares)
-    //         ).revertedWith('Media: specified uri must be non-empty');
-    //     });
+        it.only('should revert if the tokenURI is empty', async () => {
+            await expect(
+                zapMedia1.mint({...mediaData, tokenURI: ''}, bidShares)
+            ).revertedWith('Media: specified uri must be non-empty');
+        });
     
-    //     it.only('should revert if the metadataURI is empty', async () => {
-    //         await expect(
-    //             zapMedia1.mint({...mediaData, metadataURI: ''}, bidShares)
-    //         ).revertedWith('Media: specified uri must be non-empty');
-    //     });
+        it.only('should revert if the metadataURI is empty', async () => {
+            await expect(
+                zapMedia1.mint({...mediaData, metadataURI: ''}, bidShares)
+            ).revertedWith('Media: specified uri must be non-empty');
+        });
     
-    //     // it.only('should not be able to mint a token with bid shares summing to less than 100', async () => {
-    //     //     await expect(
-    //     //         zapMedia1.mint(mediaData, {...bidShares, creator: {
-    //     //             value: BigInt(50000000000000000000)
-    //     //         }})
-    //     //     ).revertedWith('Market: Invalid bid shares, must sum to 100');
-    //     // });
-    // });
+        // it.only('should not be able to mint a token with bid shares summing to less than 100', async () => {
+        //     await expect(
+        //         zapMedia1.mint(mediaData, {...bidShares, creator: {
+        //             value: BigInt(50000000000000000000)
+        //         }})
+        //     ).revertedWith('Market: Invalid bid shares, must sum to 100');
+        // });
+    });
 
     describe('#mintWithSig', () => {
         const version = '1';
