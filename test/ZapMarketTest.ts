@@ -175,6 +175,15 @@ describe("ZapMarket Test", () => {
             expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true
 
         });
+
+        it('Should emit a MediaContractCreated event on media contract deployment', async () => {
+            const zapMedia1Filter: EventFilter = zapMedia1.filters.MediaContractCreated(zapMedia1.address)
+            const event: Event = (await zapMedia1.queryFilter(zapMedia1Filter))[0];
+
+            expect(event).to.not.be.undefined;
+            expect(event.event).to.eq("MediaContractCreated");
+            expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+        });
     })
 
     describe('#setBidShares', () => {
