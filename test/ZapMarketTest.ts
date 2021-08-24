@@ -147,7 +147,7 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it.only('Should get media owner', async () => {
+        it('Should get media owner', async () => {
 
             const zapMedia1Address = await zapMarket.mediaContracts(signers[1].address, BigNumber.from("0"));
 
@@ -556,24 +556,23 @@ describe("ZapMarket Test", () => {
 
         it('Should revert if not called by the media contract', async () => {
 
-            await expect(zapMarket.connect(signers[1]).setBid(
-                zapMedia1.address,
-                1,
-                bid1,
-                bid1.spender
-            )).to.be.revertedWith(
-                'Market: Only media contract'
-            );
-
             await expect(zapMarket.connect(signers[2]).setBid(
-                zapMedia2.address,
-                1,
+                zapMedia1.address,
+                0,
                 bid1,
                 bid1.spender
             )).to.be.revertedWith(
                 'Market: Only media contract'
             );
 
+            await expect(zapMarket.connect(signers[1]).setBid(
+                zapMedia2.address,
+                0,
+                bid2,
+                bid2.spender
+            )).to.be.revertedWith(
+                'Market: Only media contract'
+            );
         });
 
         it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
@@ -704,7 +703,7 @@ describe("ZapMarket Test", () => {
             await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, bid2.amount);
 
             const beforeBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
-            const beforeBalance2 = await zapTokenBsc.balanceOf(bid2.bidder)
+            const beforeBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
 
             await zapMedia1.connect(signers[1]).setBid(
                 0,
