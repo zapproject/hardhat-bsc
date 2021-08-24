@@ -39,12 +39,12 @@ describe("ZapMarket Test", () => {
 
     beforeEach(async () => {
         signers = await ethers.getSigners();
-        
+
         const zapTokenFactory = await ethers.getContractFactory(
-                        'ZapTokenBSC',
-                        signers[0]
-                    );
-        
+            'ZapTokenBSC',
+            signers[0]
+        );
+
         zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
         await zapTokenBsc.deployed();
     });
@@ -52,6 +52,7 @@ describe("ZapMarket Test", () => {
     let zapMarket: Contract
     let zapMedia1: Contract
     let zapMedia2: Contract
+    let zapMedia3: Contract
     let signers: SignerWithAddress[]
 
     let bidShares1 = {
@@ -126,6 +127,14 @@ describe("ZapMarket Test", () => {
 
             await zapMedia2.deployed();
 
+
+            const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[2]);
+
+            zapMedia3 = (await mediaFactory3.deploy("TEST MEDIA 3", "TM3", zapMarket.address)) as ZapMedia
+
+            await zapMedia3.deployed();
+
+
             ask1.currency = zapTokenBsc.address
 
             let metadataHex = ethers.utils.formatBytes32String('{}');
@@ -156,6 +165,9 @@ describe("ZapMarket Test", () => {
                 .to.be.revertedWith("Market: Already configured");
 
             await expect(zapMarket.configure(zapMedia2.address))
+                .to.be.revertedWith("Market: Already configured");
+
+            await expect(zapMarket.configure(zapMedia3.address))
                 .to.be.revertedWith("Market: Already configured");
 
             expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
@@ -208,7 +220,7 @@ describe("ZapMarket Test", () => {
 
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
-            
+
             const data: MediaData = {
                 tokenURI,
                 metadataURI,
@@ -296,7 +308,7 @@ describe("ZapMarket Test", () => {
 
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
-            
+
             const data: MediaData = {
                 tokenURI,
                 metadataURI,
@@ -346,7 +358,7 @@ describe("ZapMarket Test", () => {
 
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
-            
+
             const data: MediaData = {
                 tokenURI,
                 metadataURI,
@@ -452,7 +464,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.skip("Should reject if the bid shares haven't been set yet", async () => {
+        it("Should reject if the bid shares haven't been set yet", async () => {
 
             // Bid shares aren't set only when they have not been minted
 
@@ -476,7 +488,7 @@ describe("ZapMarket Test", () => {
 
     })
 
-    describe.only("#setBid", () => {
+    describe("#setBid", () => {
 
         let bid1: any;
         let bid2: any;
