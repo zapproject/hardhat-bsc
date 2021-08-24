@@ -40,6 +40,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
+    "eth-sig-util": "^3.0.1",
+    "ethereumjs-util": "^7.1.0",
     "hardhat-deploy": "^0.7.5",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-tracer": "*",
