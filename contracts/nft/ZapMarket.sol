@@ -179,6 +179,14 @@ contract ZapMarket is IMarket {
         emit MediaContractCreated(mediaContract, name, symbol);
     }
 
+    function mintOrBurn(bool isMint, uint256 tokenId, address mediaContract) external override{
+        if (isMint == true){
+            emit Minted(tokenId, mediaContract);
+        } else {
+            emit Burned(tokenId, mediaContract);
+        }
+    }
+
     /**
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.

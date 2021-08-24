@@ -516,6 +516,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
 
         address mediaContractAddress = address(this);
         IMarket(marketContract).setBidShares(mediaContractAddress, tokenId, bidShares);
+        IMarket(marketContract).mintOrBurn(true, tokenId, mediaContractAddress);
     }
 
     function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)
@@ -558,6 +559,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         }
 
         delete previousTokenOwners[tokenId];
+
+        IMarket(marketContract).mintOrBurn(false, tokenId, address(this));
     }
 
     /**
