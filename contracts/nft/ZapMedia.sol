@@ -161,7 +161,18 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         marketContract = marketContractAddr;
         ZapMarket zapMarket = ZapMarket(marketContract);
 
-        zapMarket.configure(msg.sender, address(this));
+        bytes memory name_b = bytes(name);
+        bytes memory symbol_b = bytes(symbol);
+
+        bytes32 name_b32;
+        bytes32 symbol_b32;
+
+        assembly {
+            name_b32 := mload(add(name_b, 32))
+            symbol_b32 := mload(add(symbol_b, 32))
+        }
+
+        zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
 
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
