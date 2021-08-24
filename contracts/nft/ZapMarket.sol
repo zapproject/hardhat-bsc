@@ -211,7 +211,7 @@ contract ZapMarket is IMarket {
         );
 
         _tokenAsks[mediaContractAddress][tokenId] = ask;
-        emit AskCreated(tokenId, ask);
+        emit AskCreated(mediaContractAddress, tokenId, ask);
     }
 
     /**
@@ -281,7 +281,7 @@ contract ZapMarket is IMarket {
             bid.recipient,
             bid.sellOnShare
         );
-        emit BidCreated(tokenId, bid);
+        emit BidCreated(mediaContractAddress, tokenId, bid);
 
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
