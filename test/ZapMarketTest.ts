@@ -6,7 +6,7 @@ import chai, { expect } from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { sha256, keccak256 } from 'ethers/lib/utils'
+import { sha256, keccak256, formatBytes32String, parseBytes32String} from 'ethers/lib/utils'
 
 import { BigNumber, Bytes, Contract, EventFilter, Event } from 'ethers'
 
@@ -14,7 +14,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 import { ZapMedia } from '../typechain/ZapMedia';
 
-import { ZapMarket } from '../typechain/ZapMarket'
+import { ZapMarket } from '../typechain/ZapMarket';
+
 
 
 chai.use(solidity);
@@ -161,14 +162,26 @@ describe("ZapMarket Test", () => {
 
         it('Should reject if called twice', async () => {
 
-            await expect(zapMarket.connect(signers[1]).configure(signers[1].address, zapMedia1.address))
-                .to.be.revertedWith("Market: Already configured");
+            await expect(zapMarket.connect(signers[1]).configure(
+                signers[1].address, zapMedia1.address,
+                formatBytes32String("TEST MEDIA 1"),
+                formatBytes32String("TM1"))
 
-            await expect(zapMarket.connect(signers[2]).configure(signers[2].address, zapMedia2.address))
-                .to.be.revertedWith("Market: Already configured");
+                ).to.be.revertedWith("Market: Already configured");
 
-            await expect(zapMarket.connect(signers[3]).configure(signers[3].address, zapMedia3.address))
-                .to.be.revertedWith("Market: Already configured");
+            await expect(zapMarket.connect(signers[2]).configure(
+                signers[2].address, zapMedia2.address,
+                formatBytes32String("TEST MEDIA 2"),
+                formatBytes32String("TM2"))
+
+                ).to.be.revertedWith("Market: Already configured");
+
+            await expect(zapMarket.connect(signers[3]).configure(
+                signers[3].address, zapMedia3.address,
+                formatBytes32String("TEST MEDIA 3"),
+                formatBytes32String("TM3"))
+
+                ).to.be.revertedWith("Market: Already configured");
 
             expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
 
@@ -176,13 +189,19 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should emit a MediaContractCreated event on media contract deployment', async () => {
-            const zapMedia1Filter: EventFilter = zapMarket.filters.MediaContractCreated(zapMedia1.address)
-            const event: Event = (await zapMarket.queryFilter(zapMedia1Filter))[0];
+        it('Should emit a MediaContractCreated event on media contract deployment', async () => {
+            const zapMarketFilter: EventFilter = zapMarket.filters.MediaContractCreated(zapMedia1.address, null, null)
+            const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
             expect(event).to.not.be.undefined;
+
             expect(event.event).to.eq("MediaContractCreated");
+
             expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+
+            expect(parseBytes32String(event.args?.name)).to.eq("TEST MEDIA 1");
+
+            expect(parseBytes32String(event.args?.symbol)).to.eq("TM1");
         });
     })
 
@@ -213,9 +232,6 @@ describe("ZapMarket Test", () => {
                 'ZapTokenBSC',
                 signers[0]
             );
-
-            zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-            await zapTokenBsc.deployed();
 
             ask1.currency = zapTokenBsc.address
 
