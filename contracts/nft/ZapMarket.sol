@@ -25,7 +25,7 @@ contract ZapMarket is IMarket {
      */
     // Address of the media contract that can call this market
     // address[] public mediaContract;
-    mapping(address => address) public mediaContract;
+    mapping(address => address[]) public mediaContracts;
 
     // Deployment Address
     address private _owner;
@@ -56,7 +56,7 @@ contract ZapMarket is IMarket {
      */
     modifier onlyMediaCaller(address mediaContractAddress) {
         require(
-            mediaContract[mediaContractAddress] == msg.sender,
+            mediaContractAddress == msg.sender,
             "Market: Only media contract"
         );
         _;
@@ -161,22 +161,21 @@ contract ZapMarket is IMarket {
      * can call the mutable functions. This method can only be called once.
      */
 
-    function configure(address mediaContractAddress) external override {
+    function configure(address deployer, address mediaContract) external override {
         // require(msg.sender == _owner, "Market: Only owner");
 
         require(
-            isConfigured[mediaContractAddress] != true,
+            isConfigured[mediaContract] != true,
             "Market: Already configured"
         );
         require(
-            mediaContractAddress != address(0),
+            mediaContract != address(0) && deployer != address(0),
             "Market: cannot set media contract as zero address"
         );
 
-        isConfigured[mediaContractAddress] = true;
+        isConfigured[mediaContract] = true;
 
-        // mediaContract = mediaContractAddress;
-        mediaContract[msg.sender] = mediaContractAddress;
+        mediaContracts[deployer].push(mediaContract);
     }
 
     /**
@@ -368,26 +367,26 @@ contract ZapMarket is IMarket {
 
         // Transfer bid share to owner of media
         token.safeTransfer(
-            IERC721(mediaContract[mediaContractAddress]).ownerOf(tokenId),
+            IERC721(mediaContractAddress).ownerOf(tokenId),
             splitShare(bidShares.owner, bid.amount)
         );
         // Transfer bid share to creator of media
         token.safeTransfer(
-            ZapMedia(mediaContract[mediaContractAddress]).tokenCreators(
+            ZapMedia(mediaContractAddress).tokenCreators(
                 tokenId
             ),
             splitShare(bidShares.creator, bid.amount)
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContract[mediaContractAddress]).previousTokenOwners(
+            ZapMedia(mediaContractAddress).previousTokenOwners(
                 tokenId
             ),
             splitShare(bidShares.prevOwner, bid.amount)
         );
 
         // Transfer media to bid recipient
-        ZapMedia(mediaContract[mediaContractAddress]).auctionTransfer(
+        ZapMedia(mediaContractAddress).auctionTransfer(
             tokenId,
             bid.recipient
         );
