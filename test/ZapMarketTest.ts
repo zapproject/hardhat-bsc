@@ -105,6 +105,24 @@ describe("ZapMarket Test", () => {
         sellOnShare: 0
     }
 
+    let metadataHex = ethers.utils.formatBytes32String('{}');
+    let metadataHashRaw = sha256(metadataHex);
+    metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+    let contentHex = ethers.utils.formatBytes32String('invert');
+    let contentHashRaw = sha256(contentHex);
+    contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+    let contentHash = contentHashBytes;
+    let metadataHash = metadataHashBytes;
+
+    const data: MediaData = {
+        tokenURI,
+        metadataURI,
+        contentHash,
+        metadataHash,
+    };
+
     describe("Configure", () => {
 
         beforeEach(async () => {
@@ -271,8 +289,6 @@ describe("ZapMarket Test", () => {
             const receipt2 = await mint_tx2.wait();
 
             const eventLog2 = receipt2.events[0];
-
-            console.log(receipt1.events);
 
             expect(eventLog1.event).to.be.equal('Transfer');
 
@@ -506,7 +522,7 @@ describe("ZapMarket Test", () => {
                 recipient: signers[8].address,
                 spender: signers[1].address,
                 sellOnShare: {
-                    value: BigInt(10000000000000000000)
+                    value: BigNumber.from("10000000000000000000")
                 }
             };
 
@@ -517,26 +533,8 @@ describe("ZapMarket Test", () => {
                 recipient: signers[9].address,
                 spender: signers[2].address,
                 sellOnShare: {
-                    value: BigInt(10000000000000000000)
+                    value: BigNumber.from("10000000000000000000")
                 }
-            };
-
-            let metadataHex = ethers.utils.formatBytes32String('{}');
-            let metadataHashRaw = await sha256(metadataHex);
-            metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
-
-            let contentHex = ethers.utils.formatBytes32String('invert');
-            let contentHashRaw = await sha256(contentHex);
-            contentHashBytes = ethers.utils.arrayify(contentHashRaw);
-
-            let contentHash = contentHashBytes;
-            let metadataHash = metadataHashBytes;
-
-            const data: MediaData = {
-                tokenURI,
-                metadataURI,
-                contentHash,
-                metadataHash,
             };
 
             await zapMedia1.connect(signers[1]).mint(data, bidShares1);
@@ -548,7 +546,7 @@ describe("ZapMarket Test", () => {
 
             await expect(zapMarket.connect(signers[1]).setBid(
                 zapMedia1.address,
-                1,
+                0,
                 bid1,
                 bid1.spender
             )).to.be.revertedWith(
@@ -557,7 +555,7 @@ describe("ZapMarket Test", () => {
 
             await expect(zapMarket.connect(signers[2]).setBid(
                 zapMedia2.address,
-                1,
+                0,
                 bid1,
                 bid1.spender
             )).to.be.revertedWith(
