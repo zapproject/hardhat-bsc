@@ -258,6 +258,34 @@ describe("ZapMarket Test", () => {
 
         })
 
+        it('Should emit a Minted event when a token is minted', async () => {
+            const zapMarketFilter: EventFilter = zapMarket.filters.Minted(0, zapMedia1.address);
+            const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0]
+
+            expect(event).to.not.be.undefined;
+
+            expect(event.event).to.eq("Minted");
+
+            expect(event.args?.token).to.eq(0);
+
+            expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+        });
+
+        it('Should emit a Burned event when a token is burned', async () => {
+            expect(await zapMedia1.connect(signers[1]).burn(0)).to.be.ok;
+
+            const zapMarketFilter: EventFilter = zapMarket.filters.Burned(0, zapMedia1.address);
+            const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0]
+
+            expect(event).to.not.be.undefined;
+
+            expect(event.event).to.eq("Burned");
+
+            expect(event.args?.token).to.eq(0);
+
+            expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+        });
+
         it('Should reject if not called by the media address', async () => {
 
             await expect(zapMarket.connect(signers[3]).setBidShares(
