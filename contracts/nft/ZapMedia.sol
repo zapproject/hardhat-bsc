@@ -607,7 +607,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
                     keccak256(
                         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
                     ),
-                    keccak256(bytes("Zora")),
+                    keccak256(bytes("Zap")),
                     keccak256(bytes("1")),
                     chainID,
                     address(this)

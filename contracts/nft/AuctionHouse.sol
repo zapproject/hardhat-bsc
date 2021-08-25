@@ -190,7 +190,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
-        // For Zora Protocol, ensure that the bid is valid for the current bidShare configuration
+        // For Zap NFT Marketplace Protocol, ensure that the bid is valid for the current bidShare configuration
         if(auctions[auctionId].token.tokenContract == zapMedia) {
             require(
                 IMarket(IMediaExtended(zapMedia).marketContract()).isValidBid(
@@ -259,7 +259,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     }
 
     /**
-     * @notice End an auction, finalizing the bid on Zora if applicable and paying out the respective parties.
+     * @notice End an auction, finalizing the bid on Zap NFT Marketplace if applicable and paying out the respective parties.
      * @dev If for some reason the auction cannot be finalized (invalid token recipient, for example),
      * The auction is reset and the NFT is transferred back to the auction creator.
      */
@@ -281,7 +281,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         if(auctions[auctionId].token.tokenContract == zapMedia) {
             // If the auction is running on zapMedia, settle it on the protocol
-            (bool success, uint256 remainingProfit) = _handleZoraAuctionSettlement(auctionId);
+            (bool success, uint256 remainingProfit) = _handleZapAuctionSettlement(auctionId);
             tokenOwnerProfit = remainingProfit;
             if(success != true) {
                 _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
@@ -394,7 +394,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         return auctions[auctionId].tokenOwner != address(0);
     }
 
-    function _handleZoraAuctionSettlement(uint256 auctionId) internal returns (bool, uint256) {
+    function _handleZapAuctionSettlement(uint256 auctionId) internal returns (bool, uint256) {
         address currency = auctions[auctionId].auctionCurrency == address(0) ? wethAddress : auctions[auctionId].auctionCurrency;
 
         IMarket.Bid memory bid = IMarket.Bid({
