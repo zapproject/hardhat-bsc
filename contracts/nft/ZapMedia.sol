@@ -162,7 +162,18 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         marketContract = marketContractAddr;
         ZapMarket zapMarket = ZapMarket(marketContract);
 
-        zapMarket.configure(msg.sender);
+        bytes memory name_b = bytes(name);
+        bytes memory symbol_b = bytes(symbol);
+
+        bytes32 name_b32;
+        bytes32 symbol_b32;
+
+        assembly {
+            name_b32 := mload(add(name_b, 32))
+            symbol_b32 := mload(add(symbol_b, 32))
+        }
+
+        zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
 
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
@@ -312,7 +323,12 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     {
         require(msg.sender == bid.bidder, "Market: Bidder must be msg sender");
         address mediaContractAddress = address(this);
-        IMarket(marketContract).setBid(mediaContractAddress, tokenId, bid, msg.sender);
+        IMarket(marketContract).setBid(
+            mediaContractAddress,
+            tokenId,
+            bid,
+            msg.sender
+        );
     }
 
     /**
@@ -325,7 +341,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         onlyTokenCreated(tokenId)
     {
         address mediaContractAddress = address(this);
-        IMarket(marketContract).removeBid(mediaContractAddress, tokenId, msg.sender);
+        IMarket(marketContract).removeBid(
+            mediaContractAddress,
+            tokenId,
+            msg.sender
+        );
     }
 
     /**
@@ -504,9 +524,13 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         tokenCreators[tokenId] = creator;
         previousTokenOwners[tokenId] = creator;
 
-        // address mediaContractAddress = address(this);
-        // console.log("=== _mintForCreator ===", mediaContractAddress);
-        // IMarket(marketContract).setBidShares(mediaContractAddress, tokenId, bidShares);
+        address mediaContractAddress = address(this);
+        IMarket(marketContract).setBidShares(
+            mediaContractAddress,
+            tokenId,
+            bidShares
+        );
+        IMarket(marketContract).mintOrBurn(true, tokenId, mediaContractAddress);
     }
 
     function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)
@@ -549,6 +573,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         }
 
         delete previousTokenOwners[tokenId];
+
+        IMarket(marketContract).mintOrBurn(false, tokenId, address(this));
     }
 
     /**
