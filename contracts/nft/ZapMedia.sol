@@ -14,6 +14,7 @@ import {Decimal} from "./Decimal.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
 import {ZapMarket} from "./ZapMarket.sol";
+import "hardhat/console.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -320,9 +321,15 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyExistingToken(tokenId)
     {
+        console.log(msg.sender);
         require(msg.sender == bid.bidder, "Market: Bidder must be msg sender");
         address mediaContractAddress = address(this);
-        IMarket(marketContract).setBid(mediaContractAddress, tokenId, bid, msg.sender);
+        IMarket(marketContract).setBid(
+            mediaContractAddress,
+            tokenId,
+            bid,
+            msg.sender
+        );
     }
 
     /**
@@ -335,7 +342,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         onlyTokenCreated(tokenId)
     {
         address mediaContractAddress = address(this);
-        IMarket(marketContract).removeBid(mediaContractAddress, tokenId, msg.sender);
+        IMarket(marketContract).removeBid(
+            mediaContractAddress,
+            tokenId,
+            msg.sender
+        );
     }
 
     /**
@@ -515,7 +526,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         previousTokenOwners[tokenId] = creator;
 
         address mediaContractAddress = address(this);
-        IMarket(marketContract).setBidShares(mediaContractAddress, tokenId, bidShares);
+        IMarket(marketContract).setBidShares(
+            mediaContractAddress,
+            tokenId,
+            bidShares
+        );
         IMarket(marketContract).mintOrBurn(true, tokenId, mediaContractAddress);
     }
 

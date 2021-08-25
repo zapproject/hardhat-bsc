@@ -6,7 +6,7 @@ import chai, { expect } from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { sha256, keccak256, formatBytes32String, parseBytes32String} from 'ethers/lib/utils'
+import { sha256, keccak256, formatBytes32String, parseBytes32String } from 'ethers/lib/utils'
 
 import { BigNumber, Bytes, Contract, EventFilter, Event } from 'ethers'
 
@@ -167,21 +167,21 @@ describe("ZapMarket Test", () => {
                 formatBytes32String("TEST MEDIA 1"),
                 formatBytes32String("TM1"))
 
-                ).to.be.revertedWith("Market: Already configured");
+            ).to.be.revertedWith("Market: Already configured");
 
             await expect(zapMarket.connect(signers[2]).configure(
                 signers[2].address, zapMedia2.address,
                 formatBytes32String("TEST MEDIA 2"),
                 formatBytes32String("TM2"))
 
-                ).to.be.revertedWith("Market: Already configured");
+            ).to.be.revertedWith("Market: Already configured");
 
             await expect(zapMarket.connect(signers[3]).configure(
                 signers[3].address, zapMedia3.address,
                 formatBytes32String("TEST MEDIA 3"),
                 formatBytes32String("TM3"))
 
-                ).to.be.revertedWith("Market: Already configured");
+            ).to.be.revertedWith("Market: Already configured");
 
             expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
 
@@ -515,7 +515,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.skip("Should reject if the bid shares haven't been set yet", async () => {
+        it("Should reject if the bid shares haven't been set yet", async () => {
 
             // Bid shares are't set only when they have not been minted
 
@@ -539,7 +539,7 @@ describe("ZapMarket Test", () => {
 
     })
 
-    describe.skip("#setBid", () => {
+    describe.only("#setBid", () => {
 
         let bid1: any;
         let bid2: any;
@@ -561,6 +561,15 @@ describe("ZapMarket Test", () => {
             zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
 
             await zapMedia2.deployed();
+
+            const zapTokenFactory = await ethers.getContractFactory(
+                'ZapTokenBSC',
+                signers[0]
+            );
+
+            zapTokenBsc = (await zapTokenFactory.deploy())
+            await zapTokenBsc.deployed();
+
 
             bid1 = {
                 amount: 100,
@@ -585,11 +594,11 @@ describe("ZapMarket Test", () => {
             };
 
             let metadataHex = ethers.utils.formatBytes32String('{}');
-            let metadataHashRaw = await sha256(metadataHex);
+            let metadataHashRaw = sha256(metadataHex);
             metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
             let contentHex = ethers.utils.formatBytes32String('invert');
-            let contentHashRaw = await sha256(contentHex);
+            let contentHashRaw = sha256(contentHex);
             contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
             let contentHash = contentHashBytes;
@@ -633,7 +642,7 @@ describe("ZapMarket Test", () => {
             await zapTokenBsc.mint(signers[1].address, bid1.amount);
             await zapTokenBsc.mint(signers[2].address, bid2.amount);
 
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount - 1);
+            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount - 1)
             await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, bid2.amount - 1);
 
             await expect(zapMedia1.connect(signers[1]).setBid(
@@ -963,7 +972,6 @@ describe("ZapMarket Test", () => {
             expect(eventLog2.args?.bid.amount.toNumber()).to.equal(bid2.amount);
 
             expect(eventLog2.args?.bid.currency).to.equal(bid2.currency);
-
 
         });
 
