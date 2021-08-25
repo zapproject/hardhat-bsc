@@ -44,6 +44,9 @@ interface IMarket {
     event AskCreated(address indexed mediaContract, uint256 indexed tokenId, Ask ask);
     event AskRemoved(uint256 indexed tokenId, Ask ask);
     event BidShareUpdated(uint256 indexed tokenId, BidShares bidShares);
+    event MediaContractCreated(address indexed mediaContract, bytes32 name, bytes32 symbol);
+    event Minted(uint256 indexed token, address indexed mediaContract);
+    event Burned(uint256 indexed token, address indexed mediaContract);
 
     function bidForTokenBidder(
         address mediaContractAddress,
@@ -77,7 +80,9 @@ interface IMarket {
         pure
         returns (uint256);
 
-    function configure(address deployer, address mediaContract) external;
+    function configure(address deployer, address mediaContract, bytes32 name, bytes32 symbol) external;
+
+    function mintOrBurn(bool isMint, uint256 tokenId, address mediaContract) external;
 
     function setBidShares(
         address mediaContractAddress,

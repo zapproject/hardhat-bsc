@@ -161,8 +161,7 @@ contract ZapMarket is IMarket {
      * can call the mutable functions. This method can only be called once.
      */
 
-    function configure(address deployer, address mediaContract) external override {
-        // require(msg.sender == _owner, "Market: Only owner");
+    function configure(address deployer, address mediaContract, bytes32 name, bytes32 symbol) external override {
 
         require(
             isConfigured[mediaContract] != true,
@@ -176,6 +175,16 @@ contract ZapMarket is IMarket {
         isConfigured[mediaContract] = true;
 
         mediaContracts[deployer].push(mediaContract);
+
+        emit MediaContractCreated(mediaContract, name, symbol);
+    }
+
+    function mintOrBurn(bool isMint, uint256 tokenId, address mediaContract) external override{
+        if (isMint == true){
+            emit Minted(tokenId, mediaContract);
+        } else {
+            emit Burned(tokenId, mediaContract);
+        }
     }
 
     /**

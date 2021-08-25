@@ -33,7 +33,6 @@ interface IMedia {
         address owner,
         string _uri
     );
-    event MediaContractCreated(address indexed mediaContract);
 
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
