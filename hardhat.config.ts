@@ -112,7 +112,7 @@ const config = {
 // read BSC gas price and assign the gas reporter and hardhat network's gas price to it
 try {
   let data = fs.readFileSync("./output/bscGas.txt", 'utf8')
-  // data = data.replaceAll('"', '')
+  data = data.replaceAll('"', '')
   data = Number.parseInt(data)
   config.networks.hardhat.gasPrice = data
   let parsedData = (data / 1000000000).toFixed(2)  // round to 2 decimal places
