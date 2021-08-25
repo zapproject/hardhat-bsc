@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0
+
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
+
 import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import { IERC721, IERC165 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -61,7 +64,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     /*
      * Constructor
      */
-    constructor(address _zapMedia, address _weth) public {
+    constructor(address _zapMedia, address _weth) {
         require(
             IERC165(_zapMedia).supportsInterface(interfaceId),
             "Doesn't support NFT interface"
