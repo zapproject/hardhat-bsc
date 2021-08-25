@@ -25,7 +25,7 @@ contract ZapMarket is IMarket {
      */
     // Address of the media contract that can call this market
     // address[] public mediaContract;
-    mapping(address => address) public mediaContract;
+    mapping(address => address[]) public mediaContracts;
 
     // Deployment Address
     address private _owner;
@@ -56,7 +56,7 @@ contract ZapMarket is IMarket {
      */
     modifier onlyMediaCaller(address mediaContractAddress) {
         require(
-            mediaContract[mediaContractAddress] == msg.sender,
+            mediaContractAddress == msg.sender,
             "Market: Only media contract"
         );
         _;
@@ -161,22 +161,30 @@ contract ZapMarket is IMarket {
      * can call the mutable functions. This method can only be called once.
      */
 
-    function configure(address mediaContractAddress) external override {
-        // require(msg.sender == _owner, "Market: Only owner");
+    function configure(address deployer, address mediaContract, bytes32 name, bytes32 symbol) external override {
 
         require(
-            isConfigured[mediaContractAddress] != true,
+            isConfigured[mediaContract] != true,
             "Market: Already configured"
         );
         require(
-            mediaContractAddress != address(0),
+            mediaContract != address(0) && deployer != address(0),
             "Market: cannot set media contract as zero address"
         );
 
-        isConfigured[mediaContractAddress] = true;
+        isConfigured[mediaContract] = true;
 
-        // mediaContract = mediaContractAddress;
-        mediaContract[msg.sender] = mediaContractAddress;
+        mediaContracts[deployer].push(mediaContract);
+
+        emit MediaContractCreated(mediaContract, name, symbol);
+    }
+
+    function mintOrBurn(bool isMint, uint256 tokenId, address mediaContract) external override{
+        if (isMint == true){
+            emit Minted(tokenId, mediaContract);
+        } else {
+            emit Burned(tokenId, mediaContract);
+        }
     }
 
     /**
@@ -211,7 +219,7 @@ contract ZapMarket is IMarket {
         );
 
         _tokenAsks[mediaContractAddress][tokenId] = ask;
-        emit AskCreated(tokenId, ask);
+        emit AskCreated(mediaContractAddress, tokenId, ask);
     }
 
     /**
@@ -282,7 +290,7 @@ contract ZapMarket is IMarket {
             bid.recipient,
             bid.sellOnShare
         );
-        emit BidCreated(tokenId, bid);
+        emit BidCreated(mediaContractAddress, tokenId, bid);
 
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
@@ -369,26 +377,26 @@ contract ZapMarket is IMarket {
 
         // Transfer bid share to owner of media
         token.safeTransfer(
-            IERC721(mediaContract[mediaContractAddress]).ownerOf(tokenId),
+            IERC721(mediaContractAddress).ownerOf(tokenId),
             splitShare(bidShares.owner, bid.amount)
         );
         // Transfer bid share to creator of media
         token.safeTransfer(
-            ZapMedia(mediaContract[mediaContractAddress]).tokenCreators(
+            ZapMedia(mediaContractAddress).tokenCreators(
                 tokenId
             ),
             splitShare(bidShares.creator, bid.amount)
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContract[mediaContractAddress]).previousTokenOwners(
+            ZapMedia(mediaContractAddress).previousTokenOwners(
                 tokenId
             ),
             splitShare(bidShares.prevOwner, bid.amount)
         );
 
         // Transfer media to bid recipient
-        ZapMedia(mediaContract[mediaContractAddress]).auctionTransfer(
+        ZapMedia(mediaContractAddress).auctionTransfer(
             tokenId,
             bid.recipient
         );
