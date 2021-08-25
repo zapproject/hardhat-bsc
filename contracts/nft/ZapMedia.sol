@@ -321,7 +321,6 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyExistingToken(tokenId)
     {
-        console.log(msg.sender);
         require(msg.sender == bid.bidder, "Market: Bidder must be msg sender");
         address mediaContractAddress = address(this);
         IMarket(marketContract).setBid(
