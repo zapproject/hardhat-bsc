@@ -88,7 +88,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
      * @notice Require that the token has not been burned and has been minted
      */
     modifier onlyExistingToken(uint256 tokenId) {
-        require(_exists(tokenId));
+        require(
+            _exists(tokenId)
+            // remove revert string before deployment to mainnet
+            , "Media: nonexistent token"
+            );
         _;
     }
 
@@ -98,6 +102,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     modifier onlyTokenWithContentHash(uint256 tokenId) {
         require(
             tokenContentHashes[tokenId] != 0
+            // remove revert string before deployment to mainnet
+            ,"Media: token does not have hash of created content"
         );
         _;
     }
@@ -108,6 +114,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     modifier onlyTokenWithMetadataHash(uint256 tokenId) {
         require(
             tokenMetadataHashes[tokenId] != 0
+            // remove revert string before deployment to mainnet
+            , "Media: token does not have hash of its metadata"
         );
         _;
     }
@@ -119,6 +127,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     modifier onlyApprovedOrOwner(address spender, uint256 tokenId) {
         require(
             _isApprovedOrOwner(spender, tokenId)
+            // remove revert string before deployment to mainnet
+            , "Media: Only approved or owner"
         );
         _;
     }
@@ -129,6 +139,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     modifier onlyTokenCreated(uint256 tokenId) {
         require(
             _tokenIdTracker.current() > tokenId
+            // remove revert string before deployment to mainnet
+            , "Media: token with that id does not exist"
         );
         _;
     }
@@ -139,6 +151,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     modifier onlyValidURI(string memory uri) {
         require(
             bytes(uri).length != 0
+            // remove revert string before deployment to mainnet
+            , "Media: specified uri must be non-empty"
         );
         _;
     }
@@ -233,6 +247,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     ) public override nonReentrant {
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp
+            // remove revert string before deployment to mainnet
+            , "Media: mintWithSig expired"
         );
 
         bytes32 digest = keccak256(
@@ -256,6 +272,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
 
         require(
             recoveredAddress != address(0) && creator == recoveredAddress
+            // remove revert string before deployment to mainnet
+            , "Media: Signature invalid"
         );
 
         _mintForCreator(recoveredAddress, data, bidShares);
@@ -268,7 +286,10 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         external
         override
     {
-        require(msg.sender == marketContract);
+        require(msg.sender == marketContract
+            // remove revert string before deployment to mainnet
+            , "Media: only market contract"
+            );
         previousTokenOwners[tokenId] = ownerOf(tokenId);
         _safeTransfer(ownerOf(tokenId), recipient, tokenId, "");
     }
@@ -306,7 +327,10 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         nonReentrant
         onlyExistingToken(tokenId)
     {
-        require(msg.sender == bid.bidder);
+        require(msg.sender == bid.bidder
+            // remove revert string before deployment to mainnet
+            , "Market: Bidder must be msg sender"
+            );
         address mediaContractAddress = address(this);
         IMarket(marketContract).setBid(
             mediaContractAddress,
@@ -360,6 +384,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
 
         require(
             tokenCreators[tokenId] == owner
+            // remove revert string before deployment to mainnet
+            , "Media: owner is not creator of media"
         );
 
         _burn(tokenId);
@@ -374,6 +400,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     function revokeApproval(uint256 tokenId) external override nonReentrant {
         require(
             msg.sender == getApproved(tokenId)
+            // remove revert string before deployment to mainnet
+            , "Media: caller not approved address"
         );
         _approve(address(0), tokenId);
     }
@@ -425,8 +453,13 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     ) public override nonReentrant onlyExistingToken(tokenId) {
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp
+            // remove revert string before deployment to mainnet
+            , "Media: Permit expired"
         );
-        require(spender != address(0));
+        require(spender != address(0)
+            // remove revert string before deployment to mainnet
+            , "Media: spender cannot be 0x0"
+            );
 
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -449,6 +482,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         require(
             recoveredAddress != address(0) &&
                 ownerOf(tokenId) == recoveredAddress
+            // remove revert string before deployment to mainnet
+            , "Media: Signature invalid"
         );
 
         _approve(spender, tokenId);
@@ -479,12 +514,19 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         MediaData memory data,
         IMarket.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
-        require(data.contentHash != 0);
+        require(data.contentHash != 0
+            // remove revert string before deployment to mainnet
+            , "Media: content hash must be non-zero"
+            );
         require(
             _contentHashes[data.contentHash] == false
+            // remove revert string before deployment to mainnet
+            ,"Media: a token has already been created with this content hash"
         );
         require(
             data.metadataHash != 0
+            // remove revert string before deployment to mainnet
+            , "Media: metadata hash must be non-zero"
         );
 
         uint256 tokenId = _tokenIdTracker.current();
