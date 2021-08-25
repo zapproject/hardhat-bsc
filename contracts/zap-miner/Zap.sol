@@ -555,10 +555,10 @@ contract Zap {
         // require(balanceOf(address(this)) >= 1000);
 
         // get latest block balance of ZM
-        ZapStorage.Checkpoint[] storage checkpoints = zap.balances[
-            address(this)
-        ];
-        uint256 lastestZMBal = checkpoints[checkpoints.length - 1].value;
+        // ZapStorage.Checkpoint[] storage checkpoints = zap.balances[
+        //     address(this)
+        // ];
+        // uint256 lastestZMBal = checkpoints[checkpoints.length - 1].value;
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {

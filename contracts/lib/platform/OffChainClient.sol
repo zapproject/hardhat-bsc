@@ -174,8 +174,8 @@ contract OffChainClient is Client1, Client2 {
     }
 
     function getQueryIntResultByData(
-        uint256 blockNumber,
-        uint256 timestamp,
+        // uint256 blockNumber,
+        // uint256 timestamp,
         string memory query,
         address subscriber,
         address provider
@@ -189,8 +189,8 @@ contract OffChainClient is Client1, Client2 {
     }
 
     function getQueryResultByData(
-        uint256 blockNumber,
-        uint256 timestamp,
+        // uint256 blockNumber,
+        // uint256 timestamp,
         string memory query,
         address subscriber,
         address provider
@@ -204,8 +204,8 @@ contract OffChainClient is Client1, Client2 {
     }
 
     function getQueryBytesResultByData(
-        uint256 blockNumber,
-        uint256 timestamp,
+        // uint256 blockNumber,
+        // uint256 timestamp,
         string memory query,
         address subscriber,
         address provider
