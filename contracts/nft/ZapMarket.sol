@@ -278,7 +278,6 @@ contract ZapMarket is IMarket {
         // as some tokens impose a transfer fee and would not actually transfer the
         // full amount to the market, resulting in locked funds for refunds & bid acceptance
         uint256 beforeBalance = token.balanceOf(address(this));
-
         token.safeTransferFrom(spender, address(this), bid.amount);
 
         uint256 afterBalance = token.balanceOf(address(this));
