@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import {Decimal} from "../Decimal.sol";
 
 /**
- * @title Interface for Zora Protocol's Market
+ * @title Interface for Zap NFT Marketplace Protocol's Market
  */
 interface IMarket {
     struct Bid {

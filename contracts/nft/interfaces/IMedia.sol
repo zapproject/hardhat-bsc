@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import {IMarket} from "./IMarket.sol";
 
 /**
- * @title Interface for Zora Protocol's Media
+ * @title Interface for Zap NFT Marketplace Protocol's Media
  */
 interface IMedia {
     struct EIP712Signature {
