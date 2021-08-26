@@ -619,13 +619,16 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
             chainID := chainid()
         }
 
+        ERC721 mediaContract = ERC721(address(this));
+        string memory mediaName = mediaContract.name();
+
         return
             keccak256(
                 abi.encode(
                     keccak256(
                         "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
                     ),
-                    keccak256(bytes("Zap")),
+                    keccak256(bytes(mediaName)),
                     keccak256(bytes("1")),
                     chainID,
                     address(this)
