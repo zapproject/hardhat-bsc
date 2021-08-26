@@ -33,11 +33,17 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     // Address for the market
     address public marketContract;
 
+    // Deployer of this Media
+    address deployer;
+
     // Mapping from token to previous owner of the token
     mapping(uint256 => address) public previousTokenOwners;
 
     // Mapping from token id to creator address
     mapping(uint256 => address) public tokenCreators;
+
+    // Mapping from address to boolean; can this address mint?
+    mapping(address => bool) public approvedToMint;
 
     // Mapping from creator address to their (enumerable) set of created tokens
     mapping(address => EnumerableSet.UintSet) private _creatorTokens;
@@ -160,6 +166,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     ) ERC721(name, symbol) {
         marketContract = marketContractAddr;
         IMarket zapMarket = IMarket(marketContract);
+        deployer = msg.sender;
 
         bytes memory name_b = bytes(name);
         bytes memory symbol_b = bytes(symbol);
@@ -225,11 +232,15 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         override
         nonReentrant
     {
+        require(
+            msg.sender == deployer || 
+            approvedToMint[msg.sender]
+        );
         _mintForCreator(msg.sender, data, bidShares);
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMedia a
      */
     function mintWithSig(
         address creator,
@@ -237,6 +248,10 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         IMarket.BidShares memory bidShares,
         EIP712Signature memory sig
     ) public override nonReentrant {
+        require(
+            msg.sender == deployer || 
+            approvedToMint[msg.sender]
+        );
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp
             // remove revert string before deployment to mainnet
@@ -396,6 +411,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
             , "Media: caller not approved address"
         );
         _approve(address(0), tokenId);
+    }
+
+    function approveToMint(address toApprove) external override {
+        require(msg.sender == deployer);
+        approvedToMint[toApprove] = true;
     }
 
     /**
