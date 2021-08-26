@@ -13,6 +13,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Decimal} from "./Decimal.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
+import "./libraries/Constants.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -32,11 +33,17 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     // Address for the market
     address public marketContract;
 
+    // Deployer of this Media
+    address deployer;
+
     // Mapping from token to previous owner of the token
     mapping(uint256 => address) public previousTokenOwners;
 
     // Mapping from token id to creator address
     mapping(uint256 => address) public tokenCreators;
+
+    // Mapping from address to boolean; can this address mint?
+    mapping(address => bool) public approvedToMint;
 
     // Mapping from creator address to their (enumerable) set of created tokens
     mapping(address => EnumerableSet.UintSet) private _creatorTokens;
@@ -53,14 +60,6 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     // Mapping from contentHash to bool
     mapping(bytes32 => bool) private _contentHashes;
 
-    //keccak256("Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)");
-    bytes32 public constant PERMIT_TYPEHASH =
-        0x49ecf333e5b8c95c40fdafc95c1ad136e8914a8fb55e9dc8bb01eaa83a2df9ad;
-
-    //keccak256("MintWithSig(bytes32 contentHash,bytes32 metadataHash,uint256 creatorShare,uint256 nonce,uint256 deadline)");
-    bytes32 public constant MINT_WITH_SIG_TYPEHASH =
-        0x2952e482b8e2b192305f87374d7af45dc2eafafe4f50d26a0c02e90f2fdbe14b;
-
     // Mapping from address to token id to permit nonce
     mapping(address => mapping(uint256 => uint256)) public permitNonces;
 
@@ -75,7 +74,6 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
      *
      *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd ^ 0x157c3df9 == 0x4e222e66
      */
-    bytes4 private constant _INTERFACE_ID_ERC721_METADATA = 0x4e222e66;
 
     Counters.Counter private _tokenIdTracker;
 
@@ -168,6 +166,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     ) ERC721(name, symbol) {
         marketContract = marketContractAddr;
         IMarket zapMarket = IMarket(marketContract);
+        deployer = msg.sender;
 
         bytes memory name_b = bytes(name);
         bytes memory symbol_b = bytes(symbol);
@@ -182,7 +181,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
 
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
 
-        _registerInterface(_INTERFACE_ID_ERC721_METADATA);
+        _registerInterface(Constants._INTERFACE_ID_ERC721_METADATA);
     }
 
     /* **************
@@ -233,11 +232,16 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         override
         nonReentrant
     {
+        require(
+            msg.sender == deployer || 
+            approvedToMint[msg.sender],
+            "Media: Only Approved users can mint"
+        );
         _mintForCreator(msg.sender, data, bidShares);
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMedia a
      */
     function mintWithSig(
         address creator,
@@ -245,6 +249,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         IMarket.BidShares memory bidShares,
         EIP712Signature memory sig
     ) public override nonReentrant {
+        require(
+            msg.sender == deployer || 
+            approvedToMint[msg.sender],
+            "Media: Only Approved users can mint"
+        );
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp
             // remove revert string before deployment to mainnet
@@ -257,7 +266,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
                 _calculateDomainSeparator(),
                 keccak256(
                     abi.encode(
-                        MINT_WITH_SIG_TYPEHASH,
+                        Constants.MINT_WITH_SIG_TYPEHASH,
                         data.contentHash,
                         data.metadataHash,
                         bidShares.creator.value,
@@ -406,6 +415,11 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
         _approve(address(0), tokenId);
     }
 
+    function approveToMint(address toApprove) external override {
+        require(msg.sender == deployer);
+        approvedToMint[toApprove] = true;
+    }
+
     /**
      * @notice see IMedia
      * @dev only callable by approved or owner
@@ -467,7 +481,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
                 _calculateDomainSeparator(),
                 keccak256(
                     abi.encode(
-                        PERMIT_TYPEHASH,
+                        Constants.PERMIT_TYPEHASH,
                         spender,
                         tokenId,
                         permitNonces[ownerOf(tokenId)][tokenId]++,

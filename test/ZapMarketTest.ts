@@ -206,6 +206,7 @@ describe("ZapMarket Test", () => {
     })
 
     describe('#setBidShares', () => {
+        let data: MediaData;
 
         beforeEach(async () => {
 
@@ -246,7 +247,7 @@ describe("ZapMarket Test", () => {
             let contentHash = contentHashBytes;
             let metadataHash = metadataHashBytes;
 
-            const data: MediaData = {
+            data = {
                 tokenURI,
                 metadataURI,
                 contentHash,

@@ -57,7 +57,7 @@ describe("ZapMedia Test", async () => {
     let mediaData: any;
     let randomString: any;
 
-    describe("Configure", () => {
+    describe.skip("Configure", () => {
 
         beforeEach(async () => {
 
@@ -188,6 +188,19 @@ describe("ZapMedia Test", async () => {
                 contentHash: contentHashBytes,
                 metadataHash: metadataHashBytes,
             };
+
+            signers = await ethers.getSigners();
+
+            const marketFixture = await deployments.fixture(['ZapMarket']);
+
+            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address);
+
+
+            const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
+
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address));
+
+            await zapMedia1.deployed();
         });
 
         it('should mint token', async () => {
@@ -216,6 +229,14 @@ describe("ZapMedia Test", async () => {
                     {...mediaData, contentHash: zeroContentHashBytes}, bidShares
                 )
             ).revertedWith('Media: content hash must be non-zero');
+        });
+
+        it.only('Should only let approved users mint a token', async () => {
+            await expect(
+                zapMedia1.connect(signers[3]).mint(
+                    {...mediaData, contentHash: zeroContentHashBytes}, bidShares)
+                    ).to.be.revertedWith(
+                "Media: Only Approved users can mint");
         });
     
         it('should revert if the content hash already exists for a created token', async () => {
