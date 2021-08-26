@@ -19,6 +19,7 @@ describe("ZapMedia Test", async () => {
     let zapMedia1: any;
     let zapMedia2: any;
     let zapMedia3: any;
+    let zapMedia4: any;
     let zapTokenBsc: any;
     let signers: any;
 
@@ -111,6 +112,12 @@ describe("ZapMedia Test", async () => {
 
             await zapMedia3.deployed();
 
+            const mediaFactory4 = await ethers.getContractFactory("ZapMedia", signers[4]);
+
+            zapMedia4 = (await mediaFactory4.deploy("Test MEDIA 4", "T4", zapMarket.address));
+
+            await zapMedia4.deployed();
+
             const zapTokenFactory = await ethers.getContractFactory(
                 'ZapTokenBSC',
                 signers[0]
@@ -123,7 +130,7 @@ describe("ZapMedia Test", async () => {
 
         });
 
-        it.only('Should get media owner', async () => {
+        it('Should get media owner', async () => {
 
             const zapMedia1Address = await zapMarket.mediaContracts(signers[1].address, BigNumber.from("0"));
 
@@ -136,7 +143,7 @@ describe("ZapMedia Test", async () => {
 
         });
 
-        it.only('Should reject if called twice', async () => {
+        it('Should reject if called twice', async () => {
 
             await expect(zapMarket.connect(signers[1]).configure(
                 signers[1].address, zapMedia1.address,
@@ -159,7 +166,7 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    describe.skip('#mint', () => {
+    describe('#mint', () => {
         beforeEach(async () => {
             tokenURI =  String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -183,7 +190,7 @@ describe("ZapMedia Test", async () => {
             };
         });
 
-        it.only('should mint token', async () => {
+        it('should mint token', async () => {
             await zapMedia1.mint(mediaData, bidShares);
 
             const ownerOf = await zapMedia1.ownerOf(0);
@@ -203,7 +210,7 @@ describe("ZapMedia Test", async () => {
             expect(savedMetadataURI).eq(metadataURI);
         });
 
-        it.only('should revert if an empty content hash is specified', async () => {      
+        it('should revert if an empty content hash is specified', async () => {      
             await expect(
                 zapMedia1.mint(
                     {...mediaData, contentHash: zeroContentHashBytes}, bidShares
@@ -211,7 +218,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: content hash must be non-zero');
         });
     
-        it.only('should revert if the content hash already exists for a created token', async () => {
+        it('should revert if the content hash already exists for a created token', async () => {
             await zapMedia2.mint(mediaData, bidShares);
         
             await expect(
@@ -219,7 +226,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: a token has already been created with this content hash');
         });
       
-        it.only('should revert if the metadataHash is empty', async () => {
+        it('should revert if the metadataHash is empty', async () => {
             const secondContentHex = ethers.utils.formatBytes32String('invert2');
             const secondContentHash = await ethers.utils.sha256(secondContentHex);
 
@@ -231,19 +238,19 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: metadata hash must be non-zero');
         });
     
-        it.only('should revert if the tokenURI is empty', async () => {
+        it('should revert if the tokenURI is empty', async () => {
             await expect(
                 zapMedia1.mint({...mediaData, tokenURI: ''}, bidShares)
             ).revertedWith('Media: specified uri must be non-empty');
         });
     
-        it.only('should revert if the metadataURI is empty', async () => {
+        it('should revert if the metadataURI is empty', async () => {
             await expect(
                 zapMedia1.mint({...mediaData, metadataURI: ''}, bidShares)
             ).revertedWith('Media: specified uri must be non-empty');
         });
     
-        // it.only('should not be able to mint a token with bid shares summing to less than 100', async () => {
+        // it('should not be able to mint a token with bid shares summing to less than 100', async () => {
         //     await expect(
         //         zapMedia1.mint(mediaData, {...bidShares, creator: {
         //             value: BigInt(50000000000000000000)
@@ -252,10 +259,10 @@ describe("ZapMedia Test", async () => {
         // });
     });
 
-    describe.skip('#mintWithSig', () => {
+    describe('#mintWithSig', () => {
         const version = '1';
 
-        it.only('should mint a token for a given creator with a valid signature', async () => {
+        it('should mint a token for a given creator with a valid signature', async () => {
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -283,7 +290,7 @@ describe("ZapMedia Test", async () => {
             expect(afterNonce).to.eq(BigNumber.from(beforeNonce + 1));
         });
 
-        it.only('should not mint a token for a different creator', async () => {
+        it('should not mint a token for a different creator', async () => {
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -297,7 +304,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: Signature invalid');
         });
 
-        it.only('should not mint a token for a different contentHash', async () => {
+        it('should not mint a token for a different contentHash', async () => {
             const badContent = 'bad bad bad';
             const badContentHex = ethers.utils.formatBytes32String(badContent);
             const badContentHashBytes = ethers.utils.arrayify(badContentHex);
@@ -315,7 +322,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: Signature invalid');
         });
 
-        it.only('should not mint a token for a different metadataHash', async () => {
+        it('should not mint a token for a different metadataHash', async () => {
             const badMetadata = '{"some": "bad", "data": ":)"}';
             const badMetadataHex = ethers.utils.formatBytes32String(badMetadata);
             const badMetadataHashBytes = ethers.utils.arrayify(badMetadataHex);
@@ -333,7 +340,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: Signature invalid');
         });
 
-        it.only('should not mint a token for a different creator bid share', async () => {
+        it('should not mint a token for a different creator bid share', async () => {
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -362,7 +369,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith('Media: Signature invalid');
         });
 
-        it.only('should not mint a token with an invalid deadline', async () => {
+        it('should not mint a token with an invalid deadline', async () => {
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -377,7 +384,7 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    describe.skip('#setAsk', () => {    
+    describe('#setAsk', () => {    
         beforeEach(async () => {
             tokenURI =  String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -403,26 +410,26 @@ describe("ZapMedia Test", async () => {
             await zapMedia3.mint(mediaData, bidShares);
         });
 
-        it.only('should set the ask', async () => {
-            await expect(
-                zapMedia3.setAsk(0, ask)
+        it('should set the ask', async () => {
+            expect(
+                await zapMedia3.setAsk(0, ask)
             );
         });
     
-        it.only('should reject if the ask is 0', async () => {
+        it('should reject if the ask is 0', async () => {
             await expect(
                 zapMedia3.setAsk(0, { ...ask, amount: 0 })
             ).revertedWith('Market: Ask invalid for share splitting');
         });
     
-        it.only('should reject if the ask amount is invalid and cannot be split', async () => {
+        it('should reject if the ask amount is invalid and cannot be split', async () => {
             await expect(
                 zapMedia3.setAsk(0, { ...ask, amount: 101 })
             ).revertedWith('Market: Ask invalid for share splitting');
         });
     });
 
-    describe.skip('#setBid', () => {
+    describe('#setBid-without-setupAuction', () => {
         let bid1: any;
         let bid2: any;
 
@@ -473,7 +480,7 @@ describe("ZapMedia Test", async () => {
             await zapMedia3.mint(mediaData, bidShares);
         });
 
-        it.only('should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
+        it('should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
             await zapTokenBsc.mint(signers[1].address, bid1.amount);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount - 1);
@@ -483,7 +490,7 @@ describe("ZapMedia Test", async () => {
             ).to.be.revertedWith('SafeERC20: low-level call failed');
         });
 
-        it.only('should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
+        it('should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
             await zapTokenBsc.mint(signers[1].address, bid1.amount / 2);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount / 2);
@@ -493,93 +500,20 @@ describe("ZapMedia Test", async () => {
             ).to.be.revertedWith('SafeERC20: low-level call failed');
         });
 
-        it.only('should set a bid', async () => {
-            await zapTokenBsc.mint(signers[1].address, bid1.amount);
+        it('should set a bid', async () => {
+            await zapTokenBsc.mint(signers[4].address, 100000);
 
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, bid1.amount);
+            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 100000);
 
-            const beforeBalance = await zapTokenBsc.balanceOf(bid1.bidder);
+            expect(await zapMedia3.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address}));
 
-            await zapMedia3.connect(signers[1]).setBid(
-                0,
-                bid1,
-            );
-
-            const afterBalance = await zapTokenBsc.balanceOf(bid1.bidder);
-
-            const getBid1 = await zapMarket.bidForTokenBidder(
-                zapMedia3.address,
-                0,
-                bid1.bidder
-            );
-
-            expect(getBid1.currency).to.equal(zapTokenBsc.address);
-
-            expect(getBid1.amount.toNumber()).to.equal(bid1.amount);
-
-            expect(getBid1.bidder).to.equal(bid1.bidder);
-
-            expect(beforeBalance.toNumber()).to.equal(afterBalance.toNumber() + bid1.amount);
-        });
-
-        it('should automatically transfer the token if the ask is set', async () => {
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-        
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
-
-            await zapMedia1.connect(signers[3]).setAsk(0, ask);
-      
-            expect(await zapMedia1.ownerOf(0)).to.equal(signers[3].address);
-        });
-
-        it.only('should refund a bid if one already exists for the bidder', async () => {
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
-
-            const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, amount: 200, bidder: signers[4].address, recipient: signers[5].address});
-            const afterBalance = await zapTokenBsc.balanceOf(signers[4].address);
-
-            expect(afterBalance - 100).eq(beforeBalance - 200);
+            const balance = await zapTokenBsc.balanceOf(signers[4].address);
+            expect(balance.toNumber()).eq(100000 - 100);
         });
     });
 
-    describe('#removeBid', () => {
+    describe('#setBid-with-setupAuction', () => {
         let bid1: any;
-
         beforeEach(async () => {
             bid1 = {
                 amount: 100,
@@ -591,29 +525,71 @@ describe("ZapMedia Test", async () => {
                     value: BigInt(10000000000000000000)
                 }
             };
-
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
-
         });
+
+        it('should refund a bid if one already exists for the bidder', async () => {
+            const mediaFactory11 = await ethers.getContractFactory("ZapMedia", signers[11]);
+            const zapMedia11 = (await mediaFactory11.deploy("Test MEDIA 11", "T11", zapMarket.address));
+            await zapMedia11.deployed();
+            await setupAuction(zapMedia11, signers[11]);
+
+            await zapMedia11.connect(signers[3]).setAsk(0, ask);
+      
+            expect(await zapMedia11.ownerOf(0)).to.equal(signers[3].address);
+
+            const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
+            await zapMedia11.connect(signers[4]).setBid(0, {...bid1, amount: 200, bidder: signers[4].address, recipient: signers[5].address});
+            const afterBalance = await zapTokenBsc.balanceOf(signers[4].address);
+
+            expect(afterBalance - 100).eq(beforeBalance - 200);
+        });
+    });
+
+    async function setupAuction(ownerContract: any, ownerWallet: any) {
+        const bid1 = {
+            amount: 100,
+            currency: zapTokenBsc.address,
+            bidder: ownerWallet.address,
+            recipient: signers[8].address,
+            spender: ownerWallet.address,
+            sellOnShare: {
+                value: BigInt(10000000000000000000)
+            }
+        };
+
+        await zapTokenBsc.mint(ownerWallet.address, 10000);
+        await zapTokenBsc.mint(signers[2].address, 10000);
+        await zapTokenBsc.mint(signers[3].address, 10000);
+        await zapTokenBsc.mint(signers[4].address, 10000);
+        await zapTokenBsc.mint(signers[5].address, 10000);
+        await zapTokenBsc.connect(ownerWallet).approve(zapMarket.address, 10000);
+        await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
+        await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
+        await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
+        await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
+
+        randomString = Date.now().toString();
+        contentHex = ethers.utils.formatBytes32String(randomString);
+        contentHash = ethers.utils.sha256(contentHex);
+        contentHashBytes = ethers.utils.arrayify(contentHash);
+        await ownerContract.mint({...mediaData, contentHash: contentHashBytes}, bidShares);
     
+        await ownerContract.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
+        await ownerContract.connect(ownerWallet).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
+        await ownerContract.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
+        await ownerContract.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
+        await ownerContract.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
+        await ownerContract.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});        
+    }
+
+    describe('#removeBid', () => {
+        beforeEach(async () => {
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
+        });
+
         it('should revert if the bidder has not placed a bid', async () => {
             await expect(zapMedia1.connect(signers[6]).removeBid(0)).revertedWith(
                 'Market: cannot remove bid amount of 0'
@@ -642,6 +618,11 @@ describe("ZapMedia Test", async () => {
         });
     
         it('should remove a bid, even if the token is burned', async () => {
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            const zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
+
             await zapMedia1.connect(signers[3]).transferFrom(signers[3].address, signers[1].address, 0);
             await zapMedia1.burn(0);
             const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
@@ -665,30 +646,10 @@ describe("ZapMedia Test", async () => {
                 }
             };
 
-            // signers[1] creator
-            // signers[2] prevOwner
-            // signers[3] owner
-            // signers[4] bidder
-            // signers[5] other
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
         });
     
         it('should accept a bid', async () => {
@@ -700,6 +661,7 @@ describe("ZapMedia Test", async () => {
                     value: BigInt(15000000000000000000)
                 }
             };
+
             await zapMedia1.connect(signers[4]).setBid(0, bid);
         
             const beforeOwnerBalance = (await zapTokenBsc.balanceOf(signers[3].address)).toNumber();
@@ -759,19 +721,34 @@ describe("ZapMedia Test", async () => {
             );
         });
       
-        it('should revert if not called by the owner', async () => {   
+        it('should revert if not called by the owner', async () => {
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            const zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
+
             await expect(
                 zapMedia1.connect(signers[5]).acceptBid(0, {...bid1, bidder: signers[4].address})
             ).revertedWith('Media: Only approved or owner');
         });
       
         it('should revert if a non-existent bid is accepted', async () => {
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            const zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
+
             await expect(
                 zapMedia1.connect(signers[3]).acceptBid(0, {...bid1, bidder: '0x0000000000000000000000000000000000000000'})
             ).revertedWith('Market: cannot accept bid of 0');
         });
       
         it('should revert if an invalid bid is accepted', async () => {
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            const zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
+
             const bid = {
                 ...bid1,
                 bidder: signers[4].address,
@@ -785,58 +762,27 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    describe.skip('#transfer', () => {
-        let bid1: any;
-        beforeEach(async () => {
-            bid1 = {
-                amount: 100,
-                currency: zapTokenBsc.address,
-                bidder: signers[1].address,
-                recipient: signers[8].address,
-                spender: signers[1].address,
-                sellOnShare: {
-                    value: BigInt(10000000000000000000)
-                }
-            };
+    describe('#transfer', () => {
+        it('should remove the ask after a transfer', async () => {
+            const mediaFactory19 = await ethers.getContractFactory("ZapMedia", signers[19]);
+            const zapMedia19 = (await mediaFactory19.deploy("Test MEDIA 19", "T19", zapMarket.address));
+            await zapMedia19.deployed();
+            await setupAuction(zapMedia19, signers[19]);
 
-            // signers[1] creator
-            // signers[2] prevOwner
-            // signers[3] owner
-            // signers[4] bidder
-            // signers[5] other
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
+            await zapMedia19.connect(signers[3]).setAsk(0, ask);
 
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
-        });
-
-        it.only('should remove the ask after a transfer', async () => {
-            await zapMedia1.connect(signers[3]).setAsk(0, ask);
-
-            expect(await zapMedia1.connect(signers[3]).transferFrom(signers[3].address, signers[5].address, 0));
-            const askB = await zapMarket.currentAskForToken(zapMedia1.address, 0);
+            expect(await zapMedia19.connect(signers[3]).transferFrom(signers[3].address, signers[5].address, 0));
+            const askB = await zapMarket.currentAskForToken(zapMedia19.address, 0);
             expect(await askB.amount.toNumber()).eq(0);
             expect(await askB.currency).eq('0x0000000000000000000000000000000000000000');
         });
     });
     
-    describe.skip('#burn', () => {
+    describe('#burn', () => {
         beforeEach(async () => {
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
             await zapMedia1.mint(mediaData, bidShares);
         });
     
@@ -893,7 +839,7 @@ describe("ZapMedia Test", async () => {
             );
         });
     
-        it.only('should clear approvals, set remove owner, but maintain tokenURI and contentHash when the owner is creator and caller is approved', async () => {
+        it('should clear approvals, set remove owner, but maintain tokenURI and contentHash when the owner is creator and caller is approved', async () => {
             expect(await zapMedia1.connect(signers[1]).approve(signers[5].address, 0));
         
             expect(await zapMedia1.connect(signers[5]).burn(0));
@@ -916,43 +862,11 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#updateTokenURI', async () => {
-        let bid1: any;
         beforeEach(async () => {
-            bid1 = {
-                amount: 100,
-                currency: zapTokenBsc.address,
-                bidder: signers[1].address,
-                recipient: signers[8].address,
-                spender: signers[1].address,
-                sellOnShare: {
-                    value: BigInt(10000000000000000000)
-                }
-            };
-
-            // signers[1] creator
-            // signers[2] prevOwner
-            // signers[3] owner
-            // signers[4] bidder
-            // signers[5] other
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
         });
 
         it('should revert if the token does not exist', async () => {
@@ -1017,38 +931,11 @@ describe("ZapMedia Test", async () => {
     });
     
     describe('#updateMetadataURI', async () => {
-        let bid1: any;
         beforeEach(async () => {
-            bid1 = {
-                amount: 100,
-                currency: zapTokenBsc.address,
-                bidder: signers[1].address,
-                recipient: signers[8].address,
-                spender: signers[1].address,
-                sellOnShare: {
-                    value: BigInt(10000000000000000000)
-                }
-            };
-
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
         });
 
         it('should revert if the token does not exist', async () => {
@@ -1113,43 +1000,11 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#permit', () => {
-        let bid1: any;
         beforeEach(async () => {
-            bid1 = {
-                amount: 100,
-                currency: zapTokenBsc.address,
-                bidder: signers[1].address,
-                recipient: signers[8].address,
-                spender: signers[1].address,
-                sellOnShare: {
-                    value: BigInt(10000000000000000000)
-                }
-            };
-
-            // signers[1] creator
-            // signers[2] prevOwner
-            // signers[3] owner
-            // signers[4] bidder
-            // signers[5] other
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
         });
 
         it('should allow a wallet to set themselves to approved with a valid signature', async () => {
@@ -1194,43 +1049,11 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#revokeApproval', async () => {
-        let bid1: any;
         beforeEach(async () => {
-            bid1 = {
-                amount: 100,
-                currency: zapTokenBsc.address,
-                bidder: signers[1].address,
-                recipient: signers[8].address,
-                spender: signers[1].address,
-                sellOnShare: {
-                    value: BigInt(10000000000000000000)
-                }
-            };
-
-            // signers[1] creator
-            // signers[2] prevOwner
-            // signers[3] owner
-            // signers[4] bidder
-            // signers[5] other
-            await zapTokenBsc.mint(signers[1].address, 10000);
-            await zapTokenBsc.mint(signers[2].address, 10000);
-            await zapTokenBsc.mint(signers[3].address, 10000);
-            await zapTokenBsc.mint(signers[4].address, 10000);
-            await zapTokenBsc.mint(signers[5].address, 10000);
-            await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[3]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[4]).approve(zapMarket.address, 10000);
-            await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
-
-            await zapMedia1.mint(mediaData, bidShares);
-        
-            await zapMedia1.connect(signers[2]).setBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[1]).acceptBid(0, {...bid1, bidder: signers[2].address, recipient: signers[2].address});
-            await zapMedia1.connect(signers[3]).setBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[2]).acceptBid(0, {...bid1, bidder: signers[3].address, recipient: signers[3].address});
-            await zapMedia1.connect(signers[4]).setBid(0, {...bid1, bidder: signers[4].address, recipient: signers[4].address});
-            await zapMedia1.connect(signers[5]).setBid(0, {...bid1, bidder: signers[5].address, recipient: signers[5].address});
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await mediaFactory1.deploy("Test MEDIA 1", "T1", zapMarket.address));
+            await zapMedia1.deployed();
+            await setupAuction(zapMedia1, signers[1]);
         });
     
         it('should revert if the caller is the owner', async () => {
