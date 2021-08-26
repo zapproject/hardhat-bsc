@@ -234,7 +234,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     {
         require(
             msg.sender == deployer || 
-            approvedToMint[msg.sender]
+            approvedToMint[msg.sender],
+            "Media: Only Approved users can mint"
         );
         _mintForCreator(msg.sender, data, bidShares);
     }
@@ -250,7 +251,8 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard {
     ) public override nonReentrant {
         require(
             msg.sender == deployer || 
-            approvedToMint[msg.sender]
+            approvedToMint[msg.sender],
+            "Media: Only Approved users can mint"
         );
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp
