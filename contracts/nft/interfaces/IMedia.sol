@@ -34,6 +34,7 @@ interface IMedia {
         string _uri
     );
 
+    function approveToMint(address toApprove) external;
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
      */
