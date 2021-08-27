@@ -57,7 +57,7 @@ describe("ZapMedia Test", async () => {
     let mediaData: any;
     let randomString: any;
 
-    describe.skip("Configure", () => {
+    describe("Configure", () => {
 
         beforeEach(async () => {
 
@@ -188,19 +188,38 @@ describe("ZapMedia Test", async () => {
                 contentHash: contentHashBytes,
                 metadataHash: metadataHashBytes,
             };
+        });
 
-            signers = await ethers.getSigners();
+        it('should not mint token if caller is not approved', async () => {
+            await expect(
+                zapMedia2.connect(signers[3]).mint(mediaData, bidShares)
+            ).revertedWith('Media: Only Approved users can mint');
+        });
 
-            const marketFixture = await deployments.fixture(['ZapMarket']);
+        it('should mint token if caller is approved', async () => {
+            expect(
+                await zapMedia2.approveToMint(signers[3].address)
+            );
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address);
+            expect(
+                await zapMedia2.connect(signers[3]).mint(mediaData, bidShares)
+            );
 
-
-            const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
-
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address));
-
-            await zapMedia1.deployed();
+            const ownerOf = await zapMedia2.ownerOf(0);
+            const creator = await zapMedia2.tokenCreators(0);
+            const prevOwner = await zapMedia2.previousTokenOwners(0);
+            const tokenContentHash = await zapMedia2.tokenContentHashes(0);
+            const metadataContentHash = await zapMedia2.tokenMetadataHashes(0);
+            const savedTokenURI = await zapMedia2.tokenURI(0);
+            const savedMetadataURI = await zapMedia2.tokenMetadataURI(0);
+      
+            expect(ownerOf).eq(signers[3].address);
+            expect(creator).eq(signers[3].address);
+            expect(prevOwner).eq(signers[3].address);
+            expect(tokenContentHash).eq(contentHash);
+            expect(metadataContentHash).eq(metadataHash);
+            expect(savedTokenURI).eq(tokenURI);
+            expect(savedMetadataURI).eq(metadataURI);
         });
 
         it('should mint token', async () => {
@@ -229,14 +248,6 @@ describe("ZapMedia Test", async () => {
                     {...mediaData, contentHash: zeroContentHashBytes}, bidShares
                 )
             ).revertedWith('Media: content hash must be non-zero');
-        });
-
-        it.only('Should only let approved users mint a token', async () => {
-            await expect(
-                zapMedia1.connect(signers[3]).mint(
-                    {...mediaData, contentHash: zeroContentHashBytes}, bidShares)
-                    ).to.be.revertedWith(
-                "Media: Only Approved users can mint");
         });
     
         it('should revert if the content hash already exists for a created token', async () => {
@@ -301,6 +312,55 @@ describe("ZapMedia Test", async () => {
             const recoveredMetadataHash = await zapMedia1.tokenMetadataHashes(1);
             const recoveredCreatorBidShare = (await zapMarket.bidSharesForToken(zapMedia1.address, 1)).creator.value;
             const afterNonce = await zapMedia1.mintWithSigNonces(signers[1].address);
+      
+            expect(recovered).to.eq(signers[1].address);
+            expect(recoveredTokenURI).to.eq(tokenURI);
+            expect(recoveredMetadataURI).to.eq(metadataURI);
+            expect(recoveredContentHash).to.eq(contentHash);
+            expect(recoveredMetadataHash).to.eq(metadataHash);
+            expect(recoveredCreatorBidShare).to.eq(BigInt(10000000000000000000));
+            expect(afterNonce).to.eq(BigNumber.from(beforeNonce + 1));
+        });
+
+        it('should not mint token if caller is not approved', async () => {
+            const sig = await signMintWithSig(
+                zapMedia1,
+                signers,
+                contentHashBytes,
+                metadataHashBytes,
+                version
+            );
+            await expect(
+                zapMedia1.connect(signers[2]).mintWithSig(signers[1].address, mediaData, bidShares, sig)
+            ).revertedWith('Media: Only Approved users can mint');
+        });
+
+        it('should mint token if caller is approved', async () => {
+            const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
+
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address));
+
+            await zapMedia2.deployed();
+
+            const sig = await signMintWithSig(
+                zapMedia2,
+                signers,
+                contentHashBytes,
+                metadataHashBytes,
+                version
+            );
+
+            await zapMedia2.approveToMint(signers[1].address);
+            const beforeNonce = (await zapMedia2.mintWithSigNonces(signers[1].address)).toNumber();
+            await zapMedia2.mintWithSig(signers[1].address, mediaData, bidShares, sig);
+
+            const recovered = await zapMedia2.tokenCreators(0);
+            const recoveredTokenURI = await zapMedia2.tokenURI(0);
+            const recoveredMetadataURI = await zapMedia2.tokenMetadataURI(0);
+            const recoveredContentHash = await zapMedia2.tokenContentHashes(0);
+            const recoveredMetadataHash = await zapMedia2.tokenMetadataHashes(0);
+            const recoveredCreatorBidShare = (await zapMarket.bidSharesForToken(zapMedia2.address, 0)).creator.value;
+            const afterNonce = await zapMedia2.mintWithSigNonces(signers[1].address);
       
             expect(recovered).to.eq(signers[1].address);
             expect(recoveredTokenURI).to.eq(tokenURI);
