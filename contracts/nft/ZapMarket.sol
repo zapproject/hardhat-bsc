@@ -16,7 +16,7 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarket is IMarket {
+contract ZapMarket is IMarket, Initializable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
