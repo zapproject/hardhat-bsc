@@ -55,6 +55,9 @@ library ZapDispute {
         //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3);
 
+        //ensure that only stakers can vote
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
+
         //Update user voting status to true
         disp.voted[msg.sender] = true;
 
@@ -118,11 +121,6 @@ library ZapDispute {
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
-                token.transferFrom(
-                    disp.reportedMiner,
-                    disp.reportingParty,
-                    self.uintVars[keccak256('stakeAmount')]
-                );
                 // ZapTransfer.doTransfer(
                 //     self,
                 //     disp.reportedMiner,
@@ -226,14 +224,7 @@ library ZapDispute {
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
-        ZapTokenBSC token = ZapTokenBSC(self.addressVars[keccak256("zapTokenContract")]);
 
-        token.transferFrom(
-            msg.sender,
-            self.addressVars[keccak256("_owner")],
-            self.uintVars[keccak256('disputeFee')]
-        ); //This is the fork fee
-        //This is the fork fee
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
         self.disputeIdByDisputeHash[_hash] = disputeId;

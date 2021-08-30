@@ -51,6 +51,7 @@ const config = {
     compilers: [
       { version: '0.4.24', settings: {} },
       { version: '0.5.16', settings: {} },
+      { version: '0.8.4', settings: {} },
       { version: '0.7.3', settings: {} }
     ]
   },
@@ -70,7 +71,7 @@ const config = {
       url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.MNEMONIC }
+      // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gasPrice: 8000000000

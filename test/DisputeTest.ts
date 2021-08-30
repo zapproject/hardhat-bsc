@@ -219,6 +219,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'There should be no disputes before beginDispute.'
     );
 
+    zap = zap.connect(signers[6]);
+    await expect(zap.beginDispute(1, timeStamp, 4)).to.be.revertedWith("Only stakers can begin a dispute")
+
     zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
 
@@ -290,6 +293,10 @@ describe("Test ZapDispute and it's dispute functions", () => {
       zap = zap.connect(signers[i]);
       await zap.vote(disputeId, true);
     }
+
+    zap = zap.connect(signers[6]);
+    await expect(zap.vote(disputeId, true)).to.be.revertedWith("Only Stakers can vote");
+
     disputeId = await zapMaster.getUintVar(ddisputecount);
     disp = await zapMaster.getAllDisputeVars(disputeId);
     expect(disp[7][6]).to.equal(4);
