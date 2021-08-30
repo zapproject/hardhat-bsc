@@ -107,6 +107,8 @@ contract Zap {
         require(block.number - _request.minedBlockNum[_timestamp] <= 144);
         require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
+        //require that only stakers can dispute values
+        require(zap.stakerDetails[msg.sender].currentStatus == 1, "Only stakers can begin a dispute");
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute

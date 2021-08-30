@@ -72,7 +72,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'ZapLibrary',
       {
         libraries: {
-          ZapTransfer: zapTransfer.address
+          // ZapTransfer: zapTransfer.address
         },
         signer: signers[0]
       }
@@ -85,7 +85,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'ZapDispute',
       {
         libraries: {
-          ZapTransfer: zapTransfer.address
+          // ZapTransfer: zapTransfer.address
         },
         signer: signers[0]
       }
@@ -165,6 +165,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
       expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 500000);
     }
 
+    await zapTokenBsc.allocate(signers[7].address, 1100000);
+    await zapTokenBsc.connect(signers[7]).approve(zapMaster.address, 500000);
+
     let symbol: string = 'BTC/USD';
     // Request string
     const api: string =
@@ -237,6 +240,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'There should be no disputes before beginDispute.'
     );
 
+    zap = zap.connect(signers[6]);
+    await expect(zap.beginDispute(1, timeStamp, 4)).to.be.revertedWith("Only stakers can begin a dispute")
+
     zap = zap.connect(signers[1]);
     await zap.beginDispute(1, timeStamp, 4);
 
@@ -257,7 +263,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
   });
 
-  it('Should be able to vote for (true) a dispute.', async () => {
+  it.only('Should be able to vote for (true) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
       'timeOfLastNewValue'
@@ -308,6 +314,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
       zap = zap.connect(signers[i]);
       await zap.vote(disputeId, true);
     }
+
+    zap = zap.connect(signers[7]);
+
+    await expect(zap.vote(disputeId, true)).to.be.revertedWith("Only Stakers can vote");
+
     disputeId = await zapMaster.getUintVar(ddisputecount);
     disp = await zapMaster.getAllDisputeVars(disputeId);
     expect(disp[7][6]).to.equal(4);
