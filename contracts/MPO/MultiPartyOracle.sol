@@ -80,7 +80,7 @@ contract MultiPartyOracle {
 
     
 
-    function receiveQuery(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams) external {
+    function receiveQuery(uint256 id, string calldata userQuery, bytes32 endpoint, bytes32[] calldata endpointParams, bool onchainSubscriber) external {
 
         emit RecievedQuery(userQuery, endpoint, endpointParams, msg.sender);
         require(msg.sender == dispatchAddress && stor.getQueryStatus(id) == 0, "Dispatch only");

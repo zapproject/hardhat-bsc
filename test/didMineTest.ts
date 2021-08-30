@@ -69,9 +69,6 @@ describe('Did Mine Test', () => {
         const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
             'ZapLibrary',
             {
-                libraries: {
-                    ZapTransfer: zapTransfer.address
-                },
                 signer: signers[0]
             }
         );
@@ -82,9 +79,6 @@ describe('Did Mine Test', () => {
         const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
             'ZapDispute',
             {
-                libraries: {
-                    ZapTransfer: zapTransfer.address
-                },
                 signer: signers[0]
             }
         );
@@ -96,8 +90,7 @@ describe('Did Mine Test', () => {
             'ZapStake',
             {
                 libraries: {
-                    ZapTransfer: zapTransfer.address,
-                    ZapDispute: zapDispute.address
+                    ZapDispute: zapDispute.address,
                 },
                 signer: signers[0]
             }
@@ -122,7 +115,6 @@ describe('Did Mine Test', () => {
             'ZapMaster',
             {
                 libraries: {
-                    ZapTransfer: zapTransfer.address,
                     ZapStake: zapStake.address
                 },
                 signer: signers[0]
@@ -145,13 +137,13 @@ describe('Did Mine Test', () => {
         for (var i = 1; i <= 5; i++) {
 
             // Allocates ZAP to signers 1 - 5
-            await zapTokenBsc.allocate(signers[i].address, 600000);
+            await zapTokenBsc.allocate(signers[i].address, (BigNumber.from("600000000000000000000000")));
 
         }
 
         owner = signers[0].address
 
-        await zapTokenBsc.allocate(zapMaster.address, 500000);
+        await zapTokenBsc.allocate(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
 
 
@@ -168,21 +160,18 @@ describe('Did Mine Test', () => {
             'json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price';
 
         // Allocates 5000 ZAP to signer 0
-        await zapTokenBsc.allocate(signers[0].address, 600000);
+        await zapTokenBsc.allocate(signers[0].address, (BigNumber.from("600000000000000000000000")));
 
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        let balance = await zapTokenBsc.connect(signers[1]).balanceOf(signers[1].address);
         // Iterates through signers 1 through 5
         for (var i = 1; i <= 5; i++) {
 
             // Connects addresses 1-5 as the signer
             zap = zap.connect(signers[i]);
 
-            
-
-            await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
+            await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
             await vault.connect(signers[i]).lockSmith(signers[i].address, zap.address);
 
@@ -214,84 +203,14 @@ describe('Did Mine Test', () => {
       */
         const newCurrentVars: any = await zap.getNewCurrentVariables();
 
-        // Resolves the transaction receipt
-        const request_1_Receipt: any = await request_1.wait();
-        console.log(request_1_Receipt);
-
-        expect(request_1_Receipt.events[2].event).to.equal('DataRequested');
-
-        expect(request_1_Receipt.events[2].args[0]).to.equal(owner);
-
-        expect(request_1_Receipt.events[2].args[1]).to.equal(api);
-
-        expect(request_1_Receipt.events[2].args[2]).to.equal("USD");
-
-        expect(request_1_Receipt.events[2].args[3]).to.equal(ethers.utils.hexlify(1000));
-
-        expect(request_1_Receipt.events[2].args[4]).to.equal(ethers.utils.hexlify(1));
-
-        expect(request_1_Receipt.events[2].args[5]).to.equal(ethers.utils.hexlify(52));
-
-        // Expect the event name to equal NewChallenge
-        expect(request_1_Receipt.events[1].event).to.equal('NewChallenge');
-
-        // Expect NewChallenge _currentChallenge property to equal the returned challenge
-        expect(request_1_Receipt.events[1].args[0]).to.equal(newCurrentVars[0])
-
-        // Expect the NewChallenge _currentRequestId property to equal 1
-        expect(request_1_Receipt.events[1].args[1]).to.equal(ethers.utils.hexlify(1))
-
-        /// Expect the NewChallenge _difficulty property to equal 1
-        expect(request_1_Receipt.events[1].args[2]).to.equal(ethers.utils.hexlify(1))
-
-        // Expect the NewChallenge _multiplier property to equal 1
-        expect(request_1_Receipt.events[1].args[3]).to.equal(ethers.utils.hexlify(1000))
-
-        // Expect the NewChallenge _query property to equal the api variable
-        expect(request_1_Receipt.events[1].args[4]).to.equal(api)
-
-        // Expect the new NewChallenge _totalTips property to equal 52
-        expect(request_1_Receipt.events[2].args[5]).to.equal(52)
-
         const request_2 = await zap.requestData(api, "USD", 1000, 52);
-
-        // Resolves the transaction receipt
-        const request_2_Receipt: any = await request_2.wait();
-
-        expect(request_2_Receipt.events[1].event).to.equal('NewRequestOnDeck');
-
-        expect(request_2_Receipt.events[1].args[0]).to.equal(ethers.utils.hexlify(1));
-
-        expect(request_2_Receipt.events[1].args[1]).to.equal(api);
-
-        expect(request_2_Receipt.events[1].args[3]).to.equal(ethers.utils.hexlify(52));
-
-
-        // Expect the event name to equal TipAdded
-        expect(request_2_Receipt.events[2].event).to.equal('TipAdded')
-
-        // Expect the TipAdded _sender property to equal signers[0] address
-        expect(request_2_Receipt.events[2].args[0]).to.equal(owner)
-
-        // Expect the TipAdded _requestId property to equal 1
-        expect(request_2_Receipt.events[2].args[1]).to.equal(
-            ethers.utils.hexlify(1)
-        )
-
-        // Expect the TipAdded _tip property to equal 52
-        expect(request_2_Receipt.events[2].args[2]).to.equal(
-            ethers.utils.hexlify(52)
-        )
-
-        // Expect the TipAdded _totalTips property to equal 52
-        expect(request_2_Receipt.events[2].args[3]).to.equal(
-            ethers.utils.hexlify(52)
-        )
 
         const getReqQ: BigNumber[] = await zapMaster.getRequestQ();
 
         // Parses the getReqQ array from hexStrings to numbers
         const reqQ: number[] = getReqQ.map((item) => parseInt(item._hex));
+
+        let previousZapMasterBal = await zapTokenBsc.balanceOf(zapMaster.address)
 
         for (var i = 1; i <= 5; i++) {
 
@@ -303,7 +222,7 @@ describe('Did Mine Test', () => {
 
             // ensures that miners are not being rewarded before a new block is called
             if (i == 3) {
-                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(500000);
+                expect(await vault.connect(signers[i]).userBalance(signers[i].address)).to.equal(BigNumber.from("500000000000000000000000"));
             }
 
             // Checks if the miners mined the challenge
@@ -327,53 +246,20 @@ describe('Did Mine Test', () => {
         // check to see that the miner receeived the reward and for the proper amount.
         let currentBlock = await ethers.provider.getBlockNumber();
 
-        let previouFifthMinerBal = await zap.getBalanceAt(
-            signers[4].address,
-            currentBlock - 1
-        );
-
-        let currentFifthMinerBal = await zap.getBalanceAt(
-            signers[4].address,
-            currentBlock
-        );
-
-        let rewardAmount = 15;
-        let diff =
-            parseInt(currentFifthMinerBal._hex) - parseInt(previouFifthMinerBal._hex);
-
-        // expect(diff).to.equal(
-        //     rewardAmount,
-        //     'Miner should have been tipped 15 tokens.'
-        // );
-
         let signerFourVaultBalance = await vault.userBalance(signers[4].address);
         expect(signerFourVaultBalance).to.equal(
-            500015,
-            "Miner's personal vault should have a balance of 25 tokens."
+            BigNumber.from("500005000000000000000010"),
+            "Miner's personal vault should have a balance of ~500005 tokens."
         );
 
         // check to see that Zap Master payed out the correct amount of rewards and devshare.
-        let previousZapMasterBal = await zap.getBalanceAt(
-            zapMaster.address,
-            currentBlock - 1
-        );
-        let currentZapMasterBal = await zap.getBalanceAt(
-            zapMaster.address,
-            currentBlock
-        );
+        let currentZapMasterBal = await zapTokenBsc.balanceOf(zapMaster.address);
 
-        let currentZapMasterWalletBal = await zapTokenBsc.balanceOf(zapMaster.address);
+        // totalMinerRewards = 5e18 * 5; devshare = 3e18
+        // totalMinerRewards + devshare = 28e18
+        let payOutAmount = BigNumber.from("27999908162100456672");
 
-        // // 15 reward amount * 5 miners + 2 dev share = 77 total zap tokens payed out from Zap Master
-        // let payOutAmount = 77;
-        // reward amount goes to vault. only 2 tokens are paid out.
-        let payOutAmount = 2;
-
-        diff =
-            parseInt(previousZapMasterBal._hex) - parseInt(currentZapMasterBal._hex);
+        let diff = previousZapMasterBal.sub(currentZapMasterBal);
         expect(diff).to.equal(payOutAmount);
-
-        let bal = await zapTokenBsc.balanceOf(signers[1].address);
-        expect(bal > balance);
     });
 });

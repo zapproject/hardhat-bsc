@@ -1,5 +1,3 @@
-pragma solidity ^0.5.16;
-
 import "../token/TokenFactoryInterface.sol";
 import "../token/FactoryTokenInterface.sol";
 import "../ownership/ZapCoordinatorInterface.sol";
@@ -170,7 +168,7 @@ contract TokenDotFactory is Ownable {
     }
 
     
-    function toAddress(bytes memory _bytes, uint256 _start) internal pure returns (address) {
+    function toAddress(bytes memory _bytes, uint256 _start) internal view returns (address) {
         require(_start + 20 >= _start, "toAddress_overflow");
         //console.log(_bytes.length);
         require(_bytes.length >= _start + 20, "toAddress_outOfBounds");

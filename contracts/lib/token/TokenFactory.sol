@@ -15,7 +15,7 @@ import "./TokenFactoryInterface.sol";
         token.transferOwnership(msg.sender);
         return token;
     }
-    function getAllTokens() public view returns(address[] memory){
+    function getAllTokens() public returns(address[] memory){
         return generatedTokens;
     }
 }

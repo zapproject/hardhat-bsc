@@ -1,8 +1,7 @@
 pragma solidity =0.5.16;
 
+import './SafeMathM.sol';
 import './ZapStorage.sol';
-import './ZapTransfer.sol';
-import "../../token/ZapTokenBSC.sol";
 
 /**
  * @title Zap Dispute
@@ -42,16 +41,10 @@ library ZapDispute {
     function vote(
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId,
-        bool _supportsDispute
+        bool _supportsDispute,
+        uint256 voteWeight
     ) public {
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
-
-        ZapTokenBSC token = ZapTokenBSC(self.addressVars[keccak256("zapTokenContract")]);
-
-        //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
-        uint256 voteWeight = token.balanceOf(
-            msg.sender
-        );
 
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true);
@@ -61,9 +54,6 @@ library ZapDispute {
 
         //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3);
-
-        //ensure that only stakers can vote
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
 
         //Update user voting status to true
         disp.voted[msg.sender] = true;
@@ -95,8 +85,6 @@ library ZapDispute {
         uint256 _disputeId
     ) public returns (address _from, address _to, uint _disputeFee) {
 
-        ZapTokenBSC token = ZapTokenBSC(self.addressVars[keccak256("zapTokenContract")]);
-        
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
         ZapStorage.Request storage _request = self.requestDetails[
             disp.disputeUintVars[keccak256('requestId')]
@@ -135,6 +123,12 @@ library ZapDispute {
                     disp.reportingParty,
                     self.uintVars[keccak256('stakeAmount')]
                 );
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     disp.reportedMiner,
+                //     disp.reportingParty,
+                //     self.uintVars[keccak256('stakeAmount')]
+                // );
 
 
                 //Returns the dispute fee to the reporting party
@@ -239,6 +233,7 @@ library ZapDispute {
             self.addressVars[keccak256("_owner")],
             self.uintVars[keccak256('disputeFee')]
         ); //This is the fork fee
+        //This is the fork fee
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
         self.disputeIdByDisputeHash[_hash] = disputeId;
