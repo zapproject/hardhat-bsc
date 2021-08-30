@@ -10,6 +10,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title A Market for pieces of media
@@ -161,8 +162,12 @@ contract ZapMarket is IMarket {
      * can call the mutable functions. This method can only be called once.
      */
 
-    function configure(address deployer, address mediaContract, bytes32 name, bytes32 symbol) external override {
-
+    function configure(
+        address deployer,
+        address mediaContract,
+        bytes32 name,
+        bytes32 symbol
+    ) external override {
         require(
             isConfigured[mediaContract] != true,
             "Market: Already configured"
@@ -179,8 +184,12 @@ contract ZapMarket is IMarket {
         emit MediaContractCreated(mediaContract, name, symbol);
     }
 
-    function mintOrBurn(bool isMint, uint256 tokenId, address mediaContract) external override{
-        if (isMint == true){
+    function mintOrBurn(
+        bool isMint,
+        uint256 tokenId,
+        address mediaContract
+    ) external override {
+        if (isMint == true) {
             emit Minted(tokenId, mediaContract);
         } else {
             emit Burned(tokenId, mediaContract);
@@ -381,24 +390,17 @@ contract ZapMarket is IMarket {
         );
         // Transfer bid share to creator of media
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).tokenCreators(
-                tokenId
-            ),
+            ZapMedia(mediaContractAddress).tokenCreators(tokenId),
             splitShare(bidShares.creator, bid.amount)
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).previousTokenOwners(
-                tokenId
-            ),
+            ZapMedia(mediaContractAddress).previousTokenOwners(tokenId),
             splitShare(bidShares.prevOwner, bid.amount)
         );
 
         // Transfer media to bid recipient
-        ZapMedia(mediaContractAddress).auctionTransfer(
-            tokenId,
-            bid.recipient
-        );
+        ZapMedia(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
