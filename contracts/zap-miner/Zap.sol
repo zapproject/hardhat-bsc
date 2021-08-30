@@ -110,6 +110,8 @@ contract Zap {
         require(block.number - _request.minedBlockNum[_timestamp] <= 28800, "Must dispute within 1 day of being mined.");
         require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
+        //require that only stakers can dispute values
+        require(zap.stakerDetails[msg.sender].currentStatus == 1, "Only stakers can begin a dispute");
 
         //ensure the msg.sender is staked and not in dispute
         require(token.balanceOf(msg.sender) > zap.uintVars[keccak256('disputeFee')], "You do not have a balance to dispute.");
@@ -125,7 +127,7 @@ contract Zap {
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
 
-        transferFrom(msg.sender, address(this), zap.uintVars[keccak256('disputeFee')]);
+        transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
 
         //Increase the dispute count by 1
         zap.uintVars[keccak256('disputeCount')] =
@@ -201,8 +203,6 @@ contract Zap {
 
         approve(_from, _disputeFee);
         token.transferFrom(_from, _to, _disputeFee);
-        // doTransfer(_from, _to, _disputeFee);
-
     }
 
     /**
@@ -211,7 +211,7 @@ contract Zap {
      */
     function proposeFork(address _propNewZapAddress) external {
         zap.proposeFork(_propNewZapAddress);
-        token.transferFrom(msg.sender, address(this), zap.uintVars[keccak256('disputeFee')]);
+        token.transferFrom(msg.sender, zap.addressVars[keccak256("_owner")], zap.uintVars[keccak256('disputeFee')]);
     }
 
     /**

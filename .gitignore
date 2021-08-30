@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules
 .DS_Store
 typechain
@@ -5,3 +6,13 @@ artifacts
 cache
 .env 
 output
+deployments
+=======
+node_modules
+.DS_Store
+typechain
+artifacts
+cache
+.env 
+output
+>>>>>>> bsc-update
