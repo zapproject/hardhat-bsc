@@ -63,7 +63,7 @@ library ZapDispute {
         require(self.stakerDetails[msg.sender].currentStatus != 3);
 
         //ensure that only stakers can vote
-        require(self.stakerDetails[msg.sender].currentStatus == 1);
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
 
         //Update user voting status to true
         disp.voted[msg.sender] = true;
