@@ -153,7 +153,11 @@ contract ZapMarket is IMarket, Initializable {
      * ****************
      */
 
-    constructor() {
+    // constructor() {
+    //     _owner = msg.sender;
+    // }
+
+    function initialize() public initializer {
         _owner = msg.sender;
     }
 
