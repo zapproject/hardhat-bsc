@@ -156,10 +156,6 @@ contract ZapMarket is IMarket, Initializable {
      * ****************
      */
 
-    // constructor() {
-    //     _owner = msg.sender;
-    // }
-
     function initialize() public initializer {
         require(!initialized, "Market: Instance has already been initialized");
 
