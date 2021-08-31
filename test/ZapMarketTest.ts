@@ -113,8 +113,6 @@ describe("ZapMarket Test", () => {
 
             zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
 
-            await zapMarket.initialize();
-
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
             zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
@@ -162,7 +160,6 @@ describe("ZapMarket Test", () => {
             await expect(zapMarket.initialize()).to.be.reverted
 
         });
-
 
         it('Should reject if called twice', async () => {
 
