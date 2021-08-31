@@ -3,15 +3,14 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import "hardhat/console.sol";
 
@@ -20,8 +19,8 @@ import "hardhat/console.sol";
  * @notice This contract contains all of the market logic for Media
  */
 contract ZapMarket is IMarket, Initializable {
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
+    using SafeMathUpgradeable for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /* *******
      * Globals
@@ -290,7 +289,7 @@ contract ZapMarket is IMarket, Initializable {
             removeBid(mediaContractAddress, tokenId, bid.bidder);
         }
 
-        IERC20 token = IERC20(bid.currency);
+        IERC20Upgradeable token = IERC20Upgradeable(bid.currency);
 
         // We must check the balance that was actually transferred to the market,
         // as some tokens impose a transfer fee and would not actually transfer the
@@ -337,7 +336,7 @@ contract ZapMarket is IMarket, Initializable {
 
         require(bid.amount > 0, "Market: cannot remove bid amount of 0");
 
-        IERC20 token = IERC20(bidCurrency);
+        IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
         emit BidRemoved(tokenId, bid);
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
@@ -390,11 +389,11 @@ contract ZapMarket is IMarket, Initializable {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][bidder];
         BidShares storage bidShares = _bidShares[mediaContractAddress][tokenId];
 
-        IERC20 token = IERC20(bid.currency);
+        IERC20Upgradeable token = IERC20Upgradeable(bid.currency);
 
         // Transfer bid share to owner of media
         token.safeTransfer(
-            IERC721(mediaContractAddress).ownerOf(tokenId),
+            IERC721Upgradeable(mediaContractAddress).ownerOf(tokenId),
             splitShare(bidShares.owner, bid.amount)
         );
         // Transfer bid share to creator of media
