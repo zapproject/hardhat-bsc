@@ -16,8 +16,6 @@ import { ZapMedia } from '../typechain/ZapMedia';
 
 import { ZapMarket } from '../typechain/ZapMarket';
 
-
-
 chai.use(solidity);
 
 type MediaData = {
@@ -115,6 +113,7 @@ describe("ZapMarket Test", () => {
 
             zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
 
+            await zapMarket.initialize();
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
@@ -128,13 +127,11 @@ describe("ZapMarket Test", () => {
 
             await zapMedia2.deployed();
 
-
             const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
             zapMedia3 = (await mediaFactory3.deploy("TEST MEDIA 3", "TM3", zapMarket.address)) as ZapMedia
 
             await zapMedia3.deployed();
-
 
             ask1.currency = zapTokenBsc.address
 
@@ -159,6 +156,13 @@ describe("ZapMarket Test", () => {
             expect(zapMedia2Address).to.contain(zapMedia2.address);
 
         });
+
+        it('Should revert if initialize is called twice', async () => {
+
+            await expect(zapMarket.initialize()).to.be.reverted
+
+        });
+
 
         it('Should reject if called twice', async () => {
 

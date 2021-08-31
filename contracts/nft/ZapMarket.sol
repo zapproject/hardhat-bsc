@@ -11,6 +11,7 @@ import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 /**
  * @title A Market for pieces of media
@@ -46,6 +47,8 @@ contract ZapMarket is IMarket, Initializable {
 
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
+
+    bool private initialized;
 
     /* *********
      * Modifiers
@@ -158,6 +161,10 @@ contract ZapMarket is IMarket, Initializable {
     // }
 
     function initialize() public initializer {
+        require(!initialized, "Market: Instance has already been initialized");
+
+        initialized = true;
+
         _owner = msg.sender;
     }
 
