@@ -315,7 +315,9 @@ describe("Main Miner Functions", () => {
     it("Should request staking withdraw", async () => {
 
         // Allocate enough to stake
-        await zapTokenBsc.allocate(signers[1].address, 600000e18);
+        // await zapTokenBsc.allocate(signers[1].address, 600000e18);
+        await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("600000000000000000000000")));
+
 
         // Connects address 1 as the signer
         zap = zap.connect(signers[1]);
@@ -323,7 +325,8 @@ describe("Main Miner Functions", () => {
         // Attach the ZapMaster instance to Zap
         zap = zap.attach(zapMaster.address);
 
-        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000e18);
+        // await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, 500000e18);
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
         // Signer 1 balance before staking
         const getStartBal: BigNumber = await zapMaster.balanceOf(signers[1].address);
@@ -382,18 +385,19 @@ describe("Main Miner Functions", () => {
         const postWthDrwInfo: number[] = getPostWthDrwInfo.map(info => parseInt(info._hex));
 
         // Signer 1 balance before staking should be 600k
-        expect(startBal).to.equal(600000e18);
+        expect(startBal).to.equal(parseInt(BigNumber.from('600000000000000000000000')._hex));
 
         // Vault balance should be 0 before staking
         expect(vaultPreBal).to.equal(0)
 
         // Signer 1 balance should be 100k after staking
-        expect(postBal).to.equal(startBal - 500000e18);
+        // expect(postBal).to.equal(startBal - BigNumber.from("500000000000000000000000"));
+        expect(getPostBal).to.equal(BigNumber.from('100000000000000000000000'));
 
         expect(vaultPostBal).to.equal(0);
 
         // Signer 1 balance should be 600k after withdrawal
-        expect(postWithdrawBal).to.equal(600000e18);
+        expect(postWithdrawBal).to.equal(parseInt(BigNumber.from("600000000000000000000000")._hex));
 
         // Expects the staker status to equal 1 after staking
         // 1 = Staked
