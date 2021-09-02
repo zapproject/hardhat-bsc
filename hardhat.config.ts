@@ -72,7 +72,7 @@ const config = {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
-      // accounts: { mnemonic: process.env.MNEMONIC }
+      accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gasPrice: 8000000000,
