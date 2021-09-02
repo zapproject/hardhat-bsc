@@ -66,6 +66,12 @@ const config = {
       allowUnlimitedContractSize: true,
 
     },
+    binanceMainnet: {
+      url: "https://bsc-dataseed.binance.org/",
+      chainId: 56,
+      gasPrice: 20000000000,
+      accounts: { mnemonic: process.env.MNEMONIC }
+    },
     // Will throw an error if the MNEMONIC env variable is non existent
     // Only used for deploying to the BSC testnet
     testnet: {
