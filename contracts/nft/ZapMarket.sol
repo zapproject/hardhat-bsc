@@ -36,10 +36,8 @@ contract ZapMarket is IMarket {
 
     // Mapping from token to the bid shares for the token
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
-    // mapping(uint256 => BidShares) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    // mapping(uint256 => Ask) private _tokenAsks;
 
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
