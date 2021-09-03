@@ -1,4 +1,4 @@
-import { deployments, ethers, upgrades } from "hardhat"
+import { ethers, upgrades } from "hardhat"
 
 import { solidity } from 'ethereum-waffle';
 
@@ -6,9 +6,9 @@ import chai, { expect } from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { sha256, keccak256, formatBytes32String, parseBytes32String } from 'ethers/lib/utils'
+import { sha256, formatBytes32String, parseBytes32String } from 'ethers/lib/utils'
 
-import { BigNumber, Bytes, Contract, EventFilter, Event } from 'ethers'
+import { BigNumber, Bytes, EventFilter, Event } from 'ethers'
 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
@@ -142,7 +142,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should upgrade ZapMarket with the new getConfigStatus function and preserve the state', async () => {
+        it('Should upgrade ZapMarket with the new getConfigStatus function and preserve the state', async () => {
 
             expect(await zapMarketV2.getConfigStatus(zapMedia1.address)).to.be.true
 
@@ -150,15 +150,24 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should get media owner', async () => {
+        it.only('Should get media owner', async () => {
 
             const zapMedia1Address = await zapMarket.mediaContracts(signers[1].address, BigNumber.from("0"));
 
             const zapMedia2Address = await zapMarket.mediaContracts(signers[2].address, BigNumber.from("0"));
 
+            const upgradedMedia1Address = await zapMarketV2.mediaContracts(signers[1].address, BigNumber.from("0"));
+
+            const upgradedMedia2Address = await zapMarketV2.mediaContracts(signers[2].address, BigNumber.from("0"));
+
             expect(zapMedia1Address).to.contain(zapMedia1.address);
 
+            expect(upgradedMedia1Address).to.contain(zapMedia1.address);
+
             expect(zapMedia2Address).to.contain(zapMedia2.address);
+
+            expect(upgradedMedia2Address).to.contain(zapMedia2.address);
+
 
         });
 
@@ -259,6 +268,9 @@ describe("ZapMarket Test", () => {
             mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
             mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
+            const zapMarketV2Factory = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+            zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory) as ZapMarketV2;
+
         })
 
         it('Should emit a Minted event when a token is minted', async () => {
@@ -310,7 +322,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should set the bid shares if called by the media address', async () => {
+        it.only('Should set the bid shares if called by the media address', async () => {
 
             const sharesForToken1 = await zapMarket.bidSharesForToken(zapMedia1.address, 0);
 
@@ -417,6 +429,9 @@ describe("ZapMarket Test", () => {
 
             mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
             mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+
+            const zapMarketV2Factory = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+            zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory) as ZapMarketV2;
 
         })
 
@@ -606,6 +621,9 @@ describe("ZapMarket Test", () => {
 
             await zapMedia1.connect(signers[1]).mint(data, bidShares1);
             await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+
+            const zapMarketV2Factory = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+            zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory) as ZapMarketV2;
 
         });
 
