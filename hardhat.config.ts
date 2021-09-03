@@ -7,6 +7,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-typechain";
 import "hardhat-deploy";
+import "hardhat-contract-sizer";
 import './tasks/faucet';
 import './tasks/checkbalance';
 import './tasks/checkbalances';
