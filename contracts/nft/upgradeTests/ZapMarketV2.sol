@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0
-// CONTRACT IS FOR TESTING UPGRADEABLE CONTRACTS
 
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
@@ -12,6 +11,7 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 import {Decimal} from "../Decimal.sol";
 import {ZapMedia} from "../ZapMedia.sol";
 import {IMarket} from "../interfaces/IMarket.sol";
+import {Ownable} from "../access/Ownable.sol";
 
 import "hardhat/console.sol";
 
@@ -19,7 +19,7 @@ import "hardhat/console.sol";
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarketV2 is IMarket, Initializable {
+contract ZapMarket is IMarket, Ownable, Initializable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -31,20 +31,14 @@ contract ZapMarketV2 is IMarket, Initializable {
     // address[] public mediaContract;
     mapping(address => address[]) public mediaContracts;
 
-    // Deployment Address
-    address private _owner;
-
     // Mapping from token to mapping from bidder to bid
     mapping(address => mapping(uint256 => mapping(address => Bid)))
         private _tokenBidders;
 
     // Mapping from token to the bid shares for the token
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
-    // mapping(uint256 => BidShares) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    // mapping(uint256 => Ask) private _tokenAsks;
-
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
@@ -163,7 +157,7 @@ contract ZapMarketV2 is IMarket, Initializable {
 
         initialized = true;
 
-        _owner = msg.sender;
+        // _owner = msg.sender;
     }
 
     /**
@@ -191,11 +185,6 @@ contract ZapMarketV2 is IMarket, Initializable {
         mediaContracts[deployer].push(mediaContract);
 
         emit MediaContractCreated(mediaContract, name, symbol);
-    }
-
-    // ADDED THIS FUNCTION TO TEST UPGRADEABLE CONTRACT
-    function getConfigStatus(address mediaContract) public view returns (bool) {
-        return isConfigured[mediaContract];
     }
 
     function mintOrBurn(
@@ -404,12 +393,12 @@ contract ZapMarketV2 is IMarket, Initializable {
         );
         // Transfer bid share to creator of media
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).tokenCreators(tokenId),
+            ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
             splitShare(bidShares.creator, bid.amount)
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).previousTokenOwners(tokenId),
+            ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
             splitShare(bidShares.prevOwner, bid.amount)
         );
 

@@ -157,7 +157,7 @@ contract ZapMarket is IMarket, Ownable, Initializable {
 
         initialized = true;
 
-        _owner = msg.sender;
+        // _owner = msg.sender;
     }
 
     /**
