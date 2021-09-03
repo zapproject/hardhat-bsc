@@ -50,8 +50,8 @@ describe("ZapMarket Test", () => {
         await zapTokenBsc.deployed();
     });
 
-    let zapMarket: any;
-    let zapMarketV2;
+    let zapMarket: ZapMarket;
+    let zapMarketV2: ZapMarketV2
     let zapMedia1: ZapMedia
     let zapMedia2: ZapMedia
     let zapMedia3: ZapMedia
@@ -112,32 +112,19 @@ describe("ZapMarket Test", () => {
 
         beforeEach(async () => {
 
-            // const marketFixture = await deployments.fixture('ZapMarket');
-
-            // const marketAddress = marketFixture.ZapMarket_Implementation.address;
-
             const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-
-            zapMarket = await upgrades.deployProxy(zapMarketFactory, { initializer: 'initialize' })
-
-            // zapMarket = await ethers.getContractAt("ZapMarket", marketAddress) as ZapMarket
+            zapMarket = await upgrades.deployProxy(zapMarketFactory, { initializer: 'initialize' }) as ZapMarket;
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
-
             zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
-
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
-
             zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
-
             await zapMedia2.deployed();
 
             const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[2]);
-
             zapMedia3 = (await mediaFactory3.deploy("TEST MEDIA 3", "TM3", zapMarket.address)) as ZapMedia
-
             await zapMedia3.deployed();
 
             ask1.currency = zapTokenBsc.address
@@ -152,17 +139,16 @@ describe("ZapMarket Test", () => {
 
 
             const zapMarketV2Factory = await ethers.getContractFactory('ZapMarketV2', signers[0]);
-
-            zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory)
-
-            console.log(await zapMarketV2.mediaContracts(signers[1].address, BigNumber.from("0")))
-
+            zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory) as ZapMarketV2;
 
         })
 
-        it.only('Should upgrade ZapMarket with a new function', async () => {
+        it.only('Should upgrade ZapMarket with the new getConfigStatus function and preserve the state', async () => {
 
-            // console.log(await zapMarket.getConfigStatus(zapMedia1.address))
+            expect(await zapMarketV2.getConfigStatus(zapMedia1.address)).to.be.true
+
+            expect(await zapMarketV2.getConfigStatus(zapMedia2.address)).to.be.true
+
 
         })
 

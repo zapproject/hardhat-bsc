@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
+// CONTRACT IS FOR TESTING UPGRADEABLE CONTRACTS
 
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
@@ -192,6 +193,7 @@ contract ZapMarketV2 is IMarket, Initializable {
         emit MediaContractCreated(mediaContract, name, symbol);
     }
 
+    // ADDED THIS FUNCTION TO TEST UPGRADEABLE CONTRACT
     function getConfigStatus(address mediaContract) public view returns (bool) {
         return isConfigured[mediaContract];
     }
