@@ -50,7 +50,7 @@ describe("ZapMarket Test", () => {
         await zapTokenBsc.deployed();
     });
 
-    let zapMarket: ZapMarket
+    let zapMarket: any;
     let zapMarketV2;
     let zapMedia1: ZapMedia
     let zapMedia2: ZapMedia
@@ -112,13 +112,15 @@ describe("ZapMarket Test", () => {
 
         beforeEach(async () => {
 
-            const marketFixture = await deployments.fixture('ZapMarket');
+            // const marketFixture = await deployments.fixture('ZapMarket');
 
-            const marketAddress = marketFixture.ZapMarket_Implementation.address;
+            // const marketAddress = marketFixture.ZapMarket_Implementation.address;
 
-            const marketProxyAddress = marketFixture.ZapMarket_Proxy.address;
+            const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketAddress) as ZapMarket
+            zapMarket = await upgrades.deployProxy(zapMarketFactory, { initializer: 'initialize' })
+
+            // zapMarket = await ethers.getContractAt("ZapMarket", marketAddress) as ZapMarket
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
@@ -151,10 +153,9 @@ describe("ZapMarket Test", () => {
 
             const zapMarketV2Factory = await ethers.getContractFactory('ZapMarketV2', signers[0]);
 
+            zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory)
 
-            zapMarketV2 = await upgrades.upgradeProxy(marketProxyAddress, zapMarketV2Factory);
-
-            console.log(await zapMarketV2.isConfigured(zapMedia1.address))
+            console.log(await zapMarketV2.mediaContracts(signers[1].address, BigNumber.from("0")))
 
 
         })
