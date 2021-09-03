@@ -228,8 +228,7 @@ describe("ZapMarket Test", () => {
             const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
             const upgradedMarketFilter: EventFilter = zapMarketV2.filters.MediaContractCreated(zapMedia2.address, null, null)
-
-            const upgradedEvent: Event = (await zapMarket.queryFilter(upgradedMarketFilter))[0];
+            const upgradedEvent: Event = (await zapMarketV2.queryFilter(upgradedMarketFilter))[0];
 
             expect(event).to.not.be.undefined;
             expect(upgradedEvent).to.not.be.undefined;
@@ -299,11 +298,18 @@ describe("ZapMarket Test", () => {
 
         })
 
-        it('Should emit a Minted event when a token is minted', async () => {
+        it.only('Should emit a Minted event when a token is minted', async () => {
+
             const zapMarketFilter: EventFilter = zapMarket.filters.Minted(0, zapMedia1.address);
+            const upgradedMarketFilter: EventFilter = zapMarketV2.filters.Minted(0, zapMedia2.address);
+
             const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0]
+            const upgradedEvent: Event = (await zapMarketV2.queryFilter(upgradedMarketFilter))[0]
 
             expect(event).to.not.be.undefined;
+            expect(upgradedEvent).to.not.be.undefined;
+
+
 
             expect(event.event).to.eq("Minted");
 
