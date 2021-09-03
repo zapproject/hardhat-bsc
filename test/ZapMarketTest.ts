@@ -118,20 +118,20 @@ describe("ZapMarket Test", () => {
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia
 
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address, false)) as ZapMedia
 
             await zapMedia2.deployed();
 
 
             const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia3 = (await mediaFactory3.deploy("TEST MEDIA 3", "TM3", zapMarket.address)) as ZapMedia
+            zapMedia3 = (await mediaFactory3.deploy("TEST MEDIA 3", "TM3", zapMarket.address, false)) as ZapMedia
 
             await zapMedia3.deployed();
 
@@ -219,13 +219,13 @@ describe("ZapMarket Test", () => {
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia
 
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address, false)) as ZapMedia
 
             await zapMedia2.deployed();
 
@@ -387,13 +387,13 @@ describe("ZapMarket Test", () => {
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia
 
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address, false)) as ZapMedia
 
             await zapMedia2.deployed();
 
@@ -553,13 +553,13 @@ describe("ZapMarket Test", () => {
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
-            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address)) as ZapMedia
+            zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia
 
             await zapMedia1.deployed();
 
             const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address)) as ZapMedia
+            zapMedia2 = (await mediaFactory2.deploy("TEST MEDIA 2", "TM2", zapMarket.address, false)) as ZapMedia
 
             await zapMedia2.deployed();
 

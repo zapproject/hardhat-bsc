@@ -1,13 +1,14 @@
 import { fromRpcSig } from 'ethereumjs-util';
+import { ZapMedia } from '../typechain/ZapMedia';
 
 export async function signPermit (
-	zapMedia1: any,
+	zapMedia1: ZapMedia,
 	toAddress: any,
 	signers: any,
 	tokenId: any,
 	version: string
 ) {
-	const nonce = (await zapMedia1.permitNonces(signers[3].address, tokenId)).toNumber();
+	const nonce = (await zapMedia1.getPermitNonce(signers[3].address, tokenId)).toNumber();
 	const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
 	const name = await zapMedia1.name();
 
@@ -49,13 +50,13 @@ export async function signPermit (
 }
 
 export async function signMintWithSig (
-	zapMedia1: any,
+	zapMedia1: ZapMedia,
 	signers: any,
 	contentHash: any,
 	metadataHash: any,
 	version: string
 ) {
-	const nonce = (await zapMedia1.mintWithSigNonces(signers[1].address)).toNumber();
+	const nonce = (await zapMedia1.getSigNonces(signers[1].address)).toNumber();
 	const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
 	const name = await zapMedia1.name();
 
