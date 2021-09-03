@@ -19,7 +19,7 @@ import "hardhat/console.sol";
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarket is IMarket, Ownable, Initializable {
+contract ZapMarketV2 is IMarket, Ownable, Initializable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
