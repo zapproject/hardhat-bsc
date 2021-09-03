@@ -183,7 +183,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should reject if called twice', async () => {
+        it.only('Should reject if called twice', async () => {
 
             await expect(zapMarket.connect(signers[1]).configure(
                 signers[1].address, zapMedia1.address,
@@ -206,25 +206,45 @@ describe("ZapMarket Test", () => {
 
             ).to.be.revertedWith("Market: Already configured");
 
-            expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true
+            await expect(zapMarketV2.connect(signers[1]).configure(
+                signers[1].address, zapMedia1.address,
+                formatBytes32String("TEST MEDIA 1"),
+                formatBytes32String("TM1"))
 
-            expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true
+            ).to.be.revertedWith("Market: Already configured");
+
+            expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
+
+            expect(await zapMarketV2.isConfigured(zapMedia1.address)).to.be.true;
+
+            expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
+
+            expect(await zapMarketV2.isConfigured(zapMedia2.address)).to.be.true;
 
         });
 
-        it('Should emit a MediaContractCreated event on media contract deployment', async () => {
+        it.only('Should emit a MediaContractCreated event on media contract deployment', async () => {
             const zapMarketFilter: EventFilter = zapMarket.filters.MediaContractCreated(zapMedia1.address, null, null)
             const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
+            const upgradedMarketFilter: EventFilter = zapMarketV2.filters.MediaContractCreated(zapMedia2.address, null, null)
+
+            const upgradedEvent: Event = (await zapMarket.queryFilter(upgradedMarketFilter))[0];
+
             expect(event).to.not.be.undefined;
+            expect(upgradedEvent).to.not.be.undefined;
 
             expect(event.event).to.eq("MediaContractCreated");
+            expect(upgradedEvent.event).to.eq("MediaContractCreated");
 
             expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+            expect(upgradedEvent.args?.mediaContract).to.eq(zapMedia2.address);
 
             expect(parseBytes32String(event.args?.name)).to.eq("TEST MEDIA 1");
+            expect(parseBytes32String(upgradedEvent.args?.name)).to.eq("TEST MEDIA 2");
 
             expect(parseBytes32String(event.args?.symbol)).to.eq("TM1");
+            expect(parseBytes32String(upgradedEvent.args?.symbol)).to.eq("TM2");
         });
     })
 
