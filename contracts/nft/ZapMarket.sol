@@ -375,14 +375,14 @@ contract ZapMarket is IMarket, Ownable {
         );
         // Transfer bid share to creator of media
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).tokenCreators(
+            ZapMedia(mediaContractAddress).getTokenCreators(
                 tokenId
             ),
             splitShare(bidShares.creator, bid.amount)
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).previousTokenOwners(
+            ZapMedia(mediaContractAddress).getPreviousTokenOwners(
                 tokenId
             ),
             splitShare(bidShares.prevOwner, bid.amount)
