@@ -8,6 +8,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "hardhat-gas-reporter"
 import "hardhat-typechain";
 import "hardhat-deploy";
+import "hardhat-contract-sizer";
 import './tasks/faucet';
 import './tasks/checkbalance';
 import './tasks/checkbalances';
@@ -49,7 +50,12 @@ const config = {
       { version: '0.5.16', settings: {} },
       { version: '0.6.8', settings: {} },
       { version: '0.7.3', settings: {} },
-      { version: '0.8.4', settings: {} }
+      { version: '0.8.4', settings: {
+        optimizer: {
+          enabled: true,
+          // runs
+        }
+      } }
     ]
   },
   gasReporter: {
