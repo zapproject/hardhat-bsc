@@ -171,9 +171,15 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should revert if initialize is called twice', async () => {
+        it.only('Should revert if initialize is called twice', async () => {
 
-            await expect(zapMarket.initialize()).to.be.reverted
+            await expect(zapMarketV2.initialize()).to.be.revertedWith(
+                'Initializable: contract is already initialized'
+            );
+
+            await expect(zapMarket.initialize()).to.be.revertedWith(
+                'Initializable: contract is already initialized'
+            );
 
         });
 
