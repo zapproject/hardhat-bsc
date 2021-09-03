@@ -10,12 +10,13 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Decimal} from "./Decimal.sol";
 import {ZapMedia} from "./ZapMedia.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
+import {Ownable} from "./access/Ownable.sol";
 
 /**
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarket is IMarket {
+contract ZapMarket is IMarket, Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -27,9 +28,6 @@ contract ZapMarket is IMarket {
     // address[] public mediaContract;
     mapping(address => address[]) public mediaContracts;
 
-    // Deployment Address
-    address private _owner;
-
     // Mapping from token to mapping from bidder to bid
     mapping(address => mapping(uint256 => mapping(address => Bid)))
         private _tokenBidders;
@@ -38,7 +36,6 @@ contract ZapMarket is IMarket {
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
 
     // Mapping from token to the current ask for the token
-
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
@@ -151,7 +148,6 @@ contract ZapMarket is IMarket {
      */
 
     constructor() {
-        _owner = msg.sender;
     }
 
     /**
