@@ -25,4 +25,8 @@ contract MediaGetter {
         contentHash = tokens.getTokenContentHashes(_tokenId);
     }
 
+    function getTokenMetadataHashes(uint256 _tokenId) public view returns (bytes32 metadataHash) {
+        metadataHash = tokens.getTokenMetadataHashes(_tokenId);
+    }
+
 }

@@ -95,7 +95,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard, Ownable, MediaGett
      */
     modifier onlyTokenCreated(uint256 tokenId) {
         require(
-            tokens._tokenIdTracker.current() > tokenId
+            access._tokenIdTracker.current() > tokenId
             // remove revert string before deployment to mainnet
             , "Media: token with that id does not exist"
         );
@@ -177,7 +177,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard, Ownable, MediaGett
         onlyTokenCreated(tokenId)
         returns (string memory)
     {
-        return tokens._tokenMetadataURIs[tokenId];
+        return access._tokenMetadataURIs[tokenId];
     }
 
     /* ****************
@@ -499,10 +499,10 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard, Ownable, MediaGett
             , "Media: metadata hash must be non-zero"
         );
 
-        uint256 tokenId = tokens._tokenIdTracker.current();
+        uint256 tokenId = access._tokenIdTracker.current();
 
         _safeMint(creator, tokenId);
-        tokens._tokenIdTracker.increment();
+        access._tokenIdTracker.increment();
         _setTokenContentHash(tokenId, data.contentHash);
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
@@ -543,7 +543,7 @@ contract ZapMedia is IMedia, ERC721Burnable, ReentrancyGuard, Ownable, MediaGett
         virtual
         onlyExistingToken(tokenId)
     {
-        tokens._tokenMetadataURIs[tokenId] = metadataURI;
+        access._tokenMetadataURIs[tokenId] = metadataURI;
     }
 
     /**

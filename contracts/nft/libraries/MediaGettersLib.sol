@@ -15,4 +15,8 @@ library MediaGettersLib {
     function getTokenContentHashes(MediaStorage.Tokens storage self, uint256 _tokenId) internal view returns (bytes32 contentHash) {
         return self.tokenContentHashes[_tokenId];
     }
+
+    function getTokenMetadataHashes(MediaStorage.Tokens storage self, uint256 _tokenId) internal view returns (bytes32 metadataHash) {
+        return self.tokenMetadataHashes[_tokenId];
+    }
 }

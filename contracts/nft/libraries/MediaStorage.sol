@@ -28,11 +28,6 @@ library MediaStorage {
 
         // Mapping from token id to sha256 hash of metadata
         mapping(uint256 => bytes32) tokenMetadataHashes;
-
-        // Mapping from token id to metadataURI
-        mapping(uint256 => string) _tokenMetadataURIs;
-
-        Counters.Counter _tokenIdTracker;
     }
 
     struct Access {
@@ -58,5 +53,10 @@ library MediaStorage {
 
         // Mapping from address to boolean; can this address mint?
         mapping(address => bool) approvedToMint;
+
+        // Mapping from token id to metadataURI
+        mapping(uint256 => string) _tokenMetadataURIs;
+
+        Counters.Counter _tokenIdTracker;
     }
 }

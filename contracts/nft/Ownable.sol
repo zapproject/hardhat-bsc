@@ -6,7 +6,7 @@ import {MediaStorage} from "./libraries/MediaStorage.sol";
 contract Ownable {
     event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
 
-    MediaStorage.Access access;
+    MediaStorage.Access internal access;
 
     /// @dev The Ownable constructor sets the original `access.owner` of the contract to the sender account.
     constructor() public { access.owner = msg.sender; }
@@ -24,6 +24,18 @@ contract Ownable {
     function approveToMint(address toApprove) external {
         require(msg.sender == access.owner);
         access.approvedToMint[toApprove] = true;
+    }
+
+    function getTokenMetadataURIs(uint256 _tokenId) external view returns (string memory metadataUri) {
+        return access._tokenMetadataURIs[_tokenId];
+    }
+
+    function getSigNonces(address _minter) public view returns (uint256 nonce) {
+        return access.mintWithSigNonces[_minter];
+    }
+
+    function getPermitNonce(address _user, uint256 _tokenId) public view returns (uint256 nonce){
+        return access.permitNonces[_user][_tokenId];
     }
 
     /// @dev Allows the current access.owner to transfer control of the contract to a newOwner.
