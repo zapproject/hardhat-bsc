@@ -50,7 +50,7 @@ describe("ZapMarket Test", () => {
         await zapTokenBsc.deployed();
     });
 
-    let zapMarket: ZapMarket;
+    let zapMarket: ZapMarket
     let zapMarketV2: ZapMarketV2
     let zapMedia1: ZapMedia
     let zapMedia2: ZapMedia
@@ -142,7 +142,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it('Should upgrade ZapMarket with the new getConfigStatus function and preserve the state', async () => {
+        it.only('Should upgrade ZapMarket with the new getConfigStatus function and preserve the state', async () => {
 
             expect(await zapMarketV2.getConfigStatus(zapMedia1.address)).to.be.true
 
