@@ -1,4 +1,4 @@
-import { deployments, ethers } from "hardhat"
+import { deployments, ethers, upgrades } from "hardhat"
 
 import { solidity } from 'ethereum-waffle';
 
@@ -15,6 +15,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ZapMedia } from '../typechain/ZapMedia';
 
 import { ZapMarket } from '../typechain/ZapMarket';
+
+import { ZapMarketV2 } from '../typechain/ZapMarketV2';
 
 chai.use(solidity);
 
@@ -49,6 +51,7 @@ describe("ZapMarket Test", () => {
     });
 
     let zapMarket: ZapMarket
+    let zapMarketV2;
     let zapMedia1: ZapMedia
     let zapMedia2: ZapMedia
     let zapMedia3: ZapMedia
@@ -109,9 +112,13 @@ describe("ZapMarket Test", () => {
 
         beforeEach(async () => {
 
-            const marketFixture = await deployments.fixture(['ZapMarket'])
+            const marketFixture = await deployments.fixture('ZapMarket');
 
-            zapMarket = await ethers.getContractAt("ZapMarket", marketFixture.ZapMarket.address) as ZapMarket
+            const marketAddress = marketFixture.ZapMarket_Implementation.address;
+
+            const marketProxyAddress = marketFixture.ZapMarket_Proxy.address;
+
+            zapMarket = await ethers.getContractAt("ZapMarket", marketAddress) as ZapMarket
 
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
@@ -140,6 +147,21 @@ describe("ZapMarket Test", () => {
             let contentHex = ethers.utils.formatBytes32String('invert');
             let contentHash = await sha256(contentHex);
             contentHashBytes = ethers.utils.arrayify(contentHash);
+
+
+            const zapMarketV2Factory = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+
+
+            zapMarketV2 = await upgrades.upgradeProxy(marketProxyAddress, zapMarketV2Factory);
+
+            console.log(await zapMarketV2.isConfigured(zapMedia1.address))
+
+
+        })
+
+        it.only('Should upgrade ZapMarket with a new function', async () => {
+
+            // console.log(await zapMarket.getConfigStatus(zapMedia1.address))
 
         })
 
