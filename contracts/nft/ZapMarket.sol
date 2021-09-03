@@ -152,7 +152,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initialize() public initializer {
+    function initialize() public override initializer {
         require(!initialized, "Market: Instance has already been initialized");
 
         initialized = true;

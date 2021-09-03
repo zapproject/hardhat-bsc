@@ -328,11 +328,16 @@ describe("ZapMarket Test", () => {
             expect(event.args?.mediaContract).to.eq(zapMedia1.address);
         });
 
-        it('Should emit a Burned event when a token is burned', async () => {
+        it.only('Should emit a Burned event when a token is burned', async () => {
+
             expect(await zapMedia1.connect(signers[1]).burn(0)).to.be.ok;
+            expect(await zapMedia2.connect(signers[2]).burn(0)).to.be.ok;
+
 
             const zapMarketFilter: EventFilter = zapMarket.filters.Burned(0, zapMedia1.address);
             const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0]
+
+
 
             expect(event).to.not.be.undefined;
 
@@ -364,7 +369,7 @@ describe("ZapMarket Test", () => {
 
         });
 
-        it.only('Should set the bid shares if called by the media address', async () => {
+        it('Should set the bid shares if called by the media address', async () => {
 
             const sharesForToken1 = await zapMarket.bidSharesForToken(zapMedia1.address, 0);
 

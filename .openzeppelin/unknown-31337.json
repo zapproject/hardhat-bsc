@@ -7,7 +7,7 @@
       "hash": "0x9e7b3440ca593312f4a90701cb49fe186f095918cfcd87361c75354643e80c2b",
       "type": 0,
       "accessList": null,
-      "blockHash": "0x2cf7a69277801d5e28d917b6f4b3c2da68446e298a5ad763a81f25f0e714591f",
+      "blockHash": "0xc164dbe4df863d310610f4500998e2b5712a73f093894ebe03098a7d43e5b1d7",
       "blockNumber": 3,
       "transactionIndex": 0,
       "confirmations": 1,
@@ -38,16 +38,6 @@
     {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       "txHash": "0x336beee85478eb186194085da0321b4c471ebc7e754ba57ddc44c7b9681aae5a",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
-      "txHash": "0x26a7fb29f577ac7e2a7e31dcf6deeac7048be6fa63bd65812efa6e5f8ec1a567",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
-      "txHash": "0x17b5a50473ecba63a1d9d8d16df668a92607c8355c8d6ce4705facc913eca97a",
       "kind": "transparent"
     },
     {
@@ -151,21 +141,6 @@
       "kind": "transparent"
     },
     {
-      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0xce482b2bd863e05b98cdfa51e6f4119b7dc8fe17cb0a354a5fdaf97011a9ef2d",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-      "txHash": "0x4b4d5316278eea8a525ac17f2211910292e0d0262d1fc7d730fc0a6847db8a4d",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-      "txHash": "0x4f6d3e7c950ba712e04b984d9a110d1e12d2c554874254f613da13f6ad7ad7da",
-      "kind": "transparent"
-    },
-    {
       "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
       "txHash": "0xf9e246a152531e0cd1b0fdbec2bd979add8e76147c5ad16039206dd31dc662d9",
       "kind": "transparent"
@@ -189,176 +164,39 @@
       "address": "0x59b670e9fA9D0A427751Af201D676719a970857b",
       "txHash": "0xe6204355498e6a397c1fd06cbc2422a178ff881d7451ed10b50dc55255730116",
       "kind": "transparent"
+    },
+    {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "txHash": "0x0bb84a4ffe9c3679a48e2d92db18231a270a9a66638431ca9745e5074fc82b5e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      "txHash": "0x688ae2205cfcb4d5731483e615f5d0633048186b9c5d9d1d5b6a2b131e18a5d4",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "txHash": "0xc2790dcd1fb5932dc3060743c67eb49da488874ecda799839572ba168e0cdf18",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
+      "txHash": "0xa8bc8ec99686746d9f3feedc28a0700efe2fc84ffe6128ec986601364c876a28",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+      "txHash": "0xfa1134a211442c20b21b3859a23c2ed5ed620364603a54084b8348d51029993c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+      "txHash": "0x885dd189bb42c99b4768dc9674de755ea44163b82ab0790ff4a8874d561db6d4",
+      "kind": "transparent"
     }
   ],
   "impls": {
-    "8b1eef9ebb9811d2d1f4ca0b07bddf88c44af049bbedcba1870ef5512eff3cdb": {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0x04e9672660c4ff6c54dd793a5c9dbdf52f15c833cb17265ef7be49a165abaceb",
-      "layout": {
-        "storage": [
-          {
-            "contract": "Initializable",
-            "label": "_initialized",
-            "type": "t_bool",
-            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:21"
-          },
-          {
-            "contract": "Initializable",
-            "label": "_initializing",
-            "type": "t_bool",
-            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:26"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "mediaContracts",
-            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
-            "src": "contracts/nft/ZapMarket.sol:31"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "_owner",
-            "type": "t_address",
-            "src": "contracts/nft/ZapMarket.sol:34"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "_tokenBidders",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)8836_storage)))",
-            "src": "contracts/nft/ZapMarket.sol:37"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "_bidShares",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)8851_storage))",
-            "src": "contracts/nft/ZapMarket.sol:41"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "_tokenAsks",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)8841_storage))",
-            "src": "contracts/nft/ZapMarket.sol:47"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "isConfigured",
-            "type": "t_mapping(t_address,t_bool)",
-            "src": "contracts/nft/ZapMarket.sol:50"
-          },
-          {
-            "contract": "ZapMarket",
-            "label": "initialized",
-            "type": "t_bool",
-            "src": "contracts/nft/ZapMarket.sol:52"
-          }
-        ],
-        "types": {
-          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
-            "label": "mapping(address => address[])"
-          },
-          "t_address": {
-            "label": "address"
-          },
-          "t_array(t_address)dyn_storage": {
-            "label": "address[]"
-          },
-          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)8836_storage)))": {
-            "label": "mapping(address => mapping(uint256 => mapping(address => struct IMarket.Bid)))"
-          },
-          "t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)8836_storage))": {
-            "label": "mapping(uint256 => mapping(address => struct IMarket.Bid))"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          },
-          "t_mapping(t_address,t_struct(Bid)8836_storage)": {
-            "label": "mapping(address => struct IMarket.Bid)"
-          },
-          "t_struct(Bid)8836_storage": {
-            "label": "struct IMarket.Bid",
-            "members": [
-              {
-                "label": "amount",
-                "type": "t_uint256"
-              },
-              {
-                "label": "currency",
-                "type": "t_address"
-              },
-              {
-                "label": "bidder",
-                "type": "t_address"
-              },
-              {
-                "label": "recipient",
-                "type": "t_address"
-              },
-              {
-                "label": "sellOnShare",
-                "type": "t_struct(D256)5190_storage"
-              }
-            ]
-          },
-          "t_struct(D256)5190_storage": {
-            "label": "struct Decimal.D256",
-            "members": [
-              {
-                "label": "value",
-                "type": "t_uint256"
-              }
-            ]
-          },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)8851_storage))": {
-            "label": "mapping(address => mapping(uint256 => struct IMarket.BidShares))"
-          },
-          "t_mapping(t_uint256,t_struct(BidShares)8851_storage)": {
-            "label": "mapping(uint256 => struct IMarket.BidShares)"
-          },
-          "t_struct(BidShares)8851_storage": {
-            "label": "struct IMarket.BidShares",
-            "members": [
-              {
-                "label": "prevOwner",
-                "type": "t_struct(D256)5190_storage"
-              },
-              {
-                "label": "creator",
-                "type": "t_struct(D256)5190_storage"
-              },
-              {
-                "label": "owner",
-                "type": "t_struct(D256)5190_storage"
-              }
-            ]
-          },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)8841_storage))": {
-            "label": "mapping(address => mapping(uint256 => struct IMarket.Ask))"
-          },
-          "t_mapping(t_uint256,t_struct(Ask)8841_storage)": {
-            "label": "mapping(uint256 => struct IMarket.Ask)"
-          },
-          "t_struct(Ask)8841_storage": {
-            "label": "struct IMarket.Ask",
-            "members": [
-              {
-                "label": "amount",
-                "type": "t_uint256"
-              },
-              {
-                "label": "currency",
-                "type": "t_address"
-              }
-            ]
-          },
-          "t_mapping(t_address,t_bool)": {
-            "label": "mapping(address => bool)"
-          },
-          "t_bool": {
-            "label": "bool"
-          }
-        }
-      }
-    },
     "02e044d5971e5bb3cefa503f1b2d5ec84b96b9ef7ef3b0283980442036a1acee": {
       "address": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
       "txHash": "0xcf842c28a11be49185a94ba105ed08c455b7062d4becd35a5cc000a42a3173e8",
@@ -672,6 +510,173 @@
             "label": "mapping(uint256 => struct IMarket.Ask)"
           },
           "t_struct(Ask)5984_storage": {
+            "label": "struct IMarket.Ask",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        }
+      }
+    },
+    "04c30e822e3c14e270d7fd06be77fecbe54ef6743173d7a5f8467bb5293891c4": {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "txHash": "0x382e928ec639336ed866d93d7a33f7c150c616ce2d53983b79abe75bea2ac8d9",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "contract": "Ownable",
+            "label": "owner",
+            "type": "t_address",
+            "src": "contracts/nft/access/Ownable.sol:11"
+          },
+          {
+            "contract": "ZapMarket",
+            "label": "mediaContracts",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "src": "contracts/nft/ZapMarket.sol:32"
+          },
+          {
+            "contract": "ZapMarket",
+            "label": "_tokenBidders",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)9114_storage)))",
+            "src": "contracts/nft/ZapMarket.sol:35"
+          },
+          {
+            "contract": "ZapMarket",
+            "label": "_bidShares",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)9129_storage))",
+            "src": "contracts/nft/ZapMarket.sol:39"
+          },
+          {
+            "contract": "ZapMarket",
+            "label": "_tokenAsks",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)9119_storage))",
+            "src": "contracts/nft/ZapMarket.sol:42"
+          },
+          {
+            "contract": "ZapMarket",
+            "label": "isConfigured",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "contracts/nft/ZapMarket.sol:45"
+          },
+          {
+            "contract": "ZapMarket",
+            "label": "initialized",
+            "type": "t_bool",
+            "src": "contracts/nft/ZapMarket.sol:47"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)9114_storage)))": {
+            "label": "mapping(address => mapping(uint256 => mapping(address => struct IMarket.Bid)))"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)9114_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct IMarket.Bid))"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_address,t_struct(Bid)9114_storage)": {
+            "label": "mapping(address => struct IMarket.Bid)"
+          },
+          "t_struct(Bid)9114_storage": {
+            "label": "struct IMarket.Bid",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "bidder",
+                "type": "t_address"
+              },
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "sellOnShare",
+                "type": "t_struct(D256)5190_storage"
+              }
+            ]
+          },
+          "t_struct(D256)5190_storage": {
+            "label": "struct Decimal.D256",
+            "members": [
+              {
+                "label": "value",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)9129_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IMarket.BidShares))"
+          },
+          "t_mapping(t_uint256,t_struct(BidShares)9129_storage)": {
+            "label": "mapping(uint256 => struct IMarket.BidShares)"
+          },
+          "t_struct(BidShares)9129_storage": {
+            "label": "struct IMarket.BidShares",
+            "members": [
+              {
+                "label": "prevOwner",
+                "type": "t_struct(D256)5190_storage"
+              },
+              {
+                "label": "creator",
+                "type": "t_struct(D256)5190_storage"
+              },
+              {
+                "label": "owner",
+                "type": "t_struct(D256)5190_storage"
+              }
+            ]
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)9119_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IMarket.Ask))"
+          },
+          "t_mapping(t_uint256,t_struct(Ask)9119_storage)": {
+            "label": "mapping(uint256 => struct IMarket.Ask)"
+          },
+          "t_struct(Ask)9119_storage": {
             "label": "struct IMarket.Ask",
             "members": [
               {
