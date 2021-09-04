@@ -187,6 +187,10 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         emit MediaContractCreated(mediaContract, name, symbol);
     }
 
+    function getConfigStatus(address deployer) public view returns (bool) {
+        return isConfigured[deployer];
+    }
+
     function mintOrBurn(
         bool isMint,
         uint256 tokenId,
