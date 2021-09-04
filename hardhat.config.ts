@@ -2,9 +2,10 @@ import { config as dotEnvConfig } from "dotenv";
 
 dotEnvConfig();
 
-import "hardhat-gas-reporter"
+import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
+import "hardhat-gas-reporter"
 import "hardhat-typechain";
 import "hardhat-deploy";
 import "hardhat-contract-sizer";

@@ -8,10 +8,10 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {Decimal} from "./Decimal.sol";
-import {ZapMedia} from "./ZapMedia.sol";
-import {IMarket} from "./interfaces/IMarket.sol";
-import {Ownable} from "./access/Ownable.sol";
+import {Decimal} from "../Decimal.sol";
+import {ZapMedia} from "../ZapMedia.sol";
+import {IMarket} from "../interfaces/IMarket.sol";
+import {Ownable} from "../access/Ownable.sol";
 
 import "hardhat/console.sol";
 
@@ -19,7 +19,7 @@ import "hardhat/console.sol";
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarket is IMarket, Initializable, Ownable {
+contract ZapMarketV2 is IMarket, Initializable, Ownable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -152,7 +152,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initialize() public override initializer {
+    function initialize() public virtual override initializer {
         require(!initialized, "Market: Instance has already been initialized");
 
         initialized = true;
@@ -185,6 +185,10 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         mediaContracts[deployer].push(mediaContract);
 
         emit MediaContractCreated(mediaContract, name, symbol);
+    }
+
+    function getConfigStatus(address deployer) public view returns (bool) {
+        return isConfigured[deployer];
     }
 
     function mintOrBurn(
