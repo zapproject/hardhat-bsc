@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0
+
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
+
 import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import { IERC721, IERC165 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -35,9 +38,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     // The minimum percentage difference between the last bid amount and the current bid.
     uint8 public minBidIncrementPercentage;
 
-    // The address of the zapMedia protocol to use via this contract
-    address public zapMedia;
-
     // / The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
     address public wethAddress;
 
@@ -61,12 +61,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     /*
      * Constructor
      */
-    constructor(address _zapMedia, address _weth) public {
-        require(
-            IERC165(_zapMedia).supportsInterface(interfaceId),
-            "Doesn't support NFT interface"
-        );
-        zapMedia = _zapMedia;
+    constructor(address _weth) {
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
@@ -190,10 +185,15 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
-        // For Zora Protocol, ensure that the bid is valid for the current bidShare configuration
-        if(auctions[auctionId].token.tokenContract == zapMedia) {
+        require(
+            IERC165(mediaContract).supportsInterface(interfaceId),
+            "Doesn't support NFT interface"
+        );
+
+        // For Zap NFT Marketplace Protocol, ensure that the bid is valid for the current bidShare configuration
+        if(auctions[auctionId].token.tokenContract == mediaContract) {
             require(
-                IMarket(IMediaExtended(zapMedia).marketContract()).isValidBid(
+                IMarket(IMediaExtended(mediaContract).marketContract()).isValidBid(
                     mediaContract,
                     auctions[auctionId].token.tokenId,
                     amount
@@ -259,11 +259,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     }
 
     /**
-     * @notice End an auction, finalizing the bid on Zora if applicable and paying out the respective parties.
+     * @notice End an auction, finalizing the bid on Zap NFT Marketplace if applicable and paying out the respective parties.
      * @dev If for some reason the auction cannot be finalized (invalid token recipient, for example),
      * The auction is reset and the NFT is transferred back to the auction creator.
      */
-    function endAuction(uint256 auctionId) external override auctionExists(auctionId) nonReentrant {
+    function endAuction(uint256 auctionId, address mediaContract) external override auctionExists(auctionId) nonReentrant {
         require(
             uint256(auctions[auctionId].firstBidTime) != 0,
             "Auction hasn't begun"
@@ -279,9 +279,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         uint256 tokenOwnerProfit = auctions[auctionId].amount;
 
-        if(auctions[auctionId].token.tokenContract == zapMedia) {
-            // If the auction is running on zapMedia, settle it on the protocol
-            (bool success, uint256 remainingProfit) = _handleZoraAuctionSettlement(auctionId);
+        if(auctions[auctionId].token.tokenContract == mediaContract) {
+            // If the auction is running on mediaContract, settle it on the protocol
+            (bool success, uint256 remainingProfit) = _handleZapAuctionSettlement(auctionId, mediaContract);
             tokenOwnerProfit = remainingProfit;
             if(success != true) {
                 _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
@@ -394,7 +394,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         return auctions[auctionId].tokenOwner != address(0);
     }
 
-    function _handleZoraAuctionSettlement(uint256 auctionId) internal returns (bool, uint256) {
+    function _handleZapAuctionSettlement(uint256 auctionId, address mediaContract) internal returns (bool, uint256) {
         address currency = auctions[auctionId].auctionCurrency == address(0) ? wethAddress : auctions[auctionId].auctionCurrency;
 
         IMarket.Bid memory bid = IMarket.Bid({
@@ -405,12 +405,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             sellOnShare: Decimal.D256(0)
         });
 
-        IERC20(currency).approve(IMediaExtended(zapMedia).marketContract(), bid.amount);
-        IMedia(zapMedia).setBid(auctions[auctionId].token.tokenId, bid);
+        IERC20(currency).approve(IMediaExtended(mediaContract).marketContract(), bid.amount);
+        IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
         uint256 beforeBalance = IERC20(currency).balanceOf(address(this));
-        try IMedia(zapMedia).acceptBid(auctions[auctionId].token.tokenId, bid) {} catch {
+        try IMedia(mediaContract).acceptBid(auctions[auctionId].token.tokenId, bid) {} catch {
             // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
-            IMediaExtended(zapMedia).removeBid(auctions[auctionId].token.tokenId);
+            IMediaExtended(mediaContract).removeBid(auctions[auctionId].token.tokenId);
             return (false, 0);
         }
         uint256 afterBalance = IERC20(currency).balanceOf(address(this));
