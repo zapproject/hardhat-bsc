@@ -16,7 +16,7 @@ import {Ownable} from "./access/Ownable.sol";
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarket is IMarket, Ownable {
+contract ZapMarket is IMarket, Ownable{
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
