@@ -356,11 +356,15 @@ contract Zap {
         require(vaultAddress != address(0));
         Vault vault = Vault(vaultAddress);
 
+        uint256 userBalance = vault.userBalance(msg.sender);
+
         token.transferFrom(
             vaultAddress,
             msg.sender,
-            vault.userBalance(msg.sender)
+            userBalance
         );
+
+        vault.withdraw(msg.sender, userBalance);
     }
 
     /**
