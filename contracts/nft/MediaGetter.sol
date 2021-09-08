@@ -3,12 +3,13 @@ pragma solidity ^0.8.4;
 
 import {MediaGettersLib} from './libraries/MediaGettersLib.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @title A title that should describe the contract/interface
 /// @author The name of the author
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
-contract MediaGetter {
+contract MediaGetter is Initializable{
     using MediaGettersLib for MediaStorage.Tokens;
 
     MediaStorage.Tokens tokens;

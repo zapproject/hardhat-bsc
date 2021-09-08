@@ -2,14 +2,17 @@
 pragma solidity ^0.8.4;
 
 import {MediaStorage} from "./libraries/MediaStorage.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract Ownable {
+contract Ownable is Initializable {
     event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
 
     MediaStorage.Access internal access;
 
     /// @dev The Ownable constructor sets the original `access.owner` of the contract to the sender account.
-    constructor() public { access.owner = msg.sender; }
+    function _init_ownable() public {
+        access.owner = msg.sender;
+    }
 
     function getOwner() external view returns (address) {
         return access.owner;
