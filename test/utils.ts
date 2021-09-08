@@ -1,206 +1,89 @@
-import { BaseErc20Factory, MediaFactory } from '../typechain';
-import { BigNumber, BigNumberish, Bytes, Wallet } from 'ethers';
-import { MaxUint256, AddressZero } from '@ethersproject/constants';
-import { generatedWallets } from '../utils/generatedWallets';
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { formatUnits } from '@ethersproject/units';
+// @ts-ignore
+import { ethers } from "hardhat";
 import {
-  recoverTypedMessage,
-  recoverTypedSignature,
-  signTypedData,
-} from 'eth-sig-util';
+  MarketFactory,
+  Media,
+  MediaFactory,
+} from "@zoralabs/core/dist/typechain";
 import {
-  bufferToHex,
-  ecrecover,
-  fromRpcSig,
-  pubToAddress,
-} from 'ethereumjs-util';
-import { toUtf8Bytes } from 'ethers/lib/utils';
-import { keccak256 } from '@ethersproject/keccak256';
+  BadBidder,
+  AuctionHouse,
+  WETH,
+  BadERC721,
+  TestERC721,
+} from "../typechain";
+import { sha256 } from "ethers/lib/utils";
+import Decimal from "../utils/Decimal";
+import { BigNumber } from "ethers";
 
-let provider = new JsonRpcProvider();
-let [deployerWallet] = generatedWallets(provider);
+export const THOUSANDTH_ETH = ethers.utils.parseUnits(
+  "0.001",
+  "ether"
+) as BigNumber;
+export const TENTH_ETH = ethers.utils.parseUnits("0.1", "ether") as BigNumber;
+export const ONE_ETH = ethers.utils.parseUnits("1", "ether") as BigNumber;
+export const TWO_ETH = ethers.utils.parseUnits("2", "ether") as BigNumber;
 
-export async function deployCurrency() {
-  const currency = await new BaseErc20Factory(deployerWallet).deploy(
-    'test',
-    'TEST',
-    18
-  );
-  return currency.address;
-}
-
-export async function mintCurrency(
-  currency: string,
-  to: string,
-  value: number
-) {
-  await BaseErc20Factory.connect(currency, deployerWallet).mint(to, value);
-}
-
-export async function approveCurrency(
-  currency: string,
-  spender: string,
-  owner: Wallet
-) {
-  await BaseErc20Factory.connect(currency, owner).approve(spender, MaxUint256);
-}
-export async function getBalance(currency: string, owner: string) {
-  return BaseErc20Factory.connect(currency, deployerWallet).balanceOf(owner);
-}
-
-function revert(message: string) {
-  return `VM Exception while processing transaction: revert ${message}`;
-}
-export function toNumWei(val: BigNumber) {
-  return parseFloat(formatUnits(val, 'wei'));
-}
-
-export type EIP712Sig = {
-  deadline: BigNumberish;
-  v: any;
-  r: any;
-  s: any;
+export const deployWETH = async () => {
+  const [deployer] = await ethers.getSigners();
+  return (await (await ethers.getContractFactory("WETH")).deploy()) as WETH;
 };
 
-export async function signPermit(
-  owner: Wallet,
-  toAddress: string,
-  tokenAddress: string,
-  tokenId: number,
-  chainId: number
-) {
-  return new Promise<EIP712Sig>(async (res, reject) => {
-    let nonce;
-    const mediaContract = MediaFactory.connect(tokenAddress, owner);
+export const deployOtherNFTs = async () => {
+  const bad = (await (
+    await ethers.getContractFactory("BadERC721")
+  ).deploy()) as BadERC721;
+  const test = (await (
+    await ethers.getContractFactory("TestERC721")
+  ).deploy()) as TestERC721;
 
-    try {
-      nonce = (
-        await mediaContract.permitNonces(owner.address, tokenId)
-      ).toNumber();
-    } catch (e) {
-      console.error('NONCE', e);
-      reject(e);
-      return;
+  return { bad, test };
+};
+
+export const deployZoraProtocol = async () => {
+  const [deployer] = await ethers.getSigners();
+  const market = await (await new MarketFactory(deployer).deploy()).deployed();
+  const media = await (
+    await new MediaFactory(deployer).deploy(market.address)
+  ).deployed();
+  await market.configure(media.address);
+  return { market, media };
+};
+
+export const deployBidder = async (auction: string, nftContract: string) => {
+  return (await (
+    await (await ethers.getContractFactory("BadBidder")).deploy(
+      auction,
+      nftContract
+    )
+  ).deployed()) as BadBidder;
+};
+
+export const mint = async (media: Media) => {
+  const metadataHex = ethers.utils.formatBytes32String("{}");
+  const metadataHash = await sha256(metadataHex);
+  const hash = ethers.utils.arrayify(metadataHash);
+  await media.mint(
+    {
+      tokenURI: "zora.co",
+      metadataURI: "zora.co",
+      contentHash: hash,
+      metadataHash: hash,
+    },
+    {
+      prevOwner: Decimal.new(0),
+      owner: Decimal.new(85),
+      creator: Decimal.new(15),
     }
+  );
+};
 
-    const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-    const name = await mediaContract.name();
+export const approveAuction = async (
+  media: Media,
+  auctionHouse: AuctionHouse
+) => {
+  await media.approve(auctionHouse.address, 0);
+};
 
-    try {
-      const sig = signTypedData(Buffer.from(owner.privateKey.slice(2), 'hex'), {
-        data: {
-          types: {
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'version', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-            ],
-            Permit: [
-              { name: 'spender', type: 'address' },
-              { name: 'tokenId', type: 'uint256' },
-              { name: 'nonce', type: 'uint256' },
-              { name: 'deadline', type: 'uint256' },
-            ],
-          },
-          primaryType: 'Permit',
-          domain: {
-            name,
-            version: '1',
-            chainId,
-            verifyingContract: mediaContract.address,
-          },
-          message: {
-            spender: toAddress,
-            tokenId,
-            nonce,
-            deadline,
-          },
-        },
-      });
-      const response = fromRpcSig(sig);
-      res({
-        r: response.r,
-        s: response.s,
-        v: response.v,
-        deadline: deadline.toString(),
-      });
-    } catch (e) {
-      console.error(e);
-      reject(e);
-    }
-  });
-}
-
-export async function signMintWithSig(
-  owner: Wallet,
-  tokenAddress: string,
-  creator: string,
-  contentHash: string,
-  metadataHash: string,
-  creatorShare: BigNumberish,
-  chainId: number
-) {
-  return new Promise<EIP712Sig>(async (res, reject) => {
-    let nonce;
-    const mediaContract = MediaFactory.connect(tokenAddress, owner);
-
-    try {
-      nonce = (await mediaContract.mintWithSigNonces(creator)).toNumber();
-    } catch (e) {
-      console.error('NONCE', e);
-      reject(e);
-      return;
-    }
-
-    const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-    const name = await mediaContract.name();
-
-    try {
-      const sig = signTypedData(Buffer.from(owner.privateKey.slice(2), 'hex'), {
-        data: {
-          types: {
-            EIP712Domain: [
-              { name: 'name', type: 'string' },
-              { name: 'version', type: 'string' },
-              { name: 'chainId', type: 'uint256' },
-              { name: 'verifyingContract', type: 'address' },
-            ],
-            MintWithSig: [
-              { name: 'contentHash', type: 'bytes32' },
-              { name: 'metadataHash', type: 'bytes32' },
-              { name: 'creatorShare', type: 'uint256' },
-              { name: 'nonce', type: 'uint256' },
-              { name: 'deadline', type: 'uint256' },
-            ],
-          },
-          primaryType: 'MintWithSig',
-          domain: {
-            name,
-            version: '1',
-            chainId,
-            verifyingContract: mediaContract.address,
-          },
-          message: {
-            contentHash,
-            metadataHash,
-            creatorShare,
-            nonce,
-            deadline,
-          },
-        },
-      });
-      const response = fromRpcSig(sig);
-      res({
-        r: response.r,
-        s: response.s,
-        v: response.v,
-        deadline: deadline.toString(),
-      });
-    } catch (e) {
-      console.error(e);
-      reject(e);
-    }
-  });
-}
+export const revert = (messages: TemplateStringsArray) =>
+  `VM Exception while processing transaction: revert ${messages[0]}`;
