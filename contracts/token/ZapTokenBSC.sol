@@ -1,22 +1,15 @@
-
 pragma solidity =0.5.16;
 
-
-
 library SafeMath {
-
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-
         uint256 c = a * b;
 
         assert(a == 0 || c / a == b);
 
         return c;
-
     }
 
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
-
         // assert(b > 0); // Solidity automatically throws when dividing by 0
 
         uint256 c = a / b;
@@ -24,44 +17,32 @@ library SafeMath {
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
         return c;
-
     }
 
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-
         assert(b <= a);
 
         return a - b;
-
     }
 
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
-
         uint256 c = a + b;
 
         assert(c >= a);
 
         return c;
-
     }
-
 }
 
+contract ERC20Basic {
+    uint256 public totalSupply = 520000000000000000000000000;
 
+    function balanceOf(address who) public view returns (uint256);
 
- contract ERC20Basic {
-
-    uint256 public totalSupply = 100000000000000000000000000;
-
-    function balanceOf(address who)  public view returns (uint256);
-
-    function transfer(address to, uint256 value)  public returns (bool);
+    function transfer(address to, uint256 value) public returns (bool);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
-
 }
-
-
 
 /**
 
@@ -71,22 +52,28 @@ library SafeMath {
 
  */
 
- contract ERC20 is ERC20Basic {
+contract ERC20 is ERC20Basic {
+    function allowance(address owner, address spender)
+        public
+        view
+        returns (uint256);
 
-    function allowance(address owner, address spender)  public view returns (uint256);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) public returns (bool);
 
-    function transferFrom(address from, address to, uint256 value)  public returns (bool);
+    function approve(address spender, uint256 value) public returns (bool);
 
-    function approve(address spender, uint256 value)  public returns (bool);
-
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
 
-
-
 contract BasicToken is ERC20Basic {
-
     using SafeMath for uint256;
 
     mapping(address => uint256) balances;
@@ -101,8 +88,7 @@ contract BasicToken is ERC20Basic {
 
     */
 
-    function transfer(address _to, uint256 _value)  public returns (bool) {
-
+    function transfer(address _to, uint256 _value) public returns (bool) {
         require(_to != address(0));
 
         // SafeMath.sub will throw if there is not enough balance.
@@ -114,7 +100,6 @@ contract BasicToken is ERC20Basic {
         emit Transfer(msg.sender, _to, _value);
 
         return true;
-
     }
 
     /**
@@ -127,20 +112,22 @@ contract BasicToken is ERC20Basic {
 
     */
 
-    function balanceOf(address _owner)  public view returns (uint256 balance) {
-
+    function balanceOf(address _owner) public view returns (uint256 balance) {
         return balances[_owner];
-
     }
-
 }
 
 contract Ownable {
     address payable public owner;
-    event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /// @dev The Ownable constructor sets the original `owner` of the contract to the sender account.
-    constructor() public { owner = msg.sender; }
+    constructor() public {
+        owner = msg.sender;
+    }
 
     function getOwner() external view returns (address) {
         return owner;
@@ -162,10 +149,9 @@ contract Ownable {
 }
 
 contract StandardToken is ERC20, BasicToken {
-
     using SafeMath for uint256;
 
-    mapping (address => mapping (address => uint256)) allowed;
+    mapping(address => mapping(address => uint256)) allowed;
 
     /**
 
@@ -179,8 +165,11 @@ contract StandardToken is ERC20, BasicToken {
 
      */
 
-    function transferFrom(address _from, address _to, uint256 _value)  public returns (bool) {
-
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _value
+    ) public returns (bool) {
         require(_to != address(0));
 
         uint256 _allowance = allowed[_from][msg.sender];
@@ -198,7 +187,6 @@ contract StandardToken is ERC20, BasicToken {
         emit Transfer(_from, _to, _value);
 
         return true;
-
     }
 
     /**
@@ -221,14 +209,12 @@ contract StandardToken is ERC20, BasicToken {
 
      */
 
-    function approve(address _spender, uint256 _value)  public returns (bool) {
-
+    function approve(address _spender, uint256 _value) public returns (bool) {
         allowed[msg.sender][_spender] = _value;
 
         emit Approval(msg.sender, _spender, _value);
 
         return true;
-
     }
 
     /**
@@ -243,10 +229,12 @@ contract StandardToken is ERC20, BasicToken {
 
      */
 
-    function allowance(address _owner, address _spender)  public view returns (uint256 remaining) {
-
+    function allowance(address _owner, address _spender)
+        public
+        view
+        returns (uint256 remaining)
+    {
         return allowed[_owner][_spender];
-
     }
 
     /**
@@ -261,46 +249,38 @@ contract StandardToken is ERC20, BasicToken {
 
      */
 
-    function increaseApproval (address _spender, uint _addedValue) public
-
-        returns (bool success) {
-
-        allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
+    function increaseApproval(address _spender, uint256 _addedValue)
+        public
+        returns (bool success)
+    {
+        allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(
+            _addedValue
+        );
 
         emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
 
         return true;
-
     }
 
-    function decreaseApproval (address _spender, uint _subtractedValue) public
-
-        returns (bool success) {
-
-        uint oldValue = allowed[msg.sender][_spender];
+    function decreaseApproval(address _spender, uint256 _subtractedValue)
+        public
+        returns (bool success)
+    {
+        uint256 oldValue = allowed[msg.sender][_spender];
 
         if (_subtractedValue > oldValue) {
-
             allowed[msg.sender][_spender] = 0;
-
         } else {
-
             allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
-
         }
 
         emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
 
         return true;
-
     }
-
 }
 
-
-
 contract MintableToken is StandardToken, Ownable {
-
     using SafeMath for uint256;
 
     event Mint(address indexed to, uint256 amount);
@@ -310,14 +290,10 @@ contract MintableToken is StandardToken, Ownable {
     bool public mintingFinished = false;
 
     modifier canMint() {
-
         require(!mintingFinished);
 
         _;
-
     }
-
-
 
     /**
 
@@ -331,8 +307,12 @@ contract MintableToken is StandardToken, Ownable {
 
      */
 
-    function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
-
+    function mint(address _to, uint256 _amount)
+        public
+        onlyOwner
+        canMint
+        returns (bool)
+    {
         totalSupply = totalSupply.add(_amount);
 
         balances[_to] = balances[_to].add(_amount);
@@ -342,10 +322,7 @@ contract MintableToken is StandardToken, Ownable {
         emit Transfer(address(0), _to, _amount);
 
         return true;
-
     }
-
-
 
     /**
 
@@ -355,38 +332,29 @@ contract MintableToken is StandardToken, Ownable {
 
      */
 
-    function finishMinting() onlyOwner public returns (bool) {
-
+    function finishMinting() public onlyOwner returns (bool) {
         mintingFinished = true;
 
         emit MintFinished();
 
         return true;
-
     }
-
 }
 
-
-
 contract ZapTokenBSC is MintableToken {
+    string public name = "ZAP TOKEN";
 
-    string public name = "Zap BEP20";
+    string public symbol = "ZAP";
 
-    string public symbol = "ZAPB";
-
-    uint8 public decimals = 18;
+    uint256 public decimals = 18;
 
     constructor() public {
         balances[msg.sender] = totalSupply;
-        
+
         emit Transfer(address(0), msg.sender, totalSupply);
     }
 
-    function allocate(address to, uint amount) public{
-
-        mint(to,amount);
-
+    function allocate(address to, uint256 amount) public {
+        mint(to, amount);
     }
-
 }

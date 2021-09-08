@@ -2,9 +2,10 @@ import { config as dotEnvConfig } from "dotenv";
 
 dotEnvConfig();
 
-import "hardhat-gas-reporter"
+import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
+import "hardhat-gas-reporter"
 import "hardhat-typechain";
 import "hardhat-deploy";
 import "hardhat-contract-sizer";
@@ -78,8 +79,6 @@ const config = {
       gasPrice: 20000000000,
       accounts: { mnemonic: process.env.MNEMONIC }
     },
-    // Will throw an error if the MNEMONIC env variable is non existent
-    // Only used for deploying to the BSC testnet
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,

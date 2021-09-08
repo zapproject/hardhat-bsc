@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 contract Ownable is Initializable {
-    event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
     address owner;
 
     /// @dev The Ownable constructor sets the original `owner` of the contract to the sender account.
-    function _init_ownable() public { owner = msg.sender; }
+
+    function initialize() public virtual initializer {
+        owner = msg.sender;
+    }
 
     function getOwner() external view returns (address) {
         return owner;
