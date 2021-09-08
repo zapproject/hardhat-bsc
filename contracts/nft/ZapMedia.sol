@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
@@ -25,7 +26,7 @@ import "./libraries/Constants.sol";
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeable, Ownable, MediaGetter, ERC721URIStorageUpgradeable {
+contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeable, Ownable, MediaGetter, ERC721URIStorageUpgradeable, ERC721EnumerableUpgradeable {
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.UintSet;
     using SafeMath for uint256;
@@ -35,8 +36,9 @@ contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeab
      *     bytes4(keccak256('symbol()')) == 0x95d89b41
      *     bytes4(keccak256('tokenURI(uint256)')) == 0xc87b56dd
      *     bytes4(keccak256('tokenMetadataURI(uint256)')) == 0x157c3df9
+     *     DEBUG(need to find the remaining methods that result to the new interfaceId )
      *
-     *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd ^ 0x157c3df9 == 0x4e222e66
+     *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd ^ 0x157c3df9 == 0x2315d6f4
      */
 
     /* *********
@@ -149,15 +151,23 @@ contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeab
         access.isPermissive = permissive;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool){
-        return  interfaceId == type(IMedia).interfaceId || super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721EnumerableUpgradeable, ERC721Upgradeable) returns (bool){
+        return  interfaceId == type(IMedia).interfaceId;
     }
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorageUpgradeable, ERC721Upgradeable) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
-    /* **************
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override(ERC721EnumerableUpgradeable, ERC721Upgradeable) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    /* *************
      * View Functions
      * **************
      */
