@@ -11,7 +11,7 @@ task("faucet", "Sends 700K ZAP to the first 20 accounts")
 
         // Connection to Coordinator
         const Coordinator = await ethers.getContractFactory('ZapCoordinator')
-        const coordinator = await Coordinator.attach('0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0')
+        const coordinator = await Coordinator.attach('0xe7f1725e7734ce288f8367e1bb143e90bb3f0512')
 
         // Connection to ZapToken.sol
         const Token = await ethers.getContractFactory('ZapTokenBSC')

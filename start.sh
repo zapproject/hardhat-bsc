@@ -1,4 +1,3 @@
-#!/bin/bash
 npx hardhat node --hostname 0.0.0.0 &
 # echo $MODE
 # echo $NODE_URL
