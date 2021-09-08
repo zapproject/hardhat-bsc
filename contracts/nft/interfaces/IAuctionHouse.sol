@@ -125,7 +125,7 @@ interface IAuctionHouse {
 
     function createBid(uint256 auctionId, uint256 amount, address mediaContract) external payable;
 
-    function endAuction(uint256 auctionId) external;
+    function endAuction(uint256 auctionId, address mediaContract) external;
 
     function cancelAuction(uint256 auctionId) external;
 }
