@@ -7,23 +7,25 @@ async function main() {
 
     const tokenAddress = (await hre.deployments.get('ZapTokenBSC')).address;
 
-    const ZapMarket = await ethers.getContractFactory('ZapMarket', signers[0]);
-    const zapMarket = await upgrades.deployProxy(ZapMarket, { initializer: 'initialize' });
-    await zapMarket.deployed();
-    console.log('ZapMarket deployed to:', zapMarket.address);
+    const ZapMarketProxy = await ethers.getContractFactory('ZapMarket', signers[0]);
+    const zapMarketProxy = await upgrades.deployProxy(ZapMarketProxy, { initializer: 'initialize' });
+    await zapMarketProxy.deployed();
+    console.log('ZapMarket Proxy deployed to:', zapMarketProxy.address);
 
-    // ZapMedia may be changed in the future to be upgradeable
-    const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
-    const zapMedia = await ZapMedia.deploy('ZapMedia', 'ZAPBSC', zapMarket.address);
-    await zapMedia.deployed();
-    console.log('ZapMedia deployed to:', zapMedia.address);
+    const ZapMediaProxy = await ethers.getContractFactory('ZapMedia', signers[0]);
+    const zapMediaProxy = await upgrades.deployProxy(
+        ZapMediaProxy,
+        ["ZapMedia", "ZAPBSC", zapMarketProxy.address, true],
+    );
+    await zapMediaProxy.deployed();
+    console.log('ZapMedia Proxy deployed to:', zapMediaProxy.address);
 
     // AuctionHouse may be changed in the future to be upgradeable
     // AucionHouse will change to handle more than one Media contract
-    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    const auctionHouse = await AuctionHouse.deploy(zapMedia.address, tokenAddress);
-    await auctionHouse.deployed();
-    console.log('AuctionHouse deployed to:', auctionHouse.address);
+    // const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
+    // const auctionHouse = await AuctionHouse.deploy(zapMediaProxy.address, tokenAddress);
+    // await auctionHouse.deployed();
+    // console.log('AuctionHouse deployed to:', auctionHouse.address);
 
 }
 
