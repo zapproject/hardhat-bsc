@@ -7,14 +7,18 @@ async function main() {
 
     const tokenAddress = (await hre.deployments.get('ZapTokenBSC')).address;
 
-    const ZapMarket = await ethers.getContractFactory('ZapMarket', signers[0]);
-    const zapMarket = await upgrades.deployProxy(ZapMarket, { initializer: 'initialize' });
-    await zapMarket.deployed();
-    console.log('ZapMarket deployed to:', zapMarket.address);
+    const ZapMarketImplementation = await ethers.getContractFactory('ZapMarket', signers[0]);
+    const zapMarketImplementation = await ZapMarketImplementation.deploy();
+    await zapMarketImplementation.deployed();
+
+    const ZapMarketProxy = await ethers.getContractFactory('ZapMarket', signers[0]);
+    const zapMarketProxy = await upgrades.deployProxy(ZapMarketProxy, { initializer: 'initialize' });
+    await zapMarketProxy.deployed();
+    console.log('ZapMarket Proxy deployed to:', zapMarketProxy.address);
 
     // ZapMedia may be changed in the future to be upgradeable
     const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
-    const zapMedia = await ZapMedia.deploy('ZapMedia', 'ZAPBSC', zapMarket.address);
+    const zapMedia = await ZapMedia.deploy('ZapMedia', 'ZAPBSC', zapMarketImplementation.address, true);
     await zapMedia.deployed();
     console.log('ZapMedia deployed to:', zapMedia.address);
 
