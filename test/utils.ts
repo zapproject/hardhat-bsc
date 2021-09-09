@@ -6,6 +6,10 @@ import {
   MediaFactory,
 } from "@zoralabs/core/dist/typechain";
 import {
+  ZapMarket__factory, ZapMedia__factory,
+  ZapMarket, ZapMedia
+} from "../typechain"
+import {
   BadBidder,
   AuctionHouse,
   WETH,
@@ -40,11 +44,11 @@ export const deployOtherNFTs = async () => {
   return { bad, test };
 };
 
-export const deployZoraProtocol = async () => {
+export const deployZapNFTMarketplace = async () => {
   const [deployer] = await ethers.getSigners();
-  const market = await (await new MarketFactory(deployer).deploy()).deployed();
+  const market = await (await new ZapMarket__factory(deployer).deploy()).deployed();
   const media = await (
-    await new MediaFactory(deployer).deploy(market.address)
+    await new ZapMedia__factory(deployer).deploy(market.address)
   ).deployed();
   await market.configure(media.address);
   return { market, media };
