@@ -1,4 +1,5 @@
 import chai, { expect } from "chai";
+
 import { ethers, upgrades } from "hardhat";
 // import { Market, Media } from "@zoralabs/core/dist/typechain";
 
@@ -13,6 +14,8 @@ import { BadBidder } from "../typechain/BadBidder";
 import { TestERC721 } from "../typechain/TestERC721";
 
 import { BadERC721 } from "../typechain/BadERC721";
+
+import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
 import { formatUnits } from "ethers/lib/utils";
 
@@ -32,8 +35,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("AuctionHouse", () => {
   let zapMarket: ZapMarket;
-  let zapMedia: ZapMedia;
-  let weth: Contract;
+  let zapMedia1: ZapMedia;
+  let zapTokenBsc: any;
   let badERC721: BadERC721;
   let testERC721: TestERC721;
   let signers: SignerWithAddress[]
@@ -44,76 +47,82 @@ describe("AuctionHouse", () => {
 
     await ethers.provider.send("hardhat_reset", []);
 
-
     const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
+    zapMarket = await upgrades.deployProxy(zapMarketFactory, { initializer: 'initialize' }) as ZapMarket;
 
-    zapMarket = (await zapMarketFactory.d)
-    market = contracts.market;
-    media = contracts.media;
-    weth = await deployWETH();
-    badERC721 = nfts.bad;
-    testERC721 = nfts.test;
+    const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
+    zapMedia1 = (await upgrades.deployProxy(mediaFactory, ["TEST MEDIA 1", "TM1", zapMarket.address, false])) as ZapMedia;
+    await zapMedia1.deployed();
 
+    const badERC721Factory = await ethers.getContractFactory('BadERC721');
+    badERC721 = (await badERC721Factory.deploy()) as BadERC721;
 
+    const testERC721Factory = await ethers.getContractFactory("TestERC721");
+    testERC721 = (await testERC721Factory.deploy()) as TestERC721;
 
+    const zapTokenFactory = await ethers.getContractFactory(
+      'ZapTokenBSC',
+      signers[0]
+    );
+
+    zapTokenBsc = (await zapTokenFactory.deploy())
+    await zapTokenBsc.deployed();
 
   });
 
-  async function deploy(): Promise<AuctionHouse> {
-    const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
-    const auctionHouse = await AuctionHouse.deploy(media.address, weth.address);
+  // async function deploy(): Promise<AuctionHouse> {
+  //   const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
+  //   const auctionHouse = await AuctionHouse.deploy(media.address, weth.address);
 
-    return auctionHouse as AuctionHouse;
-  }
+  //   return auctionHouse as AuctionHouse;
+  // }
 
-  async function createAuction(
-    auctionHouse: AuctionHouse,
-    curator: string,
-    currency = "0x0000000000000000000000000000000000000000"
-  ) {
-    const tokenId = 0;
-    const duration = 60 * 60 * 24;
-    const reservePrice = BigNumber.from(10).pow(18).div(2);
+  // async function createAuction(
+  //   auctionHouse: AuctionHouse,
+  //   curator: string,
+  //   currency = "0x0000000000000000000000000000000000000000"
+  // ) {
+  //   const tokenId = 0;
+  //   const duration = 60 * 60 * 24;
+  //   const reservePrice = BigNumber.from(10).pow(18).div(2);
 
-    await auctionHouse.createAuction(
-      tokenId,
-      media.address,
-      duration,
-      reservePrice,
-      curator,
-      5,
-      currency
-    );
-  }
+  //   await auctionHouse.createAuction(
+  //     tokenId,
+  //     media.address,
+  //     duration,
+  //     reservePrice,
+  //     curator,
+  //     5,
+  //     currency
+  //   );
+  // }
 
   describe("#constructor", () => {
 
-    it("should be able to deploy", async () => {
+    it.only("should be able to deploy", async () => {
+
       const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
+
       const auctionHouse = await AuctionHouse.deploy(
-        media.address,
-        weth.address
+        zapTokenBsc.address
       );
 
-      expect(await auctionHouse.zora()).to.eq(
-        media.address,
-        "incorrect zora address"
-      );
-      expect(formatUnits(await auctionHouse.timeBuffer(), 0)).to.eq(
-        "900.0",
-        "time buffer should equal 900"
-      );
-      expect(await auctionHouse.minBidIncrementPercentage()).to.eq(
-        5,
-        "minBidIncrementPercentage should equal 5%"
-      );
+      expect(parseInt(await auctionHouse.timeBuffer())).to.equal(900, "time buffer should equal 900");
+
+      expect(await auctionHouse.minBidIncrementPercentage()).to.equal(5, "minBidIncrementPercentage should equal 5%");
+
+      // expect(await auctionHouse.zora()).to.eq(
+      //   media.address,
+      //   "incorrect zora address"
+      // );
+
     });
 
     it("should not allow a configuration address that is not the Zora Media Protocol", async () => {
-      const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
-      await expect(
-        AuctionHouse.deploy(market.address, weth.address)
-      ).revertedWith("Transaction reverted without a reason");
+      // const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
+      // await expect(
+      //   AuctionHouse.deploy(market.address, weth.address)
+      // ).revertedWith("Transaction reverted without a reason");
     });
   });
 
