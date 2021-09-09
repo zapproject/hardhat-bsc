@@ -11,7 +11,7 @@ interface IAuctionHouse {
         // ID for the ERC721 token
         uint256 tokenId;
         // Address for the ERC721 contract
-        address tokenContract;
+        // address tokenContract;
         // Address of the media that minted the token
         address mediaContract;
     }
@@ -44,7 +44,6 @@ interface IAuctionHouse {
     event AuctionCreated(
         uint256 indexed auctionId,
         uint256 tokenId,
-        address indexed tokenContract,
         address indexed mediaContract,
         uint256 duration,
         uint256 reservePrice,
@@ -57,21 +56,20 @@ interface IAuctionHouse {
     event AuctionApprovalUpdated(
         uint256 indexed auctionId,
         uint256 indexed tokenId,
-        address indexed tokenContract,
+        address indexed mediaContract,
         bool approved
     );
 
     event AuctionReservePriceUpdated(
         uint256 indexed auctionId,
         uint256 indexed tokenId,
-        address indexed tokenContract,
+        address indexed mediaContract,
         uint256 reservePrice
     );
 
     event AuctionBid(
         uint256 indexed auctionId,
         uint256 tokenId,
-        address indexed tokenContract,
         address mediaContract,
         address sender,
         uint256 value,
@@ -82,7 +80,6 @@ interface IAuctionHouse {
     event AuctionDurationExtended(
         uint256 indexed auctionId,
         uint256 tokenId,
-        address indexed tokenContract,
         address indexed mediaContract,
         uint256 duration
     );
@@ -90,7 +87,6 @@ interface IAuctionHouse {
     event AuctionEnded(
         uint256 indexed auctionId,
         uint256 tokenId,
-        address indexed tokenContract,
         address indexed mediaContract,
         address tokenOwner,
         address curator,
@@ -103,13 +99,12 @@ interface IAuctionHouse {
     event AuctionCanceled(
         uint256 indexed auctionId,
         uint256 indexed tokenId,
-        address indexed tokenContract,
+        address indexed mediaContract,
         address tokenOwner
     );
 
     function createAuction(
         uint256 tokenId,
-        address tokenContract,
         address mediaContract,
         uint256 duration,
         uint256 reservePrice,
@@ -123,7 +118,11 @@ interface IAuctionHouse {
     function setAuctionReservePrice(uint256 auctionId, uint256 reservePrice)
         external;
 
-    function createBid(uint256 auctionId, uint256 amount, address mediaContract) external payable;
+    function createBid(
+        uint256 auctionId,
+        uint256 amount,
+        address mediaContract
+    ) external payable;
 
     function endAuction(uint256 auctionId, address mediaContract) external;
 

@@ -11,9 +11,29 @@ import {
   TestERC721,
 } from "../typechain";
 import { sha256 } from "ethers/lib/utils";
-import Decimal from "../utils/Decimal";
 import { BigNumber } from "ethers";
 import { fromRpcSig } from 'ethereumjs-util';
+
+
+export default class Decimal {
+  static new(value: number) {
+    const decimalPlaces = countDecimals(value);
+    const difference = 18 - decimalPlaces;
+    const zeros = BigNumber.from(10).pow(difference);
+    const abs = BigNumber.from(`${value.toString().replace(".", "")}`);
+    return { value: abs.mul(zeros) };
+  }
+
+  static raw(value: number) {
+    return { value: BigNumber.from(value) };
+  }
+}
+
+function countDecimals(value: any) {
+  if (Math.floor(value) !== value)
+    return value.toString().split(".")[1].length || 0;
+  return 0;
+}
 
 
 export const THOUSANDTH_ETH = ethers.utils.parseUnits(
@@ -84,8 +104,8 @@ export const mint = async (media: ZapMedia) => {
   const hash = ethers.utils.arrayify(metadataHash);
   await media.mint(
     {
-      tokenURI: "zora.co",
-      metadataURI: "zora.co",
+      tokenURI: "zap.co",
+      metadataURI: "zap.co",
       contentHash: hash,
       metadataHash: hash,
     },

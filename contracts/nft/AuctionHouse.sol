@@ -69,14 +69,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         minBidIncrementPercentage = 5; // 5%
     }
 
-    function setTokenDetails(
-        uint256 tokenId,
-        address tokenContract,
-        address mediaContract
-    ) external returns (bool) {
+    function setTokenDetails(uint256 tokenId, address mediaContract)
+        external
+        returns (bool)
+    {
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
-            tokenContract: tokenContract,
             mediaContract: mediaContract
         });
 
@@ -90,7 +88,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      */
     function createAuction(
         uint256 tokenId,
-        address tokenContract,
         address mediaContract,
         uint256 duration,
         uint256 reservePrice,
@@ -99,16 +96,16 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         address auctionCurrency
     ) public override nonReentrant returns (uint256) {
         require(
-            IERC165(tokenContract).supportsInterface(interfaceId),
+            IERC165(mediaContract).supportsInterface(interfaceId),
             "tokenContract does not support ERC721 interface"
         );
         require(
             curatorFeePercentage < 100,
             "curatorFeePercentage must be less than 100"
         );
-        address tokenOwner = IERC721(tokenContract).ownerOf(tokenId);
+        address tokenOwner = IERC721(mediaContract).ownerOf(tokenId);
         require(
-            msg.sender == IERC721(tokenContract).getApproved(tokenId) ||
+            msg.sender == IERC721(mediaContract).getApproved(tokenId) ||
                 msg.sender == tokenOwner,
             "Caller must be approved or owner for token id"
         );
@@ -128,14 +125,13 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             auctionCurrency: auctionCurrency
         });
 
-        IERC721(tokenContract).transferFrom(tokenOwner, address(this), tokenId);
+        IERC721(mediaContract).transferFrom(tokenOwner, address(this), tokenId);
 
         _auctionIdTracker.increment();
 
         emit AuctionCreated(
             auctionId,
             tokenId,
-            tokenContract,
             mediaContract,
             duration,
             reservePrice,
@@ -194,7 +190,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         emit AuctionReservePriceUpdated(
             auctionId,
             auctions[auctionId].token.tokenId,
-            auctions[auctionId].token.tokenContract,
+            auctions[auctionId].token.mediaContract,
             reservePrice
         );
     }
@@ -244,7 +240,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         );
 
         // For Zap NFT Marketplace Protocol, ensure that the bid is valid for the current bidShare configuration
-        if (auctions[auctionId].token.tokenContract == mediaContract) {
+        if (auctions[auctionId].token.mediaContract == mediaContract) {
             require(
                 IMarket(IMediaExtended(mediaContract).marketContract())
                     .isValidBid(
@@ -302,7 +298,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         emit AuctionBid(
             auctionId,
             auctions[auctionId].token.tokenId,
-            auctions[auctionId].token.tokenContract,
             auctions[auctionId].token.mediaContract,
             msg.sender,
             amount,
@@ -314,7 +309,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             emit AuctionDurationExtended(
                 auctionId,
                 auctions[auctionId].token.tokenId,
-                auctions[auctionId].token.tokenContract,
                 auctions[auctionId].token.mediaContract,
                 auctions[auctionId].duration
             );
@@ -351,7 +345,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         uint256 tokenOwnerProfit = auctions[auctionId].amount;
 
-        if (auctions[auctionId].token.tokenContract == mediaContract) {
+        if (auctions[auctionId].token.mediaContract == mediaContract) {
             // If the auction is running on mediaContract, settle it on the protocol
             (
                 bool success,
@@ -370,7 +364,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         } else {
             // Otherwise, transfer the token to the winner and pay out the participants below
             try
-                IERC721(auctions[auctionId].token.tokenContract)
+                IERC721(auctions[auctionId].token.mediaContract)
                     .safeTransferFrom(
                         address(this),
                         auctions[auctionId].bidder,
@@ -407,7 +401,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         emit AuctionEnded(
             auctionId,
             auctions[auctionId].token.tokenId,
-            auctions[auctionId].token.tokenContract,
             auctions[auctionId].token.mediaContract,
             auctions[auctionId].tokenOwner,
             auctions[auctionId].curator,
@@ -497,7 +490,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
-        IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(
+        IERC721(auctions[auctionId].token.mediaContract).safeTransferFrom(
             address(this),
             tokenOwner,
             auctions[auctionId].token.tokenId
@@ -506,7 +499,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         emit AuctionCanceled(
             auctionId,
             auctions[auctionId].token.tokenId,
-            auctions[auctionId].token.tokenContract,
+            auctions[auctionId].token.mediaContract,
             tokenOwner
         );
         delete auctions[auctionId];
@@ -517,7 +510,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         emit AuctionApprovalUpdated(
             auctionId,
             auctions[auctionId].token.tokenId,
-            auctions[auctionId].token.tokenContract,
+            auctions[auctionId].token.mediaContract,
             approved
         );
     }
