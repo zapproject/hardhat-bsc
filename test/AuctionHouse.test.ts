@@ -329,13 +329,14 @@ describe("AuctionHouse", () => {
 
   describe("#setAuctionReservePrice", () => {
     let auctionHouse: AuctionHouse;
+    let deity: Signer;
     let admin: Signer;
     let creator: Signer;
     let curator: Signer;
     let bidder: Signer;
 
     beforeEach(async () => {
-      [admin, creator, curator, bidder] = await ethers.getSigners();
+      [deity, admin, creator, curator, bidder] = await ethers.getSigners();
       auctionHouse = (await deploy()).connect(curator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(
@@ -351,13 +352,13 @@ describe("AuctionHouse", () => {
     it("should revert if the auctionHouse does not exist", async () => {
       await expect(
         auctionHouse.setAuctionReservePrice(1, TWO_ETH)
-      ).revertedWith(revert`Auction doesn't exist`);
+      ).revertedWith(`Auction doesn't exist`);
     });
 
     it("should revert if not called by the curator or owner", async () => {
       await expect(
         auctionHouse.connect(admin).setAuctionReservePrice(0, TWO_ETH)
-      ).revertedWith(revert`Must be auction curator`);
+      ).revertedWith(`Must be auction curator`);
     });
 
     it("should revert if the auction has already started", async () => {
@@ -368,7 +369,7 @@ describe("AuctionHouse", () => {
         .createBid(0, TWO_ETH, media1.address, { value: TWO_ETH });
       await expect(
         auctionHouse.setAuctionReservePrice(0, ONE_ETH)
-      ).revertedWith(revert`Auction has already started`);
+      ).revertedWith(`Auction has already started`);
     });
 
     it("should set the auction reserve price when called by the curator", async () => {
