@@ -4,8 +4,6 @@ import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, Au
 import { } from "../typechain";
 import { formatUnits } from "ethers/lib/utils";
 import { BigNumber, Contract, Signer, Bytes } from "ethers";
-
-import { BigNumber, Bytes } from "ethers";
 import {
   approveAuction,
   deployBidder,
@@ -19,8 +17,7 @@ import {
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-describe("AuctionHouse", () => {
-  let zapTokenBsc: ZapTokenBSC
+describe.only("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
