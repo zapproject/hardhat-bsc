@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import { IERC721, IERC165 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Upgradeable, IERC165Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -97,12 +97,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         address auctionCurrency
     ) public override nonReentrant returns (uint256) {
         require(
-            IERC165(tokenContract).supportsInterface(interfaceId),
+            IERC165Upgradeable(tokenContract).supportsInterface(interfaceId),
             "tokenContract does not support ERC721 interface"
         );
         require(curatorFeePercentage < 100, "curatorFeePercentage must be less than 100");
-        address tokenOwner = IERC721(tokenContract).ownerOf(tokenId);
-        require(msg.sender == IERC721(tokenContract).getApproved(tokenId) || msg.sender == tokenOwner, "Caller must be approved or owner for token id");
+        address tokenOwner = IERC721Upgradeable(tokenContract).ownerOf(tokenId);
+        require(msg.sender == IERC721Upgradeable(tokenContract).getApproved(tokenId) || msg.sender == tokenOwner, "Caller must be approved or owner for token id");
         uint256 auctionId = _auctionIdTracker.current();
 
 
@@ -120,7 +120,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             auctionCurrency: auctionCurrency
         });
 
-        IERC721(tokenContract).transferFrom(tokenOwner, address(this), tokenId);
+        IERC721Upgradeable(tokenContract).transferFrom(tokenOwner, address(this), tokenId);
 
         _auctionIdTracker.increment();
 
@@ -186,7 +186,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         );
 
         require(
-            IERC165(mediaContract).supportsInterface(interfaceId),
+            IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
             "Doesn't support NFT interface"
         );
 
@@ -290,7 +290,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             }
         } else {
             // Otherwise, transfer the token to the winner and pay out the participants below
-            try IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), auctions[auctionId].bidder, auctions[auctionId].token.tokenId) {} catch {
+            try IERC721Upgradeable(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), auctions[auctionId].bidder, auctions[auctionId].token.tokenId) {} catch {
                 _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
                 _cancelAuction(auctionId);
                 return;
@@ -379,7 +379,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
-        IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), tokenOwner, auctions[auctionId].token.tokenId);
+        IERC721Upgradeable(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), tokenOwner, auctions[auctionId].token.tokenId);
 
         emit AuctionCanceled(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, tokenOwner);
         delete auctions[auctionId];
