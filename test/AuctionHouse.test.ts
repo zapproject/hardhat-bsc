@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC } from "../typechain";
 import { } from "../typechain";
 import { formatUnits } from "ethers/lib/utils";
+import { BigNumber, Contract, Signer, Bytes } from "ethers";
 
 import { BigNumber, Bytes } from "ethers";
 import {
@@ -24,7 +25,8 @@ describe("AuctionHouse", () => {
   let media1: ZapMedia;
   let media2: ZapMedia;
   let media3: ZapMedia;
-  let weth: any;
+  let weth: Contract;
+  let zapTokenBsc: ZapTokenBSC;
   let badERC721: BadERC721;
   let testERC721: TestERC721;
   let signers: SignerWithAddress[]
@@ -116,6 +118,8 @@ describe("AuctionHouse", () => {
       const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
 
       const auctionHouse = await AuctionHouse.deploy(
+        media1.address,
+        weth.address,
         zapTokenBsc.address
       );
 
@@ -205,7 +209,7 @@ describe("AuctionHouse", () => {
             5,
             "0x0000000000000000000000000000000000000000"
           )
-      ).to.be.revertedWith(
+      ).revertedWith(
         `Caller must be approved or owner for token id`
       );
     });
@@ -229,11 +233,10 @@ describe("AuctionHouse", () => {
             5,
             "0x0000000000000000000000000000000000000000"
           )
-      ).to.be.revertedWith(
+      ).revertedWith(
         `ERC721: owner query for nonexistent token`
       );
-
-    })
+    });
 
     it("should revert if the curator fee percentage is >= 100", async () => {
       //   const duration = 60 * 60 * 24;
@@ -481,21 +484,21 @@ describe("AuctionHouse", () => {
 
     it("should revert if the specified auction does not exist", async () => {
       await expect(
-        auctionHouse.createBid(11111, ONE_ETH, media1.address,)
-      ).revertedWith(revert`Auction doesn't exist`);
+        auctionHouse.createBid(11111, ONE_ETH, media1.address)
+      ).revertedWith(`Auction doesn't exist`);
     });
 
     it("should revert if the specified auction is not approved", async () => {
       await auctionHouse.connect(curator).setAuctionApproval(0, false);
       await expect(
         auctionHouse.createBid(0, ONE_ETH, media1.address, { value: ONE_ETH })
-      ).revertedWith(revert`Auction must be approved by curator`);
+      ).revertedWith(`Auction must be approved by curator`);
     });
 
     it("should revert if the bid is less than the reserve price", async () => {
       await expect(
         auctionHouse.createBid(0, 0, media1.address, { value: 0 })
-      ).revertedWith(revert`Must send at least reservePrice`);
+      ).revertedWith(`Must send at least reservePrice`);
     });
 
     it("should revert if the bid is invalid for share splitting", async () => {
@@ -503,7 +506,7 @@ describe("AuctionHouse", () => {
         auctionHouse.createBid(0, ONE_ETH.add(1), media1.address, {
           value: ONE_ETH.add(1),
         })
-      ).revertedWith(revert`Bid invalid for share splitting`);
+      ).revertedWith(`Bid invalid for share splitting`);
     });
 
     it("should revert if msg.value does not equal specified amount", async () => {
@@ -512,7 +515,7 @@ describe("AuctionHouse", () => {
           value: ONE_ETH.mul(2),
         })
       ).revertedWith(
-        revert`Sent ETH Value does not match specified bid amount`
+        `Sent ETH Value does not match specified bid amount`
       );
     });
     describe("first bid", () => {
@@ -595,7 +598,7 @@ describe("AuctionHouse", () => {
             value: ONE_ETH.add(1),
           })
         ).revertedWith(
-          revert`Must send more than last bid by minBidIncrementPercentage amount`
+          `Must send more than last bid by minBidIncrementPercentage amount`
         );
       });
 
@@ -604,7 +607,7 @@ describe("AuctionHouse", () => {
           await bidderA.getAddress()
         );
         const beforeBidAmount = (await auctionHouse.auctions(0)).amount;
-        await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+        await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
           value: TWO_ETH,
         });
         const afterBalance = await ethers.provider.getBalance(
@@ -616,7 +619,7 @@ describe("AuctionHouse", () => {
 
       it("should not update the firstBidTime", async () => {
         const firstBidTime = (await auctionHouse.auctions(0)).firstBidTime;
-        await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+        await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
           value: TWO_ETH,
         });
         expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(
@@ -625,7 +628,7 @@ describe("AuctionHouse", () => {
       });
 
       it("should transfer the bid to the contract and store it as WETH", async () => {
-        await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+        await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
           value: TWO_ETH,
         });
 
@@ -633,7 +636,7 @@ describe("AuctionHouse", () => {
       });
 
       it("should update the stored bid information", async () => {
-        await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+        await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
           value: TWO_ETH,
         });
 
@@ -645,7 +648,7 @@ describe("AuctionHouse", () => {
 
       it("should not extend the duration of the bid if outside of the time buffer", async () => {
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
-        await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+        await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
           value: TWO_ETH,
         });
         const afterDuration = (await auctionHouse.auctions(0)).duration;
@@ -654,7 +657,7 @@ describe("AuctionHouse", () => {
 
       it("should emit an AuctionBid event", async () => {
         const block = await ethers.provider.getBlockNumber();
-        await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+        await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
           value: TWO_ETH,
         });
         const events = await auctionHouse.queryFilter(
@@ -691,7 +694,7 @@ describe("AuctionHouse", () => {
         });
         it("should extend the duration of the bid if inside of the time buffer", async () => {
           const beforeDuration = (await auctionHouse.auctions(0)).duration;
-          await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+          await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
             value: TWO_ETH,
           });
 
@@ -702,7 +705,7 @@ describe("AuctionHouse", () => {
         });
         it("should emit an AuctionBid event", async () => {
           const block = await ethers.provider.getBlockNumber();
-          await auctionHouse.createBid(0, TWO_ETH, media1.address, {
+          await auctionHouse.createBid(0, TWO_ETH,  media1.address, {
             value: TWO_ETH,
           });
           const events = await auctionHouse.queryFilter(
@@ -740,10 +743,10 @@ describe("AuctionHouse", () => {
 
         it("should revert if the bid is placed after expiry", async () => {
           await expect(
-            auctionHouse.createBid(0, TWO_ETH, media1.address, {
+            auctionHouse.createBid(0, TWO_ETH,  media1.address, {
               value: TWO_ETH,
             })
-          ).revertedWith(revert`Auction expired`);
+          ).revertedWith(`Auction expired`);
         });
       });
     });
@@ -770,7 +773,7 @@ describe("AuctionHouse", () => {
 
     it("should revert if the auction does not exist", async () => {
       await expect(auctionHouse.cancelAuction(12213)).revertedWith(
-        revert`Auction doesn't exist`
+        `Auction doesn't exist`
       );
     });
 
@@ -787,7 +790,7 @@ describe("AuctionHouse", () => {
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
       await expect(auctionHouse.cancelAuction(0)).revertedWith(
-        revert`Can't cancel an auction once it's begun`
+        `Can't cancel an auction once it's begun`
       );
     });
 
@@ -844,11 +847,11 @@ describe("AuctionHouse", () => {
 
   describe("#endAuction", () => {
     let auctionHouse: AuctionHouse;
-    let admin: SignerWithAddress;
-    let creator: SignerWithAddress;
-    let curator: SignerWithAddress;
-    let bidder: SignerWithAddress;
-    let other: SignerWithAddress;
+    let admin: Signer;
+    let creator: Signer;
+    let curator: Signer;
+    let bidder: Signer;
+    let other: Signer;
     let badBidder: BadBidder;
 
     beforeEach(async () => {
@@ -866,13 +869,13 @@ describe("AuctionHouse", () => {
 
     it("should revert if the auction does not exist", async () => {
       await expect(auctionHouse.endAuction(1110, media1.address)).revertedWith(
-        revert`Auction doesn't exist`
+        `Auction doesn't exist`
       );
     });
 
     it("should revert if the auction has not begun", async () => {
       await expect(auctionHouse.endAuction(0, media1.address)).revertedWith(
-        revert`Auction hasn't begun`
+        `Auction hasn't begun`
       );
     });
 
@@ -882,7 +885,7 @@ describe("AuctionHouse", () => {
       });
 
       await expect(auctionHouse.endAuction(0, media1.address)).revertedWith(
-        revert`Auction hasn't completed`
+        `Auction hasn't completed`
       );
     });
 
