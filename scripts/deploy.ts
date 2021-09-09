@@ -170,7 +170,9 @@ async function main() {
      */
   //Vault contract deploy
 
-  const zapToken = '0x09d8af358636d9bcc9a3e177b66eb30381a4b1a8';
+  // const zapToken = '0x09d8af358636d9bcc9a3e177b66eb30381a4b1a8';
+  const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
+
 
   const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
   const ZapGettersLibrary = await zapGettersLibrary.deploy();

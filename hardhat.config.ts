@@ -50,12 +50,15 @@ const config = {
       { version: '0.5.16', settings: {} },
       { version: '0.6.8', settings: {} },
       { version: '0.7.3', settings: {} },
-      { version: '0.8.4', settings: {
-        optimizer: {
-          enabled: true,
-          // runs
+      {
+        version: '0.8.4',
+        settings: {
+          optimizer: {
+            enabled: true
+            // runs
+          }
         }
-      } }
+      }
     ]
   },
   gasReporter: {
@@ -69,15 +72,15 @@ const config = {
       url: 'http://127.0.0.1:8545/'
     },
     binanceMainnet: {
-      url: "https://bsc-dataseed.binance.org/",
+      url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
-      gasPrice: 20000000000,
+      gasPrice: 20000000000
       // accounts: { mnemonic: process.env.MNEMONIC }
     },
     testnet: {
       url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
       chainId: 97,
-      gasPrice: 20000000000,
+      gasPrice: 20000000000
       // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
@@ -102,6 +105,11 @@ const config = {
   },
   mocha: {
     timeout: 1000000
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0 // here this will by default take the first account as deployer
+    }
   }
 };
 
