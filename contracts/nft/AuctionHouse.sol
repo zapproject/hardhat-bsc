@@ -14,6 +14,8 @@ import {Decimal} from "./Decimal.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
 import {IAuctionHouse} from "./interfaces/IAuctionHouse.sol";
 
+import "hardhat/console.sol";
+
 interface IWETH {
     function deposit() external payable;
 
@@ -104,6 +106,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             "curatorFeePercentage must be less than 100"
         );
         address tokenOwner = IERC721Upgradeable(mediaContract).ownerOf(tokenId);
+
         require(
             msg.sender ==
                 IERC721Upgradeable(mediaContract).getApproved(tokenId) ||

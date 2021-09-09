@@ -77,11 +77,13 @@ describe("AuctionHouse", () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC
   });
 
-  async function deploy(): Promise<AuctionHouse> {
+  async function deploy(signer: SignerWithAddress): Promise<AuctionHouse> {
     let auctionHouse: AuctionHouse;
     let AuctionHouse: AuctionHouse__factory;
 
-    AuctionHouse = await ethers.getContractFactory("AuctionHouse") as AuctionHouse__factory;
+    const signers = await ethers.getSigners()
+
+    AuctionHouse = await ethers.getContractFactory("AuctionHouse", signer) as AuctionHouse__factory;
     auctionHouse = await AuctionHouse.deploy(zapTokenBsc.address) as AuctionHouse;
 
     return auctionHouse as AuctionHouse;
@@ -150,11 +152,20 @@ describe("AuctionHouse", () => {
   });
 
   describe.only("#createAuction", () => {
+
     let auctionHouse: AuctionHouse;
+    let signers: SignerWithAddress[]
+
     beforeEach(async () => {
-      auctionHouse = await deploy();
+
+      signers = await ethers.getSigners();
+
+      auctionHouse = await deploy(signers[1]);
+
       await mint(media1);
-      await approveAuction(media1, auctionHouse);
+
+      await approveAuction(media1, auctionHouse)
+
     });
 
     it("should revert if the token contract does not support the ERC721 interface", async () => {
@@ -243,7 +254,7 @@ describe("AuctionHouse", () => {
       );
     });
 
-    it("should create an auction", async () => {
+    it.only("should create an auction", async () => {
 
       const owner = await media1.ownerOf(0);
 
@@ -251,16 +262,17 @@ describe("AuctionHouse", () => {
 
       await createAuction(auctionHouse, await expectedCurator.getAddress());
 
-      // const createdAuction = await auctionHouse.auctions(0);
+      const createdAuction = await auctionHouse.auctions(0);
 
-      // expect(createdAuction.duration).to.eq(24 * 60 * 60);
-      // expect(createdAuction.reservePrice).to.eq(
-      //   BigNumber.from(10).pow(18).div(2)
-      // );
-      // expect(createdAuction.curatorFeePercentage).to.eq(5);
-      // expect(createdAuction.tokenOwner).to.eq(owner);
-      // expect(createdAuction.curator).to.eq(expectedCurator.address);
-      // expect(createdAuction.approved).to.eq(false);
+      expect(createdAuction.duration).to.eq(24 * 60 * 60);
+      expect(createdAuction.reservePrice).to.eq(
+        BigNumber.from(10).pow(18).div(2)
+      );
+      expect(createdAuction.curatorFeePercentage).to.eq(5);
+      expect(createdAuction.tokenOwner).to.eq(owner);
+      expect(createdAuction.curator).to.eq(expectedCurator.address);
+      expect(createdAuction.approved).to.eq(true);
+
     });
 
     it("should be automatically approved if the creator is the curator", async () => {
@@ -326,7 +338,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [deity, admin, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy()).connect(curator) as AuctionHouse;
+      auctionHouse = (await deploy(admin)).connect(curator) as AuctionHouse;
       await mint(media1);
       await approveAuction(media1, auctionHouse);
       await createAuction(
@@ -387,7 +399,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [deity, admin, creator, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy()).connect(curator) as AuctionHouse;
+      auctionHouse = (await deploy(admin)).connect(curator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(
         media1.connect(creator),
@@ -457,7 +469,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, curator, bidderA, bidderB] = await ethers.getSigners();
-      auctionHouse = (await (await deploy()).connect(bidderA)) as AuctionHouse;
+      auctionHouse = (await (await deploy(admin)).connect(bidderA)) as AuctionHouse;
       await mint(media1);
       await approveAuction(media1, auctionHouse);
       await createAuction(
@@ -746,7 +758,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, creator, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy()).connect(creator) as AuctionHouse;
+      auctionHouse = (await deploy(admin)).connect(creator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
       await createAuction(
@@ -841,7 +853,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, creator, curator, bidder, other] = await ethers.getSigners();
-      auctionHouse = (await deploy()) as AuctionHouse;
+      // auctionHouse = (await deploy(creator)) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
       await createAuction(

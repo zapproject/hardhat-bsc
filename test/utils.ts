@@ -71,6 +71,7 @@ export const deployZapNFTMarketplace = async () => {
   market = await upgrades.deployProxy(marketFactory, { initializer: "initialize" }) as ZapMarket;
 
   const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
+
   media1 = await (
     await upgrades.deployProxy(mediaFactory1, ["Test Media 1", "TM1", market.address, true])
   ).deployed() as ZapMedia;
@@ -115,6 +116,7 @@ export const mint = async (media: ZapMedia) => {
       creator: Decimal.new(15),
     }
   );
+
 };
 
 export const approveAuction = async (
@@ -122,6 +124,7 @@ export const approveAuction = async (
   auctionHouse: AuctionHouse
 ) => {
   await media.approve(auctionHouse.address, 0);
+
 };
 
 export const revert = (messages: TemplateStringsArray) =>
