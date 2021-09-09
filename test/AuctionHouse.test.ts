@@ -269,12 +269,13 @@ describe("AuctionHouse", () => {
 
   describe("#setAuctionApproval", () => {
     let auctionHouse: AuctionHouse;
+    let deity: Signer;
     let admin: Signer;
     let curator: Signer;
     let bidder: Signer;
 
     beforeEach(async () => {
-      [admin, curator, bidder] = await ethers.getSigners();
+      [deity, admin, curator, bidder] = await ethers.getSigners();
       auctionHouse = (await deploy()).connect(curator) as AuctionHouse;
       await mint(media1);
       await approveAuction(media1, auctionHouse);
@@ -287,13 +288,13 @@ describe("AuctionHouse", () => {
     it("should revert if the auctionHouse does not exist", async () => {
       await expect(
         auctionHouse.setAuctionApproval(1, true)
-      ).revertedWith(revert`Auction doesn't exist`);
+      ).revertedWith(`Auction doesn't exist`);
     });
 
     it("should revert if not called by the curator", async () => {
       await expect(
         auctionHouse.connect(admin).setAuctionApproval(0, true)
-      ).revertedWith(revert`Must be auction curator`);
+      ).revertedWith(`Must be auction curator`);
     });
 
     it("should revert if the auction has already started", async () => {
@@ -303,7 +304,7 @@ describe("AuctionHouse", () => {
         .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
       await expect(
         auctionHouse.setAuctionApproval(0, false)
-      ).revertedWith(revert`Auction has already started`);
+      ).revertedWith(`Auction has already started`);
     });
 
     it("should set the auction as approved", async () => {
