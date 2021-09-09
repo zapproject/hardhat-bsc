@@ -3,32 +3,34 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import { IERC721, IERC165 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {IERC721, IERC165} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
-import { IMarket } from "./interfaces/IMarket.sol";
-import { Decimal } from "./Decimal.sol" ;
-import { IMedia }  from "./interfaces/IMedia.sol";
-import { IAuctionHouse } from "./interfaces/IAuctionHouse.sol";
+import {IMarket} from "./interfaces/IMarket.sol";
+import {Decimal} from "./Decimal.sol";
+import {IMedia} from "./interfaces/IMedia.sol";
+import {IAuctionHouse} from "./interfaces/IAuctionHouse.sol";
 
 interface IWETH {
     function deposit() external payable;
-    function withdraw(uint wad) external;
+
+    function withdraw(uint256 wad) external;
+
     function transfer(address to, uint256 value) external returns (bool);
 }
 
 interface IMediaExtended is IMedia {
-    function marketContract() external returns(address);
+    function marketContract() external returns (address);
 }
 
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
 contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
-    using SafeMath for uint256; 
+    using SafeMath for uint256;
     using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
 
@@ -44,7 +46,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     // A mapping of all of the auctions currently running.
     mapping(uint256 => IAuctionHouse.Auction) public auctions;
 
-    mapping(address => mapping(uint => TokenDetails)) tokenDetails;
+    mapping(address => mapping(uint256 => TokenDetails)) tokenDetails;
 
     bytes4 constant interfaceId = 0x80ac58cd; // 721 interface id
 
@@ -100,11 +102,17 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             IERC165(tokenContract).supportsInterface(interfaceId),
             "tokenContract does not support ERC721 interface"
         );
-        require(curatorFeePercentage < 100, "curatorFeePercentage must be less than 100");
+        require(
+            curatorFeePercentage < 100,
+            "curatorFeePercentage must be less than 100"
+        );
         address tokenOwner = IERC721(tokenContract).ownerOf(tokenId);
-        require(msg.sender == IERC721(tokenContract).getApproved(tokenId) || msg.sender == tokenOwner, "Caller must be approved or owner for token id");
+        require(
+            msg.sender == IERC721(tokenContract).getApproved(tokenId) ||
+                msg.sender == tokenOwner,
+            "Caller must be approved or owner for token id"
+        );
         uint256 auctionId = _auctionIdTracker.current();
-
 
         auctions[auctionId] = Auction({
             token: tokenDetails[mediaContract][tokenId],
@@ -124,10 +132,22 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
         _auctionIdTracker.increment();
 
-        emit AuctionCreated(auctionId, tokenId, tokenContract, mediaContract, duration, reservePrice, tokenOwner, curator, curatorFeePercentage, auctionCurrency);
+        emit AuctionCreated(
+            auctionId,
+            tokenId,
+            tokenContract,
+            mediaContract,
+            duration,
+            reservePrice,
+            tokenOwner,
+            curator,
+            curatorFeePercentage,
+            auctionCurrency
+        );
 
-
-        if(auctions[auctionId].curator == address(0) || curator == tokenOwner) {
+        if (
+            auctions[auctionId].curator == address(0) || curator == tokenOwner
+        ) {
             _approveAuction(auctionId, true);
         }
 
@@ -138,19 +158,45 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      * @notice Approve an auction, opening up the auction for bids.
      * @dev Only callable by the curator. Cannot be called if the auction has already started.
      */
-    function setAuctionApproval(uint256 auctionId, bool approved) external override auctionExists(auctionId) {
-        require(msg.sender == auctions[auctionId].curator, "Must be auction curator");
-        require(auctions[auctionId].firstBidTime == 0, "Auction has already started");
+    function setAuctionApproval(uint256 auctionId, bool approved)
+        external
+        override
+        auctionExists(auctionId)
+    {
+        require(
+            msg.sender == auctions[auctionId].curator,
+            "Must be auction curator"
+        );
+        require(
+            auctions[auctionId].firstBidTime == 0,
+            "Auction has already started"
+        );
         _approveAuction(auctionId, approved);
     }
 
-    function setAuctionReservePrice(uint256 auctionId, uint256 reservePrice) external override auctionExists(auctionId) {
-        require(msg.sender == auctions[auctionId].curator || msg.sender == auctions[auctionId].tokenOwner, "Must be auction curator or token owner");
-        require(auctions[auctionId].firstBidTime == 0, "Auction has already started");
+    function setAuctionReservePrice(uint256 auctionId, uint256 reservePrice)
+        external
+        override
+        auctionExists(auctionId)
+    {
+        require(
+            msg.sender == auctions[auctionId].curator ||
+                msg.sender == auctions[auctionId].tokenOwner,
+            "Must be auction curator or token owner"
+        );
+        require(
+            auctions[auctionId].firstBidTime == 0,
+            "Auction has already started"
+        );
 
         auctions[auctionId].reservePrice = reservePrice;
 
-        emit AuctionReservePriceUpdated(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, reservePrice);
+        emit AuctionReservePriceUpdated(
+            auctionId,
+            auctions[auctionId].token.tokenId,
+            auctions[auctionId].token.tokenContract,
+            reservePrice
+        );
     }
 
     /**
@@ -159,29 +205,36 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      * If the auction is run in native ETH, the ETH is wrapped so it can be identically to other
      * auction currencies in this contract.
      */
-    function createBid(uint256 auctionId, uint256 amount, address mediaContract)
-    external
-    override
-    payable
-    auctionExists(auctionId)
-    nonReentrant
-    {
+    function createBid(
+        uint256 auctionId,
+        uint256 amount,
+        address mediaContract
+    ) external payable override auctionExists(auctionId) nonReentrant {
         address payable lastBidder = auctions[auctionId].bidder;
-        require(auctions[auctionId].approved, "Auction must be approved by curator");
+        require(
+            auctions[auctionId].approved,
+            "Auction must be approved by curator"
+        );
         require(
             auctions[auctionId].firstBidTime == 0 ||
-            block.timestamp <
-            auctions[auctionId].firstBidTime.add(auctions[auctionId].duration),
+                block.timestamp <
+                auctions[auctionId].firstBidTime.add(
+                    auctions[auctionId].duration
+                ),
             "Auction expired"
         );
         require(
             amount >= auctions[auctionId].reservePrice,
-                "Must send at least reservePrice"
+            "Must send at least reservePrice"
         );
         require(
-            amount >= auctions[auctionId].amount.add(
-                auctions[auctionId].amount.mul(minBidIncrementPercentage).div(100)
-            ),
+            amount >=
+                auctions[auctionId].amount.add(
+                    auctions[auctionId]
+                        .amount
+                        .mul(minBidIncrementPercentage)
+                        .div(100)
+                ),
             "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
@@ -191,23 +244,28 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         );
 
         // For Zap NFT Marketplace Protocol, ensure that the bid is valid for the current bidShare configuration
-        if(auctions[auctionId].token.tokenContract == mediaContract) {
+        if (auctions[auctionId].token.tokenContract == mediaContract) {
             require(
-                IMarket(IMediaExtended(mediaContract).marketContract()).isValidBid(
-                    mediaContract,
-                    auctions[auctionId].token.tokenId,
-                    amount
-                ),
+                IMarket(IMediaExtended(mediaContract).marketContract())
+                    .isValidBid(
+                        mediaContract,
+                        auctions[auctionId].token.tokenId,
+                        amount
+                    ),
                 "Bid invalid for share splitting"
             );
         }
 
         // If this is the first valid bid, we should set the starting time now.
         // If it's not, then we should refund the last bidder
-        if(auctions[auctionId].firstBidTime == 0) {
+        if (auctions[auctionId].firstBidTime == 0) {
             auctions[auctionId].firstBidTime = block.timestamp;
-        } else if(lastBidder != address(0)) {
-            _handleOutgoingBid(lastBidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
+        } else if (lastBidder != address(0)) {
+            _handleOutgoingBid(
+                lastBidder,
+                auctions[auctionId].amount,
+                auctions[auctionId].auctionCurrency
+            );
         }
 
         _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
@@ -215,15 +273,15 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         auctions[auctionId].amount = amount;
         auctions[auctionId].bidder = payable(msg.sender);
 
-
         bool extended = false;
         // at this point we know that the timestamp is less than start + duration (since the auction would be over, otherwise)
         // we want to know by how much the timestamp is less than start + duration
         // if the difference is less than the timeBuffer, increase the duration by the timeBuffer
         if (
-            auctions[auctionId].firstBidTime.add(auctions[auctionId].duration).sub(
-                block.timestamp
-            ) < timeBuffer
+            auctions[auctionId]
+                .firstBidTime
+                .add(auctions[auctionId].duration)
+                .sub(block.timestamp) < timeBuffer
         ) {
             // Playing code golf for gas optimization:
             // uint256 expectedEnd = auctions[auctionId].firstBidTime.add(auctions[auctionId].duration);
@@ -231,8 +289,13 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             // uint256 timeToAdd = timeBuffer.sub(timeRemaining);
             // uint256 newDuration = auctions[auctionId].duration.add(timeToAdd);
             uint256 oldDuration = auctions[auctionId].duration;
-            auctions[auctionId].duration =
-                oldDuration.add(timeBuffer.sub(auctions[auctionId].firstBidTime.add(oldDuration).sub(block.timestamp)));
+            auctions[auctionId].duration = oldDuration.add(
+                timeBuffer.sub(
+                    auctions[auctionId].firstBidTime.add(oldDuration).sub(
+                        block.timestamp
+                    )
+                )
+            );
             extended = true;
         }
 
@@ -263,47 +326,83 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      * @dev If for some reason the auction cannot be finalized (invalid token recipient, for example),
      * The auction is reset and the NFT is transferred back to the auction creator.
      */
-    function endAuction(uint256 auctionId, address mediaContract) external override auctionExists(auctionId) nonReentrant {
+    function endAuction(uint256 auctionId, address mediaContract)
+        external
+        override
+        auctionExists(auctionId)
+        nonReentrant
+    {
         require(
             uint256(auctions[auctionId].firstBidTime) != 0,
             "Auction hasn't begun"
         );
         require(
             block.timestamp >=
-            auctions[auctionId].firstBidTime.add(auctions[auctionId].duration),
+                auctions[auctionId].firstBidTime.add(
+                    auctions[auctionId].duration
+                ),
             "Auction hasn't completed"
         );
 
-        address currency = auctions[auctionId].auctionCurrency == address(0) ? wethAddress : auctions[auctionId].auctionCurrency;
+        address currency = auctions[auctionId].auctionCurrency == address(0)
+            ? wethAddress
+            : auctions[auctionId].auctionCurrency;
         uint256 curatorFee = 0;
 
         uint256 tokenOwnerProfit = auctions[auctionId].amount;
 
-        if(auctions[auctionId].token.tokenContract == mediaContract) {
+        if (auctions[auctionId].token.tokenContract == mediaContract) {
             // If the auction is running on mediaContract, settle it on the protocol
-            (bool success, uint256 remainingProfit) = _handleZapAuctionSettlement(auctionId, mediaContract);
+            (
+                bool success,
+                uint256 remainingProfit
+            ) = _handleZapAuctionSettlement(auctionId, mediaContract);
             tokenOwnerProfit = remainingProfit;
-            if(success != true) {
-                _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
+            if (success != true) {
+                _handleOutgoingBid(
+                    auctions[auctionId].bidder,
+                    auctions[auctionId].amount,
+                    auctions[auctionId].auctionCurrency
+                );
                 _cancelAuction(auctionId);
                 return;
             }
         } else {
             // Otherwise, transfer the token to the winner and pay out the participants below
-            try IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), auctions[auctionId].bidder, auctions[auctionId].token.tokenId) {} catch {
-                _handleOutgoingBid(auctions[auctionId].bidder, auctions[auctionId].amount, auctions[auctionId].auctionCurrency);
+            try
+                IERC721(auctions[auctionId].token.tokenContract)
+                    .safeTransferFrom(
+                        address(this),
+                        auctions[auctionId].bidder,
+                        auctions[auctionId].token.tokenId
+                    )
+            {} catch {
+                _handleOutgoingBid(
+                    auctions[auctionId].bidder,
+                    auctions[auctionId].amount,
+                    auctions[auctionId].auctionCurrency
+                );
                 _cancelAuction(auctionId);
                 return;
             }
         }
 
-
-        if(auctions[auctionId].curator != address(0)) {
-            curatorFee = tokenOwnerProfit.mul(auctions[auctionId].curatorFeePercentage).div(100);
+        if (auctions[auctionId].curator != address(0)) {
+            curatorFee = tokenOwnerProfit
+                .mul(auctions[auctionId].curatorFeePercentage)
+                .div(100);
             tokenOwnerProfit = tokenOwnerProfit.sub(curatorFee);
-            _handleOutgoingBid(auctions[auctionId].curator, curatorFee, auctions[auctionId].auctionCurrency);
+            _handleOutgoingBid(
+                auctions[auctionId].curator,
+                curatorFee,
+                auctions[auctionId].auctionCurrency
+            );
         }
-        _handleOutgoingBid(auctions[auctionId].tokenOwner, tokenOwnerProfit, auctions[auctionId].auctionCurrency);
+        _handleOutgoingBid(
+            auctions[auctionId].tokenOwner,
+            tokenOwnerProfit,
+            auctions[auctionId].auctionCurrency
+        );
 
         emit AuctionEnded(
             auctionId,
@@ -324,9 +423,15 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      * @notice Cancel an auction.
      * @dev Transfers the NFT back to the auction creator and emits an AuctionCanceled event
      */
-    function cancelAuction(uint256 auctionId) external override nonReentrant auctionExists(auctionId) {
+    function cancelAuction(uint256 auctionId)
+        external
+        override
+        nonReentrant
+        auctionExists(auctionId)
+    {
         require(
-            auctions[auctionId].tokenOwner == msg.sender || auctions[auctionId].curator == msg.sender,
+            auctions[auctionId].tokenOwner == msg.sender ||
+                auctions[auctionId].curator == msg.sender,
             "Can only be called by auction creator or curator"
         );
         require(
@@ -342,8 +447,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      */
     function _handleIncomingBid(uint256 amount, address currency) internal {
         // If this is an ETH bid, ensure they sent enough and convert it to WETH under the hood
-        if(currency == address(0)) {
-            require(msg.value == amount, "Sent ETH Value does not match specified bid amount");
+        if (currency == address(0)) {
+            require(
+                msg.value == amount,
+                "Sent ETH Value does not match specified bid amount"
+            );
             IWETH(wethAddress).deposit{value: amount}();
         } else {
             // We must check the balance that was actually transferred to the auction,
@@ -353,17 +461,24 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             uint256 beforeBalance = token.balanceOf(address(this));
             token.safeTransferFrom(msg.sender, address(this), amount);
             uint256 afterBalance = token.balanceOf(address(this));
-            require(beforeBalance.add(amount) == afterBalance, "Token transfer call did not transfer expected amount");
+            require(
+                beforeBalance.add(amount) == afterBalance,
+                "Token transfer call did not transfer expected amount"
+            );
         }
     }
 
-    function _handleOutgoingBid(address to, uint256 amount, address currency) internal {
+    function _handleOutgoingBid(
+        address to,
+        uint256 amount,
+        address currency
+    ) internal {
         // If the auction is in ETH, unwrap it from its underlying WETH and try to send it to the recipient.
-        if(currency == address(0)) {
+        if (currency == address(0)) {
             IWETH(wethAddress).withdraw(amount);
 
             // If the ETH transfer fails (sigh), rewrap the ETH and try send it as WETH.
-            if(!_safeTransferETH(to, amount)) {
+            if (!_safeTransferETH(to, amount)) {
                 IWETH(wethAddress).deposit{value: amount}();
                 IERC20(wethAddress).safeTransfer(to, amount);
             }
@@ -372,30 +487,52 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         }
     }
 
-    function _safeTransferETH(address to, uint256 value) internal returns (bool) {
+    function _safeTransferETH(address to, uint256 value)
+        internal
+        returns (bool)
+    {
         (bool success, ) = to.call{value: value}(new bytes(0));
         return success;
     }
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
-        IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(address(this), tokenOwner, auctions[auctionId].token.tokenId);
+        IERC721(auctions[auctionId].token.tokenContract).safeTransferFrom(
+            address(this),
+            tokenOwner,
+            auctions[auctionId].token.tokenId
+        );
 
-        emit AuctionCanceled(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, tokenOwner);
+        emit AuctionCanceled(
+            auctionId,
+            auctions[auctionId].token.tokenId,
+            auctions[auctionId].token.tokenContract,
+            tokenOwner
+        );
         delete auctions[auctionId];
     }
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
         auctions[auctionId].approved = approved;
-        emit AuctionApprovalUpdated(auctionId, auctions[auctionId].token.tokenId, auctions[auctionId].token.tokenContract, approved);
+        emit AuctionApprovalUpdated(
+            auctionId,
+            auctions[auctionId].token.tokenId,
+            auctions[auctionId].token.tokenContract,
+            approved
+        );
     }
 
-    function _exists(uint256 auctionId) internal view returns(bool) {
+    function _exists(uint256 auctionId) internal view returns (bool) {
         return auctions[auctionId].tokenOwner != address(0);
     }
 
-    function _handleZapAuctionSettlement(uint256 auctionId, address mediaContract) internal returns (bool, uint256) {
-        address currency = auctions[auctionId].auctionCurrency == address(0) ? wethAddress : auctions[auctionId].auctionCurrency;
+    function _handleZapAuctionSettlement(
+        uint256 auctionId,
+        address mediaContract
+    ) internal returns (bool, uint256) {
+        address currency = auctions[auctionId].auctionCurrency == address(0)
+            ? wethAddress
+            : auctions[auctionId].auctionCurrency;
 
         IMarket.Bid memory bid = IMarket.Bid({
             amount: auctions[auctionId].amount,
@@ -405,12 +542,22 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             sellOnShare: Decimal.D256(0)
         });
 
-        IERC20(currency).approve(IMediaExtended(mediaContract).marketContract(), bid.amount);
+        IERC20(currency).approve(
+            IMediaExtended(mediaContract).marketContract(),
+            bid.amount
+        );
         IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
         uint256 beforeBalance = IERC20(currency).balanceOf(address(this));
-        try IMedia(mediaContract).acceptBid(auctions[auctionId].token.tokenId, bid) {} catch {
+        try
+            IMedia(mediaContract).acceptBid(
+                auctions[auctionId].token.tokenId,
+                bid
+            )
+        {} catch {
             // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
-            IMediaExtended(mediaContract).removeBid(auctions[auctionId].token.tokenId);
+            IMediaExtended(mediaContract).removeBid(
+                auctions[auctionId].token.tokenId
+            );
             return (false, 0);
         }
         uint256 afterBalance = IERC20(currency).balanceOf(address(this));
@@ -422,5 +569,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
 
     // TODO: consider reverting if the message sender is not WETH
     receive() external payable {}
+
     fallback() external payable {}
 }

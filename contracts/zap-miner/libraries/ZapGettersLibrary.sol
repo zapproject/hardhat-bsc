@@ -304,6 +304,7 @@ library ZapGettersLibrary {
         pure
         returns (string memory)
     {
+        self = self;
         return 'Zap BEP20';
     }
 
@@ -462,6 +463,7 @@ library ZapGettersLibrary {
         pure
         returns (string memory)
     {
+        self = self;
         return 'ZAPB';
     }
 
