@@ -2,11 +2,13 @@ import { config as dotEnvConfig } from "dotenv";
 
 dotEnvConfig();
 
-import "hardhat-gas-reporter"
+import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
+import "hardhat-gas-reporter"
 import "hardhat-typechain";
 import "hardhat-deploy";
+import "hardhat-contract-sizer";
 import './tasks/faucet';
 import './tasks/checkbalance';
 import './tasks/checkbalances';
@@ -48,7 +50,12 @@ const config = {
       { version: '0.5.16', settings: {} },
       { version: '0.6.8', settings: {} },
       { version: '0.7.3', settings: {} },
-      { version: '0.8.4', settings: {} }
+      { version: '0.8.4', settings: {
+        optimizer: {
+          enabled: true,
+          // runs
+        }
+      } }
     ]
   },
   gasReporter: {
@@ -66,13 +73,17 @@ const config = {
       allowUnlimitedContractSize: true,
 
     },
-    // Will throw an error if the MNEMONIC env variable is non existent
-    // Only used for deploying to the BSC testnet
+    binanceMainnet: {
+      url: "https://bsc-dataseed.binance.org/",
+      chainId: 56,
+      gasPrice: 20000000000,
+      accounts: { mnemonic: process.env.MNEMONIC }
+    },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
-      // accounts: { mnemonic: process.env.MNEMONIC }
+      accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gasPrice: 8000000000,
