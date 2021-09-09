@@ -379,12 +379,15 @@ contract Zap {
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
-        // token.approve(address(vault), vault.userBalance(msg.sender) );
+        uint256 userBalance = vault.userBalance(msg.sender);
+
         token.transferFrom(
             address(vault),
             msg.sender,
-            vault.userBalance(msg.sender)
+            userBalance
         );
+
+        vault.withdraw(msg.sender, userBalance);
     }
 
     /**
