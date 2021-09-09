@@ -110,7 +110,7 @@ describe("AuctionHouse", () => {
     );
   }
 
-  describe.only("#constructor", () => {
+  describe("#constructor", () => {
 
     it("should be able to deploy", async () => {
 
@@ -254,7 +254,7 @@ describe("AuctionHouse", () => {
       );
     });
 
-    it.only("should create an auction", async () => {
+    it("should create an auction", async () => {
 
       const owner = await media1.ownerOf(0);
 
@@ -282,9 +282,11 @@ describe("AuctionHouse", () => {
       const createdAuction = await auctionHouse.auctions(0);
 
       expect(createdAuction.approved).to.eq(true);
+
     });
 
     it("should be automatically approved if the creator is the Zero Address", async () => {
+
       await createAuction(auctionHouse, ethers.constants.AddressZero);
 
       const createdAuction = await auctionHouse.auctions(0);
