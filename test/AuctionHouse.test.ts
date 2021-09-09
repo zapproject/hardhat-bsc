@@ -101,7 +101,6 @@ describe("AuctionHouse", () => {
     await auctionHouse.createAuction(
       tokenId,
       media1.address,
-      media1.address,
       duration,
       reservePrice,
       curator,
@@ -172,19 +171,19 @@ describe("AuctionHouse", () => {
 
       badERC721.address
 
-      // await expect(
-      //   auctionHouse.createAuction(
-      //     0,
-      //     badERC721.address,
-      //     duration,
-      //     reservePrice,
-      //     curator.address,
-      //     5,
-      //     "0x0000000000000000000000000000000000000000"
-      //   )
-      // ).revertedWith(
-      //   revert`tokenContract does not support ERC721 interface`
-      // );
+      await expect(
+        auctionHouse.createAuction(
+          0,
+          badERC721.address,
+          duration,
+          reservePrice,
+          curator.address,
+          5,
+          "0x0000000000000000000000000000000000000000"
+        )
+      ).revertedWith(
+        revert`tokenContract does not support ERC721 interface`
+      );
     });
 
     it("should revert if the caller is not approved", async () => {
