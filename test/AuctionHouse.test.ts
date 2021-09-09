@@ -119,7 +119,7 @@ describe("AuctionHouse", () => {
         zapTokenBsc.address
       );
 
-      // This assertion is not needed due to the AuctionHouse constructor only using a token address
+      // This assertion is not needed due to the AuctionHouse constructor only using a token address for deployment
       // expect(await auctionHouse.zora()).to.eq(
       //   media1.address,
       //   "incorrect zora address"
@@ -137,7 +137,7 @@ describe("AuctionHouse", () => {
 
     });
 
-    // 
+    // This assertion is not needed due to the AuctionHouse constructor only using a token address for deployment
     // it("should not allow a configuration address that is not the Zora Media Protocol", async () => {
 
     //   const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
@@ -162,14 +162,13 @@ describe("AuctionHouse", () => {
 
     });
 
-    it.only("should revert if the token contract does not support the ERC721 interface", async () => {
+    it("should revert if the token contract does not support the ERC721 interface", async () => {
+
       const duration = 60 * 60 * 24;
 
       const reservePrice = BigNumber.from(10).pow(18).div(2);
 
       const [_, curator] = await ethers.getSigners();
-
-      badERC721.address
 
       await expect(
         auctionHouse.createAuction(
@@ -181,8 +180,8 @@ describe("AuctionHouse", () => {
           5,
           "0x0000000000000000000000000000000000000000"
         )
-      ).revertedWith(
-        revert`tokenContract does not support ERC721 interface`
+      ).to.be.revertedWith(
+        `tokenContract does not support ERC721 interface`
       );
     });
 
