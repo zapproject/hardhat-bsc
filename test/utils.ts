@@ -52,17 +52,17 @@ export const deployZapNFTMarketplace = async () => {
 
   const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
   media1 = await (
-    await upgrades.deployProxy(mediaFactory1, ["Test Media 1", "TM1", market.address])
+    await upgrades.deployProxy(mediaFactory1, ["Test Media 1", "TM1", market.address, true])
   ).deployed() as ZapMedia;
 
   const mediaFactory2 = await ethers.getContractFactory("ZapMedia", deployer2);
   media2 = await (
-    await upgrades.deployProxy(mediaFactory2, ["Test Media 1", "TM1", market.address])
+    await upgrades.deployProxy(mediaFactory2, ["Test Media 1", "TM1", market.address, false])
   ).deployed() as ZapMedia;
 
   const mediaFactory3 = await ethers.getContractFactory("ZapMedia", deployer3);
   media3 = await (
-    await upgrades.deployProxy(mediaFactory3, ["Test Media 1", "TM1", market.address])
+    await upgrades.deployProxy(mediaFactory3, ["Test Media 1", "TM1", market.address, false])
   ).deployed() as ZapMedia;
 
 
