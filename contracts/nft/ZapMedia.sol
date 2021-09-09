@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol"; // exposes _registerInterface
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -26,7 +27,8 @@ import "./libraries/Constants.sol";
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeable, Ownable, MediaGetter, ERC721URIStorageUpgradeable, ERC721EnumerableUpgradeable {
+contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeable, Ownable,
+                     MediaGetter, ERC721URIStorageUpgradeable, ERC721EnumerableUpgradeable, ERC165StorageUpgradeable {
     using Counters for Counters.Counter;
     using EnumerableSet for EnumerableSet.UintSet;
     using SafeMath for uint256;
@@ -40,6 +42,8 @@ contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeab
      *
      *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd ^ 0x157c3df9 == 0x2315d6f4
      */
+
+    mapping(bytes4 => bool) private _supportedInterfaces;
 
     /* *********
      * Modifiers
@@ -146,17 +150,23 @@ contract ZapMedia is IMedia, ERC721BurnableUpgradeable, ReentrancyGuardUpgradeab
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
+        _registerInterface(0x80ac58cd);  // registers old erc721 interface for AucitonHouse
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721EnumerableUpgradeable, ERC721Upgradeable) returns (bool){
-        return  interfaceId == type(IMedia).interfaceId;
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721EnumerableUpgradeable, ERC721Upgradeable, ERC165StorageUpgradeable) returns (bool){
+        return  interfaceId == type(IMedia).interfaceId || _supportedInterfaces[interfaceId];
     }
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorageUpgradeable, ERC721Upgradeable) returns (string memory) {
         return super.tokenURI(tokenId);
+    }
+
+    function _registerInterface(bytes4 interfaceId) internal virtual override{
+        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
+        _supportedInterfaces[interfaceId] = true;
     }
 
     function _beforeTokenTransfer(
