@@ -104,6 +104,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             "curatorFeePercentage must be less than 100"
         );
         address tokenOwner = IERC721Upgradeable(mediaContract).ownerOf(tokenId);
+
         require(
             msg.sender ==
                 IERC721Upgradeable(mediaContract).getApproved(tokenId) ||
