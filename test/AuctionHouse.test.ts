@@ -824,6 +824,8 @@ describe.only("AuctionHouse", () => {
     });
 
     it("should revert if the auction has already begun", async () => {
+      await zapTokenBsc.mint(bidder.address, ONE_ETH);
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
       await auctionHouse
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
@@ -871,7 +873,7 @@ describe.only("AuctionHouse", () => {
       const block = await ethers.provider.getBlockNumber();
       await auctionHouse.cancelAuction(0);
       const events = await auctionHouse.queryFilter(
-        auctionHouse.filters.AuctionCanceled(null, null, null, null),
+        auctionHouse.filters.AuctionCanceled(0, null, null, null),
         block
       );
       expect(events.length).eq(1);
@@ -879,7 +881,7 @@ describe.only("AuctionHouse", () => {
 
       expect(logDescription.args.tokenId.toNumber()).to.eq(0);
       expect(logDescription.args.tokenOwner).to.eq(await creator.getAddress());
-      expect(logDescription.args.tokenContract).to.eq(media1.address);
+      expect(logDescription.args.mediaContract).to.eq(media1.address);
     });
   });
 
