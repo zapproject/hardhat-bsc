@@ -570,13 +570,16 @@ describe("AuctionHouse", () => {
 
       });
 
-      it("should store the bidder's information", async () => {
+      it.only("should store the bidder's information", async () => {
+
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
         });
+
         const currAuction = await auctionHouse.auctions(0);
 
         expect(currAuction.bidder).to.eq(await bidderA.getAddress());
+
         expect(currAuction.amount).to.eq(ONE_ETH);
       });
 
