@@ -715,7 +715,7 @@ describe.only("AuctionHouse", () => {
         expect(beforeDuration).to.eq(afterDuration);
       });
 
-      it("should emit an AuctionBid event", async () => {
+      it.only("should emit an AuctionBid event", async () => {
         const block = await ethers.provider.getBlockNumber();
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
