@@ -909,7 +909,7 @@ describe.only("AuctionHouse", () => {
     });
 
     it("should revert if the auction has not completed", async () => {
-      await auctionHouse.createBid(0, ONE_ETH, media1.address, {
+      await auctionHouse.connect(bidder).createBid(0, ONE_ETH, media1.address, {
         value: ONE_ETH,
       });
 
@@ -919,7 +919,9 @@ describe.only("AuctionHouse", () => {
     });
 
     it("should cancel the auction if the winning bidder is unable to receive NFTs", async () => {
-      await badBidder.placeBid(0, TWO_ETH, media1.address, { value: TWO_ETH });
+      await zapTokenBsc.mint(badBidder.address, TWO_ETH);
+      await zapTokenBsc.connect(bidder).approve(badBidder.address, TWO_ETH);
+      await badBidder.connect(bidder).placeBid(0, TWO_ETH, media1.address, zapTokenBsc.address, { value: TWO_ETH });
       const endTime =
         (await auctionHouse.auctions(0)).duration.toNumber() +
         (await auctionHouse.auctions(0)).firstBidTime.toNumber();
@@ -928,7 +930,7 @@ describe.only("AuctionHouse", () => {
       await auctionHouse.endAuction(0, media1.address);
 
       expect(await media1.ownerOf(0)).to.eq(await creator.getAddress());
-      expect(await ethers.provider.getBalance(badBidder.address)).to.eq(
+      expect(await zapTokenBsc.balanceOf(badBidder.address)).to.eq(
         TWO_ETH
       );
     });
@@ -951,12 +953,12 @@ describe.only("AuctionHouse", () => {
       });
 
       it("should pay the curator their curatorFee percentage", async () => {
-        const beforeBalance = await ethers.provider.getBalance(
+        const beforeBalance = await zapTokenBsc.balanceOf(
           await curator.getAddress()
         );
         await auctionHouse.endAuction(0, media1.address);
         const expectedCuratorFee = "42500000000000000";
-        const curatorBalance = await ethers.provider.getBalance(
+        const curatorBalance = await zapTokenBsc.balanceOf(
           await curator.getAddress()
         );
         await expect(curatorBalance.sub(beforeBalance).toString()).to.eq(
@@ -965,12 +967,12 @@ describe.only("AuctionHouse", () => {
       });
 
       it("should pay the creator the remainder of the winning bid", async () => {
-        const beforeBalance = await ethers.provider.getBalance(
+        const beforeBalance = await zapTokenBsc.balanceOf(
           await creator.getAddress()
         );
         await auctionHouse.endAuction(0, media1.address);
         const expectedProfit = "957500000000000000";
-        const creatorBalance = await ethers.provider.getBalance(
+        const creatorBalance = await zapTokenBsc.balanceOf(
           await creator.getAddress()
         );
         const wethBalance = await weth.balanceOf(await creator.getAddress());
@@ -1010,7 +1012,7 @@ describe.only("AuctionHouse", () => {
         expect(logDescription.args.curatorFee.toString()).to.eq(
           "42500000000000000"
         );
-        expect(logDescription.args.auctionCurrency).to.eq(weth.address);
+        expect(logDescription.args.auctionCurrency).to.eq(zapTokenBsc.address);
       });
 
       it("should delete the auction", async () => {
