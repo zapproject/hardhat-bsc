@@ -583,11 +583,14 @@ describe("AuctionHouse", () => {
         expect(currAuction.amount).to.eq(ONE_ETH);
       });
 
-      it("should emit an AuctionBid event", async () => {
+      it.only("should emit an AuctionBid event", async () => {
+
         const block = await ethers.provider.getBlockNumber();
+
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
         });
+
         const events = await auctionHouse.queryFilter(
           auctionHouse.filters.AuctionBid(
             null,
