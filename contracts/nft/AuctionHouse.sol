@@ -214,6 +214,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         uint256 amount,
         address mediaContract
     ) external payable override auctionExists(auctionId) nonReentrant {
+        console.log("SENDER", msg.sender);
         address payable lastBidder = auctions[auctionId].bidder;
         require(
             auctions[auctionId].approved,
@@ -449,7 +450,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     function _handleIncomingBid(uint256 amount, address currency) internal {
         // If this is an ETH bid, ensure they sent enough and convert it to WETH under the hood
 
-        console.log("Currency", currency);
         if (currency == address(0)) {
             require(
                 msg.value == amount,

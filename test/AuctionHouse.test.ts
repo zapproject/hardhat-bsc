@@ -479,8 +479,6 @@ describe("AuctionHouse", () => {
 
       const owner = await media1.ownerOf(0)
 
-      console.log(owner)
-
       await approveAuction(media1, auctionHouse);
 
       await createAuction(
@@ -488,6 +486,7 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
+
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
     });
 
@@ -533,20 +532,17 @@ describe("AuctionHouse", () => {
 
       it.only("should set the first bid time", async () => {
 
-        await createAuction(
-          auctionHouse.connect(admin),
-          await curator.getAddress(),
-          zapTokenBsc.address
-        );
+        await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e+18))
 
-        // TODO: Fix this test on Sun Oct 04 2274
-        // await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
+        await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e+18));
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
 
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
         });
 
-        // expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
+        expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
       });
 
       it("should store the transferred ETH as WETH", async () => {
