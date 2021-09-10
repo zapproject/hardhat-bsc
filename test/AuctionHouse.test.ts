@@ -74,7 +74,11 @@ describe.only("AuctionHouse", () => {
     testERC721 = nfts.test;
     const zapTokenFactory = await ethers.getContractFactory('ZapTokenBSC');
 
-    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC
+    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+
+    let [_, two, three, bidder] = await ethers.getSigners();
+
+    await zapTokenBsc.mint(bidder.address, BigNumber.from("10000000000000000000"));
   });
 
   async function deploy(signer: SignerWithAddress): Promise<AuctionHouse> {
