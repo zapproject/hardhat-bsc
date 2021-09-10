@@ -975,6 +975,7 @@ describe("AuctionHouse", () => {
     });
 
     describe("ETH auction", () => {
+
       beforeEach(async () => {
         await auctionHouse
           .connect(bidder)
