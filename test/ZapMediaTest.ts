@@ -1279,16 +1279,10 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#supportsInterface', async () => {
-        it('should return true to supporting new metadata interface', async () => {
-            const interfaceId = ethers.utils.arrayify('0x2315d6f4');
-            const supportsId = await zapMedia1.connect(signers[5]).supportsInterface(interfaceId);
-            expect(supportsId).eq(true);
-        });
-
-        it('should return false to supporting the old metadata interface', async () => {
+        it('should return true to supporting metadata interface', async () => {
             const interfaceId = ethers.utils.arrayify('0x5b5e139f');
             const supportsId = await zapMedia1.connect(signers[5]).supportsInterface(interfaceId);
-            expect(supportsId).eq(false);
+            expect(supportsId).eq(true);
         });
     });
 

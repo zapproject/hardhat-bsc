@@ -2,7 +2,6 @@ import chai, { expect } from "chai";
 import { ethers } from "hardhat";
 import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC } from "../typechain";
 import { } from "../typechain";
-import { formatUnits } from "ethers/lib/utils";
 import { BigNumber, Contract, Signer, Bytes } from "ethers";
 
 
@@ -20,7 +19,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { execPath } from "process";
 
-describe("AuctionHouse", () => {
+describe.only("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -350,10 +349,6 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
-
-      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigInt(10 * 1e+18));
-
-      await zapTokenBsc.mint(bidder.address, BigInt(10 * 1e+18));
     });
 
     it("should revert if the auctionHouse does not exist", async () => {
@@ -369,6 +364,8 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the auction has already started", async () => {
+      await zapTokenBsc.mint(bidder.address, BigNumber.from("10000000000000000000"));
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
 
       await auctionHouse.setAuctionApproval(0, true);
 
@@ -418,11 +415,14 @@ describe("AuctionHouse", () => {
         media1.connect(creator),
         auctionHouse.connect(creator)
       );
+      await auctionHouse.setTokenDetails(0, media1.address);
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
         zapTokenBsc.address
       );
+
+      zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
     });
 
     it("should revert if the auctionHouse does not exist", async () => {
@@ -438,6 +438,8 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the auction has already started", async () => {
+      await zapTokenBsc.mint(bidder.address, TWO_ETH);
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
       await auctionHouse.setAuctionReservePrice(0, TWO_ETH);
       await auctionHouse.setAuctionApproval(0, true);
       await auctionHouse
@@ -492,6 +494,8 @@ describe("AuctionHouse", () => {
 
       await approveAuction(media1, auctionHouse);
 
+      auctionHouse.setTokenDetails(0, media1.address);
+
       await createAuction(
         auctionHouse.connect(curator),
         await curator.getAddress(),
@@ -500,14 +504,13 @@ describe("AuctionHouse", () => {
 
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
 
-      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e+18));
+      await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e+18));
+      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, BigInt(10 * 1e+18));
+      await zapTokenBsc.mint(bidderB.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.mint(bidderB.address, BigInt(10 * 1e+18));
-
+      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, BigInt(10 * 1e18));
     });
 
     it("should revert if the specified auction does not exist", async () => {
@@ -538,7 +541,8 @@ describe("AuctionHouse", () => {
       ).revertedWith(`Bid invalid for share splitting`);
     });
 
-    it("should revert if msg.value does not equal specified amount", async () => {
+    it.skip("should revert if msg.value does not equal specified amount", async () => {
+      // This test will never pass since we are not using WETH for bids
       await expect(
         auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH.mul(2),
