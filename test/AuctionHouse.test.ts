@@ -617,14 +617,16 @@ describe("AuctionHouse", () => {
     });
 
     describe("second bid", () => {
+
       beforeEach(async () => {
+
         auctionHouse = auctionHouse.connect(bidderB) as AuctionHouse;
         await auctionHouse
           .connect(bidderA)
           .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
       });
 
-      it("should revert if the bid is smaller than the last bid + minBid", async () => {
+      it.only("should revert if the bid is smaller than the last bid + minBid", async () => {
         await expect(
           auctionHouse.createBid(0, ONE_ETH.add(1), media1.address, {
             value: ONE_ETH.add(1),
