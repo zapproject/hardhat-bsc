@@ -690,7 +690,8 @@ describe.only("AuctionHouse", () => {
         expect(await zapTokenBsc.balanceOf(auctionHouse.address)).to.eq(TWO_ETH);
       });
 
-      it("should update the stored bid information", async () => {
+      it.only("should update the stored bid information", async () => {
+
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
         });
