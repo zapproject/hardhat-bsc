@@ -4,7 +4,6 @@ import hre from "hardhat";
 async function main() {
 
     const signers = await ethers.getSigners();
-
     const tokenAddress = (await hre.deployments.get('ZapTokenBSC')).address;
 
     const ZapMarketProxy = await ethers.getContractFactory('ZapMarket', signers[0]);
@@ -22,14 +21,18 @@ async function main() {
             true,
             'https://ipfs.moralis.io:2053/ipfs/Qmb6X5bYB3J6jq9JPmd5FLx4fa4JviXfV11yN42i96Q5Xt'
         ],
+        { initializer: 'initialize' }
     );
     await zapMediaProxy.deployed();
     console.log('ZapMedia Proxy deployed to:', zapMediaProxy.address);
 
-    // AuctionHouse may be changed in the future to be upgradeable
-    // AucionHouse will change to handle more than one Media contract
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    const auctionHouse = await AuctionHouse.deploy(tokenAddress);
+    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
+        [
+            tokenAddress
+        ],
+        { initializer: 'initialize' }
+    );
     await auctionHouse.deployed();
     console.log('AuctionHouse deployed to:', auctionHouse.address);
 }

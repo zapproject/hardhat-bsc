@@ -3,16 +3,17 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import {IERC721Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 import {IMarket} from "./interfaces/IMarket.sol";
 import {Decimal} from "./Decimal.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
 import {IAuctionHouse} from "./interfaces/IAuctionHouse.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 interface IWETH {
     function deposit() external payable;
@@ -29,9 +30,9 @@ interface IMediaExtended is IMedia {
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
-contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
+contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
+    using SafeMathUpgradeable for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
     using Counters for Counters.Counter;
 
     // The minimum amount of time left in an auction after a new bid is created
@@ -63,7 +64,13 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
     /*
      * Constructor
      */
-    constructor(address _weth) {
+    // constructor(address _weth) {
+    //     wethAddress = _weth;
+    //     timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
+    //     minBidIncrementPercentage = 5; // 5%
+    // }
+
+    function initialize(address _weth) public initializer {
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
@@ -458,7 +465,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             // We must check the balance that was actually transferred to the auction,
             // as some tokens impose a transfer fee and would not actually transfer the
             // full amount to the market, resulting in potentally locked funds
-            IERC20 token = IERC20(currency);
+            IERC20Upgradeable token = IERC20Upgradeable(currency);
             uint256 beforeBalance = token.balanceOf(address(this));
             token.safeTransferFrom(msg.sender, address(this), amount);
             uint256 afterBalance = token.balanceOf(address(this));
@@ -481,10 +488,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             // If the ETH transfer fails (sigh), rewrap the ETH and try send it as WETH.
             if (!_safeTransferETH(to, amount)) {
                 IWETH(wethAddress).deposit{value: amount}();
-                IERC20(wethAddress).safeTransfer(to, amount);
+                IERC20Upgradeable(wethAddress).safeTransfer(to, amount);
             }
         } else {
-            IERC20(currency).safeTransfer(to, amount);
+            IERC20Upgradeable(currency).safeTransfer(to, amount);
         }
     }
 
@@ -544,12 +551,14 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             sellOnShare: Decimal.D256(0)
         });
 
-        IERC20(currency).approve(
+        IERC20Upgradeable(currency).approve(
             IMediaExtended(mediaContract).marketContract(),
             bid.amount
         );
         IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
-        uint256 beforeBalance = IERC20(currency).balanceOf(address(this));
+        uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
+            address(this)
+        );
         try
             IMedia(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
@@ -562,7 +571,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
             );
             return (false, 0);
         }
-        uint256 afterBalance = IERC20(currency).balanceOf(address(this));
+        uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(
+            address(this)
+        );
 
         // We have to calculate the amount to send to the token owner here in case there was a
         // sell-on share on the token

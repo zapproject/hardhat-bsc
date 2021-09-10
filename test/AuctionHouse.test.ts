@@ -1,5 +1,5 @@
 import chai, { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC } from "../typechain";
 import { } from "../typechain";
 import { BigNumber, Contract, Signer, Bytes } from "ethers";
@@ -19,7 +19,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { execPath } from "process";
 
-describe.only("AuctionHouse", () => {
+describe("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -85,7 +85,9 @@ describe.only("AuctionHouse", () => {
     let AuctionHouse: AuctionHouse__factory;
 
     AuctionHouse = await ethers.getContractFactory("AuctionHouse", signer) as AuctionHouse__factory;
-    auctionHouse = await AuctionHouse.deploy(zapTokenBsc.address) as AuctionHouse;
+
+    auctionHouse = await upgrades.deployProxy(AuctionHouse, [zapTokenBsc.address], { initializer: 'initialize' }) as AuctionHouse;
+
 
     return auctionHouse as AuctionHouse;
   }
@@ -117,8 +119,10 @@ describe.only("AuctionHouse", () => {
 
       const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
 
-      const auctionHouse = await AuctionHouse.deploy(
-        zapTokenBsc.address
+      const auctionHouse = await upgrades.deployProxy(
+        AuctionHouse,
+        [zapTokenBsc.address],
+        { initializer: 'initialize' }
       );
 
       // ASSERTION NOT NEEDED AT THE MOMENT DUE TO THE CONSTRUCTOR ONLY ACCEPTING A TOKEN ADDRESS
