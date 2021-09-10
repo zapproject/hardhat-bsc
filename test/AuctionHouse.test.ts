@@ -493,6 +493,10 @@ describe("AuctionHouse", () => {
 
       await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e+18));
 
+      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, BigInt(10 * 1e+18));
+
+      await zapTokenBsc.mint(bidderB.address, BigInt(10 * 1e+18));
+
     });
 
     it("should revert if the specified auction does not exist", async () => {
@@ -627,6 +631,7 @@ describe("AuctionHouse", () => {
       });
 
       it.only("should revert if the bid is smaller than the last bid + minBid", async () => {
+
         await expect(
           auctionHouse.createBid(0, ONE_ETH.add(1), media1.address, {
             value: ONE_ETH.add(1),
@@ -636,29 +641,40 @@ describe("AuctionHouse", () => {
         );
       });
 
-      it("should refund the previous bid", async () => {
-        const beforeBalance = await ethers.provider.getBalance(
-          await bidderA.getAddress()
-        );
+      it.only("should refund the previous bid", async () => {
+
+        const beforeBalance = await zapTokenBsc.balanceOf(bidderA.address);
+
         const beforeBidAmount = (await auctionHouse.auctions(0)).amount;
+
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
         });
-        const afterBalance = await ethers.provider.getBalance(
-          await bidderA.getAddress()
-        );
 
-        expect(afterBalance).to.eq(beforeBalance.add(beforeBidAmount));
+        const afterBalance = await zapTokenBsc.balanceOf(bidderA.address);
+
+        const afterBalParse = BigInt(parseInt(afterBalance._hex));
+
+        const beforeBalParse = BigInt(parseInt(beforeBalance._hex));
+
+        const beforeBidParse = BigInt(parseInt(beforeBidAmount._hex));
+
+        expect(afterBalParse).to.eq(beforeBalParse + beforeBidParse)
+
       });
 
-      it("should not update the firstBidTime", async () => {
+      it.only("should not update the firstBidTime", async () => {
+
         const firstBidTime = (await auctionHouse.auctions(0)).firstBidTime;
+
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
         });
+
         expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(
           firstBidTime
         );
+
       });
 
       it("should transfer the bid to the contract and store it as WETH", async () => {
