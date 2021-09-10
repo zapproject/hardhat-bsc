@@ -556,14 +556,18 @@ describe("AuctionHouse", () => {
 
       });
 
-      it("should not update the auction's duration", async () => {
+      it.only("should not update the auction's duration", async () => {
+
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
+
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
         });
+
         const afterDuration = (await auctionHouse.auctions(0)).duration;
 
         expect(beforeDuration).to.eq(afterDuration);
+
       });
 
       it("should store the bidder's information", async () => {
