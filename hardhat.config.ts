@@ -1,5 +1,4 @@
 import { config as dotEnvConfig } from "dotenv";
-
 dotEnvConfig();
 
 import '@openzeppelin/hardhat-upgrades';
@@ -22,7 +21,7 @@ import './tasks/dispatchCoinGecko';
 import './tasks/dispatchCGPriceClient';
 import './tasks/dispatchBittrex';
 import './tasks/checkClient';
-import './tasks/verifyZap';
+import './tasks/verifyContract.js'
 // import './tasks/mine';
 
 require("hardhat-tracer");
@@ -37,6 +36,7 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 const RINKEBY_PRIVATE_KEY =
   process.env.RINKEBY_PRIVATE_KEY! ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"; // well known private key
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const BSC_API_KEY = process.env.BSC_API_KEY;
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
   "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
@@ -50,12 +50,15 @@ const config = {
       { version: '0.5.16', settings: {} },
       { version: '0.6.8', settings: {} },
       { version: '0.7.3', settings: {} },
-      { version: '0.8.4', settings: {
-        optimizer: {
-          enabled: true,
-          // runs
+      {
+        version: '0.8.4',
+        settings: {
+          optimizer: {
+            enabled: true
+            // runs
+          }
         }
-      } }
+      }
     ]
   },
   gasReporter: {
@@ -66,29 +69,22 @@ const config = {
   },
   networks: {
     localhost: {
-      url: 'http://127.0.0.1:8545/',
-      live: false,
-      saveDeployments: true,
-      tags: ["local"],
-      allowUnlimitedContractSize: true,
-
+      url: 'http://127.0.0.1:8545/'
     },
     binanceMainnet: {
-      url: "https://bsc-dataseed.binance.org/",
+      url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
-      gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.MNEMONIC }
+      gasPrice: 20000000000
+      // accounts: { mnemonic: process.env.MNEMONIC }
     },
     testnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
       chainId: 97,
-      gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.MNEMONIC }
+      gasPrice: 20000000000
+      // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
-      gasPrice: 8000000000,
-      allowUnlimitedContractSize: true,
-
+      gasPrice: 8000000000
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
@@ -102,21 +98,18 @@ const config = {
       url: 'http://127.0.0.1:8555' // Coverage launches its own ganache-cli client
     }
   },
-
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: BSC_API_KEY
   },
-
-  namedAccounts: {
-    deployer: {
-      31337: 0,
-    }
-  },
-
   mocha: {
     timeout: 1000000
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0 // here this will by default take the first account as deployer
+    }
   }
 };
 

@@ -17,17 +17,13 @@ contract Vault {
         zapToken = token;
         zapMaster = ZapMaster(address(uint160(master)));
         
-        (bool success, bytes memory data) = token.call(abi.encodeWithSignature("approve(address,uint256)", master, MAX_INT));
-        data = new bytes(0);
-        require(success == true, "Failed to approve Zap Master contract as Vault");
+        token.call(abi.encodeWithSignature("approve(address,uint256)", master, MAX_INT));
     }
 
     function increaseApproval() public returns (bool) {
         (bool s, bytes memory balance) = zapToken.call(abi.encodeWithSignature("allowance(address,address)", address(this), zapMaster));
-        require(s == true);
         uint256 amount = MAX_INT.sub(toUint256(balance, 0));
         (bool success, bytes memory data) = zapToken.call(abi.encodeWithSignature("increaseApproval(address,uint256)", zapMaster, amount));
-        data = new bytes(0);
         return success;
     }
 

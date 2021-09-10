@@ -2,6 +2,7 @@ pragma solidity =0.5.16;
 
 import './ZapGetters.sol';
 
+
 /**
  * @title Zap Master
  * @dev This is the Master contract with all zap getter functions and delegate call to Zap.
@@ -10,6 +11,16 @@ import './ZapGetters.sol';
  */
 contract ZapMaster is ZapGetters {
     event NewZapAddress(address _newZap);
+
+
+    ZapTokenBSC public token;
+    address public owner;
+
+    /// @dev Throws if called by any contract other than latest designated caller
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can transfer balance.");
+        _;
+    }
 
     /**
      * @dev The constructor sets the original `zapStorageOwner` of the contract to the sender
@@ -25,6 +36,10 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('_deity')] = msg.sender;
         zap.addressVars[keccak256('zapContract')] = _zapContract;
         zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
+
+
+        token = ZapTokenBSC(tokenAddress);
+        owner = msg.sender;
 
         emit NewZapAddress(_zapContract);
     }
@@ -54,6 +69,19 @@ contract ZapMaster is ZapGetters {
     function changeVaultContract(address _vaultContract) external {
         zap.changeVaultContract(_vaultContract);
     }
+
+
+    // function to send balance to a New Zap Master contract
+    function sendBalToNewZM(address _newZapMaster) external onlyOwner {
+        // require to be the owner of ZM to send to new ZM
+        
+        // total balance of current ZapMaster
+        uint256 zapBalance = token.balanceOf(address(this));
+        // approve entire balance
+        token.approve(address(this), zapBalance);
+        token.transferFrom(address(this), _newZapMaster, zapBalance);
+    }
+
 
     /**
      * @dev This is the fallback function that allows contracts to call the zap contract at the address stored

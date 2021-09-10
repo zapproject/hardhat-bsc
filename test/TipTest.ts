@@ -8,7 +8,7 @@ import chai from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { ZapTransfer } from '../typechain/ZapTransfer';
+// import { ZapTransfer } from '../typechain/ZapTransfer';
 
 import { ZapLibrary } from '../typechain/ZapLibrary';
 
@@ -32,7 +32,7 @@ chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
 
-let zapTransfer: ZapTransfer;
+// let zapTransfer: ZapTransfer;
 
 let zapLibrary: ZapLibrary;
 
@@ -48,7 +48,7 @@ let vault: Vault;
 
 let signers: any;
 
-describe("Test adding tip to a request.", () => {
+describe('Test adding tip to a request.', () => {
   beforeEach(async () => {
     signers = await ethers.getSigners();
 
@@ -60,20 +60,20 @@ describe("Test adding tip to a request.", () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
 
-    const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-      'ZapTransfer',
-      signers[0]
-    );
+    // const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
+    //   'ZapTransfer',
+    //   signers[0]
+    // );
 
-    zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
-    await zapTransfer.deployed();
+    // zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
+    // await zapTransfer.deployed();
 
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
       {
-        libraries: {
-          ZapTransfer: zapTransfer.address
-        },
+        // libraries: {
+        //   ZapTransfer: zapTransfer.address
+        // },
         signer: signers[0]
       }
     );
@@ -84,9 +84,9 @@ describe("Test adding tip to a request.", () => {
     const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
       'ZapDispute',
       {
-        libraries: {
-          ZapTransfer: zapTransfer.address
-        },
+        // libraries: {
+        //   ZapTransfer: zapTransfer.address
+        // },
         signer: signers[0]
       }
     );
@@ -98,7 +98,7 @@ describe("Test adding tip to a request.", () => {
       'ZapStake',
       {
         libraries: {
-          ZapTransfer: zapTransfer.address,
+          // ZapTransfer: zapTransfer.address,
           ZapDispute: zapDispute.address
         },
         signer: signers[0]
@@ -124,7 +124,7 @@ describe("Test adding tip to a request.", () => {
       'ZapMaster',
       {
         libraries: {
-          ZapTransfer: zapTransfer.address,
+          // ZapTransfer: zapTransfer.address,
           ZapStake: zapStake.address
         },
         signer: signers[0]
@@ -149,62 +149,79 @@ describe("Test adding tip to a request.", () => {
     // await zap.setVault(vault.address);
     await zapMaster.functions.changeVaultContract(vault.address);
 
-
     await zapTokenBsc.allocate(zapMaster.address, 10000000);
 
     zap = zap.attach(zapMaster.address);
 
     // stake signers 1 to 5.
     for (let i = 1; i <= 5; i++) {
-      await zapTokenBsc.allocate(signers[i].address, 1100000);
+      // await zapTokenBsc.allocate(signers[i].address, 1100000);
+      await zapTokenBsc.allocate(
+        signers[i].address,
+        BigNumber.from('500000000000000000006000')
+      );
       zap = zap.connect(signers[i]);
-      await vault.connect(signers[i]).lockSmith(signers[i].address, zap.address);
+      await vault
+        .connect(signers[i])
+        .lockSmith(signers[i].address, zap.address);
 
-      await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, 500000);
+      await zapTokenBsc
+        .connect(signers[i])
+        .approve(zapMaster.address, BigNumber.from('500000000000000000000000'));
       await zap.depositStake();
-      expect(await zapMaster.balanceOf(signers[i].address)).to.equal(600000);
-      expect(await zapMaster.balanceOf(vault.address)).to.equal(i * 500000);
+      expect(await zapMaster.balanceOf(signers[i].address)).to.equal(6000);
     }
-
+    expect(await zapMaster.balanceOf(vault.address)).to.equal(
+      BigNumber.from('2500000000000000000000000')
+    );
   });
 
   it('Should be able to add tip when requesting data.', async () => {
-    let orignalBal = await zap.connect(signers[1]).balanceOf(signers[1].address)
-    let symbol: string = "BTC/USD";
+    let orignalBal = await zap
+      .connect(signers[1])
+      .balanceOf(signers[1].address);
+    let symbol: string = 'BTC/USD';
     // Request string
     const api: string =
-        "json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4";
-    await zapTokenBsc.connect(signers[1]).approve(zap.address, 5000000);
+      'json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4';
+    await zapTokenBsc.connect(signers[1]).approve(zap.address, 6000);
     await zap.connect(signers[1]).requestData(api, symbol, 100000, 52);
 
+    let balAfterRequestData = await zap
+      .connect(signers[1])
+      .balanceOf(signers[1].address);
 
-    let balAfterRequestData = await zap.connect(signers[1]).balanceOf(signers[1].address);
     let diff = parseInt(orignalBal._hex) - parseInt(balAfterRequestData._hex);
     expect(diff).to.equal(52);
 
     await zap.connect(signers[1]).addTip(1, 333);
 
     let balAfterAddTip = await zap
-        .connect(signers[1])
-        .balanceOf(signers[1].address);
+      .connect(signers[1])
+      .balanceOf(signers[1].address);
 
     diff = parseInt(balAfterRequestData._hex) - parseInt(balAfterAddTip._hex);
     expect(diff).to.equal(333);
 
-
     // 1000 is the max. should fail
-    await expect(zap.connect(signers[1]).addTip(1, 1234)).to.be.reverted
-
-   
+    await expect(zap.connect(signers[1]).addTip(1, 1234)).to.be.reverted;
   });
-  it("Should not be able to add tip when requesting data with tip > 1000.", async () => {
+  it('Should not be able to add tip when requesting data with tip > 1000.', async () => {
+    // requestData params
+    let symbol: string = 'BTC/USD';
+    const api: string =
+      'json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4';
+    const tip: number = 1233;
 
-      let symbol: string = "BTC/USD";
-      // Request string
-      const api: string =
-          "json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4";
-      await zapTokenBsc.connect(signers[1]).approve(zap.address, 5000000);
-    await expect(zap.connect(signers[1]).requestData(api, symbol, 100000, 1234)).to.be.reverted;
+    // approve for tipAmount
+    await zapTokenBsc.connect(signers[1]).approve(zap.address, tip);
 
+    // requestData to have in queue
+    await zap.connect(signers[1]).requestData(api, symbol, 100000, 1);
+
+    // add tip to the requested data above using requestData.
+    // if request already exists, the tip amount will be added to that request.
+    await expect(zap.connect(signers[1]).requestData(api, symbol, 100000, tip))
+      .to.be.reverted;
   });
 });

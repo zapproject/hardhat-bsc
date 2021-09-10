@@ -1,7 +1,7 @@
 pragma solidity =0.5.16;
 
+import './SafeMathM.sol';
 import './ZapStorage.sol';
-import './ZapTransfer.sol';
 
 /**
  * @title Zap Dispute
@@ -41,16 +41,10 @@ library ZapDispute {
     function vote(
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId,
-        bool _supportsDispute
+        bool _supportsDispute,
+        uint256 voteWeight
     ) public {
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
-
-        //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
-        uint256 voteWeight = ZapTransfer.balanceOfAt(
-            self,
-            msg.sender,
-            disp.disputeUintVars[keccak256('blockNumber')]
-        );
 
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true);
@@ -60,6 +54,9 @@ library ZapDispute {
 
         //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3);
+
+        //ensure that only stakers can vote
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
 
         //Update user voting status to true
         disp.voted[msg.sender] = true;
@@ -124,12 +121,12 @@ library ZapDispute {
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
-                ZapTransfer.doTransfer(
-                    self,
-                    disp.reportedMiner,
-                    disp.reportingParty,
-                    self.uintVars[keccak256('stakeAmount')]
-                );
+                // ZapTransfer.doTransfer(
+                //     self,
+                //     disp.reportedMiner,
+                //     disp.reportingParty,
+                //     self.uintVars[keccak256('stakeAmount')]
+                // );
 
 
                 //Returns the dispute fee to the reporting party
@@ -227,12 +224,7 @@ library ZapDispute {
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
-        ZapTransfer.doTransfer(
-            self,
-            msg.sender,
-            address(this),
-            self.uintVars[keccak256('disputeFee')]
-        ); //This is the fork fee
+
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
         self.disputeIdByDisputeHash[_hash] = disputeId;

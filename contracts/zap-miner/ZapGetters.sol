@@ -2,7 +2,6 @@ pragma solidity =0.5.16;
 
 import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
-import './libraries/ZapTransfer.sol';
 import './libraries/ZapGettersLibrary.sol';
 import './libraries/ZapStake.sol';
 import '../token/ZapTokenBSC.sol';
@@ -10,12 +9,11 @@ import '../token/ZapTokenBSC.sol';
 /**
  * @title Zap Getters
  * @dev Oracle contract with all zap getter functions. The logic for the functions on this contract
- * is saved on the ZapGettersLibrary, ZapTransfer, ZapGettersLibrary, and ZapStake
+ * is saved on the ZapGettersLibrary, ZapGettersLibrary, and ZapStake
  */
 contract ZapGetters {
     using SafeMathM for uint256;
 
-    using ZapTransfer for ZapStorage.ZapStorageStruct;
     using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
@@ -38,20 +36,6 @@ contract ZapGetters {
     {
         //    return zap.allowance(_user,_spender);
         return token.allowance(_user, _spender);
-    }
-
-    /**
-     * @dev This function returns whether or not a given user is allowed to trade a given amount
-     * @param _user address
-     * @param _amount uint of amount
-     * @return true if the user is alloed to trade the amount specified
-     */
-    function allowedToTrade(address _user, uint256 _amount)
-        external
-        view
-        returns (bool)
-    {
-        return zap.allowedToTrade(_user, _amount);
     }
 
     /**
