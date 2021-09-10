@@ -438,6 +438,8 @@ describe.only("AuctionHouse", () => {
     });
 
     it("should revert if the auction has already started", async () => {
+      await zapTokenBsc.mint(bidder.address, TWO_ETH);
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
       await auctionHouse.setAuctionReservePrice(0, TWO_ETH);
       await auctionHouse.setAuctionApproval(0, true);
       await auctionHouse
@@ -492,6 +494,8 @@ describe.only("AuctionHouse", () => {
 
       await approveAuction(media1, auctionHouse);
 
+      auctionHouse.setTokenDetails(0, media1.address);
+
       await createAuction(
         auctionHouse.connect(curator),
         await curator.getAddress(),
@@ -500,14 +504,13 @@ describe.only("AuctionHouse", () => {
 
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
 
-      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e+18));
+      await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e+18));
+      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, BigInt(10 * 1e+18));
+      await zapTokenBsc.mint(bidderB.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.mint(bidderB.address, BigInt(10 * 1e+18));
-
+      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, BigInt(10 * 1e18));
     });
 
     it("should revert if the specified auction does not exist", async () => {
@@ -538,7 +541,8 @@ describe.only("AuctionHouse", () => {
       ).revertedWith(`Bid invalid for share splitting`);
     });
 
-    it("should revert if msg.value does not equal specified amount", async () => {
+    it.skip("should revert if msg.value does not equal specified amount", async () => {
+      // This test will never pass since we are not using WETH for bids
       await expect(
         auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH.mul(2),
