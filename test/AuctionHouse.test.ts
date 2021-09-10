@@ -289,11 +289,11 @@ describe("AuctionHouse", () => {
 
     it("should be automatically approved if the creator is the Zero Address", async () => {
 
-      // await createAuction(auctionHouse, ethers.constants.AddressZero);
+      await createAuction(auctionHouse, ethers.constants.AddressZero, zapTokenBsc.address);
 
-      // const createdAuction = await auctionHouse.auctions(0);
+      const createdAuction = await auctionHouse.auctions(0);
 
-      // expect(createdAuction.approved).to.eq(true);
+      expect(createdAuction.approved).to.eq(true);
     });
 
     it("should emit an AuctionCreated event", async () => {
