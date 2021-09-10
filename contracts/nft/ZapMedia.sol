@@ -45,10 +45,9 @@ contract ZapMedia is
      *     bytes4(keccak256('name()')) == 0x06fdde03
      *     bytes4(keccak256('symbol()')) == 0x95d89b41
      *     bytes4(keccak256('tokenURI(uint256)')) == 0xc87b56dd
-     *     bytes4(keccak256('tokenMetadataURI(uint256)')) == 0x157c3df9
      *     DEBUG(need to find the remaining methods that result to the new interfaceId )
      *
-     *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd ^ 0x157c3df9 == 0x2315d6f4
+     *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd == 0x5b5e139f
      */
 
     mapping(bytes4 => bool) private _supportedInterfaces;
@@ -162,6 +161,7 @@ contract ZapMedia is
         }
 
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
+        _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
