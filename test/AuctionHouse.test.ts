@@ -488,6 +488,11 @@ describe("AuctionHouse", () => {
       );
 
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
+
+      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e+18));
+
+      await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e+18));
+
     });
 
     it("should revert if the specified auction does not exist", async () => {
@@ -532,10 +537,6 @@ describe("AuctionHouse", () => {
 
       it.only("should set the first bid time", async () => {
 
-        await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e+18))
-
-        await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e+18));
-
         await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
 
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
@@ -545,11 +546,14 @@ describe("AuctionHouse", () => {
         expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
       });
 
-      it("should store the transferred ETH as WETH", async () => {
+      it.only("should store the transferred ZAP", async () => {
+
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
         });
-        expect(await weth.balanceOf(auctionHouse.address)).to.eq(ONE_ETH);
+
+        expect(await zapTokenBsc.balanceOf(auctionHouse.address)).to.eq(ONE_ETH);
+
       });
 
       it("should not update the auction's duration", async () => {
