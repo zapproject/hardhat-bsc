@@ -14,8 +14,6 @@ import {Decimal} from "./Decimal.sol";
 import {IMedia} from "./interfaces/IMedia.sol";
 import {IAuctionHouse} from "./interfaces/IAuctionHouse.sol";
 
-import "hardhat/console.sol";
-
 interface IWETH {
     function deposit() external payable;
 
