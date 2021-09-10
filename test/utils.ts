@@ -73,17 +73,38 @@ export const deployZapNFTMarketplace = async () => {
   const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
 
   media1 = await (
-    await upgrades.deployProxy(mediaFactory1, ["Test Media 1", "TM1", market.address, true])
+    await upgrades.deployProxy(mediaFactory1, [
+      "Test Media 1",
+      "TM1",
+      market.address,
+      true,
+      "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    ])
   ).deployed() as ZapMedia;
 
   const mediaFactory2 = await ethers.getContractFactory("ZapMedia", deployer2);
   media2 = await (
-    await upgrades.deployProxy(mediaFactory2, ["Test Media 1", "TM1", market.address, false])
+    await upgrades.deployProxy(mediaFactory2,
+      [
+        "Test Media 1",
+        "TM1",
+        market.address,
+        false,
+        "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+      ])
   ).deployed() as ZapMedia;
 
   const mediaFactory3 = await ethers.getContractFactory("ZapMedia", deployer3);
   media3 = await (
-    await upgrades.deployProxy(mediaFactory3, ["Test Media 1", "TM1", market.address, false])
+    await upgrades.deployProxy(mediaFactory3,
+      [
+        "Test Media 1",
+        "TM1",
+        market.address,
+        false,
+        "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      ]
+    )
   ).deployed() as ZapMedia;
 
 
