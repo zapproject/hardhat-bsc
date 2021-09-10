@@ -34,8 +34,13 @@ interface IMedia {
         string _uri
     );
 
-    function initialize(string memory name, string memory symbol, address marketContractAddr, bool permissive)
-        external;
+    function initialize(
+        string memory name,
+        string memory symbol,
+        address marketContractAddr,
+        bool permissive,
+        string memory collectionMetadata
+    ) external;
 
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
