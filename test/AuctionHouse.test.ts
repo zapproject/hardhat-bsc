@@ -681,12 +681,13 @@ describe.only("AuctionHouse", () => {
 
       });
 
-      it("should transfer the bid to the contract and store it as WETH", async () => {
+      it.only("should transfer the bid to the contract and store it as WETH", async () => {
+
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
         });
 
-        expect(await weth.balanceOf(auctionHouse.address)).to.eq(TWO_ETH);
+        expect(await zapTokenBsc.balanceOf(auctionHouse.address)).to.eq(TWO_ETH);
       });
 
       it("should update the stored bid information", async () => {
