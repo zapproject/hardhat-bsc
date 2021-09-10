@@ -800,6 +800,7 @@ describe.only("AuctionHouse", () => {
       auctionHouse = (await deploy(admin)).connect(creator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
+      await auctionHouse.setTokenDetails(0, media1.address);
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
