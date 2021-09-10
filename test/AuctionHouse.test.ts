@@ -702,12 +702,16 @@ describe.only("AuctionHouse", () => {
         expect(currAuction.bidder).to.eq(await bidderB.getAddress());
       });
 
-      it("should not extend the duration of the bid if outside of the time buffer", async () => {
+      it.only("should not extend the duration of the bid if outside of the time buffer", async () => {
+
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
+
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
         });
+
         const afterDuration = (await auctionHouse.auctions(0)).duration;
+
         expect(beforeDuration).to.eq(afterDuration);
       });
 
