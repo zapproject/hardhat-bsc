@@ -296,7 +296,7 @@ describe("AuctionHouse", () => {
       expect(createdAuction.approved).to.eq(true);
     });
 
-    it("should emit an AuctionCreated event", async () => {
+    it.only("should emit an AuctionCreated event", async () => {
       const owner = await media1.ownerOf(0);
       const [_, expectedCurator] = await ethers.getSigners();
 
@@ -328,7 +328,7 @@ describe("AuctionHouse", () => {
         currAuction.curatorFeePercentage
       );
       expect(logDescription.args.auctionCurrency).to.eq(
-        ethers.constants.AddressZero
+        zapTokenBsc.address
       );
     });
   });
