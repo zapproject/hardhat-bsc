@@ -870,7 +870,7 @@ describe.only("AuctionHouse", () => {
     });
   });
 
-  describe.only("#endAuction", () => {
+  describe("#endAuction", () => {
     let auctionHouse: AuctionHouse;
     let admin: SignerWithAddress;
     let creator: SignerWithAddress;
@@ -884,12 +884,16 @@ describe.only("AuctionHouse", () => {
       auctionHouse = (await deploy(creator)) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
+      await auctionHouse.setTokenDetails(0, media1.address);
       await createAuction(
         auctionHouse.connect(creator),
-        await curator.getAddress()
+        await curator.getAddress(),
+        zapTokenBsc.address
       );
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
       badBidder = await deployBidder(auctionHouse.address, media1.address);
+
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
     });
 
     it("should revert if the auction does not exist", async () => {
