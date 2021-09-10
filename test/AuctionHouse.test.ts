@@ -296,7 +296,7 @@ describe("AuctionHouse", () => {
       expect(createdAuction.approved).to.eq(true);
     });
 
-    it.only("should emit an AuctionCreated event", async () => {
+    it("should emit an AuctionCreated event", async () => {
       const owner = await media1.ownerOf(0);
       const [_, expectedCurator] = await ethers.getSigners();
 
@@ -350,6 +350,10 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
+
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigInt(10 * 1e+18));
+
+      await zapTokenBsc.mint(bidder.address, BigInt(10 * 1e+18));
     });
 
     it("should revert if the auctionHouse does not exist", async () => {
@@ -365,14 +369,17 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the auction has already started", async () => {
+
       await auctionHouse.setAuctionApproval(0, true);
+
       await auctionHouse
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
 
-      // await expect(
-      //   auctionHouse.setAuctionApproval(0, false)
-      // ).revertedWith(`Auction has already started`);
+      await expect(
+        auctionHouse.setAuctionApproval(0, false)
+      ).revertedWith(`Auction has already started`);
+
     });
 
     it("should set the auction as approved", async () => {
