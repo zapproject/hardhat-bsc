@@ -2,7 +2,6 @@ import chai, { expect } from "chai";
 import { ethers } from "hardhat";
 import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC } from "../typechain";
 import { } from "../typechain";
-import { formatUnits } from "ethers/lib/utils";
 import { BigNumber, Contract, Signer, Bytes } from "ethers";
 
 
@@ -20,7 +19,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { execPath } from "process";
 
-describe("AuctionHouse", () => {
+describe.only("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -350,10 +349,6 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
-
-      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigInt(10 * 1e+18));
-
-      // await zapTokenBsc.mint(bidder.address, BigInt(10 * 1e+18));
     });
 
     it("should revert if the auctionHouse does not exist", async () => {
@@ -369,6 +364,8 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the auction has already started", async () => {
+      await zapTokenBsc.mint(bidder.address, BigNumber.from("10000000000000000000"));
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
 
       await auctionHouse.setAuctionApproval(0, true);
 
