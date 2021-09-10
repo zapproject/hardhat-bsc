@@ -20,7 +20,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { execPath } from "process";
 
-describe.only("AuctionHouse", () => {
+describe("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -634,7 +634,7 @@ describe.only("AuctionHouse", () => {
           .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
       });
 
-      it.only("should revert if the bid is smaller than the last bid + minBid", async () => {
+      it("should revert if the bid is smaller than the last bid + minBid", async () => {
 
         await expect(
           auctionHouse.createBid(0, ONE_ETH.add(1), media1.address, {
@@ -645,7 +645,7 @@ describe.only("AuctionHouse", () => {
         );
       });
 
-      it.only("should refund the previous bid", async () => {
+      it("should refund the previous bid", async () => {
 
         const beforeBalance = await zapTokenBsc.balanceOf(bidderA.address);
 
@@ -667,7 +667,7 @@ describe.only("AuctionHouse", () => {
 
       });
 
-      it.only("should not update the firstBidTime", async () => {
+      it("should not update the firstBidTime", async () => {
 
         const firstBidTime = (await auctionHouse.auctions(0)).firstBidTime;
 
@@ -681,7 +681,7 @@ describe.only("AuctionHouse", () => {
 
       });
 
-      it.only("should transfer the bid to the contract and store it as Zap", async () => {
+      it("should transfer the bid to the contract and store it as Zap", async () => {
 
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
@@ -690,7 +690,7 @@ describe.only("AuctionHouse", () => {
         expect(await zapTokenBsc.balanceOf(auctionHouse.address)).to.eq(TWO_ETH);
       });
 
-      it.only("should update the stored bid information", async () => {
+      it("should update the stored bid information", async () => {
 
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
@@ -702,7 +702,7 @@ describe.only("AuctionHouse", () => {
         expect(currAuction.bidder).to.eq(await bidderB.getAddress());
       });
 
-      it.only("should not extend the duration of the bid if outside of the time buffer", async () => {
+      it("should not extend the duration of the bid if outside of the time buffer", async () => {
 
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
 
@@ -715,7 +715,7 @@ describe.only("AuctionHouse", () => {
         expect(beforeDuration).to.eq(afterDuration);
       });
 
-      it.only("should emit an AuctionBid event", async () => {
+      it("should emit an AuctionBid event", async () => {
         const block = await ethers.provider.getBlockNumber();
         await auctionHouse.createBid(0, TWO_ETH, media1.address, {
           value: TWO_ETH,
