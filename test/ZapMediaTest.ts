@@ -100,37 +100,45 @@ describe("ZapMedia Test", async () => {
             const mediaFactory = await ethers.getContractFactory("ZapMedia", signers[1]);
 
             // zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia;
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory, ["TEST MEDIA 1", "TM1", zapMarket.address, false])) as ZapMedia;
+            zapMedia1 = (await upgrades.deployProxy(
+                mediaFactory,
+                ["TEST MEDIA 1",
+                    "TM1",
+                    zapMarket.address,
+                    false,
+                    'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'])) as ZapMedia;
 
             await zapMedia1.deployed();
 
-            const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
+            console.log(await zapMedia1.collectionMetadata())
 
-            zapMedia2 = (await upgrades.deployProxy(mediaFactory2, ["TEST MEDIA 2", "TM2", zapMarket.address, false])) as ZapMedia;
+            // const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
 
-            await zapMedia2.deployed();
+            // zapMedia2 = (await upgrades.deployProxy(mediaFactory2, ["TEST MEDIA 2", "TM2", zapMarket.address, false])) as ZapMedia;
 
-            const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[3]);
+            // await zapMedia2.deployed();
 
-            zapMedia3 = (await upgrades.deployProxy(mediaFactory3, ["Test MEDIA 3", "TM3", zapMarket.address, false])) as ZapMedia;
+            // const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[3]);
 
-            await zapMedia3.deployed();
+            // zapMedia3 = (await upgrades.deployProxy(mediaFactory3, ["Test MEDIA 3", "TM3", zapMarket.address, false])) as ZapMedia;
 
-            const mediaFactory4 = await ethers.getContractFactory("ZapMedia", signers[4]);
+            // await zapMedia3.deployed();
 
-            zapMedia4 = (await upgrades.deployProxy(mediaFactory4, ["Test MEDIA 4", "T4", zapMarket.address, false])) as ZapMedia;
+            // const mediaFactory4 = await ethers.getContractFactory("ZapMedia", signers[4]);
 
-            await zapMedia4.deployed();
+            // zapMedia4 = (await upgrades.deployProxy(mediaFactory4, ["Test MEDIA 4", "T4", zapMarket.address, false])) as ZapMedia;
 
-            const zapTokenFactory = await ethers.getContractFactory(
-                'ZapTokenBSC',
-                signers[0]
-            );
+            // await zapMedia4.deployed();
 
-            zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-            await zapTokenBsc.deployed();
+            // const zapTokenFactory = await ethers.getContractFactory(
+            //     'ZapTokenBSC',
+            //     signers[0]
+            // );
 
-            ask.currency = zapTokenBsc.address;
+            // zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+            // await zapTokenBsc.deployed();
+
+            // ask.currency = zapTokenBsc.address;
 
         });
 
@@ -143,7 +151,6 @@ describe("ZapMedia Test", async () => {
             expect(await zapMedia1Address).to.equal(zapMedia1.address);
 
             expect(await zapMedia2Address).to.equal(zapMedia2.address);
-
 
         });
 
