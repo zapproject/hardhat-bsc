@@ -446,11 +446,13 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
      */
     function _handleIncomingBid(uint256 amount, address currency) internal {
         // If this is an ETH bid, ensure they sent enough and convert it to WETH under the hood
+
         if (currency == address(0)) {
             require(
                 msg.value == amount,
                 "Sent ETH Value does not match specified bid amount"
             );
+
             IWETH(wethAddress).deposit{value: amount}();
         } else {
             // We must check the balance that was actually transferred to the auction,
