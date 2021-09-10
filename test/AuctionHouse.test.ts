@@ -328,7 +328,7 @@ describe("AuctionHouse", () => {
         currAuction.curatorFeePercentage
       );
       expect(logDescription.args.auctionCurrency).to.eq(
-        ethers.constants.AddressZero
+        zapTokenBsc.address
       );
     });
   });
@@ -350,6 +350,8 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
+
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
     });
 
     it("should revert if the auctionHouse does not exist", async () => {
@@ -411,11 +413,14 @@ describe("AuctionHouse", () => {
         media1.connect(creator),
         auctionHouse.connect(creator)
       );
+      await auctionHouse.setTokenDetails(0, media1.address);
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
         zapTokenBsc.address
       );
+
+      zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
     });
 
     it("should revert if the auctionHouse does not exist", async () => {
