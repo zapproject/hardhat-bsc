@@ -104,12 +104,13 @@ describe("ZapMedia Test", async () => {
             );
 
             // zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia;
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory, [
-                "TEST MEDIA 1",
-                "TM1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            zapMedia1 = (await upgrades.deployProxy(
+                mediaFactory,
+                ["TEST MEDIA 1",
+                    "TM1",
+                    zapMarket.address,
+                    false,
+                    'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'])) as ZapMedia;
 
             await zapMedia1.deployed();
 
@@ -118,12 +119,16 @@ describe("ZapMedia Test", async () => {
                 signers[2]
             );
 
-            zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-                "TEST MEDIA 2",
-                "TM2",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            zapMedia2 = (await upgrades.deployProxy(
+                mediaFactory2,
+                [
+                    "TEST MEDIA 2",
+                    "TM2",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+                ]
+            )) as ZapMedia;
 
             await zapMedia2.deployed();
 
@@ -132,28 +137,24 @@ describe("ZapMedia Test", async () => {
                 signers[3]
             );
 
-            zapMedia3 = (await upgrades.deployProxy(mediaFactory3, [
-                "Test MEDIA 3",
-                "TM3",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            zapMedia3 = (await upgrades.deployProxy(
+                mediaFactory3,
+                [
+                    "Test MEDIA 3",
+                    "TM3",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
 
             await zapMedia3.deployed();
 
-            const mediaFactory4 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[4]
-            );
+            // const mediaFactory4 = await ethers.getContractFactory("ZapMedia", signers[4]);
 
-            zapMedia4 = (await upgrades.deployProxy(mediaFactory4, [
-                "Test MEDIA 4",
-                "T4",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            // zapMedia4 = (await upgrades.deployProxy(mediaFactory4, ["Test MEDIA 4", "T4", zapMarket.address, false])) as ZapMedia;
 
-            await zapMedia4.deployed();
+            // await zapMedia4.deployed();
 
             const zapTokenFactory = await ethers.getContractFactory(
                 "ZapTokenBSC",
@@ -269,18 +270,18 @@ describe("ZapMedia Test", async () => {
             expect(currentSupply).eq(1);
         });
 
-        it("shoud mint a permissive token without approval", async () => {
-            const mediaFactory5 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[5]
-            );
+        it('should mint a permissive token without approval', async () => {
 
-            const zapMedia5 = (await upgrades.deployProxy(mediaFactory5, [
-                "Test MEDIA 3",
-                "TM3",
-                zapMarket.address,
-                true,
-            ])) as ZapMedia;
+            const mediaFactory5 = await ethers.getContractFactory("ZapMedia", signers[5]);
+            const zapMedia5 = (await upgrades.deployProxy(mediaFactory5,
+                [
+                    "Test MEDIA 3",
+                    "TM3",
+                    zapMarket.address,
+                    true,
+                    'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
+
+                ])) as ZapMedia;
 
             expect(
                 await zapMedia5.connect(signers[6]).mint(mediaData, bidShares)
@@ -442,12 +443,14 @@ describe("ZapMedia Test", async () => {
                 signers[2]
             );
 
-            zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-                "TEST MEDIA 2",
-                "TM2",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            zapMedia2 = (await upgrades.deployProxy(mediaFactory2,
+                [
+                    "TEST MEDIA 2",
+                    "TM2",
+                    zapMarket.address,
+                    false,
+                    'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
+                ])) as ZapMedia;
 
             await zapMedia2.deployed();
 
@@ -631,7 +634,6 @@ describe("ZapMedia Test", async () => {
                 contentHash: contentHashBytes,
                 metadataHash: metadataHashBytes,
             };
-
             await zapMedia3.mint(mediaData, bidShares);
         });
 
@@ -756,17 +758,20 @@ describe("ZapMedia Test", async () => {
             };
         });
 
-        it("should refund a bid if one already exists for the bidder", async () => {
-            const mediaFactory11 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[11]
-            );
-            const zapMedia11 = await upgrades.deployProxy(mediaFactory11, [
-                "Test MEDIA 11",
-                "T11",
-                zapMarket.address,
-                false,
-            ]);
+        it('should refund a bid if one already exists for the bidder', async () => {
+
+            const mediaFactory11 = await ethers.getContractFactory("ZapMedia", signers[11]);
+
+            const zapMedia11 = (await upgrades.deployProxy(mediaFactory11,
+                [
+                    "Test MEDIA 11",
+                    "T11",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            ));
+
             await zapMedia11.deployed();
             await setupAuction(zapMedia11, signers[11]);
 
@@ -823,16 +828,16 @@ describe("ZapMedia Test", async () => {
 
     describe("#removeBid", () => {
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
@@ -852,10 +857,7 @@ describe("ZapMedia Test", async () => {
         it('should remove a bid and refund the bidder', async () => {
             const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
             expect(await zapMedia1.connect(signers[4]).removeBid(0));
-            const afterBalance = await zapTokenBsc.balanceOf(
-                signers[4].address
-            );
-            console.log(afterBalance.toNumber(), beforeBalance.toNumber());
+            const afterBalance = await zapTokenBsc.balanceOf(signers[4].address);
             expect(afterBalance.toNumber()).eq(beforeBalance.toNumber() + 100);
         });
 
@@ -868,7 +870,15 @@ describe("ZapMedia Test", async () => {
 
         it('should remove a bid, even if the token is burned', async () => {
             const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1, ["Test MEDIA 1", "T1", zapMarket.address, false]));
+            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            ));
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
@@ -899,16 +909,16 @@ describe("ZapMedia Test", async () => {
                 },
             };
 
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
@@ -994,7 +1004,15 @@ describe("ZapMedia Test", async () => {
 
         it('should revert if not called by the owner', async () => {
             const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1, ["Test MEDIA 1", "T1", zapMarket.address, false]));
+            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            ));
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
@@ -1005,7 +1023,16 @@ describe("ZapMedia Test", async () => {
 
         it('should revert if a non-existent bid is accepted', async () => {
             const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1, ["Test MEDIA 1", "T1", zapMarket.address, false]));
+            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            ));
+
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
@@ -1016,8 +1043,15 @@ describe("ZapMedia Test", async () => {
 
         it('should revert if an invalid bid is accepted', async () => {
             const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1, ["Test MEDIA 1", "T1", zapMarket.address, false]));
-            await zapMedia1.deployed();
+            const zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )); await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
             const bid = {
@@ -1033,19 +1067,18 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    describe("#transfer", () => {
-        it("should remove the ask after a transfer", async () => {
-            const mediaFactory19 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[19]
-            );
-            const zapMedia19 = await upgrades.deployProxy(mediaFactory19, [
-                "Test MEDIA 19",
-                "T19",
-                zapMarket.address,
-                false,
-            ]);
-            await zapMedia19.deployed();
+    describe('#transfer', () => {
+        it('should remove the ask after a transfer', async () => {
+            const mediaFactory19 = await ethers.getContractFactory("ZapMedia", signers[19]);
+            const zapMedia19 = (await upgrades.deployProxy(mediaFactory19,
+                [
+                    "Test MEDIA 19",
+                    "T19",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )); await zapMedia19.deployed();
             await setupAuction(zapMedia19, signers[19]);
 
             await zapMedia19.connect(signers[3]).setAsk(0, ask);
@@ -1068,16 +1101,16 @@ describe("ZapMedia Test", async () => {
 
     describe('#burn', () => {
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await zapMedia1.mint(mediaData, bidShares);
         });
@@ -1165,16 +1198,15 @@ describe("ZapMedia Test", async () => {
 
     describe("#updateTokenURI", async () => {
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                ["Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
@@ -1250,16 +1282,15 @@ describe("ZapMedia Test", async () => {
 
     describe('#updateMetadataURI', async () => {
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                ["Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
@@ -1343,16 +1374,15 @@ describe("ZapMedia Test", async () => {
 
     describe("#permit", () => {
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                [
+                    "Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ])) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
@@ -1393,33 +1423,24 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#supportsInterface', async () => {
-        it('should return true to supporting new metadata interface', async () => {
-            const interfaceId = ethers.utils.arrayify('0x2315d6f4');
+        it('should return true to supporting metadata interface', async () => {
+            const interfaceId = ethers.utils.arrayify('0x5b5e139f');
             const supportsId = await zapMedia1.connect(signers[5]).supportsInterface(interfaceId);
             expect(supportsId).eq(true);
-        });
-
-        it("should return false to supporting the old metadata interface", async () => {
-            const interfaceId = ethers.utils.arrayify("0x5b5e139f");
-            const supportsId = await zapMedia1
-                .connect(signers[5])
-                .supportsInterface(interfaceId);
-            expect(supportsId).eq(false);
         });
     });
 
     describe("#revokeApproval", async () => {
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1, [
-                "Test MEDIA 1",
-                "T1",
-                zapMarket.address,
-                false,
-            ])) as ZapMedia;
+            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
+                ["Test MEDIA 1",
+                    "T1",
+                    zapMarket.address,
+                    false,
+                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+                ]
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
