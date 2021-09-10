@@ -41,6 +41,10 @@ contract Ownable is Initializable {
         return access.permitNonces[_user][_tokenId];
     }
 
+    function marketContract() public view returns (address) {
+        return access.marketContract;
+    }
+
     /// @dev Allows the current access.owner to transfer control of the contract to a newOwner.
     /// @param newOwner The address to transfer ownership to.
     function transferOwnership(address payable newOwner) public onlyOwner {
