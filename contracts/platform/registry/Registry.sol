@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity =0.5.16;
 // v1.0
 
 import "../../lib/lifecycle/Destructible.sol";

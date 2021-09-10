@@ -1,4 +1,4 @@
-const { task, taskArgs } = require("hardhat/config");
+const { task, taskArs } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require("hardhat-deploy");
 

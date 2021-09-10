@@ -1,13 +1,13 @@
-pragma solidity ^0.5.1;
+pragma solidity =0.5.16;
 
 import "./ZapCoordinatorInterface.sol";
 
-contract Upgradable {
+ contract Upgradable {
 
     address coordinatorAddr;
     ZapCoordinatorInterface coordinator;
 
-    constructor(address c) public{
+    constructor(address c) public {
         coordinatorAddr = c;
         coordinator = ZapCoordinatorInterface(c);
     }
@@ -16,7 +16,7 @@ contract Upgradable {
         _updateDependencies();
     }
 
-    function _updateDependencies() internal;
+    function _updateDependencies()  internal;
 
     modifier coordinatorOnly() {
         require(msg.sender == coordinatorAddr, "Error: Coordinator Only Function");

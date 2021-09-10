@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity =0.5.16;
 
 library PiecewiseLogic {
     function sumOfPowers(uint n, uint i) internal pure returns (uint) {

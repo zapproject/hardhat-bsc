@@ -1,15 +1,20 @@
-pragma solidity ^0.5.1;
+pragma solidity =0.5.16;
 
-contract Token {
-    function transfer(address to, uint256 amount) public returns (bool);
-    function balanceOf(address addr) public view returns (uint256);
+ contract Token {
+    function transfer(address to, uint256 amount) public  returns (bool);
+
+    function balanceOf(address addr) public view  returns (uint256);
 }
 
 contract Faucet {
     Token token;
-    address payable public  owner;
+    address payable public owner;
     uint256 public rate = 1000; // 1 ETH = 1000 ZAP
-    event BUYZAP(address indexed _buyer, uint256 indexed _amount, uint indexed _rate);
+    event BUYZAP(
+        address indexed _buyer,
+        uint256 indexed _amount,
+        uint256 indexed _rate
+    );
 
     // 1: 1000 ratio
 
@@ -30,9 +35,8 @@ contract Faucet {
         amt = amt * rate;
         require(amt <= token.balanceOf(address(this)));
         token.transfer(to, amt);
-        emit BUYZAP(msg.sender,amt,rate);
+        emit BUYZAP(msg.sender, amt, rate);
     }
-
 
     function withdrawTok() public ownerOnly {
         token.transfer(owner, token.balanceOf(address(this)));

@@ -5,7 +5,7 @@ import "../../platform/bondage/BondageInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
 import "../../platform/registry/RegistryInterface.sol";
 import "../../platform/bondage/currentCost/CurrentCostInterface.sol";
-pragma solidity ^0.5.1;
+pragma solidity =0.5.16;
 
 /*
 Contest where users can bond to contestant curves which mint tokens( unbondabe*),
