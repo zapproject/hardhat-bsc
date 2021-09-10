@@ -535,7 +535,7 @@ describe("AuctionHouse", () => {
 
     describe("first bid", () => {
 
-      it.only("should set the first bid time", async () => {
+      it("should set the first bid time", async () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
 
@@ -546,7 +546,7 @@ describe("AuctionHouse", () => {
         expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
       });
 
-      it.only("should store the transferred ZAP", async () => {
+      it("should store the transferred ZAP", async () => {
 
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
@@ -556,7 +556,7 @@ describe("AuctionHouse", () => {
 
       });
 
-      it.only("should not update the auction's duration", async () => {
+      it("should not update the auction's duration", async () => {
 
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
 
@@ -570,7 +570,7 @@ describe("AuctionHouse", () => {
 
       });
 
-      it.only("should store the bidder's information", async () => {
+      it("should store the bidder's information", async () => {
 
         await auctionHouse.createBid(0, ONE_ETH, media1.address, {
           value: ONE_ETH,
@@ -583,7 +583,7 @@ describe("AuctionHouse", () => {
         expect(currAuction.amount).to.eq(ONE_ETH);
       });
 
-      it.only("should emit an AuctionBid event", async () => {
+      it("should emit an AuctionBid event", async () => {
 
         const block = await ethers.provider.getBlockNumber();
 
@@ -613,6 +613,7 @@ describe("AuctionHouse", () => {
         expect(logDescription.args.firstBid).to.eq(true);
         expect(logDescription.args.extended).to.eq(false);
       });
+
     });
 
     describe("second bid", () => {

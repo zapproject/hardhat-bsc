@@ -214,7 +214,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuard {
         uint256 amount,
         address mediaContract
     ) external payable override auctionExists(auctionId) nonReentrant {
-        console.log("SENDER", msg.sender);
         address payable lastBidder = auctions[auctionId].bidder;
         require(
             auctions[auctionId].approved,
