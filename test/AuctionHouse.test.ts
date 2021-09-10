@@ -742,7 +742,7 @@ describe("AuctionHouse", () => {
         expect(logDescription.args.extended).to.eq(false);
       });
 
-      describe.only("last minute bid", () => {
+      describe("last minute bid", () => {
         beforeEach(async () => {
           const currAuction = await auctionHouse.auctions(0);
           await ethers.provider.send("evm_setNextBlockTimestamp", [
