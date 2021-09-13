@@ -45,7 +45,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     mapping(address => bool) public isConfigured;
 
     bool private initialized;
-
+    address platformAddress;
     /* *********
      * Modifiers
      * *********
@@ -115,7 +115,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
-                    .add(splitShare(bidShares.prevOwner, bidAmount))
+                    .add(splitShare(bidShares.platform, bidAmount))
                     .add(splitShare(bidShares.owner, bidAmount)));
     }
 
@@ -130,7 +130,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     {
         return
             bidShares.creator.value.add(bidShares.owner.value).add(
-                bidShares.prevOwner.value
+                bidShares.platform.value
             ) == uint256(100).mul(Decimal.BASE);
     }
 
@@ -152,11 +152,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initialize() public override initializer {
+    function initialize(address _platformAddress) public override initializer {
         require(!initialized, "Market: Instance has already been initialized");
 
         initialized = true;
-
+        platformAddress=_platformAddress;
         // _owner = msg.sender;
     }
 
@@ -398,8 +398,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         );
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
-            splitShare(bidShares.prevOwner, bid.amount)
+            // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
+            platformAddress,
+            splitShare(bidShares.platform, bid.amount)
         );
 
         // Transfer media to bid recipient
@@ -414,7 +415,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
                 .sub(bid.sellOnShare.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
-        bidShares.prevOwner = bid.sellOnShare;
+        bidShares.platform = bid.sellOnShare;
 
         // Remove the accepted bid
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
