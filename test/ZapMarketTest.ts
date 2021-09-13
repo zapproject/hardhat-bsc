@@ -63,13 +63,13 @@ describe('ZapMarket Test', () => {
 
   let bidShares1 = {
     platformFee: {
-      value: BigNumber.from('10000000000000000000')
+      value: BigNumber.from('5000000000000000000')
     },
     owner: {
-      value: BigNumber.from('80000000000000000000')
+      value: BigNumber.from('90000000000000000000')
     },
     creator: {
-      value: BigNumber.from('10000000000000000000')
+      value: BigNumber.from('5000000000000000000')
     }
   };
 
@@ -1116,8 +1116,13 @@ describe('ZapMarket Test', () => {
 
 
       console.log(await zapTokenBsc.balanceOf(signers[19].address))
+      console.log(await zapMedia1.balanceOf(bid1.recipient))
+
       await zapMedia1.acceptBid(0, bid1)
+
       console.log(await zapTokenBsc.balanceOf(signers[19].address))
+
+      console.log(await zapMedia1.balanceOf(bid1.recipient))
 
 
       // const upgradedBid2 = await zapMarketV2.bidForTokenBidder(
