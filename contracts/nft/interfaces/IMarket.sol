@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {Decimal} from "../Decimal.sol";
+import {Decimal} from '../Decimal.sol';
 
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Market
@@ -31,20 +31,32 @@ interface IMarket {
 
     struct BidShares {
         // % of sale value that goes to the _previous_ owner of the nft
-        Decimal.D256 prevOwner;
+        Decimal.D256 platformFee;
         // % of sale value that goes to the original creator of the nft
         Decimal.D256 creator;
         // % of sale value that goes to the seller (current owner) of the nft
         Decimal.D256 owner;
     }
 
-    event BidCreated(address indexed mediaContract, uint256 indexed tokenId, Bid bid);
+    event BidCreated(
+        address indexed mediaContract,
+        uint256 indexed tokenId,
+        Bid bid
+    );
     event BidRemoved(uint256 indexed tokenId, Bid bid);
     event BidFinalized(uint256 indexed tokenId, Bid bid);
-    event AskCreated(address indexed mediaContract, uint256 indexed tokenId, Ask ask);
+    event AskCreated(
+        address indexed mediaContract,
+        uint256 indexed tokenId,
+        Ask ask
+    );
     event AskRemoved(uint256 indexed tokenId, Ask ask);
     event BidShareUpdated(uint256 indexed tokenId, BidShares bidShares);
-    event MediaContractCreated(address indexed mediaContract, bytes32 name, bytes32 symbol);
+    event MediaContractCreated(
+        address indexed mediaContract,
+        bytes32 name,
+        bytes32 symbol
+    );
     event Minted(uint256 indexed token, address indexed mediaContract);
     event Burned(uint256 indexed token, address indexed mediaContract);
 
@@ -80,9 +92,18 @@ interface IMarket {
         pure
         returns (uint256);
 
-    function configure(address deployer, address mediaContract, bytes32 name, bytes32 symbol) external;
+    function configure(
+        address deployer,
+        address mediaContract,
+        bytes32 name,
+        bytes32 symbol
+    ) external;
 
-    function mintOrBurn(bool isMint, uint256 tokenId, address mediaContract) external;
+    function mintOrBurn(
+        bool isMint,
+        uint256 tokenId,
+        address mediaContract
+    ) external;
 
     function setBidShares(
         address mediaContractAddress,
