@@ -19,6 +19,8 @@ import {IMedia} from './interfaces/IMedia.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 
+import 'hardhat/console.sol';
+
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
 
@@ -263,10 +265,9 @@ contract ZapMedia is
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
+
         _mintForCreator(msg.sender, data, bidShares);
     }
-
-    // function platformFee(address)
 
     /**
      * @notice see IMedia a

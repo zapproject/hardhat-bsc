@@ -66,10 +66,10 @@ describe('ZapMarket Test', () => {
       value: BigNumber.from('5000000000000000000')
     },
     owner: {
-      value: BigNumber.from('90000000000000000000')
+      value: BigNumber.from('5000000000000000000')
     },
     creator: {
-      value: BigNumber.from('5000000000000000000')
+      value: BigNumber.from('90000000000000000000')
     }
   };
 
@@ -1116,7 +1116,6 @@ describe('ZapMarket Test', () => {
 
 
       console.log(await zapTokenBsc.balanceOf(signers[19].address))
-      console.log(await zapMedia1.balanceOf(bid1.recipient))
 
       await zapMedia1.acceptBid(0, bid1)
 

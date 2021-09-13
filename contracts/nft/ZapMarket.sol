@@ -27,6 +27,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * Globals
      * *******
      */
+
     // Address of the media contract that can call this market
     // address[] public mediaContract;
     mapping(address => address[]) public mediaContracts;
@@ -45,7 +46,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     mapping(address => bool) public isConfigured;
 
     bool private initialized;
+
     address platformAddress;
+
     /* *********
      * Modifiers
      * *********
@@ -163,6 +166,13 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * @notice Sets the media contract address. This address is the only permitted address that
      * can call the mutable functions. This method can only be called once.
      */
+    BidShares bidShareValues;
+
+    uint256 platformFeeValue;
+
+    uint256 creatorValue;
+
+    uint256 ownerValue;
 
     function configure(
         address deployer,
@@ -182,6 +192,14 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         isConfigured[mediaContract] = true;
 
         mediaContracts[deployer].push(mediaContract);
+
+        platformFeeValue = bidShareValues
+            .platformFee
+            .value = 5000000000000000000;
+
+        creatorValue = bidShareValues.creator.value = 90000000000000000000;
+
+        ownerValue = bidShareValues.owner.value = 5000000000000000000;
 
         emit MediaContractCreated(mediaContract, name, symbol);
     }
@@ -207,6 +225,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         uint256 tokenId,
         BidShares memory bidShares
     ) public override onlyMediaCaller(mediaContractAddress) {
+        console.log(bidShares.creator.value);
         require(
             isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'

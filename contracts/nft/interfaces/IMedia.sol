@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {IMarket} from "./IMarket.sol";
+import {IMarket} from './IMarket.sol';
 
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Media
