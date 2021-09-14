@@ -132,13 +132,13 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      */
     function isValidBidShares(BidShares memory bidShares)
         public
-        pure
+        view
         override
         returns (bool)
     {
         return
             bidShares.creator.value.add(bidShares.owner.value).add(
-                bidShares.platformFee.value
+                platformFee
             ) == uint256(100).mul(Decimal.BASE);
     }
 

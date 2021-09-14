@@ -84,7 +84,7 @@ interface IMarket {
 
     function isValidBidShares(BidShares calldata bidShares)
         external
-        pure
+        view
         returns (bool);
 
     function splitShare(Decimal.D256 calldata sharePercentage, uint256 amount)
