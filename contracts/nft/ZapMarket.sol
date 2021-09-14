@@ -421,7 +421,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         token.safeTransfer(
             // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
             platformAddress,
-            splitShare(bidShares.platformFee, bid.amount)
+            splitShare(Decimal.D256(platformFee), bid.amount)
         );
 
         // Transfer media to bid recipient
