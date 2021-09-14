@@ -259,15 +259,17 @@ contract ZapMedia is
     /**
      * @notice see IMedia
      */
-    function mint(MediaData memory data) public override nonReentrant {
+    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
+        public
+        override
+        nonReentrant
+    {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
 
-        IMarket zapMarket = IMarket(access.marketContract);
-
-        _mintForCreator(msg.sender, data, zapMarket.getShares());
+        _mintForCreator(msg.sender, data, bidShares);
     }
 
     /**
@@ -276,6 +278,7 @@ contract ZapMedia is
     function mintWithSig(
         address creator,
         MediaData memory data,
+        IMarket.BidShares memory bidShares,
         EIP712Signature memory sig
     ) public override nonReentrant {
         require(
@@ -287,8 +290,6 @@ contract ZapMedia is
             'Media: mintWithSig expired'
         );
 
-        IMarket zapMarket = IMarket(access.marketContract);
-
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
@@ -298,7 +299,7 @@ contract ZapMedia is
                         Constants.MINT_WITH_SIG_TYPEHASH,
                         data.contentHash,
                         data.metadataHash,
-                        zapMarket.getShares().creator.value,
+                        bidShares.creator.value,
                         access.mintWithSigNonces[creator]++,
                         sig.deadline
                     )
@@ -314,7 +315,7 @@ contract ZapMedia is
             'Media: Signature invalid'
         );
 
-        _mintForCreator(recoveredAddress, data, zapMarket.getShares());
+        _mintForCreator(recoveredAddress, data, bidShares);
     }
 
     /**

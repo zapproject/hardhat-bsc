@@ -53,7 +53,8 @@ interface IMedia {
     /**
      * @notice Mint new media for msg.sender.
      */
-    function mint(MediaData calldata data) external;
+    function mint(MediaData calldata data, IMarket.BidShares calldata bidShares)
+        external;
 
     /**
      * @notice EIP-712 mintWithSig method. Mints new media for a creator given a valid signature.
@@ -61,7 +62,7 @@ interface IMedia {
     function mintWithSig(
         address creator,
         MediaData calldata data,
-        // IMarket.BidShares calldata bidShares,
+        IMarket.BidShares calldata bidShares,
         EIP712Signature calldata sig
     ) external;
 

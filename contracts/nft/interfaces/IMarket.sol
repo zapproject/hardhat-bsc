@@ -99,8 +99,6 @@ interface IMarket {
         bytes32 symbol
     ) external;
 
-    function getShares() external view returns (BidShares memory);
-
     function mintOrBurn(
         bool isMint,
         uint256 tokenId,

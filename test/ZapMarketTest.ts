@@ -62,28 +62,28 @@ describe('ZapMarket Test', () => {
   let signers: SignerWithAddress[];
 
   let bidShares1 = {
-    platformFee: {
-      value: BigNumber.from('5000000000000000000')
-    },
     owner: {
-      value: BigNumber.from('5000000000000000000')
+      value: BigNumber.from('45000000000000000000')
     },
+
+    // Set between 0-50%
     creator: {
-      value: BigNumber.from('90000000000000000000')
+      value: BigNumber.from('50000000000000000000')
     }
   };
 
   let bidShares2 = {
-    platformFee: {
-      value: BigNumber.from('5000000000000000000')
-    },
     owner: {
-      value: BigNumber.from('5000000000000000000')
+      value: BigNumber.from('45000000000000000000')
     },
+
+    // Set between 0-50%
     creator: {
-      value: BigNumber.from('90000000000000000000')
+      value: BigNumber.from('50000000000000000000')
     }
   };
+
+
 
   let invalidBidShares = {
     platformFee: {
@@ -109,7 +109,7 @@ describe('ZapMarket Test', () => {
     sellOnShare: 0
   };
 
-  describe.only('#Configure', () => {
+  describe('#Configure', () => {
 
     beforeEach(async () => {
 
@@ -335,14 +335,14 @@ describe('ZapMarket Test', () => {
     });
   });
 
-  describe.only('#setBidShares', () => {
+  describe('#setBidShares', () => {
     let data: MediaData;
 
     beforeEach(async () => {
       signers = await ethers.getSigners();
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, bidShares1], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -416,8 +416,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data);
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
       // const zapMarketV2Factory = await ethers.getContractFactory(
       //   'ZapMarketV2',
@@ -430,7 +430,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Minted event when a token is minted', async () => {
+    it('Should emit a Minted event when a token is minted', async () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
@@ -456,7 +456,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Burned event when a token is burned', async () => {
+    it('Should emit a Burned event when a token is burned', async () => {
 
       expect(await zapMedia1.connect(signers[1]).burn(0)).to.be.ok;
       expect(await zapMedia2.connect(signers[2]).burn(0)).to.be.ok;
@@ -489,7 +489,7 @@ describe('ZapMarket Test', () => {
       // expect(upgradedEvent.args?.mediaContract).to.eq(zapMedia2.address);
     });
 
-    it.only('Should reject if not called by the media address', async () => {
+    it('Should reject if not called by the media address', async () => {
 
       await expect(
         zapMarket
@@ -516,12 +516,14 @@ describe('ZapMarket Test', () => {
       // ).to.be.revertedWith('Market: Only media contract');
     });
 
-    it.only('Should set the bid shares if called by the media address', async () => {
+    it('Should set the bid shares if called by the media address', async () => {
 
       const sharesForToken1 = await zapMarket.bidSharesForToken(
         zapMedia1.address,
         0
       );
+
+      console.log(sharesForToken1)
       // const upgradedShares1 = await zapMarketV2.bidSharesForToken(
       //   zapMedia1.address,
       //   0
@@ -536,9 +538,9 @@ describe('ZapMarket Test', () => {
       //   0
       // );
 
-      expect(sharesForToken1.platformFee.value).to.be.equal(
-        bidShares1.platformFee.value
-      );
+      // expect(sharesForToken1.platformFee.value).to.be.equal(
+      //   bidShares1.platformFee.value
+      // );
       // expect(upgradedShares1.prevOwner.value).to.be.equal(
       //   bidShares1.platformFee.value
       // );
@@ -553,9 +555,9 @@ describe('ZapMarket Test', () => {
       expect(sharesForToken1.owner.value).to.be.equal(bidShares1.owner.value);
       // expect(upgradedShares1.owner.value).to.be.equal(bidShares1.owner.value);
 
-      expect(sharesForToken2.platformFee.value).to.be.equal(
-        bidShares2.platformFee.value
-      );
+      // expect(sharesForToken2.platformFee.value).to.be.equal(
+      //   bidShares2.platformFee.value
+      // );
       // expect(upgradedShares2.prevOwner.value).to.be.equal(
       //   bidShares2.prevOwner.value
       // );
@@ -572,7 +574,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit an event when bid shares are updated', async () => {
+    it('Should emit an event when bid shares are updated', async () => {
 
       const receipt1 = await mint_tx1.wait();
 
@@ -613,19 +615,19 @@ describe('ZapMarket Test', () => {
       };
 
       await expect(
-        zapMedia1.connect(signers[1]).mint(data)
+        zapMedia1.connect(signers[1]).mint(data, bidShares1)
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
     });
 
   });
 
-  describe.only('#setAsk', () => {
+  describe('#setAsk', () => {
 
     beforeEach(async () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, bidShares1], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -694,8 +696,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data);
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1);
 
       // const zapMarketV2Factory = await ethers.getContractFactory(
       //   'ZapMarketV2',
@@ -860,7 +862,7 @@ describe('ZapMarket Test', () => {
     });
   });
 
-  describe.only('#setBid', () => {
+  describe('#setBid', () => {
     let bid1: any;
     let bid2: any;
 
@@ -868,7 +870,7 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, bidShares1], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -963,8 +965,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      await zapMedia1.connect(signers[1]).mint(data);
-      await zapMedia2.connect(signers[2]).mint(data);
+      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      await zapMedia2.connect(signers[2]).mint(data, bidShares1);
 
       // const zapMarketV2Factory = await ethers.getContractFactory(
       //   'ZapMarketV2',

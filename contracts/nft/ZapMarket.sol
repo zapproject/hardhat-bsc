@@ -51,8 +51,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
     uint256 platformFee;
 
-    BidShares public configureShares;
-
     /* *********
      * Modifiers
      * *********
@@ -160,10 +158,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(
-        address _platformAddress,
-        IMarket.BidShares memory shares
-    ) public initializer {
+    function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
@@ -171,8 +166,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         platformAddress = _platformAddress;
 
         platformFee = 5000000000000000000;
-
-        configureShares = shares;
     }
 
     /**
@@ -202,10 +195,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         emit MediaContractCreated(mediaContract, name, symbol);
     }
 
-    function getShares() public view override returns (BidShares memory) {
-        return configureShares;
-    }
-
     function mintOrBurn(
         bool isMint,
         uint256 tokenId,
@@ -228,11 +217,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         BidShares memory bidShares
     ) public override onlyMediaCaller(mediaContractAddress) {
         require(
-            isValidBidShares(configureShares),
+            isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'
         );
 
-        _bidShares[mediaContractAddress][tokenId] = configureShares;
+        _bidShares[mediaContractAddress][tokenId] = bidShares;
         emit BidShareUpdated(tokenId, bidShares);
     }
 
