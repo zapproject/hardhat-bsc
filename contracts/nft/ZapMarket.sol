@@ -49,6 +49,8 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
     address platformAddress;
 
+    BidShares public configureShares;
+
     /* *********
      * Modifiers
      * *********
@@ -155,24 +157,21 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(address _platformAddress) public initializer {
+    function initializeMarket(
+        address _platformAddress,
+        IMarket.BidShares memory shares
+    ) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
         initialized = true;
         platformAddress = _platformAddress;
-        // _owner = msg.sender;
+
+        configureShares = shares;
     }
 
     /**
      * @notice Sets the media contract address. This address is the only permitted address that
      * can call the mutable functions. This method can only be called once.
      */
-    BidShares bidShareValues;
-
-    uint256 platformFeeValue;
-
-    uint256 creatorValue;
-
-    uint256 ownerValue;
 
     function configure(
         address deployer,
@@ -193,15 +192,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
         mediaContracts[deployer].push(mediaContract);
 
-        platformFeeValue = bidShareValues
-            .platformFee
-            .value = 5000000000000000000;
-
-        creatorValue = bidShareValues.creator.value = 90000000000000000000;
-
-        ownerValue = bidShareValues.owner.value = 5000000000000000000;
-
         emit MediaContractCreated(mediaContract, name, symbol);
+    }
+
+    function getShares() public view override returns (BidShares memory) {
+        return configureShares;
     }
 
     function mintOrBurn(
@@ -225,12 +220,12 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         uint256 tokenId,
         BidShares memory bidShares
     ) public override onlyMediaCaller(mediaContractAddress) {
-        console.log(bidShares.creator.value);
         require(
-            isValidBidShares(bidShares),
+            isValidBidShares(configureShares),
             'Market: Invalid bid shares, must sum to 100'
         );
-        _bidShares[mediaContractAddress][tokenId] = bidShares;
+
+        _bidShares[mediaContractAddress][tokenId] = configureShares;
         emit BidShareUpdated(tokenId, bidShares);
     }
 

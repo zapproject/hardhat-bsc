@@ -18,11 +18,10 @@ import {IMarket} from './interfaces/IMarket.sol';
 import {IMedia} from './interfaces/IMedia.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
-
-import 'hardhat/console.sol';
-
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
+
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -138,6 +137,9 @@ contract ZapMedia is
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
      */
+
+    IMarket.BidShares bidshares;
+
     function initialize(
         string memory name,
         string memory symbol,
@@ -165,6 +167,7 @@ contract ZapMedia is
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
+
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
@@ -256,17 +259,15 @@ contract ZapMedia is
     /**
      * @notice see IMedia
      */
-    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
-        public
-        override
-        nonReentrant
-    {
+    function mint(MediaData memory data) public override nonReentrant {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
 
-        _mintForCreator(msg.sender, data, bidShares);
+        IMarket zapMarket = IMarket(access.marketContract);
+
+        _mintForCreator(msg.sender, data, zapMarket.getShares());
     }
 
     /**
@@ -275,7 +276,7 @@ contract ZapMedia is
     function mintWithSig(
         address creator,
         MediaData memory data,
-        IMarket.BidShares memory bidShares,
+        // IMarket.BidShares memory bidShares,
         EIP712Signature memory sig
     ) public override nonReentrant {
         require(
@@ -297,7 +298,7 @@ contract ZapMedia is
                         Constants.MINT_WITH_SIG_TYPEHASH,
                         data.contentHash,
                         data.metadataHash,
-                        bidShares.creator.value,
+                        // bidShares.creator.value,
                         access.mintWithSigNonces[creator]++,
                         sig.deadline
                     )
@@ -313,7 +314,7 @@ contract ZapMedia is
             'Media: Signature invalid'
         );
 
-        _mintForCreator(recoveredAddress, data, bidShares);
+        // _mintForCreator(recoveredAddress, data, bidShares);
     }
 
     /**
@@ -554,19 +555,13 @@ contract ZapMedia is
         MediaData memory data,
         IMarket.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
-        require(
-            data.contentHash != 0,
-            // remove revert string before deployment to mainnet
-            'Media: content hash must be non-zero'
-        );
+        require(data.contentHash != 0, 'Media: content hash must be non-zero');
         require(
             access._contentHashes[data.contentHash] == false,
-            // remove revert string before deployment to mainnet
             'Media: a token has already been created with this content hash'
         );
         require(
             data.metadataHash != 0,
-            // remove revert string before deployment to mainnet
             'Media: metadata hash must be non-zero'
         );
 

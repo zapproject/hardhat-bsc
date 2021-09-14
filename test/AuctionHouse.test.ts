@@ -115,7 +115,9 @@ describe("AuctionHouse", () => {
 
   describe("#constructor", () => {
 
-    it("should be able to deploy", async () => {
+    it.only("should be able to deploy", async () => {
+
+      console.log(BigNumber.from(10).pow(18).div(2))
 
       const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
 

@@ -406,8 +406,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data,);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data,);
 
       const zapMarketV2Factory = await ethers.getContractFactory(
         'ZapMarketV2',
@@ -476,11 +476,11 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should reject if not called by the media address', async () => {
-      await expect(
-        zapMarket
-          .connect(signers[3])
-          .setBidShares(zapMedia1.address, 1, bidShares1)
-      ).to.be.revertedWith('Market: Only media contract');
+      // await expect(
+      //   zapMarket
+      //     .connect(signers[3])
+      //     .setBidShares(zapMedia1.address, 1,)
+      // ).to.be.revertedWith('Market: Only media contract');
 
       // await expect(
       //   zapMarketV2
@@ -488,11 +488,11 @@ describe('ZapMarket Test', () => {
       //     .setBidShares(zapMedia1.address, 1, bidShares1)
       // ).to.be.revertedWith('Market: Only media contract');
 
-      await expect(
-        zapMarket
-          .connect(signers[4])
-          .setBidShares(zapMedia2.address, 1, bidShares1)
-      ).to.be.revertedWith('Market: Only media contract');
+      // await expect(
+      //   zapMarket
+      //     .connect(signers[4])
+      //     .setBidShares(zapMedia2.address, 1)
+      // ).to.be.revertedWith('Market: Only media contract');
 
       // await expect(
       //   zapMarketV2
@@ -593,7 +593,7 @@ describe('ZapMarket Test', () => {
       };
 
       await expect(
-        zapMedia1.connect(signers[1]).mint(data, invalidBidShares)
+        zapMedia1.connect(signers[1]).mint(data)
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
     });
   });
@@ -669,8 +669,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data);
 
       const zapMarketV2Factory = await ethers.getContractFactory(
         'ZapMarketV2',
@@ -836,7 +836,7 @@ describe('ZapMarket Test', () => {
 
     beforeEach(async () => {
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, bidShares1], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -931,8 +931,14 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      await zapMedia1.connect(signers[1]).mint(data);
+      await zapMedia2.connect(signers[2]).mint(data);
+
+
+      console.log(await zapMarket.bidSharesForToken(zapMedia1.address, 0))
+
+
+
 
       // const zapMarketV2Factory = await ethers.getContractFactory(
       //   'ZapMarketV2',
@@ -1076,31 +1082,32 @@ describe('ZapMarket Test', () => {
     });
 
     it.only('Should accept a valid bid', async () => {
-      await zapTokenBsc.mint(signers[1].address, bid1.amount);
-      await zapTokenBsc.mint(signers[2].address, bid2.amount);
+      // console.log(BigNumber.from(10).pow(18).div(2))
+      // await zapTokenBsc.mint(signers[1].address, bid1.amount);
+      // await zapTokenBsc.mint(signers[2].address, bid2.amount);
 
-      await zapTokenBsc
-        .connect(signers[1])
-        .approve(zapMarket.address, bid1.amount);
-      await zapTokenBsc
-        .connect(signers[2])
-        .approve(zapMarket.address, bid2.amount);
+      // await zapTokenBsc
+      //   .connect(signers[1])
+      //   .approve(zapMarket.address, bid1.amount);
+      // await zapTokenBsc
+      //   .connect(signers[2])
+      //   .approve(zapMarket.address, bid2.amount);
 
-      const beforeBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
-      const beforeBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
+      // const beforeBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
+      // const beforeBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
 
-      await zapMedia1.connect(signers[1]).setBid(0, bid1);
+      // await zapMedia1.connect(signers[1]).setBid(0, bid1);
 
-      await zapMedia2.connect(signers[2]).setBid(0, bid2);
+      // await zapMedia2.connect(signers[2]).setBid(0, bid2);
 
-      const afterBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
-      const afterBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
+      // const afterBalance1 = await zapTokenBsc.balanceOf(bid1.bidder);
+      // const afterBalance2 = await zapTokenBsc.balanceOf(bid2.bidder);
 
-      const getBid1 = await zapMarket.bidForTokenBidder(
-        zapMedia1.address,
-        0,
-        bid1.bidder
-      );
+      // const getBid1 = await zapMarket.bidForTokenBidder(
+      //   zapMedia1.address,
+      //   0,
+      //   bid1.bidder
+      // );
 
       // const upgradedBid1 = await zapMarketV2.bidForTokenBidder(
       //   zapMedia1.address,
@@ -1108,20 +1115,20 @@ describe('ZapMarket Test', () => {
       //   bid1.bidder
       // );
 
-      const getBid2 = await zapMarket.bidForTokenBidder(
-        zapMedia2.address,
-        0,
-        bid2.bidder
-      );
+      // const getBid2 = await zapMarket.bidForTokenBidder(
+      //   zapMedia2.address,
+      //   0,
+      //   bid2.bidder
+      // );
 
 
-      console.log(await zapTokenBsc.balanceOf(signers[19].address))
+      // console.log(await zapTokenBsc.balanceOf(signers[19].address))
 
-      await zapMedia1.acceptBid(0, bid1)
+      // await zapMedia1.acceptBid(0, bid1)
 
-      console.log(await zapTokenBsc.balanceOf(signers[19].address))
+      // console.log(await zapTokenBsc.balanceOf(signers[19].address))
 
-      console.log(await zapMedia1.balanceOf(bid1.recipient))
+      // console.log(await zapMedia1.balanceOf(bid1.recipient))
 
 
       // const upgradedBid2 = await zapMarketV2.bidForTokenBidder(
