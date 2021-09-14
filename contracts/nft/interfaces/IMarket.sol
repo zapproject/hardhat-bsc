@@ -31,7 +31,7 @@ interface IMarket {
 
     struct BidShares {
         // % of sale value that goes to the _previous_ owner of the nft
-        Decimal.D256 platformFee;
+        // Decimal.D256 platformFee;
         // % of sale value that goes to the original creator of the nft
         Decimal.D256 creator;
         // % of sale value that goes to the seller (current owner) of the nft
