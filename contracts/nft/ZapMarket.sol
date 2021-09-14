@@ -49,6 +49,8 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
     address platformAddress;
 
+    uint256 platformFee;
+
     BidShares public configureShares;
 
     /* *********
@@ -116,11 +118,12 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             isValidBidShares(bidShares),
             'Market: Invalid bid shares for token'
         );
+
         return
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
-                    .add(splitShare(bidShares.platformFee, bidAmount))
+                    .add(splitShare(Decimal.D256(platformFee), bidAmount))
                     .add(splitShare(bidShares.owner, bidAmount)));
     }
 
@@ -162,8 +165,12 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         IMarket.BidShares memory shares
     ) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
+
         initialized = true;
+
         platformAddress = _platformAddress;
+
+        platformFee = 5000000000000000000;
 
         configureShares = shares;
     }
