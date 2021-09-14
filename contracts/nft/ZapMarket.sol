@@ -112,6 +112,10 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             mediaContractAddress,
             tokenId
         );
+
+        console.log('BidShare Owner', bidShares.owner.value);
+        console.log('BidShare Creator', bidShares.creator.value);
+
         require(
             isValidBidShares(bidShares),
             'Market: Invalid bid shares for token'
