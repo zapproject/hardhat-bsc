@@ -49,7 +49,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
     address platformAddress;
 
-    uint256 platformFee;
+    IMarket.PlatformFee platformFee;
 
     /* *********
      * Modifiers
@@ -115,6 +115,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
         console.log('BidShare Owner', bidShares.owner.value);
         console.log('BidShare Creator', bidShares.creator.value);
+        console.log('Fee', platformFee.fee.value);
 
         require(
             isValidBidShares(bidShares),
@@ -125,8 +126,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
-                    .add(splitShare(Decimal.D256(platformFee), bidAmount))
-                    .add(splitShare(bidShares.owner, bidAmount)));
+                    .add(splitShare(platformFee.fee, bidAmount))
+                    .add(
+                        // .add(splitShare(Decimal.D256(platformFee), bidAmount))
+                        splitShare(bidShares.owner, bidAmount)
+                    ));
     }
 
     /**
@@ -140,7 +144,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     {
         return
             bidShares.creator.value.add(bidShares.owner.value).add(
-                platformFee
+                platformFee.fee.value
             ) == uint256(100).mul(Decimal.BASE);
     }
 
@@ -162,14 +166,17 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(address _platformAddress) public initializer {
+    function initializeMarket(
+        address _platformAddress,
+        IMarket.PlatformFee memory _platformFee
+    ) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
 
         platformAddress = _platformAddress;
 
-        platformFee = 5000000000000000000;
+        platformFee = _platformFee;
     }
 
     /**
@@ -376,6 +383,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
                 bid.recipient == expectedBid.recipient,
             'Market: Unexpected bid found.'
         );
+
         require(
             isValidBid(mediaContractAddress, tokenId, bid.amount),
             'Market: Bid invalid for share splitting'
@@ -414,7 +422,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         token.safeTransfer(
             // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
             platformAddress,
-            splitShare(Decimal.D256(platformFee), bid.amount)
+            splitShare(platformFee.fee, bid.amount)
         );
 
         // Transfer media to bid recipient
@@ -429,7 +437,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
                 .sub(bid.sellOnShare.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
-        platformFee = bid.sellOnShare.value;
+        // platformFee.fee = bid.sellOnShare;
 
         // Remove the accepted bid
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
