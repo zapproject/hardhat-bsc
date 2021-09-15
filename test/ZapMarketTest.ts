@@ -21,7 +21,7 @@ import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from '../typechain/ZapMarket';
 
 import { ZapMarketV2 } from '../typechain/ZapMarketV2';
-
+import { ZapVault } from '../typechain/ZapVault'
 chai.use(solidity);
 
 type MediaData = {
@@ -35,7 +35,7 @@ let tokenURI = 'www.example.com';
 let metadataURI = 'www.example2.com';
 let contentHashBytes: Bytes;
 let metadataHashBytes: Bytes;
-
+let vault: ZapVault;
 let mint_tx1: any;
 let mint_tx2: any;
 
@@ -67,6 +67,7 @@ describe('ZapMarket Test', () => {
   let zapMedia1: ZapMedia;
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
+  let zapVault: ZapVault;
   let signers: SignerWithAddress[];
 
   let bidShares1 = {
@@ -115,6 +116,12 @@ describe('ZapMarket Test', () => {
 
     beforeEach(async () => {
 
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+      
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
       zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, platformFee], {
         initializer: 'initializeMarket'
@@ -163,6 +170,7 @@ describe('ZapMarket Test', () => {
       ])) as ZapMedia;
 
       await zapMedia3.deployed();
+
 
       ask1.currency = zapTokenBsc.address;
 
