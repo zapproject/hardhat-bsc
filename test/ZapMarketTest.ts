@@ -21,7 +21,9 @@ import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from '../typechain/ZapMarket';
 
 import { ZapMarketV2 } from '../typechain/ZapMarketV2';
-import { ZapVault } from '../typechain/ZapVault'
+
+import { ZapVault } from '../typechain/ZapVault';
+
 chai.use(solidity);
 
 type MediaData = {
@@ -116,14 +118,23 @@ describe('ZapMarket Test', () => {
 
     beforeEach(async () => {
 
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
       const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
       zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, platformFee], {
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -363,8 +374,23 @@ describe('ZapMarket Test', () => {
     beforeEach(async () => {
       signers = await ethers.getSigners();
 
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, platformFee], {
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -412,11 +438,6 @@ describe('ZapMarket Test', () => {
       ])) as ZapMedia;
 
       await zapMedia3.deployed();
-
-      const zapTokenFactory = await ethers.getContractFactory(
-        'ZapTokenBSC',
-        signers[0]
-      );
 
       ask1.currency = zapTokenBsc.address;
 
@@ -647,9 +668,23 @@ describe('ZapMarket Test', () => {
 
     beforeEach(async () => {
 
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -908,9 +943,23 @@ describe('ZapMarket Test', () => {
 
     beforeEach(async () => {
 
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [signers[19].address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
@@ -956,14 +1005,6 @@ describe('ZapMarket Test', () => {
       ])) as ZapMedia;
 
       await zapMedia3.deployed();
-
-      const zapTokenFactory = await ethers.getContractFactory(
-        'ZapTokenBSC',
-        signers[0]
-      );
-
-      zapTokenBsc = await zapTokenFactory.deploy();
-      await zapTokenBsc.deployed();
 
       bid1 = {
         amount: 100,
@@ -1455,8 +1496,8 @@ describe('ZapMarket Test', () => {
       const recipientPreBal = await zapMedia1.balanceOf(bid1.recipient);
       expect(parseInt(recipientPreBal._hex)).to.equal(0);
 
-      const tempPlatformPreBal = await zapTokenBsc.balanceOf(signers[19].address);
-      expect(parseInt(tempPlatformPreBal._hex)).to.equal(0);
+      const vaultPreBal = await zapTokenBsc.balanceOf(zapVault.address);
+      expect(parseInt(vaultPreBal._hex)).to.equal(0);
 
       await zapMedia1.setBid(0, bid1);
       await zapMedia2.setBid(0, bid2);
@@ -1473,8 +1514,8 @@ describe('ZapMarket Test', () => {
       const recipientPostBal = await zapMedia1.balanceOf(bid1.recipient);
       expect(parseInt(recipientPostBal._hex)).to.equal(1);
 
-      const tempPlatformPostBal = await zapTokenBsc.balanceOf(signers[19].address);
-      expect(parseInt(tempPlatformPostBal._hex)).to.equal(10);
+      const vaultPostBal = await zapTokenBsc.balanceOf(zapVault.address);
+      expect(parseInt(vaultPostBal._hex)).to.equal(10);
 
     })
 
