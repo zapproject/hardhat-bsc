@@ -26,18 +26,18 @@ contract ZapVault is  Initializable, Ownable {
         // zapToken=token;
         zapToken = IERC20Upgradeable(token);
 	}
-	function deposit(address userAddress, uint256 value) public {
-        require(userAddress != address(0), "The zero address does not own a vault.");
-        require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
-        balances[userAddress] = balances[userAddress].add(value);
-        zapToken.safeTransferFrom(userAddress, address(this), value);
-    }
+	// function deposit(address userAddress, uint256 value) public {
+ //        require(userAddress != address(0), "The zero address does not own a vault.");
+ //        require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
+ //        balances[userAddress] = balances[userAddress].add(value);
+ //        zapToken.safeTransferFrom(userAddress, address(this), value);
+ //    }
 
     function withdraw(address userAddress, uint256 value) public {
         require(userAddress != address(0), "The zero address does not own a vault.");
         require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
-        require(userBalance(userAddress) >= value, "Your balance is insufficient.");
-        balances[userAddress] = balances[userAddress].sub(value);
+        require(address(this).balance >= value, "Your balance is insufficient.");
+        // balances[userAddress] = balances[userAddress].sub(value);
         zapToken.safeTransfer(userAddress,value);
     }
 
