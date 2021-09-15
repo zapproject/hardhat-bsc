@@ -882,7 +882,7 @@ describe('ZapMarket Test', () => {
     });
   });
 
-  describe('#setBid', () => {
+  describe.only('#setBid', () => {
     let bid1: any;
     let bid2: any;
 
@@ -957,7 +957,7 @@ describe('ZapMarket Test', () => {
       };
 
       bid2 = {
-        amount: 200,
+        amount: 100,
         currency: zapTokenBsc.address,
         bidder: signers[2].address,
         recipient: signers[9].address,
@@ -1435,28 +1435,38 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
       await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
 
-      const marketPreBal = await zapTokenBsc.balanceOf(zapMarket.address);
-      expect(parseInt(marketPreBal._hex)).to.equal(0);
+      // const marketPreBal = await zapTokenBsc.balanceOf(zapMarket.address);
+      // expect(parseInt(marketPreBal._hex)).to.equal(0);
 
-      const recipientPreBal = await zapMedia1.balanceOf(bid1.recipient);
-      expect(parseInt(recipientPreBal._hex)).to.equal(0);
+      // const recipientPreBal = await zapMedia1.balanceOf(bid1.recipient);
+      // expect(parseInt(recipientPreBal._hex)).to.equal(0);
 
-      const tempPlatformPreBal = await zapTokenBsc.balanceOf(signers[19].address);
-      expect(parseInt(tempPlatformPreBal._hex)).to.equal(0);
+      // const tempPlatformPreBal = await zapTokenBsc.balanceOf(signers[19].address);
+      // expect(parseInt(tempPlatformPreBal._hex)).to.equal(0);
 
-      await zapMedia1.connect(signers[1]).setBid(0, bid1);
-      await zapMedia2.connect(signers[2]).setBid(0, bid2);
+      // await zapMedia1.connect(signers[1]).setBid(0, bid1);
 
-      const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
-      expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
+      // const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
+      // expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount);
 
-      await zapMedia1.acceptBid(0, bid1)
 
-      const recipientPostBal = await zapMedia1.balanceOf(bid1.recipient);
-      expect(parseInt(recipientPostBal._hex)).to.equal(1)
+      // await zapMedia1.acceptBid(0, bid1);
 
-      const tempPlatformPostBal = await zapTokenBsc.balanceOf(signers[19].address);
-      expect(parseInt(tempPlatformPostBal._hex)).to.equal(5);
+      // console.log(await zapTokenBsc.balanceOf(zapMarket.address))
+      await zapMedia1.setBid(0, bid1)
+      await zapMedia2.setBid(0, bid2);
+
+      console.log(await zapMarket.bidForTokenBidder(zapMedia1.address, 0, bid1.bidder))
+      console.log(await zapMarket.bidForTokenBidder(zapMedia2.address, 0, bid2.bidder))
+
+
+
+
+      // const recipientPostBal = await zapMedia1.balanceOf(bid1.recipient);
+      // expect(parseInt(recipientPostBal._hex)).to.equal(1)
+
+      // const tempPlatformPostBal = await zapTokenBsc.balanceOf(signers[19].address);
+      // expect(parseInt(tempPlatformPostBal._hex)).to.equal(5);
 
     })
 
