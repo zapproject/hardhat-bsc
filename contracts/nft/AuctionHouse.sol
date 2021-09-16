@@ -14,6 +14,7 @@ import {Decimal} from './Decimal.sol';
 import {IMedia} from './interfaces/IMedia.sol';
 import {IAuctionHouse} from './interfaces/IAuctionHouse.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import 'hardhat/console.sol';
 
 interface IWETH {
     function deposit() external payable;
@@ -236,6 +237,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             amount >= auctions[auctionId].reservePrice,
             'Must send at least reservePrice'
         );
+
         require(
             amount >=
                 auctions[auctionId].amount.add(
@@ -280,6 +282,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
 
         auctions[auctionId].amount = amount;
+
         auctions[auctionId].bidder = payable(msg.sender);
 
         bool extended = false;
@@ -364,7 +367,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                 bool success,
                 uint256 remainingProfit
             ) = _handleZapAuctionSettlement(auctionId, mediaContract);
+
             tokenOwnerProfit = remainingProfit;
+
             if (success != true) {
                 _handleOutgoingBid(
                     auctions[auctionId].bidder,
@@ -398,7 +403,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             curatorFee = tokenOwnerProfit
                 .mul(auctions[auctionId].curatorFeePercentage)
                 .div(100);
+
             tokenOwnerProfit = tokenOwnerProfit.sub(curatorFee);
+
             _handleOutgoingBid(
                 auctions[auctionId].curator,
                 curatorFee,
@@ -555,10 +562,21 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             IMediaExtended(mediaContract).marketContract(),
             bid.amount
         );
+
         IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
+
+        // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
         );
+
+        console.log(
+            'Market should have one eth',
+            IERC20Upgradeable(currency).balanceOf(
+                IMediaExtended(mediaContract).marketContract()
+            )
+        );
+
         try
             IMedia(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
@@ -571,12 +589,21 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             );
             return (false, 0);
         }
+
+        console.log(
+            IERC20Upgradeable(currency).balanceOf(
+                auctions[auctionId].tokenOwner
+            )
+        );
+
+        // 5e17
         uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
         );
 
         // We have to calculate the amount to send to the token owner here in case there was a
         // sell-on share on the token
+
         return (true, afterBalance.sub(beforeBalance));
     }
 

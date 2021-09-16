@@ -1517,6 +1517,7 @@ describe('ZapMarket Test', () => {
       const vaultPostBal = await zapTokenBsc.balanceOf(zapVault.address);
       expect(parseInt(vaultPostBal._hex)).to.equal(10);
 
+
     })
 
   });

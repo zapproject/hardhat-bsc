@@ -372,6 +372,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             expectedBid.bidder
         ];
         require(bid.amount > 0, 'Market: cannot accept bid of 0');
+        console.log('Bid Amount', bid.amount);
         require(
             bid.amount == expectedBid.amount &&
                 bid.currency == expectedBid.currency &&

@@ -1,6 +1,6 @@
 import chai, { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC } from "../typechain";
+import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC, ZapVault } from "../typechain";
 import { } from "../typechain";
 import { BigNumber, Contract, Signer, Bytes } from "ethers";
 
@@ -26,6 +26,7 @@ describe("AuctionHouse", () => {
   let media3: ZapMedia;
   let weth: Contract;
   let zapTokenBsc: ZapTokenBSC;
+  let zapVault: ZapVault;
   let badERC721: BadERC721;
   let testERC721: TestERC721;
   let signers: SignerWithAddress[]
@@ -68,6 +69,7 @@ describe("AuctionHouse", () => {
     media2 = contracts.media2;
     media3 = contracts.media3;
     zapTokenBsc = contracts.zapTokenBsc;
+    zapVault = contracts.zapVault;
 
     weth = await deployWETH();
     badERC721 = nfts.bad;
@@ -1017,17 +1019,23 @@ describe("AuctionHouse", () => {
       });
 
       it("should pay the curator their curatorFee percentage", async () => {
+
         const beforeBalance = await zapTokenBsc.balanceOf(
           await curator.getAddress()
         );
+
         await auctionHouse.endAuction(0, media1.address);
-        const expectedCuratorFee = "42500000000000000";
+
+        const expectedCuratorFee = "22500000000000000";
+
         const curatorBalance = await zapTokenBsc.balanceOf(
           await curator.getAddress()
         );
+
         await expect(curatorBalance.sub(beforeBalance).toString()).to.eq(
           expectedCuratorFee
         );
+
       });
 
       it("should pay the creator the remainder of the winning bid", async () => {

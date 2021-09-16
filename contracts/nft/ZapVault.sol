@@ -27,58 +27,21 @@ contract ZapVault is Initializable, Ownable {
         zapToken = IERC20Upgradeable(token);
     }
 
-    // function deposit(address userAddress, uint256 value) public {
-    //        require(userAddress != address(0), "The zero address does not own a vault.");
-    //        require(hasAccess(msg.sender, userAddress), "You are not authorized to access this vault.");
-    //        balances[userAddress] = balances[userAddress].add(value);
-    //        zapToken.safeTransferFrom(userAddress, address(this), value);
-    //    }
-
     function vaultBalance() public view returns (uint256) {
         return zapToken.balanceOf(address(this));
     }
 
-    function withdraw(address userAddress, uint256 value) public {
+    function withdraw(uint256 value) public {
         require(
-            userAddress != address(0),
+            msg.sender != address(0),
             'The zero address does not own a vault.'
         );
-        require(
-            hasAccess(msg.sender, userAddress),
-            'You are not authorized to access this vault.'
-        );
+
         require(
             address(this).balance >= value,
             'Your balance is insufficient.'
         );
-        // balances[userAddress] = balances[userAddress].sub(value);
-        zapToken.safeTransfer(userAddress, value);
-    }
 
-    function lockSmith(address miniVault, address authorizedUser) public {
-        require(msg.sender == miniVault, 'You do not own this vault.');
-        require(
-            msg.sender != address(0) || miniVault != msg.sender,
-            'The zero address can not own a vault.'
-        );
-
-        // gives the mini-vault owner keys if they don't already have
-        if (!keys[miniVault][msg.sender]) {
-            keys[miniVault][miniVault] = true;
-        }
-
-        keys[miniVault][authorizedUser] = true;
-    }
-
-    function hasAccess(address user, address miniVault)
-        public
-        view
-        returns (bool)
-    {
-        require(
-            msg.sender != address(0) || miniVault != msg.sender,
-            'The zero address does not own a vault.'
-        );
-        return keys[miniVault][user];
+        zapToken.safeTransfer(msg.sender, value);
     }
 }

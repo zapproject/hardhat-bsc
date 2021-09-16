@@ -134,7 +134,7 @@ export const deployZapNFTMarketplace = async () => {
   ).deployed() as ZapMedia;
 
 
-  return { market, media1, media2, media3, zapTokenBsc };
+  return { market, media1, media2, media3, zapTokenBsc, zapVault };
 };
 
 export const deployBidder = async (auction: string, nftContract: string) => {
@@ -158,8 +158,8 @@ export const mint = async (media: ZapMedia) => {
       metadataHash: hash,
     },
     {
-      owner: Decimal.new(50),
-      creator: Decimal.new(45),
+      owner: Decimal.new(45),
+      creator: Decimal.new(50),
     }
   );
 
