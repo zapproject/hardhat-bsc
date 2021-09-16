@@ -18,14 +18,12 @@ contract ZapVault is Initializable, Ownable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     bool private initialized;
     IERC20Upgradeable zapToken;
-    // address public zapToken;
-    mapping(address => uint256) balances;
     mapping(address => mapping(address => bool)) keys;
 
     function initializeVault(address token) public initializer {
         require(!initialized, 'Vault: Instance has already been initialized');
+
         initialized = true;
-        // zapToken=token;
         zapToken = IERC20Upgradeable(token);
     }
 
@@ -35,6 +33,10 @@ contract ZapVault is Initializable, Ownable {
     //        balances[userAddress] = balances[userAddress].add(value);
     //        zapToken.safeTransferFrom(userAddress, address(this), value);
     //    }
+
+    function vaultBalance() public view returns (uint256) {
+        return zapToken.balanceOf(address(this));
+    }
 
     function withdraw(address userAddress, uint256 value) public {
         require(
@@ -51,14 +53,6 @@ contract ZapVault is Initializable, Ownable {
         );
         // balances[userAddress] = balances[userAddress].sub(value);
         zapToken.safeTransfer(userAddress, value);
-    }
-
-    function userBalance(address userAddress)
-        public
-        view
-        returns (uint256 balance)
-    {
-        return balances[userAddress];
     }
 
     function lockSmith(address miniVault, address authorizedUser) public {

@@ -67,13 +67,11 @@ describe("AuctionHouse", () => {
     media1 = contracts.media1;
     media2 = contracts.media2;
     media3 = contracts.media3;
+    zapTokenBsc = contracts.zapTokenBsc;
 
     weth = await deployWETH();
     badERC721 = nfts.bad;
     testERC721 = nfts.test;
-    const zapTokenFactory = await ethers.getContractFactory('ZapTokenBSC');
-
-    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
 
     let [_, two, three, bidder] = await ethers.getSigners();
 
@@ -115,9 +113,9 @@ describe("AuctionHouse", () => {
 
   describe("#constructor", () => {
 
-    it.only("should be able to deploy", async () => {
+    it("should be able to deploy", async () => {
 
-      console.log(BigNumber.from(10).pow(18).div(2))
+      BigNumber.from(10).pow(18).div(2)
 
       const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
 
@@ -421,7 +419,9 @@ describe("AuctionHouse", () => {
         media1.connect(creator),
         auctionHouse.connect(creator)
       );
+
       await auctionHouse.setTokenDetails(0, media1.address);
+
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
@@ -940,7 +940,9 @@ describe("AuctionHouse", () => {
       auctionHouse = (await deploy(creator)) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
+
       await auctionHouse.setTokenDetails(0, media1.address);
+
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
@@ -997,13 +999,18 @@ describe("AuctionHouse", () => {
         await auctionHouse
           .connect(bidder)
           .createBid(0, ONE_ETH, media1.address, { value: ONE_ETH });
+
         const endTime =
           (await auctionHouse.auctions(0)).duration.toNumber() +
           (await auctionHouse.auctions(0)).firstBidTime.toNumber();
+
+
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTime + 1]);
+
       });
 
       it("should transfer the NFT to the winning bidder", async () => {
+
         await auctionHouse.endAuction(0, media1.address);
 
         expect(await media1.ownerOf(0)).to.eq(await bidder.getAddress());
@@ -1073,6 +1080,7 @@ describe("AuctionHouse", () => {
       });
 
       it("should delete the auction", async () => {
+
         await auctionHouse.endAuction(0, media1.address);
 
         const auctionResult = await auctionHouse.auctions(0);
