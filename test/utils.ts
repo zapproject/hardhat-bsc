@@ -271,6 +271,5 @@ export async function signMintWithSig(
     v: sig.v,
     deadline: deadline.toString(),
   }
-
   return sig;
 }

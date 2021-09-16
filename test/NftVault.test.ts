@@ -74,4 +74,15 @@ describe('NFT Platform Vault Test', () => {
 
     });
 
+    it('Should add a new whitelisted address', async () => {
+
+        await zapVault.addWhitelist(signers[1].address);
+
+        const status = await zapVault.whitelistStatus(signers[1].address);
+
+        expect(status).to.equal(true);
+
+    });
+
+
 })

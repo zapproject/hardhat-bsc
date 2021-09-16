@@ -309,6 +309,7 @@ contract ZapMedia is
 
         address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
 
+        console.log('Recovered Address', recoveredAddress);
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
             // remove revert string before deployment to mainnet
