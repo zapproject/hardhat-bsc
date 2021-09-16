@@ -570,13 +570,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             address(this)
         );
 
-        console.log(
-            'Market should have one eth',
-            IERC20Upgradeable(currency).balanceOf(
-                IMediaExtended(mediaContract).marketContract()
-            )
-        );
-
         try
             IMedia(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
@@ -589,12 +582,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             );
             return (false, 0);
         }
-
-        console.log(
-            IERC20Upgradeable(currency).balanceOf(
-                auctions[auctionId].tokenOwner
-            )
-        );
 
         // 5e17
         uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(

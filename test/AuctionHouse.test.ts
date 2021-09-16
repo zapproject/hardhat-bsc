@@ -1042,8 +1042,9 @@ describe("AuctionHouse", () => {
         const beforeBalance = await zapTokenBsc.balanceOf(
           await creator.getAddress()
         );
+
         await auctionHouse.endAuction(0, media1.address);
-        const expectedProfit = "957500000000000000";
+        const expectedProfit = "927500000000000000";
         const creatorBalance = await zapTokenBsc.balanceOf(
           await creator.getAddress()
         );
@@ -1078,11 +1079,12 @@ describe("AuctionHouse", () => {
         expect(logDescription.args.tokenOwner).to.eq(auctionData.tokenOwner);
         expect(logDescription.args.curator).to.eq(auctionData.curator);
         expect(logDescription.args.winner).to.eq(auctionData.bidder);
+
         expect(logDescription.args.amount.toString()).to.eq(
-          "807500000000000000"
+          "427500000000000000"
         );
         expect(logDescription.args.curatorFee.toString()).to.eq(
-          "42500000000000000"
+          "22500000000000000"
         );
         expect(logDescription.args.auctionCurrency).to.eq(zapTokenBsc.address);
       });
