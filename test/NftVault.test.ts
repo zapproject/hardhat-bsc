@@ -35,6 +35,8 @@ describe('NFT Platform Vault Test', () => {
 
         signers.forEach(async signer => await zapTokenBsc.allocate(signer.address, 1000));
 
+        await zapTokenBsc.allocate(zapVault.address, 1000);
+
     });
 
     it("Should get the Vault owner", async () => {
@@ -53,6 +55,22 @@ describe('NFT Platform Vault Test', () => {
         expect(status).to.be.equal(true);
 
         expect(whitelistAddresses.length).to.equal(1);
+
+    });
+
+    it('Should only allow a whitelisted address to view the balance', async () => {
+
+        const balance = await zapVault.vaultBalance();
+
+        expect(parseInt(balance._hex)).to.equal(1000);
+
+    });
+
+    it('Should revert if a non whitelisted address tries to view the balance', async () => {
+
+        await expect(zapVault.connect(signers[2]).vaultBalance()).to.be.revertedWith(
+            'Vault: Address is not whitelisted'
+        );
 
     });
 

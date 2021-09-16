@@ -22,7 +22,10 @@ contract ZapVault is Initializable, Ownable {
     address[] whitelisted;
 
     modifier onlyWhitelisted() {
-        require(whitelistStatus[msg.sender] == true);
+        require(
+            whitelistStatus[msg.sender] == true,
+            'Vault: Address is not whitelisted'
+        );
         _;
     }
 
@@ -61,7 +64,6 @@ contract ZapVault is Initializable, Ownable {
     }
 
     function vaultBalance() public view onlyWhitelisted returns (uint256) {
-        require(whitelistStatus[msg.sender], 'Address is not whitelisted');
         return zapToken.balanceOf(address(this));
     }
 
