@@ -50,7 +50,12 @@ contract ZapVault is Initializable, Ownable {
     {
         require(
             _whitelisted != address(0),
-            'Address can not be a zero address'
+            'Vault: Address can not be a zero address'
+        );
+
+        require(
+            whitelistStatus[_whitelisted] != true,
+            'Vault: Address is already whitelisted'
         );
 
         whitelistStatus[_whitelisted] = true;
@@ -67,10 +72,10 @@ contract ZapVault is Initializable, Ownable {
         return zapToken.balanceOf(address(this));
     }
 
-    function withdraw(uint256 value) public onlyWhitelisted {
+    function withdraw(uint256 value) public onlyOwner {
         require(
             zapToken.balanceOf(address(this)) >= value,
-            'Your balance is insufficient.'
+            'Vault: Withdraw amount is insufficient.'
         );
 
         zapToken.safeTransfer(msg.sender, value);

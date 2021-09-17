@@ -66,6 +66,14 @@ describe('NFT Platform Vault Test', () => {
 
     });
 
+    it("Should revert if there is an attempt to initialize the vault twice", async () => {
+
+        await expect(zapVault.initializeVault(zapTokenBsc.address)).to.be.revertedWith(
+            'Initializable: contract is already initialized'
+        );
+
+    });
+
     it('Should revert if a non whitelisted address tries to view the balance', async () => {
 
         await expect(zapVault.connect(signers[2]).vaultBalance()).to.be.revertedWith(
@@ -90,5 +98,99 @@ describe('NFT Platform Vault Test', () => {
 
     });
 
+    it('Should revert if there is an attempt to whitelist an already whitelisted address', async () => {
+
+        const preAdd = await zapVault.getWhitelisted();
+
+        await zapVault.addWhitelist(signers[1].address);
+
+        const status = await zapVault.whitelistStatus(signers[1].address);
+
+        await expect(zapVault.addWhitelist(signers[1].address)).to.be.revertedWith(
+
+            'Vault: Address is already whitelisted'
+        );
+
+        const postAdd = await zapVault.getWhitelisted();
+
+        expect(preAdd.length).to.equal(1);
+
+        expect(status).to.equal(true);
+
+        expect(postAdd.length).to.equal(preAdd.length + 1);
+
+    })
+
+    it('Should revert if a non whitelisted address tries to whitelist an address', async () => {
+
+        await expect(zapVault.connect(signers[1]).addWhitelist(signers[2].address)).to.be.revertedWith(
+            'Ownable: Only owner has access to this function'
+        );
+
+    });
+
+    it('Should revert if a whitelisted address tries to whitelist an address', async () => {
+
+        await zapVault.addWhitelist(signers[1].address);
+
+        await expect(zapVault.connect(signers[1]).addWhitelist(signers[2].address)).to.be.revertedWith(
+            'Ownable: Only owner has access to this function'
+        );
+
+    });
+
+    it('Should withdraw tokens from the vault', async () => {
+
+        const initalBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        await zapVault.withdraw(initalBal);
+
+        const postBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        expect(postBal).to.be.equal(0);
+
+    });
+
+    it('Should revert if withdraw amount exceeds balance amount', async () => {
+
+        const initalBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        await expect(zapVault.withdraw(initalBal + 1)).to.be.revertedWith(
+            'Vault: Withdraw amount is insufficient.'
+        );
+
+        const postBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        expect(postBal).to.be.equal(initalBal);
+
+    });
+
+    it('Should revert if withdraw is not done by the owner', async () => {
+
+        const initalBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        await expect(zapVault.connect(signers[1]).withdraw(initalBal)).to.be.revertedWith(
+            'Ownable: Only owner has access to this function'
+        );
+
+        const postBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        expect(postBal).to.be.equal(initalBal);
+
+    });
+
+    it('Should revert if withdraw is done by a whitelisted address', async () => {
+
+        const initalBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        await expect(zapVault.connect(signers[1]).withdraw(initalBal)).to.be.revertedWith(
+            'Ownable: Only owner has access to this function'
+        );
+
+        const postBal = parseInt(await (await zapVault.vaultBalance())._hex);
+
+        expect(postBal).to.be.equal(initalBal);
+
+    })
 
 })
