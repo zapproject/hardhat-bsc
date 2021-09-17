@@ -15,6 +15,7 @@ import 'hardhat/console.sol';
 contract ZapVault is Initializable, Ownable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
+
     bool private initialized;
     IERC20Upgradeable zapToken;
 
@@ -28,8 +29,6 @@ contract ZapVault is Initializable, Ownable {
         );
         _;
     }
-
-    // event WhitelistAdded(address whitelisted, bool status);
 
     function initializeVault(address token) public initializer {
         require(!initialized, 'Vault: Instance has already been initialized');
@@ -62,8 +61,6 @@ contract ZapVault is Initializable, Ownable {
 
         whitelistStatus[_whitelisted] = true;
         whitelisted.push(_whitelisted);
-
-        // emit WhitelistAdded(_whitelisted, true);
 
         return true;
     }

@@ -17,7 +17,7 @@ describe('NFT Platform Vault Test', () => {
 
     let zapVault: ZapVault
     let zapTokenBsc: ZapTokenBSC
-    let signers: any
+    let signers: SignerWithAddress[]
 
     beforeEach(async () => {
 
@@ -87,25 +87,15 @@ describe('NFT Platform Vault Test', () => {
 
         const preAdd = await zapVault.getWhitelisted();
 
-        const whitelistedTx = await zapVault.addWhitelist(signers[1].address);
+        await zapVault.addWhitelist(signers[1].address);
 
-        const tx1 = await whitelistedTx.wait();
+        const status = await zapVault.whitelistStatus(signers[1].address);
 
-        // console.log(tx1.events[0])
+        const postAdd = await zapVault.getWhitelisted();
 
-        // const status = await zapVault.whitelistStatus(signers[1].address);
+        expect(status).to.equal(true);
 
-        // const postAdd = await zapVault.getWhitelisted();
-
-        // expect(status).to.equal(true);
-
-        // expect(postAdd.length).to.equal(preAdd.length + 1);
-
-        // expect(eventLogs[0].event).to.equal('WhitelistAdded');
-
-        // expect(eventLogs[0].args.address).to.be.equal(signers[1].address);
-
-        // expect(eventLogs[0].args.status).to.be.equal(true);
+        expect(postAdd.length).to.equal(preAdd.length + 1);
 
     });
 
