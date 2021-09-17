@@ -86,7 +86,9 @@ describe('NFT Platform Vault Test', () => {
 
         const preAdd = await zapVault.getWhitelisted();
 
-        await zapVault.addWhitelist(signers[1].address);
+        const whitelistedTx = await zapVault.addWhitelist(signers[1].address);
+
+        const receipt = await whitelistedTx.wait();
 
         const status = await zapVault.whitelistStatus(signers[1].address);
 

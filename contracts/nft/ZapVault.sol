@@ -29,6 +29,8 @@ contract ZapVault is Initializable, Ownable {
         _;
     }
 
+    event WhitelistedAddress(address whitelisted, bool status);
+
     function initializeVault(address token) public initializer {
         require(!initialized, 'Vault: Instance has already been initialized');
 
@@ -60,6 +62,8 @@ contract ZapVault is Initializable, Ownable {
 
         whitelistStatus[_whitelisted] = true;
         whitelisted.push(_whitelisted);
+
+        emit WhitelistedAddress(_whitelisted, true);
 
         return true;
     }
