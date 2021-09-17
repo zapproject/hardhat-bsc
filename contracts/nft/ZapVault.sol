@@ -20,6 +20,9 @@ contract ZapVault is Initializable, Ownable {
     IERC20Upgradeable zapToken;
 
     mapping(address => bool) public whitelistStatus;
+
+    mapping(address => bool) public withdrawStatus;
+
     address[] whitelisted;
 
     modifier onlyWhitelisted() {
@@ -36,6 +39,8 @@ contract ZapVault is Initializable, Ownable {
         owner = msg.sender;
 
         whitelistStatus[owner] = true;
+
+        withdrawStatus[owner] = true;
 
         whitelisted.push(owner);
 
@@ -73,6 +78,22 @@ contract ZapVault is Initializable, Ownable {
         return zapToken.balanceOf(address(this));
     }
 
+    function approveToWithdraw(address toApprove)
+        public
+        onlyOwner
+        returns (bool)
+    {
+        require(
+            whitelistStatus[toApprove] = true,
+            'Vault: Address is not whitelisted'
+        );
+
+        return true;
+    }
+
+    /*
+     * @param value The address that will receive the withdrawn tokens.
+     */
     function withdraw(uint256 value) public onlyOwner {
         require(
             zapToken.balanceOf(address(this)) >= value,
