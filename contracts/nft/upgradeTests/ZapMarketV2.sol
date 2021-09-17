@@ -3,17 +3,17 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {Decimal} from "../Decimal.sol";
-import {ZapMedia} from "../ZapMedia.sol";
-import {IMarket} from "../interfaces/IMarket.sol";
-import {Ownable} from "../access/Ownable.sol";
+import {SafeMathUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import {IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
+import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
+import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
+import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Decimal} from '../Decimal.sol';
+import {ZapMedia} from '../ZapMedia.sol';
+import {IMarket} from '../interfaces/IMarket.sol';
+import {Ownable} from '../access/Ownable.sol';
 
-import "hardhat/console.sol";
+import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
@@ -27,6 +27,7 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
      * Globals
      * *******
      */
+
     // Address of the media contract that can call this market
     // address[] public mediaContract;
     mapping(address => address[]) public mediaContracts;
@@ -46,6 +47,10 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
 
     bool private initialized;
 
+    address platformAddress;
+
+    IMarket.PlatformFee platformFee;
+
     /* *********
      * Modifiers
      * *********
@@ -57,7 +62,7 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
     modifier onlyMediaCaller(address mediaContractAddress) {
         require(
             mediaContractAddress == msg.sender,
-            "Market: Only media contract"
+            'Market: Only media contract'
         );
         _;
     }
@@ -107,16 +112,21 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
             mediaContractAddress,
             tokenId
         );
+
         require(
             isValidBidShares(bidShares),
-            "Market: Invalid bid shares for token"
+            'Market: Invalid bid shares for token'
         );
+
         return
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
-                    .add(splitShare(bidShares.prevOwner, bidAmount))
-                    .add(splitShare(bidShares.owner, bidAmount)));
+                    .add(splitShare(platformFee.fee, bidAmount))
+                    .add(
+                        // .add(splitShare(Decimal.D256(platformFee), bidAmount))
+                        splitShare(bidShares.owner, bidAmount)
+                    ));
     }
 
     /**
@@ -124,13 +134,13 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
      */
     function isValidBidShares(BidShares memory bidShares)
         public
-        pure
+        view
         override
         returns (bool)
     {
         return
             bidShares.creator.value.add(bidShares.owner.value).add(
-                bidShares.prevOwner.value
+                platformFee.fee.value
             ) == uint256(100).mul(Decimal.BASE);
     }
 
@@ -152,12 +162,17 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initialize() public virtual override initializer {
-        require(!initialized, "Market: Instance has already been initialized");
+    function initializeMarket(
+        address _platformAddress,
+        IMarket.PlatformFee memory _platformFee
+    ) public initializer {
+        require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
 
-        // _owner = msg.sender;
+        platformAddress = _platformAddress;
+
+        platformFee = _platformFee;
     }
 
     /**
@@ -173,11 +188,11 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
     ) external override {
         require(
             isConfigured[mediaContract] != true,
-            "Market: Already configured"
+            'Market: Already configured'
         );
         require(
             mediaContract != address(0) && deployer != address(0),
-            "Market: cannot set media contract as zero address"
+            'Market: cannot set media contract as zero address'
         );
 
         isConfigured[mediaContract] = true;
@@ -214,8 +229,9 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
     ) public override onlyMediaCaller(mediaContractAddress) {
         require(
             isValidBidShares(bidShares),
-            "Market: Invalid bid shares, must sum to 100"
+            'Market: Invalid bid shares, must sum to 100'
         );
+
         _bidShares[mediaContractAddress][tokenId] = bidShares;
         emit BidShareUpdated(tokenId, bidShares);
     }
@@ -231,7 +247,7 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
     ) public override onlyMediaCaller(mediaContractAddress) {
         require(
             isValidBid(mediaContractAddress, tokenId, ask.amount),
-            "Market: Ask invalid for share splitting"
+            'Market: Ask invalid for share splitting'
         );
 
         _tokenAsks[mediaContractAddress][tokenId] = ask;
@@ -266,17 +282,17 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         require(
             bidShares.creator.value.add(bid.sellOnShare.value) <=
                 uint256(100).mul(Decimal.BASE),
-            "Market: Sell on fee invalid for share splitting"
+            'Market: Sell on fee invalid for share splitting'
         );
-        require(bid.bidder != address(0), "Market: bidder cannot be 0 address");
-        require(bid.amount != 0, "Market: cannot bid amount of 0");
+        require(bid.bidder != address(0), 'Market: bidder cannot be 0 address');
+        require(bid.amount != 0, 'Market: cannot bid amount of 0');
         require(
             bid.currency != address(0),
-            "Market: bid currency cannot be 0 address"
+            'Market: bid currency cannot be 0 address'
         );
         require(
             bid.recipient != address(0),
-            "Market: bid recipient cannot be 0 address"
+            'Market: bid recipient cannot be 0 address'
         );
 
         Bid storage existingBid = _tokenBidders[mediaContractAddress][tokenId][
@@ -333,7 +349,7 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
 
-        require(bid.amount > 0, "Market: cannot remove bid amount of 0");
+        require(bid.amount > 0, 'Market: cannot remove bid amount of 0');
 
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
@@ -359,17 +375,18 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
             expectedBid.bidder
         ];
-        require(bid.amount > 0, "Market: cannot accept bid of 0");
+        require(bid.amount > 0, 'Market: cannot accept bid of 0');
         require(
             bid.amount == expectedBid.amount &&
                 bid.currency == expectedBid.currency &&
                 bid.sellOnShare.value == expectedBid.sellOnShare.value &&
                 bid.recipient == expectedBid.recipient,
-            "Market: Unexpected bid found."
+            'Market: Unexpected bid found.'
         );
+
         require(
             isValidBid(mediaContractAddress, tokenId, bid.amount),
-            "Market: Bid invalid for share splitting"
+            'Market: Bid invalid for share splitting'
         );
 
         _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
@@ -400,10 +417,12 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
             ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
             splitShare(bidShares.creator, bid.amount)
         );
+
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
-            splitShare(bidShares.prevOwner, bid.amount)
+            // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
+            platformAddress,
+            splitShare(platformFee.fee, bid.amount)
         );
 
         // Transfer media to bid recipient
@@ -418,7 +437,7 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
                 .sub(bid.sellOnShare.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
-        bidShares.prevOwner = bid.sellOnShare;
+        // platformFee.fee = bid.sellOnShare;
 
         // Remove the accepted bid
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];

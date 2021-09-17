@@ -2,25 +2,26 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol"; // exposes _registerInterface
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol'; // exposes _registerInterface
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {Decimal} from "./Decimal.sol";
-import {IMarket} from "./interfaces/IMarket.sol";
-import {IMedia} from "./interfaces/IMedia.sol";
-import {Ownable} from "./Ownable.sol";
-import {MediaGetter} from "./MediaGetter.sol";
+import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
+import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
+import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
+import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import {Decimal} from './Decimal.sol';
+import {IMarket} from './interfaces/IMarket.sol';
+import {IMedia} from './interfaces/IMedia.sol';
+import {Ownable} from './Ownable.sol';
+import {MediaGetter} from './MediaGetter.sol';
+import {MediaStorage} from './libraries/MediaStorage.sol';
+import './libraries/Constants.sol';
 
-import {MediaStorage} from "./libraries/MediaStorage.sol";
-import "./libraries/Constants.sol";
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -66,7 +67,7 @@ contract ZapMedia is
         require(
             _exists(tokenId),
             // remove revert string before deployment to mainnet
-            "Media: nonexistent token"
+            'Media: nonexistent token'
         );
         _;
     }
@@ -78,7 +79,7 @@ contract ZapMedia is
         require(
             getTokenContentHashes(tokenId) != 0,
             // remove revert string before deployment to mainnet
-            "Media: token does not have hash of created content"
+            'Media: token does not have hash of created content'
         );
         _;
     }
@@ -90,7 +91,7 @@ contract ZapMedia is
         require(
             tokens.tokenMetadataHashes[tokenId] != 0,
             // remove revert string before deployment to mainnet
-            "Media: token does not have hash of its metadata"
+            'Media: token does not have hash of its metadata'
         );
         _;
     }
@@ -103,7 +104,7 @@ contract ZapMedia is
         require(
             _isApprovedOrOwner(spender, tokenId),
             // remove revert string before deployment to mainnet
-            "Media: Only approved or owner"
+            'Media: Only approved or owner'
         );
         _;
     }
@@ -115,7 +116,7 @@ contract ZapMedia is
         require(
             access._tokenIdTracker.current() > tokenId,
             // remove revert string before deployment to mainnet
-            "Media: token with that id does not exist"
+            'Media: token with that id does not exist'
         );
         _;
     }
@@ -127,7 +128,7 @@ contract ZapMedia is
         require(
             bytes(uri).length != 0,
             // remove revert string before deployment to mainnet
-            "Media: specified uri must be non-empty"
+            'Media: specified uri must be non-empty'
         );
         _;
     }
@@ -136,6 +137,9 @@ contract ZapMedia is
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
      */
+
+    IMarket.BidShares bidshares;
+
     function initialize(
         string memory name,
         string memory symbol,
@@ -163,6 +167,7 @@ contract ZapMedia is
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
+
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
@@ -195,7 +200,7 @@ contract ZapMedia is
     }
 
     function _registerInterface(bytes4 interfaceId) internal virtual override {
-        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
+        require(interfaceId != 0xffffffff, 'ERC165: invalid interface id');
         _supportedInterfaces[interfaceId] = true;
     }
 
@@ -261,8 +266,9 @@ contract ZapMedia is
     {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
-            "Media: Only Approved users can mint"
+            'Media: Only Approved users can mint'
         );
+
         _mintForCreator(msg.sender, data, bidShares);
     }
 
@@ -277,17 +283,16 @@ contract ZapMedia is
     ) public override nonReentrant {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
-            "Media: Only Approved users can mint"
+            'Media: Only Approved users can mint'
         );
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp,
-            // remove revert string before deployment to mainnet
-            "Media: mintWithSig expired"
+            'Media: mintWithSig expired'
         );
 
         bytes32 digest = keccak256(
             abi.encodePacked(
-                "\x19\x01",
+                '\x19\x01',
                 _calculateDomainSeparator(),
                 keccak256(
                     abi.encode(
@@ -304,10 +309,11 @@ contract ZapMedia is
 
         address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
 
+        console.log('Recovered Address', recoveredAddress);
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
             // remove revert string before deployment to mainnet
-            "Media: Signature invalid"
+            'Media: Signature invalid'
         );
 
         _mintForCreator(recoveredAddress, data, bidShares);
@@ -323,10 +329,10 @@ contract ZapMedia is
         require(
             msg.sender == access.marketContract,
             // remove revert string before deployment to mainnet
-            "Media: only market contract"
+            'Media: only market contract'
         );
         tokens.previousTokenOwners[tokenId] = ownerOf(tokenId);
-        _safeTransfer(ownerOf(tokenId), recipient, tokenId, "");
+        _safeTransfer(ownerOf(tokenId), recipient, tokenId, '');
     }
 
     /**
@@ -365,7 +371,7 @@ contract ZapMedia is
         require(
             msg.sender == bid.bidder,
             // remove revert string before deployment to mainnet
-            "Market: Bidder must be msg sender"
+            'Market: Bidder must be msg sender'
         );
         address mediaContractAddress = address(this);
         IMarket(access.marketContract).setBid(
@@ -421,7 +427,7 @@ contract ZapMedia is
         require(
             tokens.tokenCreators[tokenId] == owner,
             // remove revert string before deployment to mainnet
-            "Media: owner is not creator of media"
+            'Media: owner is not creator of media'
         );
 
         _burn(tokenId);
@@ -437,7 +443,7 @@ contract ZapMedia is
         require(
             msg.sender == getApproved(tokenId),
             // remove revert string before deployment to mainnet
-            "Media: caller not approved address"
+            'Media: caller not approved address'
         );
         _approve(address(0), tokenId);
     }
@@ -490,17 +496,17 @@ contract ZapMedia is
         require(
             sig.deadline == 0 || sig.deadline >= block.timestamp,
             // remove revert string before deployment to mainnet
-            "Media: Permit expired"
+            'Media: Permit expired'
         );
         require(
             spender != address(0),
             // remove revert string before deployment to mainnet
-            "Media: spender cannot be 0x0"
+            'Media: spender cannot be 0x0'
         );
 
         bytes32 digest = keccak256(
             abi.encodePacked(
-                "\x19\x01",
+                '\x19\x01',
                 _calculateDomainSeparator(),
                 keccak256(
                     abi.encode(
@@ -520,7 +526,7 @@ contract ZapMedia is
             recoveredAddress != address(0) &&
                 ownerOf(tokenId) == recoveredAddress,
             // remove revert string before deployment to mainnet
-            "Media: Signature invalid"
+            'Media: Signature invalid'
         );
 
         _approve(spender, tokenId);
@@ -551,20 +557,14 @@ contract ZapMedia is
         MediaData memory data,
         IMarket.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
-        require(
-            data.contentHash != 0,
-            // remove revert string before deployment to mainnet
-            "Media: content hash must be non-zero"
-        );
+        require(data.contentHash != 0, 'Media: content hash must be non-zero');
         require(
             access._contentHashes[data.contentHash] == false,
-            // remove revert string before deployment to mainnet
-            "Media: a token has already been created with this content hash"
+            'Media: a token has already been created with this content hash'
         );
         require(
             data.metadataHash != 0,
-            // remove revert string before deployment to mainnet
-            "Media: metadata hash must be non-zero"
+            'Media: metadata hash must be non-zero'
         );
 
         uint256 tokenId = access._tokenIdTracker.current();
@@ -665,10 +665,10 @@ contract ZapMedia is
             keccak256(
                 abi.encode(
                     keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
                     ),
                     keccak256(bytes(mediaName)),
-                    keccak256(bytes("1")),
+                    keccak256(bytes('1')),
                     chainID,
                     address(this)
                 )
