@@ -78,7 +78,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     }
 
     function setTokenDetails(uint256 tokenId, address mediaContract)
-        external
+        internal
         returns (bool)
     {
         tokenDetails[mediaContract][tokenId] = TokenDetails({
@@ -120,6 +120,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'Caller must be approved or owner for token id'
         );
         uint256 auctionId = _auctionIdTracker.current();
+
+        setTokenDetails(tokenId, mediaContract);
 
         auctions[auctionId] = Auction({
             token: tokenDetails[mediaContract][tokenId],
