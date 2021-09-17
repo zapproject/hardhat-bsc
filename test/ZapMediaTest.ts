@@ -37,7 +37,7 @@ describe("ZapMedia Test", async () => {
 
     let platformFee = {
         fee: {
-            value: BigNumber.from('5000000000000000000')
+            value: BigInt(5000000000000000000)
         },
 
     };
@@ -1250,7 +1250,7 @@ describe("ZapMedia Test", async () => {
                         value: BigInt(90000000000000000000),
                     },
                     creator: {
-                        value: BigInt(0),
+                        value: BigInt(5000000000000000000),
                     },
                 }
             );
@@ -1336,7 +1336,7 @@ describe("ZapMedia Test", async () => {
                         value: BigInt(90000000000000000000),
                     },
                     creator: {
-                        value: BigInt(0),
+                        value: BigInt(5000000000000000000),
                     },
                 }
             );

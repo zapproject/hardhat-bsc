@@ -431,7 +431,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             uint256(100)
                 .mul(Decimal.BASE)
                 .sub(_bidShares[mediaContractAddress][tokenId].creator.value)
-                .sub(bid.sellOnShare.value)
+                .sub(platformFee.fee.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
         // platformFee.fee = bid.sellOnShare;
