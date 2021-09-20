@@ -48,7 +48,7 @@ interface IMarket {
         Bid bid
     );
     event BidRemoved(uint256 indexed tokenId, Bid bid);
-    event BidFinalized(uint256 indexed tokenId, Bid bid);
+    event BidFinalized(uint256 indexed tokenId, Bid bid, address mediaContract);
     event AskCreated(
         address indexed mediaContract,
         uint256 indexed tokenId,
