@@ -229,7 +229,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         );
 
         _bidShares[mediaContractAddress][tokenId] = bidShares;
-        emit BidShareUpdated(tokenId, bidShares);
+        emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
     }
 
     /**
@@ -258,7 +258,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         override
         onlyMediaCaller(mediaContractAddress)
     {
-        emit AskRemoved(tokenId, _tokenAsks[mediaContractAddress][tokenId]);
+        emit AskRemoved(tokenId, _tokenAsks[mediaContractAddress][tokenId], mediaContractAddress);
         delete _tokenAsks[mediaContractAddress][tokenId];
     }
 
@@ -349,7 +349,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
-        emit BidRemoved(tokenId, bid);
+        emit BidRemoved(tokenId, bid, mediaContractAddress);
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
         token.safeTransfer(bidder, bidAmount);
     }
@@ -439,7 +439,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         // Remove the accepted bid
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
 
-        emit BidShareUpdated(tokenId, bidShares);
-        emit BidFinalized(tokenId, bid);
+        emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
+        emit BidFinalized(tokenId, bid, mediaContractAddress);
     }
 }
