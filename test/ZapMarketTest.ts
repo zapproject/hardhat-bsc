@@ -206,7 +206,7 @@ describe('ZapMarket Test', () => {
     });
 
 
-    it.only('Should get the platform fee', async () => {
+    it('Should get the platform fee', async () => {
 
       const fee = await zapMarket.viewFee();
 
@@ -214,7 +214,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should set the platform fee', async () => {
+    it('Should set the platform fee', async () => {
 
       let newFee = {
 
@@ -229,6 +229,24 @@ describe('ZapMarket Test', () => {
       const fee = await zapMarket.viewFee();
 
       expect(parseInt(fee.value._hex)).to.equal(parseInt(newFee.fee.value._hex));
+
+    });
+
+    it('Should revert if non owner tries to set the fee', async () => {
+
+      let newFee = {
+
+        fee: {
+          value: BigNumber.from('6000000000000000000')
+        },
+
+      };
+
+      await zapMarket.setFee(newFee);
+
+      await expect(zapMarket.connect(signers[14]).setFee(newFee)).to.be.revertedWith(
+        'Ownable: Only owner has access to this function'
+      );
 
     });
 
