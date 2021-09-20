@@ -440,6 +440,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
 
         emit BidShareUpdated(tokenId, bidShares);
-        emit BidFinalized(tokenId, bid, msg.sender);
+        emit BidFinalized(tokenId, bid, mediaContractAddress);
     }
 }

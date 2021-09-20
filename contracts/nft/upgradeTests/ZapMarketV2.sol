@@ -443,6 +443,6 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
 
         emit BidShareUpdated(tokenId, bidShares);
-        emit BidFinalized(tokenId, bid);
+        emit BidFinalized(tokenId, bid, mediaContractAddress);
     }
 }

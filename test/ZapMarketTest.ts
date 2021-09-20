@@ -1505,8 +1505,33 @@ describe('ZapMarket Test', () => {
       const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
       expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
 
+
+
+
+
+
+
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);
+
+
+
+      const zapMarketFilter: EventFilter =
+        zapMarket.filters.BidFinalized(null, null, null);
+
+      const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+
+      console.log(event)
+
+
+
+
+
+
+
+
+
+
 
       const marketBal = await zapTokenBsc.balanceOf(zapMarket.address);
       expect(parseInt(marketBal._hex)).to.equal(0);
