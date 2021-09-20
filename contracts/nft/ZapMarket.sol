@@ -170,9 +170,19 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
         initialized = true;
 
+        owner = msg.sender;
+
         platformAddress = _platformAddress;
 
         platformFee = _platformFee;
+    }
+
+    function viewFee() public view returns (Decimal.D256 memory) {
+        return platformFee.fee;
+    }
+
+    function setFee(IMarket.PlatformFee memory newFee) public onlyOwner {
+        platformFee = newFee;
     }
 
     /**

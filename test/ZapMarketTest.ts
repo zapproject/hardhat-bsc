@@ -205,6 +205,15 @@ describe('ZapMarket Test', () => {
 
     });
 
+
+    it.only('Should get the platform fee', async () => {
+
+      const fee = await zapMarket.viewFee();
+
+      expect(parseInt(fee.value._hex)).to.equal(parseInt(platformFee.fee.value._hex));
+
+    });
+
     it('Should get collection metadata', async () => {
       const metadata1 = await zapMedia1.collectionMetadata();
       const metadata2 = await zapMedia2.collectionMetadata();
@@ -957,7 +966,7 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
+      const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
 
       zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
         initializer: 'initializeMarket'
@@ -1526,6 +1535,5 @@ describe('ZapMarket Test', () => {
       expect(parseInt(vaultPostBal._hex)).to.equal(10);
 
     })
-
   });
 });

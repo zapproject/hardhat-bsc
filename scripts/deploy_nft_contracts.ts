@@ -6,35 +6,36 @@ async function main() {
     const signers = await ethers.getSigners();
     const tokenAddress = (await hre.deployments.get('ZapTokenBSC')).address;
 
-    const ZapMarketProxy = await ethers.getContractFactory('ZapMarket', signers[0]);
-    const zapMarketProxy = await upgrades.deployProxy(ZapMarketProxy, { initializer: 'initialize' });
-    await zapMarketProxy.deployed();
-    console.log('ZapMarket Proxy deployed to:', zapMarketProxy.address);
 
-    const ZapMediaProxy = await ethers.getContractFactory('ZapMedia', signers[0]);
-    const zapMediaProxy = await upgrades.deployProxy(
-        ZapMediaProxy,
-        [
-            "ZapMedia",
-            "ZAPBSC",
-            zapMarketProxy.address,
-            true,
-            'https://ipfs.moralis.io:2053/ipfs/Qmb6X5bYB3J6jq9JPmd5FLx4fa4JviXfV11yN42i96Q5Xt'
-        ],
-        { initializer: 'initialize' }
-    );
-    await zapMediaProxy.deployed();
-    console.log('ZapMedia Proxy deployed to:', zapMediaProxy.address);
+    // const ZapMarketProxy = await ethers.getContractFactory('ZapMarket', signers[0]);
+    // const zapMarketProxy = await upgrades.deployProxy(ZapMarketProxy, { initializer: 'initialize' });
+    // await zapMarketProxy.deployed();
+    // console.log('ZapMarket Proxy deployed to:', zapMarketProxy.address);
 
-    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [
-            tokenAddress
-        ],
-        { initializer: 'initialize' }
-    );
-    await auctionHouse.deployed();
-    console.log('AuctionHouse deployed to:', auctionHouse.address);
+    // const ZapMediaProxy = await ethers.getContractFactory('ZapMedia', signers[0]);
+    // const zapMediaProxy = await upgrades.deployProxy(
+    //     ZapMediaProxy,
+    //     [
+    //         "ZapMedia",
+    //         "ZAPBSC",
+    //         zapMarketProxy.address,
+    //         true,
+    //         'https://ipfs.moralis.io:2053/ipfs/Qmb6X5bYB3J6jq9JPmd5FLx4fa4JviXfV11yN42i96Q5Xt'
+    //     ],
+    //     { initializer: 'initialize' }
+    // );
+    // await zapMediaProxy.deployed();
+    // console.log('ZapMedia Proxy deployed to:', zapMediaProxy.address);
+
+    // const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
+    // const auctionHouse = await upgrades.deployProxy(AuctionHouse,
+    //     [
+    //         tokenAddress
+    //     ],
+    //     { initializer: 'initialize' }
+    // );
+    // await auctionHouse.deployed();
+    // console.log('AuctionHouse deployed to:', auctionHouse.address);
 }
 
 main()

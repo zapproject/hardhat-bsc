@@ -175,6 +175,14 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         platformFee = _platformFee;
     }
 
+    function viewFee() public view returns (Decimal.D256 memory) {
+        return platformFee.fee;
+    }
+
+    function setFee(IMarket.PlatformFee memory newFee) public onlyOwner {
+        platformFee = newFee;
+    }
+
     /**
      * @notice Sets the media contract address. This address is the only permitted address that
      * can call the mutable functions. This method can only be called once.
