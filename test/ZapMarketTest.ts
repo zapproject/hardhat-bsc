@@ -1508,6 +1508,14 @@ describe('ZapMarket Test', () => {
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);
 
+      const zapMarketFilter: EventFilter =
+        zapMarket.filters.BidFinalized(null, null, null);
+
+      const event = (await zapMarket.queryFilter(zapMarketFilter));
+
+      expect(zapMedia1.address).to.equal(event[0].args[2]);
+      expect(zapMedia2.address).to.equal(event[1].args[2]);
+
       const marketBal = await zapTokenBsc.balanceOf(zapMarket.address);
       expect(parseInt(marketBal._hex)).to.equal(0);
 
