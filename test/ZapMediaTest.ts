@@ -80,7 +80,12 @@ describe("ZapMedia Test", async () => {
         await zapVault.deployed();
 
         const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-        zapMarket = await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], { initializer: 'initializeMarket' }) as ZapMarket;
+
+        zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+            initializer: 'initializeMarket'
+        })) as ZapMarket;
+
+        await zapMarket.setFee(platformFee);
     })
 
     describe("Configure", () => {
