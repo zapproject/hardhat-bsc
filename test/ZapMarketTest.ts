@@ -1482,7 +1482,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should accept bid', async () => {
+    it('Should accept bid', async () => {
 
       await zapTokenBsc.mint(signers[1].address, 5000);
       await zapTokenBsc.mint(signers[2].address, 5000);
@@ -1511,8 +1511,7 @@ describe('ZapMarket Test', () => {
       const zapMarketFilter: EventFilter =
         zapMarket.filters.BidFinalized(null, null, null);
 
-      const event = (await zapMarket.queryFilter(zapMarketFilter))
-
+      const event = (await zapMarket.queryFilter(zapMarketFilter));
 
       expect(zapMedia1.address).to.equal(event[0].args[2]);
       expect(zapMedia2.address).to.equal(event[1].args[2]);

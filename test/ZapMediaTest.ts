@@ -972,6 +972,7 @@ describe("ZapMedia Test", async () => {
 
             const zapMarketFilter: EventFilter = zapMarket.filters.BidFinalized(
                 null,
+                null,
                 null
             );
             const event: Event = (

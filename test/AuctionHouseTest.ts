@@ -1015,7 +1015,14 @@ describe("AuctionHouse", () => {
 
         await auctionHouse.endAuction(0, media1.address);
 
+        const zapMarketFilter = market.filters.BidFinalized(null, null, null);
+
+        const event = (await market.queryFilter(zapMarketFilter));
+
         expect(await media1.ownerOf(0)).to.eq(await bidder.getAddress());
+
+        expect(event[0].args[2]).to.equal(media1.address)
+
       });
 
       it("should pay the curator their curatorFee percentage", async () => {
