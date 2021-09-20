@@ -214,6 +214,24 @@ describe('ZapMarket Test', () => {
 
     });
 
+    it.only('Should set the platform fee', async () => {
+
+      let newFee = {
+
+        fee: {
+          value: BigNumber.from('6000000000000000000')
+        },
+
+      };
+
+      await zapMarket.setFee(newFee);
+
+      const fee = await zapMarket.viewFee();
+
+      expect(parseInt(fee.value._hex)).to.equal(parseInt(newFee.fee.value._hex));
+
+    });
+
     it('Should get collection metadata', async () => {
       const metadata1 = await zapMedia1.collectionMetadata();
       const metadata2 = await zapMedia2.collectionMetadata();
