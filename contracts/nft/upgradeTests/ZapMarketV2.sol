@@ -162,17 +162,12 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(
-        address _platformAddress,
-        IMarket.PlatformFee memory _platformFee
-    ) public initializer {
+    function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
 
         platformAddress = _platformAddress;
-
-        platformFee = _platformFee;
     }
 
     function viewFee() public view returns (Decimal.D256 memory) {
