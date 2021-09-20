@@ -134,9 +134,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -435,9 +437,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -729,9 +733,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -1004,9 +1010,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
