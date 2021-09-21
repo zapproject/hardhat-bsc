@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
+//  THIS CONTRACT IS ONLY BEING USED ON TESTNET TO TEST IF THE CONTRACT IS UPGRADEABLE!
+
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
