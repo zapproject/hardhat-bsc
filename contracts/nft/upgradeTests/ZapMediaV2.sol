@@ -13,20 +13,20 @@ import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {Decimal} from './Decimal.sol';
-import {IMarket} from './interfaces/IMarket.sol';
-import {IMedia} from './interfaces/IMedia.sol';
-import {Ownable} from './Ownable.sol';
-import {MediaGetter} from './MediaGetter.sol';
-import {MediaStorage} from './libraries/MediaStorage.sol';
-import './libraries/Constants.sol';
+import {Decimal} from '../Decimal.sol';
+import {IMarket} from '../interfaces/IMarket.sol';
+import {IMedia} from '../interfaces/IMedia.sol';
+import {Ownable} from '../Ownable.sol';
+import {MediaGetter} from '../MediaGetter.sol';
+import {MediaStorage} from '../libraries/MediaStorage.sol';
+import '../libraries/Constants.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is
+contract ZapMediaV2 is
     IMedia,
     ERC721BurnableUpgradeable,
     ReentrancyGuardUpgradeable,
@@ -169,6 +169,10 @@ contract ZapMedia is
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
+    }
+
+    function testUpgrade() public view returns (bytes memory) {
+        return collectionMetadata;
     }
 
     function supportsInterface(bytes4 interfaceId)

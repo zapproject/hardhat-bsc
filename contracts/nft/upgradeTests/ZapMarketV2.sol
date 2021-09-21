@@ -47,7 +47,7 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
 
     bool private initialized;
 
-    address platformAddress;
+    address public platformAddress;
 
     IMarket.PlatformFee platformFee;
 
@@ -162,17 +162,20 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(
-        address _platformAddress,
-        IMarket.PlatformFee memory _platformFee
-    ) public initializer {
+    function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
 
         platformAddress = _platformAddress;
+    }
 
-        platformFee = _platformFee;
+    function viewFee() public view returns (Decimal.D256 memory) {
+        return platformFee.fee;
+    }
+
+    function setFee(IMarket.PlatformFee memory newFee) public onlyOwner {
+        platformFee = newFee;
     }
 
     /**
@@ -200,10 +203,6 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         mediaContracts[deployer].push(mediaContract);
 
         emit MediaContractCreated(mediaContract, name, symbol);
-    }
-
-    function getConfigStatus(address deployer) public view returns (bool) {
-        return isConfigured[deployer];
     }
 
     function mintOrBurn(
@@ -444,5 +443,13 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
 
         emit BidShareUpdated(tokenId, bidShares);
         emit BidFinalized(tokenId, bid, mediaContractAddress);
+    }
+
+    function getConfigStatus(address deployer) public view returns (bool) {
+        return isConfigured[deployer];
+    }
+
+    function testUpgrade() public view returns (address) {
+        return platformAddress;
     }
 }

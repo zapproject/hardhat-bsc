@@ -13,8 +13,6 @@ import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
@@ -162,17 +160,22 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(
-        address _platformAddress,
-        IMarket.PlatformFee memory _platformFee
-    ) public initializer {
+    function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
 
-        platformAddress = _platformAddress;
+        owner = msg.sender;
 
-        platformFee = _platformFee;
+        platformAddress = _platformAddress;
+    }
+
+    function viewFee() public view returns (Decimal.D256 memory) {
+        return platformFee.fee;
+    }
+
+    function setFee(IMarket.PlatformFee memory newFee) public onlyOwner {
+        platformFee = newFee;
     }
 
     /**
