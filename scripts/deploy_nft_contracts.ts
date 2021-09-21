@@ -1,11 +1,20 @@
 import { ethers, upgrades } from "hardhat";
+import { BigNumber } from 'ethers';
 
 async function main() {
 
     const signers = await ethers.getSigners();
 
     // ZapTokenBSC testnet address used for the Faucet
-    const tokenAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8'
+    const tokenAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
+
+    const platformFee = {
+
+        fee: {
+            value: BigNumber.from('5000000000000000000')
+        },
+
+    };
 
     const ZapVault = await ethers.getContractFactory("ZapVault");
     const zapVault = await upgrades.deployProxy(
@@ -24,6 +33,8 @@ async function main() {
     );
     await zapMarket.deployed();
     console.log('ZapMarket deployed to:', zapMarket.address);
+
+    await zapMarket.setFee(platformFee);
 
     const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
     const zapMedia = await upgrades.deployProxy(
