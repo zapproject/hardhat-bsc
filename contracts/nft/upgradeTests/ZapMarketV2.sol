@@ -209,6 +209,10 @@ contract ZapMarketV2 is IMarket, Initializable, Ownable {
         return isConfigured[deployer];
     }
 
+    function getPlatformAddress() public view returns (address) {
+        return platformAddress;
+    }
+
     function mintOrBurn(
         bool isMint,
         uint256 tokenId,
