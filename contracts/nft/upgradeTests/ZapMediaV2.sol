@@ -170,9 +170,11 @@ contract ZapMedia is
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
     }
-    function getCollectionMetadata()public returns(bytes memory){
+
+    function testUpgrade() public view returns (bytes memory) {
         return collectionMetadata;
     }
+
     function supportsInterface(bytes4 interfaceId)
         public
         view
