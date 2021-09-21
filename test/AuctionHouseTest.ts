@@ -422,7 +422,7 @@ describe("AuctionHouse", () => {
         auctionHouse.connect(creator)
       );
 
-      await auctionHouse.setTokenDetails(0, media1.address);
+      // await auctionHouse.setTokenDetails(0, media1.address);
 
       await createAuction(
         auctionHouse.connect(creator),
@@ -502,7 +502,7 @@ describe("AuctionHouse", () => {
 
       await approveAuction(media1, auctionHouse);
 
-      auctionHouse.setTokenDetails(0, media1.address);
+      // auctionHouse.setTokenDetails(0, media1.address);
 
       await createAuction(
         auctionHouse.connect(curator),
@@ -843,7 +843,7 @@ describe("AuctionHouse", () => {
       auctionHouse = (await deploy(admin)).connect(creator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
-      await auctionHouse.setTokenDetails(0, media1.address);
+      // await auctionHouse.setTokenDetails(0, media1.address);
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
@@ -943,7 +943,7 @@ describe("AuctionHouse", () => {
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
 
-      await auctionHouse.setTokenDetails(0, media1.address);
+      // await auctionHouse.setTokenDetails(0, media1.address);
 
       await createAuction(
         auctionHouse.connect(creator),
@@ -1015,7 +1015,14 @@ describe("AuctionHouse", () => {
 
         await auctionHouse.endAuction(0, media1.address);
 
+        const zapMarketFilter = market.filters.BidFinalized(null, null, null);
+
+        const event = (await market.queryFilter(zapMarketFilter));
+
         expect(await media1.ownerOf(0)).to.eq(await bidder.getAddress());
+
+        expect(event[0].args[2]).to.equal(media1.address)
+
       });
 
       it("should pay the curator their curatorFee percentage", async () => {

@@ -80,7 +80,12 @@ describe("ZapMedia Test", async () => {
         await zapVault.deployed();
 
         const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-        zapMarket = await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], { initializer: 'initializeMarket' }) as ZapMarket;
+
+        zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+            initializer: 'initializeMarket'
+        })) as ZapMarket;
+
+        await zapMarket.setFee(platformFee);
     })
 
     describe("Configure", () => {
@@ -956,13 +961,13 @@ describe("ZapMedia Test", async () => {
             const afterCreatorBalance = (await zapTokenBsc.balanceOf(signers[1].address)).toNumber();
             const bidShares = await zapMarket.bidSharesForToken(zapMedia1.address, 0);
 
-            expect(afterOwnerBalance).eq(beforeOwnerBalance + 80);
+            expect(afterOwnerBalance).eq(beforeOwnerBalance + 45);
 
-            expect(afterCreatorBalance).eq(beforeCreatorBalance + 10);
+            expect(afterCreatorBalance).eq(beforeCreatorBalance + 50);
             expect(newOwner).eq(signers[5].address);
-            expect(bidShares.owner.value).eq(BigInt(75000000000000000000));
+            expect(bidShares.owner.value).eq(BigInt(45000000000000000000));
 
-            expect(bidShares.creator.value).eq(BigInt(10000000000000000000));
+            expect(bidShares.creator.value).eq(BigInt(50000000000000000000));
         });
 
         it('should emit a bid finalized event if the bid is accepted', async () => {
@@ -971,6 +976,7 @@ describe("ZapMedia Test", async () => {
             await zapMedia1.connect(signers[3]).acceptBid(0, bid);
 
             const zapMarketFilter: EventFilter = zapMarket.filters.BidFinalized(
+                null,
                 null,
                 null
             );
@@ -1004,10 +1010,10 @@ describe("ZapMedia Test", async () => {
             expect(logDescription.args.tokenId.toNumber()).to.eq(0);
 
             expect(logDescription.args.bidShares.owner.value).to.eq(
-                BigInt(80000000000000000000)
+                BigInt(45000000000000000000)
             );
             expect(logDescription.args.bidShares.creator.value).to.eq(
-                BigInt(10000000000000000000)
+                BigInt(50000000000000000000)
             );
         });
 

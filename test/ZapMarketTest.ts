@@ -134,9 +134,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -202,6 +204,51 @@ describe('ZapMarket Test', () => {
         zapMarket.address,
         zapMarketV2Factory
       )) as ZapMarketV2;
+
+    });
+
+
+    it('Should get the platform fee', async () => {
+
+      const fee = await zapMarket.viewFee();
+
+      expect(parseInt(fee.value._hex)).to.equal(parseInt(platformFee.fee.value._hex));
+
+    });
+
+    it('Should set the platform fee', async () => {
+
+      let newFee = {
+
+        fee: {
+          value: BigNumber.from('6000000000000000000')
+        },
+
+      };
+
+      await zapMarket.setFee(newFee);
+
+      const fee = await zapMarket.viewFee();
+
+      expect(parseInt(fee.value._hex)).to.equal(parseInt(newFee.fee.value._hex));
+
+    });
+
+    it('Should revert if non owner tries to set the fee', async () => {
+
+      let newFee = {
+
+        fee: {
+          value: BigNumber.from('6000000000000000000')
+        },
+
+      };
+
+      await zapMarket.setFee(newFee);
+
+      await expect(zapMarket.connect(signers[14]).setFee(newFee)).to.be.revertedWith(
+        'Ownable: Only owner has access to this function'
+      );
 
     });
 
@@ -390,9 +437,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -684,9 +733,11 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -924,17 +975,17 @@ describe('ZapMarket Test', () => {
       ).to.be.revertedWith('Market: Ask invalid for share splitting');
     });
 
-    it.skip("Should reject if the bid shares haven't been set yet", async () => {
-      // Bid shares are't set only when they have not been minted
+    // it.skip("Should reject if the bid shares haven't been set yet", async () => {
+    //   // Bid shares are't set only when they have not been minted
 
-      await expect(
-        zapMarket.connect(signers[1]).setAsk(zapMedia1.address, 0, ask1)
-      ).to.be.revertedWith('Market: Invalid bid shares for token');
+    //   await expect(
+    //     zapMarket.connect(signers[1]).setAsk(zapMedia1.address, 0, ask1)
+    //   ).to.be.revertedWith('Market: Invalid bid shares for token');
 
-      await expect(
-        zapMarket.connect(signers[2]).setAsk(zapMedia2.address, 0, ask2)
-      ).to.be.revertedWith('Market: Invalid bid shares for token');
-    });
+    //   await expect(
+    //     zapMarket.connect(signers[2]).setAsk(zapMedia2.address, 0, ask2)
+    //   ).to.be.revertedWith('Market: Invalid bid shares for token');
+    // });
   });
 
   describe('#setBid', () => {
@@ -957,11 +1008,13 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
+      const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
 
-      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address, platformFee], {
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
       })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
@@ -1482,7 +1535,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should accept bid', async () => {
+    it('Should accept bid', async () => {
 
       await zapTokenBsc.mint(signers[1].address, 5000);
       await zapTokenBsc.mint(signers[2].address, 5000);
@@ -1508,6 +1561,14 @@ describe('ZapMarket Test', () => {
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);
 
+      const zapMarketFilter: EventFilter =
+        zapMarket.filters.BidFinalized(null, null, null);
+
+      const event = (await zapMarket.queryFilter(zapMarketFilter));
+
+      expect(zapMedia1.address).to.equal(event[0].args[2]);
+      expect(zapMedia2.address).to.equal(event[1].args[2]);
+
       const marketBal = await zapTokenBsc.balanceOf(zapMarket.address);
       expect(parseInt(marketBal._hex)).to.equal(0);
 
@@ -1518,6 +1579,5 @@ describe('ZapMarket Test', () => {
       expect(parseInt(vaultPostBal._hex)).to.equal(10);
 
     })
-
   });
 });
