@@ -8,7 +8,7 @@ async function main() {
 
     // Uses a BSC testnet address
     const zapMediaV2 = await upgrades.upgradeProxy('0x34fCb1A9995c1A90D2Aa9F09796d5699FEF433e5', ZapMediaV2);
-    console.log("ZapMarketV2 upgraded to:", zapMediaV2.address);
+    console.log("ZapMediaV2 upgraded to:", zapMediaV2.address);
 
 }
 

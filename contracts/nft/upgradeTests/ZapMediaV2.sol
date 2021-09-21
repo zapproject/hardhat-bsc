@@ -26,7 +26,7 @@ import '../libraries/Constants.sol';
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is
+contract ZapMediaV2 is
     IMedia,
     ERC721BurnableUpgradeable,
     ReentrancyGuardUpgradeable,
