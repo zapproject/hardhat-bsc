@@ -30,7 +30,7 @@ interface IMediaExtended is IMedia {
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
-contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
+contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Counters for Counters.Counter;
@@ -75,9 +75,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
     }
-    function getWethAddress() public returns(address){
+
+    function testUpgrade() public view returns (address) {
         return wethAddress;
     }
+
     function setTokenDetails(uint256 tokenId, address mediaContract)
         internal
         returns (bool)

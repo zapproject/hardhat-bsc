@@ -8,7 +8,7 @@ async function main() {
 
     // Uses a BSC testnet address
     const auctionHouseV2 = await upgrades.upgradeProxy('0x612AEe0e1427C195401f79D06F063ea70595922c', AuctionHouseV2);
-    console.log("ZapMarketV2 upgraded to:", auctionHouseV2.address);
+    console.log("AuctionHouseV2 upgraded to:", auctionHouseV2.address);
 
 }
 
