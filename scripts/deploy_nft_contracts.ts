@@ -9,11 +9,9 @@ async function main() {
     const tokenAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
 
     const platformFee = {
-
         fee: {
             value: BigNumber.from('5000000000000000000')
         },
-
     };
 
     const ZapVault = await ethers.getContractFactory("ZapVault");
