@@ -13,8 +13,6 @@ import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media

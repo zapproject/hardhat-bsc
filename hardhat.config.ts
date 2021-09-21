@@ -80,8 +80,8 @@ const config = {
     testnet: {
       url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
       chainId: 97,
-      gasPrice: 20000000000
-      // accounts: { mnemonic: process.env.MNEMONIC }
+      gasPrice: 20000000000,
+      accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gasPrice: 8000000000

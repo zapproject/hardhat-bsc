@@ -21,8 +21,6 @@ import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @title A media value system, with perpetual equity to creators
  * @notice This contract provides an interface to mint media with a market
@@ -309,10 +307,8 @@ contract ZapMedia is
 
         address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
 
-        console.log('Recovered Address', recoveredAddress);
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
-            // remove revert string before deployment to mainnet
             'Media: Signature invalid'
         );
 
