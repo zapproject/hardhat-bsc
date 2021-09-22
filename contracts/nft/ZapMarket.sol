@@ -120,11 +120,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
+                    .add(splitShare(bidShares.creatorTwo, bidAmount))
                     .add(splitShare(platformFee.fee, bidAmount))
-                    .add(
-                        // .add(splitShare(Decimal.D256(platformFee), bidAmount))
-                        splitShare(bidShares.owner, bidAmount)
-                    ));
+                    .add(splitShare(bidShares.owner, bidAmount)));
     }
 
     /**
@@ -137,9 +135,12 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         returns (bool)
     {
         return
-            bidShares.creator.value.add(bidShares.owner.value).add(
-                platformFee.fee.value
-            ) == uint256(100).mul(Decimal.BASE);
+            bidShares
+                .creator
+                .value
+                .add(bidShares.creatorTwo.value)
+                .add(bidShares.owner.value)
+                .add(platformFee.fee.value) == uint256(100).mul(Decimal.BASE);
     }
 
     /**
