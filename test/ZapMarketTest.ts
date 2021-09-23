@@ -71,6 +71,7 @@ describe('ZapMarket Test', () => {
   let zapMedia3: ZapMedia;
   let zapVault: ZapVault;
   let signers: SignerWithAddress[];
+  let collaborators: any
 
   let bidShares1 = {
 
@@ -518,8 +519,10 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+
+      collaborators.creatorTwo = signers[15].address
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
 
       const zapMarketV2Factory = await ethers.getContractFactory(
         'ZapMarketV2',
@@ -717,7 +720,7 @@ describe('ZapMarket Test', () => {
       };
 
       await expect(
-        zapMedia1.connect(signers[1]).mint(data, invalidBidShares)
+        zapMedia1.connect(signers[1]).mint(data, invalidBidShares, collaborators)
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
     });
 
@@ -814,8 +817,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1);
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1, collaborators);
 
       const zapMarketV2Factory = await ethers.getContractFactory(
         'ZapMarketV2',
@@ -1109,8 +1112,13 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      let collaborators = {
+        creatorTwo: signers[16].address
+      }
+
+
+      await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
+      await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
 
       // const zapMarketV2Factory = await ethers.getContractFactory(
       //   'ZapMarketV2',

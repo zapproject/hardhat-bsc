@@ -20,6 +20,7 @@ import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -257,16 +258,17 @@ contract ZapMedia is
     /**
      * @notice see IMedia
      */
-    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
-        public
-        override
-        nonReentrant
-    {
+    function mint(
+        MediaData memory data,
+        IMarket.BidShares memory bidShares,
+        IMarket.Collaborators memory collaborators
+    ) public override nonReentrant {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
 
+        console.log(collaborators.creatorTwo);
         _mintForCreator(msg.sender, data, bidShares);
     }
 

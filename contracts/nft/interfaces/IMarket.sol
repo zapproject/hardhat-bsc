@@ -43,6 +43,10 @@ interface IMarket {
         Decimal.D256 fee;
     }
 
+    struct Collaborators {
+        address creatorTwo;
+    }
+
     event BidCreated(
         address indexed mediaContract,
         uint256 indexed tokenId,

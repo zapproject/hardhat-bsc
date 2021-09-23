@@ -420,7 +420,10 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             splitShare(bidShares.creator, bid.amount)
         );
 
-        console.log(splitShare(bidShares.creatorTwo, bid.amount));
+        // console.log('Owner', splitShare(bidShares.owner, bid.amount));
+        // console.log('PlatformFee', splitShare(platformFee.fee, bid.amount));
+        // console.log('CreatorOne', splitShare(bidShares.creator, bid.amount));
+        // console.log('CreatorTwo', splitShare(bidShares.creatorTwo, bid.amount));
 
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
