@@ -20,8 +20,6 @@ import { ZapMedia } from '../typechain/ZapMedia';
 
 import { ZapMarket } from '../typechain/ZapMarket';
 
-import { ZapMarketV2 } from '../typechain/ZapMarketV2';
-
 import { ZapVault } from '../typechain/ZapVault';
 
 chai.use(solidity);
@@ -65,7 +63,6 @@ describe('ZapMarket Test', () => {
   });
 
   let zapMarket: ZapMarket;
-  let zapMarketV2: ZapMarketV2;
   let zapMedia1: ZapMedia;
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
@@ -231,16 +228,6 @@ describe('ZapMarket Test', () => {
       let contentHash = await sha256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHash);
 
-      const zapMarketV2Factory = await ethers.getContractFactory(
-        'ZapMarketV2',
-        signers[0]
-      );
-
-      zapMarketV2 = (await upgrades.upgradeProxy(
-        zapMarket.address,
-        zapMarketV2Factory
-      )) as ZapMarketV2;
-
     });
 
 
@@ -306,14 +293,6 @@ describe('ZapMarket Test', () => {
       );
     });
 
-    it('Should upgrade ZapMarket with the new getConfigStatus function and preserve the state', async () => {
-
-      expect(await zapMarketV2.getConfigStatus(zapMedia1.address)).to.be.true;
-
-      expect(await zapMarketV2.getConfigStatus(zapMedia2.address)).to.be.true;
-
-    });
-
     it('Should get media owner', async () => {
 
       const zapMedia1Address = await zapMarket.mediaContracts(
@@ -326,34 +305,10 @@ describe('ZapMarket Test', () => {
         BigNumber.from('0')
       );
 
-      const upgradedMedia1Address = await zapMarketV2.mediaContracts(
-        signers[1].address,
-        BigNumber.from('0')
-      );
-
-      const upgradedMedia2Address = await zapMarketV2.mediaContracts(
-        signers[2].address,
-        BigNumber.from('0')
-      );
-
       expect(zapMedia1Address).to.contain(zapMedia1.address);
-
-      expect(upgradedMedia1Address).to.contain(zapMedia1.address);
 
       expect(zapMedia2Address).to.contain(zapMedia2.address);
 
-      expect(upgradedMedia2Address).to.contain(zapMedia2.address);
-
-    });
-
-    it('Should revert if initialize is called twice', async () => {
-      await expect(zapMarketV2.initialize()).to.be.revertedWith(
-        'Initializable: contract is already initialized'
-      );
-
-      await expect(zapMarket.initialize()).to.be.revertedWith(
-        'Initializable: contract is already initialized'
-      );
     });
 
     it('Should reject if called twice', async () => {
@@ -390,24 +345,9 @@ describe('ZapMarket Test', () => {
           )
       ).to.be.revertedWith('Market: Already configured');
 
-      await expect(
-        zapMarketV2
-          .connect(signers[1])
-          .configure(
-            signers[1].address,
-            zapMedia1.address,
-            formatBytes32String('TEST MEDIA 1'),
-            formatBytes32String('TM1')
-          )
-      ).to.be.revertedWith('Market: Already configured');
-
       expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
 
-      expect(await zapMarketV2.isConfigured(zapMedia1.address)).to.be.true;
-
       expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
-
-      expect(await zapMarketV2.isConfigured(zapMedia2.address)).to.be.true;
 
     });
 
@@ -418,34 +358,16 @@ describe('ZapMarket Test', () => {
 
       const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
-      const upgradedMarketFilter: EventFilter =
-        zapMarketV2.filters.MediaContractCreated(zapMedia2.address, null, null);
-
-      const upgradedEvent: Event = (
-        await zapMarketV2.queryFilter(upgradedMarketFilter)
-      )[0];
-
       expect(event).to.not.be.undefined;
 
-      expect(upgradedEvent).to.not.be.undefined;
 
       expect(event.event).to.eq('MediaContractCreated');
 
-      expect(upgradedEvent.event).to.eq('MediaContractCreated');
-
       expect(event.args?.mediaContract).to.eq(zapMedia1.address);
-
-      expect(upgradedEvent.args?.mediaContract).to.eq(zapMedia2.address);
 
       expect(parseBytes32String(event.args?.name)).to.eq('TEST MEDIA 1');
 
-      expect(parseBytes32String(upgradedEvent.args?.name)).to.eq(
-        'TEST MEDIA 2'
-      );
-
       expect(parseBytes32String(event.args?.symbol)).to.eq('TM1');
-
-      expect(parseBytes32String(upgradedEvent.args?.symbol)).to.eq('TM2');
 
     });
 
@@ -551,16 +473,6 @@ describe('ZapMarket Test', () => {
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
 
-      const zapMarketV2Factory = await ethers.getContractFactory(
-        'ZapMarketV2',
-        signers[0]
-      );
-
-      zapMarketV2 = (await upgrades.upgradeProxy(
-        zapMarket.address,
-        zapMarketV2Factory
-      )) as ZapMarketV2;
-
     });
 
     it('Should emit a Minted event when a token is minted', async () => {
@@ -570,21 +482,9 @@ describe('ZapMarket Test', () => {
         zapMedia1.address
       );
 
-      const upgradedMarketFilter: EventFilter = zapMarketV2.filters.Minted(
-        0,
-        zapMedia2.address
-      );
-
       const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
-      const upgradedEvent: Event = (
-        await zapMarketV2.queryFilter(upgradedMarketFilter)
-      )[0];
-
       expect(event).to.not.be.undefined;
-
-      expect(upgradedEvent).to.not.be.undefined;
-
       expect(event.event).to.eq('Minted');
       expect(event.args?.token).to.eq(0);
       expect(event.args?.mediaContract).to.eq(zapMedia1.address);
@@ -603,30 +503,13 @@ describe('ZapMarket Test', () => {
 
       const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
-      const upgradedMarketFilter: EventFilter = zapMarketV2.filters.Burned(
-        0,
-        zapMedia2.address
-      );
-
-      const upgradedEvent: Event = (
-        await zapMarketV2.queryFilter(upgradedMarketFilter)
-      )[0];
-
       expect(event).to.not.be.undefined;
-
-      expect(upgradedEvent).to.not.be.undefined;
 
       expect(event.event).to.eq('Burned');
 
-      expect(upgradedEvent.event).to.eq('Burned');
-
       expect(event.args?.token).to.eq(0);
 
-      expect(upgradedEvent.args?.token).to.eq(0);
-
       expect(event.args?.mediaContract).to.eq(zapMedia1.address);
-
-      expect(upgradedEvent.args?.mediaContract).to.eq(zapMedia2.address);
 
     });
 
@@ -638,34 +521,17 @@ describe('ZapMarket Test', () => {
           .setBidShares(zapMedia1.address, 1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
-      // await expect(
-      //   zapMarketV2
-      //     .connect(signers[3])
-      //     .setBidShares(zapMedia1.address, 1, bidShares1)
-      // ).to.be.revertedWith('Market: Only media contract');
-
       await expect(
         zapMarket
           .connect(signers[4])
           .setBidShares(zapMedia2.address, 1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
-      // await expect(
-      //   zapMarketV2
-      //     .connect(signers[4])
-      //     .setBidShares(zapMedia2.address, 1, bidShares1)
-      // ).to.be.revertedWith('Market: Only media contract');
-
     });
 
     it('Should set the bid shares if called by the media address', async () => {
 
       const sharesForToken1 = await zapMarket.bidSharesForToken(
-        zapMedia1.address,
-        0
-      );
-
-      const upgradedShares1 = await zapMarketV2.bidSharesForToken(
         zapMedia1.address,
         0
       );
@@ -684,13 +550,7 @@ describe('ZapMarket Test', () => {
         bidShares1.creator.value
       );
 
-      expect(upgradedShares1.creator.value).to.be.equal(
-        bidShares1.creator.value
-      );
-
       expect(sharesForToken1.owner.value).to.be.equal(bidShares1.owner.value);
-
-      expect(upgradedShares1.owner.value).to.be.equal(bidShares1.owner.value);
 
       expect(sharesForToken2.creator.value).to.be.equal(
         bidShares2.creator.value
@@ -847,16 +707,6 @@ describe('ZapMarket Test', () => {
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1, collaborators);
 
-      const zapMarketV2Factory = await ethers.getContractFactory(
-        'ZapMarketV2',
-        signers[0]
-      );
-
-      zapMarketV2 = (await upgrades.upgradeProxy(
-        zapMarket.address,
-        zapMarketV2Factory
-      )) as ZapMarketV2;
-
     });
 
     it('Should reject if not called by the media address', async () => {
@@ -865,15 +715,7 @@ describe('ZapMarket Test', () => {
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
-        zapMarketV2.connect(signers[5]).setAsk(zapMedia1.address, 1, ask1)
-      ).to.be.revertedWith('Market: Only media contract');
-
-      await expect(
         zapMarket.connect(signers[5]).setAsk(zapMedia2.address, 1, ask1)
-      ).to.be.revertedWith('Market: Only media contract');
-
-      await expect(
-        zapMarketV2.connect(signers[5]).setAsk(zapMedia2.address, 1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
@@ -885,29 +727,13 @@ describe('ZapMarket Test', () => {
 
       const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 0);
 
-      const upgradedAsk1 = await zapMarketV2.currentAskForToken(
-        zapMedia1.address,
-        0
-      );
-
       const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 0);
-
-      const upgradedAsk2 = await zapMarketV2.currentAskForToken(
-        zapMedia2.address,
-        0
-      );
 
       expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
 
-      expect(upgradedAsk1.amount.toNumber()).to.equal(ask1.amount);
-
       expect(getAsk2.amount.toNumber()).to.equal(ask2.amount);
 
-      expect(upgradedAsk2.amount.toNumber()).to.equal(ask2.amount);
-
       expect(getAsk1.currency).to.equal(zapTokenBsc.address);
-
-      expect(upgradedAsk1.currency).to.equal(zapTokenBsc.address);
 
     });
 
@@ -923,19 +749,7 @@ describe('ZapMarket Test', () => {
         null
       );
 
-      const upgraded_media1: EventFilter = zapMarketV2.filters.AskCreated(
-        zapMedia1.address,
-        null,
-        null
-      );
-
       const filter_media2: EventFilter = zapMarket.filters.AskCreated(
-        zapMedia2.address,
-        null,
-        null
-      );
-
-      const upgraded_media2: EventFilter = zapMarketV2.filters.AskCreated(
         zapMedia2.address,
         null,
         null
@@ -945,57 +759,25 @@ describe('ZapMarket Test', () => {
         await zapMarket.queryFilter(filter_media1)
       )[0];
 
-      const upgraded_event1: Event = (
-        await zapMarketV2.queryFilter(upgraded_media1)
-      )[0];
-
       const event_media2: Event = (
         await zapMarket.queryFilter(filter_media2)
       )[0];
 
-      const upgraded_event2: Event = (
-        await zapMarketV2.queryFilter(upgraded_media2)
-      )[0];
-
       expect(event_media1.event).to.be.equal('AskCreated');
-
-      expect(upgraded_event1.event).to.be.equal('AskCreated');
 
       expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
 
-      expect(upgraded_event1.args?.tokenId.toNumber()).to.be.equal(0);
-
       expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
-
-      expect(upgraded_event1.args?.ask.amount.toNumber()).to.be.equal(
-        ask1.amount
-      );
 
       expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
-      expect(upgraded_event1.args?.ask.currency).to.be.equal(
-        zapTokenBsc.address
-      );
-
       expect(event_media2.event).to.be.equal('AskCreated');
-
-      expect(upgraded_event2.event).to.be.equal('AskCreated');
 
       expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
 
-      expect(upgraded_event2.args?.tokenId.toNumber()).to.be.equal(0);
-
       expect(event_media2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
 
-      expect(upgraded_event2.args?.ask.amount.toNumber()).to.be.equal(
-        ask2.amount
-      );
-
       expect(event_media2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
-
-      expect(upgraded_event2.args?.ask.currency).to.be.equal(
-        zapTokenBsc.address
-      );
 
     });
 
@@ -1015,20 +797,9 @@ describe('ZapMarket Test', () => {
       ).to.be.revertedWith('Market: Ask invalid for share splitting');
     });
 
-    // it.skip("Should reject if the bid shares haven't been set yet", async () => {
-    //   // Bid shares are't set only when they have not been minted
-
-    //   await expect(
-    //     zapMarket.connect(signers[1]).setAsk(zapMedia1.address, 0, ask1)
-    //   ).to.be.revertedWith('Market: Invalid bid shares for token');
-
-    //   await expect(
-    //     zapMarket.connect(signers[2]).setAsk(zapMedia2.address, 0, ask2)
-    //   ).to.be.revertedWith('Market: Invalid bid shares for token');
-    // });
   });
 
-  describe.only('#setBid', () => {
+  describe('#setBid', () => {
     let bid1: any;
     let bid2: any;
 
@@ -1100,7 +871,7 @@ describe('ZapMarket Test', () => {
       await zapMedia3.deployed();
 
       bid1 = {
-        amount: 100,
+        amount: 200,
         currency: zapTokenBsc.address,
         bidder: signers[1].address,
         recipient: signers[8].address,
@@ -1111,7 +882,7 @@ describe('ZapMarket Test', () => {
       };
 
       bid2 = {
-        amount: 100,
+        amount: 200,
         currency: zapTokenBsc.address,
         bidder: signers[2].address,
         recipient: signers[9].address,
@@ -1146,16 +917,6 @@ describe('ZapMarket Test', () => {
       await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
       await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
 
-      // const zapMarketV2Factory = await ethers.getContractFactory(
-      //   'ZapMarketV2',
-      //   signers[0]
-      // );
-
-      // zapMarketV2 = (await upgrades.upgradeProxy(
-      //   zapMarket.address,
-      //   zapMarketV2Factory
-      // )) as ZapMarketV2;
-
     });
 
     it('Should revert if not called by the media contract', async () => {
@@ -1166,22 +927,10 @@ describe('ZapMarket Test', () => {
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
-        zapMarketV2
-          .connect(signers[2])
-          .setBid(zapMedia1.address, 0, bid1, bid1.spender)
-      ).to.be.revertedWith('Market: Only media contract');
-
-      await expect(
         zapMarket
           .connect(signers[1])
           .setBid(zapMedia2.address, 0, bid2, bid2.spender)
       ).to.be.revertedWith('Market: Only media contract');
-
-      // await expect(
-      //   zapMarketV2
-      //     .connect(signers[1])
-      //     .setBid(zapMedia2.address, 0, bid2, bid2.spender)
-      // ).to.be.revertedWith('Market: Only media contract');
 
     });
 
@@ -1318,33 +1067,17 @@ describe('ZapMarket Test', () => {
         bid1.bidder
       );
 
-      // const upgradedBid1 = await zapMarketV2.bidForTokenBidder(
-      //   zapMedia1.address,
-      //   0,
-      //   bid1.bidder
-      // );
-
       const getBid2 = await zapMarket.bidForTokenBidder(
         zapMedia2.address,
         0,
         bid2.bidder
       );
 
-      // const upgradedBid2 = await zapMarketV2.bidForTokenBidder(
-      //   zapMedia2.address,
-      //   0,
-      //   bid2.bidder
-      // );
-
       expect(getBid1.currency).to.equal(zapTokenBsc.address);
-
-      // expect(upgradedBid1.currency).to.equal(zapTokenBsc.address);
 
       expect(getBid1.amount.toNumber()).to.equal(bid1.amount);
 
       expect(getBid1.bidder).to.equal(bid1.bidder);
-
-      // expect(upgradedBid1.bidder).to.equal(bid1.bidder);
 
       expect(beforeBalance1.toNumber()).to.equal(
         afterBalance1.toNumber() + bid1.amount
@@ -1352,15 +1085,9 @@ describe('ZapMarket Test', () => {
 
       expect(getBid2.currency).to.equal(zapTokenBsc.address);
 
-      // expect(upgradedBid2.currency).to.equal(zapTokenBsc.address);
-
       expect(getBid2.amount.toNumber()).to.equal(bid2.amount);
 
-      // expect(upgradedBid2.amount.toNumber()).to.equal(bid2.amount);
-
       expect(getBid2.bidder).to.equal(bid2.bidder);
-
-      // expect(upgradedBid2.bidder).to.equal(bid2.bidder);
 
       expect(beforeBalance2.toNumber()).to.equal(
         afterBalance2.toNumber() + bid2.amount
@@ -1424,19 +1151,7 @@ describe('ZapMarket Test', () => {
         largerBid1.bidder
       );
 
-      const upgradedBid1 = await zapMarketV2.bidForTokenBidder(
-        zapMedia1.address,
-        0,
-        largerBid1.bidder
-      );
-
       const getBid2 = await zapMarket.bidForTokenBidder(
-        zapMedia2.address,
-        0,
-        largerBid2.bidder
-      );
-
-      const upgradedBid2 = await zapMarketV2.bidForTokenBidder(
         zapMedia2.address,
         0,
         largerBid2.bidder
@@ -1444,15 +1159,9 @@ describe('ZapMarket Test', () => {
 
       expect(getBid1.currency).to.equal(zapTokenBsc.address);
 
-      expect(upgradedBid1.currency).to.equal(zapTokenBsc.address);
-
       expect(getBid1.amount.toNumber()).to.equal(largerBid1.amount);
 
-      expect(upgradedBid1.amount.toNumber()).to.equal(largerBid1.amount);
-
       expect(getBid1.bidder).to.equal(largerBid1.bidder);
-
-      expect(upgradedBid1.bidder).to.equal(largerBid1.bidder);
 
       expect(beforeBalance1.toNumber()).to.equal(
         afterBalance1.toNumber() + largerBid1.amount
@@ -1460,15 +1169,9 @@ describe('ZapMarket Test', () => {
 
       expect(getBid2.currency).to.equal(zapTokenBsc.address);
 
-      expect(upgradedBid2.currency).to.equal(zapTokenBsc.address);
-
       expect(getBid2.amount.toNumber()).to.equal(largerBid2.amount);
 
-      expect(upgradedBid2.amount.toNumber()).to.equal(largerBid2.amount);
-
       expect(getBid2.bidder).to.equal(largerBid2.bidder);
-
-      expect(upgradedBid2.bidder).to.equal(largerBid2.bidder);
 
       expect(beforeBalance2.toNumber()).to.equal(
         afterBalance2.toNumber() + largerBid2.amount
@@ -1527,17 +1230,7 @@ describe('ZapMarket Test', () => {
         null
       );
 
-      // const upgraded_filter1: EventFilter = zapMarketV2.filters.BidCreated(
-      //   zapMedia1.address,
-      //   null,
-      //   null
-      // );
-
       const eventLog1: Event = (await zapMarket.queryFilter(filter1))[0];
-
-      // const upgradedLog1: Event = (
-      //   await zapMarketV2.queryFilter(upgraded_filter1)
-      // )[0];
 
       const filter2: EventFilter = zapMarket.filters.BidCreated(
         zapMedia2.address,
@@ -1545,29 +1238,15 @@ describe('ZapMarket Test', () => {
         null
       );
 
-      // const upgraded_filter2: EventFilter = zapMarketV2.filters.BidCreated(
-      //   zapMedia2.address,
-      //   null,
-      //   null
-      // );
-
       const eventLog2: Event = (await zapMarket.queryFilter(filter2))[0];
 
       expect(eventLog1.event).to.be.equal('BidCreated');
 
-      // expect(upgradedLog1.event).to.be.equal('BidCreated');
-
       expect(eventLog1.args?.tokenId).to.equal(0);
-
-      // expect(upgradedLog1.args?.tokenId).to.equal(0);
 
       expect(eventLog1.args?.bid.amount.toNumber()).to.equal(bid1.amount);
 
-      // expect(upgradedLog1.args?.bid.amount.toNumber()).to.equal(bid1.amount);
-
       expect(eventLog1.args?.bid.currency).to.equal(bid1.currency);
-
-      // expect(upgradedLog1.args?.bid.currency).to.equal(bid1.currency);
 
       expect(eventLog2.event).to.be.equal('BidCreated');
 
@@ -1579,7 +1258,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should accept bid', async () => {
+    it('Should accept bid', async () => {
 
       await zapTokenBsc.mint(signers[1].address, 5000);
       await zapTokenBsc.mint(signers[2].address, 5000);
@@ -1596,39 +1275,55 @@ describe('ZapMarket Test', () => {
       const vaultPreBal = await zapTokenBsc.balanceOf(zapVault.address);
       expect(parseInt(vaultPreBal._hex)).to.equal(0);
 
+      const owner1PreSet = await zapTokenBsc.balanceOf(signers[1].address);
+      const owner2PreSet = await zapTokenBsc.balanceOf(signers[2].address);
+
       await zapMedia1.setBid(0, bid1);
       await zapMedia2.setBid(0, bid2);
 
-      // const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
-      // expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
+      const owner1PostSet = await zapTokenBsc.balanceOf(signers[1].address);
+      expect(parseInt(owner1PostSet._hex)).to.equal(parseInt(owner1PreSet._hex) - bid1.amount);
 
-      console.log(await zapTokenBsc.balanceOf(signers[10].address))
-      console.log(await zapTokenBsc.balanceOf(signers[11].address))
-      console.log(await zapTokenBsc.balanceOf(signers[11].address))
+      const owner2PostSet = await zapTokenBsc.balanceOf(signers[2].address);
+      expect(parseInt(owner2PostSet._hex)).to.equal(parseInt(owner2PreSet._hex) - bid2.amount);
+
+      const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
+      expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
 
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);
 
-      console.log(await zapTokenBsc.balanceOf(signers[10].address))
-      console.log(await zapTokenBsc.balanceOf(signers[11].address))
-      console.log(await zapTokenBsc.balanceOf(signers[11].address))
+      const owner1PostAccept = await zapTokenBsc.balanceOf(signers[1].address);
+      expect(parseInt(owner1PostAccept._hex)).to.equal(parseInt(owner1PostSet._hex) + ((15 + 35) / 100) * 200);
 
-      // const zapMarketFilter: EventFilter =
-      //   zapMarket.filters.BidFinalized(null, null, null);
+      const owner2PostAccept = await zapTokenBsc.balanceOf(signers[2].address);
+      expect(parseInt(owner2PostAccept._hex)).to.equal(parseInt(owner2PostSet._hex) + ((15 + 35) / 100) * 200);
 
-      // const event = (await zapMarket.queryFilter(zapMarketFilter));
+      const zapMarketFilter: EventFilter =
+        zapMarket.filters.BidFinalized(null, null, null);
 
-      // expect(zapMedia1.address).to.equal(event[0].args[2]);
-      // expect(zapMedia2.address).to.equal(event[1].args[2]);
+      const event = (await zapMarket.queryFilter(zapMarketFilter));
 
-      // const marketBal = await zapTokenBsc.balanceOf(zapMarket.address);
-      // expect(parseInt(marketBal._hex)).to.equal(0);
+      expect(zapMedia1.address).to.equal(event[0].args[2]);
+      expect(zapMedia2.address).to.equal(event[1].args[2]);
 
-      // const recipientPostBal = await zapMedia1.balanceOf(bid1.recipient);
-      // expect(parseInt(recipientPostBal._hex)).to.equal(1);
+      const marketBal = await zapTokenBsc.balanceOf(zapMarket.address);
+      expect(parseInt(marketBal._hex)).to.equal(0);
 
-      // const vaultPostBal = await zapTokenBsc.balanceOf(zapVault.address);
-      // expect(parseInt(vaultPostBal._hex)).to.equal(10);
+      const recipientPostBal = await zapMedia1.balanceOf(bid1.recipient);
+      expect(parseInt(recipientPostBal._hex)).to.equal(1);
+
+      const vaultPostBal = await zapTokenBsc.balanceOf(zapVault.address);
+      expect(parseInt(vaultPostBal._hex)).to.equal((5 / 100) * (bid1.amount + bid2.amount));
+
+      const collabTwoPostBal = await zapTokenBsc.balanceOf(signers[10].address);
+      expect(parseInt(collabTwoPostBal._hex)).to.equal((15 / 100) * (bid1.amount + bid2.amount));
+
+      const collabThreePostBal = await zapTokenBsc.balanceOf(signers[11].address);
+      expect(parseInt(collabThreePostBal._hex)).to.equal((15 / 100) * (bid1.amount + bid2.amount));
+
+      const collabFourPostBal = await zapTokenBsc.balanceOf(signers[12].address);
+      expect(parseInt(collabFourPostBal._hex)).to.equal((15 / 100) * (bid1.amount + bid2.amount));
 
     })
   });
