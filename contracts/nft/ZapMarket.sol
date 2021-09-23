@@ -123,7 +123,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
-                    .add(splitShare(bidShares.creatorTwo, bidAmount))
+                    .add(splitShare(bidShares.collaboratorTwo, bidAmount))
+                    .add(splitShare(bidShares.collaboratorThree, bidAmount))
+                    .add(splitShare(bidShares.collaboratorFour, bidAmount))
                     .add(splitShare(platformFee.fee, bidAmount))
                     .add(splitShare(bidShares.owner, bidAmount)));
     }
