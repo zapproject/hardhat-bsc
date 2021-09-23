@@ -143,7 +143,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidShares
                 .creator
                 .value
-                .add(bidShares.creatorTwo.value)
+                .add(bidShares.collaboratorTwo.value)
+                .add(bidShares.collaboratorThree.value)
+                .add(bidShares.collaboratorFour.value)
                 .add(bidShares.owner.value)
                 .add(platformFee.fee.value) == uint256(100).mul(Decimal.BASE);
     }
