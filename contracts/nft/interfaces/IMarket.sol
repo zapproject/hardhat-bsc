@@ -29,6 +29,10 @@ interface IMarket {
         address currency;
     }
 
+    struct Collaborators {
+        address creatorTwo;
+    }
+
     struct BidShares {
         // % of sale value that goes to the _previous_ owner of the nft
         // Decimal.D256 platformFee;
@@ -41,10 +45,6 @@ interface IMarket {
 
     struct PlatformFee {
         Decimal.D256 fee;
-    }
-
-    struct Collaborators {
-        address creatorTwo;
     }
 
     event BidCreated(
@@ -118,6 +118,12 @@ interface IMarket {
         address mediaContractAddress,
         uint256 tokenId,
         BidShares calldata bidShares
+    ) external;
+
+    function setCollabs(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Collaborators calldata collaborators
     ) external;
 
     function setAsk(

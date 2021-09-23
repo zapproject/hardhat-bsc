@@ -268,8 +268,7 @@ contract ZapMedia is
             'Media: Only Approved users can mint'
         );
 
-        console.log(collaborators.creatorTwo);
-        _mintForCreator(msg.sender, data, bidShares);
+        _mintForCreator(msg.sender, data, bidShares, collaborators);
     }
 
     /**
@@ -279,6 +278,7 @@ contract ZapMedia is
         address creator,
         MediaData memory data,
         IMarket.BidShares memory bidShares,
+        IMarket.Collaborators memory collaborators,
         EIP712Signature memory sig
     ) public override nonReentrant {
         require(
@@ -314,7 +314,7 @@ contract ZapMedia is
             'Media: Signature invalid'
         );
 
-        _mintForCreator(recoveredAddress, data, bidShares);
+        _mintForCreator(recoveredAddress, data, bidShares, collaborators);
     }
 
     /**
@@ -553,7 +553,8 @@ contract ZapMedia is
     function _mintForCreator(
         address creator,
         MediaData memory data,
-        IMarket.BidShares memory bidShares
+        IMarket.BidShares memory bidShares,
+        IMarket.Collaborators memory collaborators
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
         require(data.contentHash != 0, 'Media: content hash must be non-zero');
         require(
@@ -579,11 +580,19 @@ contract ZapMedia is
         tokens.tokenCreators[tokenId] = creator;
         tokens.previousTokenOwners[tokenId] = creator;
 
+        console.log(collaborators.creatorTwo);
+
         // address mediaContractAddress = address(this);
         IMarket(access.marketContract).setBidShares(
             address(this),
             tokenId,
             bidShares
+        );
+
+        IMarket(access.marketContract).setCollabs(
+            address(this),
+            tokenId,
+            collaborators
         );
         IMarket(access.marketContract).mintOrBurn(true, tokenId, address(this));
     }

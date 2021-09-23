@@ -1113,7 +1113,7 @@ describe('ZapMarket Test', () => {
       };
 
       let collaborators = {
-        creatorTwo: signers[16].address
+        creatorTwo: signers[17].address
       }
 
 

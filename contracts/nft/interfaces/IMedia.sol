@@ -66,6 +66,7 @@ interface IMedia {
         address creator,
         MediaData calldata data,
         IMarket.BidShares calldata bidShares,
+        IMarket.Collaborators calldata collaborators,
         EIP712Signature calldata sig
     ) external;
 
