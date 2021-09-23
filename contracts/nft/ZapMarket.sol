@@ -434,10 +434,22 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             splitShare(bidShares.creator, bid.amount)
         );
 
-        // Transfer bid share to creatorTwo of media
+        // Transfer bid share to the second media collaborator
         token.safeTransfer(
-            _collaborators[mediaContractAddress][tokenId].creatorTwo,
-            splitShare(bidShares.creatorTwo, bid.amount)
+            _collaborators[mediaContractAddress][tokenId].collaboratorTwo,
+            splitShare(bidShares.collaboratorTwo, bid.amount)
+        );
+
+        // Transfer bid share to the third media collaborator
+        token.safeTransfer(
+            _collaborators[mediaContractAddress][tokenId].collaboratorThree,
+            splitShare(bidShares.collaboratorThree, bid.amount)
+        );
+
+        // Transfer bid share to the fourth media collaborator
+        token.safeTransfer(
+            _collaborators[mediaContractAddress][tokenId].collaboratorFour,
+            splitShare(bidShares.collaboratorFour, bid.amount)
         );
 
         // Transfer bid share to previous owner of media (if applicable)
