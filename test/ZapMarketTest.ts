@@ -1593,6 +1593,8 @@ describe('ZapMarket Test', () => {
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);
 
+      console.log(await zapTokenBsc.balanceOf(signers[17].address))
+
       // const zapMarketFilter: EventFilter =
       //   zapMarket.filters.BidFinalized(null, null, null);
 

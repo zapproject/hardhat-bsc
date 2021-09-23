@@ -38,8 +38,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     // Mapping from token to the bid shares for the token
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
 
-    mapping(address => mapping(uint256 => Collaborators))
-        private _collaborators;
+    mapping(address => mapping(uint256 => Collaborators)) public _collaborators;
 
     // Mapping from token to the current ask for the token
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
@@ -431,10 +430,16 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             splitShare(bidShares.creator, bid.amount)
         );
 
-        // console.log('Owner', splitShare(bidShares.owner, bid.amount));
-        // console.log('PlatformFee', splitShare(platformFee.fee, bid.amount));
-        // console.log('CreatorOne', splitShare(bidShares.creator, bid.amount));
-        // console.log('CreatorTwo', splitShare(bidShares.creatorTwo, bid.amount));
+        // Transfer bid share to creatorTwo of media
+        token.safeTransfer(
+            _collaborators[mediaContractAddress][tokenId].creatorTwo,
+            splitShare(bidShares.creatorTwo, bid.amount)
+        );
+
+        console.log('Owner', splitShare(bidShares.owner, bid.amount));
+        console.log('PlatformFee', splitShare(platformFee.fee, bid.amount));
+        console.log('CreatorOne', splitShare(bidShares.creator, bid.amount));
+        console.log('CreatorTwo', splitShare(bidShares.creatorTwo, bid.amount));
 
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
