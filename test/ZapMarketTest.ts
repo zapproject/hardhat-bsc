@@ -71,46 +71,65 @@ describe('ZapMarket Test', () => {
   let zapMedia3: ZapMedia;
   let zapVault: ZapVault;
   let signers: SignerWithAddress[];
-  let collaborators: any
 
   let bidShares1 = {
-
-    creatorTwo: {
-      value: BigNumber.from('5000000000000000000')
+    collaboratorFour: {
+      value: BigNumber.from('15000000000000000000')
     },
-    owner: {
-      value: BigNumber.from('40000000000000000000')
+    collaboratorThree: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    collaboratorTwo: {
+      value: BigNumber.from('15000000000000000000')
     },
     creator: {
-      value: BigNumber.from('50000000000000000000')
-    }
+      value: BigNumber.from('15000000000000000000')
+    },
+    owner: {
+      value: BigNumber.from('35000000000000000000')
+    },
   };
 
   let bidShares2 = {
-    creatorTwo: {
-      value: BigNumber.from('5000000000000000000')
+    collaboratorFour: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    collaboratorThree: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    collaboratorTwo: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    creator: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    owner: {
+      value: BigNumber.from('35000000000000000000')
+    },
+  };
+
+  let collaborators = {
+    collaboratorTwo: '',
+    collaboratorThree: '',
+    collaboratorFour: ''
+  }
+
+  let invalidBidShares = {
+    collaboratorFour: {
+      value: BigNumber.from('1500000000000000000')
+    },
+    collaboratorThree: {
+      value: BigNumber.from('1500000000000000000')
+    },
+    collaboratorTwo: {
+      value: BigNumber.from('1500000000000000000')
+    },
+    creator: {
+      value: BigNumber.from('15000000000000000000')
     },
     owner: {
       value: BigNumber.from('40000000000000000000')
     },
-    creator: {
-      value: BigNumber.from('50000000000000000000')
-    }
-  };
-
-  let invalidBidShares = {
-    platformFee: {
-      value: BigInt(90000000000000000000)
-    },
-    owner: {
-      value: BigInt(79000000000000000000)
-    },
-    creatorTwo: {
-      value: BigInt(90000000000000000000)
-    },
-    creator: {
-      value: BigInt(90000000000000000000)
-    }
   };
 
   let ask1 = {
@@ -124,6 +143,12 @@ describe('ZapMarket Test', () => {
     currency: '',
     sellOnShare: 0
   };
+
+  before(async () => {
+
+    signers = await ethers.getSigners();
+
+  })
 
   describe('#Configure', () => {
 
@@ -519,8 +544,10 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
+      collaborators.collaboratorTwo = signers[10].address;
+      collaborators.collaboratorThree = signers[11].address;
+      collaborators.collaboratorFour = signers[12].address
 
-      collaborators.creatorTwo = signers[15].address
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
 
@@ -611,11 +638,11 @@ describe('ZapMarket Test', () => {
           .setBidShares(zapMedia1.address, 1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
-      await expect(
-        zapMarketV2
-          .connect(signers[3])
-          .setBidShares(zapMedia1.address, 1, bidShares1)
-      ).to.be.revertedWith('Market: Only media contract');
+      // await expect(
+      //   zapMarketV2
+      //     .connect(signers[3])
+      //     .setBidShares(zapMedia1.address, 1, bidShares1)
+      // ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
         zapMarket
@@ -623,11 +650,11 @@ describe('ZapMarket Test', () => {
           .setBidShares(zapMedia2.address, 1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
-      await expect(
-        zapMarketV2
-          .connect(signers[4])
-          .setBidShares(zapMedia2.address, 1, bidShares1)
-      ).to.be.revertedWith('Market: Only media contract');
+      // await expect(
+      //   zapMarketV2
+      //     .connect(signers[4])
+      //     .setBidShares(zapMedia2.address, 1, bidShares1)
+      // ).to.be.revertedWith('Market: Only media contract');
 
     });
 
@@ -1112,10 +1139,9 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      let collaborators = {
-        creatorTwo: signers[17].address
-      }
-
+      collaborators.collaboratorTwo = signers[10].address;
+      collaborators.collaboratorThree = signers[11].address;
+      collaborators.collaboratorFour = signers[12].address
 
       await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
       await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
@@ -1555,20 +1581,6 @@ describe('ZapMarket Test', () => {
 
     it.only('Should accept bid', async () => {
 
-
-      // let bidShares1 = {
-
-      //   creatorTwo: {
-      //     value: BigNumber.from('5000000000000000000')
-      //   },
-      //   owner: {
-      //     value: BigNumber.from('40000000000000000000')
-      //   },
-      //   creator: {
-      //     value: BigNumber.from('50000000000000000000')
-      //   }
-      // };
-
       await zapTokenBsc.mint(signers[1].address, 5000);
       await zapTokenBsc.mint(signers[2].address, 5000);
 
@@ -1589,12 +1601,17 @@ describe('ZapMarket Test', () => {
 
       // const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
       // expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
-      console.log(await zapTokenBsc.balanceOf(signers[17].address))
+
+      console.log(await zapTokenBsc.balanceOf(signers[10].address))
+      console.log(await zapTokenBsc.balanceOf(signers[11].address))
+      console.log(await zapTokenBsc.balanceOf(signers[11].address))
 
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);
 
-      console.log(await zapTokenBsc.balanceOf(signers[17].address))
+      console.log(await zapTokenBsc.balanceOf(signers[10].address))
+      console.log(await zapTokenBsc.balanceOf(signers[11].address))
+      console.log(await zapTokenBsc.balanceOf(signers[11].address))
 
       // const zapMarketFilter: EventFilter =
       //   zapMarket.filters.BidFinalized(null, null, null);
