@@ -12,6 +12,7 @@ import {Decimal} from './Decimal.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
@@ -418,6 +419,8 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
             splitShare(bidShares.creator, bid.amount)
         );
+
+        console.log(splitShare(bidShares.creatorTwo, bid.amount));
 
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
