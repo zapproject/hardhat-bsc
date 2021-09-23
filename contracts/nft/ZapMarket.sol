@@ -239,7 +239,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         emit BidShareUpdated(tokenId, bidShares);
     }
 
-    function setCollabs(
+    function setCollaborators(
         address mediaContractAddress,
         uint256 tokenId,
         Collaborators memory collaborators
@@ -435,11 +435,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             _collaborators[mediaContractAddress][tokenId].creatorTwo,
             splitShare(bidShares.creatorTwo, bid.amount)
         );
-
-        console.log('Owner', splitShare(bidShares.owner, bid.amount));
-        console.log('PlatformFee', splitShare(platformFee.fee, bid.amount));
-        console.log('CreatorOne', splitShare(bidShares.creator, bid.amount));
-        console.log('CreatorTwo', splitShare(bidShares.creatorTwo, bid.amount));
 
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
