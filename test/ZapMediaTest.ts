@@ -1000,7 +1000,7 @@ describe("ZapMedia Test", async () => {
             await zapMedia1.connect(signers[3]).acceptBid(0, bid);
 
             const zapMarketFilter: EventFilter =
-                zapMarket.filters.BidShareUpdated(null, null);
+                zapMarket.filters.BidShareUpdated(null, null, null);
             const event: Event = (
                 await zapMarket.queryFilter(zapMarketFilter)
             ).slice(-1)[0];

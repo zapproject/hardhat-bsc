@@ -8,3 +8,6 @@ cache
 output
 deployments
 .openzeppelin
+.vscode
+output
+test/output
