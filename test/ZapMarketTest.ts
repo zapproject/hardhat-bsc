@@ -1589,6 +1589,7 @@ describe('ZapMarket Test', () => {
 
       // const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
       // expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
+      console.log(await zapTokenBsc.balanceOf(signers[17].address))
 
       await zapMedia1.acceptBid(0, bid1);
       await zapMedia2.acceptBid(0, bid2);

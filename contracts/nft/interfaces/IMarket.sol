@@ -30,7 +30,9 @@ interface IMarket {
     }
 
     struct Collaborators {
-        address creatorTwo;
+        address collaboratorTwo;
+        address collaboratorThree;
+        address collaboratorFour;
     }
 
     struct BidShares {
