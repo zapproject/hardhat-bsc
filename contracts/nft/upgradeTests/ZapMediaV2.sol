@@ -13,13 +13,13 @@ import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {Decimal} from './Decimal.sol';
-import {IMarket} from './interfaces/IMarket.sol';
-import {IMedia} from './interfaces/IMedia.sol';
-import {Ownable} from './Ownable.sol';
-import {MediaGetter} from './MediaGetter.sol';
-import {MediaStorage} from './libraries/MediaStorage.sol';
-import './libraries/Constants.sol';
+import {Decimal} from '../Decimal.sol';
+import {IMarket} from '../interfaces/IMarket.sol';
+import {IMedia} from '../interfaces/IMedia.sol';
+import {Ownable} from '../Ownable.sol';
+import {MediaGetter} from '../MediaGetter.sol';
+import {MediaStorage} from '../libraries/MediaStorage.sol';
+import '../libraries/Constants.sol';
 import 'hardhat/console.sol';
 
 /**
@@ -27,7 +27,7 @@ import 'hardhat/console.sol';
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is
+contract ZapMediaV2 is
     IMedia,
     ERC721BurnableUpgradeable,
     ReentrancyGuardUpgradeable,
@@ -265,14 +265,10 @@ contract ZapMedia is
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
-        require(
-            bidShares.collaborators.length == bidShares.collabShares.length,
-            'Media: Arrays do not have the same length'
-        );
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
             require(
                 _hasShares(i, bidShares),
-                'Media: Each collaborator must have a share of the nft'
+                'Each collaborator must have a share of the bid'
             );
         }
 
@@ -296,16 +292,6 @@ contract ZapMedia is
             sig.deadline == 0 || sig.deadline >= block.timestamp,
             'Media: mintWithSig expired'
         );
-        require(
-            bidShares.collaborators.length == bidShares.collabShares.length,
-            'Media: Arrays do not have the same length'
-        );
-        for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
-            require(
-                _hasShares(i, bidShares),
-                'Media: Each collaborator must have a share of the nft'
-            );
-        }
 
         bytes32 digest = keccak256(
             abi.encodePacked(

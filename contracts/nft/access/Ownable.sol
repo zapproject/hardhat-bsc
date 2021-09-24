@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 
 contract Ownable is Initializable {
     event OwnershipTransferred(
@@ -22,7 +22,10 @@ contract Ownable is Initializable {
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(
+            msg.sender == owner,
+            'Ownable: Only owner has access to this function'
+        );
         _;
     }
 

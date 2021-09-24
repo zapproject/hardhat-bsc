@@ -9,10 +9,10 @@ import {ReentrancyGuardUpgradeable} from '@openzeppelin/contracts-upgradeable/se
 import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
-import {IMarket} from './interfaces/IMarket.sol';
-import {Decimal} from './Decimal.sol';
-import {IMedia} from './interfaces/IMedia.sol';
-import {IAuctionHouse} from './interfaces/IAuctionHouse.sol';
+import {IMarket} from '../interfaces/IMarket.sol';
+import {Decimal} from '../Decimal.sol';
+import {IMedia} from '../interfaces/IMedia.sol';
+import {IAuctionHouse} from '../interfaces/IAuctionHouse.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 
 interface IWETH {
@@ -30,7 +30,7 @@ interface IMediaExtended is IMedia {
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
-contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
+contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Counters for Counters.Counter;
@@ -74,6 +74,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
+    }
+
+    function testUpgrade() public view returns (address) {
+        return wethAddress;
     }
 
     function setTokenDetails(uint256 tokenId, address mediaContract)

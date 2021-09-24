@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {IMarket} from "./IMarket.sol";
+import {IMarket} from './IMarket.sol';
 
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Media
@@ -53,8 +53,10 @@ interface IMedia {
     /**
      * @notice Mint new media for msg.sender.
      */
-    function mint(MediaData calldata data, IMarket.BidShares calldata bidShares)
-        external;
+    function mint(
+        MediaData calldata data,
+        IMarket.BidShares calldata bidShares
+    ) external;
 
     /**
      * @notice EIP-712 mintWithSig method. Mints new media for a creator given a valid signature.
