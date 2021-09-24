@@ -982,20 +982,22 @@ describe("ZapMedia Test", async () => {
             const beforeOwnerBalance = (await zapTokenBsc.balanceOf(signers[3].address)).toNumber();
 
             const beforeCreatorBalance = (await zapTokenBsc.balanceOf(signers[1].address)).toNumber();
+
             expect(await zapMedia1.connect(signers[3]).acceptBid(0, bid));
             const newOwner = await zapMedia1.ownerOf(0);
+
             const afterOwnerBalance = (await zapTokenBsc.balanceOf(signers[3].address)).toNumber();
 
             const afterCreatorBalance = (await zapTokenBsc.balanceOf(signers[1].address)).toNumber();
             const bidShares = await zapMarket.bidSharesForToken(zapMedia1.address, 0);
 
-            expect(afterOwnerBalance).eq(beforeOwnerBalance + 45);
+            expect(afterOwnerBalance).eq(beforeOwnerBalance + 35);
 
-            expect(afterCreatorBalance).eq(beforeCreatorBalance + 50);
+            expect(afterCreatorBalance).eq(beforeCreatorBalance + 15);
             expect(newOwner).eq(signers[5].address);
-            expect(bidShares.owner.value).eq(BigInt(45000000000000000000));
+            expect(bidShares.owner.value).eq(BigInt(35000000000000000000));
 
-            expect(bidShares.creator.value).eq(BigInt(50000000000000000000));
+            expect(bidShares.creator.value).eq(BigInt(15000000000000000000));
         });
 
         it('should emit a bid finalized event if the bid is accepted', async () => {
