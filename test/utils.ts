@@ -172,15 +172,17 @@ export const mint = async (media: ZapMedia) => {
       metadataHash: hash,
     },
     {
-      collaboratorFour: {
-        value: BigNumber.from('15000000000000000000')
-      },
-      collaboratorThree: {
-        value: BigNumber.from('15000000000000000000')
-      },
-      collaboratorTwo: {
-        value: BigNumber.from('15000000000000000000')
-      },
+      collaborators: [
+        signers[10].address,
+        signers[11].address,
+        signers[12].address
+      ],
+      collabShares: [
+        BigNumber.from('15000000000000000000'),
+        BigNumber.from('15000000000000000000'),
+        BigNumber.from('15000000000000000000')
+      ]
+      ,
       creator: {
         value: BigNumber.from('15000000000000000000')
       },
@@ -188,8 +190,7 @@ export const mint = async (media: ZapMedia) => {
         value: BigNumber.from('35000000000000000000')
       },
 
-    },
-    collaborators
+    }
   );
 
 

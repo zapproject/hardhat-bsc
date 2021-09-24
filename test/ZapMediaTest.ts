@@ -28,15 +28,12 @@ describe("ZapMedia Test", async () => {
     let signers: any;
 
     let bidShares = {
-        collaboratorFour: {
-            value: BigNumber.from('15000000000000000000')
-        },
-        collaboratorThree: {
-            value: BigNumber.from('15000000000000000000')
-        },
-        collaboratorTwo: {
-            value: BigNumber.from('15000000000000000000')
-        },
+        collaborators: ["", "", ""],
+        collabShares: [
+            BigNumber.from('15000000000000000000'),
+            BigNumber.from('15000000000000000000'),
+            BigNumber.from('15000000000000000000')
+        ],
         creator: {
             value: BigNumber.from('15000000000000000000')
         },
@@ -103,6 +100,13 @@ describe("ZapMedia Test", async () => {
             collaboratorThree: signers[11].address,
             collaboratorFour: signers[12].address,
             creator: signers[1].address
+        }
+
+        bidShares = {...bidShares, collaborators: [
+                signers[9].address,
+                signers[10].address,
+                signers[12].address
+            ]
         }
 
     })
@@ -267,7 +271,7 @@ describe("ZapMedia Test", async () => {
         it("should not mint token if caller is not approved", async () => {
 
             await expect(
-                zapMedia2.connect(signers[3]).mint(mediaData, bidShares, collaborators)
+                zapMedia2.connect(signers[3]).mint(mediaData, bidShares)
             ).revertedWith("Media: Only Approved users can mint");
         });
 
@@ -281,7 +285,7 @@ describe("ZapMedia Test", async () => {
             expect(await zapMedia2.approveToMint(signers[3].address)).to.be.ok;
 
             expect(
-                await zapMedia2.connect(signers[3]).mint(mediaData, bidShares, collaborators)
+                await zapMedia2.connect(signers[3]).mint(mediaData, bidShares)
             ).to.be.ok;
 
             const ownerOf = await zapMedia2.ownerOf(0);
@@ -325,7 +329,7 @@ describe("ZapMedia Test", async () => {
                 ])) as ZapMedia;
 
             expect(
-                await zapMedia5.connect(signers[6]).mint(mediaData, bidShares, collaborators)
+                await zapMedia5.connect(signers[6]).mint(mediaData, bidShares)
             ).to.be.ok;
 
             const ownerOf = await zapMedia5.ownerOf(0);
@@ -348,7 +352,7 @@ describe("ZapMedia Test", async () => {
         });
 
         it("should mint token", async () => {
-            await zapMedia1.mint(mediaData, bidShares, collaborators);
+            await zapMedia1.mint(mediaData, bidShares);
 
             const ownerOf = await zapMedia1.ownerOf(0);
             const creator = await zapMedia1.getTokenCreators(0);
@@ -372,16 +376,16 @@ describe("ZapMedia Test", async () => {
         it('should revert if an empty content hash is specified', async () => {
             await expect(
                 zapMedia1.mint(
-                    { ...mediaData, contentHash: zeroContentHashBytes }, bidShares, collaborators
+                    { ...mediaData, contentHash: zeroContentHashBytes }, bidShares
                 )
             ).revertedWith("Media: content hash must be non-zero");
         });
 
         it('should revert if the content hash already exists for a created token', async () => {
-            await zapMedia2.mint(mediaData, bidShares, collaborators);
+            await zapMedia2.mint(mediaData, bidShares);
 
             await expect(
-                zapMedia2.mint(mediaData, bidShares, collaborators)
+                zapMedia2.mint(mediaData, bidShares)
             ).revertedWith('Media: a token has already been created with this content hash');
         });
 
@@ -392,20 +396,20 @@ describe("ZapMedia Test", async () => {
             await expect(
                 zapMedia1.mint(
                     { ...mediaData, contentHash: secondContentHash, metadataHash: zeroContentHashBytes },
-                    bidShares, collaborators
+                    bidShares
                 )
             ).revertedWith("Media: metadata hash must be non-zero");
         });
 
         it('should revert if the tokenURI is empty', async () => {
             await expect(
-                zapMedia1.mint({ ...mediaData, tokenURI: '' }, bidShares, collaborators)
+                zapMedia1.mint({ ...mediaData, tokenURI: '' }, bidShares)
             ).revertedWith('Media: specified uri must be non-empty');
         });
 
         it('should revert if the metadataURI is empty', async () => {
             await expect(
-                zapMedia1.mint({ ...mediaData, metadataURI: '' }, bidShares, collaborators)
+                zapMedia1.mint({ ...mediaData, metadataURI: '' }, bidShares)
             ).revertedWith('Media: specified uri must be non-empty');
         });
 
@@ -475,7 +479,7 @@ describe("ZapMedia Test", async () => {
             await expect(
                 zapMedia1
                     .connect(signers[2])
-                    .mintWithSig(signers[1].address, mediaData, bidShares, collaborators, sig)
+                    .mintWithSig(signers[1].address, mediaData, bidShares, sig)
             ).revertedWith("Media: Only Approved users can mint");
         });
 
@@ -512,7 +516,6 @@ describe("ZapMedia Test", async () => {
                 signers[1].address,
                 mediaData,
                 bidShares,
-                collaborators,
                 sig
             );
 
@@ -554,7 +557,6 @@ describe("ZapMedia Test", async () => {
                     signers[2].address,
                     mediaData,
                     bidShares,
-                    collaborators,
                     sig
                 )
             ).revertedWith("Media: Signature invalid");
@@ -578,7 +580,6 @@ describe("ZapMedia Test", async () => {
                     signers[1].address,
                     mediaData,
                     bidShares,
-                    collaborators,
                     sig
                 )
             ).revertedWith("Media: Signature invalid");
@@ -603,7 +604,6 @@ describe("ZapMedia Test", async () => {
                     signers[1].address,
                     mediaData,
                     bidShares,
-                    collaborators,
                     sig
                 )
             ).revertedWith("Media: Signature invalid");
@@ -623,7 +623,6 @@ describe("ZapMedia Test", async () => {
                     signers[1].address,
                     mediaData,
                     bidShares,
-                    collaborators,
                     sig
                 )
             ).revertedWith("Media: Signature invalid");
@@ -643,7 +642,6 @@ describe("ZapMedia Test", async () => {
                     signers[1].address,
                     mediaData,
                     bidShares,
-                    collaborators,
                     { ...sig, deadline: "1" }
                 )
             ).revertedWith("Media: mintWithSig expired");
@@ -672,7 +670,7 @@ describe("ZapMedia Test", async () => {
                 contentHash: contentHashBytes,
                 metadataHash: metadataHashBytes,
             };
-            await zapMedia3.mint(mediaData, bidShares, collaborators);
+            await zapMedia3.mint(mediaData, bidShares);
         });
 
         it("should set the ask", async () => {
@@ -740,7 +738,7 @@ describe("ZapMedia Test", async () => {
                 metadataHash: metadataHashBytes,
             };
 
-            await zapMedia3.mint(mediaData, bidShares, collaborators);
+            await zapMedia3.mint(mediaData, bidShares);
         });
 
         it("should revert if the token bidder does not have a high enough allowance for their bidding currency", async () => {
@@ -861,7 +859,7 @@ describe("ZapMedia Test", async () => {
         contentHash = ethers.utils.sha256(contentHex);
         contentHashBytes = ethers.utils.arrayify(contentHash);
 
-        await ownerContract.mint({ ...mediaData, contentHash: contentHashBytes }, bidShares, collaborators);
+        await ownerContract.mint({ ...mediaData, contentHash: contentHashBytes }, bidShares);
 
         await ownerContract.connect(signers[2]).setBid(0, { ...bid1, bidder: signers[2].address, recipient: signers[2].address });
         await ownerContract.connect(ownerWallet).acceptBid(0, { ...bid1, bidder: signers[2].address, recipient: signers[2].address });
@@ -1159,7 +1157,7 @@ describe("ZapMedia Test", async () => {
                 ]
             )) as ZapMedia;
             await zapMedia1.deployed();
-            await zapMedia1.mint(mediaData, bidShares, collaborators);
+            await zapMedia1.mint(mediaData, bidShares);
         });
 
         it('should revert when the caller is the owner, but not creator', async () => {
@@ -1283,7 +1281,6 @@ describe("ZapMedia Test", async () => {
                     contentHash: otherContentHashBytes,
                 },
                 bidShares,
-                collaborators,
             );
 
             expect(await zapMedia1.connect(signers[1]).burn(1));
@@ -1362,7 +1359,6 @@ describe("ZapMedia Test", async () => {
                     contentHash: otherContentHashBytes,
                 },
                 bidShares,
-                collaborators
             );
             expect(await zapMedia1.connect(signers[1]).burn(1));
 
