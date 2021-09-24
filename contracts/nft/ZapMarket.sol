@@ -12,6 +12,7 @@ import {Decimal} from './Decimal.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
@@ -48,6 +49,8 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     address platformAddress;
 
     IMarket.PlatformFee platformFee;
+
+    mapping(address => mapping(uint256 => Collaborators)) public _collaborators;
 
     /* *********
      * Modifiers
@@ -120,11 +123,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
+                    .add(splitShare(bidShares.collaboratorTwo, bidAmount))
+                    .add(splitShare(bidShares.collaboratorThree, bidAmount))
+                    .add(splitShare(bidShares.collaboratorFour, bidAmount))
                     .add(splitShare(platformFee.fee, bidAmount))
-                    .add(
-                        // .add(splitShare(Decimal.D256(platformFee), bidAmount))
-                        splitShare(bidShares.owner, bidAmount)
-                    ));
+                    .add(splitShare(bidShares.owner, bidAmount)));
     }
 
     /**
@@ -137,9 +140,14 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         returns (bool)
     {
         return
-            bidShares.creator.value.add(bidShares.owner.value).add(
-                platformFee.fee.value
-            ) == uint256(100).mul(Decimal.BASE);
+            bidShares
+                .creator
+                .value
+                .add(bidShares.collaboratorTwo.value)
+                .add(bidShares.collaboratorThree.value)
+                .add(bidShares.collaboratorFour.value)
+                .add(bidShares.owner.value)
+                .add(platformFee.fee.value) == uint256(100).mul(Decimal.BASE);
     }
 
     /**
@@ -235,6 +243,14 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
     }
 
+    function setCollaborators(
+        address mediaContractAddress,
+        uint256 tokenId,
+        Collaborators memory collaborators
+    ) public override onlyMediaCaller(mediaContractAddress) {
+        _collaborators[mediaContractAddress][tokenId] = collaborators;
+    }
+
     /**
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
@@ -261,7 +277,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         override
         onlyMediaCaller(mediaContractAddress)
     {
-        emit AskRemoved(tokenId, _tokenAsks[mediaContractAddress][tokenId], mediaContractAddress);
+        emit AskRemoved(
+            tokenId,
+            _tokenAsks[mediaContractAddress][tokenId],
+            mediaContractAddress
+        );
         delete _tokenAsks[mediaContractAddress][tokenId];
     }
 
@@ -418,6 +438,24 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             splitShare(bidShares.creator, bid.amount)
         );
 
+        // Transfer bid share to the second media collaborator
+        token.safeTransfer(
+            _collaborators[mediaContractAddress][tokenId].collaboratorTwo,
+            splitShare(bidShares.collaboratorTwo, bid.amount)
+        );
+
+        // Transfer bid share to the third media collaborator
+        token.safeTransfer(
+            _collaborators[mediaContractAddress][tokenId].collaboratorThree,
+            splitShare(bidShares.collaboratorThree, bid.amount)
+        );
+
+        // Transfer bid share to the fourth media collaborator
+        token.safeTransfer(
+            _collaborators[mediaContractAddress][tokenId].collaboratorFour,
+            splitShare(bidShares.collaboratorFour, bid.amount)
+        );
+
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
             // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
@@ -433,6 +471,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         bidShares.owner = Decimal.D256(
             uint256(100)
                 .mul(Decimal.BASE)
+                .sub(bidShares.collaboratorTwo.value)
+                .sub(bidShares.collaboratorThree.value)
+                .sub(bidShares.collaboratorFour.value)
                 .sub(_bidShares[mediaContractAddress][tokenId].creator.value)
                 .sub(platformFee.fee.value)
         );

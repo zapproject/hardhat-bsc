@@ -155,6 +155,15 @@ export const mint = async (media: ZapMedia) => {
   const metadataHex = ethers.utils.formatBytes32String("{}");
   const metadataHash = await sha256(metadataHex);
   const hash = ethers.utils.arrayify(metadataHash);
+
+  const signers = await ethers.getSigners();
+
+  let collaborators = {
+    collaboratorTwo: signers[10].address,
+    collaboratorThree: signers[11].address,
+    collaboratorFour: signers[12].address
+  }
+
   await media.mint(
     {
       tokenURI: "zap.co",
@@ -163,10 +172,26 @@ export const mint = async (media: ZapMedia) => {
       metadataHash: hash,
     },
     {
-      owner: Decimal.new(45),
-      creator: Decimal.new(50),
-    }
+      collaboratorFour: {
+        value: BigNumber.from('15000000000000000000')
+      },
+      collaboratorThree: {
+        value: BigNumber.from('15000000000000000000')
+      },
+      collaboratorTwo: {
+        value: BigNumber.from('15000000000000000000')
+      },
+      creator: {
+        value: BigNumber.from('15000000000000000000')
+      },
+      owner: {
+        value: BigNumber.from('35000000000000000000')
+      },
+
+    },
+    collaborators
   );
+
 
 };
 

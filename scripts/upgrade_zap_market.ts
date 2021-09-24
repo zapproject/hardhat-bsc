@@ -4,11 +4,11 @@ async function main() {
 
     const signers = await ethers.getSigners();
 
-    const ZapMarketV2 = await ethers.getContractFactory("ZapMarketV2", signers[0]);
+    const ZapMarket = await ethers.getContractFactory("ZapMarket", signers[0]);
 
     // Uses a BSC testnet address
-    const zapMarketV2 = await upgrades.upgradeProxy('0x15e85CaC4198Fd50E182Aad6Af95Dd2F8a07eb91', ZapMarketV2);
-    console.log("ZapMarketV2 upgraded to:", zapMarketV2.address);
+    const zapMarket = await upgrades.upgradeProxy('0x92309e3c12f13C306CEF3BDF82d98E5974Bf3Ad0', ZapMarket);
+    console.log("ZapMarketV2 upgraded to:", zapMarket.address);
 
 }
 
