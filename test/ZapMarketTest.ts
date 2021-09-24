@@ -1252,7 +1252,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should accept bid', async () => {
+    it.only('Should accept bid', async () => {
 
       await zapTokenBsc.mint(signers[1].address, 5000);
       await zapTokenBsc.mint(signers[2].address, 5000);
