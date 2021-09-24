@@ -265,10 +265,14 @@ contract ZapMedia is
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
+        require(
+            bidshares.collaborators.length == bidshares.collabShares.length,
+            "Media: Arrays do not have the same length"
+        );
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
             require(
                 _hasShares(i, bidShares),
-                'Each collaborator must have a share of the bid'
+                "Media: Each collaborator must have a share of the nft"
             );
         }
 
@@ -292,6 +296,16 @@ contract ZapMedia is
             sig.deadline == 0 || sig.deadline >= block.timestamp,
             'Media: mintWithSig expired'
         );
+        require(
+            bidshares.collaborators.length == bidshares.collabShares.length,
+            "Media: Arrays do not have the same length"
+        );
+        for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
+            require(
+                _hasShares(i, bidShares),
+                "Media: Each collaborator must have a share of the nft"
+            );
+        }
 
         bytes32 digest = keccak256(
             abi.encodePacked(

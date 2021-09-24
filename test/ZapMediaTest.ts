@@ -275,13 +275,23 @@ describe("ZapMedia Test", async () => {
             ).revertedWith("Media: Only Approved users can mint");
         });
 
+        it("should not mint if a collaborator's share has not been defined", async () => {
+            let testBidShares = bidShares;
+            testBidShares = { ...testBidShares, collabShares:
+                [
+                    BigNumber.from('15000000000000000000'),
+                    BigNumber.from('15000000000000000000'),
+                    BigNumber.from('0')
+                ]
+             }
+
+             await expect(
+                 zapMedia2.mint(mediaData, testBidShares)
+             ).to.be.revertedWith("Media: Each collaborator must have a share of the nft")
+        });
+
         it("should mint token if caller is approved", async () => {
 
-            const collaborators = {
-                collaboratorTwo: signers[10].address,
-                collaboratorThree: signers[11].address,
-                collaboratorFour: signers[12].address
-            }
             expect(await zapMedia2.approveToMint(signers[3].address)).to.be.ok;
 
             expect(
