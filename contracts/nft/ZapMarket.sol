@@ -471,6 +471,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         bidShares.owner = Decimal.D256(
             uint256(100)
                 .mul(Decimal.BASE)
+                .sub(bidShares.collaboratorTwo.value)
+                .sub(bidShares.collaboratorThree.value)
+                .sub(bidShares.collaboratorFour.value)
                 .sub(_bidShares[mediaContractAddress][tokenId].creator.value)
                 .sub(platformFee.fee.value)
         );

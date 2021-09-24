@@ -14,6 +14,7 @@ import { signPermit, signMintWithSig } from "./utils";
 import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from "../typechain/ZapMarket";
 import { ZapVault } from "../typechain/ZapVault"
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 chai.use(solidity);
 
 describe("ZapMedia Test", async () => {
@@ -702,7 +703,7 @@ describe("ZapMedia Test", async () => {
                 recipient: signers[8].address,
                 spender: signers[1].address,
                 sellOnShare: {
-                    value: BigInt(10000000000000000000),
+                    value: BigInt(0),
                 },
             };
 
@@ -713,7 +714,7 @@ describe("ZapMedia Test", async () => {
                 recipient: signers[9].address,
                 spender: signers[2].address,
                 sellOnShare: {
-                    value: BigInt(10000000000000000000),
+                    value: BigInt(0),
                 },
             };
 
@@ -789,7 +790,7 @@ describe("ZapMedia Test", async () => {
                 recipient: signers[8].address,
                 spender: signers[1].address,
                 sellOnShare: {
-                    value: BigInt(10000000000000000000),
+                    value: BigInt(0),
                 },
             };
         });
@@ -806,7 +807,7 @@ describe("ZapMedia Test", async () => {
                     false,
                     "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
                 ]
-            ));
+            )) as ZapMedia;
 
             await zapMedia11.deployed();
             await setupAuction(zapMedia11, signers[11]);
@@ -823,7 +824,7 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    async function setupAuction(ownerContract: any, ownerWallet: any) {
+    async function setupAuction(ownerContract: ZapMedia, ownerWallet: SignerWithAddress) {
         const bid1 = {
             amount: 100,
             currency: zapTokenBsc.address,
@@ -831,7 +832,7 @@ describe("ZapMedia Test", async () => {
             recipient: signers[8].address,
             spender: ownerWallet.address,
             sellOnShare: {
-                value: BigInt(10000000000000000000),
+                value: BigInt(0),
             },
         };
 
@@ -859,7 +860,6 @@ describe("ZapMedia Test", async () => {
         contentHash = ethers.utils.sha256(contentHex);
         contentHashBytes = ethers.utils.arrayify(contentHash);
 
-        console.log("BIDSHARES", bidShares)
         await ownerContract.mint({ ...mediaData, contentHash: contentHashBytes }, bidShares, collaborators);
 
         await ownerContract.connect(signers[2]).setBid(0, { ...bid1, bidder: signers[2].address, recipient: signers[2].address });
@@ -922,7 +922,7 @@ describe("ZapMedia Test", async () => {
                     false,
                     "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
                 ]
-            ));
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
@@ -1038,7 +1038,7 @@ describe("ZapMedia Test", async () => {
             expect(logDescription.args.tokenId.toNumber()).to.eq(0);
 
             expect(logDescription.args.bidShares.owner.value).to.eq(
-                BigInt(45000000000000000000)
+                BigInt(35000000000000000000)
             );
             expect(logDescription.args.bidShares.creator.value).to.eq(
                 BigInt(50000000000000000000)
@@ -1055,7 +1055,7 @@ describe("ZapMedia Test", async () => {
                     false,
                     "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
                 ]
-            ));
+            )) as ZapMedia;
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
@@ -1074,7 +1074,7 @@ describe("ZapMedia Test", async () => {
                     false,
                     "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
                 ]
-            ));
+            )) as ZapMedia;
 
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
@@ -1094,7 +1094,7 @@ describe("ZapMedia Test", async () => {
                     false,
                     "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
                 ]
-            )); await zapMedia1.deployed();
+            )) as ZapMedia; await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
 
             const bid = {
@@ -1121,7 +1121,7 @@ describe("ZapMedia Test", async () => {
                     false,
                     "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
                 ]
-            )); await zapMedia19.deployed();
+            )) as ZapMedia; await zapMedia19.deployed();
             await setupAuction(zapMedia19, signers[19]);
 
             await zapMedia19.connect(signers[3]).setAsk(0, ask);
