@@ -811,15 +811,15 @@ describe("ZapMedia Test", async () => {
             await zapMedia11.deployed();
             await setupAuction(zapMedia11, signers[11]);
 
-            // await zapMedia11.connect(signers[3]).setAsk(0, ask);
+            await zapMedia11.connect(signers[3]).setAsk(0, ask);
 
-            // expect(await zapMedia11.ownerOf(0)).to.equal(signers[3].address);
+            expect(await zapMedia11.ownerOf(0)).to.equal(signers[3].address);
 
-            // const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
-            // await zapMedia11.connect(signers[4]).setBid(0, { ...bid1, amount: 200, bidder: signers[4].address, recipient: signers[5].address });
-            // const afterBalance = await zapTokenBsc.balanceOf(signers[4].address);
+            const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
+            await zapMedia11.connect(signers[4]).setBid(0, { ...bid1, amount: 200, bidder: signers[4].address, recipient: signers[5].address });
+            const afterBalance = await zapTokenBsc.balanceOf(signers[4].address);
 
-            // expect(afterBalance - 100).eq(beforeBalance - 200);
+            expect(afterBalance - 100).eq(beforeBalance - 200);
         });
     });
 

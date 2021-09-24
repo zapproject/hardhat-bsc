@@ -30,6 +30,9 @@ interface IMarket {
     }
 
     struct BidShares {
+        Decimal.D256 creator;
+        // % of sale value that goes to the seller (current owner) of the nft
+        Decimal.D256 owner;
         // % of sale value that goes to the fourth collaborator of the nft
         Decimal.D256 collaboratorFour;
         // % of sale value that goes to the third collaborator of the nft
@@ -37,9 +40,6 @@ interface IMarket {
         // % of sale value that goes to the second collaborator of the nft
         Decimal.D256 collaboratorTwo;
         // % of sale value that goes to the original creator of the nft
-        Decimal.D256 creator;
-        // % of sale value that goes to the seller (current owner) of the nft
-        Decimal.D256 owner;
     }
 
     struct PlatformFee {
@@ -61,15 +61,31 @@ interface IMarket {
         uint256 indexed tokenId,
         Bid bid
     );
-    event BidRemoved(uint256 indexed tokenId, Bid bid, address indexed mediaContract);
-    event BidFinalized(uint256 indexed tokenId, Bid bid, address indexed mediaContract);
+    event BidRemoved(
+        uint256 indexed tokenId,
+        Bid bid,
+        address indexed mediaContract
+    );
+    event BidFinalized(
+        uint256 indexed tokenId,
+        Bid bid,
+        address indexed mediaContract
+    );
     event AskCreated(
         address indexed mediaContract,
         uint256 indexed tokenId,
         Ask ask
     );
-    event AskRemoved(uint256 indexed tokenId, Ask ask, address indexed mediaContract);
-    event BidShareUpdated(uint256 indexed tokenId, BidShares bidShares, address indexed mediaContract);
+    event AskRemoved(
+        uint256 indexed tokenId,
+        Ask ask,
+        address indexed mediaContract
+    );
+    event BidShareUpdated(
+        uint256 indexed tokenId,
+        BidShares bidShares,
+        address indexed mediaContract
+    );
     event MediaContractCreated(
         address indexed mediaContract,
         bytes32 name,

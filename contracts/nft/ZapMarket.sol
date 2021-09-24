@@ -38,8 +38,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     // Mapping from token to the bid shares for the token
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
 
-    mapping(address => mapping(uint256 => Collaborators)) public _collaborators;
-
     // Mapping from token to the current ask for the token
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
@@ -51,6 +49,8 @@ contract ZapMarket is IMarket, Initializable, Ownable {
     address platformAddress;
 
     IMarket.PlatformFee platformFee;
+
+    mapping(address => mapping(uint256 => Collaborators)) public _collaborators;
 
     /* *********
      * Modifiers

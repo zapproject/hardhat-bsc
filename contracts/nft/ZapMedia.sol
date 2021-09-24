@@ -54,6 +54,8 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
+    IMarket.BidShares bidshares;
+
     /* *********
      * Modifiers
      * *********
@@ -136,8 +138,6 @@ contract ZapMedia is
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
      */
-
-    IMarket.BidShares bidshares;
 
     function initialize(
         string memory name,
