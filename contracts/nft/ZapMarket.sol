@@ -253,7 +253,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         );
 
         _bidShares[mediaContractAddress][tokenId] = bidShares;
-        // emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
+        emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
     }
 
     /**
@@ -486,7 +486,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         // Remove the accepted bid
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
 
-        // emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
+        emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
         emit BidFinalized(tokenId, bid, mediaContractAddress);
     }
 }
