@@ -982,8 +982,10 @@ describe("ZapMedia Test", async () => {
             const beforeOwnerBalance = (await zapTokenBsc.balanceOf(signers[3].address)).toNumber();
 
             const beforeCreatorBalance = (await zapTokenBsc.balanceOf(signers[1].address)).toNumber();
+
             expect(await zapMedia1.connect(signers[3]).acceptBid(0, bid));
             const newOwner = await zapMedia1.ownerOf(0);
+
             const afterOwnerBalance = (await zapTokenBsc.balanceOf(signers[3].address)).toNumber();
 
             const afterCreatorBalance = (await zapTokenBsc.balanceOf(signers[1].address)).toNumber();
