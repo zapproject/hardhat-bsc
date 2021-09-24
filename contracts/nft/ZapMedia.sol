@@ -258,10 +258,11 @@ contract ZapMedia is
     /**
      * @notice see IMedia
      */
-    function mint(
-        MediaData memory data,
-        IMarket.BidShares memory bidShares
-    ) public override nonReentrant {
+    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
+        public
+        override
+        nonReentrant
+    {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
@@ -553,11 +554,13 @@ contract ZapMedia is
      * *****************
      */
 
-     function _hasShares(uint256 index, IMarket.BidShares memory bidShares) internal returns (bool) {
-         return(
-             bidShares.collabShares[index] != 0
-         );
-     }
+    function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
+        internal
+        pure
+        returns (bool)
+    {
+        return (bidShares.collabShares[index] != 0);
+    }
 
     /**
      * @notice Creates a new token for `creator`. Its token ID will be automatically
