@@ -17,10 +17,10 @@ import './tasks/initProviderCurve';
 import './tasks/setEndpointParams';
 import './tasks/bond';
 import './tasks/dispatch';
-// import './tasks/dispatchCoinGecko';
-// import './tasks/dispatchCGPriceClient';
-// import './tasks/dispatchBittrex';
-// import './tasks/checkClient';
+import './tasks/dispatchCoinGecko';
+import './tasks/dispatchCGPriceClient';
+import './tasks/dispatchBittrex';
+import './tasks/checkClient';
 import './tasks/verifyContract.js'
 // import './tasks/mine';
 
@@ -50,7 +50,6 @@ const config = {
       { version: '0.5.16', settings: {} },
       { version: '0.6.8', settings: {} },
       { version: '0.7.3', settings: {} },
-      { version: '0.7.6', settings: {} },
       {
         version: '0.8.4',
         settings: {
@@ -81,8 +80,8 @@ const config = {
     testnet: {
       url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
       chainId: 97,
-      gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.MNEMONIC }
+      gasPrice: 20000000000
+      // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gasPrice: 8000000000

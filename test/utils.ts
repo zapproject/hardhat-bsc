@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ethers, upgrades } from "hardhat";
 import {
-  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC
+  ZapMarket, ZapMedia
 } from "../typechain"
 import {
   BadBidder,
@@ -65,41 +65,10 @@ export const deployZapNFTMarketplace = async () => {
   let media1: ZapMedia
   let media2: ZapMedia
   let media3: ZapMedia
-  let zapVault: ZapVault
-  let zapTokenBsc: ZapTokenBSC
-
-  let platformFee = {
-
-    fee: {
-      value: BigNumber.from('5000000000000000000')
-    },
-
-  };
 
   const [deployer0, deployer1, deployer2, deployer3] = await ethers.getSigners();
-
-  const zapTokenFactory = await ethers.getContractFactory(
-    'ZapTokenBSC',
-    deployer0
-  );
-
-  zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-  await zapTokenBsc.deployed()
-
-
-  const zapVaultFactory = await ethers.getContractFactory('ZapVault');
-
-  zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
-    initializer: 'initializeVault'
-  })) as ZapVault;
-
   const marketFactory = await ethers.getContractFactory("ZapMarket", deployer0);
-
-  market = (await upgrades.deployProxy(marketFactory, [zapVault.address], {
-    initializer: 'initializeMarket'
-  })) as ZapMarket;
-
-  await market.setFee(platformFee);
+  market = await upgrades.deployProxy(marketFactory, { initializer: "initialize" }) as ZapMarket;
 
   const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
 
@@ -139,7 +108,7 @@ export const deployZapNFTMarketplace = async () => {
   ).deployed() as ZapMedia;
 
 
-  return { market, media1, media2, media3, zapTokenBsc, zapVault };
+  return { market, media1, media2, media3 };
 };
 
 export const deployBidder = async (auction: string, nftContract: string) => {
@@ -155,15 +124,6 @@ export const mint = async (media: ZapMedia) => {
   const metadataHex = ethers.utils.formatBytes32String("{}");
   const metadataHash = await sha256(metadataHex);
   const hash = ethers.utils.arrayify(metadataHash);
-
-  const signers = await ethers.getSigners();
-
-  let collaborators = {
-    collaboratorTwo: signers[10].address,
-    collaboratorThree: signers[11].address,
-    collaboratorFour: signers[12].address
-  }
-
   await media.mint(
     {
       tokenURI: "zap.co",
@@ -172,27 +132,11 @@ export const mint = async (media: ZapMedia) => {
       metadataHash: hash,
     },
     {
-      collaborators: [
-        signers[10].address,
-        signers[11].address,
-        signers[12].address
-      ],
-      collabShares: [
-        BigNumber.from('15000000000000000000'),
-        BigNumber.from('15000000000000000000'),
-        BigNumber.from('15000000000000000000')
-      ]
-      ,
-      creator: {
-        value: BigNumber.from('15000000000000000000')
-      },
-      owner: {
-        value: BigNumber.from('35000000000000000000')
-      },
-
+      prevOwner: Decimal.new(0),
+      owner: Decimal.new(85),
+      creator: Decimal.new(15),
     }
   );
-
 
 };
 
@@ -302,5 +246,6 @@ export async function signMintWithSig(
     v: sig.v,
     deadline: deadline.toString(),
   }
+
   return sig;
 }

@@ -3,17 +3,17 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {SafeMathUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
-import {IERC721Upgradeable, IERC165Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
-import {ReentrancyGuardUpgradeable} from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
-import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
-import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
-import {IMarket} from './interfaces/IMarket.sol';
-import {Decimal} from './Decimal.sol';
-import {IMedia} from './interfaces/IMedia.sol';
-import {IAuctionHouse} from './interfaces/IAuctionHouse.sol';
-import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {SafeMathUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import {IERC721Upgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
+import {IMarket} from "./interfaces/IMarket.sol";
+import {Decimal} from "./Decimal.sol";
+import {IMedia} from "./interfaces/IMedia.sol";
+import {IAuctionHouse} from "./interfaces/IAuctionHouse.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 interface IWETH {
     function deposit() external payable;
@@ -77,7 +77,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     }
 
     function setTokenDetails(uint256 tokenId, address mediaContract)
-        internal
+        external
         returns (bool)
     {
         tokenDetails[mediaContract][tokenId] = TokenDetails({
@@ -104,11 +104,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     ) public override nonReentrant returns (uint256) {
         require(
             IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
-            'tokenContract does not support ERC721 interface'
+            "tokenContract does not support ERC721 interface"
         );
         require(
             curatorFeePercentage < 100,
-            'curatorFeePercentage must be less than 100'
+            "curatorFeePercentage must be less than 100"
         );
         address tokenOwner = IERC721Upgradeable(mediaContract).ownerOf(tokenId);
 
@@ -116,11 +116,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             msg.sender ==
                 IERC721Upgradeable(mediaContract).getApproved(tokenId) ||
                 msg.sender == tokenOwner,
-            'Caller must be approved or owner for token id'
+            "Caller must be approved or owner for token id"
         );
         uint256 auctionId = _auctionIdTracker.current();
-
-        setTokenDetails(tokenId, mediaContract);
 
         auctions[auctionId] = Auction({
             token: tokenDetails[mediaContract][tokenId],
@@ -176,11 +174,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     {
         require(
             msg.sender == auctions[auctionId].curator,
-            'Must be auction curator'
+            "Must be auction curator"
         );
         require(
             auctions[auctionId].firstBidTime == 0,
-            'Auction has already started'
+            "Auction has already started"
         );
         _approveAuction(auctionId, approved);
     }
@@ -193,11 +191,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         require(
             msg.sender == auctions[auctionId].curator ||
                 msg.sender == auctions[auctionId].tokenOwner,
-            'Must be auction curator or token owner'
+            "Must be auction curator or token owner"
         );
         require(
             auctions[auctionId].firstBidTime == 0,
-            'Auction has already started'
+            "Auction has already started"
         );
 
         auctions[auctionId].reservePrice = reservePrice;
@@ -224,7 +222,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         address payable lastBidder = auctions[auctionId].bidder;
         require(
             auctions[auctionId].approved,
-            'Auction must be approved by curator'
+            "Auction must be approved by curator"
         );
         require(
             auctions[auctionId].firstBidTime == 0 ||
@@ -232,13 +230,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                 auctions[auctionId].firstBidTime.add(
                     auctions[auctionId].duration
                 ),
-            'Auction expired'
+            "Auction expired"
         );
         require(
             amount >= auctions[auctionId].reservePrice,
-            'Must send at least reservePrice'
+            "Must send at least reservePrice"
         );
-
         require(
             amount >=
                 auctions[auctionId].amount.add(
@@ -247,7 +244,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                         .mul(minBidIncrementPercentage)
                         .div(100)
                 ),
-            'Must send more than last bid by minBidIncrementPercentage amount'
+            "Must send more than last bid by minBidIncrementPercentage amount"
         );
 
         require(
@@ -264,7 +261,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                         auctions[auctionId].token.tokenId,
                         amount
                     ),
-                'Bid invalid for share splitting'
+                "Bid invalid for share splitting"
             );
         }
 
@@ -283,7 +280,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
 
         auctions[auctionId].amount = amount;
-
         auctions[auctionId].bidder = payable(msg.sender);
 
         bool extended = false;
@@ -368,9 +364,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                 bool success,
                 uint256 remainingProfit
             ) = _handleZapAuctionSettlement(auctionId, mediaContract);
-
             tokenOwnerProfit = remainingProfit;
-
             if (success != true) {
                 _handleOutgoingBid(
                     auctions[auctionId].bidder,
@@ -404,9 +398,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             curatorFee = tokenOwnerProfit
                 .mul(auctions[auctionId].curatorFeePercentage)
                 .div(100);
-
             tokenOwnerProfit = tokenOwnerProfit.sub(curatorFee);
-
             _handleOutgoingBid(
                 auctions[auctionId].curator,
                 curatorFee,
@@ -446,7 +438,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         require(
             auctions[auctionId].tokenOwner == msg.sender ||
                 auctions[auctionId].curator == msg.sender,
-            'Can only be called by auction creator or curator'
+            "Can only be called by auction creator or curator"
         );
         require(
             uint256(auctions[auctionId].firstBidTime) == 0,
@@ -465,7 +457,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         if (currency == address(0)) {
             require(
                 msg.value == amount,
-                'Sent ETH Value does not match specified bid amount'
+                "Sent ETH Value does not match specified bid amount"
             );
 
             IWETH(wethAddress).deposit{value: amount}();
@@ -479,7 +471,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             uint256 afterBalance = token.balanceOf(address(this));
             require(
                 beforeBalance.add(amount) == afterBalance,
-                'Token transfer call did not transfer expected amount'
+                "Token transfer call did not transfer expected amount"
             );
         }
     }
@@ -563,14 +555,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             IMediaExtended(mediaContract).marketContract(),
             bid.amount
         );
-
         IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
-
-        // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
         );
-
         try
             IMedia(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
@@ -583,15 +571,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             );
             return (false, 0);
         }
-
-        // 5e17
         uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
         );
 
         // We have to calculate the amount to send to the token owner here in case there was a
         // sell-on share on the token
-
         return (true, afterBalance.sub(beforeBalance));
     }
 

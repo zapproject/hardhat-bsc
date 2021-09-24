@@ -3,7 +3,7 @@ const { task } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require('hardhat-deploy');
 
-task("buyZap", "Signer can buy 100K ZAP")
+task("buyZap", "Signer can buy 700K ZAP")
 
     .addParam("account", "The account's address")
 

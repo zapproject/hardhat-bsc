@@ -2,7 +2,7 @@ const { task, taskArgs } = require("hardhat/config");
 require("hardhat-deploy-ethers");
 require('hardhat-deploy');
 
-task("faucet", "Sends 100K ZAP to the first 20 accounts")
+task("faucet", "Sends 700K ZAP to the first 20 accounts")
 
     .setAction(async () => {
 
@@ -32,7 +32,7 @@ task("faucet", "Sends 100K ZAP to the first 20 accounts")
 
         for (var i = 0; i < signers.length; i++) {
 
-            // Test accounts purchasing 100K ZAP
+            // Test accounts purchasing 700K ZAP
             // 1 ETH = 1000 ZAP
             await faucet.buyZap(signers[i].address, 700)
                 .then((res) => {
