@@ -118,9 +118,13 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         );
 
         uint256 collabShareValue = 0;
+        Decimal.D256 memory thisCollabsShare;
+        thisCollabsShare.value = 0;
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
+            thisCollabsShare.value = bidShares.collabShares[i];
+
             collabShareValue = collabShareValue.add(
-                splitShare(bidShares.collabShares[i], bidAmount)
+                splitShare(thisCollabsShare, bidAmount)
             );
         }
 
@@ -142,12 +146,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         override
         returns (bool)
     {
-        Decimal.D256 memory collabSharePerc;
-        collabSharePerc.value = 0;
+        uint256 collabSharePerc = 0;
 
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
-            collabSharePerc.value = collabSharePerc.value.add(
-                bidShares.collabShares[i].value
+            collabSharePerc = collabSharePerc.add(
+                bidShares.collabShares[i]
             );
         }
 
@@ -155,7 +158,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidShares
                 .creator
                 .value
-                .add(collabSharePerc.value)
+                .add(collabSharePerc)
                 .add(bidShares.owner.value)
                 .add(platformFee.fee.value) == uint256(100).mul(Decimal.BASE);
     }
@@ -442,15 +445,19 @@ contract ZapMarket is IMarket, Initializable, Ownable {
 
         uint256 collaboratorShares = 0;
 
+        Decimal.D256 memory thisCollabsShare;
+        thisCollabsShare.value = 0;
         // Transfer bid share to the remaining media collaborators
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
             collaboratorShares = collaboratorShares.add(
-                bidShares.collabShares[i].value
+                bidShares.collabShares[i]
             );
+
+            thisCollabsShare.value = bidShares.collabShares[i];
 
             token.safeTransfer(
                 bidShares.collaborators[i],
-                splitShare(bidShares.collabShares[i], bid.amount)
+                splitShare(thisCollabsShare, bid.amount)
             );
         }
 

@@ -36,7 +36,7 @@ interface IMarket {
         // Array that holds all the collaborators
         address[] collaborators;
         // % of sale value that goes to the fourth collaborator of the nft
-        Decimal.D256[] collabShares;
+        uint256[] collabShares;
         // Decimal.D256[] collaborators;
     }
 

@@ -541,7 +541,7 @@ contract ZapMedia is
 
      function _hasShares(uint256 index, IMarket.BidShares memory bidShares) internal returns (bool) {
          return(
-             bidShares.collabShares[index].value != 0
+             bidShares.collabShares[index] != 0
          );
      }
 
