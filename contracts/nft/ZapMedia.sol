@@ -54,8 +54,6 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
-    IMarket.BidShares bidshares;
-
     /* *********
      * Modifiers
      * *********
@@ -258,17 +256,27 @@ contract ZapMedia is
     /**
      * @notice see IMedia
      */
-    function mint(
-        MediaData memory data,
-        IMarket.BidShares memory bidShares,
-        IMarket.Collaborators memory collaborators
-    ) public override nonReentrant {
+    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
+        public
+        override
+        nonReentrant
+    {
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
         );
+        require(
+            bidShares.collaborators.length == bidShares.collabShares.length,
+            'Media: Arrays do not have the same length'
+        );
+        for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
+            require(
+                _hasShares(i, bidShares),
+                'Media: Each collaborator must have a share of the nft'
+            );
+        }
 
-        _mintForCreator(msg.sender, data, bidShares, collaborators);
+        _mintForCreator(msg.sender, data, bidShares);
     }
 
     /**
@@ -278,7 +286,6 @@ contract ZapMedia is
         address creator,
         MediaData memory data,
         IMarket.BidShares memory bidShares,
-        IMarket.Collaborators memory collaborators,
         EIP712Signature memory sig
     ) public override nonReentrant {
         require(
@@ -289,6 +296,16 @@ contract ZapMedia is
             sig.deadline == 0 || sig.deadline >= block.timestamp,
             'Media: mintWithSig expired'
         );
+        require(
+            bidShares.collaborators.length == bidShares.collabShares.length,
+            'Media: Arrays do not have the same length'
+        );
+        for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
+            require(
+                _hasShares(i, bidShares),
+                'Media: Each collaborator must have a share of the nft'
+            );
+        }
 
         bytes32 digest = keccak256(
             abi.encodePacked(
@@ -314,7 +331,7 @@ contract ZapMedia is
             'Media: Signature invalid'
         );
 
-        _mintForCreator(recoveredAddress, data, bidShares, collaborators);
+        _mintForCreator(recoveredAddress, data, bidShares);
     }
 
     /**
@@ -535,6 +552,14 @@ contract ZapMedia is
      * *****************
      */
 
+    function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
+        internal
+        pure
+        returns (bool)
+    {
+        return (bidShares.collabShares[index] != 0);
+    }
+
     /**
      * @notice Creates a new token for `creator`. Its token ID will be automatically
      * assigned (and available on the emitted {IERC721-Transfer} event), and the token
@@ -553,8 +578,7 @@ contract ZapMedia is
     function _mintForCreator(
         address creator,
         MediaData memory data,
-        IMarket.BidShares memory bidShares,
-        IMarket.Collaborators memory collaborators
+        IMarket.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
         require(data.contentHash != 0, 'Media: content hash must be non-zero');
         require(
@@ -586,11 +610,6 @@ contract ZapMedia is
             bidShares
         );
 
-        IMarket(access.marketContract).setCollaborators(
-            address(this),
-            tokenId,
-            collaborators
-        );
         IMarket(access.marketContract).mintOrBurn(true, tokenId, address(this));
     }
 

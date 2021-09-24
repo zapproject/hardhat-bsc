@@ -70,15 +70,12 @@ describe('ZapMarket Test', () => {
   let signers: SignerWithAddress[];
 
   let bidShares1 = {
-    collaboratorFour: {
-      value: BigNumber.from('15000000000000000000')
-    },
-    collaboratorThree: {
-      value: BigNumber.from('15000000000000000000')
-    },
-    collaboratorTwo: {
-      value: BigNumber.from('15000000000000000000')
-    },
+    collaborators: ["", "", ""],
+    collabShares: [
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000')
+    ],
     creator: {
       value: BigNumber.from('15000000000000000000')
     },
@@ -88,15 +85,12 @@ describe('ZapMarket Test', () => {
   };
 
   let bidShares2 = {
-    collaboratorFour: {
-      value: BigNumber.from('15000000000000000000')
-    },
-    collaboratorThree: {
-      value: BigNumber.from('15000000000000000000')
-    },
-    collaboratorTwo: {
-      value: BigNumber.from('15000000000000000000')
-    },
+    collaborators: ["", "", ""],
+    collabShares: [
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000')
+    ],
     creator: {
       value: BigNumber.from('15000000000000000000')
     },
@@ -112,15 +106,12 @@ describe('ZapMarket Test', () => {
   }
 
   let invalidBidShares = {
-    collaboratorFour: {
-      value: BigNumber.from('1500000000000000000')
-    },
-    collaboratorThree: {
-      value: BigNumber.from('1500000000000000000')
-    },
-    collaboratorTwo: {
-      value: BigNumber.from('1500000000000000000')
-    },
+    collaborators: ["", "", ""],
+    collabShares: [
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000')
+    ],
     creator: {
       value: BigNumber.from('15000000000000000000')
     },
@@ -221,6 +212,9 @@ describe('ZapMarket Test', () => {
       let contentHex = ethers.utils.formatBytes32String('invert');
       let contentHash = await sha256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHash);
+
+      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
 
     });
 
@@ -460,12 +454,11 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      collaborators.collaboratorTwo = signers[10].address;
-      collaborators.collaboratorThree = signers[11].address;
-      collaborators.collaboratorFour = signers[12].address
+      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
     });
 
@@ -600,8 +593,12 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
+      invalidBidShares.collaborators = [
+        signers[10].address, signers[11].address, signers[12].address
+      ]
+
       await expect(
-        zapMedia1.connect(signers[1]).mint(data, invalidBidShares, collaborators)
+        zapMedia1.connect(signers[1]).mint(data, invalidBidShares)
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
     });
 
@@ -698,8 +695,11 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
-      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1, collaborators);
+      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+
+      mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1);
 
     });
 
@@ -904,12 +904,11 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      collaborators.collaboratorTwo = signers[10].address;
-      collaborators.collaboratorThree = signers[11].address;
-      collaborators.collaboratorFour = signers[12].address
+      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
 
-      await zapMedia1.connect(signers[1]).mint(data, bidShares1, collaborators);
-      await zapMedia2.connect(signers[2]).mint(data, bidShares2, collaborators);
+      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
     });
 
@@ -1206,6 +1205,7 @@ describe('ZapMarket Test', () => {
         bidderBal2.toNumber() - bid2.amount
       );
     });
+
 
     it('Should emit a bid event', async () => {
       await zapTokenBsc.mint(signers[1].address, 5000);
