@@ -6,8 +6,8 @@ async function main() {
 
     const AuctionHouseV2 = await ethers.getContractFactory("AuctionHouseV2", signers[0]);
 
-    // Uses a BSC testnet address
-    const auctionHouseV2 = await upgrades.upgradeProxy('0x612AEe0e1427C195401f79D06F063ea70595922c', AuctionHouseV2);
+    // Add proxy address
+    const auctionHouseV2 = await upgrades.upgradeProxy('', AuctionHouseV2);
     console.log("AuctionHouseV2 upgraded to:", auctionHouseV2.address);
 
 }

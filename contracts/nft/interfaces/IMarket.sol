@@ -38,8 +38,6 @@ interface IMarket {
         // % of sale value that goes to the fourth collaborator of the nft
         uint256[] collabShares;
         // Decimal.D256[] collaborators;
-
-        // uint256[] testNums;
     }
 
     struct PlatformFee {

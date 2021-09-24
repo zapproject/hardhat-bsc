@@ -6,8 +6,9 @@ async function main() {
 
     const ZapMediaV2 = await ethers.getContractFactory("ZapMediaV2", signers[0]);
 
-    const zapMedia = await upgrades.upgradeProxy('', ZapMediaV2);
-    console.log("ZapMediaV2 upgraded to:", zapMedia.address);
+    // Add proxy address
+    const zapMediaV2 = await upgrades.upgradeProxy('', ZapMediaV2);
+    console.log("ZapMediaV2 upgraded to:", zapMediaV2.address);
 
 }
 
