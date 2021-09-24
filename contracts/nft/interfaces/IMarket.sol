@@ -36,7 +36,7 @@ interface IMarket {
         // Array that holds all the collaborators
         address[] collaborators;
         // % of sale value that goes to the fourth collaborator of the nft
-        mapping(address => Decimal.D256) collabShares;
+        Decimal.D256[] collabShares;
         // Decimal.D256[] collaborators;
     }
 
@@ -72,7 +72,7 @@ interface IMarket {
     );
     event BidShareUpdated(
         uint256 indexed tokenId,
-        // BidShares bidShares,
+        BidShares bidShares,
         address indexed mediaContract
     );
     event MediaContractCreated(
@@ -134,11 +134,6 @@ interface IMarket {
         BidShares calldata bidShares
     ) external;
 
-    function setCollaborators(
-        address mediaContractAddress,
-        uint256 tokenId,
-        address[] memory collaborators
-    ) external;
 
     function setAsk(
         address mediaContractAddress,

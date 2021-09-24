@@ -268,7 +268,7 @@ contract ZapMedia is
         );
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
             require(
-                _hasShares(bidShares.collaborators[i], bidShares),
+                _hasShares(i, bidShares),
                 "Each collaborator must have a share of the bid"
             );
         }
@@ -539,9 +539,9 @@ contract ZapMedia is
      * *****************
      */
 
-     function _hasShares(address collaborator, IMarket.BidShares memory bidShares) internal returns (bool) {
+     function _hasShares(uint256 index, IMarket.BidShares memory bidShares) internal returns (bool) {
          return(
-             bidShares.collabShares[collaborator].value != 0
+             bidShares.collabShares[index].value != 0
          );
      }
 
@@ -595,11 +595,6 @@ contract ZapMedia is
             bidShares
         );
 
-        IMarket(access.marketContract).setCollaborators(
-            address(this),
-            tokenId,
-            bidShares
-        );
         IMarket(access.marketContract).mintOrBurn(true, tokenId, address(this));
     }
 
