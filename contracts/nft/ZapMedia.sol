@@ -54,8 +54,6 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
-    IMarket.BidShares bidshares;
-
     /* *********
      * Modifiers
      * *********
@@ -268,7 +266,7 @@ contract ZapMedia is
             'Media: Only Approved users can mint'
         );
         require(
-            bidshares.collaborators.length == bidshares.collabShares.length,
+            bidShares.collaborators.length == bidShares.collabShares.length,
             "Media: Arrays do not have the same length"
         );
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
@@ -299,7 +297,7 @@ contract ZapMedia is
             'Media: mintWithSig expired'
         );
         require(
-            bidshares.collaborators.length == bidshares.collabShares.length,
+            bidShares.collaborators.length == bidShares.collabShares.length,
             "Media: Arrays do not have the same length"
         );
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
