@@ -277,7 +277,11 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         override
         onlyMediaCaller(mediaContractAddress)
     {
-        emit AskRemoved(tokenId, _tokenAsks[mediaContractAddress][tokenId], mediaContractAddress);
+        emit AskRemoved(
+            tokenId,
+            _tokenAsks[mediaContractAddress][tokenId],
+            mediaContractAddress
+        );
         delete _tokenAsks[mediaContractAddress][tokenId];
     }
 

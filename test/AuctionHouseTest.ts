@@ -943,8 +943,6 @@ describe("AuctionHouse", () => {
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
 
-      // await auctionHouse.setTokenDetails(0, media1.address);
-
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
@@ -1033,7 +1031,7 @@ describe("AuctionHouse", () => {
 
         await auctionHouse.endAuction(0, media1.address);
 
-        const expectedCuratorFee = "22500000000000000";
+        const expectedCuratorFee = "17500000000000000";
 
         const curatorBalance = await zapTokenBsc.balanceOf(
           await curator.getAddress()
@@ -1051,7 +1049,7 @@ describe("AuctionHouse", () => {
         );
 
         await auctionHouse.endAuction(0, media1.address);
-        const expectedProfit = "927500000000000000";
+        const expectedProfit = "482500000000000000";
         const creatorBalance = await zapTokenBsc.balanceOf(
           await creator.getAddress()
         );
@@ -1088,10 +1086,10 @@ describe("AuctionHouse", () => {
         expect(logDescription.args.winner).to.eq(auctionData.bidder);
 
         expect(logDescription.args.amount.toString()).to.eq(
-          "427500000000000000"
+          "332500000000000000"
         );
         expect(logDescription.args.curatorFee.toString()).to.eq(
-          "22500000000000000"
+          "17500000000000000"
         );
         expect(logDescription.args.auctionCurrency).to.eq(zapTokenBsc.address);
       });

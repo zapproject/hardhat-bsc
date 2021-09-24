@@ -858,6 +858,8 @@ describe("ZapMedia Test", async () => {
         contentHex = ethers.utils.formatBytes32String(randomString);
         contentHash = ethers.utils.sha256(contentHex);
         contentHashBytes = ethers.utils.arrayify(contentHash);
+
+        console.log("BIDSHARES", bidShares)
         await ownerContract.mint({ ...mediaData, contentHash: contentHashBytes }, bidShares, collaborators);
 
         await ownerContract.connect(signers[2]).setBid(0, { ...bid1, bidder: signers[2].address, recipient: signers[2].address });

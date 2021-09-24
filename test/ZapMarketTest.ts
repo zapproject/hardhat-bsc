@@ -1288,10 +1288,10 @@ describe('ZapMarket Test', () => {
       await zapMedia2.acceptBid(0, bid2);
 
       const owner1PostAccept = await zapTokenBsc.balanceOf(signers[1].address);
-      expect(parseInt(owner1PostAccept._hex)).to.equal(parseInt(owner1PostSet._hex) + ((15 + 35) / 100) * 200);
+      expect(parseInt(owner1PostAccept._hex)).to.equal(parseInt(owner1PostSet._hex) + ((15 + 35) / 100) * bid1.amount);
 
       const owner2PostAccept = await zapTokenBsc.balanceOf(signers[2].address);
-      expect(parseInt(owner2PostAccept._hex)).to.equal(parseInt(owner2PostSet._hex) + ((15 + 35) / 100) * 200);
+      expect(parseInt(owner2PostAccept._hex)).to.equal(parseInt(owner2PostSet._hex) + ((15 + 35) / 100) * bid2.amount);
 
       const zapMarketFilter: EventFilter =
         zapMarket.filters.BidFinalized(null, null, null);
