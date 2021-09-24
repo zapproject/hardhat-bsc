@@ -15,6 +15,7 @@ import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from "../typechain/ZapMarket";
 import { ZapVault } from "../typechain/ZapVault"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { POINT_CONVERSION_COMPRESSED } from "constants";
 chai.use(solidity);
 
 describe("ZapMedia Test", async () => {
@@ -976,6 +977,7 @@ describe("ZapMedia Test", async () => {
                     value: BigInt(15000000000000000000),
                 },
             };
+
 
             await zapMedia1.connect(signers[4]).setBid(0, bid);
 
