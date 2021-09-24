@@ -1041,7 +1041,7 @@ describe("ZapMedia Test", async () => {
                 BigInt(35000000000000000000)
             );
             expect(logDescription.args.bidShares.creator.value).to.eq(
-                BigInt(50000000000000000000)
+                BigInt(15000000000000000000)
             );
         });
 
