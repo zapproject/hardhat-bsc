@@ -102,7 +102,8 @@ describe("ZapMedia Test", async () => {
             creator: signers[1].address
         }
 
-        bidShares = {...bidShares, collaborators: [
+        bidShares = {
+            ...bidShares, collaborators: [
                 signers[9].address,
                 signers[10].address,
                 signers[12].address
@@ -277,17 +278,18 @@ describe("ZapMedia Test", async () => {
 
         it("should not mint if a collaborator's share has not been defined", async () => {
             let testBidShares = bidShares;
-            testBidShares = { ...testBidShares, collabShares:
-                [
-                    BigNumber.from('15000000000000000000'),
-                    BigNumber.from('15000000000000000000'),
-                    BigNumber.from('0')
-                ]
-             }
+            testBidShares = {
+                ...testBidShares, collabShares:
+                    [
+                        BigNumber.from('15000000000000000000'),
+                        BigNumber.from('15000000000000000000'),
+                        BigNumber.from('0')
+                    ]
+            }
 
-             await expect(
-                 zapMedia2.mint(mediaData, testBidShares)
-             ).to.be.revertedWith("Media: Each collaborator must have a share of the nft")
+            await expect(
+                zapMedia2.mint(mediaData, testBidShares)
+            ).to.be.revertedWith("Media: Each collaborator must have a share of the nft")
         });
 
         it("should mint token if caller is approved", async () => {
@@ -975,7 +977,6 @@ describe("ZapMedia Test", async () => {
             await zapMedia1.deployed();
             await setupAuction(zapMedia1, signers[1]);
         });
-
         it('should accept a bid', async () => {
             const bid = {
                 ...bid1,
