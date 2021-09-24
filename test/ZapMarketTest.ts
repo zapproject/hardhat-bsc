@@ -141,12 +141,6 @@ describe('ZapMarket Test', () => {
     sellOnShare: 0
   };
 
-  before(async () => {
-
-    signers = await ethers.getSigners();
-
-  })
-
   describe('#Configure', () => {
 
     beforeEach(async () => {
