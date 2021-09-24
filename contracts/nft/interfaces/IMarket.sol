@@ -33,27 +33,16 @@ interface IMarket {
         Decimal.D256 creator;
         // % of sale value that goes to the seller (current owner) of the nft
         Decimal.D256 owner;
+        // Array that holds all the collaborators
+        address[] collaborators;
         // % of sale value that goes to the fourth collaborator of the nft
-        Decimal.D256 collaboratorFour;
-        // % of sale value that goes to the third collaborator of the nft
-        Decimal.D256 collaboratorThree;
-        // % of sale value that goes to the second collaborator of the nft
-        Decimal.D256 collaboratorTwo;
-        // % of sale value that goes to the original creator of the nft
+        mapping(address => Decimal.D256) collabShares;
+        // Decimal.D256[] collaborators;
     }
 
     struct PlatformFee {
         // % of sale value that goes to the Vault
         Decimal.D256 fee;
-    }
-
-    struct Collaborators {
-        // Address of the fourth collaborator
-        address collaboratorFour;
-        // Address of the third collaborator
-        address collaboratorThree;
-        // Address of the second collaborator
-        address collaboratorTwo;
     }
 
     event BidCreated(
@@ -83,7 +72,7 @@ interface IMarket {
     );
     event BidShareUpdated(
         uint256 indexed tokenId,
-        BidShares bidShares,
+        // BidShares bidShares,
         address indexed mediaContract
     );
     event MediaContractCreated(
@@ -148,7 +137,7 @@ interface IMarket {
     function setCollaborators(
         address mediaContractAddress,
         uint256 tokenId,
-        Collaborators calldata collaborators
+        address[] memory collaborators
     ) external;
 
     function setAsk(
