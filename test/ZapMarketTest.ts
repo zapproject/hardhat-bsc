@@ -1207,6 +1207,7 @@ describe('ZapMarket Test', () => {
       );
     });
 
+
     it('Should emit a bid event', async () => {
       await zapTokenBsc.mint(signers[1].address, 5000);
       await zapTokenBsc.mint(signers[2].address, 5000);
