@@ -54,8 +54,6 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
-    IMarket.BidShares bidshares;
-
     /* *********
      * Modifiers
      * *********
