@@ -79,7 +79,8 @@ contract ZapMaster is ZapGetters {
         uint256 zapBalance = token.balanceOf(address(this));
         // approve entire balance
         token.approve(address(this), zapBalance);
-        token.transferFrom(address(this), _newZapMaster, zapBalance);
+        bool transfered = token.transferFrom(address(this), _newZapMaster, zapBalance);
+        require(transfered == true, "ZapTokenBsc: ERC20 Transfer failed");
     }
 
 
