@@ -70,7 +70,6 @@ contract ZapMaster is ZapGetters {
         zap.changeVaultContract(_vaultContract);
     }
 
-
     // function to send balance to a New Zap Master contract
     function sendBalToNewZM(address _newZapMaster) external onlyOwner {
         // require to be the owner of ZM to send to new ZM
@@ -82,7 +81,6 @@ contract ZapMaster is ZapGetters {
         bool transfered = token.transferFrom(address(this), _newZapMaster, zapBalance);
         require(transfered == true, "ZapTokenBsc: ERC20 Transfer failed");
     }
-
 
     /**
      * @dev This is the fallback function that allows contracts to call the zap contract at the address stored

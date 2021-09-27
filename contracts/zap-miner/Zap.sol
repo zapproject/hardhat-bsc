@@ -6,6 +6,7 @@ import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
+import './libraries/Address.sol';
 import './Vault.sol';
 
 /**
@@ -59,6 +60,7 @@ contract Zap {
     );
 
     using SafeMathM for uint256;
+    using Address for address;
 
     using ZapDispute for ZapStorage.ZapStorageStruct;
     using ZapLibrary for ZapStorage.ZapStorageStruct;
@@ -393,8 +395,7 @@ contract Zap {
      * @return true if transfer is successful
      */
     function transfer(address _to, uint256 _amount) public {
-        bool transfered = token.transfer(_to, _amount);
-        require(transfered == true, "ZapTokenBsc: ERC20 Transfer failed");
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, _to, _amount));
     }
 
     /**
@@ -410,8 +411,7 @@ contract Zap {
         address _to,
         uint256 _amount
     ) public {
-        bool transfered = token.transferFrom(_from, _to, _amount);
-        require(transfered == true, "ZapTokenBsc: ERC20 Transfer failed");
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, _from, _to, _amount));
     }
 
     /**
@@ -558,5 +558,23 @@ contract Zap {
     function increaseVaultApproval(address vaultAddress) public returns (bool) {
         Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
+    }
+
+    /**
+     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
+     * on the return value: the return value is optional (but if data is returned, it must not be false).
+     * @param token The token targeted by the call.
+     * @param data The call data (encoded using abi.encode or one of its variants).
+     */
+    function _callOptionalReturn(ZapTokenBSC token, bytes memory data) private {
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
+        // the target address contains contract code and also asserts for success in the low-level call.
+
+        bytes memory returndata = address(token).functionCall(data, "ZapTokenBSC: low-level call failed");
+        if (returndata.length > 0) {
+            // Return data is optional
+            require(abi.decode(returndata, (bool)), "ZapTokenBSC: ERC20 operation did not succeed");
+        }
     }
 }
