@@ -1,7 +1,7 @@
 pragma solidity =0.5.16;
 
 import './ZapGetters.sol';
-
+import './libraries/Address.sol';
 
 /**
  * @title Zap Master
@@ -11,6 +11,7 @@ import './ZapGetters.sol';
  */
 contract ZapMaster is ZapGetters {
     event NewZapAddress(address _newZap);
+    using Address for address;
 
 
     ZapTokenBSC public token;
@@ -78,8 +79,11 @@ contract ZapMaster is ZapGetters {
         uint256 zapBalance = token.balanceOf(address(this));
         // approve entire balance
         token.approve(address(this), zapBalance);
-        bool transfered = token.transferFrom(address(this), _newZapMaster, zapBalance);
-        require(transfered == true, "ZapTokenBsc: ERC20 Transfer failed");
+        bytes memory data = abi.encodeWithSignature(
+                "transferFrom(address,address,uint256)", address(this), _newZapMaster, zapBalance
+        );
+        (bool success, bytes memory returnData) = address(zap.addressVars[keccak256('zapContract')]).call(data);
+        require(success && returnData.length > 0);
     }
 
     /**
