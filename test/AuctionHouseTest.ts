@@ -584,7 +584,7 @@ describe("AuctionHouse", () => {
 
         expect(
           await ethers.provider.getBalance(bidderA.address),
-          "ethBalanceBefore minus gas, but should be gt ethBalanceBefore minus One Eth."
+          "ethBalanceBefore minus gas, should be gt ethBalanceBefore minus One Eth."
           ).to.be.gt(ethBalanceBefore.sub(ONE_ETH));
       });
 
