@@ -470,6 +470,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
             IWETH(wethAddress).deposit{value: amount}();
         } else {
+            require(msg.value == 0, "AuctionHouse: Ether is not required for this transaction");
             // We must check the balance that was actually transferred to the auction,
             // as some tokens impose a transfer fee and would not actually transfer the
             // full amount to the market, resulting in potentally locked funds
