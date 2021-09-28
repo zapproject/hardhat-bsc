@@ -8,8 +8,8 @@ contract Vault {
 
     address public zapToken;
     ZapMaster zapMaster;
-    mapping(address => uint256) balances;
-    mapping(address => mapping(address => bool)) keys;
+    mapping(address => uint256) private balances;
+    mapping(address => mapping(address => bool)) private keys;
 
     uint256 constant MAX_UINT = 2**256 - 1;
 
