@@ -137,7 +137,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
     for (let i = 1; i <= 5; i++) {
       await zapTokenBsc.allocate(signers[i].address, BigNumber.from("1100000000000000000000000"));
       zap = zap.connect(signers[i]);
-      await vault.connect(signers[i]).lockSmith(signers[i].address, zap.address);
 
       await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
       await zap.depositStake();
@@ -172,9 +171,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
       // Each Miner will submit a mining solution
       const mining = await zap.submitMiningSolution('nonce', 1, 1200);
-      //   const res = await mining.wait();
-      //   console.log(res)
-
       // Checks if the miners mined the challenge
       // true = Miner did mine the challenge
       // false = Miner did not mine the challenge
