@@ -15,6 +15,7 @@ import {
   TWO_ETH,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Signer } from "crypto";
 
 describe("AuctionHouse", () => {
   let market: ZapMarket;
@@ -26,6 +27,7 @@ describe("AuctionHouse", () => {
   let zapVault: ZapVault;
   let badERC721: BadERC721;
   let testERC721: TestERC721;
+  let signers: SignerWithAddress[];
 
   beforeEach(async () => {
     await ethers.provider.send("hardhat_reset", []);
@@ -131,10 +133,10 @@ describe("AuctionHouse", () => {
     let auctionHouse: AuctionHouse;
 
     beforeEach(async () => {
-      
+
       signers = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[1]);
+      auctionHouse = await deploy(signers[1], zapTokenBsc.address);
 
       await mint(media1);
 
@@ -146,12 +148,12 @@ describe("AuctionHouse", () => {
       let prevBal = await weth.balanceOf(auctionHouse.address);
 
       // deposit weth balance
-      signers[1].sendTransaction({to: weth.address, value: 10});
+      signers[1].sendTransaction({ to: weth.address, value: 10 });
 
       // transfer weth to auction house, this ends with hitting the fallback function receive() in AuctionHouse contract
       await weth.connect(signers[1]).transferFrom2(signers[1].address, auctionHouse.address, 1);
       let newBal = await weth.balanceOf(auctionHouse.address);
-      expect(prevBal).to.eq(newBal-1);
+      expect(prevBal).to.eq(newBal - 1);
     });
   });
 
