@@ -210,7 +210,7 @@ contract ZapMedia is
         virtual
         override(ERC721EnumerableUpgradeable, ERC721Upgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        ERC721EnumerableUpgradeable._beforeTokenTransfer(from, to, tokenId);
     }
 
     /* *************
@@ -647,7 +647,7 @@ contract ZapMedia is
         internal
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
     {
-        super._burn(tokenId);
+        ERC721URIStorageUpgradeable._burn(tokenId);
 
         delete tokens.previousTokenOwners[tokenId];
 
@@ -668,7 +668,7 @@ contract ZapMedia is
     ) internal override {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
 
-        super._transfer(from, to, tokenId);
+        ERC721Upgradeable._transfer(from, to, tokenId);
     }
 
     /**
