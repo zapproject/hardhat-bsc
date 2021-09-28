@@ -457,12 +457,12 @@ contract ZapMedia is
      * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
      * revoke their approval once their task is complete as a best practice.
      */
-    function revokeApproval(uint256 tokenId) external override nonReentrant {
-        require(
-            msg.sender == getApproved(tokenId),
-            // remove revert string before deployment to mainnet
-            'Media: caller not approved address'
-        );
+    function revokeApproval(uint256 tokenId)
+        external
+        override
+        onlyApprovedOrOwner(msg.sender, tokenId)
+        nonReentrant
+    {
         _approve(address(0), tokenId);
     }
 
@@ -570,7 +570,7 @@ contract ZapMedia is
      *
      * See {ERC721-_safeMint}.
      *
-     * On mint, also set the sha256 hashes of the content and its metadata for integrity
+     * On mint, also set the keccak256 hashes of the content and its metadata for integrity
      * checks, along with the initial URIs to point to the content and metadata. Attribute
      * the token ID to the creator, mark the content hash as used, and set the bid shares for
      * the media's market.

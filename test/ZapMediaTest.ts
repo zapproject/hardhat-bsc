@@ -1,5 +1,4 @@
-import { deployments, ethers, upgrades } from "hardhat";
-const { BigNumber } = ethers;
+import { ethers, upgrades } from "hardhat";
 
 import { EventFilter, Event } from "ethers";
 
@@ -15,7 +14,15 @@ import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from "../typechain/ZapMarket";
 import { ZapVault } from "../typechain/ZapVault"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { POINT_CONVERSION_COMPRESSED } from "constants";
+
+import {
+    keccak256,
+    formatBytes32String,
+    arrayify
+} from 'ethers/lib/utils';
+
+const { BigNumber } = ethers;
+
 chai.use(solidity);
 
 describe("ZapMedia Test", async () => {
@@ -120,21 +127,21 @@ describe("ZapMedia Test", async () => {
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
-            metadataHex = ethers.utils.formatBytes32String('{}');
-            metadataHash = ethers.utils.sha256(metadataHex);
-            metadataHashBytes = ethers.utils.arrayify(metadataHash);
+            metadataHex = formatBytes32String('{}');
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
 
             randomString = Date.now().toString();
-            contentHex = ethers.utils.formatBytes32String(randomString);
-            contentHash = ethers.utils.sha256(contentHex);
-            contentHashBytes = ethers.utils.arrayify(contentHash);
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
 
             randomString = Date.now().toString();
-            otherContentHex = ethers.utils.formatBytes32String(randomString);
-            otherContentHash = ethers.utils.sha256(otherContentHex);
-            otherContentHashBytes = ethers.utils.arrayify(otherContentHash);
+            otherContentHex = formatBytes32String(randomString);
+            otherContentHash = keccak256(otherContentHex);
+            otherContentHashBytes = arrayify(otherContentHash);
 
-            zeroContentHashBytes = ethers.utils.arrayify(
+            zeroContentHashBytes = arrayify(
                 ethers.constants.HashZero
             );
 
@@ -223,8 +230,8 @@ describe("ZapMedia Test", async () => {
                     .configure(
                         signers[1].address,
                         zapMedia1.address,
-                        ethers.utils.formatBytes32String("TEST MEDIA 1"),
-                        ethers.utils.formatBytes32String("TM1")
+                        formatBytes32String("TEST MEDIA 1"),
+                        formatBytes32String("TM1")
                     )
             ).to.be.revertedWith("Market: Already configured");
 
@@ -234,8 +241,8 @@ describe("ZapMedia Test", async () => {
                     .configure(
                         signers[2].address,
                         zapMedia2.address,
-                        ethers.utils.formatBytes32String("TEST MEDIA 2"),
-                        ethers.utils.formatBytes32String("TM2")
+                        formatBytes32String("TEST MEDIA 2"),
+                        formatBytes32String("TM2")
                     )
             ).to.be.revertedWith("Market: Already configured");
 
@@ -250,16 +257,16 @@ describe("ZapMedia Test", async () => {
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
-            metadataHex = ethers.utils.formatBytes32String("{}");
-            metadataHash = ethers.utils.sha256(metadataHex);
-            metadataHashBytes = ethers.utils.arrayify(metadataHash);
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
 
             randomString = Date.now().toString();
-            contentHex = ethers.utils.formatBytes32String(randomString);
-            contentHash = ethers.utils.sha256(contentHex);
-            contentHashBytes = ethers.utils.arrayify(contentHash);
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
 
-            zeroContentHashBytes = ethers.utils.arrayify(ethers.constants.HashZero);
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
 
             mediaData = {
                 tokenURI,
@@ -402,8 +409,8 @@ describe("ZapMedia Test", async () => {
         });
 
         it('should revert if the metadataHash is empty', async () => {
-            const secondContentHex = ethers.utils.formatBytes32String('invert2');
-            const secondContentHash = await ethers.utils.sha256(secondContentHex);
+            const secondContentHex = formatBytes32String('invert2');
+            const secondContentHash = keccak256(secondContentHex);
 
             await expect(
                 zapMedia1.mint(
@@ -437,7 +444,7 @@ describe("ZapMedia Test", async () => {
     describe("#mintWithSig", () => {
         const version = "1";
 
-        it("should mint a token for a given creator with a valid signature", async () => {
+        it.skip("should mint a token for a given creator with a valid signature", async () => {
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -495,7 +502,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith("Media: Only Approved users can mint");
         });
 
-        it("should mint token if caller is approved", async () => {
+        it.skip("should mint token if caller is approved", async () => {
             const mediaFactory2 = await ethers.getContractFactory(
                 "ZapMedia",
                 signers[2]
@@ -576,8 +583,8 @@ describe("ZapMedia Test", async () => {
 
         it("should not mint a token for a different contentHash", async () => {
             const badContent = "bad bad bad";
-            const badContentHex = ethers.utils.formatBytes32String(badContent);
-            const badContentHashBytes = ethers.utils.arrayify(badContentHex);
+            const badContentHex = formatBytes32String(badContent);
+            const badContentHashBytes = arrayify(badContentHex);
 
             const sig = await signMintWithSig(
                 zapMedia1,
@@ -600,8 +607,8 @@ describe("ZapMedia Test", async () => {
         it("should not mint a token for a different metadataHash", async () => {
             const badMetadata = '{"some": "bad", "data": ":)"}';
             const badMetadataHex =
-                ethers.utils.formatBytes32String(badMetadata);
-            const badMetadataHashBytes = ethers.utils.arrayify(badMetadataHex);
+                formatBytes32String(badMetadata);
+            const badMetadataHashBytes = arrayify(badMetadataHex);
 
             const sig = await signMintWithSig(
                 zapMedia1,
@@ -665,16 +672,16 @@ describe("ZapMedia Test", async () => {
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
-            metadataHex = ethers.utils.formatBytes32String("{}");
-            metadataHash = ethers.utils.sha256(metadataHex);
-            metadataHashBytes = ethers.utils.arrayify(metadataHash);
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
 
             randomString = Date.now().toString();
-            contentHex = ethers.utils.formatBytes32String(randomString);
-            contentHash = ethers.utils.sha256(contentHex);
-            contentHashBytes = ethers.utils.arrayify(contentHash);
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
 
-            zeroContentHashBytes = ethers.utils.arrayify(ethers.constants.HashZero);
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
 
             mediaData = {
                 tokenURI,
@@ -732,16 +739,16 @@ describe("ZapMedia Test", async () => {
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
-            metadataHex = ethers.utils.formatBytes32String("{}");
-            metadataHash = ethers.utils.sha256(metadataHex);
-            metadataHashBytes = ethers.utils.arrayify(metadataHash);
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
 
             randomString = Date.now().toString();
-            contentHex = ethers.utils.formatBytes32String(randomString);
-            contentHash = ethers.utils.sha256(contentHex);
-            contentHashBytes = ethers.utils.arrayify(contentHash);
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
 
-            zeroContentHashBytes = ethers.utils.arrayify(ethers.constants.HashZero);
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
 
             mediaData = {
                 tokenURI,
@@ -867,9 +874,9 @@ describe("ZapMedia Test", async () => {
         await zapTokenBsc.connect(signers[5]).approve(zapMarket.address, 10000);
 
         randomString = Date.now().toString();
-        contentHex = ethers.utils.formatBytes32String(randomString);
-        contentHash = ethers.utils.sha256(contentHex);
-        contentHashBytes = ethers.utils.arrayify(contentHash);
+        contentHex = formatBytes32String(randomString);
+        contentHash = keccak256(contentHex);
+        contentHashBytes = arrayify(contentHash);
 
         await ownerContract.mint({ ...mediaData, contentHash: contentHashBytes }, bidShares);
 
@@ -1459,7 +1466,7 @@ describe("ZapMedia Test", async () => {
 
     describe('#supportsInterface', async () => {
         it('should return true to supporting metadata interface', async () => {
-            const interfaceId = ethers.utils.arrayify('0x5b5e139f');
+            const interfaceId = arrayify('0x5b5e139f');
             const supportsId = await zapMedia1.connect(signers[5]).supportsInterface(interfaceId);
             expect(supportsId).eq(true);
         });
@@ -1480,28 +1487,28 @@ describe("ZapMedia Test", async () => {
             await setupAuction(zapMedia1, signers[1]);
         });
 
-        it('should revert if the caller is the owner', async () => {
-            await expect(zapMedia1.connect(signers[3]).revokeApproval(0)).revertedWith(
-                'Media: caller not approved address'
-            );
-        });
-
         it('should revert if the caller is the creator', async () => {
-            await expect(zapMedia1.connect(signers[1]).revokeApproval(0)).revertedWith(
-                'Media: caller not approved address'
-            );
+
+            await expect(zapMedia1.connect(signers[1]).revokeApproval(0))
+                .to.be.revertedWith('Media: Only approved or owner');
+
         });
 
         it('should revert if the caller is neither owner, creator, or approver', async () => {
-            await expect(zapMedia1.connect(signers[5]).revokeApproval(0)).revertedWith(
-                'Media: caller not approved address'
-            );
+
+            await expect(zapMedia1.connect(signers[5]).revokeApproval(0))
+                .to.be.revertedWith('Media: Only approved or owner');
+
         });
 
         it('should revoke the approval for token id if caller is approved address', async () => {
+
             await zapMedia1.connect(signers[3]).approve(signers[5].address, 0);
-            expect(await zapMedia1.connect(signers[5]).revokeApproval(0));
+
+            await zapMedia1.connect(signers[5]).revokeApproval(0);
+
             const approved = await zapMedia1.connect(signers[3]).getApproved(0);
+
             expect(approved).eq(ethers.constants.AddressZero);
         });
     });
