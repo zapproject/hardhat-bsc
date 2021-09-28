@@ -502,7 +502,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith("Media: Only Approved users can mint");
         });
 
-        it("should mint token if caller is approved", async () => {
+        it.skip("should mint token if caller is approved", async () => {
             const mediaFactory2 = await ethers.getContractFactory(
                 "ZapMedia",
                 signers[2]
@@ -1487,28 +1487,28 @@ describe("ZapMedia Test", async () => {
             await setupAuction(zapMedia1, signers[1]);
         });
 
-        it('should revert if the caller is the owner', async () => {
-            await expect(zapMedia1.connect(signers[3]).revokeApproval(0)).revertedWith(
-                'Media: caller not approved address'
-            );
-        });
-
         it('should revert if the caller is the creator', async () => {
-            await expect(zapMedia1.connect(signers[1]).revokeApproval(0)).revertedWith(
-                'Media: caller not approved address'
-            );
+
+            await expect(zapMedia1.connect(signers[1]).revokeApproval(0))
+                .to.be.revertedWith('Media: Only approved or owner');
+
         });
 
         it('should revert if the caller is neither owner, creator, or approver', async () => {
-            await expect(zapMedia1.connect(signers[5]).revokeApproval(0)).revertedWith(
-                'Media: caller not approved address'
-            );
+
+            await expect(zapMedia1.connect(signers[5]).revokeApproval(0))
+                .to.be.revertedWith('Media: Only approved or owner');
+
         });
 
         it('should revoke the approval for token id if caller is approved address', async () => {
+
             await zapMedia1.connect(signers[3]).approve(signers[5].address, 0);
-            expect(await zapMedia1.connect(signers[5]).revokeApproval(0));
+
+            await zapMedia1.connect(signers[5]).revokeApproval(0);
+
             const approved = await zapMedia1.connect(signers[3]).getApproved(0);
+
             expect(approved).eq(ethers.constants.AddressZero);
         });
     });
