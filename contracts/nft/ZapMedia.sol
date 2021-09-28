@@ -137,12 +137,13 @@ contract ZapMedia is
      * ERC721 metadata interface
      */
 
+
     function initialize(
-        string memory name,
-        string memory symbol,
+        string calldata name,
+        string calldata symbol,
         address marketContractAddr,
         bool permissive,
-        string memory _collectionMetadata
+        string calldata _collectionMetadata
     ) external override initializer {
         __ERC721_init(name, symbol);
         _init_ownable();
@@ -168,6 +169,8 @@ contract ZapMedia is
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
+
+        console.log( name, symbol, _collectionMetadata);
     }
 
     function supportsInterface(bytes4 interfaceId)
