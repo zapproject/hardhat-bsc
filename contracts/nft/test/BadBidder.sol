@@ -18,7 +18,7 @@ contract BadBidder {
 
     function placeBid(uint256 auctionId, uint256 amount, address mediaContract, address tokenAddress) external payable {
         IERC20(tokenAddress).approve(auction, amount);
-        IAuctionHouse(auction).createBid{value: amount}(auctionId, amount, mediaContract);
+        IAuctionHouse(auction).createBid(auctionId, amount, mediaContract);
     }
 
     receive() external payable {}

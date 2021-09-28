@@ -6,6 +6,7 @@ import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
+import './libraries/Address.sol';
 import './Vault.sol';
 
 /**
@@ -59,6 +60,7 @@ contract Zap {
     );
 
     using SafeMathM for uint256;
+    using Address for address;
 
     using ZapDispute for ZapStorage.ZapStorageStruct;
     using ZapLibrary for ZapStorage.ZapStorageStruct;
@@ -201,7 +203,7 @@ contract Zap {
         (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         approve(_from, _disputeFee);
-        token.transferFrom(_from, _to, _disputeFee);
+        transferFrom(_from, _to, _disputeFee);
     }
 
     /**
@@ -210,7 +212,11 @@ contract Zap {
      */
     function proposeFork(address _propNewZapAddress) external {
         zap.proposeFork(_propNewZapAddress);
-        token.transferFrom(msg.sender, zap.addressVars[keccak256("_owner")], zap.uintVars[keccak256('disputeFee')]);
+            transferFrom(
+                msg.sender,
+                zap.addressVars[keccak256("_owner")],
+                zap.uintVars[keccak256('disputeFee')]
+            );
     }
 
     /**
@@ -265,7 +271,7 @@ contract Zap {
 
             //If the tip > 0 it tranfers the tip to this contract
             if (_tip > 0) {
-                token.transferFrom(msg.sender, address(this), _tip);
+                transferFrom(msg.sender, address(this), _tip);
             }
             updateOnDeck(_requestId, _tip);
             emit DataRequested(
@@ -307,32 +313,19 @@ contract Zap {
             // Pay the miners
             for (uint256 i = 0; i < 5; i++) {
                 if (a[i].miner != address(0)){
-                    // console.log("++++++++++++++++");
-                    // console.log("++++++++++++++++");
-                    // console.log("++++++++++++++++");
-                    // console.log("miner: ", a[i].miner);
-                    // console.log("address(this): ", address(this));
-                    // console.log("master balance: ", token.balanceOf(address(this)));
-                    // console.log("vault balance: ", token.balanceOf(address(vault)));
-                    // console.log("minerReward: ", minerReward);
-                    // console.log("++++++++++++++++");
-                    // console.log("++++++++++++++++");
-                    // console.log("++++++++++++++++");
                     token.approve(address(this), minerReward);
-                    token.transferFrom(address(this), address(vault), minerReward);
-                    // console.log("++++++++++++++++");
-                    // console.log("vault balance after: ", token.balanceOf(address(vault)));
-                    // console.log("++++++++++++++++");
+                    transferFrom(address(this), address(vault), minerReward);
                     vault.deposit(a[i].miner, minerReward);
                 }
             }
 
             // Pay the devshare
             token.approve(address(this), zap.uintVars[keccak256('devShare')]);
-            token.transferFrom(
+            transferFrom(
                 address(this),
                 zap.addressVars[keccak256('_owner')],
-                zap.uintVars[keccak256('devShare')]);
+                zap.uintVars[keccak256('devShare')]
+            );
         }
 
         zap.uintVars[keccak256('currentMinerReward')] = 0;
@@ -355,7 +348,7 @@ contract Zap {
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
-        token.transferFrom(msg.sender, vaultAddress, stakeAmount);
+        transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
 
     }
@@ -380,11 +373,7 @@ contract Zap {
 
         uint256 userBalance = vault.userBalance(msg.sender);
 
-        token.transferFrom(
-            address(vault),
-            msg.sender,
-            userBalance
-        );
+        transferFrom(address(vault), msg.sender, userBalance);
 
         vault.withdraw(msg.sender, userBalance);
     }
@@ -405,8 +394,8 @@ contract Zap {
      * @param _amount The amount of tokens to send
      * @return true if transfer is successful
      */
-    function transfer(address _to, uint256 _amount) public returns (bool) {
-        return token.transfer(_to, _amount);
+    function transfer(address _to, uint256 _amount) public {
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, _to, _amount));
     }
 
     /**
@@ -421,8 +410,8 @@ contract Zap {
         address _from,
         address _to,
         uint256 _amount
-    ) public returns (bool) {
-        return token.transferFrom(_from, _to, _amount);
+    ) public {
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, _from, _to, _amount));
     }
 
     /**
@@ -458,7 +447,7 @@ contract Zap {
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
             // doTransfer(msg.sender, address(this), _tip);
-            token.transferFrom(msg.sender, address(this), _tip);
+            transferFrom(msg.sender, address(this), _tip);
         }
 
         //Update the information for the request that should be mined next based on the tip submitted
@@ -569,5 +558,23 @@ contract Zap {
     function increaseVaultApproval(address vaultAddress) public returns (bool) {
         Vault vault = Vault(vaultAddress);
         return vault.increaseApproval();
+    }
+
+    /**
+     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
+     * on the return value: the return value is optional (but if data is returned, it must not be false).
+     * @param _token The token targeted by the call.
+     * @param data The call data (encoded using abi.encode or one of its variants).
+     */
+    function _callOptionalReturn(ZapTokenBSC _token, bytes memory data) private {
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
+        // the target address contains contract code and also asserts for success in the low-level call.
+
+        bytes memory returndata = address(_token).functionCall(data, "ZapTokenBSC: low-level call failed");
+        if (returndata.length > 0) {
+            // Return data is optional
+            require(abi.decode(returndata, (bool)), "ZapTokenBSC: ERC20 operation did not succeed");
+        }
     }
 }
