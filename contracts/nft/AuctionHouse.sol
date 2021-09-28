@@ -595,8 +595,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         return (true, afterBalance.sub(beforeBalance));
     }
 
-    // TODO: consider reverting if the message sender is not WETH
-    receive() external payable {}
-
-    fallback() external payable {}
+    receive() external payable {
+        require (msg.sender == wethAddress, "AuctionHouse: Fallback function receive() - sender is not WETH");
+    }
 }
