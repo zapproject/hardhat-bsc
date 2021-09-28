@@ -64,12 +64,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    // constructor(address _weth) {
-    //     wethAddress = _weth;
-    //     timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
-    //     minBidIncrementPercentage = 5; // 5%
-    // }
-
     function initialize(address _weth) public initializer {
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
@@ -80,6 +74,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         internal
         returns (bool)
     {
+        require(mediaContract != address(0), "AuctionHouse: Media Contract Address can not be the zero address");
+        if(
+            tokenDetails[mediaContract][tokenId].mediaContract != address(0)
+        ) return false;
+
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
             mediaContract: mediaContract

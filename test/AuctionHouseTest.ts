@@ -17,7 +17,6 @@ import {
   TWO_ETH,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { execPath } from "process";
 
 describe("AuctionHouse", () => {
   let market: ZapMarket;
@@ -190,7 +189,6 @@ describe("AuctionHouse", () => {
   describe("#createAuction", () => {
 
     let auctionHouse: AuctionHouse;
-    let signers: SignerWithAddress[]
 
     beforeEach(async () => {
 
@@ -217,7 +215,7 @@ describe("AuctionHouse", () => {
           reservePrice,
           curator.address,
           5,
-          "0x0000000000000000000000000000000000000000"
+          ethers.constants.AddressZero
         )
       ).revertedWith(
         `tokenContract does not support ERC721 interface`
@@ -238,7 +236,7 @@ describe("AuctionHouse", () => {
             reservePrice,
             curator.address,
             5,
-            "0x0000000000000000000000000000000000000000"
+            ethers.constants.AddressZero
           )
       ).revertedWith(
         `Caller must be approved or owner for token id`
@@ -262,7 +260,7 @@ describe("AuctionHouse", () => {
             reservePrice,
             curator.address,
             5,
-            "0x0000000000000000000000000000000000000000"
+            ethers.constants.AddressZero
           )
       ).revertedWith(
         `ERC721: owner query for nonexistent token`
@@ -283,7 +281,7 @@ describe("AuctionHouse", () => {
           reservePrice,
           curator.address,
           100,
-          "0x0000000000000000000000000000000000000000"
+          ethers.constants.AddressZero
         )
       ).revertedWith(
         `curatorFeePercentage must be less than 100`
@@ -309,6 +307,17 @@ describe("AuctionHouse", () => {
       expect(createdAuction.curator).to.eq(expectedCurator.address);
       expect(createdAuction.approved).to.eq(true);
 
+    });
+
+    it("should revert if the media contract address is the zero address", async () => {
+      const duration = 60 * 60 * 24;
+      const reservePrice = BigNumber.from(10).pow(18).div(2);
+      await expect(
+        auctionHouse.createAuction(
+          0, ethers.constants.AddressZero, duration, reservePrice,
+          signers[1].address, 5, zapTokenBsc.address
+          )
+      ).to.be.revertedWith("function call to a non-contract account")
     });
 
     it("should be automatically approved if the creator is the curator", async () => {
@@ -1007,7 +1016,7 @@ describe("AuctionHouse", () => {
 
       beforeEach(async () => {
       //  const [ deity ] = await ethers.getSigners();
-      //   auctionHouse = await deploy(deity, "0x0000000000000000000000000000000000000000");
+      //   auctionHouse = await deploy(deity, ethers.constants.AddressZero);
         await auctionHouse
           .connect(bidder)
           .createBid(0, ONE_ETH, media1.address);
