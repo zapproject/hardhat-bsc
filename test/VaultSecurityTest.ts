@@ -63,20 +63,9 @@ describe('Vault Security Test', () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
 
-    // const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-    //     'ZapTransfer',
-    //     signers[0]
-    // );
-
-    // zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
-    // await zapTransfer.deployed();
-
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
       {
-        // libraries: {
-        //     ZapTransfer: zapTransfer.address
-        // },
         signer: signers[0]
       }
     );
@@ -87,9 +76,6 @@ describe('Vault Security Test', () => {
     const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
       'ZapDispute',
       {
-        // libraries: {
-        //     ZapTransfer: zapTransfer.address
-        // },
         signer: signers[0]
       }
     );
@@ -101,7 +87,6 @@ describe('Vault Security Test', () => {
       'ZapStake',
       {
         libraries: {
-          // ZapTransfer: zapTransfer.address,
           ZapDispute: zapDispute.address
         },
         signer: signers[0]
@@ -127,7 +112,6 @@ describe('Vault Security Test', () => {
       'ZapMaster',
       {
         libraries: {
-          // ZapTransfer: zapTransfer.address,
           ZapStake: zapStake.address
         },
         signer: signers[0]
@@ -161,60 +145,71 @@ describe('Vault Security Test', () => {
     numAuthorizedUsers = numVaultOwners;
   });
 
-  it('Tests if the authority of a user is correct', async () => {
-    let j: number = numAuthorizedUsers;
-    for (let i = 0; i < numVaultOwners; i++) {
-      await vault
-        .connect(signers[i])
-        .lockSmith(signers[i].address, signers[j].address);
-      await vault.connect(signers[j]).deposit(signers[i].address, 1);
-      expect(
-        await vault
-          .connect(signers[j])
-          .hasAccess(signers[j].address, signers[i].address)
-      ).to.be.true;
-      j++;
-    }
-
-    j = 0;
-    for (let i = numAuthorizedUsers; i < signers.length; i++) {
-      expect(
-        await vault
-          .connect(signers[j])
-          .hasAccess(signers[j].address, signers[i].address)
-      ).to.be.false;
-      await expect(vault.connect(signers[j]).withdraw(signers[i].address, 1)).to
-        .be.reverted;
-      j++;
-      if (j == signers.length) {
-        break;
-      }
-    }
+  it('Should revert when depositing as non Zap address', async () => {
+    await expect(vault.deposit(signers[1].address, 1)).to.revertedWith("Only Zap contract accessible");
   });
 
-  it('Tests if an authorised user can deposit/withdraw', async () => {
-    let j: number = numAuthorizedUsers;
-    for (let i = 0; i < numVaultOwners; i++) {
-      await vault
-        .connect(signers[i])
-        .lockSmith(signers[i].address, signers[j].address);
-      expect(await vault.connect(signers[j]).deposit(signers[i].address, 1)).to
-        .be.ok;
-      expect(await vault.userBalance(signers[i].address)).to.equal(1);
-      j++;
-    }
+  it('Should revert when withdrawing as non Zap address', async () => {
+    await expect(vault.withdraw(signers[1].address, 1)).to.revertedWith("Only Zap contract accessible");
+  })
 
-    j = 0;
-    for (let i = numAuthorizedUsers; i < signers.length; i++) {
-      expect(await vault.connect(signers[i]).withdraw(signers[j].address, 1)).to
-        .be.ok;
-      expect(await vault.userBalance(signers[j].address)).to.equal(0);
-      await expect(vault.connect(signers[i]).withdraw(signers[j], 1)).to.be
-        .reverted;
-      j++;
-      if (j == signers.length) {
-        break;
-      }
-    }
-  });
+  /**
+   * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
+   */
+  // it('Tests if the authority of a user is correct', async () => {
+  //   let j: number = numAuthorizedUsers;
+  //   for (let i = 0; i < numVaultOwners; i++) {
+  //     await vault
+  //       .connect(signers[i])
+  //       .lockSmith(signers[i].address, signers[j].address);
+  //     await expect(vault.connect(signers[j]).deposit(signers[i].address, 1)).to.be.reverted;
+  //     expect(
+  //       await vault
+  //         .connect(signers[j])
+  //         .hasAccess(signers[j].address, signers[i].address)s
+  //     ).to.be.true;
+  //     j++;
+  //   }
+
+  //   j = 0;
+  //   for (let i = numAuthorizedUsers; i < signers.length; i++) {
+  //     expect(
+  //       await vault
+  //         .connect(signers[j])
+  //         .hasAccess(signers[j].address, signers[i].address)
+  //     ).to.be.false;
+  //     await expect(vault.connect(signers[j]).withdraw(signers[i].address, 1)).to
+  //       .be.reverted;
+  //     j++;
+  //     if (j == signers.length) {
+  //       break;
+  //     }
+  //   }
+  // });
+
+  // it('Tests if an authorised user can deposit/withdraw', async () => {
+  //   let j: number = numAuthorizedUsers;
+  //   for (let i = 0; i < numVaultOwners; i++) {
+  //     await vault
+  //       .connect(signers[i])
+  //       .lockSmith(signers[i].address, signers[j].address);
+  //     expect(await vault.connect(signers[j]).deposit(signers[i].address, 1)).to
+  //       .be.ok;
+  //     expect(await vault.userBalance(signers[i].address)).to.equal(1);
+  //     j++;
+  //   }
+
+  //   j = 0;
+  //   for (let i = numAuthorizedUsers; i < signers.length; i++) {
+  //     expect(await vault.connect(signers[i]).withdraw(signers[j].address, 1)).to
+  //       .be.ok;
+  //     expect(await vault.userBalance(signers[j].address)).to.equal(0);
+  //     await expect(vault.connect(signers[i]).withdraw(signers[j], 1)).to.be
+  //       .reverted;
+  //     j++;
+  //     if (j == signers.length) {
+  //       break;
+  //     }
+  //   }
+  // });
 });
