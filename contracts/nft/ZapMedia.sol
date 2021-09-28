@@ -460,10 +460,6 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         nonReentrant
     {
-        require(
-            msg.sender == getApproved(tokenId),
-            'Media: caller not approved address'
-        );
         _approve(address(0), tokenId);
     }
 
