@@ -158,6 +158,35 @@ describe("AuctionHouse", () => {
 
   });
 
+
+  describe("Fallback Function", () => {
+    let auctionHouse: AuctionHouse;
+
+    beforeEach(async () => {
+      
+      signers = await ethers.getSigners();
+
+      auctionHouse = await deploy(signers[1]);
+
+      await mint(media1);
+
+      await approveAuction(media1, auctionHouse)
+    });
+
+    it("should fail as non WETH signer", async () => {
+      expect(signers[1].sendTransaction({ to: auctionHouse.address, value: 1 })).to.revertedWith("AuctionHouse: Fallback function receive() - sender is not WETH");
+      let prevBal = await weth.balanceOf(auctionHouse.address);
+
+      // deposit weth balance
+      signers[1].sendTransaction({to: weth.address, value: 10});
+
+      // transfer weth to auction house, this ends with hitting the fallback function receive() in AuctionHouse contract
+      await weth.connect(signers[1]).transferFrom2(signers[1].address, auctionHouse.address, 1);
+      let newBal = await weth.balanceOf(auctionHouse.address);
+      expect(prevBal).to.eq(newBal-1);
+    });
+  });
+
   describe("#createAuction", () => {
 
     let auctionHouse: AuctionHouse;
