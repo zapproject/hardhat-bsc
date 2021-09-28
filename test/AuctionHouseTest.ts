@@ -1,9 +1,8 @@
-import chai, { expect } from "chai";
+import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC, ZapVault } from "../typechain";
 import { } from "../typechain";
-import { BigNumber, Contract, Signer, Bytes } from "ethers";
-
+import { BigNumber, Contract } from "ethers";
 
 import {
   approveAuction,
@@ -13,11 +12,9 @@ import {
   deployZapNFTMarketplace,
   mint,
   ONE_ETH,
-  revert,
   TWO_ETH,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { execPath } from "process";
 
 describe("AuctionHouse", () => {
   let market: ZapMarket;
@@ -29,35 +26,6 @@ describe("AuctionHouse", () => {
   let zapVault: ZapVault;
   let badERC721: BadERC721;
   let testERC721: TestERC721;
-  let signers: SignerWithAddress[]
-
-  let bidShares1 = {
-
-    prevOwner: {
-      value: BigNumber.from("10000000000000000000")
-    },
-    owner: {
-      value: BigNumber.from("80000000000000000000")
-    },
-    creator: {
-      value: BigNumber.from("10000000000000000000")
-    },
-  };
-
-  type MediaData = {
-    tokenURI: string;
-    metadataURI: string;
-    contentHash: Bytes;
-    metadataHash: Bytes;
-  };
-
-  let tokenURI = 'www.example.com';
-  let metadataURI = 'www.example2.com';
-  let contentHashBytes: Bytes;
-  let metadataHashBytes: Bytes;
-
-  let mint_tx1: any;
-  let mint_tx2: any;
 
   beforeEach(async () => {
     await ethers.provider.send("hardhat_reset", []);
@@ -580,12 +548,12 @@ describe("AuctionHouse", () => {
 
         await expect(auctionHouse.connect(bidderA).createBid(
           0, ONE_ETH, media1.address, { value: ONE_ETH })
-          ).to.be.revertedWith("AuctionHouse: Ether is not required for this transaction");
+        ).to.be.revertedWith("AuctionHouse: Ether is not required for this transaction");
 
         expect(
           await ethers.provider.getBalance(bidderA.address),
           "ethBalanceBefore minus gas, should be gt ethBalanceBefore minus One Eth."
-          ).to.be.gt(ethBalanceBefore.sub(ONE_ETH));
+        ).to.be.gt(ethBalanceBefore.sub(ONE_ETH));
       });
 
       it("should not update the auction's duration", async () => {
@@ -977,8 +945,8 @@ describe("AuctionHouse", () => {
       // these tests, not (W)ETH
 
       beforeEach(async () => {
-      //  const [ deity ] = await ethers.getSigners();
-      //   auctionHouse = await deploy(deity, "0x0000000000000000000000000000000000000000");
+        //  const [ deity ] = await ethers.getSigners();
+        //   auctionHouse = await deploy(deity, "0x0000000000000000000000000000000000000000");
         await auctionHouse
           .connect(bidder)
           .createBid(0, ONE_ETH, media1.address);
