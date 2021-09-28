@@ -137,7 +137,6 @@ contract ZapMedia is
      * ERC721 metadata interface
      */
 
-
     function initialize(
         string calldata name,
         string calldata symbol,
@@ -170,7 +169,7 @@ contract ZapMedia is
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
 
-        console.log( name, symbol, _collectionMetadata);
+        console.log(name, symbol, _collectionMetadata);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -196,7 +195,7 @@ contract ZapMedia is
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
+        return ERC721URIStorageUpgradeable.tokenURI(tokenId);
     }
 
     function _registerInterface(bytes4 interfaceId) internal virtual override {
