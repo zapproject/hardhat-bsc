@@ -80,6 +80,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         internal
         returns (bool)
     {
+        require(mediaContract != address(0), "AuctionHouse: Media Contract Address can not be the zero address");
+        if(
+            tokenDetails[mediaContract][tokenId].mediaContract != address(0)
+        ) return false;
+
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
             mediaContract: mediaContract
