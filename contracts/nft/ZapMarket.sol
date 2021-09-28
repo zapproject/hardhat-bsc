@@ -18,7 +18,7 @@ import 'hardhat/console.sol';
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarket is IMarket, Initializable, Ownable {
+contract ZapMarket is IMarket, Ownable {
     
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -181,7 +181,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
      * ****************
      */
 
-    function initializeMarket(address _platformAddress) public initializer {
+function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
