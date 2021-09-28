@@ -454,10 +454,14 @@ contract ZapMedia is
      * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
      * revoke their approval once their task is complete as a best practice.
      */
-    function revokeApproval(uint256 tokenId) external override nonReentrant {
+    function revokeApproval(uint256 tokenId)
+        external
+        override
+        onlyApprovedOrOwner(msg.sender, tokenId)
+        nonReentrant
+    {
         require(
             msg.sender == getApproved(tokenId),
-            // remove revert string before deployment to mainnet
             'Media: caller not approved address'
         );
         _approve(address(0), tokenId);
