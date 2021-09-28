@@ -166,7 +166,7 @@ describe("AuctionHouse", () => {
       
       signers = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[1]);
+      auctionHouse = await deploy(signers[1], zapTokenBsc.address);
 
       await mint(media1);
 
