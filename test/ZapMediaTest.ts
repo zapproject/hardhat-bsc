@@ -1480,14 +1480,6 @@ describe("ZapMedia Test", async () => {
             await setupAuction(zapMedia1, signers[1]);
         });
 
-        it('should revert if the caller is the owner', async () => {
-
-            // The recommended changes from the audit will allow this to pass
-            // Will be deleted before merging into develop
-            await zapMedia1.connect(signers[3]).revokeApproval(0)
-
-        });
-
         it('should revert if the caller is the creator', async () => {
 
             await expect(zapMedia1.connect(signers[1]).revokeApproval(0))
