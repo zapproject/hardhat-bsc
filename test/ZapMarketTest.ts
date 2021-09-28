@@ -213,8 +213,8 @@ describe('ZapMarket Test', () => {
       let contentHash = await sha256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHash);
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
     });
 
@@ -361,7 +361,7 @@ describe('ZapMarket Test', () => {
 
   });
 
-  describe('#setBidShares', () => {
+  describe.only('#setBidShares', () => {
     let data: MediaData;
 
     beforeEach(async () => {
@@ -437,16 +437,17 @@ describe('ZapMarket Test', () => {
       ask1.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = await sha256(metadataHex);
+      let metadataHashRaw = await ethers.utils.keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = await sha256(contentHex);
+      let contentHashRaw = await ethers.utils.keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
       let metadataHash = metadataHashBytes;
 
+      console.log(contentHash)
       data = {
         tokenURI,
         metadataURI,
@@ -454,15 +455,15 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
     });
 
-    it('Should emit a Minted event when a token is minted', async () => {
+    it.only('Should emit a Minted event when a token is minted', async () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
@@ -695,8 +696,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1);
@@ -904,8 +905,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
       await zapMedia1.connect(signers[1]).mint(data, bidShares1);
       await zapMedia2.connect(signers[2]).mint(data, bidShares2);

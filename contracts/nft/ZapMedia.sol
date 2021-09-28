@@ -567,7 +567,7 @@ contract ZapMedia is
      *
      * See {ERC721-_safeMint}.
      *
-     * On mint, also set the sha256 hashes of the content and its metadata for integrity
+     * On mint, also set the keccak256 hashes of the content and its metadata for integrity
      * checks, along with the initial URIs to point to the content and metadata. Attribute
      * the token ID to the creator, mark the content hash as used, and set the bid shares for
      * the media's market.
