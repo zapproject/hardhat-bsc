@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {SafeMathUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+//import {SafeMathUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import {IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
@@ -19,7 +19,7 @@ import 'hardhat/console.sol';
  * @notice This contract contains all of the market logic for Media
  */
 contract ZapMarket is IMarket, Initializable, Ownable {
-    using SafeMathUpgradeable for uint256;
+    
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /* *******
@@ -123,7 +123,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
             thisCollabsShare.value = bidShares.collabShares[i];
 
-            collabShareValue = collabShareValue.add(
+            collabShareValue = collabShareValue + (
                 splitShare(thisCollabsShare, bidAmount)
             );
         }
@@ -132,9 +132,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidAmount != 0 &&
             (bidAmount ==
                 splitShare(bidShares.creator, bidAmount)
-                    .add(collabShareValue)
-                    .add(splitShare(platformFee.fee, bidAmount))
-                    .add(splitShare(bidShares.owner, bidAmount)));
+                    + (collabShareValue)
+                    + (splitShare(platformFee.fee, bidAmount))
+                    + (splitShare(bidShares.owner, bidAmount)));
     }
 
     /**
@@ -149,7 +149,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         uint256 collabSharePerc = 0;
 
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
-            collabSharePerc = collabSharePerc.add(
+            collabSharePerc = collabSharePerc + (
                 bidShares.collabShares[i]
             );
         }
@@ -158,9 +158,9 @@ contract ZapMarket is IMarket, Initializable, Ownable {
             bidShares
                 .creator
                 .value
-                .add(collabSharePerc)
-                .add(bidShares.owner.value)
-                .add(platformFee.fee.value) == uint256(100).mul(Decimal.BASE);
+                + (collabSharePerc)
+                + (bidShares.owner.value)
+                + (platformFee.fee.value) == uint256(100) * (Decimal.BASE);
     }
 
     /**
@@ -173,7 +173,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         override
         returns (uint256)
     {
-        return Decimal.mul(amount, sharePercentage).div(100);
+        return Decimal.mul(amount, sharePercentage) / (100);
     }
 
     /* ****************
@@ -304,8 +304,8 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         BidShares memory bidShares = _bidShares[mediaContractAddress][tokenId];
 
         require(
-            bidShares.creator.value.add(bid.sellOnShare.value) <=
-                uint256(100).mul(Decimal.BASE),
+            bidShares.creator.value + (bid.sellOnShare.value) <=
+                uint256(100) * (Decimal.BASE),
             'Market: Sell on fee invalid for share splitting'
         );
         require(bid.bidder != address(0), 'Market: bidder cannot be 0 address');
@@ -339,7 +339,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         uint256 afterBalance = token.balanceOf(address(this));
 
         _tokenBidders[mediaContractAddress][tokenId][bid.bidder] = Bid(
-            afterBalance.sub(beforeBalance),
+            afterBalance - (beforeBalance),
             bid.currency,
             bid.bidder,
             bid.recipient,
@@ -449,7 +449,7 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         thisCollabsShare.value = 0;
         // Transfer bid share to the remaining media collaborators
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
-            collaboratorShares = collaboratorShares.add(
+            collaboratorShares = collaboratorShares + (
                 bidShares.collabShares[i]
             );
 
@@ -475,10 +475,10 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         // equal to 100 - creatorShare - sellOnShare
         bidShares.owner = Decimal.D256(
             uint256(100)
-                .mul(Decimal.BASE)
-                .sub(collaboratorShares)
-                .sub(_bidShares[mediaContractAddress][tokenId].creator.value)
-                .sub(platformFee.fee.value)
+                * (Decimal.BASE)
+                - (collaboratorShares)
+                - (_bidShares[mediaContractAddress][tokenId].creator.value)
+                - (platformFee.fee.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
         // platformFee.fee = bid.sellOnShare;
