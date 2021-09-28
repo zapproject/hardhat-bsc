@@ -66,4 +66,47 @@ contract WETH {
 
         return true;
     }
+
+    /// @dev Moves `value` WETH10 token from account (`from`) to account (`to`) using allowance mechanism.
+    /// `value` is then deducted from caller account's allowance, unless set to `type(uint256).max`.
+    /// A transfer to `address(0)` triggers an ETH withdraw matching the sent WETH10 token in favor of caller.
+    /// Emits {Approval} event to reflect reduced allowance `value` for caller account to spend from account (`from`),
+    /// unless allowance is set to `type(uint256).max`
+    /// Emits {Transfer} event.
+    /// Returns boolean value indicating whether operation succeeded.
+    /// Requirements:
+    ///   - `from` account must have at least `value` balance of WETH10 token.
+    ///   - `from` account must have approved caller to spend at least `value` of WETH10 token, unless `from` and caller are the same account.
+    function transferFrom2(address from, address to, uint256 value) public returns (bool) {
+        if (from != msg.sender) {
+            // _decreaseAllowance(from, msg.sender, value);
+            uint256 allowed = allowance[from][msg.sender];
+            if (allowed != type(uint256).max) {
+                require(allowed >= value, "WETH: request exceeds allowance");
+                uint256 reduced = allowed - value;
+                allowance[from][msg.sender] = reduced;
+                emit Approval(from, msg.sender, reduced);
+            }
+        }
+        
+        // _transferFrom(from, to, value);
+        if (to != address(0)) { // Transfer
+            uint256 balance = balanceOf[from];
+            require(balance >= value, "WETH: transfer amount exceeds balance");
+
+            balanceOf[from] = balance - value;
+            balanceOf[to] += value;
+            emit Transfer(from, to, value);
+        } else { // Withdraw
+            uint256 balance = balanceOf[from];
+            require(balance >= value, "WETH: burn amount exceeds balance");
+            balanceOf[from] = balance - value;
+            emit Transfer(from, address(0), value);
+        
+            (bool success, ) = msg.sender.call{value: value}("");
+            require(success, "WETH: ETH transfer failed");
+        }
+        
+        return true;
+    }
 }
