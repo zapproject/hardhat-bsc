@@ -7,7 +7,7 @@ import chai, { expect } from 'chai';
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import {
-  sha256,
+  keccak256,
   formatBytes32String,
   parseBytes32String
 } from 'ethers/lib/utils';
@@ -206,11 +206,11 @@ describe('ZapMarket Test', () => {
       ask1.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHash = await sha256(metadataHex);
+      let metadataHash = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHash);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHash = await sha256(contentHex);
+      let contentHash = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHash);
 
       bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
@@ -361,7 +361,7 @@ describe('ZapMarket Test', () => {
 
   });
 
-  describe.only('#setBidShares', () => {
+  describe('#setBidShares', () => {
     let data: MediaData;
 
     beforeEach(async () => {
@@ -437,17 +437,16 @@ describe('ZapMarket Test', () => {
       ask1.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = await ethers.utils.keccak256(metadataHex);
+      let metadataHashRaw = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = await ethers.utils.keccak256(contentHex);
+      let contentHashRaw = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
       let metadataHash = metadataHashBytes;
 
-      console.log(contentHash)
       data = {
         tokenURI,
         metadataURI,
@@ -463,7 +462,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Minted event when a token is minted', async () => {
+    it('Should emit a Minted event when a token is minted', async () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
@@ -577,11 +576,11 @@ describe('ZapMarket Test', () => {
     it('Should reject if the bid shares are invalid', async () => {
 
       let metadataHex = ethers.utils.formatBytes32String('{tool: box}');
-      let metadataHashRaw = await sha256(metadataHex);
+      let metadataHashRaw = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('re-invert');
-      let contentHashRaw = await sha256(contentHex);
+      let contentHashRaw = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
@@ -679,11 +678,11 @@ describe('ZapMarket Test', () => {
       ask2.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = await sha256(metadataHex);
+      let metadataHashRaw = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = await sha256(contentHex);
+      let contentHashRaw = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
@@ -888,11 +887,11 @@ describe('ZapMarket Test', () => {
       };
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = sha256(metadataHex);
+      let metadataHashRaw = keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = sha256(contentHex);
+      let contentHashRaw = keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
