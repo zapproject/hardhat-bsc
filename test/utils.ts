@@ -10,7 +10,7 @@ import {
   BadERC721,
   TestERC721,
 } from "../typechain";
-import { sha256 } from "ethers/lib/utils";
+import { keccak256 } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { fromRpcSig } from 'ethereumjs-util';
 
@@ -153,7 +153,7 @@ export const deployBidder = async (auction: string, nftContract: string) => {
 
 export const mint = async (media: ZapMedia) => {
   const metadataHex = ethers.utils.formatBytes32String("{}");
-  const metadataHash = await sha256(metadataHex);
+  const metadataHash = await keccak256(metadataHex);
   const hash = ethers.utils.arrayify(metadataHash);
 
   const signers = await ethers.getSigners();

@@ -1,9 +1,8 @@
-import chai, { expect } from "chai";
+import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC, ZapVault } from "../typechain";
 import { } from "../typechain";
-import { BigNumber, Contract, Signer, Bytes } from "ethers";
-
+import { BigNumber, Contract } from "ethers";
 
 import {
   approveAuction,
@@ -13,7 +12,6 @@ import {
   deployZapNFTMarketplace,
   mint,
   ONE_ETH,
-  revert,
   TWO_ETH,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -28,35 +26,7 @@ describe("AuctionHouse", () => {
   let zapVault: ZapVault;
   let badERC721: BadERC721;
   let testERC721: TestERC721;
-  let signers: SignerWithAddress[]
-
-  let bidShares1 = {
-
-    prevOwner: {
-      value: BigNumber.from("10000000000000000000")
-    },
-    owner: {
-      value: BigNumber.from("80000000000000000000")
-    },
-    creator: {
-      value: BigNumber.from("10000000000000000000")
-    },
-  };
-
-  type MediaData = {
-    tokenURI: string;
-    metadataURI: string;
-    contentHash: Bytes;
-    metadataHash: Bytes;
-  };
-
-  let tokenURI = 'www.example.com';
-  let metadataURI = 'www.example2.com';
-  let contentHashBytes: Bytes;
-  let metadataHashBytes: Bytes;
-
-  let mint_tx1: any;
-  let mint_tx2: any;
+  let signers: SignerWithAddress[];
 
   beforeEach(async () => {
     await ethers.provider.send("hardhat_reset", []);
@@ -162,7 +132,7 @@ describe("AuctionHouse", () => {
     let auctionHouse: AuctionHouse;
 
     beforeEach(async () => {
-      
+
       signers = await ethers.getSigners();
 
       auctionHouse = await deploy(signers[1], zapTokenBsc.address);
@@ -177,12 +147,12 @@ describe("AuctionHouse", () => {
       let prevBal = await weth.balanceOf(auctionHouse.address);
 
       // deposit weth balance
-      signers[1].sendTransaction({to: weth.address, value: 10});
+      signers[1].sendTransaction({ to: weth.address, value: 10 });
 
       // transfer weth to auction house, this ends with hitting the fallback function receive() in AuctionHouse contract
       await weth.connect(signers[1]).transferFrom2(signers[1].address, auctionHouse.address, 1);
       let newBal = await weth.balanceOf(auctionHouse.address);
-      expect(prevBal).to.eq(newBal-1);
+      expect(prevBal).to.eq(newBal - 1);
     });
   });
 
@@ -316,7 +286,7 @@ describe("AuctionHouse", () => {
         auctionHouse.createAuction(
           0, ethers.constants.AddressZero, duration, reservePrice,
           signers[1].address, 5, zapTokenBsc.address
-          )
+        )
       ).to.be.revertedWith("function call to a non-contract account")
     });
 
@@ -618,12 +588,12 @@ describe("AuctionHouse", () => {
 
         await expect(auctionHouse.connect(bidderA).createBid(
           0, ONE_ETH, media1.address, { value: ONE_ETH })
-          ).to.be.revertedWith("AuctionHouse: Ether is not required for this transaction");
+        ).to.be.revertedWith("AuctionHouse: Ether is not required for this transaction");
 
         expect(
           await ethers.provider.getBalance(bidderA.address),
           "ethBalanceBefore minus gas, should be gt ethBalanceBefore minus One Eth."
-          ).to.be.gt(ethBalanceBefore.sub(ONE_ETH));
+        ).to.be.gt(ethBalanceBefore.sub(ONE_ETH));
       });
 
       it("should not update the auction's duration", async () => {
@@ -1015,8 +985,8 @@ describe("AuctionHouse", () => {
       // these tests, not (W)ETH
 
       beforeEach(async () => {
-      //  const [ deity ] = await ethers.getSigners();
-      //   auctionHouse = await deploy(deity, ethers.constants.AddressZero);
+        //  const [ deity ] = await ethers.getSigners();
+        //   auctionHouse = await deploy(deity, ethers.constants.AddressZero);
         await auctionHouse
           .connect(bidder)
           .createBid(0, ONE_ETH, media1.address);
