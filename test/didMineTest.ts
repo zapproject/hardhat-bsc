@@ -317,7 +317,7 @@ describe('Did Mine Test', () => {
     expect(parseInt(difficulty_before_submission._hex)).to.be.lessThanOrEqual(parseInt(difficulty_after_submission._hex));
   });
 
-  it.only('Test difficulty when mining takes a long time', async () => {
+  it('Test difficulty when mining takes a long time', async () => {
     // Allocates 5000 ZAP to signer 0
     await zapTokenBsc.allocate(
       signers[0].address,
@@ -353,12 +353,10 @@ describe('Did Mine Test', () => {
 
     let currentRequestId: any = await getUintVarHelper('currentRequestId');
     let difficulty_before_submission = await getUintVarHelper('difficulty');
-    console.log(difficulty_before_submission);
     
     await submitSolutionHelper('nonce', currentRequestId, true);
     
     let difficulty_after_submission = await getUintVarHelper('difficulty');
-    console.log(difficulty_after_submission);
 
 
     // expecting difficulty to stay at one since it took some time to mine.
