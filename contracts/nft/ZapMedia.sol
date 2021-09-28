@@ -168,8 +168,6 @@ contract ZapMedia is
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
-
-        console.log(name, symbol, _collectionMetadata);
     }
 
     function supportsInterface(bytes4 interfaceId)
