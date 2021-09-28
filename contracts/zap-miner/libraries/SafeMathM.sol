@@ -9,7 +9,7 @@ library SafeMathM {
     }
 
     function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        assert(a >= 0 && b > 0);
+        assert(a >= 0 && b >= 0);
         return a > b ? a : b;
     }
 
