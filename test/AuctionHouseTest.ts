@@ -1,8 +1,19 @@
 import chai, { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { AuctionHouse, BadBidder, BadERC721, TestERC721, ZapMarket, ZapMedia, AuctionHouse__factory, ZapTokenBSC, ZapVault } from "../typechain";
+import {
+  AuctionHouse,
+  BadBidder,
+  BadERC721,
+  TestERC721,
+  ZapMarket,
+  ZapMedia,
+  AuctionHouse__factory,
+  ZapTokenBSC,
+  ZapVault,
+  WETH
+ } from "../typechain";
 import { } from "../typechain";
-import { BigNumber, Contract, Signer, Bytes } from "ethers";
+import { BigNumber, Contract, Signer, Bytes, ContractFactory } from "ethers";
 
 
 import {
@@ -917,6 +928,7 @@ describe("AuctionHouse", () => {
     let bidder: SignerWithAddress;
     let other: SignerWithAddress;
     let badBidder: BadBidder;
+    let weth: WETH;
 
     beforeEach(async () => {
       [admin, creator, curator, bidder, other] = await ethers.getSigners();
