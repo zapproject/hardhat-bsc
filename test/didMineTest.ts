@@ -274,7 +274,7 @@ describe('Did Mine Test', () => {
     expect(diff).to.equal(payOutAmount);
   });
 
-  it.only('Test increased difficulty', async () => {
+  it('Test increased difficulty', async () => {
     // Allocates 5000 ZAP to signer 0
     await zapTokenBsc.allocate(
       signers[0].address,
@@ -315,35 +315,67 @@ describe('Did Mine Test', () => {
     let difficulty_after_submission = await getUintVarHelper('difficulty');
 
     expect(parseInt(difficulty_before_submission._hex)).to.be.lessThanOrEqual(parseInt(difficulty_after_submission._hex));
+  });
+
+  it.only('Test difficulty when mining takes a long time', async () => {
+    // Allocates 5000 ZAP to signer 0
+    await zapTokenBsc.allocate(
+      signers[0].address,
+      BigNumber.from('600000000000000000000000')
+    );
+
+    // Attach the ZapMaster instance to Zap
+    zap = zap.attach(zapMaster.address);
+
+    // Iterates through signers 1 through 5 and depositStake
+    for (var i = 1; i <= 5; i++) {
+      // Connects addresses 1-5 as the signer
+      zap = zap.connect(signers[i]);
+
+      await zapTokenBsc
+        .connect(signers[i])
+        .approve(zapMaster.address, BigNumber.from('500000000000000000000000'));
+
+      await vault
+        .connect(signers[i])
+        .lockSmith(signers[i].address, zap.address);
+
+      // Stakes 600k Zap to initiate a miner
+      await zap.depositStake();
+    }
+
+    zap = zap.connect(signers[0]);
+
+    // Approves Zap.sol the amount to tip for requestData
+    await zapTokenBsc.approve(zap.address, 5000);
+
+    await requestDataHelper(); //request_1
+
+    let currentRequestId: any = await getUintVarHelper('currentRequestId');
+    let difficulty_before_submission = await getUintVarHelper('difficulty');
+    console.log(difficulty_before_submission);
+    
+    await submitSolutionHelper('nonce', currentRequestId, true);
+    
+    let difficulty_after_submission = await getUintVarHelper('difficulty');
+    console.log(difficulty_after_submission);
 
 
-
-
-
-    // console.log('CRID: ', await getUintVarHelper('currentRequestId'));
-    // console.log('========================');
-
-    // await requestDataHelper();
-
-    // console.log('========================');
-    // currentRequestId = await getUintVarHelper('currentRequestId');
-    // console.log('CRID: ', await getUintVarHelper('currentRequestId'));
-    // console.log(
-    //   'Difficulty before submitting: ',
-    //   await getUintVarHelper('difficulty')
-    // );
-
-    // await submitSolutionHelper('nonce2', currentRequestId);
-
-    // console.log(
-    //   'Difficulty after submitting: ',
-    //   await getUintVarHelper('difficulty')
-    // );
-
-    // console.log('CRID: ', await getUintVarHelper('currentRequestId'));
-    // console.log('========================');
+    // expecting difficulty to stay at one since it took some time to mine.
+    expect(parseInt(difficulty_after_submission._hex)).to.equal(1);
   });
 });
+
+
+
+
+
+
+
+
+
+
+
 
 // ******************************************************************
 //                          HELPER FUNCTIONS
@@ -361,14 +393,18 @@ async function requestDataHelper(symbol = 'USD', granularity = 1000, tip = 10) {
 }
 
 async function submitSolutionHelper(
-  nonce: string,
-  currentRequestId: BigNumber
+    nonce: string,
+    currentRequestId: BigNumber,
+    advanceTime: boolean = false
 ) {
   const newCurrentVars: any = await zap.getNewCurrentVariables();
 
   for (var i = 1; i <= 5; i++) {
-    // // Connects address i as the signer
-    // zap = zap.connect(signers[i]);
+
+    // advance block time to simulate long mining time
+    if (i == 5 && advanceTime){
+          await ethers.provider.send('evm_increaseTime', [1200]); //advanced 20 mins
+      }
 
     // Each Miner will submit a mining solution
     await zap
@@ -382,7 +418,7 @@ async function submitSolutionHelper(
       newCurrentVars[0],
       signers[i].address
     );
-    console.log(signers[i].address, didMineStatus);
+    expect(didMineStatus).to.be.true;
   }
 }
 
