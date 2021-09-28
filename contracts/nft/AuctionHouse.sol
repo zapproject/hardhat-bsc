@@ -47,9 +47,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     // A mapping of all of the auctions currently running.
     mapping(uint256 => IAuctionHouse.Auction) public auctions;
 
-    mapping(address => mapping(uint256 => TokenDetails)) tokenDetails;
+    mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
-    bytes4 constant interfaceId = 0x80ac58cd; // 721 interface id
+    bytes4 constant private interfaceId = 0x80ac58cd; // 721 interface id
 
     Counters.Counter private _auctionIdTracker;
 
