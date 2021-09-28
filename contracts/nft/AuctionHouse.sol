@@ -64,12 +64,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    // constructor(address _weth) {
-    //     wethAddress = _weth;
-    //     timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
-    //     minBidIncrementPercentage = 5; // 5%
-    // }
-
     function initialize(address _weth) public initializer {
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
