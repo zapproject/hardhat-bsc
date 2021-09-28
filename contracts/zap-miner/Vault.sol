@@ -11,7 +11,7 @@ contract Vault {
     mapping(address => uint256) balances;
     mapping(address => mapping(address => bool)) keys;
 
-    uint256 constant MAX_INT = 2**256 - 1;
+    uint256 constant MAX_UINT = 2**256 - 1;
 
     constructor (address token, address master) public {
         zapToken = token;
