@@ -82,6 +82,8 @@ describe("AuctionHouse", () => {
     const reservePrice = BigNumber.from(10).pow(18).div(2);
 
 
+    const signers = await ethers.getSigners();
+
     await auctionHouse.createAuction(
       tokenId,
       media1.address,
@@ -91,6 +93,7 @@ describe("AuctionHouse", () => {
       5,
       currency
     );
+
   }
 
   describe("#constructor", () => {
@@ -511,7 +514,7 @@ describe("AuctionHouse", () => {
     let bidderB: SignerWithAddress;
 
     beforeEach(async () => {
-      [admin, curator, bidderA, bidderB] = await ethers.getSigners();
+      [admin, curator, bidderA, bidderB,] = await ethers.getSigners();
 
       auctionHouse = (await (await deploy(admin, zapTokenBsc.address)).connect(bidderA)) as AuctionHouse;
 
@@ -526,11 +529,6 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
-
-
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
-
-      console.log((await auctionHouse.auctions(0)).firstBidTime)
 
       await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e18));
 
@@ -576,15 +574,15 @@ describe("AuctionHouse", () => {
       );
     });
 
-    describe.only("first bid", () => {
+    describe("first bid", () => {
 
-      it.only("should set the first bid time", async () => {
+      it("should set the first bid time", async () => {
 
-        // await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
+        await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
 
-        // await auctionHouse.createBid(0, ONE_ETH, media1.address);
+        await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
-        // expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
+        expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
 
       });
 

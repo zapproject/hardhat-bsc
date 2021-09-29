@@ -186,8 +186,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'Auction has already started'
         );
 
-        auctions[auctionId].firstBidTime = block.timestamp;
-
         _approveAuction(auctionId, approved);
     }
 
@@ -541,6 +539,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
         auctions[auctionId].approved = approved;
+
+        auctions[auctionId].firstBidTime = block.timestamp;
+
         emit AuctionApprovalUpdated(
             auctionId,
             auctions[auctionId].token.tokenId,
