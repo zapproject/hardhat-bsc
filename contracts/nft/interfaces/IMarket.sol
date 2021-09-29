@@ -122,6 +122,10 @@ interface IMarket {
         bytes32 symbol
     ) external;
 
+    function registerMedia(address mediaContract) external;
+
+    function setMediaFactory(address _mediaFactory) external;
+
     function mintOrBurn(
         bool isMint,
         uint256 tokenId,
