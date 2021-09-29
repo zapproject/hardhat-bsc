@@ -46,6 +46,9 @@ library ZapDispute {
     ) public {
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
 
+        //ensure that only stakers can vote
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
+
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true);
 
@@ -55,8 +58,6 @@ library ZapDispute {
         //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3);
 
-        //ensure that only stakers can vote
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
 
         //Update user voting status to true
         disp.voted[msg.sender] = true;
