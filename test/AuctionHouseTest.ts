@@ -357,7 +357,7 @@ describe("AuctionHouse", () => {
     });
   });
 
-  describe("#setAuctionApproval", () => {
+  describe("#startAuction", () => {
     let auctionHouse: AuctionHouse;
     let deity: SignerWithAddress;
     let admin: SignerWithAddress;
@@ -378,13 +378,13 @@ describe("AuctionHouse", () => {
 
     it("should revert if the auctionHouse does not exist", async () => {
       await expect(
-        auctionHouse.setAuctionApproval(1, true)
+        auctionHouse.startAuction(1, true)
       ).revertedWith(`Auction doesn't exist`);
     });
 
     it("should revert if not called by the curator", async () => {
       await expect(
-        auctionHouse.connect(admin).setAuctionApproval(0, true)
+        auctionHouse.connect(admin).startAuction(0, true)
       ).revertedWith(`Must be auction curator`);
     });
 
@@ -392,27 +392,27 @@ describe("AuctionHouse", () => {
       await zapTokenBsc.mint(bidder.address, BigNumber.from("10000000000000000000"));
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
 
-      await auctionHouse.setAuctionApproval(0, true);
+      await auctionHouse.startAuction(0, true);
 
       await auctionHouse
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address);
 
       await expect(
-        auctionHouse.setAuctionApproval(0, false)
+        auctionHouse.startAuction(0, false)
       ).revertedWith(`Auction has already started`);
 
     });
 
     it("should set the auction as approved", async () => {
-      await auctionHouse.setAuctionApproval(0, true);
+      await auctionHouse.startAuction(0, true);
 
       expect((await auctionHouse.auctions(0)).approved).to.eq(true);
     });
 
     it("should emit an AuctionApproved event", async () => {
       const block = await ethers.provider.getBlockNumber();
-      await auctionHouse.setAuctionApproval(0, true);
+      await auctionHouse.startAuction(0, true);
       const events = await auctionHouse.queryFilter(
         auctionHouse.filters.AuctionApprovalUpdated(null, null, null, null),
         block
@@ -468,7 +468,7 @@ describe("AuctionHouse", () => {
       await zapTokenBsc.mint(bidder.address, TWO_ETH);
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
       await auctionHouse.setAuctionReservePrice(0, TWO_ETH);
-      await auctionHouse.setAuctionApproval(0, true);
+      await auctionHouse.startAuction(0, true);
       await auctionHouse
         .connect(bidder)
         .createBid(0, TWO_ETH, media1.address);
@@ -521,18 +521,15 @@ describe("AuctionHouse", () => {
 
       await approveAuction(media1, auctionHouse);
 
+      // auctionHouse.setTokenDetails(0, media1.address);
+
       await createAuction(
         auctionHouse.connect(curator),
         await curator.getAddress(),
         zapTokenBsc.address
       );
 
-
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
-
-      console.log((await auctionHouse.auctions(0)).firstBidTime)
-
-      await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e18));
+      await zapTokenBsc.mint(bidderA.address, ethers.utils.parseEther("10.0"));
 
       await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, ethers.utils.parseEther("10.0"));
 
@@ -542,28 +539,28 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the specified auction does not exist", async () => {
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await expect(
         auctionHouse.createBid(11111, ONE_ETH, media1.address)
       ).revertedWith(`Auction doesn't exist`);
     });
 
     it("should revert if the specified auction is not approved", async () => {
-      await auctionHouse.connect(curator).setAuctionApproval(0, false);
+      await auctionHouse.connect(curator).startAuction(0, false);
       await expect(
         auctionHouse.createBid(0, ONE_ETH, media1.address)
       ).revertedWith(`Auction must be approved by curator`);
     });
 
     it("should revert if the bid is less than the reserve price", async () => {
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await expect(
         auctionHouse.createBid(0, 0, media1.address, { value: 0 })
       ).revertedWith(`Must send at least reservePrice`);
     });
 
     it("should revert if the bid is invalid for share splitting", async () => {
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await expect(
         auctionHouse.createBid(0, ONE_ETH.add(1), media1.address)
       ).revertedWith(`Bid invalid for share splitting`);
@@ -571,7 +568,7 @@ describe("AuctionHouse", () => {
 
     it.skip("should revert if msg.value does not equal specified amount", async () => {
       // This test will never pass since we are not using WETH for bids
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await expect(
         auctionHouse.createBid(0, ONE_ETH, media1.address)
       ).revertedWith(
@@ -584,14 +581,15 @@ describe("AuctionHouse", () => {
         
         await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
         
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
+        expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
       });
 
       it("should store the transferred ZAP", async () => {
 
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         expect(await zapTokenBsc.balanceOf(auctionHouse.address)).to.eq(ONE_ETH);
@@ -601,7 +599,7 @@ describe("AuctionHouse", () => {
       it("should not transfer any Ether since a currency (ZAP) was set", async () => {
         const ethBalanceBefore = await ethers.provider.getBalance(bidderA.address);
 
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await expect(auctionHouse.connect(bidderA).createBid(
           0, ONE_ETH, media1.address, { value: ONE_ETH })
         ).to.be.revertedWith("AuctionHouse: Ether is not required for this transaction");
@@ -616,7 +614,7 @@ describe("AuctionHouse", () => {
 
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
 
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         const afterDuration = (await auctionHouse.auctions(0)).duration;
@@ -627,7 +625,7 @@ describe("AuctionHouse", () => {
 
       it("should store the bidder's information", async () => {
 
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         const currAuction = await auctionHouse.auctions(0);
@@ -641,7 +639,7 @@ describe("AuctionHouse", () => {
 
         const block = await ethers.provider.getBlockNumber();
 
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         const events = await auctionHouse.queryFilter(
@@ -674,7 +672,7 @@ describe("AuctionHouse", () => {
       beforeEach(async () => {
 
         auctionHouse = auctionHouse.connect(bidderB) as AuctionHouse;
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse
           .connect(bidderA)
           .createBid(0, ONE_ETH, media1.address);
@@ -869,7 +867,7 @@ describe("AuctionHouse", () => {
     it("should revert if the auction has already begun", async () => {
       await zapTokenBsc.mint(bidder.address, ONE_ETH);
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await auctionHouse
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address);
@@ -956,7 +954,7 @@ describe("AuctionHouse", () => {
     });
     
     it("should revert if the auction does not exist", async () => {
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await expect(auctionHouse.endAuction(1110, media1.address)).revertedWith(
         `Auction doesn't exist`
       );
@@ -969,7 +967,7 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the auction has not completed", async () => {
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await auctionHouse.connect(bidder).createBid(0, ONE_ETH, media1.address);
 
       await expect(auctionHouse.endAuction(0, media1.address)).revertedWith(
@@ -980,7 +978,7 @@ describe("AuctionHouse", () => {
     it("should cancel the auction if the winning bidder is unable to receive NFTs", async () => {
       await zapTokenBsc.mint(badBidder.address, TWO_ETH);
       await zapTokenBsc.connect(bidder).approve(badBidder.address, TWO_ETH);
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
+      await auctionHouse.connect(curator).startAuction(0, true);
       await badBidder.connect(bidder).placeBid(0, TWO_ETH, media1.address, zapTokenBsc.address);
       const endTime =
         (await auctionHouse.auctions(0)).duration.toNumber() +
@@ -1002,7 +1000,7 @@ describe("AuctionHouse", () => {
       beforeEach(async () => {
         //  const [ deity ] = await ethers.getSigners();
         //   auctionHouse = await deploy(deity, ethers.constants.AddressZero);
-        await auctionHouse.connect(curator).setAuctionApproval(0, true);
+        await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse
           .connect(bidder)
           .createBid(0, ONE_ETH, media1.address);

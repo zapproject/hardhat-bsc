@@ -113,7 +113,7 @@ interface IAuctionHouse {
         address auctionCurrency
     ) external returns (uint256);
 
-    function setAuctionApproval(uint256 auctionId, bool approved) external;
+    function startAuction(uint256 auctionId, bool approved) external;
 
     function setAuctionReservePrice(uint256 auctionId, uint256 reservePrice)
         external;
