@@ -362,6 +362,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
     }
@@ -374,6 +375,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
     }
@@ -426,6 +428,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).acceptBid(address(this), tokenId, bid);
     }
@@ -596,8 +599,8 @@ contract ZapMedia is
 
         uint256 tokenId = access._tokenIdTracker.current();
 
-        _safeMint(creator, tokenId);
         access._tokenIdTracker.increment();
+        _safeMint(creator, tokenId);
         _setTokenContentHash(tokenId, data.contentHash);
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
