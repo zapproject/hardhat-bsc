@@ -26,6 +26,7 @@ import {
   TWO_ETH,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { signPermitMessage } from "@zoralabs/zdk";
 
 describe("AuctionHouse", () => {
   let market: ZapMarket;
@@ -81,7 +82,6 @@ describe("AuctionHouse", () => {
     const duration = 60 * 60 * 24;
     const reservePrice = BigNumber.from(10).pow(18).div(2);
 
-
     await auctionHouse.createAuction(
       tokenId,
       media1.address,
@@ -91,6 +91,7 @@ describe("AuctionHouse", () => {
       5,
       currency
     );
+
   }
 
   describe("#constructor", () => {
@@ -364,6 +365,7 @@ describe("AuctionHouse", () => {
     let curator: SignerWithAddress;
     let bidder: SignerWithAddress;
 
+
     beforeEach(async () => {
       [deity, admin, curator, bidder] = await ethers.getSigners();
       auctionHouse = (await deploy(deity, zapTokenBsc.address)).connect(curator) as AuctionHouse;
@@ -513,18 +515,22 @@ describe("AuctionHouse", () => {
     beforeEach(async () => {
       [admin, curator, bidderA, bidderB] = await ethers.getSigners();
 
+      const signers = await ethers.getSigners();
+
+      curator = signers[4];
+
       auctionHouse = (await (await deploy(admin, zapTokenBsc.address)).connect(bidderA)) as AuctionHouse;
 
       await mint(media1);
 
-      const owner = await media1.ownerOf(0)
+      await media1.approve(curator.address, 0);
 
       await approveAuction(media1, auctionHouse);
 
       // auctionHouse.setTokenDetails(0, media1.address);
 
       await createAuction(
-        auctionHouse.connect(curator),
+        auctionHouse.connect(media1.signer),
         await curator.getAddress(),
         zapTokenBsc.address
       );
@@ -536,6 +542,7 @@ describe("AuctionHouse", () => {
       await zapTokenBsc.mint(bidderB.address, ethers.utils.parseEther("10.0"));
 
       await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, ethers.utils.parseEther("10.0"));
+
     });
 
     it("should revert if the specified auction does not exist", async () => {
@@ -543,6 +550,7 @@ describe("AuctionHouse", () => {
       await expect(
         auctionHouse.createBid(11111, ONE_ETH, media1.address)
       ).revertedWith(`Auction doesn't exist`);
+
     });
 
     it("should revert if the specified auction is not approved", async () => {
@@ -577,8 +585,9 @@ describe("AuctionHouse", () => {
     });
 
     describe("first bid", () => {
+
       it("should set the first bid time", async () => {
-        
+
         await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
         
         await auctionHouse.connect(curator).startAuction(0, true);
@@ -949,10 +958,10 @@ describe("AuctionHouse", () => {
         zapTokenBsc.address
       );
       badBidder = await deployBidder(auctionHouse.address, media1.address);
-      
+
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
     });
-    
+
     it("should revert if the auction does not exist", async () => {
       await auctionHouse.connect(curator).startAuction(0, true);
       await expect(auctionHouse.endAuction(1110, media1.address)).revertedWith(

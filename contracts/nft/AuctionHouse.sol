@@ -185,7 +185,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             auctions[auctionId].firstBidTime == 0,
             'Auction has already started'
         );
-        auctions[auctionId].firstBidTime = block.timestamp;
         _approveAuction(auctionId, approved);
     }
 
@@ -230,9 +229,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             auctions[auctionId].approved,
             'Auction must be approved by curator'
         );
-        require(auctions[auctionId].firstBidTime != 0, "Auction hasn't started yet");
         require(
-                block.timestamp <
+            auctions[auctionId].firstBidTime != 0,
+            "Auction hasn't started yet"
+        );
+        require(
+            block.timestamp <
                 auctions[auctionId].firstBidTime.add(
                     auctions[auctionId].duration
                 ),
@@ -536,6 +538,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
         auctions[auctionId].approved = approved;
+
+        auctions[auctionId].firstBidTime = block.timestamp;
+
         emit AuctionApprovalUpdated(
             auctionId,
             auctions[auctionId].token.tokenId,
