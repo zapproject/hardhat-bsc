@@ -171,7 +171,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
      * @notice Approve an auction, opening up the auction for bids.
      * @dev Only callable by the curator. Cannot be called if the auction has already started.
      */
-    function setAuctionApproval(uint256 auctionId, bool approved)
+    function startAuction(uint256 auctionId, bool approved)
         external
         override
         auctionExists(auctionId)
