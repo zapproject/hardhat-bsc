@@ -532,14 +532,15 @@ describe("AuctionHouse", () => {
 
       await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e18));
 
-      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, BigInt(10 * 1e18));
+      await zapTokenBsc.connect(bidderA).approve(auctionHouse.address, ethers.utils.parseEther("10.0"));
 
-      await zapTokenBsc.mint(bidderB.address, BigInt(10 * 1e18));
+      await zapTokenBsc.mint(bidderB.address, ethers.utils.parseEther("10.0"));
 
-      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, BigInt(10 * 1e18));
+      await zapTokenBsc.connect(bidderB).approve(auctionHouse.address, ethers.utils.parseEther("10.0"));
     });
 
     it("should revert if the specified auction does not exist", async () => {
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await expect(
         auctionHouse.createBid(11111, ONE_ETH, media1.address)
       ).revertedWith(`Auction doesn't exist`);
@@ -553,13 +554,14 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the bid is less than the reserve price", async () => {
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await expect(
         auctionHouse.createBid(0, 0, media1.address, { value: 0 })
       ).revertedWith(`Must send at least reservePrice`);
     });
 
     it("should revert if the bid is invalid for share splitting", async () => {
-
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await expect(
         auctionHouse.createBid(0, ONE_ETH.add(1), media1.address)
       ).revertedWith(`Bid invalid for share splitting`);
@@ -567,6 +569,7 @@ describe("AuctionHouse", () => {
 
     it.skip("should revert if msg.value does not equal specified amount", async () => {
       // This test will never pass since we are not using WETH for bids
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await expect(
         auctionHouse.createBid(0, ONE_ETH, media1.address)
       ).revertedWith(
@@ -588,6 +591,7 @@ describe("AuctionHouse", () => {
 
       it("should store the transferred ZAP", async () => {
 
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         expect(await zapTokenBsc.balanceOf(auctionHouse.address)).to.eq(ONE_ETH);
@@ -597,6 +601,7 @@ describe("AuctionHouse", () => {
       it("should not transfer any Ether since a currency (ZAP) was set", async () => {
         const ethBalanceBefore = await ethers.provider.getBalance(bidderA.address);
 
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await expect(auctionHouse.connect(bidderA).createBid(
           0, ONE_ETH, media1.address, { value: ONE_ETH })
         ).to.be.revertedWith("AuctionHouse: Ether is not required for this transaction");
@@ -611,6 +616,7 @@ describe("AuctionHouse", () => {
 
         const beforeDuration = (await auctionHouse.auctions(0)).duration;
 
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         const afterDuration = (await auctionHouse.auctions(0)).duration;
@@ -621,6 +627,7 @@ describe("AuctionHouse", () => {
 
       it("should store the bidder's information", async () => {
 
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         const currAuction = await auctionHouse.auctions(0);
@@ -634,6 +641,7 @@ describe("AuctionHouse", () => {
 
         const block = await ethers.provider.getBlockNumber();
 
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
         const events = await auctionHouse.queryFilter(
@@ -666,6 +674,7 @@ describe("AuctionHouse", () => {
       beforeEach(async () => {
 
         auctionHouse = auctionHouse.connect(bidderB) as AuctionHouse;
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await auctionHouse
           .connect(bidderA)
           .createBid(0, ONE_ETH, media1.address);
@@ -681,7 +690,6 @@ describe("AuctionHouse", () => {
       });
 
       it("should refund the previous bid", async () => {
-
         const beforeBalance = await zapTokenBsc.balanceOf(bidderA.address);
 
         const beforeBidAmount = (await auctionHouse.auctions(0)).amount;
@@ -690,14 +698,7 @@ describe("AuctionHouse", () => {
 
         const afterBalance = await zapTokenBsc.balanceOf(bidderA.address);
 
-        const afterBalParse = BigInt(parseInt(afterBalance._hex));
-
-        const beforeBalParse = BigInt(parseInt(beforeBalance._hex));
-
-        const beforeBidParse = BigInt(parseInt(beforeBidAmount._hex));
-
-        expect(afterBalParse).to.eq(beforeBalParse + beforeBidParse)
-
+        expect(afterBalance).to.eq(beforeBalance.add(beforeBidAmount))
       });
 
       it("should not update the firstBidTime", async () => {
@@ -849,7 +850,6 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
     });
 
     it("should revert if the auction does not exist", async () => {
@@ -869,6 +869,7 @@ describe("AuctionHouse", () => {
     it("should revert if the auction has already begun", async () => {
       await zapTokenBsc.mint(bidder.address, ONE_ETH);
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await auctionHouse
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address);
@@ -949,13 +950,13 @@ describe("AuctionHouse", () => {
         await curator.getAddress(),
         zapTokenBsc.address
       );
-      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       badBidder = await deployBidder(auctionHouse.address, media1.address);
 
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
     });
 
     it("should revert if the auction does not exist", async () => {
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await expect(auctionHouse.endAuction(1110, media1.address)).revertedWith(
         `Auction doesn't exist`
       );
@@ -968,6 +969,7 @@ describe("AuctionHouse", () => {
     });
 
     it("should revert if the auction has not completed", async () => {
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await auctionHouse.connect(bidder).createBid(0, ONE_ETH, media1.address);
 
       await expect(auctionHouse.endAuction(0, media1.address)).revertedWith(
@@ -978,6 +980,7 @@ describe("AuctionHouse", () => {
     it("should cancel the auction if the winning bidder is unable to receive NFTs", async () => {
       await zapTokenBsc.mint(badBidder.address, TWO_ETH);
       await zapTokenBsc.connect(bidder).approve(badBidder.address, TWO_ETH);
+      await auctionHouse.connect(curator).setAuctionApproval(0, true);
       await badBidder.connect(bidder).placeBid(0, TWO_ETH, media1.address, zapTokenBsc.address);
       const endTime =
         (await auctionHouse.auctions(0)).duration.toNumber() +
@@ -999,6 +1002,7 @@ describe("AuctionHouse", () => {
       beforeEach(async () => {
         //  const [ deity ] = await ethers.getSigners();
         //   auctionHouse = await deploy(deity, ethers.constants.AddressZero);
+        await auctionHouse.connect(curator).setAuctionApproval(0, true);
         await auctionHouse
           .connect(bidder)
           .createBid(0, ONE_ETH, media1.address);
@@ -1029,7 +1033,7 @@ describe("AuctionHouse", () => {
       it("should pay the curator their curatorFee percentage", async () => {
 
         const beforeBalance = await zapTokenBsc.balanceOf(
-          await curator.getAddress()
+          curator.address
         );
 
         await auctionHouse.endAuction(0, media1.address);
@@ -1037,7 +1041,7 @@ describe("AuctionHouse", () => {
         const expectedCuratorFee = "17500000000000000";
 
         const curatorBalance = await zapTokenBsc.balanceOf(
-          await curator.getAddress()
+          curator.address
         );
 
         await expect(curatorBalance.sub(beforeBalance).toString()).to.eq(
@@ -1056,6 +1060,7 @@ describe("AuctionHouse", () => {
         const creatorBalance = await zapTokenBsc.balanceOf(
           await creator.getAddress()
         );
+        weth = await deployWETH();
         const wethBalance = await weth.balanceOf(await creator.getAddress());
         await expect(
           creatorBalance.sub(beforeBalance).add(wethBalance).toString()

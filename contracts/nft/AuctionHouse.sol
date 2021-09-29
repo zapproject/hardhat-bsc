@@ -185,7 +185,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             auctions[auctionId].firstBidTime == 0,
             'Auction has already started'
         );
-
         _approveAuction(auctionId, approved);
     }
 
@@ -231,8 +230,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'Auction must be approved by curator'
         );
         require(
-            auctions[auctionId].firstBidTime == 0 ||
-                block.timestamp <
+            auctions[auctionId].firstBidTime != 0,
+            "Auction hasn't started yet"
+        );
+        require(
+            block.timestamp <
                 auctions[auctionId].firstBidTime.add(
                     auctions[auctionId].duration
                 ),
@@ -272,17 +274,14 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             );
         }
 
-        // If this is the first valid bid, we should set the starting time now.
-        // If it's not, then we should refund the last bidder
-        // if (auctions[auctionId].firstBidTime == 0) {
-        // auctions[auctionId].firstBidTime = block.timestamp;
-        // } else if (lastBidder != address(0)) {
-        //     _handleOutgoingBid(
-        //         lastBidder,
-        //         auctions[auctionId].amount,
-        //         auctions[auctionId].auctionCurrency
-        //     );
-        // }
+        // If this is the first valid bid we should refund the last bidder
+        if (lastBidder != address(0)) {
+            _handleOutgoingBid(
+                lastBidder,
+                auctions[auctionId].amount,
+                auctions[auctionId].auctionCurrency
+            );
+        }
 
         _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
 
