@@ -11,7 +11,7 @@ import {
   ZapTokenBSC,
   ZapVault,
   WETH
- } from "../typechain";
+} from "../typechain";
 import { } from "../typechain";
 import { BigNumber, Contract } from "ethers";
 
@@ -576,7 +576,6 @@ describe("AuctionHouse", () => {
     });
 
     describe("first bid", () => {
-
       it("should set the first bid time", async () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
