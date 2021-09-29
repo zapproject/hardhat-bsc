@@ -95,10 +95,11 @@ describe("AuctionHouse", () => {
   async function createAuction(
     auctionHouse: AuctionHouse,
     curator: string,
-    currency: string
+    currency: string,
+    duration?: number
   ) {
     const tokenId = 0;
-    const duration = 60 * 60 * 24;
+    if (!duration) duration = 60 * 60 * 24;
     const reservePrice = BigNumber.from(10).pow(18).div(2);
 
 
@@ -260,6 +261,13 @@ describe("AuctionHouse", () => {
         `curatorFeePercentage must be less than 100`
       );
     });
+
+    it("should revert if the duration is not 24 hrs", async () => {
+      const [_, expectedCurator] = await ethers.getSigners();
+      await expect(
+        createAuction(auctionHouse, expectedCurator.address, zapTokenBsc.address, 60 * 15)
+      ).to.be.revertedWith("AuctionHouse: We only support Auctions with a 24 hour duration");
+    })
 
     it("should create an auction", async () => {
 
