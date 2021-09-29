@@ -7,6 +7,7 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
@@ -324,7 +325,7 @@ contract ZapMedia is
             )
         );
 
-        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
@@ -535,7 +536,7 @@ contract ZapMedia is
             )
         );
 
-        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
         require(
             recoveredAddress != address(0) &&
