@@ -14,6 +14,7 @@ import {Decimal} from './Decimal.sol';
 import {IMedia} from './interfaces/IMedia.sol';
 import {IAuctionHouse} from './interfaces/IAuctionHouse.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import 'hardhat/console.sol';
 
 interface IWETH {
     function deposit() external payable;
@@ -145,8 +146,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             tokenId
         );
 
-        auctions[auctionId].firstBidTime = block.timestamp;
-
         emit AuctionCreated(
             auctionId,
             tokenId,
@@ -181,10 +180,14 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             msg.sender == auctions[auctionId].curator,
             'Must be auction curator'
         );
+
         require(
             auctions[auctionId].firstBidTime == 0,
             'Auction has already started'
         );
+
+        auctions[auctionId].firstBidTime = block.timestamp;
+
         _approveAuction(auctionId, approved);
     }
 

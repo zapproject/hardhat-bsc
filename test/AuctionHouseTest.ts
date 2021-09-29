@@ -521,18 +521,16 @@ describe("AuctionHouse", () => {
 
       await approveAuction(media1, auctionHouse);
 
-      // auctionHouse.setTokenDetails(0, media1.address);
-
-
       await createAuction(
         auctionHouse.connect(curator),
         await curator.getAddress(),
         zapTokenBsc.address
       );
 
-      console.log((await auctionHouse.auctions(0)).firstBidTime)
 
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
+
+      console.log((await auctionHouse.auctions(0)).firstBidTime)
 
       await zapTokenBsc.mint(bidderA.address, BigInt(10 * 1e18));
 
