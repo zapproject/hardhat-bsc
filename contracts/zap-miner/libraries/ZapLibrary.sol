@@ -267,10 +267,10 @@ library ZapLibrary {
         uint256 _value
     ) public {
         //requre miner is staked
-        require(self.stakerDetails[msg.sender].currentStatus == 1);
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner is not staked");
 
         //Check the miner is submitting the pow for the current request Id
-        require(_requestId == self.uintVars[keccak256('currentRequestId')]);
+        require(_requestId == self.uintVars[keccak256('currentRequestId')], "The solution submitted is not for the current request ID");
 
         //Saving the challenge information as unique by using the msg.sender
         require(
@@ -293,12 +293,11 @@ library ZapLibrary {
             ) %
                 self.uintVars[keccak256('difficulty')] ==
                 0
+            , "Challenge info is not unique"
         );
 
         //Make sure the miner does not submit a value more than once
-        require(
-            self.minersByChallenge[self.currentChallenge][msg.sender] == false
-        );
+        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner has already submitted a value");
 
         // Set miner reward to zero to prevent it from giving rewards before a block is mined
         self.uintVars[keccak256('currentMinerReward')] = 0;
