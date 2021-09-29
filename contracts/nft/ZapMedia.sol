@@ -137,7 +137,6 @@ contract ZapMedia is
      * ERC721 metadata interface
      */
 
-
     function initialize(
         string calldata name,
         string calldata symbol,
@@ -169,8 +168,6 @@ contract ZapMedia is
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
-
-        console.log( name, symbol, _collectionMetadata);
     }
 
     function supportsInterface(bytes4 interfaceId)

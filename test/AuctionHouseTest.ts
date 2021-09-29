@@ -523,11 +523,14 @@ describe("AuctionHouse", () => {
 
       // auctionHouse.setTokenDetails(0, media1.address);
 
+
       await createAuction(
         auctionHouse.connect(curator),
         await curator.getAddress(),
         zapTokenBsc.address
       );
+
+      console.log((await auctionHouse.auctions(0)).firstBidTime)
 
       await auctionHouse.connect(curator).setAuctionApproval(0, true);
 
@@ -575,14 +578,16 @@ describe("AuctionHouse", () => {
       );
     });
 
-    describe("first bid", () => {
-      it("should set the first bid time", async () => {
+    describe.only("first bid", () => {
 
-        await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
+      it.only("should set the first bid time", async () => {
 
-        await auctionHouse.createBid(0, ONE_ETH, media1.address);
+        // await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
 
-        expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
+        // await auctionHouse.createBid(0, ONE_ETH, media1.address);
+
+        // expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
+
       });
 
       it("should store the transferred ZAP", async () => {
