@@ -145,6 +145,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             tokenId
         );
 
+        auctions[auctionId].firstBidTime = block.timestamp;
+
         emit AuctionCreated(
             auctionId,
             tokenId,
@@ -271,15 +273,15 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
         // If this is the first valid bid, we should set the starting time now.
         // If it's not, then we should refund the last bidder
-        if (auctions[auctionId].firstBidTime == 0) {
-            auctions[auctionId].firstBidTime = block.timestamp;
-            // } else if (lastBidder != address(0)) {
-            //     _handleOutgoingBid(
-            //         lastBidder,
-            //         auctions[auctionId].amount,
-            //         auctions[auctionId].auctionCurrency
-            //     );
-        }
+        // if (auctions[auctionId].firstBidTime == 0) {
+        // auctions[auctionId].firstBidTime = block.timestamp;
+        // } else if (lastBidder != address(0)) {
+        //     _handleOutgoingBid(
+        //         lastBidder,
+        //         auctions[auctionId].amount,
+        //         auctions[auctionId].auctionCurrency
+        //     );
+        // }
 
         _handleIncomingBid(amount, auctions[auctionId].auctionCurrency);
 
