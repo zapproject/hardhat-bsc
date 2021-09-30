@@ -192,7 +192,7 @@ describe("Main Miner Functions", () => {
 
             await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
-            await vault.connect(signers[1]).lockSmith(signers[1].address, zap.address);
+            // await vault.connect(signers[1]).lockSmith(signers[1].address, zap.address);
 
             // Stakes 500k Zap to initiate a miner
             await zap.depositStake();
@@ -318,7 +318,6 @@ describe("Main Miner Functions", () => {
         // await zapTokenBsc.allocate(signers[1].address, 600000e18);
         await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("600000000000000000000000")));
 
-
         // Connects address 1 as the signer
         zap = zap.connect(signers[1]);
 
@@ -335,8 +334,6 @@ describe("Main Miner Functions", () => {
         // Vault balance before staking
         const getVaultPreBal: BigNumber = await zapMaster.balanceOf(vault.address);
         const vaultPreBal: Number = parseInt(getVaultPreBal._hex);
-
-        await vault.connect(signers[1]).lockSmith(signers[1].address, zap.address);
 
         // Stakes 500k Zap to initiate a miner
         await zap.depositStake();
@@ -435,8 +432,6 @@ describe("Main Miner Functions", () => {
 
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
 
-        await vault.connect(signers[1]).lockSmith(signers[1].address, zap.address);
-
         // Stakes 500000 Zap to initiate a miner
         await zap.depositStake();
 
@@ -506,8 +501,6 @@ describe("Main Miner Functions", () => {
 
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
         
-        await vault.connect(signers[1]).lockSmith(signers[1].address, zap.address);
-
         // Stakes 500k Zap to initiate a miner
         await zap.depositStake();
 

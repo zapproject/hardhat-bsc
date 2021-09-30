@@ -21,9 +21,9 @@ interface IMedia {
         string tokenURI;
         // A valid URI of the metadata associated with this token
         string metadataURI;
-        // A SHA256 hash of the content pointed to by tokenURI
+        // A KECCAK256 hash of the content pointed to by tokenURI
         bytes32 contentHash;
-        // A SHA256 hash of the content pointed to by metadataURI
+        // A KECCAK256 hash of the content pointed to by metadataURI
         bytes32 metadataHash;
     }
 
@@ -53,10 +53,8 @@ interface IMedia {
     /**
      * @notice Mint new media for msg.sender.
      */
-    function mint(
-        MediaData calldata data,
-        IMarket.BidShares calldata bidShares
-    ) external;
+    function mint(MediaData calldata data, IMarket.BidShares calldata bidShares)
+        external;
 
     /**
      * @notice EIP-712 mintWithSig method. Mints new media for a creator given a valid signature.
