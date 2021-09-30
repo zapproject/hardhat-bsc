@@ -90,7 +90,7 @@ contract ZapMaster is ZapGetters {
         bytes memory _calldata = msg.data;
         assembly {
             let result := delegatecall(
-                not(0),
+                gas(),
                 addr,
                 add(_calldata, 0x20),
                 mload(_calldata),
