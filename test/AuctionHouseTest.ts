@@ -10,7 +10,8 @@ import {
   AuctionHouse__factory,
   ZapTokenBSC,
   ZapVault,
-  WETH
+  WETH,
+  MediaFactory
 } from "../typechain";
 import { } from "../typechain";
 import { BigNumber, Contract } from "ethers";
@@ -33,6 +34,7 @@ describe("AuctionHouse", () => {
   let media1: ZapMedia;
   let media2: ZapMedia;
   let media3: ZapMedia;
+  let mediaFactory: MediaFactory;
   let weth: Contract;
   let zapTokenBsc: ZapTokenBSC;
   let zapVault: ZapVault;
@@ -46,11 +48,12 @@ describe("AuctionHouse", () => {
     const nfts = await deployOtherNFTs();
     market = contracts.market;
 
-    media1 = contracts.media1;
-    media2 = contracts.media2;
-    media3 = contracts.media3;
+    media1 = contracts.medias[0];
+    media2 = contracts.medias[1];
+    media3 = contracts.medias[2];
     zapTokenBsc = contracts.zapTokenBsc;
     zapVault = contracts.zapVault;
+    mediaFactory = contracts.mediaFactory;
 
     weth = await deployWETH();
     badERC721 = nfts.bad;
@@ -59,6 +62,8 @@ describe("AuctionHouse", () => {
     let [_, two, three, bidder] = await ethers.getSigners();
 
     await zapTokenBsc.mint(bidder.address, BigNumber.from("10000000000000000000"));
+
+
   });
 
   async function deploy(signer: SignerWithAddress, currency: string): Promise<AuctionHouse> {
@@ -274,8 +279,8 @@ describe("AuctionHouse", () => {
     it("should revert if the duration is not 24 hrs", async () => {
       const [_, expectedCurator] = await ethers.getSigners();
       await expect(
-        createAuction(auctionHouse, expectedCurator.address, zapTokenBsc.address, 60 * 15)
-      ).to.be.revertedWith("AuctionHouse: We only support Auctions with a 24 hour duration");
+        createAuction(auctionHouse, expectedCurator.address, zapTokenBsc.address, 60 * 14)
+      ).to.be.revertedWith("Your auction needs to go on for at least 15 minutes");
     })
 
     it("should create an auction", async () => {
@@ -889,7 +894,7 @@ describe("AuctionHouse", () => {
         .connect(bidder)
         .createBid(0, ONE_ETH, media1.address);
       await expect(auctionHouse.cancelAuction(0)).revertedWith(
-        `Can't cancel an auction once it's begun`
+        `You can't cancel an auction that has a bid`
       );
     });
 
