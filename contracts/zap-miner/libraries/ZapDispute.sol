@@ -53,7 +53,7 @@ library ZapDispute {
         require(voteWeight > 0);
 
         //ensures miners that are under dispute cannot vote
-        require(self.stakerDetails[msg.sender].currentStatus != 3);
+        //require(self.stakerDetails[msg.sender].currentStatus != 3);
 
         //ensure that only stakers can vote
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");

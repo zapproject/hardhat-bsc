@@ -181,7 +181,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       expect(didMineStatus).to.be.true;
     }
   });
-
+//186-194
   it('Should be able to dispute a submission.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
