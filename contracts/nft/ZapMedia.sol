@@ -256,8 +256,6 @@ contract ZapMedia is
         override
         nonReentrant
     {
-        IMarket zapMarket = IMarket(access.marketContract);
-
         // bool isRegistered = zapMarket.isRegistered(address(this));
 
         // require(

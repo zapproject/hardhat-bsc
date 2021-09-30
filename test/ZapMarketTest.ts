@@ -229,13 +229,7 @@ describe('ZapMarket Test', () => {
     });
 
 
-    it.only('Should get the platform fee', async () => {
-
-      // console.log("media1", zapMedia1.address)
-      // console.log("media2", zapMedia2.address)
-      // console.log("media3", zapMedia3.address)
-
-      console.log(await zapMarket.isConfigured(zapMedia1.address))
+    it('Should get the platform fee', async () => {
 
       const fee = await zapMarket.viewFee();
 
@@ -316,6 +310,11 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should reject if called twice', async () => {
+
+      console.log(zapMedia1.address)
+      console.log(zapMedia2.address)
+      console.log(zapMedia3.address)
+
       await expect(
         zapMarket
           .connect(signers[1])
@@ -479,6 +478,9 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should emit a Minted event when a token is minted', async () => {
+
+      console.log("Media1", zapMedia1.address)
+      console.log("Media2", zapMedia2.address)
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,

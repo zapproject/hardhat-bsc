@@ -67,11 +67,12 @@ contract ZapMarket is IMarket, Ownable {
     /**
      * @notice require that the msg.sender is the configured media contract
      */
-    modifier onlyMediaCaller(address mediaContractAddress) {
-        require(
-            mediaContractAddress == msg.sender,
-            'Market: Only media contract'
-        );
+    modifier onlyMediaCaller() {
+        require(isConfigured[msg.sender], 'Market: Only media contract');
+        // require(
+        //     mediaContractAddress == msg.sender,
+        //     'Market: Only media contract'
+        // );
         _;
     }
 
@@ -233,7 +234,10 @@ contract ZapMarket is IMarket, Ownable {
         bytes32 name,
         bytes32 symbol
     ) external override {
-        require(isConfigured[msg.sender] != true, 'Market: Already configured');
+        require(
+            isConfigured[mediaContract] != true,
+            'Market: Already configured'
+        );
 
         require(
             mediaContract != address(0) && deployer != address(0),
@@ -286,7 +290,7 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         BidShares memory bidShares
-    ) public override onlyMediaCaller(mediaContractAddress) {
+    ) public override onlyMediaCaller {
         require(
             isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'
@@ -304,7 +308,7 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         Ask memory ask
-    ) public override onlyMediaCaller(mediaContractAddress) {
+    ) public override onlyMediaCaller {
         require(
             isValidBid(mediaContractAddress, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
@@ -320,7 +324,7 @@ contract ZapMarket is IMarket, Ownable {
     function removeAsk(address mediaContractAddress, uint256 tokenId)
         external
         override
-        onlyMediaCaller(mediaContractAddress)
+        onlyMediaCaller
     {
         emit AskRemoved(
             tokenId,
@@ -340,7 +344,7 @@ contract ZapMarket is IMarket, Ownable {
         uint256 tokenId,
         Bid memory bid,
         address spender
-    ) public override onlyMediaCaller(mediaContractAddress) {
+    ) public override onlyMediaCaller {
         BidShares memory bidShares = _bidShares[mediaContractAddress][tokenId];
 
         require(
@@ -408,7 +412,7 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         address bidder
-    ) public override onlyMediaCaller(mediaContractAddress) {
+    ) public override onlyMediaCaller {
         Bid storage bid = _tokenBidders[mediaContractAddress][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
@@ -440,7 +444,7 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         Bid calldata expectedBid
-    ) external override onlyMediaCaller(mediaContractAddress) {
+    ) external override onlyMediaCaller {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
             expectedBid.bidder
         ];
