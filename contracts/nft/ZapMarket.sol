@@ -51,6 +51,9 @@ contract ZapMarket is IMarket, Ownable {
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
+    // Mapping of token ids of accepted bids to their mutex
+    mapping(uint256 => bool) private bidMutex;
+
     bool private initialized;
 
     address platformAddress;
@@ -400,11 +403,16 @@ function initializeMarket(address _platformAddress) public initializer {
 
         require(bid.amount > 0, 'Market: cannot remove bid amount of 0');
 
+        require(!bidMutex[tokenId], "There is a bid transaction is progress");
+        bidMutex[tokenId] = true;
+
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
         emit BidRemoved(tokenId, bid, mediaContractAddress);
         delete _tokenBidders[mediaContractAddress][tokenId][bidder];
         token.safeTransfer(bidder, bidAmount);
+
+        bidMutex[tokenId] = false;
     }
 
     /**
@@ -438,7 +446,12 @@ function initializeMarket(address _platformAddress) public initializer {
             'Market: Bid invalid for share splitting'
         );
 
+        require(!bidMutex[tokenId], "There is a bid transaction in progress");
+        bidMutex[tokenId] = true;
+
         _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
+
+        bidMutex[tokenId] = false;
     }
 
     /**
