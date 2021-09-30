@@ -110,6 +110,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'tokenContract does not support ERC721 interface'
         );
         require(
+            IMarket(IMediaExtended(mediaContract).marketContract()).isRegistered(mediaContract),
+            "Media contract is not registered with the marketplace"
+        );
+        require(
             curatorFeePercentage < 100,
             'curatorFeePercentage must be less than 100'
         );
