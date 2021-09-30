@@ -133,6 +133,8 @@ contract ZapMedia is
         _;
     }
 
+    address public testing;
+
     /**
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
@@ -254,6 +256,15 @@ contract ZapMedia is
         override
         nonReentrant
     {
+        IMarket zapMarket = IMarket(access.marketContract);
+
+        bool check = zapMarket.isRegistered(address(this));
+
+        require(
+            check == true,
+            'Media: Cannot mint on an unregistered contract'
+        );
+
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'

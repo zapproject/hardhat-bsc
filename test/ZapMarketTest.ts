@@ -163,13 +163,16 @@ describe('ZapMarket Test', () => {
         signers[1]
       );
 
-      zapMedia1 = (await upgrades.deployProxy(mediaFactory, [
+      zapMedia1 = (await upgrades.deployProxy(
+        mediaFactory, [
         'TEST MEDIA 1',
         'TM1',
         zapMarket.address,
         false,
         'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-      ])) as ZapMedia;
+      ],
+        { initializer: 'initialize' }
+      )) as ZapMedia;
       await zapMedia1.deployed();
 
       const mediaFactory2 = await ethers.getContractFactory(
@@ -177,13 +180,17 @@ describe('ZapMarket Test', () => {
         signers[2]
       );
 
-      zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-        'TEST MEDIA 2',
-        'TM2',
-        zapMarket.address,
-        false,
-        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
-      ])) as ZapMedia;
+      zapMedia2 = (await upgrades.deployProxy(
+        mediaFactory2,
+        [
+          'TEST MEDIA 2',
+          'TM2',
+          zapMarket.address,
+          false,
+          'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
+        ],
+        { initializer: 'initialize' }
+      )) as ZapMedia;
 
       await zapMedia2.deployed();
 
@@ -192,16 +199,19 @@ describe('ZapMarket Test', () => {
         signers[2]
       );
 
-      zapMedia3 = (await upgrades.deployProxy(mediaFactory3, [
-        'Test MEDIA 3',
-        'TM3',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
-      ])) as ZapMedia;
+      zapMedia3 = (await upgrades.deployProxy(
+        mediaFactory3,
+        [
+          'Test MEDIA 3',
+          'TM3',
+          zapMarket.address,
+          false,
+          'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
+        ],
+        { initializer: 'initialize' }
+      )) as ZapMedia;
 
       await zapMedia3.deployed();
-
 
       ask1.currency = zapTokenBsc.address;
 
@@ -222,6 +232,8 @@ describe('ZapMarket Test', () => {
     it('Should get the platform fee', async () => {
 
       const fee = await zapMarket.viewFee();
+
+      console.log(await zapMarket.isRegistered(zapMedia1.address))
 
       expect(parseInt(fee.value._hex)).to.equal(parseInt(platformFee.fee.value._hex));
 
