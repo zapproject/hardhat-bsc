@@ -17,8 +17,8 @@ contract ZapGetters {
     using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
-    ZapStorage.ZapStorageStruct zap;
-    ZapTokenBSC token;
+    ZapStorage.ZapStorageStruct internal zap;
+    ZapTokenBSC internal token;
 
     constructor(address zapTokenBsc) public {
         token = ZapTokenBSC(zapTokenBsc);

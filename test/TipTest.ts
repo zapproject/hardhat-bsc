@@ -161,9 +161,9 @@ describe('Test adding tip to a request.', () => {
         BigNumber.from('500000000000000000006000')
       );
       zap = zap.connect(signers[i]);
-      await vault
-        .connect(signers[i])
-        .lockSmith(signers[i].address, zap.address);
+      // await vault
+      //   .connect(signers[i])
+      //   .lockSmith(signers[i].address, zap.address);
 
       await zapTokenBsc
         .connect(signers[i])
