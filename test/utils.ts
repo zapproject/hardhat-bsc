@@ -9,9 +9,11 @@ import {
   WETH,
   BadERC721,
   TestERC721,
+  MediaFactory
 } from "../typechain";
 import { keccak256 } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
+import { ContractFactory, Event } from "@ethersproject/contracts";
 import { fromRpcSig } from 'ethereumjs-util';
 
 
@@ -67,6 +69,7 @@ export const deployZapNFTMarketplace = async () => {
   let media3: ZapMedia
   let zapVault: ZapVault
   let zapTokenBsc: ZapTokenBSC
+  let mediaFactory: MediaFactory
 
   let platformFee = {
 
@@ -101,45 +104,68 @@ export const deployZapNFTMarketplace = async () => {
 
   await market.setFee(platformFee);
 
+  const mediaFactoryFactory = await ethers.getContractFactory("MediaFactory", deployer0);
+  mediaFactory = (await upgrades.deployProxy(mediaFactoryFactory, [market.address], { initializer: "initialize" })) as MediaFactory;
+  await market.setMediaFactory(mediaFactory.address);
+
+  const mediaArgs = [
+    {
+        name: "Test Media 1",
+        symbol: "TM1",
+        marketContractAddr: market.address,
+        permissive: true,
+        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    },
+    {
+        name: "Test Media 1",
+        symbol: "TM1",
+        marketContractAddr: market.address,
+        permissive: false,
+        _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+    },
+    {
+        name: "Test Media 1",
+        symbol: "TM1",
+        marketContractAddr: market.address,
+        permissive: false,
+        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+    }
+  ]
+
   const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
-
-  media1 = await (
-    await upgrades.deployProxy(mediaFactory1, [
-      "Test Media 1",
-      "TM1",
-      market.address,
-      true,
-      "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
-    ])
-  ).deployed() as ZapMedia;
-
   const mediaFactory2 = await ethers.getContractFactory("ZapMedia", deployer2);
-  media2 = await (
-    await upgrades.deployProxy(mediaFactory2,
-      [
-        "Test Media 1",
-        "TM1",
-        market.address,
-        false,
-        "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
-      ])
-  ).deployed() as ZapMedia;
-
   const mediaFactory3 = await ethers.getContractFactory("ZapMedia", deployer3);
-  media3 = await (
-    await upgrades.deployProxy(mediaFactory3,
-      [
-        "Test Media 1",
-        "TM1",
-        market.address,
-        false,
-        "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-      ]
-    )
-  ).deployed() as ZapMedia;
 
 
-  return { market, media1, media2, media3, zapTokenBsc, zapVault };
+  const medias: ZapMedia[] = [];
+  const contractFactories: ContractFactory[] = [
+    mediaFactory1, mediaFactory2, mediaFactory3
+  ];
+  const mediaDeployers = [
+    deployer1, deployer2, deployer3
+  ];
+
+
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
+  for (let i = 0; i < mediaArgs.length; i++) {
+    const args = mediaArgs[i];
+    await mediaFactory.deployMedia(
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
+    );
+
+    filter = mediaFactory.filters.MediaDeployed(null);
+    eventLog = (await mediaFactory.queryFilter(filter))[i];
+    mediaAddress = eventLog.args?.mediaContract;
+
+    medias.push(
+      new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMedia
+    );
+  }
+  return { market, medias, zapTokenBsc, zapVault, mediaFactory };
 };
 
 export const deployBidder = async (auction: string, nftContract: string) => {
