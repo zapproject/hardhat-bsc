@@ -258,12 +258,12 @@ contract ZapMedia is
     {
         IMarket zapMarket = IMarket(access.marketContract);
 
-        bool isRegistered = zapMarket.isRegistered(address(this));
+        // bool isRegistered = zapMarket.isRegistered(address(this));
 
-        require(
-            isRegistered != false,
-            'Media: Cannot mint on an unregistered contract'
-        );
+        // require(
+        //     isRegistered != false,
+        //     'Media: Cannot mint on an unregistered contract'
+        // );
 
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
