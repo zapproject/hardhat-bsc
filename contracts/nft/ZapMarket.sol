@@ -259,6 +259,10 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         registeredMedias[mediaContract] = true;
     }
 
+    function revokeRegistration(address mediaContract) external override onlyOwner {
+        registeredMedias[mediaContract] = false;
+    }
+
     /**
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
