@@ -98,13 +98,13 @@ library ZapDispute {
         address disputeFeeWinnerAddress;
         
         //Ensure this has not already been executed/tallied
-        require(disp.executed == false);
+        require(!disp.executed);
 
         //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256('minExecutionDate')]);
 
         //If the vote is not a proposed fork
-        if (disp.isPropFork == false) {
+        if (!disp.isPropFork) {
             ZapStorage.StakeInfo storage stakes = self.stakerDetails[
                 disp.reportedMiner
             ];
@@ -146,7 +146,7 @@ library ZapDispute {
                 if (
                     _request.inDispute[
                         disp.disputeUintVars[keccak256('timestamp')]
-                    ] == true
+                    ]
                 ) {
                     _request.finalValues[
                         disp.disputeUintVars[keccak256('timestamp')]
@@ -176,7 +176,7 @@ library ZapDispute {
                 if (
                     _request.inDispute[
                         disp.disputeUintVars[keccak256('timestamp')]
-                    ] == true
+                    ]
                 ) {
                     _request.inDispute[
                         disp.disputeUintVars[keccak256('timestamp')]

@@ -7,7 +7,7 @@ import chai, { expect } from 'chai';
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import {
-  sha256,
+  keccak256,
   formatBytes32String,
   parseBytes32String
 } from 'ethers/lib/utils';
@@ -206,15 +206,15 @@ describe('ZapMarket Test', () => {
       ask1.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHash = await sha256(metadataHex);
+      let metadataHash = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHash);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHash = await sha256(contentHex);
+      let contentHash = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHash);
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
     });
 
@@ -437,11 +437,11 @@ describe('ZapMarket Test', () => {
       ask1.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = await sha256(metadataHex);
+      let metadataHashRaw = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = await sha256(contentHex);
+      let contentHashRaw = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
@@ -454,8 +454,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares2);
@@ -576,11 +576,11 @@ describe('ZapMarket Test', () => {
     it('Should reject if the bid shares are invalid', async () => {
 
       let metadataHex = ethers.utils.formatBytes32String('{tool: box}');
-      let metadataHashRaw = await sha256(metadataHex);
+      let metadataHashRaw = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('re-invert');
-      let contentHashRaw = await sha256(contentHex);
+      let contentHashRaw = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
@@ -678,11 +678,11 @@ describe('ZapMarket Test', () => {
       ask2.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = await sha256(metadataHex);
+      let metadataHashRaw = await keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = await sha256(contentHex);
+      let contentHashRaw = await keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
@@ -695,8 +695,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
       mint_tx1 = await zapMedia1.connect(signers[1]).mint(data, bidShares1);
       mint_tx2 = await zapMedia2.connect(signers[2]).mint(data, bidShares1);
@@ -887,11 +887,11 @@ describe('ZapMarket Test', () => {
       };
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = sha256(metadataHex);
+      let metadataHashRaw = keccak256(metadataHex);
       metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
       let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = sha256(contentHex);
+      let contentHashRaw = keccak256(contentHex);
       contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
       let contentHash = contentHashBytes;
@@ -904,8 +904,8 @@ describe('ZapMarket Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
-      bidShares2.collaborators = [ signers[10].address, signers[11].address, signers[12].address ];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
       await zapMedia1.connect(signers[1]).mint(data, bidShares1);
       await zapMedia2.connect(signers[2]).mint(data, bidShares2);

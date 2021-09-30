@@ -47,9 +47,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     // A mapping of all of the auctions currently running.
     mapping(uint256 => IAuctionHouse.Auction) public auctions;
 
-    mapping(address => mapping(uint256 => TokenDetails)) tokenDetails;
+    mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
-    bytes4 constant interfaceId = 0x80ac58cd; // 721 interface id
+    bytes4 constant private interfaceId = 0x80ac58cd; // 721 interface id
 
     Counters.Counter private _auctionIdTracker;
 
@@ -64,13 +64,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    // constructor(address _weth) {
-    //     wethAddress = _weth;
-    //     timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
-    //     minBidIncrementPercentage = 5; // 5%
-    // }
-
     function initialize(address _weth) public initializer {
+        __ReentrancyGuard_init();
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
@@ -80,6 +75,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         internal
         returns (bool)
     {
+        require(mediaContract != address(0), "AuctionHouse: Media Contract Address can not be the zero address");
+        if(
+            tokenDetails[mediaContract][tokenId].mediaContract != address(0)
+        ) return false;
+
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
             mediaContract: mediaContract
@@ -119,6 +119,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'Caller must be approved or owner for token id'
         );
         uint256 auctionId = _auctionIdTracker.current();
+        _auctionIdTracker.increment();
 
         setTokenDetails(tokenId, mediaContract);
 
@@ -141,8 +142,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             address(this),
             tokenId
         );
-
-        _auctionIdTracker.increment();
 
         emit AuctionCreated(
             auctionId,
@@ -470,6 +469,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
             IWETH(wethAddress).deposit{value: amount}();
         } else {
+            require(msg.value == 0, "AuctionHouse: Ether is not required for this transaction");
             // We must check the balance that was actually transferred to the auction,
             // as some tokens impose a transfer fee and would not actually transfer the
             // full amount to the market, resulting in potentally locked funds
@@ -595,8 +595,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         return (true, afterBalance.sub(beforeBalance));
     }
 
-    // TODO: consider reverting if the message sender is not WETH
-    receive() external payable {}
-
-    fallback() external payable {}
+    receive() external payable {
+        require (msg.sender == wethAddress, "AuctionHouse: Fallback function receive() - sender is not WETH");
+    }
 }
