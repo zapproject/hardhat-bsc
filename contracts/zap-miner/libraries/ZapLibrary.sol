@@ -1,12 +1,15 @@
+// pragma solidity =0.5.16;
 pragma solidity =0.5.16;
 
 import './SafeMathM.sol';
+import './SignedSafeMath.sol';
 import './Utilities.sol';
 import './ZapStorage.sol';
 import './ZapTransfer.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
+
 
 /**
  * @title Zap Oracle System Library
@@ -15,6 +18,7 @@ import './ZapGettersLibrary.sol';
  */
 library ZapLibrary {
     using SafeMathM for uint256;
+    using SignedSafeMath for int256;
 
     event TipAdded(
         address indexed _sender,
@@ -81,13 +85,32 @@ library ZapLibrary {
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
-        int256 _newDiff = int256(self.uintVars[keccak256('difficulty')]) +
-            (int256(self.uintVars[keccak256('difficulty')]) *
-                (int256(self.uintVars[keccak256('timeTarget')]) -
-                    int256(
-                        now - self.uintVars[keccak256('timeOfLastNewValue')]
-                    ))) /
-            100;
+
+        // difficulty + difficulty(timeTarget - (now - timeOfLastNewValue))
+
+        int256 _newDiff = int256(self.uintVars[keccak256('difficulty')])
+            .add(
+                int256(self.uintVars[keccak256('difficulty')]).mul(
+                    int256(self.uintVars[keccak256('timeTarget')]).sub(
+                        int256(
+                            now.sub(
+                                self.uintVars[keccak256('timeOfLastNewValue')]
+                            )
+                        )
+                    )
+                )
+            )
+            .div(100);
+
+        // original
+        // int256 _newDiff = int256(self.uintVars[keccak256('difficulty')]) +
+        //     (int256(self.uintVars[keccak256('difficulty')]) *
+        //         (int256(self.uintVars[keccak256('timeTarget')]) -
+        //             int256(
+        //                 now - self.uintVars[keccak256('timeOfLastNewValue')]
+        //             ))) /
+        //     100;
+
         if (_newDiff <= 0) {
             self.uintVars[keccak256('difficulty')] = 1;
         } else {
@@ -133,7 +156,8 @@ library ZapLibrary {
             self.uintVars[keccak256('currentReward')] = 1e18;
         }
 
-        uint256 baseReward = self.uintVars[keccak256('currentReward')] / 1e18 * 1e18;
+        uint256 baseReward = (self.uintVars[keccak256('currentReward')] /
+            1e18) * 1e18;
         self.uintVars[keccak256('currentMinerReward')] =
             baseReward +
             self.uintVars[keccak256('currentTotalTips')] /
@@ -149,7 +173,10 @@ library ZapLibrary {
         );
 
         //update the total supply
-        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentMinerReward")]*5;
+        self.uintVars[keccak256('total_supply')] +=
+            self.uintVars[keccak256('devShare')] +
+            self.uintVars[keccak256('currentMinerReward')] *
+            5;
         // self.uintVars[keccak256('total_supply')] += 275;
 
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
@@ -181,38 +208,42 @@ library ZapLibrary {
         //re-start the count for the slot progress to zero before the new request mining starts
         self.uintVars[keccak256('slotProgress')] = 0;
         self.uintVars[keccak256('currentRequestId')] = ZapGettersLibrary
-        .getTopRequestID(self);
+            .getTopRequestID(self);
         //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout
         //else wait for a new tip to mine
         if (self.uintVars[keccak256('currentRequestId')] > 0) {
             //Update the current request to be mined to the requestID with the highest payout
             self.uintVars[keccak256('currentTotalTips')] = self
-            .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-            .apiUintVars[keccak256('totalTip')];
+                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
+                .apiUintVars[keccak256('totalTip')];
             //Remove the currentRequestId/onDeckRequestId from the requestQ array containing the rest of the 50 requests
             self.requestQ[
                 self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-                .apiUintVars[keccak256('requestQPosition')]
+                    .requestDetails[
+                        self.uintVars[keccak256('currentRequestId')]
+                    ]
+                    .apiUintVars[keccak256('requestQPosition')]
             ] = 0;
 
             //unmap the currentRequestId/onDeckRequestId from the requestIdByRequestQIndex
             self.requestIdByRequestQIndex[
                 self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-                .apiUintVars[keccak256('requestQPosition')]
+                    .requestDetails[
+                        self.uintVars[keccak256('currentRequestId')]
+                    ]
+                    .apiUintVars[keccak256('requestQPosition')]
             ] = 0;
 
             //Remove the requestQposition for the currentRequestId/onDeckRequestId since it will be mined next
             self
-            .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-            .apiUintVars[keccak256('requestQPosition')] = 0;
+                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
+                .apiUintVars[keccak256('requestQPosition')] = 0;
 
             //Reset the requestId TotalTip to 0 for the currentRequestId/onDeckRequestId since it will be mined next
             //and the tip is going to the current timestamp miners. The tip for the API needs to be reset to zero
             self
-            .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-            .apiUintVars[keccak256('totalTip')] = 0;
+                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
+                .apiUintVars[keccak256('totalTip')] = 0;
 
             //gets the max tip in the in the requestQ[51] array and its index within the array??
             uint256 newRequestId = ZapGettersLibrary.getTopRequestID(self);
@@ -230,13 +261,13 @@ library ZapLibrary {
                 self.uintVars[keccak256('difficulty')],
                 self
                     .requestDetails[
-                    self.uintVars[keccak256('currentRequestId')]
-                ]
+                        self.uintVars[keccak256('currentRequestId')]
+                    ]
                     .apiUintVars[keccak256('granularity')],
                 self
                     .requestDetails[
-                    self.uintVars[keccak256('currentRequestId')]
-                ]
+                        self.uintVars[keccak256('currentRequestId')]
+                    ]
                     .queryString,
                 self.uintVars[keccak256('currentTotalTips')]
             );
@@ -305,10 +336,10 @@ library ZapLibrary {
 
         //Save the miner and value received
         self
-        .currentMiners[self.uintVars[keccak256('slotProgress')]]
-        .value = _value;
+            .currentMiners[self.uintVars[keccak256('slotProgress')]]
+            .value = _value;
         self.currentMiners[self.uintVars[keccak256('slotProgress')]].miner = msg
-        .sender;
+            .sender;
 
         //Add to the count how many values have been submitted, since only 5 are taken per request
         self.uintVars[keccak256('slotProgress')]++;

@@ -21,9 +21,9 @@ library MediaStorage {
         mapping(uint256 => address) previousTokenOwners;
         // Mapping from token id to creator address
         mapping(uint256 => address) tokenCreators;
-        // Mapping from token id to sha256 hash of content
+        // Mapping from token id to keccak256 hash of content
         mapping(uint256 => bytes32) tokenContentHashes;
-        // Mapping from token id to sha256 hash of metadata
+        // Mapping from token id to keccak256 hash of metadata
         mapping(uint256 => bytes32) tokenMetadataHashes;
     }
 
