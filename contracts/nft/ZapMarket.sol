@@ -31,6 +31,13 @@ contract ZapMarket is IMarket, Ownable {
     // address[] public mediaContract;
     mapping(address => address[]) public mediaContracts;
 
+    // Mapping from media address to a bool showing whether or not
+    // they're registered by the media factory
+    mapping(address => bool) public registeredMedias;
+
+    // registered media factory address
+    address mediaFactory;
+
     // Mapping from token to mapping from bidder to bid
     mapping(address => mapping(uint256 => mapping(address => Bid)))
         private _tokenBidders;
@@ -194,6 +201,14 @@ function initializeMarket(address _platformAddress) public initializer {
         platformAddress = _platformAddress;
     }
 
+    function isRegistered(address mediaContractAddress) public override view returns (bool) {
+        return(registeredMedias[mediaContractAddress]);
+    }
+
+    function setMediaFactory(address _mediaFactory) external override onlyOwner {
+        mediaFactory = _mediaFactory;
+    }
+
     function viewFee() public view returns (Decimal.D256 memory) {
         return platformFee.fee;
     }
@@ -239,6 +254,16 @@ function initializeMarket(address _platformAddress) public initializer {
         } else {
             emit Burned(tokenId, mediaContract);
         }
+    }
+
+    function registerMedia(address mediaContract) external override {
+        require(msg.sender == mediaFactory, "Only the Media Factory can call this function");
+
+        registeredMedias[mediaContract] = true;
+    }
+
+    function revokeRegistration(address mediaContract) external override onlyOwner {
+        registeredMedias[mediaContract] = false;
     }
 
     /**

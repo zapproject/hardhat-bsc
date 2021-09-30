@@ -110,6 +110,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'tokenContract does not support ERC721 interface'
         );
         require(
+            IMarket(IMediaExtended(mediaContract).marketContract()).isRegistered(mediaContract),
+            "Media contract is not registered with the marketplace"
+        );
+        require(
             curatorFeePercentage < 100,
             'curatorFeePercentage must be less than 100'
         );
@@ -554,6 +558,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         uint256 auctionId,
         address mediaContract
     ) internal returns (bool, uint256) {
+        require(
+            IMarket(IMediaExtended(mediaContract).marketContract()).isRegistered(mediaContract)
+            , "This Media Contract is unauthorised to settle auctions"
+        );
         address currency = auctions[auctionId].auctionCurrency == address(0)
             ? wethAddress
             : auctions[auctionId].auctionCurrency;
