@@ -328,7 +328,7 @@ library ZapLibrary {
 
         //Make sure the miner does not submit a value more than once
         require(
-            self.minersByChallenge[self.currentChallenge][msg.sender] == false
+            !self.minersByChallenge[self.currentChallenge][msg.sender]
         );
 
         // Set miner reward to zero to prevent it from giving rewards before a block is mined
