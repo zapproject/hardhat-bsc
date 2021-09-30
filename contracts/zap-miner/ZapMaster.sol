@@ -73,8 +73,7 @@ contract ZapMaster is ZapGetters {
 
         // total balance of current ZapMaster
         uint256 zapBalance = token.balanceOf(address(this));
-        // approve entire balance
-        token.approve(address(this), zapBalance);
+
         bytes memory data = abi.encodeWithSelector(
             token.transfer.selector,
             _newZapMaster,
