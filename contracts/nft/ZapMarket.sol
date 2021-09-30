@@ -19,7 +19,6 @@ import 'hardhat/console.sol';
  * @notice This contract contains all of the market logic for Media
  */
 contract ZapMarket is IMarket, Ownable {
-    
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /* *******
@@ -133,18 +132,18 @@ contract ZapMarket is IMarket, Ownable {
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
             thisCollabsShare.value = bidShares.collabShares[i];
 
-            collabShareValue = collabShareValue + (
-                splitShare(thisCollabsShare, bidAmount)
-            );
+            collabShareValue =
+                collabShareValue +
+                (splitShare(thisCollabsShare, bidAmount));
         }
 
         return
             bidAmount != 0 &&
             (bidAmount ==
-                splitShare(bidShares.creator, bidAmount)
-                    + (collabShareValue)
-                    + (splitShare(platformFee.fee, bidAmount))
-                    + (splitShare(bidShares.owner, bidAmount)));
+                splitShare(bidShares.creator, bidAmount) +
+                    (collabShareValue) +
+                    (splitShare(platformFee.fee, bidAmount)) +
+                    (splitShare(bidShares.owner, bidAmount)));
     }
 
     /**
@@ -159,18 +158,15 @@ contract ZapMarket is IMarket, Ownable {
         uint256 collabSharePerc = 0;
 
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
-            collabSharePerc = collabSharePerc + (
-                bidShares.collabShares[i]
-            );
+            collabSharePerc = collabSharePerc + (bidShares.collabShares[i]);
         }
 
         return
-            bidShares
-                .creator
-                .value
-                + (collabSharePerc)
-                + (bidShares.owner.value)
-                + (platformFee.fee.value) == uint256(100) * (Decimal.BASE);
+            bidShares.creator.value +
+                (collabSharePerc) +
+                (bidShares.owner.value) +
+                (platformFee.fee.value) ==
+            uint256(100) * (Decimal.BASE);
     }
 
     /**
@@ -191,7 +187,7 @@ contract ZapMarket is IMarket, Ownable {
      * ****************
      */
 
-function initializeMarket(address _platformAddress) public initializer {
+    function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
@@ -201,11 +197,20 @@ function initializeMarket(address _platformAddress) public initializer {
         platformAddress = _platformAddress;
     }
 
-    function isRegistered(address mediaContractAddress) public override view returns (bool) {
-        return(registeredMedias[mediaContractAddress]);
+    function isRegistered(address mediaContractAddress)
+        public
+        view
+        override
+        returns (bool)
+    {
+        return (registeredMedias[mediaContractAddress]);
     }
 
-    function setMediaFactory(address _mediaFactory) external override onlyOwner {
+    function setMediaFactory(address _mediaFactory)
+        external
+        override
+        onlyOwner
+    {
         mediaFactory = _mediaFactory;
     }
 
@@ -228,10 +233,8 @@ function initializeMarket(address _platformAddress) public initializer {
         bytes32 name,
         bytes32 symbol
     ) external override {
-        require(
-            isConfigured[mediaContract] != true,
-            'Market: Already configured'
-        );
+        require(isConfigured[msg.sender] != true, 'Market: Already configured');
+
         require(
             mediaContract != address(0) && deployer != address(0),
             'Market: cannot set media contract as zero address'
@@ -249,8 +252,8 @@ function initializeMarket(address _platformAddress) public initializer {
         uint256 tokenId,
         address mediaContract
     ) external override {
-        require(msg.sender == mediaContract, "Market: Media only function");
-        
+        require(msg.sender == mediaContract, 'Market: Media only function');
+
         if (isMint == true) {
             emit Minted(tokenId, mediaContract);
         } else {
@@ -259,12 +262,19 @@ function initializeMarket(address _platformAddress) public initializer {
     }
 
     function registerMedia(address mediaContract) external override {
-        require(msg.sender == mediaFactory, "Only the Media Factory can call this function");
+        require(
+            msg.sender == mediaFactory,
+            'Only the Media Factory can call this function'
+        );
 
         registeredMedias[mediaContract] = true;
     }
 
-    function revokeRegistration(address mediaContract) external override onlyOwner {
+    function revokeRegistration(address mediaContract)
+        external
+        override
+        onlyOwner
+    {
         registeredMedias[mediaContract] = false;
     }
 
@@ -405,7 +415,7 @@ function initializeMarket(address _platformAddress) public initializer {
 
         require(bid.amount > 0, 'Market: cannot remove bid amount of 0');
 
-        require(!bidMutex[tokenId], "There is a bid transaction is progress");
+        require(!bidMutex[tokenId], 'There is a bid transaction is progress');
         bidMutex[tokenId] = true;
 
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
@@ -448,7 +458,7 @@ function initializeMarket(address _platformAddress) public initializer {
             'Market: Bid invalid for share splitting'
         );
 
-        require(!bidMutex[tokenId], "There is a bid transaction in progress");
+        require(!bidMutex[tokenId], 'There is a bid transaction in progress');
         bidMutex[tokenId] = true;
 
         _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
@@ -489,9 +499,9 @@ function initializeMarket(address _platformAddress) public initializer {
         thisCollabsShare.value = 0;
         // Transfer bid share to the remaining media collaborators
         for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
-            collaboratorShares = collaboratorShares + (
-                bidShares.collabShares[i]
-            );
+            collaboratorShares =
+                collaboratorShares +
+                (bidShares.collabShares[i]);
 
             thisCollabsShare.value = bidShares.collabShares[i];
 
@@ -514,11 +524,11 @@ function initializeMarket(address _platformAddress) public initializer {
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
         bidShares.owner = Decimal.D256(
-            uint256(100)
-                * (Decimal.BASE)
-                - (collaboratorShares)
-                - (_bidShares[mediaContractAddress][tokenId].creator.value)
-                - (platformFee.fee.value)
+            uint256(100) *
+                (Decimal.BASE) -
+                (collaboratorShares) -
+                (_bidShares[mediaContractAddress][tokenId].creator.value) -
+                (platformFee.fee.value)
         );
         // Set the previous owner share to the accepted bid's sell-on fee
         // platformFee.fee = bid.sellOnShare;

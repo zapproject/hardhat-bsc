@@ -229,11 +229,15 @@ describe('ZapMarket Test', () => {
     });
 
 
-    it('Should get the platform fee', async () => {
+    it.only('Should get the platform fee', async () => {
+
+      // console.log("media1", zapMedia1.address)
+      // console.log("media2", zapMedia2.address)
+      // console.log("media3", zapMedia3.address)
+
+      console.log(await zapMarket.isConfigured(zapMedia1.address))
 
       const fee = await zapMarket.viewFee();
-
-      console.log(await zapMarket.isRegistered(zapMedia1.address))
 
       expect(parseInt(fee.value._hex)).to.equal(parseInt(platformFee.fee.value._hex));
 
