@@ -10,7 +10,7 @@ import {ZapMarket} from "./ZapMarket.sol";
 
 contract MediaFactory is OwnableUpgradeable{
 
-    event MediaDeployed(address);
+    event MediaDeployed(address indexed mediaContract);
 
     ZapMarket zapMarket;
 
