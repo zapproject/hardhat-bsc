@@ -66,7 +66,7 @@ contract Zap {
     using ZapLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
-    ZapStorage.ZapStorageStruct zap;
+    ZapStorage.ZapStorageStruct private zap;
     ZapTokenBSC public token;
     // Vault public vault;
     // address public vaultAddress;
@@ -190,7 +190,11 @@ contract Zap {
      * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
      */
     function vote(uint256 _disputeId, bool _supportsDispute) external {
-        uint256 voteWeight = token.balanceOf(msg.sender);
+
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
+        uint256 voteWeight = vault.userBalance(msg.sender);
         zap.vote(_disputeId, _supportsDispute, voteWeight);
     }
 

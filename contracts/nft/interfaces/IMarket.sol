@@ -115,11 +115,29 @@ interface IMarket {
         pure
         returns (uint256);
 
+    function isRegistered(address mediaContractAddress)
+        external
+        view
+        returns (bool
+    );
+
     function configure(
         address deployer,
         address mediaContract,
         bytes32 name,
         bytes32 symbol
+    ) external;
+
+    function revokeRegistration(
+        address mediaContract
+    ) external;
+
+    function registerMedia(
+        address mediaContract
+    ) external;
+
+    function setMediaFactory(
+        address _mediaFactory
     ) external;
 
     function mintOrBurn(

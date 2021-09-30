@@ -111,8 +111,8 @@ describe("Test Oracle Network", function () {
             await zapToken.connect(staker1).approve(testOracle.address, oneHunnidZap);
             await zapToken.connect(staker2).approve(testOracle.address, oneHunnidZap);
 
-            await vault.connect(staker1).lockSmith(staker1.address, testOracle.address);
-            await vault.connect(staker2).lockSmith(staker2.address, testOracle.address);
+            // await vault.connect(staker1).lockSmith(staker1.address, testOracle.address);
+            // await vault.connect(staker2).lockSmith(staker2.address, testOracle.address);
         });
 
         it("should be equal to 100 ZAP", async () => {
