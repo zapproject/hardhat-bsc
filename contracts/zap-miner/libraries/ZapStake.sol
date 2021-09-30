@@ -22,7 +22,7 @@ library ZapStake {
     * This function is called by the constructor function on ZapMaster.sol
     */
     function init(ZapStorage.ZapStorageStruct storage self) public{
-        require(self.uintVars[keccak256("decimals")] == 0);
+        require(self.uintVars[keccak256("decimals")] == 0, "Already initialized");
         
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
@@ -43,7 +43,7 @@ library ZapStake {
     function requestStakingWithdraw(ZapStorage.ZapStorageStruct storage self) public {
         ZapStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require that the miner is staked
-        require(stakes.currentStatus == 1);
+        require(stakes.currentStatus == 1, "Miner is not staked");
 
         //Change the miner staked to locked to be withdrawStake
         stakes.currentStatus = 2;
@@ -66,7 +66,7 @@ library ZapStake {
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
         //passed by since they locked for withdraw
         // require(now - (now % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
-        require(stakes.currentStatus == 2);
+        require(stakes.currentStatus == 2, "Required to request withdraw of stake");
         stakes.currentStatus = 0;
 
         /*
@@ -101,7 +101,7 @@ library ZapStake {
         // require(ZapTransfer.balanceOf(self,staker) >= self.uintVars[keccak256("stakeAmount")]);
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
-        require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2);
+        require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "ZapStake: Either already staked or stake time frame ended");
         self.uintVars[keccak256("stakerCount")] += 1;
         self.stakerDetails[staker] = ZapStorage.StakeInfo({
             currentStatus: 1,

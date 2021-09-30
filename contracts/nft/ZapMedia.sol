@@ -7,7 +7,7 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
@@ -187,11 +187,19 @@ contract ZapMedia is
             _supportedInterfaces[interfaceId];
     }
 
+    /**
+     * @notice return the URI for a particular piece of media with the specified tokenId
+     * @dev This function is an override of the base OZ implementation because we
+     * will return the tokenURI even if the media has been burned. In addition, this
+     * protocol does not support a base URI, so relevant conditionals are removed.
+     * @return the URI for a token
+     */
     function tokenURI(uint256 tokenId)
         public
         view
         virtual
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
+        onlyTokenCreated(tokenId)
         returns (string memory)
     {
         return ERC721URIStorageUpgradeable.tokenURI(tokenId);
@@ -218,22 +226,6 @@ contract ZapMedia is
      * View Functions
      * **************
      */
-
-    /**
-     * @notice return the URI for a particular piece of media with the specified tokenId
-     * @dev This function is an override of the base OZ implementation because we
-     * will return the tokenURI even if the media has been burned. In addition, this
-     * protocol does not support a base URI, so relevant conditionals are removed.
-     * @return the URI for a token
-     */
-    function tokenUri(uint256 tokenId)
-        public
-        view
-        onlyTokenCreated(tokenId)
-        returns (string memory)
-    {
-        return tokenURI(tokenId);
-    }
 
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
@@ -359,6 +351,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
     }
@@ -371,6 +364,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
     }
@@ -423,6 +417,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).acceptBid(address(this), tokenId, bid);
     }
@@ -593,8 +588,8 @@ contract ZapMedia is
 
         uint256 tokenId = access._tokenIdTracker.current();
 
-        _safeMint(creator, tokenId);
         access._tokenIdTracker.increment();
+        _safeMint(creator, tokenId);
         _setTokenContentHash(tokenId, data.contentHash);
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
