@@ -7,6 +7,7 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
@@ -138,11 +139,11 @@ contract ZapMedia is
      */
 
     function initialize(
-        string memory name,
-        string memory symbol,
+        string calldata name,
+        string calldata symbol,
         address marketContractAddr,
         bool permissive,
-        string memory _collectionMetadata
+        string calldata _collectionMetadata
     ) external override initializer {
         __ERC721_init(name, symbol);
         _init_ownable();
@@ -186,14 +187,22 @@ contract ZapMedia is
             _supportedInterfaces[interfaceId];
     }
 
+    /**
+     * @notice return the URI for a particular piece of media with the specified tokenId
+     * @dev This function is an override of the base OZ implementation because we
+     * will return the tokenURI even if the media has been burned. In addition, this
+     * protocol does not support a base URI, so relevant conditionals are removed.
+     * @return the URI for a token
+     */
     function tokenURI(uint256 tokenId)
         public
         view
         virtual
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
+        onlyTokenCreated(tokenId)
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
+        return ERC721URIStorageUpgradeable.tokenURI(tokenId);
     }
 
     function _registerInterface(bytes4 interfaceId) internal virtual override {
@@ -210,29 +219,13 @@ contract ZapMedia is
         virtual
         override(ERC721EnumerableUpgradeable, ERC721Upgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        ERC721EnumerableUpgradeable._beforeTokenTransfer(from, to, tokenId);
     }
 
     /* *************
      * View Functions
      * **************
      */
-
-    /**
-     * @notice return the URI for a particular piece of media with the specified tokenId
-     * @dev This function is an override of the base OZ implementation because we
-     * will return the tokenURI even if the media has been burned. In addition, this
-     * protocol does not support a base URI, so relevant conditionals are removed.
-     * @return the URI for a token
-     */
-    function tokenUri(uint256 tokenId)
-        public
-        view
-        onlyTokenCreated(tokenId)
-        returns (string memory)
-    {
-        return tokenURI(tokenId);
-    }
 
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
@@ -324,7 +317,7 @@ contract ZapMedia is
             )
         );
 
-        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
@@ -358,6 +351,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
     }
@@ -370,6 +364,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
     }
@@ -422,6 +417,7 @@ contract ZapMedia is
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).acceptBid(address(this), tokenId, bid);
     }
@@ -454,12 +450,12 @@ contract ZapMedia is
      * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
      * revoke their approval once their task is complete as a best practice.
      */
-    function revokeApproval(uint256 tokenId) external override nonReentrant {
-        require(
-            msg.sender == getApproved(tokenId),
-            // remove revert string before deployment to mainnet
-            'Media: caller not approved address'
-        );
+    function revokeApproval(uint256 tokenId)
+        external
+        override
+        onlyApprovedOrOwner(msg.sender, tokenId)
+        nonReentrant
+    {
         _approve(address(0), tokenId);
     }
 
@@ -535,7 +531,7 @@ contract ZapMedia is
             )
         );
 
-        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
         require(
             recoveredAddress != address(0) &&
@@ -567,7 +563,7 @@ contract ZapMedia is
      *
      * See {ERC721-_safeMint}.
      *
-     * On mint, also set the sha256 hashes of the content and its metadata for integrity
+     * On mint, also set the keccak256 hashes of the content and its metadata for integrity
      * checks, along with the initial URIs to point to the content and metadata. Attribute
      * the token ID to the creator, mark the content hash as used, and set the bid shares for
      * the media's market.
@@ -592,8 +588,8 @@ contract ZapMedia is
 
         uint256 tokenId = access._tokenIdTracker.current();
 
-        _safeMint(creator, tokenId);
         access._tokenIdTracker.increment();
+        _safeMint(creator, tokenId);
         _setTokenContentHash(tokenId, data.contentHash);
         _setTokenMetadataHash(tokenId, data.metadataHash);
         _setTokenMetadataURI(tokenId, data.metadataURI);
@@ -647,7 +643,7 @@ contract ZapMedia is
         internal
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
     {
-        super._burn(tokenId);
+        ERC721URIStorageUpgradeable._burn(tokenId);
 
         delete tokens.previousTokenOwners[tokenId];
 
@@ -668,7 +664,7 @@ contract ZapMedia is
     ) internal override {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
 
-        super._transfer(from, to, tokenId);
+        ERC721Upgradeable._transfer(from, to, tokenId);
     }
 
     /**

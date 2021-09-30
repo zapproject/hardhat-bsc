@@ -13,13 +13,11 @@ contract ZapMaster is ZapGetters {
     event NewZapAddress(address _newZap);
     using Address for address;
 
-
-    ZapTokenBSC public token;
     address public owner;
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can transfer balance.");
+        require(msg.sender == owner, 'Only owner can transfer balance.');
         _;
     }
 
@@ -38,8 +36,6 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('zapContract')] = _zapContract;
         zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
 
-
-        token = ZapTokenBSC(tokenAddress);
         owner = msg.sender;
 
         emit NewZapAddress(_zapContract);
@@ -74,13 +70,14 @@ contract ZapMaster is ZapGetters {
     // function to send balance to a New Zap Master contract
     function sendBalToNewZM(address _newZapMaster) external onlyOwner {
         // require to be the owner of ZM to send to new ZM
-        
+
         // total balance of current ZapMaster
         uint256 zapBalance = token.balanceOf(address(this));
-        // approve entire balance
-        token.approve(address(this), zapBalance);
+
         bytes memory data = abi.encodeWithSelector(
-                token.transferFrom.selector, address(this), _newZapMaster, zapBalance
+            token.transfer.selector,
+            _newZapMaster,
+            zapBalance
         );
         _callOptionalReturn(token, data);
     }
@@ -93,7 +90,7 @@ contract ZapMaster is ZapGetters {
         bytes memory _calldata = msg.data;
         assembly {
             let result := delegatecall(
-                not(0),
+                gas(),
                 addr,
                 add(_calldata, 0x20),
                 mload(_calldata),
@@ -121,15 +118,23 @@ contract ZapMaster is ZapGetters {
      * @param _token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
      */
-    function _callOptionalReturn(ZapTokenBSC _token, bytes memory data) private {
+    function _callOptionalReturn(ZapTokenBSC _token, bytes memory data)
+        private
+    {
         // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(_token).functionCall(data, "ZapTokenBSC: low-level call failed");
+        bytes memory returndata = address(_token).functionCall(
+            data,
+            'ZapTokenBSC: low-level call failed'
+        );
         if (returndata.length > 0) {
             // Return data is optional
-            require(abi.decode(returndata, (bool)), "ZapTokenBSC: ERC20 operation did not succeed");
+            require(
+                abi.decode(returndata, (bool)),
+                'ZapTokenBSC: ERC20 operation did not succeed'
+            );
         }
     }
 }
