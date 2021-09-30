@@ -105,7 +105,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         uint8 curatorFeePercentage,
         address auctionCurrency
     ) public override nonReentrant returns (uint256) {
-        require(duration == 60 * 60 * 24 , "AuctionHouse: We only support Auctions with a 24 hour duration");
+        require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
             IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
             'tokenContract does not support ERC721 interface'
