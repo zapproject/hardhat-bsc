@@ -24,13 +24,16 @@ contract MediaFactory is OwnableUpgradeable{
         address marketContractAddr,
         bool permissive,
         string calldata _collectionMetadata
-    ) external {
+    ) external returns (address) {
         ZapMedia zapMedia = new ZapMedia();
         zapMedia.initialize(name, symbol, marketContractAddr, permissive, _collectionMetadata);
+
         zapMedia.transferOwnership(payable(msg.sender));
 
         zapMarket.registerMedia(address(zapMedia));
 
         emit MediaDeployed(address(zapMedia));
+
+        return address(zapMedia);
     }
 }
