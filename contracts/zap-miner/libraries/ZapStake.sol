@@ -65,7 +65,7 @@ library ZapStake {
         ZapStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
         //passed by since they locked for withdraw
-        // require(now - (now % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
+        require(now - (now % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
         require(stakes.currentStatus == 2, "Required to request withdraw of stake");
         stakes.currentStatus = 0;
 
