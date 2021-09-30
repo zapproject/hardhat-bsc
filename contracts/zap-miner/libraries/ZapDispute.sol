@@ -50,13 +50,13 @@ library ZapDispute {
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
 
         //Require that the msg.sender has not voted
-        require(disp.voted[msg.sender] != true);
+        require(disp.voted[msg.sender] != true, "msg.sender has already voted");
 
         //Requre that the user had a balance >0 at time/blockNumber the disupte began
-        require(voteWeight > 0);
+        require(voteWeight > 0, "User must have a balance greater than zero");
 
         //ensures miners that are under dispute cannot vote
-        require(self.stakerDetails[msg.sender].currentStatus != 3);
+        require(self.stakerDetails[msg.sender].currentStatus != 3, "Miners undeer dispute cannot vote");
 
 
         //Update user voting status to true
@@ -99,10 +99,10 @@ library ZapDispute {
         address disputeFeeWinnerAddress;
         
         //Ensure this has not already been executed/tallied
-        require(!disp.executed);
+        require(!disp.executed, "This has already been executed");
 
         //Ensure the time for voting has elapsed
-        require(now > disp.disputeUintVars[keccak256('minExecutionDate')]);
+        require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
 
         //If the vote is not a proposed fork
         if (!disp.isPropFork) {
@@ -224,7 +224,7 @@ library ZapDispute {
         address _propNewZapAddress
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
-        require(self.disputeIdByDisputeHash[_hash] == 0);
+        require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
 
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
