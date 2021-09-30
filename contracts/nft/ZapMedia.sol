@@ -7,6 +7,7 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
@@ -137,7 +138,6 @@ contract ZapMedia is
      * ERC721 metadata interface
      */
 
-
     function initialize(
         string calldata name,
         string calldata symbol,
@@ -169,8 +169,6 @@ contract ZapMedia is
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
-
-        console.log( name, symbol, _collectionMetadata);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -196,7 +194,7 @@ contract ZapMedia is
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
+        return ERC721URIStorageUpgradeable.tokenURI(tokenId);
     }
 
     function _registerInterface(bytes4 interfaceId) internal virtual override {
@@ -213,7 +211,7 @@ contract ZapMedia is
         virtual
         override(ERC721EnumerableUpgradeable, ERC721Upgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        ERC721EnumerableUpgradeable._beforeTokenTransfer(from, to, tokenId);
     }
 
     /* *************
@@ -327,7 +325,7 @@ contract ZapMedia is
             )
         );
 
-        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
@@ -538,7 +536,7 @@ contract ZapMedia is
             )
         );
 
-        address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
+        address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
         require(
             recoveredAddress != address(0) &&
@@ -650,7 +648,7 @@ contract ZapMedia is
         internal
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
     {
-        super._burn(tokenId);
+        ERC721URIStorageUpgradeable._burn(tokenId);
 
         delete tokens.previousTokenOwners[tokenId];
 
@@ -671,7 +669,7 @@ contract ZapMedia is
     ) internal override {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
 
-        super._transfer(from, to, tokenId);
+        ERC721Upgradeable._transfer(from, to, tokenId);
     }
 
     /**
