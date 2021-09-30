@@ -66,7 +66,7 @@ contract Zap {
     using ZapLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
-    ZapStorage.ZapStorageStruct zap;
+    ZapStorage.ZapStorageStruct private zap;
     ZapTokenBSC public token;
     // Vault public vault;
     // address public vaultAddress;

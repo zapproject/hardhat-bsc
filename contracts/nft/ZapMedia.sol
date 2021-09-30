@@ -169,8 +169,6 @@ contract ZapMedia is
         access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
-
-        console.log(name, symbol, _collectionMetadata);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -204,7 +202,7 @@ contract ZapMedia is
         onlyTokenCreated(tokenId)
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
+        return ERC721URIStorageUpgradeable.tokenURI(tokenId);
     }
 
     function _registerInterface(bytes4 interfaceId) internal virtual override {
@@ -221,7 +219,7 @@ contract ZapMedia is
         virtual
         override(ERC721EnumerableUpgradeable, ERC721Upgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        ERC721EnumerableUpgradeable._beforeTokenTransfer(from, to, tokenId);
     }
 
     /* *************
@@ -645,7 +643,7 @@ contract ZapMedia is
         internal
         override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
     {
-        super._burn(tokenId);
+        ERC721URIStorageUpgradeable._burn(tokenId);
 
         delete tokens.previousTokenOwners[tokenId];
 
@@ -666,7 +664,7 @@ contract ZapMedia is
     ) internal override {
         IMarket(access.marketContract).removeAsk(address(this), tokenId);
 
-        super._transfer(from, to, tokenId);
+        ERC721Upgradeable._transfer(from, to, tokenId);
     }
 
     /**
