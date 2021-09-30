@@ -14,7 +14,6 @@ contract ZapMaster is ZapGetters {
     using Address for address;
 
 
-    ZapTokenBSC public token;
     address public owner;
 
     /// @dev Throws if called by any contract other than latest designated caller
@@ -39,7 +38,6 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
 
 
-        token = ZapTokenBSC(tokenAddress);
         owner = msg.sender;
 
         emit NewZapAddress(_zapContract);

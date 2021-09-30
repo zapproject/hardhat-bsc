@@ -14,6 +14,7 @@ import {Decimal} from './Decimal.sol';
 import {IMedia} from './interfaces/IMedia.sol';
 import {IAuctionHouse} from './interfaces/IAuctionHouse.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import 'hardhat/console.sol';
 
 interface IWETH {
     function deposit() external payable;
@@ -49,7 +50,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
-    bytes4 constant private interfaceId = 0x80ac58cd; // 721 interface id
+    bytes4 private constant interfaceId = 0x80ac58cd; // 721 interface id
 
     Counters.Counter private _auctionIdTracker;
 
@@ -64,13 +65,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    // constructor(address _weth) {
-    //     wethAddress = _weth;
-    //     timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
-    //     minBidIncrementPercentage = 5; // 5%
-    // }
-
     function initialize(address _weth) public initializer {
+        __ReentrancyGuard_init();
         wethAddress = _weth;
         timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
         minBidIncrementPercentage = 5; // 5%
@@ -80,6 +76,13 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         internal
         returns (bool)
     {
+        require(
+            mediaContract != address(0),
+            'AuctionHouse: Media Contract Address can not be the zero address'
+        );
+        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0))
+            return false;
+
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
             mediaContract: mediaContract
@@ -123,6 +126,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'Caller must be approved or owner for token id'
         );
         uint256 auctionId = _auctionIdTracker.current();
+        _auctionIdTracker.increment();
 
         setTokenDetails(tokenId, mediaContract);
 
@@ -145,8 +149,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             address(this),
             tokenId
         );
-
-        _auctionIdTracker.increment();
 
         emit AuctionCreated(
             auctionId,
@@ -173,7 +175,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
      * @notice Approve an auction, opening up the auction for bids.
      * @dev Only callable by the curator. Cannot be called if the auction has already started.
      */
-    function setAuctionApproval(uint256 auctionId, bool approved)
+    function startAuction(uint256 auctionId, bool approved)
         external
         override
         auctionExists(auctionId)
@@ -182,6 +184,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             msg.sender == auctions[auctionId].curator,
             'Must be auction curator'
         );
+
         require(
             auctions[auctionId].firstBidTime == 0,
             'Auction has already started'
@@ -231,8 +234,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'Auction must be approved by curator'
         );
         require(
-            auctions[auctionId].firstBidTime == 0 ||
-                block.timestamp <
+            auctions[auctionId].firstBidTime != 0,
+            "Auction hasn't started yet"
+        );
+        require(
+            block.timestamp <
                 auctions[auctionId].firstBidTime.add(
                     auctions[auctionId].duration
                 ),
@@ -272,11 +278,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             );
         }
 
-        // If this is the first valid bid, we should set the starting time now.
-        // If it's not, then we should refund the last bidder
-        if (auctions[auctionId].firstBidTime == 0) {
-            auctions[auctionId].firstBidTime = block.timestamp;
-        } else if (lastBidder != address(0)) {
+        // If this is the first valid bid we should refund the last bidder
+        if (lastBidder != address(0)) {
             _handleOutgoingBid(
                 lastBidder,
                 auctions[auctionId].amount,
@@ -452,10 +455,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                 auctions[auctionId].curator == msg.sender,
             'Can only be called by auction creator or curator'
         );
-        require(
-            uint256(auctions[auctionId].firstBidTime) == 0,
-            "Can't cancel an auction once it's begun"
-        );
+        require(auctions[auctionId].bidder == address(0), "You can't cancel an auction that has a bid");
         _cancelAuction(auctionId);
     }
 
@@ -474,7 +474,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
             IWETH(wethAddress).deposit{value: amount}();
         } else {
-            require(msg.value == 0, "AuctionHouse: Ether is not required for this transaction");
+            require(
+                msg.value == 0,
+                'AuctionHouse: Ether is not required for this transaction'
+            );
             // We must check the balance that was actually transferred to the auction,
             // as some tokens impose a transfer fee and would not actually transfer the
             // full amount to the market, resulting in potentally locked funds
@@ -536,6 +539,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
         auctions[auctionId].approved = approved;
+
+        auctions[auctionId].firstBidTime = block.timestamp;
+
         emit AuctionApprovalUpdated(
             auctionId,
             auctions[auctionId].token.tokenId,
@@ -600,8 +606,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         return (true, afterBalance.sub(beforeBalance));
     }
 
-    // TODO: consider reverting if the message sender is not WETH
-    receive() external payable {}
-
-    fallback() external payable {}
+    receive() external payable {
+        require(
+            msg.sender == wethAddress,
+            'AuctionHouse: Fallback function receive() - sender is not WETH'
+        );
+    }
 }
