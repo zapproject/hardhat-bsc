@@ -451,10 +451,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                 auctions[auctionId].curator == msg.sender,
             'Can only be called by auction creator or curator'
         );
-        require(
-            uint256(auctions[auctionId].firstBidTime) == 0,
-            "Can't cancel an auction once it's begun"
-        );
+        require(auctions[auctionId].bidder == address(0), "You can't cancel an auction that has a bid");
         _cancelAuction(auctionId);
     }
 
