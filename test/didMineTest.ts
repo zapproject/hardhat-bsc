@@ -182,10 +182,6 @@ describe('Did Mine Test', () => {
         .connect(signers[i])
         .approve(zapMaster.address, BigNumber.from('500000000000000000000000'));
 
-      await vault
-        .connect(signers[i])
-        .lockSmith(signers[i].address, zap.address);
-
       // Stakes 600k Zap to initiate a miner
       await zap.depositStake();
     }
@@ -293,10 +289,6 @@ describe('Did Mine Test', () => {
         .connect(signers[i])
         .approve(zapMaster.address, BigNumber.from('500000000000000000000000'));
 
-      await vault
-        .connect(signers[i])
-        .lockSmith(signers[i].address, zap.address);
-
       // Stakes 600k Zap to initiate a miner
       await zap.depositStake();
     }
@@ -335,10 +327,6 @@ describe('Did Mine Test', () => {
       await zapTokenBsc
         .connect(signers[i])
         .approve(zapMaster.address, BigNumber.from('500000000000000000000000'));
-
-      await vault
-        .connect(signers[i])
-        .lockSmith(signers[i].address, zap.address);
 
       // Stakes 600k Zap to initiate a miner
       await zap.depositStake();
