@@ -122,6 +122,8 @@ interface IMarket {
         bytes32 symbol
     ) external;
 
+    function isRegistered(address mediaContractAddress) external view returns (bool);
+
     function registerMedia(address mediaContract) external;
 
     function setMediaFactory(address _mediaFactory) external;

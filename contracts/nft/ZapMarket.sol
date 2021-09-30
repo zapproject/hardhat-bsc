@@ -73,14 +73,6 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         _;
     }
 
-    modifier isRegistered(address mediaContractAddress) {
-        require(
-            registeredMedias[mediaContractAddress],
-            "Market: This contract isn't registered"
-        );
-        _;
-    }
-
     /* ****************
      * View Functions
      * ****************
@@ -204,6 +196,10 @@ contract ZapMarket is IMarket, Initializable, Ownable {
         owner = msg.sender;
 
         platformAddress = _platformAddress;
+    }
+
+    function isRegistered(address mediaContractAddress) public override view returns (bool) {
+        return(registeredMedias[mediaContractAddress]);
     }
 
     function setMediaFactory(address _mediaFactory) external override onlyOwner {
