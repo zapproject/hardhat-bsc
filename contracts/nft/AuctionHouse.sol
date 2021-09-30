@@ -548,6 +548,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         uint256 auctionId,
         address mediaContract
     ) internal returns (bool, uint256) {
+        require(
+            IMarket(IMediaExtended(mediaContract).marketContract()).isRegistered(mediaContract)
+            , "This Media Contract is unauthorised to settle auctions"
+        );
         address currency = auctions[auctionId].auctionCurrency == address(0)
             ? wethAddress
             : auctions[auctionId].auctionCurrency;
