@@ -27,6 +27,7 @@ contract MediaFactory is OwnableUpgradeable{
     ) external {
         ZapMedia zapMedia = new ZapMedia();
         zapMedia.initialize(name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        zapMedia.transferOwnership(payable(msg.sender));
 
         zapMarket.registerMedia(address(zapMedia));
 
