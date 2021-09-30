@@ -249,6 +249,8 @@ function initializeMarket(address _platformAddress) public initializer {
         uint256 tokenId,
         address mediaContract
     ) external override {
+        require(msg.sender == mediaContract, "Market: Media only function");
+        
         if (isMint == true) {
             emit Minted(tokenId, mediaContract);
         } else {
