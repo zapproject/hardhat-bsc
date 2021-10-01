@@ -11,3 +11,4 @@ deployments
 .vscode
 output
 test/output
+output/bscGas.txt

@@ -116,7 +116,7 @@ contract Zap {
 
         //ensure the msg.sender is staked and not in dispute
         require(token.balanceOf(msg.sender) > zap.uintVars[keccak256('disputeFee')], "You do not have a balance to dispute.");
-        require(zap.stakerDetails[msg.sender].currentStatus != 3, "You must not be in dispute to begin one.");
+        
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute

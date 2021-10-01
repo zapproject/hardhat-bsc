@@ -37,10 +37,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     using Counters for Counters.Counter;
 
     // The minimum amount of time left in an auction after a new bid is created
-    uint256 public timeBuffer;
+    uint256 public constant timeBuffer = 15 * 60;
 
     // The minimum percentage difference between the last bid amount and the current bid.
-    uint8 public minBidIncrementPercentage;
+    uint8 public constant minBidIncrementPercentage = 5;
 
     // / The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
     address public wethAddress;
@@ -50,8 +50,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
-    bytes4 private constant interfaceId = 0x80ac58cd; // 721 interface id
-
+    bytes4 private constant interfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
+    uint8 constant hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
     /**
@@ -68,8 +68,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     function initialize(address _weth) public initializer {
         __ReentrancyGuard_init();
         wethAddress = _weth;
-        timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
-        minBidIncrementPercentage = 5; // 5%
     }
 
     function setTokenDetails(uint256 tokenId, address mediaContract)
@@ -115,7 +113,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             "Media contract is not registered with the marketplace"
         );
         require(
-            curatorFeePercentage < 100,
+            curatorFeePercentage < hundredPercent,
             'curatorFeePercentage must be less than 100'
         );
         address tokenOwner = IERC721Upgradeable(mediaContract).ownerOf(tokenId);
@@ -256,7 +254,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                     auctions[auctionId]
                         .amount
                         .mul(minBidIncrementPercentage)
-                        .div(100)
+                        .div(hundredPercent)
                 ),
             'Must send more than last bid by minBidIncrementPercentage amount'
         );
@@ -298,12 +296,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         // at this point we know that the timestamp is less than start + duration (since the auction would be over, otherwise)
         // we want to know by how much the timestamp is less than start + duration
         // if the difference is less than the timeBuffer, increase the duration by the timeBuffer
-        if (
-            auctions[auctionId]
+        uint256 timeDiff = auctions[auctionId]
                 .firstBidTime
                 .add(auctions[auctionId].duration)
-                .sub(block.timestamp) < timeBuffer
-        ) {
+                .sub(block.timestamp);
+
+        if (timeDiff < timeBuffer) {
             // Playing code golf for gas optimization:
             // uint256 expectedEnd = auctions[auctionId].firstBidTime.add(auctions[auctionId].duration);
             // uint256 timeRemaining = expectedEnd.sub(block.timestamp);
@@ -311,11 +309,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             // uint256 newDuration = auctions[auctionId].duration.add(timeToAdd);
             uint256 oldDuration = auctions[auctionId].duration;
             auctions[auctionId].duration = oldDuration.add(
-                timeBuffer.sub(
-                    auctions[auctionId].firstBidTime.add(oldDuration).sub(
-                        block.timestamp
-                    )
-                )
+                timeBuffer.sub(timeDiff)
             );
             extended = true;
         }
@@ -411,7 +405,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         if (auctions[auctionId].curator != address(0)) {
             curatorFee = tokenOwnerProfit
                 .mul(auctions[auctionId].curatorFeePercentage)
-                .div(100);
+                .div(hundredPercent);
 
             tokenOwnerProfit = tokenOwnerProfit.sub(curatorFee);
 
