@@ -256,13 +256,6 @@ contract ZapMedia is
         override
         nonReentrant
     {
-        // bool isRegistered = zapMarket.isRegistered(address(this));
-
-        // require(
-        //     isRegistered != false,
-        //     'Media: Cannot mint on an unregistered contract'
-        // );
-
         require(
             access.isPermissive || access.approvedToMint[msg.sender],
             'Media: Only Approved users can mint'
