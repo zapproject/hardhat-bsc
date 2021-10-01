@@ -144,7 +144,7 @@ library ZapGettersLibrary {
             disp.reportedMiner,
             disp.reportingParty,
             disp.proposedForkAddress,
-            [
+            [  //all these keys are being being calculated
                 disp.disputeUintVars[keccak256('requestId')],
                 disp.disputeUintVars[keccak256('timestamp')],
                 disp.disputeUintVars[keccak256('value')],
@@ -176,7 +176,7 @@ library ZapGettersLibrary {
         )
     {
         return (
-            self.currentChallenge,
+            self.currentChallenge, //these keys below are being calculated
             self.uintVars[keccak256('currentRequestId')],
             self.uintVars[keccak256('difficulty')],
             self
@@ -231,7 +231,7 @@ library ZapGettersLibrary {
     {
         return (
             retrieveData(
-                self,
+                self, //more being calculated
                 self.requestIdByTimestamp[
                     self.uintVars[keccak256('timeOfLastNewValue')]
                 ],
@@ -416,7 +416,7 @@ library ZapGettersLibrary {
         return (
             _request.queryString,
             _request.dataSymbol,
-            _request.queryHash,
+            _request.queryHash, //more to be calculated
             _request.apiUintVars[keccak256('granularity')],
             _request.apiUintVars[keccak256('requestQPosition')],
             _request.apiUintVars[keccak256('totalTip')]
@@ -511,7 +511,7 @@ library ZapGettersLibrary {
     {
         uint256 newRequestId = getTopRequestID(self);
         return (
-            newRequestId,
+            newRequestId, //more being calculated
             self.requestDetails[newRequestId].apiUintVars[
                 keccak256('totalTip')
             ],
@@ -570,7 +570,7 @@ library ZapGettersLibrary {
         internal
         view
         returns (uint256)
-    {
+    { //below is caculation
         return self.uintVars[keccak256('total_supply')];
     }
 }

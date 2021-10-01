@@ -56,7 +56,7 @@ library ZapDispute {
         require(voteWeight > 0, "User must have a balance greater than zero");
 
         //ensures miners that are under dispute cannot vote
-        require(self.stakerDetails[msg.sender].currentStatus != 3, "Miners undeer dispute cannot vote");
+        
 
 
         //Update user voting status to true
