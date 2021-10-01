@@ -2,6 +2,7 @@ pragma solidity =0.5.16;
 
 import './SafeMathM.sol';
 import './ZapStorage.sol';
+import './ZapConstants.sol';
 import './Utilities.sol';
 
 /**
@@ -26,8 +27,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _newDeity
     ) internal {
-        require(self.addressVars[keccak256('_deity')] == msg.sender);
-        self.addressVars[keccak256('_deity')] = _newDeity;
+        require(self.addressVars[ZapConstants._deity] == msg.sender);
+        self.addressVars[ZapConstants._deity] = _newDeity;
     }
 
     //Only needs to be in library
@@ -39,8 +40,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _zapContract
     ) internal {
-        require(self.addressVars[keccak256('_deity')] == msg.sender);
-        self.addressVars[keccak256('zapContract')] = _zapContract;
+        require(ZapConstants._deity] == msg.sender);
+        self.addressVars[ZapConstants.zapContract] = _zapContract;
         emit NewZapAddress(_zapContract);
     }
 
@@ -48,8 +49,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _vaultAddress
     ) internal {
-        require(self.addressVars[keccak256('_owner')] == msg.sender);
-        self.addressVars[keccak256('_vault')] = _vaultAddress;
+        require(self.addressVars[ZapConstants._owner] == msg.sender);
+        self.addressVars[ZapConstants._vault] = _vaultAddress;
     }
 
     /*Zap Getters*/
@@ -86,7 +87,7 @@ library ZapGettersLibrary {
      * @dev allows Zap to read data from the addressVars mapping
      * @param _data is the keccak256("variable_name") of the variable that is being accessed.
      * These are examples of how the variables are saved within other functions:
-     * addressVars[keccak256("_owner")]
+     * addressVars[ZapConstants._owner]
      * addressVars[keccak256("zapContract")]
      */
     function getAddressVars(
@@ -145,15 +146,15 @@ library ZapGettersLibrary {
             disp.reportingParty,
             disp.proposedForkAddress,
             [  //all these keys are being being calculated
-                disp.disputeUintVars[keccak256('requestId')],
-                disp.disputeUintVars[keccak256('timestamp')],
-                disp.disputeUintVars[keccak256('value')],
-                disp.disputeUintVars[keccak256('minExecutionDate')],
+                disp.disputeUintVars[ZapConstants.requestId],
+                disp.disputeUintVars[ZapConstants.timestamp],
+                disp.disputeUintVars[ZapConstants.value],
+                disp.disputeUintVars[ZapConstants.minExecutionDate],
                 disp.disputeUintVars[keccak256('numberOfVotes')],
-                disp.disputeUintVars[keccak256('blockNumber')],
-                disp.disputeUintVars[keccak256('minerSlot')],
+                disp.disputeUintVars[ZapConstants.blockNumber],
+                disp.disputeUintVars[ZapConstants.minerSlot],
                 disp.disputeUintVars[keccak256('quorum')],
-                disp.disputeUintVars[keccak256('fee')]
+                disp.disputeUintVars[ZapConstants.fee]
             ],
             disp.tally
         );
@@ -177,17 +178,17 @@ library ZapGettersLibrary {
     {
         return (
             self.currentChallenge, //these keys below are being calculated
-            self.uintVars[keccak256('currentRequestId')],
-            self.uintVars[keccak256('difficulty')],
+            self.uintVars[ZapConstants.currentRequestId],
+            self.uintVars[ZapConstants.difficulty],
             self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
+                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
                 .queryString,
             self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-                .apiUintVars[keccak256('granularity')],
+                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
+                .apiUintVars[ZapConstants.granularity],
             self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-                .apiUintVars[keccak256('totalTip')]
+                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
+                .apiUintVars[ZapConstants.totalTip]
         );
     }
 
@@ -417,9 +418,9 @@ library ZapGettersLibrary {
             _request.queryString,
             _request.dataSymbol,
             _request.queryHash, //more to be calculated
-            _request.apiUintVars[keccak256('granularity')],
-            _request.apiUintVars[keccak256('requestQPosition')],
-            _request.apiUintVars[keccak256('totalTip')]
+            _request.apiUintVars[ZapConstants.granularity],
+            _request.apiUintVars[ZapConstants.requestQPosition],
+            _request.apiUintVars[ZapConstants.totalTip]
         );
     }
 
@@ -513,7 +514,7 @@ library ZapGettersLibrary {
         return (
             newRequestId, //more being calculated
             self.requestDetails[newRequestId].apiUintVars[
-                keccak256('totalTip')
+                ZapConstants.totalTip
             ],
             self.requestDetails[newRequestId].queryString
         );

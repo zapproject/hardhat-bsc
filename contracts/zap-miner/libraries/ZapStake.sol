@@ -1,7 +1,9 @@
 pragma solidity =0.5.16;
 
+import './ZapConstants.sol';
 import "./ZapStorage.sol";
 import "./ZapDispute.sol";
+
 // import "hardhat/console.sol";
 
 /**
@@ -28,10 +30,10 @@ library ZapStake {
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("targetMiners")] = 200;
         self.uintVars[keccak256("stakeAmount")] = 500000 * 1e18;
-        self.uintVars[keccak256("disputeFee")] = 970 * 1e18;
+        self.uintVars[ZapConstants.disputeFee] = 970 * 1e18;
         self.uintVars[keccak256("timeTarget")]= 600;
         self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
-        self.uintVars[keccak256("difficulty")] = 1;
+        self.uintVars[ZapConstants.difficulty] = 1;
     }
 
 
@@ -122,6 +124,6 @@ library ZapStake {
         for(uint i=0;i<5;i++){
             _requestIds[i] =  self.currentMiners[i].value;
         }
-        return (self.currentChallenge,_requestIds,self.uintVars[keccak256("difficulty")],self.uintVars[keccak256("currentTotalTips")]);
+        return (self.currentChallenge,_requestIds,self.uintVars[ZapConstants.difficulty],self.uintVars[ZapConstants.currentTotalTips]);
     }
 }

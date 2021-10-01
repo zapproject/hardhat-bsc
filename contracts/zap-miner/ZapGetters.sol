@@ -91,7 +91,7 @@ contract ZapGetters {
      * @dev allows Zap to read data from the addressVars mapping
      * @param _data is the keccak256("variable_name") of the variable that is being accessed.
      * These are examples of how the variables are saved within other functions:
-     * addressVars[keccak256("_owner")]
+     * addressVars[ZapConstants._owner]
      * addressVars[keccak256("zapContract")]
      */
     function getAddressVars(bytes32 _data) external view returns (address) {

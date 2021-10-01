@@ -4,6 +4,7 @@ pragma solidity ^0.7.6;
 pragma experimental ABIEncoderV2;
 
 import "./ZapApi.sol";
+import "../zap-miner/library/ZapConstants.sol"
 
 interface Oracle {
     function getUintVar(bytes32 _data) external view returns (uint256);
@@ -200,7 +201,7 @@ contract Aggregator is ZapApi {
      * @return Returns the contract owner address.
      */
     function owner() external view returns (address) {
-        return oracle.getAddressVars(keccak256("_owner"));
+        return oracle.getAddressVars(ZapConstants._owner);
     }
 
     /**
@@ -215,7 +216,7 @@ contract Aggregator is ZapApi {
      * @return Returns the current tips for a give request ID.
      */
     function totalTip(uint256 _dataID) public view returns (uint256) {
-        return oracle.getRequestUintVars(_dataID, keccak256("totalTip"));
+        return oracle.getRequestUintVars(_dataID, ZapConstants.totalTip);
     }
 
     /**
@@ -231,7 +232,7 @@ contract Aggregator is ZapApi {
      * This variable tracks the total number of requests from user thorugh the addTip function.
      */
     function requestCount() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("requestCount"));
+        return oracle.getUintVar(ZapConstants.requestCount);
     }
 
     /**
@@ -240,7 +241,7 @@ contract Aggregator is ZapApi {
      *
      */
     function difficulty() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("difficulty"));
+        return oracle.getUintVar(ZapConstants.difficulty);
     }
 
     /**
@@ -257,7 +258,7 @@ contract Aggregator is ZapApi {
      * This variable tracks the highest api/timestamp PayoutPool.
      */
     function currentTotalTips() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("currentTotalTips"));
+        return oracle.getUintVar(ZapConstants.currentTotalTips);
     }
 
     /**
@@ -265,7 +266,7 @@ contract Aggregator is ZapApi {
      * This variable tracks the number of miners who have mined this value so far.
      */
     function slotProgress() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("slotProgress"));
+        return oracle.getUintVar(ZapConstants.slotProgress);
     }
 
     /**
@@ -273,7 +274,7 @@ contract Aggregator is ZapApi {
      * This variable tracks the cost to dispute a mined value.
      */
     function disputeFee() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("disputeFee"));
+        return oracle.getUintVar(ZapConstants.disputeFee);
     }
 
     /**

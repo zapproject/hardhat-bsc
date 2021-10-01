@@ -98,7 +98,7 @@ library ZapStorage {
         // keccak256("currentTotalTips"); //value of highest api/timestamp PayoutPool
         // keccak256("currentRequestId"); //API being mined--updates with the ApiOnQ Id
         // keccak256("requestCount"); // total number of requests through the system
-        // keccak256("slotProgress");//Number of miners who have mined this value so far
+        // ZapConstants.slotProgress;//Number of miners who have mined this value so far
         // keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
         // keccak256("timeTarget"); //The time between blocks (mined Oracle values)
         // keccak256("currentMinerReward"); //The last reward given to miners on creation of a new block

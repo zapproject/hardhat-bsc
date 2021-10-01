@@ -7,6 +7,7 @@ import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
+import './libraries/ZapConstants';
 import './Vault.sol';
 
 /**
@@ -115,7 +116,7 @@ contract Zap {
         require(zap.stakerDetails[msg.sender].currentStatus == 1, "Only stakers can begin a dispute");
 
         //ensure the msg.sender is staked and not in dispute
-        require(token.balanceOf(msg.sender) > zap.uintVars[keccak256('disputeFee')], "You do not have a balance to dispute.");
+        require(token.balanceOf(msg.sender) > zap.uintVars[ZapConstants.disputeFee], "You do not have a balance to dispute.");
         
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
@@ -128,15 +129,15 @@ contract Zap {
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
 
-        transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
+        transferFrom(msg.sender, zap.addressVars[ZapConstants._owner], zap.uintVars[ZapConstants.disputeFee]);
 
         //Increase the dispute count by 1
-        zap.uintVars[keccak256('disputeCount')] =
-            zap.uintVars[keccak256('disputeCount')] +
+        zap.uintVars[ZapConstants.disputeCount] =
+            zap.uintVars[ZapConstants.disputeCount] +
             1;
 
         //Sets the new disputeCount as the disputeId
-        uint256 disputeId = zap.uintVars[keccak256('disputeCount')];
+        uint256 disputeId = zap.uintVars[ZapConstants.disputeCount];
 
         //maps the dispute hash to the disputeId
         zap.disputeIdByDisputeHash[_hash] = disputeId;
@@ -155,25 +156,25 @@ contract Zap {
 
         //Saves all the dispute variables for the disputeId
         zap.disputesById[disputeId].disputeUintVars[
-            keccak256('requestId')
+            ZapConstants.requestId
         ] = _requestId;
         zap.disputesById[disputeId].disputeUintVars[
-            keccak256('timestamp')
+            ZapConstants.timestamp
         ] = _timestamp;
         zap.disputesById[disputeId].disputeUintVars[
-            keccak256('value')
+            ZapConstants.value
         ] = _request.valuesByTimestamp[_timestamp][_minerIndex];
         zap.disputesById[disputeId].disputeUintVars[
-            keccak256('minExecutionDate')
+            ZapConstants.minExecutionDate
         ] = now + 7 days;
         zap.disputesById[disputeId].disputeUintVars[
-            keccak256('blockNumber')
+            ZapConstants.blockNumber
         ] = block.number;
         zap.disputesById[disputeId].disputeUintVars[
-            keccak256('minerSlot')
+            ZapConstants.minerSlot
         ] = _minerIndex;
-        zap.disputesById[disputeId].disputeUintVars[keccak256('fee')] = zap
-        .uintVars[keccak256('disputeFee')];
+        zap.disputesById[disputeId].disputeUintVars[ZapConstants.fee] = zap
+        .uintVars[ZapConstants.disputeFee];
 
         //Values are sorted as they come in and the official value is the median of the first five
         //So the "official value" miner is always minerIndex==2. If the official value is being
@@ -192,7 +193,7 @@ contract Zap {
      */
     function vote(uint256 _disputeId, bool _supportsDispute) external {
 
-        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        address vaultAddress = zap.addressVars[ZapConstants._vault];
         Vault vault = Vault(vaultAddress);
 
         uint256 voteWeight = vault.userBalance(msg.sender);
@@ -240,8 +241,8 @@ contract Zap {
         zap.proposeFork(_propNewZapAddress, isZM);
             transferFrom(
                 msg.sender,
-                zap.addressVars[keccak256("_owner")],
-                zap.uintVars[keccak256('disputeFee')]
+                zap.addressVars[ZapConstants._owner],
+                zap.uintVars[ZapConstants.disputeFee]
             );
     }
 
@@ -276,8 +277,8 @@ contract Zap {
         //If this is the first time the API and granularity combination has been requested then create the API and granularity hash
         //otherwise the tip will be added to the requestId submitted
         if (zap.requestIdByQueryHash[_queryHash] == 0) {
-            zap.uintVars[keccak256('requestCount')]++;
-            uint256 _requestId = zap.uintVars[keccak256('requestCount')];
+            zap.uintVars[ZapConstants.requestCount]++;
+            uint256 _requestId = zap.uintVars[ZapConstants.requestCount];
             zap.requestDetails[_requestId] = ZapStorage.Request({
                 queryString: _sapi,
                 dataSymbol: _symbol,
@@ -285,13 +286,13 @@ contract Zap {
                 requestTimestamps: new uint256[](0)
             });
             zap.requestDetails[_requestId].apiUintVars[
-                keccak256('granularity')
+                ZapConstants.granularity
             ] = _granularity;
             zap.requestDetails[_requestId].apiUintVars[
-                keccak256('requestQPosition')
+                ZapConstants.requestQPosition
             ] = 0;
             zap.requestDetails[_requestId].apiUintVars[
-                keccak256('totalTip')
+                ZapConstants.totalTip
             ] = 0;
             zap.requestIdByQueryHash[_queryHash] = _requestId;
 
@@ -330,10 +331,10 @@ contract Zap {
 
         ZapStorage.Details[5] memory a = zap.currentMiners;
 
-        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        address vaultAddress = zap.addressVars[ZapConstants._vault];
         Vault vault = Vault(vaultAddress);
 
-        uint256 minerReward = zap.uintVars[keccak256('currentMinerReward')];
+        uint256 minerReward = zap.uintVars[ZapConstants.currentTotalTips];
 
         if (minerReward != 0){
             // Pay the miners
@@ -346,11 +347,11 @@ contract Zap {
             }
 
             // Pay the devshare
-            token.approve(address(this), zap.uintVars[keccak256('devShare')]);
+            token.approve(address(this), zap.uintVars[ZapConstants.devShare]);
             transferFrom(
                 address(this),
-                zap.addressVars[keccak256('_owner')],
-                zap.uintVars[keccak256('devShare')]
+                zap.addressVars[ZapConstants._owner],
+                zap.uintVars[ZapConstants.devShare]
             );
         }
 
@@ -370,7 +371,7 @@ contract Zap {
         );
         zap.depositStake();
 
-        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        address vaultAddress = zap.addressVars[ZapConstants._vault];
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
@@ -394,7 +395,7 @@ contract Zap {
     function withdrawStake() external {
         zap.withdrawStake();
 
-        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        address vaultAddress = zap.addressVars[ZapConstants._vault];
         Vault vault = Vault(vaultAddress);
 
         uint256 userBalance = vault.userBalance(msg.sender);
@@ -482,7 +483,7 @@ contract Zap {
             msg.sender,
             _requestId,
             _tip,
-            zap.requestDetails[_requestId].apiUintVars[keccak256('totalTip')]
+            zap.requestDetails[_requestId].apiUintVars[ZapConstants.totalTip]
         );
     }
 
@@ -496,20 +497,20 @@ contract Zap {
         uint256 onDeckRequestId = ZapGettersLibrary.getTopRequestID(zap);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0) {
-            _request.apiUintVars[keccak256('totalTip')] = _request
-            .apiUintVars[keccak256('totalTip')]
+            _request.apiUintVars[ZapConstants.totalTip] = _request
+            .apiUintVars[ZapConstants.totalTip]
             .add(_tip);
         }
         //Set _payout for the submitted request
-        uint256 _payout = _request.apiUintVars[keccak256('totalTip')];
+        uint256 _payout = _request.apiUintVars[ZapConstants.totalTip];
 
         //If there is no current request being mined
         //then set the currentRequestId to the requestid of the requestData or addtip requestId submitted,
         // the totalTips to the payout/tip submitted, and issue a new mining challenge
-        if (zap.uintVars[keccak256('currentRequestId')] == 0) {
-            _request.apiUintVars[keccak256('totalTip')] = 0;
-            zap.uintVars[keccak256('currentRequestId')] = _requestId;
-            zap.uintVars[keccak256('currentTotalTips')] = _payout;
+        if (zap.uintVars[ZapConstants.currentRequestId] == 0) {
+            _request.apiUintVars[ZapConstants.totalTip] = 0;
+            zap.uintVars[ZapConstants.currentRequestId] = _requestId;
+            zap.uintVars[ZapConstants.currentTotalTips] = _payout;
             zap.currentChallenge = keccak256(
                 abi.encodePacked(
                     _payout,
@@ -519,15 +520,15 @@ contract Zap {
             ); // Save hash for next proof
             emit NewChallenge(
                 zap.currentChallenge,
-                zap.uintVars[keccak256('currentRequestId')],
-                zap.uintVars[keccak256('difficulty')],
+                zap.uintVars[ZapConstants.currentRequestId],
+                zap.uintVars[ZapConstants.difficulty],
                 zap
-                    .requestDetails[zap.uintVars[keccak256('currentRequestId')]]
-                    .apiUintVars[keccak256('granularity')],
+                    .requestDetails[zap.uintVars[ZapConstants.currentRequestId]]
+                    .apiUintVars[ZapConstants.granularity],
                 zap
-                    .requestDetails[zap.uintVars[keccak256('currentRequestId')]]
+                    .requestDetails[zap.uintVars[ZapConstants.currentRequestId]]
                     .queryString,
-                zap.uintVars[keccak256('currentTotalTips')]
+                zap.uintVars[ZapConstants.currentTotalTips]
             );
         } else {
             //If there is no OnDeckRequestId
@@ -536,7 +537,7 @@ contract Zap {
             if (
                 _payout >
                 zap.requestDetails[onDeckRequestId].apiUintVars[
-                    keccak256('totalTip')
+                    ZapConstants.totalTip
                 ] ||
                 (onDeckRequestId == 0)
             ) {
@@ -551,7 +552,7 @@ contract Zap {
 
             //if the request is not part of the requestQ[51] array
             //then add to the requestQ[51] only if the _payout/tip is greater than the minimum(tip) in the requestQ[51] array
-            if (_request.apiUintVars[keccak256('requestQPosition')] == 0) {
+            if (_request.apiUintVars[ZapConstants.requestQPosition] == 0) {
                 uint256 _min;
                 uint256 _index;
                 (_min, _index) = Utilities.getMin(zap.requestQ);
@@ -562,17 +563,17 @@ contract Zap {
                     zap.requestQ[_index] = _payout;
                     zap
                     .requestDetails[zap.requestIdByRequestQIndex[_index]]
-                    .apiUintVars[keccak256('requestQPosition')] = 0;
+                    .apiUintVars[ZapConstants.requestQPosition] = 0;
                     zap.requestIdByRequestQIndex[_index] = _requestId;
                     _request.apiUintVars[
-                        keccak256('requestQPosition')
+                        ZapConstants.requestQPosition
                     ] = _index;
                 }
             }
             //else if the requestid is part of the requestQ[51] then update the tip for it
             else if (_tip > 0) {
                 zap.requestQ[
-                    _request.apiUintVars[keccak256('requestQPosition')]
+                    _request.apiUintVars[ZapConstants.requestQPosition]
                 ] += _tip;
             }
         }

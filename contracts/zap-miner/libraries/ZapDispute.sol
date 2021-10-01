@@ -2,6 +2,7 @@ pragma solidity =0.5.16;
 
 import './SafeMathM.sol';
 import './ZapStorage.sol';
+import './ZapConstants.sol';
 
 /**
  * @title Zap Dispute
@@ -59,10 +60,10 @@ library ZapDispute {
         disp.voted[msg.sender] = true;
 
         //Update the number of votes for the dispute
-        disp.disputeUintVars[keccak256('numberOfVotes')] += 1;
+        disp.disputeUintVars[ZapConstants.numberOfVotes] += 1;
 
         //Update the quorum by adding the voteWeight
-        disp.disputeUintVars[keccak256('quorum')] += voteWeight;
+        disp.disputeUintVars[ZapConstants.quorum] += voteWeight;
 
         //If the user supports the dispute increase the tally for the dispute by the voteWeight
         //otherwise decrease it
@@ -87,18 +88,18 @@ library ZapDispute {
 
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
         ZapStorage.Request storage _request = self.requestDetails[
-            disp.disputeUintVars[keccak256('requestId')]
+            disp.disputeUintVars[ZapConstants.requestId]
         ];
 
         
-        uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
+        uint disputeFeeForDisputeId = disp.disputeUintVars[ZapConstants.fee];
         address disputeFeeWinnerAddress;
         
         //Ensure this has not already been executed/tallied
         require(!disp.executed, "This has already been executed");
 
         //Ensure the time for voting has elapsed
-        require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
+        require(now > disp.disputeUintVars[ZapConstants.minExecutionDate], "Cannot vote at this time.");
 
         //If the vote is not a proposed fork
         if (!disp.isPropFork) {
@@ -114,7 +115,7 @@ library ZapDispute {
                 stakes.startDate = now - (now % 86400);
 
                 //Decreases the stakerCount since the miner's stake is being slashed
-                self.uintVars[keccak256('stakerCount')]--;
+                self.uintVars[ZapConstants.stakerCount]--;
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
@@ -132,7 +133,7 @@ library ZapDispute {
                 //     self,
                 //     address(this),
                 //     disp.reportingParty,
-                //     disp.disputeUintVars[keccak256('fee')]
+                //     disp.disputeUintVars[ZapConstants.fee]
                 // );
                 
                 //Set the dispute state to passed/true
@@ -142,11 +143,11 @@ library ZapDispute {
                 //so that users don't use this datapoint
                 if (
                     _request.inDispute[
-                        disp.disputeUintVars[keccak256('timestamp')]
+                        disp.disputeUintVars[ZapConstants.timestamp]
                     ]
                 ) {
                     _request.finalValues[
-                        disp.disputeUintVars[keccak256('timestamp')]
+                        disp.disputeUintVars[ZapConstants.timestamp]
                     ] = 0;
                 }
                 
@@ -167,16 +168,16 @@ library ZapDispute {
                 //     self,
                 //     address(this),
                 //     disp.reportedMiner,
-                //     disp.disputeUintVars[keccak256('fee')]
+                //     disp.disputeUintVars[ZapConstants.fee]
                 // );
 
                 if (
                     _request.inDispute[
-                        disp.disputeUintVars[keccak256('timestamp')]
+                        disp.disputeUintVars[ZapConstants.timestamp]
                     ]
                 ) {
                     _request.inDispute[
-                        disp.disputeUintVars[keccak256('timestamp')]
+                        disp.disputeUintVars[ZapConstants.timestamp]
                     ] = false;
                 }
                 
@@ -189,11 +190,11 @@ library ZapDispute {
         } else {
             if (disp.tally > 0) {
                 require(
-                    disp.disputeUintVars[keccak256('quorum')] >
-                        ((self.uintVars[keccak256('total_supply')] * 20) / 100)
+                    disp.disputeUintVars[ZapConstants.quorum] >
+                        ((self.uintVars[ZapConstants.total_supply] * 20) / 100)
                 );
                 if (!disp.isZM) {
-                    self.addressVars[keccak256('zapContract')] = disp.proposedForkAddress;
+                    self.addressVars[ZapConstants.zapContract] = disp.proposedForkAddress;
                 }
                 disp.disputeVotePassed = true;
                 emit NewZapAddress(disp.proposedForkAddress);
@@ -224,8 +225,8 @@ library ZapDispute {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
 
-        self.uintVars[keccak256('disputeCount')]++;
-        uint256 disputeId = self.uintVars[keccak256('disputeCount')];
+        self.uintVars[ZapConstants.disputeCount]++;
+        uint256 disputeId = self.uintVars[ZapConstants.disputeCount];
         self.disputeIdByDisputeHash[_hash] = disputeId;
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
@@ -239,12 +240,12 @@ library ZapDispute {
             tally: 0
         });
         self.disputesById[disputeId].disputeUintVars[
-            keccak256('blockNumber')
+            ZapConstants.blockNumber
         ] = block.number;
-        self.disputesById[disputeId].disputeUintVars[keccak256('fee')] = self
-        .uintVars[keccak256('disputeFee')];
+        self.disputesById[disputeId].disputeUintVars[ZapConstants.fee] = self
+        .uintVars[ZapConstants.disputeFee];
         self.disputesById[disputeId].disputeUintVars[
-            keccak256('minExecutionDate')
+            ZapConstants.minExecutionDate
         ] = now + 7 days;
     }
 
@@ -255,23 +256,23 @@ library ZapDispute {
     function updateDisputeFee(ZapStorage.ZapStorageStruct storage self) public {
         //if the number of staked miners divided by the target count of staked miners is less than 1
         if (
-            (self.uintVars[keccak256('stakerCount')] * 1000) /
+            (self.uintVars[ZapConstants.stakerCount] * 1000) /
                 self.uintVars[keccak256('targetMiners')] <
             1000
         ) {
             //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
             //or at the its minimum of 15
-            self.uintVars[keccak256('disputeFee')] = SafeMathM.max(
+            self.uintVars[ZapConstants.disputeFee] = SafeMathM.max(
                 15,
                 self.uintVars[keccak256('stakeAmount')].mul(
                     1000 -
-                        (self.uintVars[keccak256('stakerCount')] * 1000) /
+                        (self.uintVars[ZapConstants.stakerCount] * 1000) /
                         self.uintVars[keccak256('targetMiners')]
                 ) / 1000
             );
         } else {
             //otherwise set the dispute fee at 15 (the floor/minimum fee allowed)
-            self.uintVars[keccak256('disputeFee')] = 15;
+            self.uintVars[ZapConstants.disputeFee] = 15;
         }
     }
 }
