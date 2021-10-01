@@ -9,10 +9,11 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @title Math
  *
  * Library for non-standard Math functions
- * NOTE: This file is a clone of the dydx protocol's Decimal.sol contract.
+ * NOTE: This file is a clone of the dydx protocol's Math.sol contract.
  * It was forked from https://github.com/dydxprotocol/solo at commit
- * 2d8454e02702fe5bc455b848556660629c3cad36. It has not been modified other than to use a
- * newer solidity in the pragma to match the rest of the contract suite of this project.
+ * 2d8454e02702fe5bc455b848556660629c3cad36. It has two modifications
+ *      - uses a newer solidity in the pragma to match the rest of the contract suite of this project.
+ *      - Removed `Require.sol` dependency
  */
 library Math {
     using SafeMath for uint256;
