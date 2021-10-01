@@ -219,7 +219,7 @@ contract Zap {
 
         }
 
-        if (disp.isZm) {
+        if (disp.isZM) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
             // total balance of current ZapMaster
             uint256 zapBalance = token.balanceOf(address(this));
@@ -236,8 +236,8 @@ contract Zap {
      * @dev Allows for a fork to be proposed
      * @param _propNewZapAddress address for new proposed Zap
      */
-    function proposeFork(address _propNewZapAddress) external {
-        zap.proposeFork(_propNewZapAddress);
+    function proposeFork(address _propNewZapAddress, bool isZM) external {
+        zap.proposeFork(_propNewZapAddress, isZM);
             transferFrom(
                 msg.sender,
                 zap.addressVars[keccak256("_owner")],
