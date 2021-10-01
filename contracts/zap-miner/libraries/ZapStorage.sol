@@ -19,6 +19,7 @@ library ZapStorage {
         bool executed; //is the dispute settled
         bool disputeVotePassed; //did the vote pass?
         bool isPropFork; //true for fork proposal NEW
+        bool isZM; //true if proposed fork is to change Zap Master
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty; //miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
         address proposedForkAddress; //new fork address (if fork proposal)

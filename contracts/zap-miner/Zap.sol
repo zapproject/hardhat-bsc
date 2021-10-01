@@ -144,6 +144,7 @@ contract Zap {
         zap.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: false,
+            isZM: false,
             reportedMiner: _miner,
             reportingParty: msg.sender,
             proposedForkAddress: address(0),
