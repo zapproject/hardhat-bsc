@@ -123,7 +123,7 @@ library ZapDispute {
                 //     self,
                 //     disp.reportedMiner,
                 //     disp.reportingParty,
-                //     self.uintVars[keccak256('stakeAmount')]
+                //     self.uintVars[ZapConstants.stakeAmount]
                 // );
 
 
@@ -257,17 +257,17 @@ library ZapDispute {
         //if the number of staked miners divided by the target count of staked miners is less than 1
         if (
             (self.uintVars[ZapConstants.stakerCount] * 1000) /
-                self.uintVars[keccak256('targetMiners')] <
+                self.uintVars[ZapConstants.targetMiners] <
             1000
         ) {
             //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
             //or at the its minimum of 15
             self.uintVars[ZapConstants.disputeFee] = SafeMathM.max(
                 15,
-                self.uintVars[keccak256('stakeAmount')].mul(
+                self.uintVars[ZapConstants.stakeAmount].mul(
                     1000 -
                         (self.uintVars[ZapConstants.stakerCount] * 1000) /
-                        self.uintVars[keccak256('targetMiners')]
+                        self.uintVars[ZapConstants.targetMiners]
                 ) / 1000
             );
         } else {

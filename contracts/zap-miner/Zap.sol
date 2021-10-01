@@ -355,7 +355,7 @@ contract Zap {
             );
         }
 
-        zap.uintVars[keccak256('currentMinerReward')] = 0;
+        zap.uintVars[ZapConstants.currentMinerReward] = 0;
     }
 
     /**
@@ -363,7 +363,7 @@ contract Zap {
      */
     function depositStake() external {
         // require balance is >= here before it hits NewStake()
-        uint256 stakeAmount = zap.uintVars[keccak256('stakeAmount')];
+        uint256 stakeAmount = zap.uintVars[ZapConstants.stakeAmount];
         require(
             token.balanceOf(msg.sender) >=
                 stakeAmount,

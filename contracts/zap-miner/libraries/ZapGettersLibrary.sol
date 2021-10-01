@@ -88,7 +88,7 @@ library ZapGettersLibrary {
      * @param _data is the keccak256("variable_name") of the variable that is being accessed.
      * These are examples of how the variables are saved within other functions:
      * addressVars[ZapConstants._owner]
-     * addressVars[keccak256("zapContract")]
+     * addressVars[ZapConstants.zapContract]
      */
     function getAddressVars(
         ZapStorage.ZapStorageStruct storage self,
@@ -150,10 +150,10 @@ library ZapGettersLibrary {
                 disp.disputeUintVars[ZapConstants.timestamp],
                 disp.disputeUintVars[ZapConstants.value],
                 disp.disputeUintVars[ZapConstants.minExecutionDate],
-                disp.disputeUintVars[keccak256('numberOfVotes')],
+                disp.disputeUintVars[ZapConstants.numberOfVotes],
                 disp.disputeUintVars[ZapConstants.blockNumber],
                 disp.disputeUintVars[ZapConstants.minerSlot],
-                disp.disputeUintVars[keccak256('quorum')],
+                disp.disputeUintVars[ZapConstants.quorum],
                 disp.disputeUintVars[ZapConstants.fee]
             ],
             disp.tally
@@ -234,9 +234,9 @@ library ZapGettersLibrary {
             retrieveData(
                 self, //more being calculated
                 self.requestIdByTimestamp[
-                    self.uintVars[keccak256('timeOfLastNewValue')]
+                    self.uintVars[ZapConstants.timeOfLastNewValue]
                 ],
-                self.uintVars[keccak256('timeOfLastNewValue')]
+                self.uintVars[ZapConstants.timeOfLastNewValue]
             ),
             true
         );
@@ -486,7 +486,7 @@ library ZapGettersLibrary {
      * the variables/strings used to save the data in the mapping. The variables names are
      * commented out under the uintVars under the ZapStorageStruct struct
      * This is an example of how data is saved into the mapping within other functions:
-     * self.uintVars[keccak256("stakerCount")]
+     * self.uintVars[ZapConstants.stakerCount]
      * @return uint of specified variable
      */
     function getUintVar(ZapStorage.ZapStorageStruct storage self, bytes32 _data)
@@ -572,6 +572,6 @@ library ZapGettersLibrary {
         view
         returns (uint256)
     { //below is caculation
-        return self.uintVars[keccak256('total_supply')];
+        return self.uintVars[ZapConstants.total_supply];
     }
 }

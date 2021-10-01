@@ -22,7 +22,7 @@ contract ZapGetters {
 
     constructor(address zapTokenBsc) public {
         token = ZapTokenBSC(zapTokenBsc);
-        zap.addressVars[keccak256('zapTokenContract')] = zapTokenBsc;
+        zap.addressVars[ZapConstants.zapTokenContract] = zapTokenBsc;
     }
 
     /**
@@ -92,7 +92,7 @@ contract ZapGetters {
      * @param _data is the keccak256("variable_name") of the variable that is being accessed.
      * These are examples of how the variables are saved within other functions:
      * addressVars[ZapConstants._owner]
-     * addressVars[keccak256("zapContract")]
+     * addressVars[ZapConstants.zapContract]
      */
     function getAddressVars(bytes32 _data) external view returns (address) {
         return zap.getAddressVars(_data);
@@ -402,7 +402,7 @@ contract ZapGetters {
      * the variables/strings used to save the data in the mapping. The variables names are
      * commented out under the uintVars under the ZapStorageStruct struct
      * This is an example of how data is saved into the mapping within other functions:
-     * self.uintVars[keccak256("stakerCount")]
+     * self.uintVars[ZapConstants.stakerCount]
      * @return uint of specified variable
      */
     function getUintVar(bytes32 _data) public view returns (uint256) {

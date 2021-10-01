@@ -108,12 +108,12 @@ contract Aggregator is ZapApi {
     function currentReward() external view returns (uint256) {
         uint256 timeDiff =
             block.timestamp -
-                oracle.getUintVar(keccak256("_TIME_OF_LAST_NEW_VALUE"));
+                oracle.getUintVar(ZapConstants.timeOfLastNewValue);
         uint256 rewardAmount = 1e18;
 
         uint256 rewardAccumulated = (timeDiff * rewardAmount) / 300; // 1TRB every 6 minutes.
 
-        uint256 tip = oracle.getUintVar(keccak256("_CURRENT_TOTAL_TIPS")) / 10; // Half of the tips are burnt.
+        uint256 tip = oracle.getUintVar(ZapConstants.currentTotalTips) / 10; // Half of the tips are burnt.
         return rewardAccumulated + tip;
     }
 
@@ -194,7 +194,7 @@ contract Aggregator is ZapApi {
      * @return Returns the contract deity that can do things at will.
      */
     function deity() external view returns (address) {
-        return oracle.getAddressVars(keccak256("_deity"));
+        return oracle.getAddressVars(ZapConstants._deity);
     }
 
     /**
@@ -208,7 +208,7 @@ contract Aggregator is ZapApi {
      * @return Returns the contract address that executes all proxy calls.
      */
     function zapminerContract() external view returns (address) {
-        return oracle.getAddressVars(keccak256("zapContract"));
+        return oracle.getAddressVars(ZapConstants.zapContract);
     }
 
     /**
@@ -224,7 +224,7 @@ contract Aggregator is ZapApi {
      * This variable tracks the last time when a value was submitted.
      */
     function timeOfLastValue() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("timeOfLastNewValue"));
+        return oracle.getUintVar(ZapConstants.timeOfLastNewValue);
     }
 
     /**
@@ -250,7 +250,7 @@ contract Aggregator is ZapApi {
      * the time diff since the last oracle block.
      */
     function timeTarget() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("timeTarget"));
+        return oracle.getUintVar(ZapConstants.timeTarget);
     }
 
     /**
@@ -281,7 +281,7 @@ contract Aggregator is ZapApi {
      * @return Returns the getUintVar variable named after the function name.
      */
     function disputeCount() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("disputeCount"));
+        return oracle.getUintVar(ZapConstants.disputeCount);
     }
 
     /**
@@ -289,7 +289,7 @@ contract Aggregator is ZapApi {
      * This variable tracks stake amount required to become a miner.
      */
     function stakeAmount() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("stakeAmount"));
+        return oracle.getUintVar(ZapConstants.stakeAmount);
     }
 
     /**
@@ -297,6 +297,6 @@ contract Aggregator is ZapApi {
      * This variable tracks the number of parties currently staked.
      */
     function stakeCount() external view returns (uint256) {
-        return oracle.getUintVar(keccak256("stakerCount"));
+        return oracle.getUintVar(ZapConstants.stakerCount);
     }
 }

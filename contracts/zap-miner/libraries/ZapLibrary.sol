@@ -92,10 +92,10 @@ library ZapLibrary {
         int256 _newDiff = int256(self.uintVars[ZapConstants.difficulty])
             .add(
                 int256(self.uintVars[ZapConstants.difficulty]).mul(
-                    int256(self.uintVars[keccak256('timeTarget')]).sub(
+                    int256(self.uintVars[ZapConstants.timeTarget]).sub(
                         int256(
                             now.sub(
-                                self.uintVars[keccak256('timeOfLastNewValue')]
+                                self.uintVars[ZapConstants.timeOfLastNewValue]
                             )
                         )
                     )
@@ -106,9 +106,9 @@ library ZapLibrary {
         // original
         // int256 _newDiff = int256(self.uintVars[ZapConstants.difficulty]) +
         //     (int256(self.uintVars[ZapConstants.difficulty]) *
-        //         (int256(self.uintVars[keccak256('timeTarget')]) -
+        //         (int256(self.uintVars[ZapConstants.timeTarget]) -
         //             int256(
-        //                 now - self.uintVars[keccak256('timeOfLastNewValue')]
+        //                 now - self.uintVars[ZapConstants.timeOfLastNewValue]
         //             ))) /
         //     100;
 
@@ -119,7 +119,7 @@ library ZapLibrary {
         }
 
         //Sets time of value submission rounded to 1 minute
-        self.uintVars[keccak256('timeOfLastNewValue')] =
+        self.uintVars[ZapConstants.timeOfLastNewValue] =
             now -
             (now % 1 minutes);
 
@@ -142,22 +142,22 @@ library ZapLibrary {
         }
 
         //Pay the miners
-        if (self.uintVars[keccak256('currentReward')] == 0) {
-            self.uintVars[keccak256('currentReward')] = 6e18;
+        if (self.uintVars[ZapConstants.currentReward] == 0) {
+            self.uintVars[ZapConstants.currentReward] = 6e18;
         }
-        if (self.uintVars[keccak256('currentReward')] > 1e18) {
-            self.uintVars[keccak256('currentReward')] =
-                self.uintVars[keccak256('currentReward')] -
-                (self.uintVars[keccak256('currentReward')] * 30612633181126) /
+        if (self.uintVars[ZapConstants.currentReward] > 1e18) {
+            self.uintVars[ZapConstants.currentReward] =
+                self.uintVars[ZapConstants.currentReward] -
+                (self.uintVars[ZapConstants.currentReward] * 30612633181126) /
                 1e18;
             self.uintVars[ZapConstants.devShare] =
-                ((self.uintVars[keccak256('currentReward')]) * 50) /
+                ((self.uintVars[ZapConstants.currentReward]) * 50) /
                 100;
         } else {
-            self.uintVars[keccak256('currentReward')] = 1e18;
+            self.uintVars[ZapConstants.currentReward] = 1e18;
         }
 
-        uint256 baseReward = (self.uintVars[keccak256('currentReward')] /
+        uint256 baseReward = (self.uintVars[ZapConstants.currentReward] /
             1e18) * 1e18;
         self.uintVars[ZapConstants.currentMinerReward] =
             baseReward +
@@ -166,7 +166,7 @@ library ZapLibrary {
 
         emit NewValue(
             _requestId,
-            self.uintVars[keccak256('timeOfLastNewValue')],
+            self.uintVars[ZapConstants.timeOfLastNewValue],
             a[2].value,
             self.uintVars[ZapConstants.currentTotalTips] -
                 (self.uintVars[ZapConstants.currentTotalTips] % 5),
@@ -174,40 +174,40 @@ library ZapLibrary {
         );
 
         //update the total supply
-        self.uintVars[keccak256('total_supply')] +=
+        self.uintVars[ZapConstants.total_supply] +=
             self.uintVars[ZapConstants.devShare] +
             self.uintVars[ZapConstants.currentMinerReward] *
             5;
-        // self.uintVars[keccak256('total_supply')] += 275;
+        // self.uintVars[ZapConstants.total_supply] += 275;
 
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         ] = a[2].value;
         _request.requestTimestamps.push(
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         );
         //these are miners by timestamp
         _request.minersByValue[
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         ] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
         _request.valuesByTimestamp[
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         ] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
         _request.minedBlockNum[
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         ] = block.number;
         //map the timeOfLastValue to the requestId that was just mined
 
         self.requestIdByTimestamp[
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         ] = _requestId;
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(
-            self.uintVars[keccak256('timeOfLastNewValue')]
+            self.uintVars[ZapConstants.timeOfLastNewValue]
         );
         //re-start the count for the slot progress to zero before the new request mining starts
-        self.uintVars[keccak256('slotProgress')] = 0;
+        self.uintVars[ZapConstants.slotProgress] = 0;
         self.uintVars[ZapConstants.currentRequestId] = ZapGettersLibrary
             .getTopRequestID(self);
         //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout
@@ -336,13 +336,13 @@ library ZapLibrary {
 
         //Save the miner and value received
         self
-            .currentMiners[self.uintVars[keccak256('slotProgress')]]
+            .currentMiners[self.uintVars[ZapConstants.slotProgress]]
             .value = _value;
-        self.currentMiners[self.uintVars[keccak256('slotProgress')]].miner = msg
+        self.currentMiners[self.uintVars[ZapConstants.slotProgress]].miner = msg
             .sender;
 
         //Add to the count how many values have been submitted, since only 5 are taken per request
-        self.uintVars[keccak256('slotProgress')]++;
+        self.uintVars[ZapConstants.slotProgress]++;
 
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
@@ -356,7 +356,7 @@ library ZapLibrary {
         );
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
-        if (self.uintVars[keccak256('slotProgress')] == 5) {
+        if (self.uintVars[ZapConstants.slotProgress] == 5) {
             newBlock(self, _nonce, _requestId);
         }
     }
