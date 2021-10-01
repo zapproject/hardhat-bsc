@@ -51,7 +51,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
     bytes4 private constant interfaceId = 0x80ac58cd; // 721 interface id
-
+    uint8 constant hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
     /**
@@ -115,7 +115,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             "Media contract is not registered with the marketplace"
         );
         require(
-            curatorFeePercentage < 100,
+            curatorFeePercentage < hundredPercent,
             'curatorFeePercentage must be less than 100'
         );
         address tokenOwner = IERC721Upgradeable(mediaContract).ownerOf(tokenId);
@@ -256,7 +256,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
                     auctions[auctionId]
                         .amount
                         .mul(minBidIncrementPercentage)
-                        .div(100)
+                        .div(hundredPercent)
                 ),
             'Must send more than last bid by minBidIncrementPercentage amount'
         );
@@ -411,7 +411,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         if (auctions[auctionId].curator != address(0)) {
             curatorFee = tokenOwnerProfit
                 .mul(auctions[auctionId].curatorFeePercentage)
-                .div(100);
+                .div(hundredPercent);
 
             tokenOwnerProfit = tokenOwnerProfit.sub(curatorFee);
 
