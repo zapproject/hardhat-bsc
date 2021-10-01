@@ -47,17 +47,13 @@ library ZapDispute {
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
 
         //ensure that only stakers can vote
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers that are not under dispute can vote");
 
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true, "msg.sender has already voted");
 
         //Requre that the user had a balance >0 at time/blockNumber the disupte began
         require(voteWeight > 0, "User must have a balance greater than zero");
-
-        //ensures miners that are under dispute cannot vote
-        
-
 
         //Update user voting status to true
         disp.voted[msg.sender] = true;
@@ -196,8 +192,9 @@ library ZapDispute {
                     disp.disputeUintVars[keccak256('quorum')] >
                         ((self.uintVars[keccak256('total_supply')] * 20) / 100)
                 );
-                self.addressVars[keccak256('zapContract')] = disp
-                .proposedForkAddress;
+                if (!disp.isZM) {
+                    self.addressVars[keccak256('zapContract')] = disp.proposedForkAddress;
+                }
                 disp.disputeVotePassed = true;
                 emit NewZapAddress(disp.proposedForkAddress);
             }
@@ -221,7 +218,8 @@ library ZapDispute {
      */
     function proposeFork(
         ZapStorage.ZapStorageStruct storage self,
-        address _propNewZapAddress
+        address _propNewZapAddress,
+        bool zm
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
@@ -232,6 +230,7 @@ library ZapDispute {
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: true,
+            isZM: zm,
             reportedMiner: msg.sender,
             reportingParty: msg.sender,
             proposedForkAddress: _propNewZapAddress,
