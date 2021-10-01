@@ -196,8 +196,9 @@ library ZapDispute {
                     disp.disputeUintVars[keccak256('quorum')] >
                         ((self.uintVars[keccak256('total_supply')] * 20) / 100)
                 );
-                self.addressVars[keccak256('zapContract')] = disp
-                .proposedForkAddress;
+                if (!disp.isZM) {
+                    self.addressVars[keccak256('zapContract')] = disp.proposedForkAddress;
+                }
                 disp.disputeVotePassed = true;
                 emit NewZapAddress(disp.proposedForkAddress);
             }
@@ -221,7 +222,8 @@ library ZapDispute {
      */
     function proposeFork(
         ZapStorage.ZapStorageStruct storage self,
-        address _propNewZapAddress
+        address _propNewZapAddress,
+        bool zm
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
@@ -232,6 +234,7 @@ library ZapDispute {
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: true,
+            isZM: zm,
             reportedMiner: msg.sender,
             reportingParty: msg.sender,
             proposedForkAddress: _propNewZapAddress,
