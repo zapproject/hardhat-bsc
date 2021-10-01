@@ -37,10 +37,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     using Counters for Counters.Counter;
 
     // The minimum amount of time left in an auction after a new bid is created
-    uint256 public timeBuffer;
+    uint256 public constant timeBuffer = 15 * 60;
 
     // The minimum percentage difference between the last bid amount and the current bid.
-    uint8 public minBidIncrementPercentage;
+    uint8 public constant minBidIncrementPercentage = 5;
 
     // / The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
     address public wethAddress;
@@ -68,8 +68,6 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     function initialize(address _weth) public initializer {
         __ReentrancyGuard_init();
         wethAddress = _weth;
-        timeBuffer = 15 * 60; // extend 15 minutes after every bid made in last 15 minutes
-        minBidIncrementPercentage = 5; // 5%
     }
 
     function setTokenDetails(uint256 tokenId, address mediaContract)
