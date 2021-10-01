@@ -234,17 +234,17 @@ contract ZapMarket is IMarket, Ownable {
         bytes32 name,
         bytes32 symbol
     ) external override {
-        require(
-            isConfigured[mediaContract] != true,
-            'Market: Already configured'
-        );
+        console.log('Sender', msg.sender);
+        console.log('Media Contract', mediaContract);
+
+        require(isConfigured[msg.sender] != true, 'Market: Already configured');
 
         require(
             mediaContract != address(0) && deployer != address(0),
             'Market: cannot set media contract as zero address'
         );
 
-        isConfigured[mediaContract] = true;
+        isConfigured[msg.sender] = true;
 
         mediaContracts[deployer].push(mediaContract);
 

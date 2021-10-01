@@ -229,7 +229,13 @@ describe('ZapMarket Test', () => {
     });
 
 
-    it('Should get the platform fee', async () => {
+    it.only('Should get the platform fee', async () => {
+
+      console.log({
+        media1: zapMedia1.address,
+        media2: zapMedia2.address,
+        media3: zapMedia3.address
+      })
 
       const fee = await zapMarket.viewFee();
 
