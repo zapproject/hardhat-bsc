@@ -55,6 +55,14 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
+    bytes32 private constant kecEIP712Domain = keccak256(
+            'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+    );
+
+    bytes32 private constant kecOne = keccak256(bytes('1'));
+
+    bytes32 private kecName;
+
     /* *********
      * Modifiers
      * *********
@@ -162,6 +170,7 @@ contract ZapMedia is
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
+        kecName = keccak256(name_b);
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
@@ -678,16 +687,13 @@ contract ZapMedia is
         }
 
         ERC721Upgradeable mediaContract = ERC721Upgradeable(address(this));
-        string memory mediaName = mediaContract.name();
 
         return
             keccak256(
                 abi.encode(
-                    keccak256(
-                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-                    ),
-                    keccak256(bytes(mediaName)),
-                    keccak256(bytes('1')),
+                    kecEIP712Domain,
+                    kecName,
+                    kecOne,
                     chainID,
                     address(this)
                 )
