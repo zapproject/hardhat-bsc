@@ -219,7 +219,7 @@ contract Zap {
 
         }
 
-        if (disp.isZm) {
+        if (disp.isZM) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
             // total balance of current ZapMaster
             uint256 zapBalance = token.balanceOf(address(this));
@@ -236,8 +236,8 @@ contract Zap {
      * @dev Allows for a fork to be proposed
      * @param _propNewZapAddress address for new proposed Zap
      */
-    function proposeFork(address _propNewZapAddress) external {
-        zap.proposeFork(_propNewZapAddress);
+    function proposeFork(address _propNewZapAddress, bool isZM) external {
+        zap.proposeFork(_propNewZapAddress, isZM);
             transferFrom(
                 msg.sender,
                 zap.addressVars[keccak256("_owner")],
@@ -601,32 +601,6 @@ contract Zap {
         if (returndata.length > 0) {
             // Return data is optional
             require(abi.decode(returndata, (bool)), "ZapTokenBSC: ERC20 operation did not succeed");
-        }
-    }
-
-    /**
-     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
-     * on the return value: the return value is optional (but if data is returned, it must not be false).
-     * @param _token The token targeted by the call.
-     * @param data The call data (encoded using abi.encode or one of its variants).
-     */
-    function _callOptionalReturn(ZapTokenBSC _token, bytes memory data)
-        private
-    {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
-        // the target address contains contract code and also asserts for success in the low-level call.
-
-        bytes memory returndata = address(_token).functionCall(
-            data,
-            'ZapTokenBSC: low-level call failed'
-        );
-        if (returndata.length > 0) {
-            // Return data is optional
-            require(
-                abi.decode(returndata, (bool)),
-                'ZapTokenBSC: ERC20 operation did not succeed'
-            );
         }
     }
 }
