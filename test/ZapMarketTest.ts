@@ -22,6 +22,8 @@ import { ZapMarket } from '../typechain/ZapMarket';
 
 import { ZapVault } from '../typechain/ZapVault';
 
+import { ZapMarket__factory } from "../typechain";
+
 chai.use(solidity);
 
 type MediaData = {
@@ -133,6 +135,7 @@ describe('ZapMarket Test', () => {
   };
 
   describe('#Configure', () => {
+    let zapMarketFactory: ZapMarket__factory;
 
     beforeEach(async () => {
 
@@ -150,7 +153,7 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
+      zapMarketFactory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
 
       zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
@@ -217,6 +220,13 @@ describe('ZapMarket Test', () => {
       bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
     });
+
+    describe("#Initialize", function () {
+      it("Should not initialize twice", async () => {
+        await expect(
+          zapMarket.initializeMarket(zapVault.address)).to.be.revertedWith("Initializable: contract is already initialized")
+      })
+    })
 
 
     it('Should get the platform fee', async () => {
