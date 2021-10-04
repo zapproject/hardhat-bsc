@@ -364,7 +364,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
+        IMarket(access.marketContract).setAsk(tokenId, ask);
     }
 
     /**
@@ -377,7 +377,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).removeAsk(address(this), tokenId);
+        IMarket(access.marketContract).removeAsk(tokenId);
     }
 
     /**
@@ -673,7 +673,7 @@ contract ZapMedia is
         address to,
         uint256 tokenId
     ) internal override {
-        IMarket(access.marketContract).removeAsk(address(this), tokenId);
+        IMarket(access.marketContract).removeAsk(tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
     }

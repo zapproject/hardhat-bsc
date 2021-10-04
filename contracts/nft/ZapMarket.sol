@@ -301,34 +301,28 @@ contract ZapMarket is IMarket, Ownable {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAsk(
-        address mediaContractAddress,
-        uint256 tokenId,
-        Ask memory ask
-    ) public override onlyMediaCaller {
+    function setAsk(uint256 tokenId, Ask memory ask)
+        public
+        override
+        onlyMediaCaller
+    {
         require(
-            isValidBid(mediaContractAddress, tokenId, ask.amount),
+            isValidBid(msg.sender, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
         );
 
-        _tokenAsks[mediaContractAddress][tokenId] = ask;
-        emit AskCreated(mediaContractAddress, tokenId, ask);
+        _tokenAsks[msg.sender][tokenId] = ask;
+        emit AskCreated(msg.sender, tokenId, ask);
     }
 
     /**
      * @notice removes an ask for a token and emits an AskRemoved event
      */
-    function removeAsk(address mediaContractAddress, uint256 tokenId)
-        external
-        override
-        onlyMediaCaller
-    {
-        emit AskRemoved(
-            tokenId,
-            _tokenAsks[mediaContractAddress][tokenId],
-            mediaContractAddress
-        );
-        delete _tokenAsks[mediaContractAddress][tokenId];
+    function removeAsk(uint256 tokenId) external override onlyMediaCaller {
+        console.log('Sender from removeAsk', msg.sender);
+
+        emit AskRemoved(tokenId, _tokenAsks[msg.sender][tokenId], msg.sender);
+        delete _tokenAsks[msg.sender][tokenId];
     }
 
     /**

@@ -715,16 +715,17 @@ describe('ZapMarket Test', () => {
 
     it('Should reject if not called by the media address', async () => {
       await expect(
-        zapMarket.connect(signers[5]).setAsk(zapMedia1.address, 1, ask1)
+        zapMarket.connect(signers[5]).setAsk(1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
-        zapMarket.connect(signers[5]).setAsk(zapMedia2.address, 1, ask1)
+        zapMarket.connect(signers[5]).setAsk(1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
 
-    it('Should set the ask if called by the media address', async () => {
+    it.only('Should set the ask if called by the media address', async () => {
+
       await zapMedia1.connect(signers[1]).setAsk(0, ask1);
 
       await zapMedia2.connect(signers[2]).setAsk(0, ask2);
@@ -800,6 +801,68 @@ describe('ZapMarket Test', () => {
         })
       ).to.be.revertedWith('Market: Ask invalid for share splitting');
     });
+
+    it.only("Should remove an ask", async () => {
+
+      await zapMedia1.connect(signers[1]).setAsk(0, ask1);
+      await zapMedia2.connect(signers[2]).setAsk(0, ask2);
+
+      const filter_media1: EventFilter = zapMarket.filters.AskCreated(
+        zapMedia1.address,
+        null,
+        null
+      );
+
+      const filter_media2: EventFilter = zapMarket.filters.AskCreated(
+        zapMedia2.address,
+        null,
+        null
+      );
+
+      const event_media1: Event = (
+        await zapMarket.queryFilter(filter_media1)
+      )[0];
+
+      const event_media2: Event = (
+        await zapMarket.queryFilter(filter_media2)
+      )[0];
+
+      expect(event_media1.event).to.be.equal('AskCreated');
+      expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_media2.event).to.be.equal('AskCreated');
+      expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
+      expect(event_media2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+      await zapMedia1.removeAsk(0);
+      await zapMedia2.removeAsk(0);
+
+      const filter_removeAsk1: EventFilter = zapMarket.filters.AskRemoved(
+        null,
+        null,
+        null
+      );
+
+      const filter_removeAsk2: EventFilter = zapMarket.filters.AskRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_removeAsk1: Event = (
+        await zapMarket.queryFilter(filter_removeAsk1)
+      )[0]
+
+      const event_removeAsk2: Event = (
+        await zapMarket.queryFilter(filter_removeAsk2)
+      )[1]
+
+      console.log(event_removeAsk1)
+      console.log(event_removeAsk2)
+
+    })
 
   });
 

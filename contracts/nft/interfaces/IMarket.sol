@@ -139,19 +139,12 @@ interface IMarket {
         address mediaContract
     ) external;
 
-    function setBidShares(
-        // address mediaContractAddress,
-        uint256 tokenId,
-        BidShares calldata bidShares
-    ) external;
+    function setBidShares(uint256 tokenId, BidShares calldata bidShares)
+        external;
 
-    function setAsk(
-        address mediaContractAddress,
-        uint256 tokenId,
-        Ask calldata ask
-    ) external;
+    function setAsk(uint256 tokenId, Ask calldata ask) external;
 
-    function removeAsk(address mediaContractAddress, uint256 tokenId) external;
+    function removeAsk(uint256 tokenId) external;
 
     function setBid(
         address mediaContractAddress,
