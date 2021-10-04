@@ -7,7 +7,7 @@ import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
-import './libraries/ZapConstants';
+import './libraries/ZapConstants.sol';
 import './Vault.sol';
 
 /**
