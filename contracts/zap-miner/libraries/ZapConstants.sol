@@ -3,6 +3,7 @@
 pragma solidity =0.5.16;
 
 library ZapConstants { 
+    // Constants
 
     /*
      * Addresses
@@ -74,4 +75,124 @@ library ZapConstants {
     bytes32 constant requestQPosition   = 0x1e344bd070f05f1c5b3f0b1266f4f20d837a0a8190a3a2da8b0375eac2ba86ea;
 
     bytes32 constant totalTip           = 0x2a9e355a92978430eca9c1aa3a9ba590094bac282594bccf82de16b83046e2c3;
+
+    bytes32 constant targetMiners       = 0xabef544d8048318ece54fb2c6385255cd1b06e176525d149a0338a7acca6deb3;
+
+    bytes32 constant currentReward        = 0x9b6853911475b07474368644a0d922ee13bc76a15cd3e97d3e334326424a47d4;
+
+    bytes32 constant devShare             = 0x8fe9ded8d7c08f720cf0340699024f83522ea66b2bbfb8f557851cb9ee63b54c;
+
+    // Address Getters
+
+    function getZapContract() public pure returns (bytes32) {
+        return zapContract;
+    }
+    function getZapTokenContract() public pure returns (bytes32) {
+        return zapTokenContract;
+    }
+    function get_owner() public pure returns (bytes32) {
+        return _owner;
+    }
+    function get_deity() public pure returns (bytes32) {
+        return _deity;
+    }
+    function get_vault() public pure returns (bytes32) {
+        return _vault;
+    }
+
+    //
+
+    function getRequestId() public pure returns (bytes32) {
+        return requestId;
+    }
+    function getTimestamp() public pure returns (bytes32) {
+        return timestamp;
+    }
+    function getValue() public pure returns (bytes32) {
+        return value;
+    }
+    function getMinExecutionDate() public pure returns (bytes32) {
+        return minExecutionDate;
+    }
+    function getNumberOfVotes() public pure returns (bytes32) {
+        return numberOfVotes;
+    }
+    function getBlockNumber() public pure returns (bytes32) {
+        return blockNumber;
+    }
+    function getMinerSlot() public pure returns (bytes32) {
+        return minerSlot;
+    }
+    function getQuorum() public pure returns (bytes32) {
+        return quorum;
+    }
+    function getFee() public pure returns (bytes32) {
+        return fee;
+    }
+
+    // UINT Getters
+    function getDecimals() public pure returns (bytes32) {
+        return decimals;
+    }
+    function getDisputeFee() public pure returns (bytes32) {
+        return disputeFee;
+    }
+    function getDisputeCount() public pure returns (bytes32) {
+        return disputeCount;
+    }
+    function getTotal_supply() public pure returns (bytes32) {
+        return total_supply;
+    }
+    function getStakeAmount() public pure returns (bytes32) {
+        return stakeAmount;
+    }
+    function getStakerCount() public pure returns (bytes32) {
+        return stakerCount;
+    }
+    function getTimeOfLastNewValue() public pure returns (bytes32) {
+        return timeOfLastNewValue;
+    }
+    function getDifficulty() public pure returns (bytes32) {
+        return difficulty;
+    }
+    function getCurrentTotalTips() public pure returns (bytes32) {
+        return currentTotalTips;
+    }
+    function getCurrentRequestId() public pure returns (bytes32) {
+        return currentRequestId;
+    }
+    function getRequestCount() public pure returns (bytes32) {
+        return requestCount;
+    }
+    function getSlotProgress() public pure returns (bytes32) {
+        return slotProgress;
+    }
+    function getMiningReward() public pure returns (bytes32) {
+        return miningReward;
+    }
+    function getTimeTarget() public pure returns (bytes32) {
+        return timeTarget;
+    }
+    function getCurrentMinerReward() public pure returns (bytes32) {
+        return currentMinerReward;
+    }
+    function getGranularity() public pure returns (bytes32) {
+        return granularity;
+    }
+    function getRequestQPosition() public pure returns (bytes32) {
+        return requestQPosition;
+    }
+    function getTotalTip() public pure returns (bytes32) {
+        return totalTip;
+    }
+    function getTargetMiners() public pure returns (bytes32) {
+        return targetMiners;
+    }
+    function getCurrentReward() public pure returns (bytes32) {
+        return currentReward;
+    }
+    function getDevShare() public pure returns (bytes32) {
+        return devShare;
+    }
+
 }
