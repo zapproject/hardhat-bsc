@@ -5,7 +5,6 @@ import './SafeMathM.sol';
 import './SignedSafeMath.sol';
 import './Utilities.sol';
 import './ZapStorage.sol';
-import './ZapTransfer.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';

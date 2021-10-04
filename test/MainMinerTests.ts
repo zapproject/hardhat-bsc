@@ -8,8 +8,6 @@ import chai from "chai";
 
 import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
-import { ZapTransfer } from '../typechain/ZapTransfer';
-
 import { ZapLibrary } from "../typechain/ZapLibrary";
 
 import { ZapDispute } from "../typechain/ZapDispute";
@@ -30,8 +28,6 @@ const { expect } = chai;
 chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
-
-let zapTransfer: ZapTransfer;
 
 let zapLibrary: ZapLibrary;
 

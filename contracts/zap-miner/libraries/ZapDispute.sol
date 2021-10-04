@@ -116,24 +116,6 @@ library ZapDispute {
                 //Decreases the stakerCount since the miner's stake is being slashed
                 self.uintVars[keccak256('stakerCount')]--;
                 updateDisputeFee(self);
-
-                //Transfers the StakeAmount from the reported miner to the reporting party
-                // ZapTransfer.doTransfer(
-                //     self,
-                //     disp.reportedMiner,
-                //     disp.reportingParty,
-                //     self.uintVars[keccak256('stakeAmount')]
-                // );
-
-
-                //Returns the dispute fee to the reporting party
-                // don't need to run this because tokens transfer will be an actual state change.
-                // ZapTransfer.doTransfer(
-                //     self,
-                //     address(this),
-                //     disp.reportingParty,
-                //     disp.disputeUintVars[keccak256('fee')]
-                // );
                 
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
@@ -160,15 +142,6 @@ library ZapDispute {
             } else {
                 //Update the miner's current status to staked(currentStatus = 1)
                 stakes.currentStatus = 1;
-
-                //tranfer the dispute fee to the miner
-                // // token is transfer using token.transferFrom right after tallyVotes() in zap.sol
-                // ZapTransfer.doTransfer(
-                //     self,
-                //     address(this),
-                //     disp.reportedMiner,
-                //     disp.disputeUintVars[keccak256('fee')]
-                // );
 
                 if (
                     _request.inDispute[

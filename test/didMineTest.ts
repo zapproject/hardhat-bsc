@@ -6,8 +6,6 @@ import chai from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { ZapTransfer } from '../typechain/ZapTransfer';
-
 import { ZapLibrary } from '../typechain/ZapLibrary';
 
 import { ZapDispute } from '../typechain/ZapDispute';
@@ -27,8 +25,6 @@ const { expect } = chai;
 chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
-
-let zapTransfer: ZapTransfer;
 
 let zapLibrary: ZapLibrary;
 
@@ -57,14 +53,6 @@ describe('Did Mine Test', () => {
 
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
-
-    const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-      'ZapTransfer',
-      signers[0]
-    );
-
-    zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
-    await zapTransfer.deployed();
 
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
