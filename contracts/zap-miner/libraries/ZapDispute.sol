@@ -100,13 +100,15 @@ library ZapDispute {
         //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
 
+        require(msg.sender != disp.reportingParty, "The reporting party of the dispute cannot vote");
+
         //If the vote is not a proposed fork
         if (!disp.isPropFork) {
             ZapStorage.StakeInfo storage stakes = self.stakerDetails[
                 disp.reportedMiner
             ];
             // instead of percentage, find the multiple of this dispute voters compared to numbe rof staked users
-            uint quorum = self.uintVars[keccak256("stakerCount")] / disp.disputeUintVars[keccak256('numberOfVotes')];
+            uint quorum = (self.uintVars[keccak256("stakerCount")] - 2) / disp.disputeUintVars[keccak256('numberOfVotes')];
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
             // miner and transfer the stakeAmount and dispute fee to the reporting party
             // the 2nd conditional will check if the amount of voters for this dispute is gte 10% of staked users

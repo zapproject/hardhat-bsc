@@ -475,7 +475,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
 
     // vote of a dispute
-    zap = zap.connect(signers[1]);
+    zap = zap.connect(signers[2]);
     await zap.vote(disputeId, true);
 
     disputeId = await zapMaster.getUintVar(ddisputecount);
