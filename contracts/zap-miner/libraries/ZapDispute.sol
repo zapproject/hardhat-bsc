@@ -89,7 +89,6 @@ library ZapDispute {
         ZapStorage.Request storage _request = self.requestDetails[
             disp.disputeUintVars[keccak256('requestId')]
         ];
-
         
         uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
         address disputeFeeWinnerAddress;
@@ -100,6 +99,7 @@ library ZapDispute {
         //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
 
+        //Ensure the reporting party cannot vote for that specific dispute
         require(msg.sender != disp.reportingParty, "The reporting party of the dispute cannot vote");
 
         //If the vote is not a proposed fork
