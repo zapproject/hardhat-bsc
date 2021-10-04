@@ -66,8 +66,10 @@ contract ZapMarket is IMarket, Ownable {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
-        console.log('Sender from the onlyMedia modifier', msg.sender);
-        require(isConfigured[msg.sender], 'Market: Only media contract');
+        require(
+            isConfigured[msg.sender] == true,
+            'Market: Only media contract'
+        );
         // require(
         //     mediaContractAddress == msg.sender,
         //     'Market: Only media contract'
@@ -229,10 +231,6 @@ contract ZapMarket is IMarket, Ownable {
         bytes32 name,
         bytes32 symbol
     ) external override {
-        // console.log('Sender', msg.sender);
-        // console.log('Media Contract', mediaContract);
-        // console.log('=====================================');
-
         require(
             isConfigured[mediaContract] != true,
             'Market: Already configured'
@@ -285,18 +283,18 @@ contract ZapMarket is IMarket, Ownable {
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
      */
-    function setBidShares(
-        address mediaContractAddress,
-        uint256 tokenId,
-        BidShares memory bidShares
-    ) public override onlyMediaCaller {
+    function setBidShares(uint256 tokenId, BidShares memory bidShares)
+        public
+        override
+        onlyMediaCaller
+    {
         require(
             isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'
         );
 
-        _bidShares[mediaContractAddress][tokenId] = bidShares;
-        emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
+        _bidShares[msg.sender][tokenId] = bidShares;
+        emit BidShareUpdated(tokenId, bidShares, msg.sender);
     }
 
     /**

@@ -23,6 +23,7 @@ import { ZapMarket } from '../typechain/ZapMarket';
 import { ZapVault } from '../typechain/ZapVault';
 
 import { ZapMarket__factory } from "../typechain";
+import { sign } from 'crypto';
 
 chai.use(solidity);
 
@@ -321,19 +322,6 @@ describe('ZapMarket Test', () => {
 
     it.only('Should reject if called twice', async () => {
 
-      console.log("Signer 1 address", signers[1].address);
-
-      await expect(
-        zapMarket
-          .connect(signers[1])
-          .configure(
-            signers[1].address,
-            zapMedia1.address,
-            formatBytes32String('TEST MEDIA 1'),
-            formatBytes32String('TM1')
-          )
-      ).to.be.revertedWith('Market: Already configured');
-
       // await expect(
       //   zapMarket
       //     .connect(signers[2])
@@ -370,7 +358,6 @@ describe('ZapMarket Test', () => {
       const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
       expect(event).to.not.be.undefined;
-
 
       expect(event.event).to.eq('MediaContractCreated');
 
@@ -528,13 +515,13 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMarket
           .connect(signers[3])
-          .setBidShares(zapMedia1.address, 1, bidShares1)
+          .setBidShares(1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
         zapMarket
           .connect(signers[4])
-          .setBidShares(zapMedia2.address, 1, bidShares1)
+          .setBidShares(1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
     });

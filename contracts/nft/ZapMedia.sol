@@ -195,8 +195,7 @@ contract ZapMedia is
         )
         returns (bool)
     {
-        return
-            super.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 
     /**
@@ -613,7 +612,7 @@ contract ZapMedia is
         tokens.previousTokenOwners[tokenId] = creator;
 
         IMarket(access.marketContract).setBidShares(
-            address(this),
+            // address(this),
             tokenId,
             bidShares
         );
