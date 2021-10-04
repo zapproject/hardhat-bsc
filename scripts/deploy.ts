@@ -180,11 +180,6 @@ async function main() {
   console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
   console.log("deployed ZapGettersLibrary")
 
-  // const zapTransfer = await ethers.getContractFactory("ZapTransfer", signers[0]);
-  // const ZapTransfer = await zapTransfer.deploy();
-  // console.log('ZapTransfer Address:', ZapTransfer.address);
-  // console.log("deployed ZapTransfer")
-
   const zapDispute = await ethers.getContractFactory("ZapDispute", {
     signer: signers[0]
   });
