@@ -311,6 +311,8 @@ describe('ZapMarket Test', () => {
 
     it.only('Should reject if called twice', async () => {
 
+      console.log("Signer 1 address", signers[1].address);
+
       await expect(
         zapMarket
           .connect(signers[1])

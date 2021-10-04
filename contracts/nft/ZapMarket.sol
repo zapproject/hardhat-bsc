@@ -68,6 +68,7 @@ contract ZapMarket is IMarket, Ownable {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
+        console.log('Sender from the onlyMedia modifier', msg.sender);
         require(isConfigured[msg.sender], 'Market: Only media contract');
         // require(
         //     mediaContractAddress == msg.sender,
@@ -234,25 +235,23 @@ contract ZapMarket is IMarket, Ownable {
         bytes32 name,
         bytes32 symbol
     ) external override {
-        console.log('Sender', msg.sender);
-        console.log('Media Contract', mediaContract);
-        console.log('=====================================');
+        // console.log('Sender', msg.sender);
+        // console.log('Media Contract', mediaContract);
+        // console.log('=====================================');
 
-        console.log(
-            'Does the sender equal the mediaContract?',
-            msg.sender == mediaContract
+        require(
+            isConfigured[mediaContract] != true,
+            'Market: Already configured'
         );
-
-        require(isConfigured[msg.sender] != true, 'Market: Already configured');
 
         require(
             mediaContract != address(0) && deployer != address(0),
             'Market: cannot set media contract as zero address'
         );
 
-        isConfigured[msg.sender] = true;
+        isConfigured[mediaContract] = true;
 
-        mediaContracts[deployer].push(msg.sender);
+        mediaContracts[deployer].push(mediaContract);
 
         emit MediaContractCreated(mediaContract, name, symbol);
     }
