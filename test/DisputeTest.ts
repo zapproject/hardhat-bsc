@@ -424,7 +424,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
   });
 
-  it('Should revert if number of voters are less than 10%', async () => {
+  it('Should fail dispute if the number of voters are less than 10%', async () => {
     // stake signers 6 to 15.
     for (let i = 6; i <= 15; i++) {
       await zapTokenBsc.allocate(signers[i].address, BigNumber.from("1100000000000000000000000"));
@@ -486,6 +486,14 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // Increase the evm time by 8 days
     // A stake can not be withdrawn until 7 days passed
     await ethers.provider.send('evm_increaseTime', [691200]);
-    await expect(zap.tallyVotes(disputeId)).to.be.revertedWith("Not enough voters for this dispute");
+    await zap.tallyVotes(disputeId);
+
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    // expect voting to have ended
+    expect(disp[1]).to.be.true;
+
+    // expect dispute to be successful
+    expect(disp[2]).to.be.false;
   });
 });
