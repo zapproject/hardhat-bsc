@@ -6,7 +6,7 @@ import chai from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import { ZapTransfer } from '../typechain/ZapTransfer';
+import { ZapConstants } from '../typechain/ZapConstants';
 
 import { ZapLibrary } from '../typechain/ZapLibrary';
 
@@ -28,7 +28,7 @@ chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
 
-let zapTransfer: ZapTransfer;
+let zapConstants: ZapConstants;
 
 let zapLibrary: ZapLibrary;
 
@@ -58,17 +58,20 @@ describe('Did Mine Test', () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
 
-    const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-      'ZapTransfer',
+    const zapConstantsFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapConstants',
       signers[0]
     );
 
-    zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
-    await zapTransfer.deployed();
+    zapConstants = (await zapConstantsFactory.deploy()) as ZapConstants;
+    await zapConstants.deployed();
 
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
       {
+        libraries: {
+          ZapConstants: zapConstants.address
+        },
         signer: signers[0]
       }
     );
@@ -79,6 +82,9 @@ describe('Did Mine Test', () => {
     const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
       'ZapDispute',
       {
+        libraries: {
+          ZapConstants: zapConstants.address
+        },
         signer: signers[0]
       }
     );
@@ -90,6 +96,7 @@ describe('Did Mine Test', () => {
       'ZapStake',
       {
         libraries: {
+          ZapConstants: zapConstants.address,
           ZapDispute: zapDispute.address
         },
         signer: signers[0]
@@ -101,9 +108,10 @@ describe('Did Mine Test', () => {
 
     const zapFactory: ContractFactory = await ethers.getContractFactory('Zap', {
       libraries: {
-        ZapStake: zapStake.address,
+        ZapConstants: zapConstants.address,
         ZapDispute: zapDispute.address,
-        ZapLibrary: zapLibrary.address
+        ZapLibrary: zapLibrary.address,
+        ZapStake: zapStake.address,
       },
       signer: signers[0]
     });
@@ -115,6 +123,7 @@ describe('Did Mine Test', () => {
       'ZapMaster',
       {
         libraries: {
+          ZapConstants: zapConstants.address,
           ZapStake: zapStake.address
         },
         signer: signers[0]
