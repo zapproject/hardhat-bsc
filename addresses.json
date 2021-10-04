@@ -1,16 +1,9 @@
 [
     {
-        "name": "ZapTransfer",
-        "address": "0xAd6f4151ef0c7D49fb40CDd6e7d3Ed8977543080",
-        "arguments": [],
-        "libraries": {}
-    },
-    {
         "name": "ZapLibrary",
         "address": "0x5896c4024de2DA768433123d442d8Ff2C1Ec694B",
         "arguments": [],
         "libraries": {
-            "ZapTransfer": "0xAd6f4151ef0c7D49fb40CDd6e7d3Ed8977543080"
         }
     },
     {
@@ -18,7 +11,6 @@
         "address": "0xF23937335c0794ea9920aC06c0f7947407919718",
         "arguments": [],
         "libraries": {
-            "ZapTransfer": "0xAd6f4151ef0c7D49fb40CDd6e7d3Ed8977543080"
         }
     },
     {
@@ -26,7 +18,6 @@
         "address": "0x00cf02aB915A9026C2328B07E9E45A854CCb28fd",
         "arguments": [],
         "libraries": {
-            "ZapTransfer": "0xAd6f4151ef0c7D49fb40CDd6e7d3Ed8977543080",
             "ZapDispute": "0xF23937335c0794ea9920aC06c0f7947407919718"
         }
     },
