@@ -8,7 +8,8 @@ import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import {
   keccak256,
-  parseBytes32String
+  parseBytes32String,
+  formatBytes32String
 } from 'ethers/lib/utils';
 
 import { BigNumber, Bytes, EventFilter, Event } from 'ethers';
@@ -320,31 +321,31 @@ describe('ZapMarket Test', () => {
 
     it('Should reject if called twice', async () => {
 
-      // await expect(
-      //   zapMarket
-      //     .connect(signers[2])
-      //     .configure(
-      //       signers[2].address,
-      //       zapMedia2.address,
-      //       formatBytes32String('TEST MEDIA 2'),
-      //       formatBytes32String('TM2')
-      //     )
-      // ).to.be.revertedWith('Market: Already configured');
+      await expect(
+        zapMarket
+          .connect(signers[2])
+          .configure(
+            signers[2].address,
+            zapMedia2.address,
+            formatBytes32String('TEST MEDIA 2'),
+            formatBytes32String('TM2')
+          )
+      ).to.be.revertedWith('Market: Already configured');
 
-      // await expect(
-      //   zapMarket
-      //     .connect(signers[3])
-      //     .configure(
-      //       signers[3].address,
-      //       zapMedia3.address,
-      //       formatBytes32String('TEST MEDIA 3'),
-      //       formatBytes32String('TM3')
-      //     )
-      // ).to.be.revertedWith('Market: Already configured');
+      await expect(
+        zapMarket
+          .connect(signers[3])
+          .configure(
+            signers[3].address,
+            zapMedia3.address,
+            formatBytes32String('TEST MEDIA 3'),
+            formatBytes32String('TM3')
+          )
+      ).to.be.revertedWith('Market: Already configured');
 
-      // expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
+      expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
 
-      // expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
+      expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
 
     });
 
@@ -1423,44 +1424,44 @@ describe('ZapMarket Test', () => {
 
       await zapMedia1.removeBid(0);
 
-      const filter_setBid1: EventFilter = zapMarket.filters.BidRemoved(
+      const filter_removeBid1: EventFilter = zapMarket.filters.BidRemoved(
         null,
         null,
         null
       );
 
-      const event_setBid1: Event = (
-        await zapMarket.queryFilter(filter_setBid1)
+      const event_removeBid1: Event = (
+        await zapMarket.queryFilter(filter_removeBid1)
       )[0]
 
-      expect(event_setBid1.event).to.be.equal("BidRemoved")
-      expect(event_setBid1.args?.tokenId.toNumber()).to.be.equal(0);
-      expect(event_setBid1.args?.bid.amount.toNumber()).to.be.equal(bid1.amount);
-      expect(event_setBid1.args?.bid.currency).to.be.equal(zapTokenBsc.address);
-      expect(event_setBid1.args?.bid.bidder).to.be.equal(bid1.bidder);
-      expect(event_setBid1.args?.bid.recipient).to.be.equal(bid1.recipient);
-      expect(event_setBid1.args?.mediaContract).to.be.equal(zapMedia1.address);
+      expect(event_removeBid1.event).to.be.equal("BidRemoved")
+      expect(event_removeBid1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeBid1.args?.bid.amount.toNumber()).to.be.equal(bid1.amount);
+      expect(event_removeBid1.args?.bid.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeBid1.args?.bid.bidder).to.be.equal(bid1.bidder);
+      expect(event_removeBid1.args?.bid.recipient).to.be.equal(bid1.recipient);
+      expect(event_removeBid1.args?.mediaContract).to.be.equal(zapMedia1.address);
 
       await zapMedia2.setBid(0, bid2);
       await zapMedia2.removeBid(0)
 
-      const filter_setBid2: EventFilter = zapMarket.filters.BidRemoved(
+      const filter_removeBid2: EventFilter = zapMarket.filters.BidRemoved(
         null,
         null,
         null
       );
 
-      const event_setBid2: Event = (
-        await zapMarket.queryFilter(filter_setBid2)
+      const event_removeBid2: Event = (
+        await zapMarket.queryFilter(filter_removeBid2)
       )[1]
 
-      expect(event_setBid2.event).to.be.equal("BidRemoved")
-      expect(event_setBid2.args?.tokenId.toNumber()).to.be.equal(0);
-      expect(event_setBid2.args?.bid.amount.toNumber()).to.be.equal(bid2.amount);
-      expect(event_setBid2.args?.bid.currency).to.be.equal(zapTokenBsc.address);
-      expect(event_setBid2.args?.bid.bidder).to.be.equal(bid2.bidder);
-      expect(event_setBid2.args?.bid.recipient).to.be.equal(bid2.recipient);
-      expect(event_setBid2.args?.mediaContract).to.be.equal(zapMedia2.address);
+      expect(event_removeBid2.event).to.be.equal("BidRemoved")
+      expect(event_removeBid2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeBid2.args?.bid.amount.toNumber()).to.be.equal(bid2.amount);
+      expect(event_removeBid2.args?.bid.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeBid2.args?.bid.bidder).to.be.equal(bid2.bidder);
+      expect(event_removeBid2.args?.bid.recipient).to.be.equal(bid2.recipient);
+      expect(event_removeBid2.args?.mediaContract).to.be.equal(zapMedia2.address);
 
 
     })
