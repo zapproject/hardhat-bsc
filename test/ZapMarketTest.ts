@@ -476,19 +476,25 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should emit a Minted event when a token is minted', async () => {
+    it.only('Should emit a Minted event when a token is minted', async () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
-        zapMedia1.address
+        null
       );
 
-      const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
 
-      expect(event).to.not.be.undefined;
-      expect(event.event).to.eq('Minted');
-      expect(event.args?.token).to.eq(0);
-      expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(event1).to.not.be.undefined;
+      expect(event1.event).to.eq('Minted');
+      expect(event1.args?.token).to.eq(0);
+      expect(event1.args?.mediaContract).to.eq(zapMedia1.address);
+
+      expect(event2).to.not.be.undefined;
+      expect(event2.event).to.eq('Minted');
+      expect(event2.args?.token).to.eq(0);
+      expect(event2.args?.mediaContract).to.eq(zapMedia2.address);
 
     });
 
