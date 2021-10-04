@@ -176,6 +176,7 @@ contract ZapMedia is
         kecName = keccak256(name_b);
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
+        _registerInterface(type(IMedia).interfaceId);
         zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
 
         access.approvedToMint[msg.sender] = true;
@@ -195,8 +196,7 @@ contract ZapMedia is
         returns (bool)
     {
         return
-            interfaceId == type(IMedia).interfaceId ||
-            _supportedInterfaces[interfaceId];
+            super.supportsInterface(interfaceId);
     }
 
     /**
