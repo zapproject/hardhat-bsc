@@ -400,8 +400,6 @@ contract ZapMarket is IMarket, Ownable {
         override
         onlyMediaCaller
     {
-        console.log('Sender from setBid', msg.sender);
-
         Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;

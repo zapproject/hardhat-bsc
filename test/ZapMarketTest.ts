@@ -8,7 +8,6 @@ import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import {
   keccak256,
-  formatBytes32String,
   parseBytes32String
 } from 'ethers/lib/utils';
 
@@ -23,7 +22,6 @@ import { ZapMarket } from '../typechain/ZapMarket';
 import { ZapVault } from '../typechain/ZapVault';
 
 import { ZapMarket__factory } from "../typechain";
-import { sign } from 'crypto';
 
 chai.use(solidity);
 
