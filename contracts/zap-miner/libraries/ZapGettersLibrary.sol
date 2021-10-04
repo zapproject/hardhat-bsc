@@ -27,8 +27,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _newDeity
     ) internal {
-        require(self.addressVars[ZapConstants._deity] == msg.sender);
-        self.addressVars[ZapConstants._deity] = _newDeity;
+        require(self.addressVars[ZapConstants.get_deity()] == msg.sender);
+        self.addressVars[ZapConstants.get_deity()] = _newDeity;
     }
 
     //Only needs to be in library
@@ -40,8 +40,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _zapContract
     ) internal {
-        require(ZapConstants._deity] == msg.sender);
-        self.addressVars[ZapConstants.zapContract] = _zapContract;
+        require(self.addressVars[ZapConstants.get_deity()] == msg.sender);
+        self.addressVars[ZapConstants.getZapContract()] = _zapContract;
         emit NewZapAddress(_zapContract);
     }
 
@@ -49,8 +49,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _vaultAddress
     ) internal {
-        require(self.addressVars[ZapConstants._owner] == msg.sender);
-        self.addressVars[ZapConstants._vault] = _vaultAddress;
+        require(self.addressVars[ZapConstants.get_owner()] == msg.sender);
+        self.addressVars[ZapConstants.get_vault()] = _vaultAddress;
     }
 
     /*Zap Getters*/
@@ -87,8 +87,8 @@ library ZapGettersLibrary {
      * @dev allows Zap to read data from the addressVars mapping
      * @param _data is the keccak256("variable_name") of the variable that is being accessed.
      * These are examples of how the variables are saved within other functions:
-     * addressVars[ZapConstants._owner]
-     * addressVars[ZapConstants.zapContract]
+     * addressVars[ZapConstants.get_owner()]
+     * addressVars[ZapConstants.getZapContract()]
      */
     function getAddressVars(
         ZapStorage.ZapStorageStruct storage self,
@@ -146,15 +146,15 @@ library ZapGettersLibrary {
             disp.reportingParty,
             disp.proposedForkAddress,
             [  //all these keys are being being calculated
-                disp.disputeUintVars[ZapConstants.requestId],
-                disp.disputeUintVars[ZapConstants.timestamp],
-                disp.disputeUintVars[ZapConstants.value],
-                disp.disputeUintVars[ZapConstants.minExecutionDate],
-                disp.disputeUintVars[ZapConstants.numberOfVotes],
-                disp.disputeUintVars[ZapConstants.blockNumber],
-                disp.disputeUintVars[ZapConstants.minerSlot],
-                disp.disputeUintVars[ZapConstants.quorum],
-                disp.disputeUintVars[ZapConstants.fee]
+                disp.disputeUintVars[ZapConstants.getRequestId()],
+                disp.disputeUintVars[ZapConstants.getTimestamp()],
+                disp.disputeUintVars[ZapConstants.getValue()],
+                disp.disputeUintVars[ZapConstants.getMinExecutionDate()],
+                disp.disputeUintVars[ZapConstants.getNumberOfVotes()],
+                disp.disputeUintVars[ZapConstants.getBlockNumber()],
+                disp.disputeUintVars[ZapConstants.getMinerSlot()],
+                disp.disputeUintVars[ZapConstants.getQuorum()],
+                disp.disputeUintVars[ZapConstants.getFee()]
             ],
             disp.tally
         );
@@ -178,17 +178,17 @@ library ZapGettersLibrary {
     {
         return (
             self.currentChallenge, //these keys below are being calculated
-            self.uintVars[ZapConstants.currentRequestId],
-            self.uintVars[ZapConstants.difficulty],
+            self.uintVars[ZapConstants.getCurrentRequestId()],
+            self.uintVars[ZapConstants.getDifficulty()],
             self
-                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
+                .requestDetails[self.uintVars[ZapConstants.getCurrentRequestId()]]
                 .queryString,
             self
-                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
-                .apiUintVars[ZapConstants.granularity],
+                .requestDetails[self.uintVars[ZapConstants.getCurrentRequestId()]]
+                .apiUintVars[ZapConstants.getGranularity()],
             self
-                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
-                .apiUintVars[ZapConstants.totalTip]
+                .requestDetails[self.uintVars[ZapConstants.getCurrentRequestId()]]
+                .apiUintVars[ZapConstants.getTotalTip()]
         );
     }
 
@@ -234,9 +234,9 @@ library ZapGettersLibrary {
             retrieveData(
                 self, //more being calculated
                 self.requestIdByTimestamp[
-                    self.uintVars[ZapConstants.timeOfLastNewValue]
+                    self.uintVars[ZapConstants.getTimeOfLastNewValue()]
                 ],
-                self.uintVars[ZapConstants.timeOfLastNewValue]
+                self.uintVars[ZapConstants.getTimeOfLastNewValue()]
             ),
             true
         );
@@ -418,9 +418,9 @@ library ZapGettersLibrary {
             _request.queryString,
             _request.dataSymbol,
             _request.queryHash, //more to be calculated
-            _request.apiUintVars[ZapConstants.granularity],
-            _request.apiUintVars[ZapConstants.requestQPosition],
-            _request.apiUintVars[ZapConstants.totalTip]
+            _request.apiUintVars[ZapConstants.getGranularity()],
+            _request.apiUintVars[ZapConstants.getRequestQPosition()],
+            _request.apiUintVars[ZapConstants.getTotalTip()]
         );
     }
 
@@ -486,7 +486,7 @@ library ZapGettersLibrary {
      * the variables/strings used to save the data in the mapping. The variables names are
      * commented out under the uintVars under the ZapStorageStruct struct
      * This is an example of how data is saved into the mapping within other functions:
-     * self.uintVars[ZapConstants.stakerCount]
+     * self.uintVars[ZapConstants.getStakerCount()]
      * @return uint of specified variable
      */
     function getUintVar(ZapStorage.ZapStorageStruct storage self, bytes32 _data)
@@ -514,7 +514,7 @@ library ZapGettersLibrary {
         return (
             newRequestId, //more being calculated
             self.requestDetails[newRequestId].apiUintVars[
-                ZapConstants.totalTip
+                ZapConstants.getTotalTip()
             ],
             self.requestDetails[newRequestId].queryString
         );
@@ -572,6 +572,6 @@ library ZapGettersLibrary {
         view
         returns (uint256)
     { //below is caculation
-        return self.uintVars[ZapConstants.total_supply];
+        return self.uintVars[ZapConstants.getTotal_supply()];
     }
 }

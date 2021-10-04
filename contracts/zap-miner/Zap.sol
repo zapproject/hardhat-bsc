@@ -10,6 +10,8 @@ import './libraries/Address.sol';
 import './libraries/ZapConstants.sol';
 import './Vault.sol';
 
+import 'hardhat/console.sol';
+
 /**
  * @title Zap Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
@@ -116,7 +118,7 @@ contract Zap {
         require(zap.stakerDetails[msg.sender].currentStatus == 1, "Only stakers can begin a dispute");
 
         //ensure the msg.sender is staked and not in dispute
-        require(token.balanceOf(msg.sender) > zap.uintVars[ZapConstants.disputeFee], "You do not have a balance to dispute.");
+        require(token.balanceOf(msg.sender) > zap.uintVars[ZapConstants.getDisputeFee()], "You do not have a balance to dispute.");
         
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
@@ -129,15 +131,15 @@ contract Zap {
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
 
-        transferFrom(msg.sender, zap.addressVars[ZapConstants._owner], zap.uintVars[ZapConstants.disputeFee]);
+        transferFrom(msg.sender, zap.addressVars[ZapConstants.get_owner()], zap.uintVars[ZapConstants.getDisputeFee()]);
 
         //Increase the dispute count by 1
-        zap.uintVars[ZapConstants.disputeCount] =
-            zap.uintVars[ZapConstants.disputeCount] +
+        zap.uintVars[ZapConstants.getDisputeCount()] =
+            zap.uintVars[ZapConstants.getDisputeCount()] +
             1;
 
         //Sets the new disputeCount as the disputeId
-        uint256 disputeId = zap.uintVars[ZapConstants.disputeCount];
+        uint256 disputeId = zap.uintVars[ZapConstants.getDisputeCount()];
 
         //maps the dispute hash to the disputeId
         zap.disputeIdByDisputeHash[_hash] = disputeId;
@@ -156,25 +158,25 @@ contract Zap {
 
         //Saves all the dispute variables for the disputeId
         zap.disputesById[disputeId].disputeUintVars[
-            ZapConstants.requestId
+            ZapConstants.getRequestId()
         ] = _requestId;
         zap.disputesById[disputeId].disputeUintVars[
-            ZapConstants.timestamp
+            ZapConstants.getTimestamp()
         ] = _timestamp;
         zap.disputesById[disputeId].disputeUintVars[
-            ZapConstants.value
+            ZapConstants.getValue()
         ] = _request.valuesByTimestamp[_timestamp][_minerIndex];
         zap.disputesById[disputeId].disputeUintVars[
-            ZapConstants.minExecutionDate
+            ZapConstants.getMinExecutionDate()
         ] = now + 7 days;
         zap.disputesById[disputeId].disputeUintVars[
-            ZapConstants.blockNumber
+            ZapConstants.getBlockNumber()
         ] = block.number;
         zap.disputesById[disputeId].disputeUintVars[
-            ZapConstants.minerSlot
+            ZapConstants.getMinerSlot()
         ] = _minerIndex;
-        zap.disputesById[disputeId].disputeUintVars[ZapConstants.fee] = zap
-        .uintVars[ZapConstants.disputeFee];
+        zap.disputesById[disputeId].disputeUintVars[ZapConstants.getFee()] = zap
+        .uintVars[ZapConstants.getDisputeFee()];
 
         //Values are sorted as they come in and the official value is the median of the first five
         //So the "official value" miner is always minerIndex==2. If the official value is being
@@ -193,7 +195,7 @@ contract Zap {
      */
     function vote(uint256 _disputeId, bool _supportsDispute) external {
 
-        address vaultAddress = zap.addressVars[ZapConstants._vault];
+        address vaultAddress = zap.addressVars[ZapConstants.get_vault()];
         Vault vault = Vault(vaultAddress);
 
         uint256 voteWeight = vault.userBalance(msg.sender);
@@ -241,8 +243,8 @@ contract Zap {
         zap.proposeFork(_propNewZapAddress, isZM);
             transferFrom(
                 msg.sender,
-                zap.addressVars[ZapConstants._owner],
-                zap.uintVars[ZapConstants.disputeFee]
+                zap.addressVars[ZapConstants.get_owner()],
+                zap.uintVars[ZapConstants.getDisputeFee()]
             );
     }
 
@@ -277,8 +279,8 @@ contract Zap {
         //If this is the first time the API and granularity combination has been requested then create the API and granularity hash
         //otherwise the tip will be added to the requestId submitted
         if (zap.requestIdByQueryHash[_queryHash] == 0) {
-            zap.uintVars[ZapConstants.requestCount]++;
-            uint256 _requestId = zap.uintVars[ZapConstants.requestCount];
+            zap.uintVars[ZapConstants.getRequestCount()]++;
+            uint256 _requestId = zap.uintVars[ZapConstants.getRequestCount()];
             zap.requestDetails[_requestId] = ZapStorage.Request({
                 queryString: _sapi,
                 dataSymbol: _symbol,
@@ -286,13 +288,13 @@ contract Zap {
                 requestTimestamps: new uint256[](0)
             });
             zap.requestDetails[_requestId].apiUintVars[
-                ZapConstants.granularity
+                ZapConstants.getGranularity()
             ] = _granularity;
             zap.requestDetails[_requestId].apiUintVars[
-                ZapConstants.requestQPosition
+                ZapConstants.getRequestQPosition()
             ] = 0;
             zap.requestDetails[_requestId].apiUintVars[
-                ZapConstants.totalTip
+                ZapConstants.getTotalTip()
             ] = 0;
             zap.requestIdByQueryHash[_queryHash] = _requestId;
 
@@ -331,10 +333,10 @@ contract Zap {
 
         ZapStorage.Details[5] memory a = zap.currentMiners;
 
-        address vaultAddress = zap.addressVars[ZapConstants._vault];
+        address vaultAddress = zap.addressVars[ZapConstants.get_vault()];
         Vault vault = Vault(vaultAddress);
 
-        uint256 minerReward = zap.uintVars[ZapConstants.currentTotalTips];
+        uint256 minerReward = zap.uintVars[ZapConstants.getCurrentMinerReward()];
 
         if (minerReward != 0){
             // Pay the miners
@@ -347,15 +349,16 @@ contract Zap {
             }
 
             // Pay the devshare
-            token.approve(address(this), zap.uintVars[ZapConstants.devShare]);
+            token.approve(address(this), zap.uintVars[ZapConstants.getDevShare()]);
             transferFrom(
                 address(this),
-                zap.addressVars[ZapConstants._owner],
-                zap.uintVars[ZapConstants.devShare]
+                zap.addressVars[ZapConstants.get_owner()],
+                zap.uintVars[ZapConstants.getDevShare()]
             );
+            console.log(address(this));
         }
 
-        zap.uintVars[ZapConstants.currentMinerReward] = 0;
+        zap.uintVars[ZapConstants.getCurrentMinerReward()] = 0;
     }
 
     /**
@@ -363,7 +366,7 @@ contract Zap {
      */
     function depositStake() external {
         // require balance is >= here before it hits NewStake()
-        uint256 stakeAmount = zap.uintVars[ZapConstants.stakeAmount];
+        uint256 stakeAmount = zap.uintVars[ZapConstants.getStakeAmount()];
         require(
             token.balanceOf(msg.sender) >=
                 stakeAmount,
@@ -371,7 +374,7 @@ contract Zap {
         );
         zap.depositStake();
 
-        address vaultAddress = zap.addressVars[ZapConstants._vault];
+        address vaultAddress = zap.addressVars[ZapConstants.get_vault()];
         Vault vault = Vault(vaultAddress);
 
         token.approve(address(this), stakeAmount);
@@ -395,7 +398,7 @@ contract Zap {
     function withdrawStake() external {
         zap.withdrawStake();
 
-        address vaultAddress = zap.addressVars[ZapConstants._vault];
+        address vaultAddress = zap.addressVars[ZapConstants.get_vault()];
         Vault vault = Vault(vaultAddress);
 
         uint256 userBalance = vault.userBalance(msg.sender);
@@ -483,7 +486,7 @@ contract Zap {
             msg.sender,
             _requestId,
             _tip,
-            zap.requestDetails[_requestId].apiUintVars[ZapConstants.totalTip]
+            zap.requestDetails[_requestId].apiUintVars[ZapConstants.getTotalTip()]
         );
     }
 
@@ -497,20 +500,20 @@ contract Zap {
         uint256 onDeckRequestId = ZapGettersLibrary.getTopRequestID(zap);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0) {
-            _request.apiUintVars[ZapConstants.totalTip] = _request
-            .apiUintVars[ZapConstants.totalTip]
+            _request.apiUintVars[ZapConstants.getTotalTip()] = _request
+            .apiUintVars[ZapConstants.getTotalTip()]
             .add(_tip);
         }
         //Set _payout for the submitted request
-        uint256 _payout = _request.apiUintVars[ZapConstants.totalTip];
+        uint256 _payout = _request.apiUintVars[ZapConstants.getTotalTip()];
 
         //If there is no current request being mined
         //then set the currentRequestId to the requestid of the requestData or addtip requestId submitted,
         // the totalTips to the payout/tip submitted, and issue a new mining challenge
-        if (zap.uintVars[ZapConstants.currentRequestId] == 0) {
-            _request.apiUintVars[ZapConstants.totalTip] = 0;
-            zap.uintVars[ZapConstants.currentRequestId] = _requestId;
-            zap.uintVars[ZapConstants.currentTotalTips] = _payout;
+        if (zap.uintVars[ZapConstants.getCurrentRequestId()] == 0) {
+            _request.apiUintVars[ZapConstants.getTotalTip()] = 0;
+            zap.uintVars[ZapConstants.getCurrentRequestId()] = _requestId;
+            zap.uintVars[ZapConstants.getCurrentTotalTips()] = _payout;
             zap.currentChallenge = keccak256(
                 abi.encodePacked(
                     _payout,
@@ -520,15 +523,15 @@ contract Zap {
             ); // Save hash for next proof
             emit NewChallenge(
                 zap.currentChallenge,
-                zap.uintVars[ZapConstants.currentRequestId],
-                zap.uintVars[ZapConstants.difficulty],
+                zap.uintVars[ZapConstants.getCurrentRequestId()],
+                zap.uintVars[ZapConstants.getDifficulty()],
                 zap
-                    .requestDetails[zap.uintVars[ZapConstants.currentRequestId]]
-                    .apiUintVars[ZapConstants.granularity],
+                    .requestDetails[zap.uintVars[ZapConstants.getCurrentRequestId()]]
+                    .apiUintVars[ZapConstants.getGranularity()],
                 zap
-                    .requestDetails[zap.uintVars[ZapConstants.currentRequestId]]
+                    .requestDetails[zap.uintVars[ZapConstants.getCurrentRequestId()]]
                     .queryString,
-                zap.uintVars[ZapConstants.currentTotalTips]
+                zap.uintVars[ZapConstants.getCurrentTotalTips()]
             );
         } else {
             //If there is no OnDeckRequestId
@@ -537,7 +540,7 @@ contract Zap {
             if (
                 _payout >
                 zap.requestDetails[onDeckRequestId].apiUintVars[
-                    ZapConstants.totalTip
+                    ZapConstants.getTotalTip()
                 ] ||
                 (onDeckRequestId == 0)
             ) {
@@ -552,7 +555,7 @@ contract Zap {
 
             //if the request is not part of the requestQ[51] array
             //then add to the requestQ[51] only if the _payout/tip is greater than the minimum(tip) in the requestQ[51] array
-            if (_request.apiUintVars[ZapConstants.requestQPosition] == 0) {
+            if (_request.apiUintVars[ZapConstants.getRequestQPosition()] == 0) {
                 uint256 _min;
                 uint256 _index;
                 (_min, _index) = Utilities.getMin(zap.requestQ);
@@ -563,17 +566,17 @@ contract Zap {
                     zap.requestQ[_index] = _payout;
                     zap
                     .requestDetails[zap.requestIdByRequestQIndex[_index]]
-                    .apiUintVars[ZapConstants.requestQPosition] = 0;
+                    .apiUintVars[ZapConstants.getRequestQPosition()] = 0;
                     zap.requestIdByRequestQIndex[_index] = _requestId;
                     _request.apiUintVars[
-                        ZapConstants.requestQPosition
+                        ZapConstants.getRequestQPosition()
                     ] = _index;
                 }
             }
             //else if the requestid is part of the requestQ[51] then update the tip for it
             else if (_tip > 0) {
                 zap.requestQ[
-                    _request.apiUintVars[ZapConstants.requestQPosition]
+                    _request.apiUintVars[ZapConstants.getRequestQPosition()]
                 ] += _tip;
             }
         }

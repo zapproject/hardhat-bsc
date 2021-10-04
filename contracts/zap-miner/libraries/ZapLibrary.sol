@@ -6,7 +6,6 @@ import './SignedSafeMath.sol';
 import './Utilities.sol';
 import './ZapConstants.sol';
 import './ZapStorage.sol';
-import './ZapTransfer.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
@@ -89,13 +88,13 @@ library ZapLibrary {
 
         // difficulty + difficulty(timeTarget - (now - timeOfLastNewValue))
 
-        int256 _newDiff = int256(self.uintVars[ZapConstants.difficulty])
+        int256 _newDiff = int256(self.uintVars[ZapConstants.getDifficulty()])
             .add(
-                int256(self.uintVars[ZapConstants.difficulty]).mul(
-                    int256(self.uintVars[ZapConstants.timeTarget]).sub(
+                int256(self.uintVars[ZapConstants.getDifficulty()]).mul(
+                    int256(self.uintVars[ZapConstants.getTimeTarget()]).sub(
                         int256(
                             now.sub(
-                                self.uintVars[ZapConstants.timeOfLastNewValue]
+                                self.uintVars[ZapConstants.getTimeOfLastNewValue()]
                             )
                         )
                     )
@@ -104,22 +103,22 @@ library ZapLibrary {
             .div(100);
 
         // original
-        // int256 _newDiff = int256(self.uintVars[ZapConstants.difficulty]) +
-        //     (int256(self.uintVars[ZapConstants.difficulty]) *
-        //         (int256(self.uintVars[ZapConstants.timeTarget]) -
+        // int256 _newDiff = int256(self.uintVars[ZapConstants.getDifficulty()]) +
+        //     (int256(self.uintVars[ZapConstants.getDifficulty()]) *
+        //         (int256(self.uintVars[ZapConstants.getTimeTarget()]) -
         //             int256(
-        //                 now - self.uintVars[ZapConstants.timeOfLastNewValue]
+        //                 now - self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         //             ))) /
         //     100;
 
         if (_newDiff <= 0) {
-            self.uintVars[ZapConstants.difficulty] = 1;
+            self.uintVars[ZapConstants.getDifficulty()] = 1;
         } else {
-            self.uintVars[ZapConstants.difficulty] = uint256(_newDiff);
+            self.uintVars[ZapConstants.getDifficulty()] = uint256(_newDiff);
         }
 
         //Sets time of value submission rounded to 1 minute
-        self.uintVars[ZapConstants.timeOfLastNewValue] =
+        self.uintVars[ZapConstants.getTimeOfLastNewValue()] =
             now -
             (now % 1 minutes);
 
@@ -142,109 +141,109 @@ library ZapLibrary {
         }
 
         //Pay the miners
-        if (self.uintVars[ZapConstants.currentReward] == 0) {
-            self.uintVars[ZapConstants.currentReward] = 6e18;
+        if (self.uintVars[ZapConstants.getCurrentReward()] == 0) {
+            self.uintVars[ZapConstants.getCurrentReward()] = 6e18;
         }
-        if (self.uintVars[ZapConstants.currentReward] > 1e18) {
-            self.uintVars[ZapConstants.currentReward] =
-                self.uintVars[ZapConstants.currentReward] -
-                (self.uintVars[ZapConstants.currentReward] * 30612633181126) /
+        if (self.uintVars[ZapConstants.getCurrentReward()] > 1e18) {
+            self.uintVars[ZapConstants.getCurrentReward()] =
+                self.uintVars[ZapConstants.getCurrentReward()] -
+                (self.uintVars[ZapConstants.getCurrentReward()] * 30612633181126) /
                 1e18;
-            self.uintVars[ZapConstants.devShare] =
-                ((self.uintVars[ZapConstants.currentReward]) * 50) /
+            self.uintVars[ZapConstants.getDevShare()] =
+                ((self.uintVars[ZapConstants.getCurrentReward()]) * 50) /
                 100;
         } else {
-            self.uintVars[ZapConstants.currentReward] = 1e18;
+            self.uintVars[ZapConstants.getCurrentReward()] = 1e18;
         }
 
-        uint256 baseReward = (self.uintVars[ZapConstants.currentReward] /
+        uint256 baseReward = (self.uintVars[ZapConstants.getCurrentReward()] /
             1e18) * 1e18;
-        self.uintVars[ZapConstants.currentMinerReward] =
+        self.uintVars[ZapConstants.getCurrentMinerReward()] =
             baseReward +
-            self.uintVars[ZapConstants.currentTotalTips] /
+            self.uintVars[ZapConstants.getCurrentTotalTips()] /
             5;
 
         emit NewValue(
             _requestId,
-            self.uintVars[ZapConstants.timeOfLastNewValue],
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()],
             a[2].value,
-            self.uintVars[ZapConstants.currentTotalTips] -
-                (self.uintVars[ZapConstants.currentTotalTips] % 5),
+            self.uintVars[ZapConstants.getCurrentTotalTips()] -
+                (self.uintVars[ZapConstants.getCurrentTotalTips()] % 5),
             self.currentChallenge
         );
 
         //update the total supply
-        self.uintVars[ZapConstants.total_supply] +=
-            self.uintVars[ZapConstants.devShare] +
-            self.uintVars[ZapConstants.currentMinerReward] *
+        self.uintVars[ZapConstants.getTotal_supply()] +=
+            self.uintVars[ZapConstants.getDevShare()] +
+            self.uintVars[ZapConstants.getCurrentMinerReward()] *
             5;
-        // self.uintVars[ZapConstants.total_supply] += 275;
+        // self.uintVars[ZapConstants.getTotal_supply()] += 275;
 
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         ] = a[2].value;
         _request.requestTimestamps.push(
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         );
         //these are miners by timestamp
         _request.minersByValue[
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         ] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
         _request.valuesByTimestamp[
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         ] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
         _request.minedBlockNum[
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         ] = block.number;
         //map the timeOfLastValue to the requestId that was just mined
 
         self.requestIdByTimestamp[
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         ] = _requestId;
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(
-            self.uintVars[ZapConstants.timeOfLastNewValue]
+            self.uintVars[ZapConstants.getTimeOfLastNewValue()]
         );
         //re-start the count for the slot progress to zero before the new request mining starts
-        self.uintVars[ZapConstants.slotProgress] = 0;
-        self.uintVars[ZapConstants.currentRequestId] = ZapGettersLibrary
+        self.uintVars[ZapConstants.getSlotProgress()] = 0;
+        self.uintVars[ZapConstants.getCurrentRequestId()] = ZapGettersLibrary
             .getTopRequestID(self);
         //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout
         //else wait for a new tip to mine
-        if (self.uintVars[ZapConstants.currentRequestId] > 0) {
+        if (self.uintVars[ZapConstants.getCurrentRequestId()] > 0) {
             //Update the current request to be mined to the requestID with the highest payout
-            self.uintVars[ZapConstants.currentTotalTips] = self
-                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
-                .apiUintVars[ZapConstants.totalTip];
+            self.uintVars[ZapConstants.getCurrentTotalTips()] = self
+                .requestDetails[self.uintVars[ZapConstants.getCurrentRequestId()]]
+                .apiUintVars[ZapConstants.getTotalTip()];
             //Remove the currentRequestId/onDeckRequestId from the requestQ array containing the rest of the 50 requests
             self.requestQ[
                 self
                     .requestDetails[
-                        self.uintVars[ZapConstants.currentRequestId]
+                        self.uintVars[ZapConstants.getCurrentRequestId()]
                     ]
-                    .apiUintVars[ZapConstants.requestQPosition]
+                    .apiUintVars[ZapConstants.getRequestQPosition()]
             ] = 0;
 
             //unmap the currentRequestId/onDeckRequestId from the requestIdByRequestQIndex
             self.requestIdByRequestQIndex[
                 self
                     .requestDetails[
-                        self.uintVars[ZapConstants.currentRequestId]
+                        self.uintVars[ZapConstants.getCurrentRequestId()]
                     ]
-                    .apiUintVars[ZapConstants.requestQPosition]
+                    .apiUintVars[ZapConstants.getRequestQPosition()]
             ] = 0;
 
             //Remove the requestQposition for the currentRequestId/onDeckRequestId since it will be mined next
             self
-                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
-                .apiUintVars[ZapConstants.requestQPosition] = 0;
+                .requestDetails[self.uintVars[ZapConstants.getCurrentRequestId()]]
+                .apiUintVars[ZapConstants.getRequestQPosition()] = 0;
 
             //Reset the requestId TotalTip to 0 for the currentRequestId/onDeckRequestId since it will be mined next
             //and the tip is going to the current timestamp miners. The tip for the API needs to be reset to zero
             self
-                .requestDetails[self.uintVars[ZapConstants.currentRequestId]]
-                .apiUintVars[ZapConstants.totalTip] = 0;
+                .requestDetails[self.uintVars[ZapConstants.getCurrentRequestId()]]
+                .apiUintVars[ZapConstants.getTotalTip()] = 0;
 
             //gets the max tip in the in the requestQ[51] array and its index within the array??
             uint256 newRequestId = ZapGettersLibrary.getTopRequestID(self);
@@ -258,30 +257,30 @@ library ZapLibrary {
             ); // Save hash for next proof
             emit NewChallenge(
                 self.currentChallenge,
-                self.uintVars[ZapConstants.currentRequestId],
-                self.uintVars[ZapConstants.difficulty],
+                self.uintVars[ZapConstants.getCurrentRequestId()],
+                self.uintVars[ZapConstants.getDifficulty()],
                 self
                     .requestDetails[
-                        self.uintVars[ZapConstants.currentRequestId]
+                        self.uintVars[ZapConstants.getCurrentRequestId()]
                     ]
-                    .apiUintVars[ZapConstants.granularity],
+                    .apiUintVars[ZapConstants.getGranularity()],
                 self
                     .requestDetails[
-                        self.uintVars[ZapConstants.currentRequestId]
+                        self.uintVars[ZapConstants.getCurrentRequestId()]
                     ]
                     .queryString,
-                self.uintVars[ZapConstants.currentTotalTips]
+                self.uintVars[ZapConstants.getCurrentTotalTips()]
             );
             emit NewRequestOnDeck(
                 newRequestId,
                 self.requestDetails[newRequestId].queryString,
                 self.requestDetails[newRequestId].queryHash,
                 self.requestDetails[newRequestId].apiUintVars[
-                    ZapConstants.totalTip
+                    ZapConstants.getTotalTip()
                 ]
             );
         } else {
-            self.uintVars[ZapConstants.currentTotalTips] = 0;
+            self.uintVars[ZapConstants.getCurrentTotalTips()] = 0;
             self.currentChallenge = '';
         }
     }
@@ -302,7 +301,7 @@ library ZapLibrary {
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner is not staked");
 
         //Check the miner is submitting the pow for the current request Id
-        require(_requestId == self.uintVars[ZapConstants.currentRequestId], "The solution submitted is not for the current request ID");
+        require(_requestId == self.uintVars[ZapConstants.getCurrentRequestId()], "The solution submitted is not for the current request ID");
 
         //Saving the challenge information as unique by using the msg.sender
         require(
@@ -323,7 +322,7 @@ library ZapLibrary {
                     )
                 )
             ) %
-                self.uintVars[ZapConstants.difficulty] ==
+                self.uintVars[ZapConstants.getDifficulty()] ==
                 0
             , "Challenge info is not unique"
         );
@@ -332,17 +331,17 @@ library ZapLibrary {
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner has already submitted a value");
 
         // Set miner reward to zero to prevent it from giving rewards before a block is mined
-        self.uintVars[ZapConstants.currentMinerReward] = 0;
+        self.uintVars[ZapConstants.getCurrentMinerReward()] = 0;
 
         //Save the miner and value received
         self
-            .currentMiners[self.uintVars[ZapConstants.slotProgress]]
+            .currentMiners[self.uintVars[ZapConstants.getSlotProgress()]]
             .value = _value;
-        self.currentMiners[self.uintVars[ZapConstants.slotProgress]].miner = msg
+        self.currentMiners[self.uintVars[ZapConstants.getSlotProgress()]].miner = msg
             .sender;
 
         //Add to the count how many values have been submitted, since only 5 are taken per request
-        self.uintVars[ZapConstants.slotProgress]++;
+        self.uintVars[ZapConstants.getSlotProgress()]++;
 
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
@@ -356,7 +355,7 @@ library ZapLibrary {
         );
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
-        if (self.uintVars[ZapConstants.slotProgress] == 5) {
+        if (self.uintVars[ZapConstants.getSlotProgress()] == 5) {
             newBlock(self, _nonce, _requestId);
         }
     }

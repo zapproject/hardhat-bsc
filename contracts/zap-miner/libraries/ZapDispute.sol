@@ -60,10 +60,10 @@ library ZapDispute {
         disp.voted[msg.sender] = true;
 
         //Update the number of votes for the dispute
-        disp.disputeUintVars[ZapConstants.numberOfVotes] += 1;
+        disp.disputeUintVars[ZapConstants.getNumberOfVotes()] += 1;
 
         //Update the quorum by adding the voteWeight
-        disp.disputeUintVars[ZapConstants.quorum] += voteWeight;
+        disp.disputeUintVars[ZapConstants.getQuorum()] += voteWeight;
 
         //If the user supports the dispute increase the tally for the dispute by the voteWeight
         //otherwise decrease it
@@ -88,18 +88,18 @@ library ZapDispute {
 
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
         ZapStorage.Request storage _request = self.requestDetails[
-            disp.disputeUintVars[ZapConstants.requestId]
+            disp.disputeUintVars[ZapConstants.getRequestId()]
         ];
 
         
-        uint disputeFeeForDisputeId = disp.disputeUintVars[ZapConstants.fee];
+        uint disputeFeeForDisputeId = disp.disputeUintVars[ZapConstants.getFee()];
         address disputeFeeWinnerAddress;
         
         //Ensure this has not already been executed/tallied
         require(!disp.executed, "This has already been executed");
 
         //Ensure the time for voting has elapsed
-        require(now > disp.disputeUintVars[ZapConstants.minExecutionDate], "Cannot vote at this time.");
+        require(now > disp.disputeUintVars[ZapConstants.getMinExecutionDate()], "Cannot vote at this time.");
 
         //If the vote is not a proposed fork
         if (!disp.isPropFork) {
@@ -115,7 +115,7 @@ library ZapDispute {
                 stakes.startDate = now - (now % 86400);
 
                 //Decreases the stakerCount since the miner's stake is being slashed
-                self.uintVars[ZapConstants.stakerCount]--;
+                self.uintVars[ZapConstants.getStakerCount()]--;
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reported miner to the reporting party
@@ -123,7 +123,7 @@ library ZapDispute {
                 //     self,
                 //     disp.reportedMiner,
                 //     disp.reportingParty,
-                //     self.uintVars[ZapConstants.stakeAmount]
+                //     self.uintVars[ZapConstants.getStakeAmount()]
                 // );
 
 
@@ -133,7 +133,7 @@ library ZapDispute {
                 //     self,
                 //     address(this),
                 //     disp.reportingParty,
-                //     disp.disputeUintVars[ZapConstants.fee]
+                //     disp.disputeUintVars[ZapConstants.getFee()]
                 // );
                 
                 //Set the dispute state to passed/true
@@ -143,11 +143,11 @@ library ZapDispute {
                 //so that users don't use this datapoint
                 if (
                     _request.inDispute[
-                        disp.disputeUintVars[ZapConstants.timestamp]
+                        disp.disputeUintVars[ZapConstants.getTimestamp()]
                     ]
                 ) {
                     _request.finalValues[
-                        disp.disputeUintVars[ZapConstants.timestamp]
+                        disp.disputeUintVars[ZapConstants.getTimestamp()]
                     ] = 0;
                 }
                 
@@ -168,16 +168,16 @@ library ZapDispute {
                 //     self,
                 //     address(this),
                 //     disp.reportedMiner,
-                //     disp.disputeUintVars[ZapConstants.fee]
+                //     disp.disputeUintVars[ZapConstants.getFee()]
                 // );
 
                 if (
                     _request.inDispute[
-                        disp.disputeUintVars[ZapConstants.timestamp]
+                        disp.disputeUintVars[ZapConstants.getTimestamp()]
                     ]
                 ) {
                     _request.inDispute[
-                        disp.disputeUintVars[ZapConstants.timestamp]
+                        disp.disputeUintVars[ZapConstants.getTimestamp()]
                     ] = false;
                 }
                 
@@ -190,11 +190,11 @@ library ZapDispute {
         } else {
             if (disp.tally > 0) {
                 require(
-                    disp.disputeUintVars[ZapConstants.quorum] >
-                        ((self.uintVars[ZapConstants.total_supply] * 20) / 100)
+                    disp.disputeUintVars[ZapConstants.getQuorum()] >
+                        ((self.uintVars[ZapConstants.getTotal_supply()] * 20) / 100)
                 );
                 if (!disp.isZM) {
-                    self.addressVars[ZapConstants.zapContract] = disp.proposedForkAddress;
+                    self.addressVars[ZapConstants.getZapContract()] = disp.proposedForkAddress;
                 }
                 disp.disputeVotePassed = true;
                 emit NewZapAddress(disp.proposedForkAddress);
@@ -225,8 +225,8 @@ library ZapDispute {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
 
-        self.uintVars[ZapConstants.disputeCount]++;
-        uint256 disputeId = self.uintVars[ZapConstants.disputeCount];
+        self.uintVars[ZapConstants.getDisputeCount()]++;
+        uint256 disputeId = self.uintVars[ZapConstants.getDisputeCount()];
         self.disputeIdByDisputeHash[_hash] = disputeId;
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
@@ -240,12 +240,12 @@ library ZapDispute {
             tally: 0
         });
         self.disputesById[disputeId].disputeUintVars[
-            ZapConstants.blockNumber
+            ZapConstants.getBlockNumber()
         ] = block.number;
-        self.disputesById[disputeId].disputeUintVars[ZapConstants.fee] = self
-        .uintVars[ZapConstants.disputeFee];
+        self.disputesById[disputeId].disputeUintVars[ZapConstants.getFee()] = self
+        .uintVars[ZapConstants.getDisputeFee()];
         self.disputesById[disputeId].disputeUintVars[
-            ZapConstants.minExecutionDate
+            ZapConstants.getMinExecutionDate()
         ] = now + 7 days;
     }
 
@@ -256,23 +256,23 @@ library ZapDispute {
     function updateDisputeFee(ZapStorage.ZapStorageStruct storage self) public {
         //if the number of staked miners divided by the target count of staked miners is less than 1
         if (
-            (self.uintVars[ZapConstants.stakerCount] * 1000) /
-                self.uintVars[ZapConstants.targetMiners] <
+            (self.uintVars[ZapConstants.getStakerCount()] * 1000) /
+                self.uintVars[ZapConstants.getTargetMiners()] <
             1000
         ) {
             //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
             //or at the its minimum of 15
-            self.uintVars[ZapConstants.disputeFee] = SafeMathM.max(
+            self.uintVars[ZapConstants.getDisputeFee()] = SafeMathM.max(
                 15,
-                self.uintVars[ZapConstants.stakeAmount].mul(
+                self.uintVars[ZapConstants.getStakeAmount()].mul(
                     1000 -
-                        (self.uintVars[ZapConstants.stakerCount] * 1000) /
-                        self.uintVars[ZapConstants.targetMiners]
+                        (self.uintVars[ZapConstants.getStakerCount()] * 1000) /
+                        self.uintVars[ZapConstants.getTargetMiners()]
                 ) / 1000
             );
         } else {
             //otherwise set the dispute fee at 15 (the floor/minimum fee allowed)
-            self.uintVars[ZapConstants.disputeFee] = 15;
+            self.uintVars[ZapConstants.getDisputeFee()] = 15;
         }
     }
 }

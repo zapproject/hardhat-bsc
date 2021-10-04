@@ -24,16 +24,16 @@ library ZapStake {
     * This function is called by the constructor function on ZapMaster.sol
     */
     function init(ZapStorage.ZapStorageStruct storage self) public{
-        require(self.uintVars[ZapConstants.decimals] == 0, "Already initialized");
+        require(self.uintVars[ZapConstants.getDecimals()] == 0, "Already initialized");
         
         //set Constants
-        self.uintVars[ZapConstants.decimals] = 18;
-        self.uintVars[ZapConstants.targetMiners] = 200;
-        self.uintVars[ZapConstants.stakeAmount] = 500000 * 1e18;
-        self.uintVars[ZapConstants.disputeFee] = 970 * 1e18;
-        self.uintVars[ZapConstants.timeTarget]= 600;
-        self.uintVars[ZapConstants.timeOfLastNewValue] = now - now  % self.uintVars[ZapConstants.timeTarget];
-        self.uintVars[ZapConstants.difficulty] = 1;
+        self.uintVars[ZapConstants.getDecimals()] = 18;
+        self.uintVars[ZapConstants.getTargetMiners()] = 200;
+        self.uintVars[ZapConstants.getStakeAmount()] = 500000 * 1e18;
+        self.uintVars[ZapConstants.getDisputeFee()] = 970 * 1e18;
+        self.uintVars[ZapConstants.getTimeTarget()]= 600;
+        self.uintVars[ZapConstants.getTimeOfLastNewValue()] = now - now  % self.uintVars[ZapConstants.getTimeTarget()];
+        self.uintVars[ZapConstants.getDifficulty()] = 1;
     }
 
 
@@ -55,7 +55,7 @@ library ZapStake {
         stakes.startDate = now -(now % 86400);
 
         //Reduce the staker count
-        self.uintVars[ZapConstants.stakerCount] -= 1;
+        self.uintVars[ZapConstants.getStakerCount()] -= 1;
         ZapDispute.updateDisputeFee(self);
         emit StakeWithdrawRequested(msg.sender);
     }
@@ -100,18 +100,18 @@ library ZapStake {
     * and updates the number of stakers in the system.
     */
     function newStake(ZapStorage.ZapStorageStruct storage self, address staker) internal {
-        // require(ZapTransfer.balanceOf(self,staker) >= self.uintVars[ZapConstants.stakeAmount]);
+        // require(ZapTransfer.balanceOf(self,staker) >= self.uintVars[ZapConstants.getStakeAmount()]);
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "ZapStake: Either already staked or stake time frame ended");
-        self.uintVars[ZapConstants.stakerCount] += 1;
+        self.uintVars[ZapConstants.getStakerCount()] += 1;
         self.stakerDetails[staker] = ZapStorage.StakeInfo({
             currentStatus: 1,
             //this resets their stake start date to today
             startDate: now - (now % 86400)
         });
-        // self.uintVars[ZapConstants.stakeAmount]
-        // ZapTransfer.updateBalanceAtNow(self.balances[staker], self.uintVars[ZapConstants.stakeAmount]);
+        // self.uintVars[ZapConstants.getStakeAmount()]
+        // ZapTransfer.updateBalanceAtNow(self.balances[staker], self.uintVars[ZapConstants.getStakeAmount()]);
 
         emit NewStake(staker);
     }
@@ -124,6 +124,6 @@ library ZapStake {
         for(uint i=0;i<5;i++){
             _requestIds[i] =  self.currentMiners[i].value;
         }
-        return (self.currentChallenge,_requestIds,self.uintVars[ZapConstants.difficulty],self.uintVars[ZapConstants.currentTotalTips]);
+        return (self.currentChallenge,_requestIds,self.uintVars[ZapConstants.getDifficulty()],self.uintVars[ZapConstants.getCurrentTotalTips()]);
     }
 }

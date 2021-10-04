@@ -32,9 +32,9 @@ contract ZapMaster is ZapGetters {
         ZapGetters(tokenAddress)
     {
         zap.init();
-        zap.addressVars[ZapConstants._owner] = msg.sender;
-        zap.addressVars[ZapConstants._deity] = msg.sender;
-        zap.addressVars[ZapConstants.zapContract] = _zapContract;
+        zap.addressVars[ZapConstants.get_owner()] = msg.sender;
+        zap.addressVars[ZapConstants.get_deity()] = msg.sender;
+        zap.addressVars[ZapConstants.getZapContract()] = _zapContract;
         // zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
 
         owner = msg.sender;
