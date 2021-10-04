@@ -141,14 +141,17 @@ library ZapLibrary {
         }
 
         //Pay the miners
+        // default reward is 6 Zap tokens
         if (self.uintVars[keccak256('currentReward')] == 0) {
             self.uintVars[keccak256('currentReward')] = 6e18;
         }
         if (self.uintVars[keccak256('currentReward')] > 1e18) {
+        // adjust payout = payout * ratio 0.000030612633181126/1e18  
             self.uintVars[keccak256('currentReward')] =
                 self.uintVars[keccak256('currentReward')] -
                 (self.uintVars[keccak256('currentReward')] * 30612633181126) /
                 1e18;
+            // dev share is 50% of current reward
             self.uintVars[keccak256('devShare')] =
                 ((self.uintVars[keccak256('currentReward')]) * 50) /
                 100;
@@ -177,7 +180,6 @@ library ZapLibrary {
             self.uintVars[keccak256('devShare')] +
             self.uintVars[keccak256('currentMinerReward')] *
             5;
-        // self.uintVars[keccak256('total_supply')] += 275;
 
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[
