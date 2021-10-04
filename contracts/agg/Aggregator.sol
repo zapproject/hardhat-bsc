@@ -107,12 +107,12 @@ contract Aggregator is ZapApi {
     function currentReward() external view returns (uint256) {
         uint256 timeDiff =
             block.timestamp -
-                oracle.getUintVar(keccak256("_TIME_OF_LAST_NEW_VALUE"));
+                oracle.getUintVar(keccak256("timeOfLastNewValue"));
         uint256 rewardAmount = 1e18;
 
         uint256 rewardAccumulated = (timeDiff * rewardAmount) / 300; // 1TRB every 6 minutes.
 
-        uint256 tip = oracle.getUintVar(keccak256("_CURRENT_TOTAL_TIPS")) / 10; // Half of the tips are burnt.
+        uint256 tip = oracle.getUintVar(keccak256("currentTotalTips")) / 10; // Half of the tips are burnt.
         return rewardAccumulated + tip;
     }
 
