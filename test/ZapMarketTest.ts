@@ -831,6 +831,7 @@ describe('ZapMarket Test', () => {
       expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
       expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
       expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
       expect(event_media2.event).to.be.equal('AskCreated');
       expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
       expect(event_media2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
@@ -855,12 +856,30 @@ describe('ZapMarket Test', () => {
         await zapMarket.queryFilter(filter_removeAsk1)
       )[0]
 
+      expect(event_removeAsk1.event).to.be.equal('AskRemoved');
+      expect(event_removeAsk1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeAsk1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_removeAsk1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeAsk1.args?.mediaContract).to.be.equal(zapMedia1.address)
+
       const event_removeAsk2: Event = (
         await zapMarket.queryFilter(filter_removeAsk2)
       )[1]
 
-      console.log(event_removeAsk1)
-      console.log(event_removeAsk2)
+      expect(event_removeAsk2.event).to.be.equal('AskRemoved');
+      expect(event_removeAsk2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeAsk2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
+      expect(event_removeAsk2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeAsk2.args?.mediaContract).to.be.equal(zapMedia2.address);
+
+      const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 0);
+      const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 0);
+
+      expect(getAsk1.amount.toNumber()).to.be.equal(0);
+      expect(getAsk1.currency).to.be.equal('0x0000000000000000000000000000000000000000');
+
+      expect(getAsk2.amount.toNumber()).to.be.equal(0);
+      expect(getAsk2.currency).to.be.equal('0x0000000000000000000000000000000000000000');
 
     })
 
