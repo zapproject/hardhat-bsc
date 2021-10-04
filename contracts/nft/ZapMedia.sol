@@ -55,9 +55,10 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
-    bytes32 private constant kecEIP712Domain = keccak256(
+    bytes32 private constant kecEIP712Domain =
+        keccak256(
             'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-    );
+        );
 
     bytes32 private constant kecOne = keccak256(bytes('1'));
 
