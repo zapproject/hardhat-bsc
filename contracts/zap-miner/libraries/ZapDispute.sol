@@ -105,6 +105,10 @@ library ZapDispute {
             ZapStorage.StakeInfo storage stakes = self.stakerDetails[
                 disp.reportedMiner
             ];
+            // instead of percentage, find the multiple of this dispute voters compared to numbe rof staked users
+            uint quorum = self.uintVars[keccak256("stakerCount")] / disp.disputeUintVars[keccak256('numberOfVotes')];
+            // the 2nd conditional will check if the amount of voters for this dispute is gte 10% of staked users
+            require(quorum <= 10, "Not enough voters for this dispute");
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
             // miner and transfer the stakeAmount and dispute fee to the reporting party
             if (disp.tally > 0) {
