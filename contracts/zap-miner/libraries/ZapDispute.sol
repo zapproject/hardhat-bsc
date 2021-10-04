@@ -55,6 +55,9 @@ library ZapDispute {
         //Requre that the user had a balance >0 at time/blockNumber the disupte began
         require(voteWeight > 0, "User must have a balance greater than zero");
 
+        //Ensure the reporting party cannot vote for that specific dispute
+        require(msg.sender != disp.reportingParty, "The reporting party of the dispute cannot vote");
+
         //Update user voting status to true
         disp.voted[msg.sender] = true;
 
@@ -98,9 +101,6 @@ library ZapDispute {
 
         //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
-
-        //Ensure the reporting party cannot vote for that specific dispute
-        require(msg.sender != disp.reportingParty, "The reporting party of the dispute cannot vote");
 
         //If the vote is not a proposed fork
         if (!disp.isPropFork) {

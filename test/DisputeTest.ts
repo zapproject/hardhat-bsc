@@ -284,8 +284,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
 
     // vote of a dispute
-    // signers 1-4 vote for the dispute 1
-    for (var i = 1; i < 5; i++) {
+    // signers 2-4 vote for the dispute 1
+    for (var i = 2; i < 5; i++) {
       zap = zap.connect(signers[i]);
       await zap.vote(disputeId, true);
     }
@@ -376,8 +376,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
 
     // vote of a dispute
-    // signers 1-4 vote for the dispute 1
-    for (var i = 1; i < 5; i++) {
+    // signers 2-4 vote for the dispute 1
+    for (var i = 2; i < 5; i++) {
       zap = zap.connect(signers[i]);
       await zap.vote(disputeId, false);
     }
@@ -474,7 +474,11 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // expect timestamp to be the same timestamp used when disputed
     expect(disp[7][1]).to.equal(timeStamp);
 
-    // vote of a dispute
+    // vote as reporting party (expect to fail)
+    zap = zap.connect(signers[1]);
+    await expect(zap.vote(disputeId, true)).to.be.revertedWith("The reporting party of the dispute cannot vote");
+
+    // vote of a valid dispute
     zap = zap.connect(signers[2]);
     await zap.vote(disputeId, true);
 
