@@ -126,44 +126,44 @@ describe("Main Miner Functions", () => {
 
     })
 
-    it("Should transfer Zap balance from old ZM to new ZM.",
-        async () => {
-            // Allocate enough for transfer
-            await zapTokenBsc.allocate(zapMaster1.address, 10000000);
+    // it("Should transfer Zap balance from old ZM to new ZM.",
+    //     async () => {
+    //         // Allocate enough for transfer
+    //         await zapTokenBsc.allocate(zapMaster1.address, 10000000);
 
-            // expect zm1 to have 10 mil zap 
-            expect(await zapTokenBsc.balanceOf(zapMaster1.address)).to.equal(
-                10000000
-            );
+    //         // expect zm1 to have 10 mil zap 
+    //         expect(await zapTokenBsc.balanceOf(zapMaster1.address)).to.equal(
+    //             10000000
+    //         );
 
-            await zapMaster1.connect(signers[0]).sendBalToNewZM(zapMaster2.address);
+    //         await zapMaster1.connect(signers[0]).sendBalToNewZM(zapMaster2.address);
 
-            // expect zm1 to have 0 zap after transfer
-            expect(await zapTokenBsc.balanceOf(zapMaster1.address)).to.equal(
-                0
-            );
-            // expect zm2 to have 10 mil zap from zm1
-            expect(await zapTokenBsc.balanceOf(zapMaster2.address)).to.equal(
-                10000000
-            );
-        }
-    )
-    it("Should only be able to transfer ZM balance by owner.",
-        async () => {
-            // Allocate enough for transfer
-            await zapTokenBsc.allocate(zapMaster1.address, 10000000);
+    //         // expect zm1 to have 0 zap after transfer
+    //         expect(await zapTokenBsc.balanceOf(zapMaster1.address)).to.equal(
+    //             0
+    //         );
+    //         // expect zm2 to have 10 mil zap from zm1
+    //         expect(await zapTokenBsc.balanceOf(zapMaster2.address)).to.equal(
+    //             10000000
+    //         );
+    //     }
+    // )
+    // it("Should only be able to transfer ZM balance by owner.",
+    //     async () => {
+    //         // Allocate enough for transfer
+    //         await zapTokenBsc.allocate(zapMaster1.address, 10000000);
 
-            // expect zm1 to have 10 mil zap 
-            expect(await zapTokenBsc.balanceOf(zapMaster1.address)).to.equal(
-                10000000
-            );
+    //         // expect zm1 to have 10 mil zap 
+    //         expect(await zapTokenBsc.balanceOf(zapMaster1.address)).to.equal(
+    //             10000000
+    //         );
 
-            await expect(
-                zapMaster1
-                    .connect(signers[8])
-                    .sendBalToNewZM(zapMaster2.address)
-            ).to.be.revertedWith('Only owner can transfer balance.');
-        }
-    )
+    //         await expect(
+    //             zapMaster1
+    //                 .connect(signers[8])
+    //                 .sendBalToNewZM(zapMaster2.address)
+    //         ).to.be.revertedWith('Only owner can transfer balance.');
+    //     }
+    // )
 
 })
