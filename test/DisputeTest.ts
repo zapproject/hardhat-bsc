@@ -465,8 +465,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
     disputeId = await zapMaster.getUintVar(ddisputecount);
     let disp = await zapMaster.getAllDisputeVars(disputeId);
 
-    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
-
     // expect to be the address that begain the dispute
     expect(disp[4]).to.equal(signers[5].address);
     // expect to be the address that is being disputed
@@ -477,18 +475,13 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
 
     // vote of a dispute
-    // signers 1-4 vote for the dispute 1
-    // for (var i = 1; i < 5; i++) {
-      zap = zap.connect(signers[1]);
-      await zap.vote(disputeId, true);
-    // }
+    zap = zap.connect(signers[1]);
+    await zap.vote(disputeId, true);
 
     disputeId = await zapMaster.getUintVar(ddisputecount);
     disp = await zapMaster.getAllDisputeVars(disputeId);
 
     zapMaster.didVote(disputeId, signers[1].address);
-
-    let blockNumber = await ethers.provider.getBlockNumber();
 
     // Increase the evm time by 8 days
     // A stake can not be withdrawn until 7 days passed
