@@ -349,22 +349,27 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should emit a MediaContractCreated event on media contract deployment', async () => {
+    it.only('Should emit a MediaContractCreated event on media contract deployment', async () => {
 
       const zapMarketFilter: EventFilter =
-        zapMarket.filters.MediaContractCreated(zapMedia1.address, null, null);
+        zapMarket.filters.MediaContractCreated(null, null, null);
 
-      const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
 
-      expect(event).to.not.be.undefined;
+      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
 
-      expect(event.event).to.eq('MediaContractCreated');
 
-      expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(event1).to.not.be.undefined;
+      expect(event1.event).to.eq('MediaContractCreated');
+      expect(event1.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(parseBytes32String(event1.args?.name)).to.eq('TEST MEDIA 1');
+      expect(parseBytes32String(event1.args?.symbol)).to.eq('TM1');
 
-      expect(parseBytes32String(event.args?.name)).to.eq('TEST MEDIA 1');
-
-      expect(parseBytes32String(event.args?.symbol)).to.eq('TM1');
+      expect(event2).to.not.be.undefined;
+      expect(event2.event).to.eq('MediaContractCreated');
+      expect(event2.args?.mediaContract).to.eq(zapMedia2.address);
+      expect(parseBytes32String(event2.args?.name)).to.eq('TEST MEDIA 2');
+      expect(parseBytes32String(event2.args?.symbol)).to.eq('TM2');
 
     });
 
