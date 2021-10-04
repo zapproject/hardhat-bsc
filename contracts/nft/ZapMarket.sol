@@ -236,6 +236,12 @@ contract ZapMarket is IMarket, Ownable {
     ) external override {
         console.log('Sender', msg.sender);
         console.log('Media Contract', mediaContract);
+        console.log('=====================================');
+
+        console.log(
+            'Does the sender equal the mediaContract?',
+            msg.sender == mediaContract
+        );
 
         require(isConfigured[msg.sender] != true, 'Market: Already configured');
 

@@ -233,9 +233,9 @@ describe('ZapMarket Test', () => {
 
       console.log({
         media1: zapMedia1.address,
-        media2: zapMedia2.address,
+        media: zapMedia2.address,
         media3: zapMedia3.address
-      })
+      });
 
       const fee = await zapMarket.viewFee();
 
@@ -316,10 +316,6 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should reject if called twice', async () => {
-
-      console.log(zapMedia1.address)
-      console.log(zapMedia2.address)
-      console.log(zapMedia3.address)
 
       await expect(
         zapMarket
@@ -484,9 +480,6 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should emit a Minted event when a token is minted', async () => {
-
-      console.log("Media1", zapMedia1.address)
-      console.log("Media2", zapMedia2.address)
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
