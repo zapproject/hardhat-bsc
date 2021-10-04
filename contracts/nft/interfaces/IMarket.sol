@@ -147,17 +147,12 @@ interface IMarket {
     function removeAsk(uint256 tokenId) external;
 
     function setBid(
-        address mediaContractAddress,
         uint256 tokenId,
         Bid calldata bid,
         address spender
     ) external;
 
-    function removeBid(
-        address mediaContractAddress,
-        uint256 tokenId,
-        address bidder
-    ) external;
+    function removeBid(uint256 tokenId, address bidder) external;
 
     function acceptBid(
         address mediaContractAddress,

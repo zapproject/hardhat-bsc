@@ -389,18 +389,8 @@ contract ZapMedia is
         nonReentrant
         onlyExistingToken(tokenId)
     {
-        require(
-            msg.sender == bid.bidder,
-            // remove revert string before deployment to mainnet
-            'Market: Bidder must be msg sender'
-        );
-        address mediaContractAddress = address(this);
-        IMarket(access.marketContract).setBid(
-            mediaContractAddress,
-            tokenId,
-            bid,
-            msg.sender
-        );
+        require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
+        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
     }
 
     /**
@@ -412,12 +402,7 @@ contract ZapMedia is
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        address mediaContractAddress = address(this);
-        IMarket(access.marketContract).removeBid(
-            mediaContractAddress,
-            tokenId,
-            msg.sender
-        );
+        IMarket(access.marketContract).removeBid(tokenId, msg.sender);
     }
 
     /**

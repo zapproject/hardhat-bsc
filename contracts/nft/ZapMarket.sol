@@ -319,8 +319,6 @@ contract ZapMarket is IMarket, Ownable {
      * @notice removes an ask for a token and emits an AskRemoved event
      */
     function removeAsk(uint256 tokenId) external override onlyMediaCaller {
-        console.log('Sender from removeAsk', msg.sender);
-
         emit AskRemoved(tokenId, _tokenAsks[msg.sender][tokenId], msg.sender);
         delete _tokenAsks[msg.sender][tokenId];
     }
@@ -331,12 +329,11 @@ contract ZapMarket is IMarket, Ownable {
      * If another bid already exists for the bidder, it is refunded.
      */
     function setBid(
-        address mediaContractAddress,
         uint256 tokenId,
         Bid memory bid,
         address spender
     ) public override onlyMediaCaller {
-        BidShares memory bidShares = _bidShares[mediaContractAddress][tokenId];
+        BidShares memory bidShares = _bidShares[msg.sender][tokenId];
 
         require(
             bidShares.creator.value + (bid.sellOnShare.value) <=
@@ -354,13 +351,13 @@ contract ZapMarket is IMarket, Ownable {
             'Market: bid recipient cannot be 0 address'
         );
 
-        Bid storage existingBid = _tokenBidders[mediaContractAddress][tokenId][
+        Bid storage existingBid = _tokenBidders[msg.sender][tokenId][
             bid.bidder
         ];
 
         // If there is an existing bid, refund it before continuing
         if (existingBid.amount > 0) {
-            removeBid(mediaContractAddress, tokenId, bid.bidder);
+            removeBid(tokenId, bid.bidder);
         }
 
         IERC20Upgradeable token = IERC20Upgradeable(bid.currency);
@@ -373,25 +370,24 @@ contract ZapMarket is IMarket, Ownable {
 
         uint256 afterBalance = token.balanceOf(address(this));
 
-        _tokenBidders[mediaContractAddress][tokenId][bid.bidder] = Bid(
+        _tokenBidders[msg.sender][tokenId][bid.bidder] = Bid(
             afterBalance - (beforeBalance),
             bid.currency,
             bid.bidder,
             bid.recipient,
             bid.sellOnShare
         );
-        emit BidCreated(mediaContractAddress, tokenId, bid);
+        emit BidCreated(msg.sender, tokenId, bid);
 
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[mediaContractAddress][tokenId].currency != address(0) &&
-            bid.currency ==
-            _tokenAsks[mediaContractAddress][tokenId].currency &&
-            bid.amount >= _tokenAsks[mediaContractAddress][tokenId].amount
+            _tokenAsks[msg.sender][tokenId].currency != address(0) &&
+            bid.currency == _tokenAsks[msg.sender][tokenId].currency &&
+            bid.amount >= _tokenAsks[msg.sender][tokenId].amount
         ) {
             // Finalize exchange
-            _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
+            _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
         }
     }
 
@@ -399,12 +395,14 @@ contract ZapMarket is IMarket, Ownable {
      * @notice Removes the bid on a particular media for a bidder. The bid amount
      * is transferred from this contract to the bidder, if they have a bid placed.
      */
-    function removeBid(
-        address mediaContractAddress,
-        uint256 tokenId,
-        address bidder
-    ) public override onlyMediaCaller {
-        Bid storage bid = _tokenBidders[mediaContractAddress][tokenId][bidder];
+    function removeBid(uint256 tokenId, address bidder)
+        public
+        override
+        onlyMediaCaller
+    {
+        console.log('Sender from setBid', msg.sender);
+
+        Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
 
@@ -415,8 +413,8 @@ contract ZapMarket is IMarket, Ownable {
 
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
-        emit BidRemoved(tokenId, bid, mediaContractAddress);
-        delete _tokenBidders[mediaContractAddress][tokenId][bidder];
+        emit BidRemoved(tokenId, bid, msg.sender);
+        delete _tokenBidders[msg.sender][tokenId][bidder];
         token.safeTransfer(bidder, bidAmount);
 
         bidMutex[tokenId] = false;

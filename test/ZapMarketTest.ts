@@ -320,7 +320,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should reject if called twice', async () => {
+    it('Should reject if called twice', async () => {
 
       // await expect(
       //   zapMarket
@@ -724,7 +724,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should set the ask if called by the media address', async () => {
+    it('Should set the ask if called by the media address', async () => {
 
       await zapMedia1.connect(signers[1]).setAsk(0, ask1);
 
@@ -802,7 +802,7 @@ describe('ZapMarket Test', () => {
       ).to.be.revertedWith('Market: Ask invalid for share splitting');
     });
 
-    it.only("Should remove an ask", async () => {
+    it("Should remove an ask", async () => {
 
       await zapMedia1.connect(signers[1]).setAsk(0, ask1);
       await zapMedia2.connect(signers[2]).setAsk(0, ask2);
@@ -1008,13 +1008,13 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMarket
           .connect(signers[2])
-          .setBid(zapMedia1.address, 0, bid1, bid1.spender)
+          .setBid(0, bid1, bid1.spender)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
         zapMarket
           .connect(signers[1])
-          .setBid(zapMedia2.address, 0, bid2, bid2.spender)
+          .setBid(0, bid2, bid2.spender)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
@@ -1365,7 +1365,7 @@ describe('ZapMarket Test', () => {
       const owner2PreSet = await zapTokenBsc.balanceOf(signers[2].address);
 
       await zapMedia1.setBid(0, bid1);
-      await zapMedia2.setBid(0, bid2);
+      await zapMedia2.setBid(0, bid2)
 
       const owner1PostSet = await zapTokenBsc.balanceOf(signers[1].address);
       expect(parseInt(owner1PostSet._hex)).to.equal(parseInt(owner1PreSet._hex) - bid1.amount);
@@ -1412,5 +1412,60 @@ describe('ZapMarket Test', () => {
       expect(parseInt(collabFourPostBal._hex)).to.equal((15 / 100) * (bid1.amount + bid2.amount));
 
     })
+
+    it("Should remove a bid", async () => {
+
+      await zapTokenBsc.mint(signers[1].address, 5000);
+      await zapTokenBsc.mint(signers[2].address, 5000);
+
+      await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
+      await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
+
+      await zapMedia1.setBid(0, bid1);
+
+      await zapMedia1.removeBid(0);
+
+      const filter_setBid1: EventFilter = zapMarket.filters.BidRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_setBid1: Event = (
+        await zapMarket.queryFilter(filter_setBid1)
+      )[0]
+
+      expect(event_setBid1.event).to.be.equal("BidRemoved")
+      expect(event_setBid1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_setBid1.args?.bid.amount.toNumber()).to.be.equal(bid1.amount);
+      expect(event_setBid1.args?.bid.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_setBid1.args?.bid.bidder).to.be.equal(bid1.bidder);
+      expect(event_setBid1.args?.bid.recipient).to.be.equal(bid1.recipient);
+      expect(event_setBid1.args?.mediaContract).to.be.equal(zapMedia1.address);
+
+      await zapMedia2.setBid(0, bid2);
+      await zapMedia2.removeBid(0)
+
+      const filter_setBid2: EventFilter = zapMarket.filters.BidRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_setBid2: Event = (
+        await zapMarket.queryFilter(filter_setBid2)
+      )[1]
+
+      expect(event_setBid2.event).to.be.equal("BidRemoved")
+      expect(event_setBid2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_setBid2.args?.bid.amount.toNumber()).to.be.equal(bid2.amount);
+      expect(event_setBid2.args?.bid.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_setBid2.args?.bid.bidder).to.be.equal(bid2.bidder);
+      expect(event_setBid2.args?.bid.recipient).to.be.equal(bid2.recipient);
+      expect(event_setBid2.args?.mediaContract).to.be.equal(zapMedia2.address);
+
+
+    })
+
   });
 });
