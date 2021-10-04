@@ -252,7 +252,7 @@ contract ZapMarket is IMarket, Ownable {
 
         isConfigured[msg.sender] = true;
 
-        mediaContracts[deployer].push(mediaContract);
+        mediaContracts[deployer].push(msg.sender);
 
         emit MediaContractCreated(mediaContract, name, symbol);
     }
