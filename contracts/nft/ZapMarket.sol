@@ -191,7 +191,7 @@ contract ZapMarket is IMarket, Ownable {
      * ****************
      */
 
-function initializeMarket(address _platformAddress) public initializer {
+    function initializeMarket(address _platformAddress) public initializer {
         require(!initialized, 'Market: Instance has already been initialized');
 
         initialized = true;
