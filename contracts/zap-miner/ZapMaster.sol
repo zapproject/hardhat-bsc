@@ -2,6 +2,7 @@ pragma solidity =0.5.16;
 
 import './ZapGetters.sol';
 import './libraries/Address.sol';
+import './libraries/ZapConstants.sol';
 
 /**
  * @title Zap Master
@@ -31,9 +32,9 @@ contract ZapMaster is ZapGetters {
         ZapGetters(tokenAddress)
     {
         zap.init();
-        zap.addressVars[keccak256('_owner')] = msg.sender;
-        zap.addressVars[keccak256('_deity')] = msg.sender;
-        zap.addressVars[keccak256('zapContract')] = _zapContract;
+        zap.addressVars[ZapConstants._owner] = msg.sender;
+        zap.addressVars[ZapConstants._deity] = msg.sender;
+        zap.addressVars[ZapConstants.zapContract] = _zapContract;
         // zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
 
         owner = msg.sender;
