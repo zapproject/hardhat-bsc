@@ -158,12 +158,12 @@ library ZapDispute {
                 // return (address(this), disp.reportedMiner, disputeFeeForDisputeId);
 
             }
-            //If the vote is for a proposed fork require a 20% quorum before exceduting the update to the new zap contract address
+            //If the vote is for a proposed fork require 35% quorum before executing the update to the new zap contract address
         } else {
             if (disp.tally > 0) {
                 require(
                     disp.disputeUintVars[keccak256('quorum')] >
-                        ((self.uintVars[keccak256('total_supply')] * 20) / 100)
+                        ((self.uintVars[keccak256('total_supply')] * 35) / 100)
                 );
                 if (!disp.isZM) {
                     self.addressVars[keccak256('zapContract')] = disp.proposedForkAddress;
