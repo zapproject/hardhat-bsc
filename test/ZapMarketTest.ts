@@ -289,7 +289,6 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should reject if not called from Media Factory', async () => {
-      // can never happen because on the media factory can configure
 
       await expect(
         zapMarket
