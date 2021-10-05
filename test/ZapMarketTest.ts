@@ -625,7 +625,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should reject if the bid shares are invalid', async () => {
+    it.only('Should reject if the bid shares are invalid', async () => {
 
       let metadataHex = ethers.utils.formatBytes32String('{tool: box}');
       let metadataHashRaw = await keccak256(metadataHex);
@@ -652,6 +652,11 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia1.connect(signers[1]).mint(data, invalidBidShares)
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
+
+      await expect(
+        zapMedia2.connect(signers[2]).mint(data, invalidBidShares)
+      ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
+
     });
 
   });
