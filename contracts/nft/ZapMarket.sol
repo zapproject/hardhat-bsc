@@ -70,11 +70,11 @@ contract ZapMarket is IMarket, Ownable {
             'Market: Only media contract'
         );
 
-        require(
-            registeredMedias[msg.sender] == true,
-            'Market: Only registered media contracts'
-        );
+        _;
+    }
 
+    modifier onlyMediaFactory() {
+        require(msg.sender == mediaFactory, "Market: Only the media factory can do this action");
         _;
     }
 
@@ -231,7 +231,7 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContract,
         bytes32 name,
         bytes32 symbol
-    ) external override {
+    ) external override onlyMediaFactory {
         require(
             isConfigured[mediaContract] != true,
             'Market: Already configured'
@@ -243,9 +243,6 @@ contract ZapMarket is IMarket, Ownable {
         );
 
         isConfigured[mediaContract] = true;
-
-        console.log('Incoming contract addresses', mediaContract);
-        console.log('Incoming deployers', deployer);
 
         mediaContracts[deployer].push(mediaContract);
 
@@ -266,12 +263,7 @@ contract ZapMarket is IMarket, Ownable {
         }
     }
 
-    function registerMedia(address mediaContract) external override {
-        require(
-            msg.sender == mediaFactory,
-            'Only the Media Factory can call this function'
-        );
-
+    function registerMedia(address mediaContract) external override onlyMediaFactory {
         registeredMedias[mediaContract] = true;
     }
 

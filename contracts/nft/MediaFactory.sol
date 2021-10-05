@@ -37,6 +37,20 @@ contract MediaFactory is OwnableUpgradeable {
 
         zapMarket.registerMedia(address(zapMedia));
 
+
+        bytes memory name_b = bytes(name);
+        bytes memory symbol_b = bytes(symbol);
+
+        bytes32 name_b32;
+        bytes32 symbol_b32;
+
+        assembly {
+            name_b32 := mload(add(name_b, 32))
+            symbol_b32 := mload(add(symbol_b, 32))
+        }
+
+        zapMarket.configure(msg.sender, address(zapMedia), name_b32, symbol_b32);
+
         emit MediaDeployed(address(zapMedia));
 
         return address(zapMedia);
