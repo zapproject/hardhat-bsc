@@ -593,18 +593,35 @@ describe('ZapMarket Test', () => {
         await zapMarket.queryFilter(filter_media)
       )[1];
 
-      console.log(event_media1)
+      expect(event_media1.event).to.be.equal("BidShareUpdated");
+      expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
 
+      expect(event_media1.args?.bidShares.creator.value).
+        to.equal(bidShares1.creator.value);
 
+      expect(event_media1.args?.bidShares.owner.value).
+        to.equal(bidShares1.owner.value);
 
-      // const receipt2 = await mint_tx2.wait();
-      // const eventLog2 = receipt2.events[0];
+      expect(event_media2.event).to.be.equal("BidShareUpdated");
+      expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
 
-      // expect(eventLog1.event).to.be.equal('Transfer');
-      // expect(eventLog1.args.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media2.args?.bidShares.creator.value).
+        to.equal(bidShares2.creator.value);
 
-      // expect(eventLog2.event).to.be.equal('Transfer');
-      // expect(eventLog2.args.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media2.args?.bidShares.owner.value).
+        to.equal(bidShares2.owner.value);
+
+      for (var i = 0; i < event_media1.args?.bidShares.collaborators.length; i++) {
+
+        expect(event_media1.args?.bidShares.collaborators[i]).to.be.equal(bidShares1.collaborators[i]);
+
+        expect(event_media1.args?.bidShares.collabShares[i]).to.be.equal(bidShares1.collabShares[i]);
+
+        expect(event_media2.args?.bidShares.collaborators[i]).to.be.equal(bidShares2.collaborators[i]);
+
+        expect(event_media2.args?.bidShares.collabShares[i]).to.be.equal(bidShares2.collabShares[i]);
+
+      }
 
     });
 
