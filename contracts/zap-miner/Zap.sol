@@ -355,7 +355,6 @@ contract Zap {
                 zap.addressVars[ZapConstants.get_owner()],
                 zap.uintVars[ZapConstants.getDevShare()]
             );
-            console.log(address(this));
         }
 
         zap.uintVars[ZapConstants.getCurrentMinerReward()] = 0;
