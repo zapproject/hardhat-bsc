@@ -7,7 +7,7 @@ import './libraries/ZapConstants.sol';
 /**
  * @title Zap Master
  * @dev This is the Master contract with all zap getter functions and delegate call to Zap.
- * The logic for the functions on this contract is saved on the ZapGettersLibrary, ZapTransfer,
+ * The logic for the functions on this contract is saved on the ZapGettersLibrary,
  * ZapGettersLibrary, and ZapStake
  */
 contract ZapMaster is ZapGetters {

@@ -305,8 +305,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
 
     // vote of a dispute
-    // signers 1-4 vote for the dispute 1
-    for (var i = 1; i < 5; i++) {
+    // signers 2-4 vote for the dispute 1
+    for (var i = 2; i < 5; i++) {
       zap = zap.connect(signers[i]);
       await zap.vote(disputeId, true);
     }
@@ -397,8 +397,8 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][1]).to.equal(timeStamp);
 
     // vote of a dispute
-    // signers 1-4 vote for the dispute 1
-    for (var i = 1; i < 5; i++) {
+    // signers 2-4 vote for the dispute 1
+    for (var i = 2; i < 5; i++) {
       zap = zap.connect(signers[i]);
       await zap.vote(disputeId, false);
     }
@@ -443,5 +443,82 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(reporting_miner_wallet_bal).to.equal(BigNumber.from("112500000000000000000000")); // 600k - 472500(dispute fee)
     // expect balance of loser to be 500k(original stake amount) + 15(reward for mining ) = 500015 for not winning the disputed miners stake.
 
+  });
+
+  it('Should fail dispute if the number of voters are less than 10%', async () => {
+    // stake signers 6 to 15.
+    for (let i = 6; i <= 15; i++) {
+      await zapTokenBsc.allocate(signers[i].address, BigNumber.from("1100000000000000000000000"));
+      zap = zap.connect(signers[i]);
+
+      await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
+      await zap.depositStake();
+    }
+
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
+      'timeOfLastNewValue'
+    );
+
+    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
+      timeOfLastNewValueBytes
+    );
+
+    // Gets the the current stake amount
+    let timeStamp: BigNumber = await zapMaster.getUintVar(
+      timeOfLastNewValueHash
+    );
+
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
+
+    zap = zap.connect(signers[1]);
+    await zap.beginDispute(1, timeStamp, 4);
+    // Convert to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+    // Convert to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+    // Gets the disputeID also the dispute count
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    let disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    // expect to be the address that begain the dispute
+    expect(disp[4]).to.equal(signers[5].address);
+    // expect to be the address that is being disputed
+    expect(disp[5]).to.equal(signers[1].address);
+    //expect requestID disputed to be 1
+    expect(disp[7][0]).to.equal(1);
+    // expect timestamp to be the same timestamp used when disputed
+    expect(disp[7][1]).to.equal(timeStamp);
+
+    // vote as reporting party (expect to fail)
+    zap = zap.connect(signers[1]);
+    await expect(zap.vote(disputeId, true)).to.be.revertedWith("The reporting party of the dispute cannot vote");
+
+    // vote of a valid dispute
+    zap = zap.connect(signers[2]);
+    await zap.vote(disputeId, true);
+
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    zapMaster.didVote(disputeId, signers[1].address);
+
+    // Increase the evm time by 8 days
+    // A stake can not be withdrawn until 7 days passed
+    await ethers.provider.send('evm_increaseTime', [691200]);
+    await zap.tallyVotes(disputeId);
+
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    // expect voting to have ended
+    expect(disp[1]).to.be.true;
+
+    // expect dispute to be successful
+    expect(disp[2]).to.be.false;
   });
 });

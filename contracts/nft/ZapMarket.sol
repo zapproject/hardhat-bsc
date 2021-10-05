@@ -54,8 +54,6 @@ contract ZapMarket is IMarket, Ownable {
     // Mapping of token ids of accepted bids to their mutex
     mapping(uint256 => bool) private bidMutex;
 
-    bool private initialized;
-
     address platformAddress;
 
     IMarket.PlatformFee platformFee;
@@ -192,9 +190,6 @@ contract ZapMarket is IMarket, Ownable {
      */
 
     function initializeMarket(address _platformAddress) public initializer {
-        require(!initialized, 'Market: Instance has already been initialized');
-
-        initialized = true;
 
         owner = msg.sender;
 
