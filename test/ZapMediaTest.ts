@@ -14,12 +14,15 @@ import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from "../typechain/ZapMarket";
 import { ZapVault } from "../typechain/ZapVault"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { deployJustMedias } from "./utils";
+
 
 import {
     keccak256,
     formatBytes32String,
     arrayify
 } from 'ethers/lib/utils';
+import { MediaFactory } from "../typechain";
 
 const { BigNumber } = ethers;
 
@@ -30,6 +33,7 @@ describe("ZapMedia Test", async () => {
     let zapMedia1: ZapMedia;
     let zapMedia2: ZapMedia;
     let zapMedia3: ZapMedia;
+    let mediaDeployer: MediaFactory;
     let zapVault: ZapVault;
     let zapTokenBsc: any;
     let signers: any;
@@ -120,7 +124,9 @@ describe("ZapMedia Test", async () => {
     })
 
     describe("Configure", () => {
+
         beforeEach(async () => {
+
             tokenURI = String("media contract 1 - token 1 uri");
             metadataURI = String("media contract 1 - metadata 1 uri");
 
@@ -152,62 +158,27 @@ describe("ZapMedia Test", async () => {
                 metadataHash: metadataHashBytes,
             };
 
-            const mediaFactory = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[1]
-            );
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            // zapMedia1 = (await mediaFactory.deploy("TEST MEDIA 1", "TM1", zapMarket.address, false)) as ZapMedia;
-            zapMedia1 = (await upgrades.deployProxy(
-                mediaFactory,
-                ["TEST MEDIA 1",
-                    "TM1",
-                    zapMarket.address,
-                    false,
-                    'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'])) as ZapMedia;
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
 
-            await zapMedia1.deployed();
+            await mediaDeployer.deployed();
 
-            const mediaFactory2 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[2]
-            );
+            await zapMarket.setMediaFactory(mediaDeployer.address);
 
-            zapMedia2 = (await upgrades.deployProxy(
-                mediaFactory2,
-                [
-                    "TEST MEDIA 2",
-                    "TM2",
-                    zapMarket.address,
-                    false,
-                    "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
-                ]
-            )) as ZapMedia;
+            const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-            await zapMedia2.deployed();
-
-            const mediaFactory3 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[3]
-            );
-
-            zapMedia3 = (await upgrades.deployProxy(
-                mediaFactory3,
-                [
-                    "Test MEDIA 3",
-                    "TM3",
-                    zapMarket.address,
-                    false,
-                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-                ]
-            )) as ZapMedia;
-
-            await zapMedia3.deployed();
+            zapMedia1 = medias[0];
+            zapMedia2 = medias[1];
+            zapMedia3 = medias[2];
 
             ask.currency = zapTokenBsc.address;
         });
 
         it("Should get media owner", async () => {
+
             const zapMedia1Address = await zapMarket.mediaContracts(
                 signers[1].address,
                 BigNumber.from("0")
@@ -224,35 +195,36 @@ describe("ZapMedia Test", async () => {
         });
 
         it("Should reject if called twice", async () => {
-            await expect(
-                zapMarket
-                    .connect(signers[1])
-                    .configure(
-                        signers[1].address,
-                        zapMedia1.address,
-                        formatBytes32String("TEST MEDIA 1"),
-                        formatBytes32String("TM1")
-                    )
-            ).to.be.revertedWith("Market: Already configured");
 
-            await expect(
-                zapMarket
-                    .connect(signers[2])
-                    .configure(
-                        signers[2].address,
-                        zapMedia2.address,
-                        formatBytes32String("TEST MEDIA 2"),
-                        formatBytes32String("TM2")
-                    )
-            ).to.be.revertedWith("Market: Already configured");
+            // await expect(
+            //     zapMarket
+            //         .connect(signers[1])
+            //         .configure(
+            //             signers[1].address,
+            //             zapMedia1.address,
+            //             formatBytes32String("TEST MEDIA 1"),
+            //             formatBytes32String("TM1")
+            //         )
+            // ).to.be.revertedWith("Market: Already configured");
 
-            expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
+            // await expect(
+            //     zapMarket
+            //         .connect(signers[2])
+            //         .configure(
+            //             signers[2].address,
+            //             zapMedia2.address,
+            //             formatBytes32String("TEST MEDIA 2"),
+            //             formatBytes32String("TM2")
+            //         )
+            // ).to.be.revertedWith("Market: Already configured");
 
-            expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
+            // expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
+
+            // expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
         });
     });
 
-    describe("#mint", () => {
+    describe.only("#mint", () => {
         beforeEach(async () => {
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -330,61 +302,45 @@ describe("ZapMedia Test", async () => {
 
         it('should mint a permissive token without approval', async () => {
 
-            const collaborators = {
-                collaboratorTwo: signers[10].address,
-                collaboratorThree: signers[11].address,
-                collaboratorFour: signers[12].address
-            }
-
-            const mediaFactory5 = await ethers.getContractFactory("ZapMedia", signers[5]);
-            const zapMedia5 = (await upgrades.deployProxy(mediaFactory5,
-                [
-                    "Test MEDIA 3",
-                    "TM3",
-                    zapMarket.address,
-                    true,
-                    'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-
-                ])) as ZapMedia;
-
             expect(
-                await zapMedia5.connect(signers[6]).mint(mediaData, bidShares)
+                await zapMedia1.connect(signers[4]).mint(mediaData, bidShares)
             ).to.be.ok;
-
-            const ownerOf = await zapMedia5.ownerOf(0);
-            const creator = await zapMedia5.getTokenCreators(0);
-
-            const tokenContentHash = await zapMedia5.getTokenContentHashes(0);
-            const metadataContentHash = await zapMedia5.getTokenMetadataHashes(
-                0
-            );
-            const savedTokenURI = await zapMedia5.tokenURI(0);
-            const savedMetadataURI = await zapMedia5.tokenMetadataURI(0);
-
-            expect(ownerOf).eq(signers[6].address);
-            expect(creator).eq(signers[6].address);
-
-            expect(tokenContentHash).eq(contentHash);
-            expect(metadataContentHash).eq(metadataHash);
-            expect(savedTokenURI).eq(tokenURI);
-            expect(savedMetadataURI).eq(metadataURI);
-        });
-
-        it("should mint token", async () => {
-            await zapMedia1.mint(mediaData, bidShares);
 
             const ownerOf = await zapMedia1.ownerOf(0);
             const creator = await zapMedia1.getTokenCreators(0);
 
             const tokenContentHash = await zapMedia1.getTokenContentHashes(0);
-            const metadataContentHash = await zapMedia1.getTokenMetadataHashes(
-                0
-            );
+            const metadataContentHash = await zapMedia1.getTokenMetadataHashes(0);
+
             const savedTokenURI = await zapMedia1.tokenURI(0);
             const savedMetadataURI = await zapMedia1.tokenMetadataURI(0);
 
-            expect(ownerOf).eq(signers[1].address);
-            expect(creator).eq(signers[1].address);
+            expect(ownerOf).eq(signers[4].address);
+            expect(creator).eq(signers[4].address);
+            expect(tokenContentHash).eq(contentHash);
+            expect(metadataContentHash).eq(metadataHash);
+            expect(savedTokenURI).eq(tokenURI);
+            expect(savedMetadataURI).eq(metadataURI);
+
+        });
+
+        it("should mint token", async () => {
+
+            // Signer 5 mints token 2 on zapMedia1
+            await zapMedia1.connect(signers[5]).mint(mediaData, bidShares);
+
+            const ownerOf = await zapMedia1.ownerOf(1);
+
+            const creator = await zapMedia1.getTokenCreators(1);
+
+            const tokenContentHash = await zapMedia1.getTokenContentHashes(1);
+            const metadataContentHash = await zapMedia1.getTokenMetadataHashes(1);
+
+            const savedTokenURI = await zapMedia1.tokenURI(1);
+            const savedMetadataURI = await zapMedia1.tokenMetadataURI(1);
+
+            expect(ownerOf).eq(signers[5].address);
+            expect(creator).eq(signers[5].address);
 
             expect(tokenContentHash).eq(contentHash);
             expect(metadataContentHash).eq(metadataHash);
@@ -398,6 +354,7 @@ describe("ZapMedia Test", async () => {
                     { ...mediaData, contentHash: zeroContentHashBytes }, bidShares
                 )
             ).revertedWith("Media: content hash must be non-zero");
+
         });
 
         it('should revert if the content hash already exists for a created token', async () => {
