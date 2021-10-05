@@ -5,6 +5,7 @@ import { BigNumber, ContractFactory } from "ethers";
 import { ethers } from "hardhat";
 
 import {
+    ZapConstants,
     ZapMasterTest,
     ZapTokenBSC,
     ZapStake,
@@ -16,6 +17,7 @@ import {
 
 chai.use(solidity);
 
+let zapConstants: ZapConstants; 
 let testOracle: ZapMasterTest;
 let zapToken: ZapTokenBSC;
 let stake: ZapStake;
@@ -35,58 +37,77 @@ describe("Test Oracle Network", function () {
         [ deployer, staker1, staker2 ] = await ethers.getSigners();
 
         const zapTokenFactory: ContractFactory = await ethers.getContractFactory(
-            "ZapTokenBSC",
-            deployer
-        )
-
-        zapToken = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-        await zapToken.deployed()
-
-        const libFactory: ContractFactory = await ethers.getContractFactory("ZapLibrary",
-            {
-                signer: deployer
-            }
+          'ZapTokenBSC',
+          deployer
         );
-
-        lib = (await libFactory.deploy()) as ZapLibrary
-        await lib.deployed()
-
-        const disputeFactory: ContractFactory = await ethers.getContractFactory("ZapDispute", {
-
+    
+        zapToken = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+        await zapToken.deployed();
+    
+        const zapConstantsFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapConstants',
+          deployer
+        );
+    
+        zapConstants = (await zapConstantsFactory.deploy()) as ZapConstants;
+        await zapConstants.deployed();
+    
+        const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapLibrary',
+          {
+            libraries: {
+              ZapConstants: zapConstants.address
+            },
             signer: deployer
-
-        });
-
-        dispute = (await disputeFactory.deploy()) as ZapDispute
+          }
+        );
+    
+        lib = (await zapLibraryFactory.deploy()) as ZapLibrary;
+        await lib.deployed();
+    
+        const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapDispute',
+          {
+            libraries: {
+              ZapConstants: zapConstants.address
+            },
+            signer: deployer
+          }
+        );
+    
+        dispute = (await zapDisputeFactory.deploy()) as ZapDispute;
         await dispute.deployed();
-
-        const stakeFactory: ContractFactory = await ethers.getContractFactory("ZapStake", {
-
+    
+        const zapStakeFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapStake',
+          {
             libraries: {
-                ZapDispute: dispute.address
+              ZapConstants: zapConstants.address,
+              ZapDispute: dispute.address
             },
             signer: deployer
-        })
-
-        stake = (await stakeFactory.deploy()) as ZapStake
-        await stake.deployed()
-
-        const zapFactory: ContractFactory = await ethers.getContractFactory("Zap", {
-
-            libraries: {
-                ZapStake: stake.address,
-                ZapDispute: dispute.address,
-                ZapLibrary: lib.address,
-            },
-            signer: deployer
-
-        })
-
-        oracleBackend = (await zapFactory.deploy(zapToken.address)) as Zap
-        await oracleBackend.deployed()
+          }
+        );
+    
+        stake = (await zapStakeFactory.deploy()) as ZapStake;
+        await stake.deployed();
+    
+        const zapFactory: ContractFactory = await ethers.getContractFactory('Zap', {
+          libraries: {
+            ZapConstants: zapConstants.address,
+            ZapDispute: dispute.address,
+            ZapLibrary: lib.address,
+            ZapStake: stake.address,
+          },
+          signer: deployer
+        });
+    
+        oracleBackend = (await zapFactory.deploy(zapToken.address)) as Zap;
+        await oracleBackend.deployed();
 
         const testOracleFactory: ContractFactory = await ethers.getContractFactory("ZapMasterTest", {
             libraries: {
+                ZapConstants: zapConstants.address,
                 ZapStake: stake.address
             },
             signer: deployer

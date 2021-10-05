@@ -8,7 +8,7 @@ import chai from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-// import { ZapTransfer } from '../typechain/ZapTransfer';
+import { ZapConstants } from '../typechain';
 
 import { ZapLibrary } from '../typechain/ZapLibrary';
 
@@ -32,7 +32,7 @@ chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
 
-// let zapTransfer: ZapTransfer;
+let zapConstants: ZapConstants;
 
 let zapLibrary: ZapLibrary;
 
@@ -60,20 +60,20 @@ describe('Test adding tip to a request.', () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
 
-    // const zapTransferFactory: ContractFactory = await ethers.getContractFactory(
-    //   'ZapTransfer',
-    //   signers[0]
-    // );
+    const zapConstantsFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapConstants',
+      signers[0]
+    );
 
-    // zapTransfer = (await zapTransferFactory.deploy()) as ZapTransfer;
-    // await zapTransfer.deployed();
+    zapConstants = (await zapConstantsFactory.deploy()) as ZapConstants;
+    await zapConstants.deployed();
 
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
       {
-        // libraries: {
-        //   ZapTransfer: zapTransfer.address
-        // },
+        libraries: {
+          ZapConstants: zapConstants.address
+        },
         signer: signers[0]
       }
     );
@@ -84,9 +84,9 @@ describe('Test adding tip to a request.', () => {
     const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
       'ZapDispute',
       {
-        // libraries: {
-        //   ZapTransfer: zapTransfer.address
-        // },
+        libraries: {
+          ZapConstants: zapConstants.address
+        },
         signer: signers[0]
       }
     );
@@ -98,7 +98,7 @@ describe('Test adding tip to a request.', () => {
       'ZapStake',
       {
         libraries: {
-          // ZapTransfer: zapTransfer.address,
+          ZapConstants: zapConstants.address,
           ZapDispute: zapDispute.address
         },
         signer: signers[0]
@@ -110,9 +110,10 @@ describe('Test adding tip to a request.', () => {
 
     const zapFactory: ContractFactory = await ethers.getContractFactory('Zap', {
       libraries: {
-        ZapStake: zapStake.address,
+        ZapConstants: zapConstants.address,
         ZapDispute: zapDispute.address,
-        ZapLibrary: zapLibrary.address
+        ZapLibrary: zapLibrary.address,
+        ZapStake: zapStake.address,
       },
       signer: signers[0]
     });
@@ -124,7 +125,7 @@ describe('Test adding tip to a request.', () => {
       'ZapMaster',
       {
         libraries: {
-          // ZapTransfer: zapTransfer.address,
+          ZapConstants: zapConstants.address,
           ZapStake: zapStake.address
         },
         signer: signers[0]
@@ -144,9 +145,8 @@ describe('Test adding tip to a request.', () => {
       zapTokenBsc.address,
       zapMaster.address
     )) as Vault;
-    await vault.deployed();
 
-    // await zap.setVault(vault.address);
+    await vault.deployed();
     await zapMaster.functions.changeVaultContract(vault.address);
 
     await zapTokenBsc.allocate(zapMaster.address, 10000000);

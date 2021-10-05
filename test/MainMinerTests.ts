@@ -6,9 +6,9 @@ import { solidity } from "ethereum-waffle";
 
 import chai from "chai";
 
-import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
+import { ZapConstants } from "../typechain/ZapConstants";
 
-import { ZapTransfer } from '../typechain/ZapTransfer';
+import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
 import { ZapLibrary } from "../typechain/ZapLibrary";
 
@@ -31,7 +31,7 @@ chai.use(solidity);
 
 let zapTokenBsc: ZapTokenBSC;
 
-let zapTransfer: ZapTransfer;
+let zapConstants: ZapConstants;
 
 let zapLibrary: ZapLibrary;
 
@@ -54,71 +54,101 @@ describe("Main Miner Functions", () => {
         signers = await ethers.getSigners();
 
         const zapTokenFactory: ContractFactory = await ethers.getContractFactory(
-            "ZapTokenBSC",
-            signers[0]
-        )
-
-        zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-        await zapTokenBsc.deployed()
-
-        const zapLibraryFactory: ContractFactory = await ethers.getContractFactory("ZapLibrary",
-            {
-                signer: signers[0]
-            }
+          'ZapTokenBSC',
+          signers[0]
         );
-
-        zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary
-        await zapLibrary.deployed()
-
-        const zapDisputeFactory: ContractFactory = await ethers.getContractFactory("ZapDispute", {
-
+    
+        zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+        await zapTokenBsc.deployed();
+    
+        const zapConstantsFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapConstants',
+          signers[0]
+        );
+    
+        zapConstants = (await zapConstantsFactory.deploy()) as ZapConstants;
+        await zapConstants.deployed();
+    
+        const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapLibrary',
+          {
+            libraries: {
+              ZapConstants: zapConstants.address
+            },
             signer: signers[0]
-
-        });
-
-        zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute
+          }
+        );
+    
+        zapLibrary = (await zapLibraryFactory.deploy()) as ZapLibrary;
+        await zapLibrary.deployed();
+    
+        const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapDispute',
+          {
+            libraries: {
+              ZapConstants: zapConstants.address
+            },
+            signer: signers[0]
+          }
+        );
+    
+        zapDispute = (await zapDisputeFactory.deploy()) as ZapDispute;
         await zapDispute.deployed();
-
-        const zapStakeFactory: ContractFactory = await ethers.getContractFactory("ZapStake", {
-
+    
+        const zapStakeFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapStake',
+          {
             libraries: {
-                ZapDispute: zapDispute.address
+              ZapConstants: zapConstants.address,
+              ZapDispute: zapDispute.address
             },
             signer: signers[0]
-        })
-
-        zapStake = (await zapStakeFactory.deploy()) as ZapStake
-        await zapStake.deployed()
-
-        const zapFactory: ContractFactory = await ethers.getContractFactory("Zap", {
-
-            libraries: {
-                ZapStake: zapStake.address,
-                ZapDispute: zapDispute.address,
-                ZapLibrary: zapLibrary.address,
-            },
-            signer: signers[0]
-
-        })
-
-        zap = (await zapFactory.deploy(zapTokenBsc.address)) as Zap
-        await zap.deployed()
-
-        const zapMasterFactory: ContractFactory = await ethers.getContractFactory("ZapMaster", {
-            libraries: {
-                ZapStake: zapStake.address
-            },
-            signer: signers[0]
+          }
+        );
+    
+        zapStake = (await zapStakeFactory.deploy()) as ZapStake;
+        await zapStake.deployed();
+    
+        const zapFactory: ContractFactory = await ethers.getContractFactory('Zap', {
+          libraries: {
+            ZapConstants: zapConstants.address,
+            ZapDispute: zapDispute.address,
+            ZapLibrary: zapLibrary.address,
+            ZapStake: zapStake.address,
+          },
+          signer: signers[0]
         });
-
-        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
-        await zapMaster.deployed()
-
-
-        const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });
-        vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
+    
+        zap = (await zapFactory.deploy(zapTokenBsc.address)) as Zap;
+        await zap.deployed();
+    
+        const zapMasterFactory: ContractFactory = await ethers.getContractFactory(
+          'ZapMaster',
+          {
+            libraries: {
+              ZapConstants: zapConstants.address,
+              ZapStake: zapStake.address
+            },
+            signer: signers[0]
+          }
+        );
+    
+        zapMaster = (await zapMasterFactory.deploy(
+          zap.address,
+          zapTokenBsc.address
+        )) as ZapMaster;
+        await zapMaster.deployed();
+    
+        const Vault: ContractFactory = await ethers.getContractFactory('Vault', {
+          signer: signers[0]
+        });
+        vault = (await Vault.deploy(
+          zapTokenBsc.address,
+          zapMaster.address
+        )) as Vault;
+    
         await vault.deployed();
-
+    
         await zapMaster.functions.changeVaultContract(vault.address);
 
     })

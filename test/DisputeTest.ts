@@ -6,6 +6,8 @@ import { solidity } from 'ethereum-waffle';
 
 import chai from 'chai';
 
+import { ZapConstants } from '../typechain/ZapConstants';
+
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import { ZapLibrary } from '../typechain/ZapLibrary';
@@ -27,6 +29,8 @@ import { Address } from 'hardhat-deploy/dist/types';
 const { expect } = chai;
 
 chai.use(solidity);
+
+let zapConstants: ZapConstants;
 
 let zapTokenBsc: ZapTokenBSC;
 
@@ -56,9 +60,20 @@ describe("Test ZapDispute and it's dispute functions", () => {
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
 
+    const zapConstantsFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapConstants',
+      signers[0]
+    );
+
+    zapConstants = (await zapConstantsFactory.deploy()) as ZapConstants;
+    await zapConstants.deployed();
+
     const zapLibraryFactory: ContractFactory = await ethers.getContractFactory(
       'ZapLibrary',
       {
+        libraries: {
+          ZapConstants: zapConstants.address
+        },
         signer: signers[0]
       }
     );
@@ -69,6 +84,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
     const zapDisputeFactory: ContractFactory = await ethers.getContractFactory(
       'ZapDispute',
       {
+        libraries: {
+          ZapConstants: zapConstants.address
+        },
         signer: signers[0]
       }
     );
@@ -80,6 +98,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'ZapStake',
       {
         libraries: {
+          ZapConstants: zapConstants.address,
           ZapDispute: zapDispute.address
         },
         signer: signers[0]
@@ -91,9 +110,10 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     const zapFactory: ContractFactory = await ethers.getContractFactory('Zap', {
       libraries: {
-        ZapStake: zapStake.address,
+        ZapConstants: zapConstants.address,
         ZapDispute: zapDispute.address,
-        ZapLibrary: zapLibrary.address
+        ZapLibrary: zapLibrary.address,
+        ZapStake: zapStake.address,
       },
       signer: signers[0]
     });
@@ -105,6 +125,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       'ZapMaster',
       {
         libraries: {
+          ZapConstants: zapConstants.address,
           ZapStake: zapStake.address
         },
         signer: signers[0]
@@ -124,9 +145,9 @@ describe("Test ZapDispute and it's dispute functions", () => {
       zapTokenBsc.address,
       zapMaster.address
     )) as Vault;
+
     await vault.deployed();
 
-    // await zap.setVault(vault.address);
     await zapMaster.functions.changeVaultContract(vault.address);
 
     await zapTokenBsc.allocate(zapMaster.address, BigNumber.from("10000000000000000000000000"));
@@ -291,7 +312,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     }
 
     zap = zap.connect(signers[6]);
-    await expect(zap.vote(disputeId, true)).to.be.revertedWith("Only Stakers can vote");
+    await expect(zap.vote(disputeId, true)).to.be.revertedWith("Only Stakers that are not under dispute can vote");
 
     disputeId = await zapMaster.getUintVar(ddisputecount);
     disp = await zapMaster.getAllDisputeVars(disputeId);
