@@ -27,7 +27,6 @@ contract ZapMarket is IMarket, Ownable {
      */
 
     // Address of the media contract that can call this market
-    // address[] public mediaContract;
     mapping(address => address[]) public mediaContracts;
 
     // Mapping from media address to a bool showing whether or not
@@ -70,10 +69,6 @@ contract ZapMarket is IMarket, Ownable {
             isConfigured[msg.sender] == true,
             'Market: Only media contract'
         );
-        // require(
-        //     mediaContractAddress == msg.sender,
-        //     'Market: Only media contract'
-        // );
         _;
     }
 

@@ -673,8 +673,6 @@ contract ZapMedia is
             chainID := chainid()
         }
 
-        ERC721Upgradeable mediaContract = ERC721Upgradeable(address(this));
-
         return
             keccak256(
                 abi.encode(
