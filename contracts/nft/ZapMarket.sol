@@ -69,6 +69,12 @@ contract ZapMarket is IMarket, Ownable {
             isConfigured[msg.sender] == true,
             'Market: Only media contract'
         );
+
+        require(
+            registeredMedias[msg.sender] == true,
+            'Market: Only registered media contracts'
+        );
+
         _;
     }
 
