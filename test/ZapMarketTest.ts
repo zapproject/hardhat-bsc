@@ -20,6 +20,8 @@ import { ZapMedia } from '../typechain/ZapMedia';
 
 import { ZapMarket } from '../typechain/ZapMarket';
 
+import { MediaFactory } from '../typechain/MediaFactory';
+
 import { ZapVault } from '../typechain/ZapVault';
 
 import { ZapMarket__factory } from "../typechain";
@@ -69,6 +71,7 @@ describe('ZapMarket Test', () => {
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
   let zapVault: ZapVault;
+  let mediaDeploy: MediaFactory;
   let signers: SignerWithAddress[];
 
   let bidShares1 = {
@@ -160,6 +163,16 @@ describe('ZapMarket Test', () => {
       })) as ZapMarket;
 
       await zapMarket.setFee(platformFee);
+
+      const mediaDeployFactory = await ethers.getContractFactory("MediaFactory");
+
+      mediaDeploy = (await upgrades.deployProxy(mediaDeployFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
+
+      await mediaDeploy.deployed();
+
+
 
       const mediaFactory = await ethers.getContractFactory(
         'ZapMedia',
