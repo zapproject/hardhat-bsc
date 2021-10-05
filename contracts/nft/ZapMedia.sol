@@ -160,26 +160,20 @@ contract ZapMedia is
         _init_ownable();
 
         access.marketContract = marketContractAddr;
-        IMarket zapMarket = IMarket(access.marketContract);
 
         bytes memory name_b = bytes(name);
-        bytes memory symbol_b = bytes(symbol);
 
         bytes32 name_b32;
-        bytes32 symbol_b32;
 
         assembly {
             name_b32 := mload(add(name_b, 32))
-            symbol_b32 := mload(add(symbol_b, 32))
         }
 
         kecName = keccak256(name_b);
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         _registerInterface(type(IMedia).interfaceId);
-        zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
 
-        access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
     }
