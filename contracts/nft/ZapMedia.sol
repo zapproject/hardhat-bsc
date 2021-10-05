@@ -260,7 +260,7 @@ contract ZapMedia is
         nonReentrant
     {
         require(
-            access.isPermissive || access.approvedToMint[msg.sender],
+            access.isPermissive || access.approvedToMint[msg.sender] || access.owner == msg.sender,
             'Media: Only Approved users can mint'
         );
         require(
