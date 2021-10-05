@@ -771,21 +771,18 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should set the ask if called by the media address', async () => {
+    it.only('Should set the ask if called by the media address', async () => {
 
       await zapMedia1.connect(signers[1]).setAsk(0, ask1);
-
       await zapMedia2.connect(signers[2]).setAsk(0, ask2);
 
       const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 0);
-
       const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 0);
 
       expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
-
       expect(getAsk2.amount.toNumber()).to.equal(ask2.amount);
-
       expect(getAsk1.currency).to.equal(zapTokenBsc.address);
+      expect(getAsk2.currency).to.equal(zapTokenBsc.address);
 
     });
 
