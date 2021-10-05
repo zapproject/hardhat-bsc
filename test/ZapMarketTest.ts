@@ -349,7 +349,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a MediaContractCreated event on media contract deployment', async () => {
+    it('Should emit a MediaContractCreated event on media contract deployment', async () => {
 
       const zapMarketFilter: EventFilter =
         zapMarket.filters.MediaContractCreated(null, null, null);
@@ -474,7 +474,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Minted event when a token is minted', async () => {
+    it('Should emit a Minted event when a token is minted', async () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
@@ -496,7 +496,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Burned event when a token is burned', async () => {
+    it('Should emit a Burned event when a token is burned', async () => {
 
       expect(await zapMedia1.connect(signers[1]).burn(0)).to.be.ok;
       expect(await zapMedia2.connect(signers[2]).burn(0)).to.be.ok;
@@ -537,7 +537,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should set the bid shares if called by the media address', async () => {
+    it('Should set the bid shares if called by the media address', async () => {
 
       const sharesForToken1 = await zapMarket.bidSharesForToken(
         zapMedia1.address,
@@ -577,7 +577,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit an event when bid shares are updated', async () => {
+    it('Should emit an event when bid shares are updated', async () => {
 
       const filter_media: EventFilter = zapMarket.filters.BidShareUpdated(
         null,
@@ -625,7 +625,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should reject if the bid shares are invalid', async () => {
+    it('Should reject if the bid shares are invalid', async () => {
 
       let metadataHex = ethers.utils.formatBytes32String('{tool: box}');
       let metadataHashRaw = await keccak256(metadataHex);
@@ -771,7 +771,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should set the ask if called by the media address', async () => {
+    it('Should set the ask if called by the media address', async () => {
 
       await zapMedia1.connect(signers[1]).setAsk(0, ask1);
       await zapMedia2.connect(signers[2]).setAsk(0, ask2);
@@ -788,9 +788,8 @@ describe('ZapMarket Test', () => {
 
     it('Should emit an event if the ask is updated', async () => {
 
-      const askTx1 = await zapMedia1.connect(signers[1]).setAsk(0, ask1);
-
-      const askTx2 = await zapMedia2.connect(signers[2]).setAsk(0, ask2);
+      await zapMedia1.connect(signers[1]).setAsk(0, ask1);
+      await zapMedia2.connect(signers[2]).setAsk(0, ask2);
 
       const filter_media1: EventFilter = zapMarket.filters.AskCreated(
         zapMedia1.address,
@@ -813,24 +812,19 @@ describe('ZapMarket Test', () => {
       )[0];
 
       expect(event_media1.event).to.be.equal('AskCreated');
-
       expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
-
       expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
-
       expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
       expect(event_media2.event).to.be.equal('AskCreated');
-
       expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
-
       expect(event_media2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
-
       expect(event_media2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
     });
 
     it('Should reject if the ask is too low', async () => {
+
       await expect(
         zapMedia1.connect(signers[1]).setAsk(0, {
           amount: 1,
@@ -844,6 +838,7 @@ describe('ZapMarket Test', () => {
           currency: zapTokenBsc.address
         })
       ).to.be.revertedWith('Market: Ask invalid for share splitting');
+
     });
 
     it("Should remove an ask", async () => {
@@ -1049,6 +1044,7 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should revert if not called by the media contract', async () => {
+
       await expect(
         zapMarket
           .connect(signers[2])
@@ -1070,6 +1066,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount - 1);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount - 1);
@@ -1081,6 +1078,7 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia2.connect(signers[2]).setBid(0, bid2)
       ).to.be.revertedWith('SafeERC20: low-level call failed');
+
     });
 
     it('Should revert if the bidder does not have enough tokens to bid with', async () => {
@@ -1090,6 +1088,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount);
@@ -1104,6 +1103,7 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should revert if the bid currency is 0 address', async () => {
+
       await zapTokenBsc.mint(bid1.bidder, bid1.amount);
       await zapTokenBsc.mint(bid2.bidder, bid2.amount);
 
@@ -1120,6 +1120,7 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia2.connect(signers[2]).setBid(0, bid2)
       ).to.be.revertedWith('Market: bid currency cannot be 0 address');
+
     });
 
     it('Should revert if the bid recipient is 0 address', async () => {
@@ -1129,6 +1130,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount - 1);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount - 1);
@@ -1143,6 +1145,7 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia2.connect(signers[2]).setBid(0, bid2)
       ).to.be.revertedWith('Market: bid recipient cannot be 0 address');
+
     });
 
     it('Should revert if the bidder bids 0 tokens', async () => {
@@ -1152,6 +1155,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount);
