@@ -355,9 +355,7 @@ describe('ZapMarket Test', () => {
         zapMarket.filters.MediaContractCreated(null, null, null);
 
       const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
-
       const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
-
 
       expect(event1).to.not.be.undefined;
       expect(event1.event).to.eq('MediaContractCreated');
@@ -509,7 +507,7 @@ describe('ZapMarket Test', () => {
       );
 
       const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
-      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
 
       expect(event1).to.not.be.undefined;
       expect(event1.event).to.eq('Burned');
@@ -519,7 +517,7 @@ describe('ZapMarket Test', () => {
       expect(event2).to.not.be.undefined;
       expect(event2.event).to.eq('Burned');
       expect(event2.args?.token).to.eq(0);
-      expect(event2.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(event2.args?.mediaContract).to.eq(zapMedia2.address);
 
     });
 
@@ -561,13 +559,7 @@ describe('ZapMarket Test', () => {
         bidShares2.creator.value
       );
 
-      expect(upgradedShares2.creator.value).to.be.equal(
-        bidShares2.creator.value
-      );
-
       expect(sharesForToken2.owner.value).to.be.equal(bidShares2.owner.value);
-
-      expect(upgradedShares2.owner.value).to.be.equal(bidShares2.owner.value);
 
     });
 
