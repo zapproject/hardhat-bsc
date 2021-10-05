@@ -55,6 +55,9 @@ library ZapDispute {
         //Requre that the user had a balance >0 at time/blockNumber the disupte began
         require(voteWeight > 0, "User must have a balance greater than zero");
 
+        //Ensure the reporting party cannot vote for that specific dispute
+        require(msg.sender != disp.reportingParty, "The reporting party of the dispute cannot vote");
+
         //Update user voting status to true
         disp.voted[msg.sender] = true;
 
@@ -89,7 +92,6 @@ library ZapDispute {
         ZapStorage.Request storage _request = self.requestDetails[
             disp.disputeUintVars[keccak256('requestId')]
         ];
-
         
         uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
         address disputeFeeWinnerAddress;
@@ -105,9 +107,12 @@ library ZapDispute {
             ZapStorage.StakeInfo storage stakes = self.stakerDetails[
                 disp.reportedMiner
             ];
+            // instead of percentage, find the multiple of this dispute voters compared to numbe rof staked users
+            uint quorum = (self.uintVars[keccak256("stakerCount")] - 2) / disp.disputeUintVars[keccak256('numberOfVotes')];
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
             // miner and transfer the stakeAmount and dispute fee to the reporting party
-            if (disp.tally > 0) {
+            // the 2nd conditional will check if the amount of voters for this dispute is gte 10% of staked users
+            if (disp.tally > 0 && quorum <= 10) {
                 //Changing the currentStatus and startDate unstakes the reported miner and allows for the
                 //transfer of the stakeAmount
                 stakes.currentStatus = 0;
