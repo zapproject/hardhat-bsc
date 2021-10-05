@@ -312,10 +312,11 @@ describe('ZapMarket Test', () => {
 
       // console.log(await zapMarket.mediaContracts(signers[1].address, 0))
 
-      // const zapMedia1Address = await zapMarket.mediaContracts(
-      //   signers[1].address,
-      //   BigNumber.from('0')
-      // );
+      const zapMedia1Address = await zapMarket.mediaContracts(
+        signers[1].address,
+        BigNumber.from('0')
+      );
+
       // console.log(await zapMarket.mediaContracts(signers[]))
 
       // const zapMedia2Address = await zapMarket.mediaContracts(
