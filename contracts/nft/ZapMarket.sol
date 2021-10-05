@@ -74,7 +74,10 @@ contract ZapMarket is IMarket, Ownable {
     }
 
     modifier onlyMediaFactory() {
-        require(msg.sender == mediaFactory, "Market: Only the media factory can do this action");
+        require(
+            msg.sender == mediaFactory,
+            'Market: Only the media factory can do this action'
+        );
         _;
     }
 
@@ -263,7 +266,11 @@ contract ZapMarket is IMarket, Ownable {
         }
     }
 
-    function registerMedia(address mediaContract) external override onlyMediaFactory {
+    function registerMedia(address mediaContract)
+        external
+        override
+        onlyMediaFactory
+    {
         registeredMedias[mediaContract] = true;
     }
 

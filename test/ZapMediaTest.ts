@@ -224,7 +224,7 @@ describe("ZapMedia Test", async () => {
         });
     });
 
-    describe.only("#mint", () => {
+    describe("#mint", () => {
         beforeEach(async () => {
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -756,8 +756,11 @@ describe("ZapMedia Test", async () => {
     });
 
     describe("#setBid-with-setupAuction", () => {
+
         let bid1: any;
+
         beforeEach(async () => {
+
             bid1 = {
                 amount: 100,
                 currency: zapTokenBsc.address,
@@ -772,24 +775,11 @@ describe("ZapMedia Test", async () => {
 
         it('should refund a bid if one already exists for the bidder', async () => {
 
-            const mediaFactory11 = await ethers.getContractFactory("ZapMedia", signers[11]);
+            await setupAuction(zapMedia2, signers[2]);
 
-            const zapMedia11 = (await upgrades.deployProxy(mediaFactory11,
-                [
-                    "Test MEDIA 11",
-                    "T11",
-                    zapMarket.address,
-                    false,
-                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-                ]
-            )) as ZapMedia;
+            await zapMedia2.connect(signers[3]).setAsk(0, ask);
 
-            await zapMedia11.deployed();
-            await setupAuction(zapMedia11, signers[11]);
-
-            await zapMedia11.connect(signers[3]).setAsk(0, ask);
-
-            expect(await zapMedia11.ownerOf(0)).to.equal(signers[3].address);
+            expect(await zapMedia2.ownerOf(0)).to.equal(signers[3].address);
 
             const beforeBalance = await zapTokenBsc.balanceOf(signers[4].address);
             await zapMedia11.connect(signers[4]).setBid(0, { ...bid1, amount: 200, bidder: signers[4].address, recipient: signers[5].address });
@@ -810,12 +800,6 @@ describe("ZapMedia Test", async () => {
                 value: BigInt(0),
             },
         };
-
-        let collaborators = {
-            collaboratorTwo: signers[10].address,
-            collaboratorThree: signers[11].address,
-            collaboratorFour: signers[12].address
-        }
 
         await zapTokenBsc.mint(ownerWallet.address, 10000);
         await zapTokenBsc.mint(signers[2].address, 10000);
