@@ -271,19 +271,20 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should get media owner', async () => {
+    it('Should get media owner', async () => {
 
-      console.log({
-        media1: zapMedia1.address,
-        media2: zapMedia2.address,
-        media3: zapMedia3.address,
-        mediaDeployerer: mediaDeployer.address
-      })
+      const zapMedia1Address = await zapMarket.mediaContracts(
+        signers[1].address,
+        BigNumber.from('0')
+      );
+      const zapMedia2Address = await zapMarket.mediaContracts(
+        signers[2].address,
+        BigNumber.from('0')
+      );
 
+      expect(zapMedia1Address).to.contain(zapMedia1.address);
 
-      // expect(zapMedia1Address).to.contain(zapMedia1.address);
-
-      // expect(zapMedia2Address).to.contain(zapMedia2.address);
+      expect(zapMedia2Address).to.contain(zapMedia2.address);
 
     });
 
