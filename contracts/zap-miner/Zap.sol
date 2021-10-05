@@ -339,16 +339,13 @@ contract Zap {
             // Pay the miners
             for (uint256 i = 0; i < 5; i++) {
                 if (a[i].miner != address(0)){
-                    token.approve(address(this), minerReward);
-                    transferFrom(address(this), address(vault), minerReward);
+                    transfer(address(vault), minerReward);
                     vault.deposit(a[i].miner, minerReward);
                 }
             }
 
             // Pay the devshare
-            token.approve(address(this), zap.uintVars[keccak256('devShare')]);
-            transferFrom(
-                address(this),
+            transfer(
                 zap.addressVars[keccak256('_owner')],
                 zap.uintVars[keccak256('devShare')]
             );
