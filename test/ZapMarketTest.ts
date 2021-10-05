@@ -577,23 +577,34 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should emit an event when bid shares are updated', async () => {
+    it.only('Should emit an event when bid shares are updated', async () => {
 
-      const receipt1 = await mint_tx1.wait();
+      const filter_media: EventFilter = zapMarket.filters.BidShareUpdated(
+        null,
+        null,
+        null
+      );
 
-      const eventLog1 = receipt1.events[0];
+      const event_media1: Event = (
+        await zapMarket.queryFilter(filter_media)
+      )[0];
 
-      const receipt2 = await mint_tx2.wait();
+      const event_media2: Event = (
+        await zapMarket.queryFilter(filter_media)
+      )[1];
 
-      const eventLog2 = receipt2.events[0];
+      console.log(event_media1)
 
-      expect(eventLog1.event).to.be.equal('Transfer');
 
-      expect(eventLog1.args.tokenId.toNumber()).to.be.equal(0);
 
-      expect(eventLog2.event).to.be.equal('Transfer');
+      // const receipt2 = await mint_tx2.wait();
+      // const eventLog2 = receipt2.events[0];
 
-      expect(eventLog2.args.tokenId.toNumber()).to.be.equal(0);
+      // expect(eventLog1.event).to.be.equal('Transfer');
+      // expect(eventLog1.args.tokenId.toNumber()).to.be.equal(0);
+
+      // expect(eventLog2.event).to.be.equal('Transfer');
+      // expect(eventLog2.args.tokenId.toNumber()).to.be.equal(0);
 
     });
 
