@@ -537,7 +537,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should set the bid shares if called by the media address', async () => {
+    it.only('Should set the bid shares if called by the media address', async () => {
 
       const sharesForToken1 = await zapMarket.bidSharesForToken(
         zapMedia1.address,
@@ -560,6 +560,20 @@ describe('ZapMarket Test', () => {
       );
 
       expect(sharesForToken2.owner.value).to.be.equal(bidShares2.owner.value);
+
+      for (var i = 0.; i < sharesForToken1.collaborators.length; i++) {
+
+        expect(sharesForToken1.collaborators[i]).to.equal(bidShares1.collaborators[i]);
+
+        expect(sharesForToken2.collaborators[i]).to.equal(bidShares2.collaborators[i]);
+
+        expect(parseInt(sharesForToken1.collabShares[i]._hex)).to
+          .equal(parseInt(bidShares1.collabShares[i]._hex));
+
+        expect(parseInt(sharesForToken2.collabShares[i]._hex)).to
+          .equal(parseInt(bidShares2.collabShares[i]._hex));
+
+      }
 
     });
 
