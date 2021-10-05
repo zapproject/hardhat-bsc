@@ -288,7 +288,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.skip('Should reject if called twice', async () => {
+    it('Should reject if not called from Media Factory', async () => {
       // can never happen because on the media factory can configure
 
       await expect(
@@ -300,7 +300,7 @@ describe('ZapMarket Test', () => {
             formatBytes32String('TEST MEDIA 2'),
             formatBytes32String('TM2')
           )
-      ).to.be.revertedWith('Market: Already configured');
+      ).to.be.revertedWith('Market: Only the media factory can do this action');
 
       await expect(
         zapMarket
@@ -311,7 +311,7 @@ describe('ZapMarket Test', () => {
             formatBytes32String('TEST MEDIA 3'),
             formatBytes32String('TM3')
           )
-      ).to.be.revertedWith('Market: Already configured');
+      ).to.be.revertedWith('Market: Only the media factory can do this action');
 
       expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
 
