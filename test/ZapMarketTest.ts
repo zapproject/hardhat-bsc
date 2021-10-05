@@ -71,7 +71,7 @@ describe('ZapMarket Test', () => {
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
   let zapVault: ZapVault;
-  let mediaDeploy: MediaFactory;
+  let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
 
   let bidShares1 = {
@@ -137,6 +137,8 @@ describe('ZapMarket Test', () => {
     sellOnShare: 0
   };
 
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
   describe('#Configure', () => {
     let zapMarketFactory: ZapMarket__factory;
 
@@ -164,70 +166,53 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.setFee(platformFee);
 
-      const mediaDeployFactory = await ethers.getContractFactory("MediaFactory");
+      const mediaDeployFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-      mediaDeploy = (await upgrades.deployProxy(mediaDeployFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployFactory, [zapMarket.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
-      await mediaDeploy.deployed();
+      await mediaDeployer.deployed();
 
+      await zapMarket.setMediaFactory(mediaDeployer.address);
 
-
-      const mediaFactory = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[1]
-      );
-
-      zapMedia1 = (await upgrades.deployProxy(
-        mediaFactory, [
+      await mediaDeployer.connect(signers[1]).deployMedia(
         'TEST MEDIA 1',
         'TM1',
         zapMarket.address,
         false,
         'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-      ],
-        { initializer: 'initialize' }
-      )) as ZapMedia;
-      await zapMedia1.deployed();
-
-      const mediaFactory2 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
       );
 
-      zapMedia2 = (await upgrades.deployProxy(
-        mediaFactory2,
-        [
-          'TEST MEDIA 2',
-          'TM2',
-          zapMarket.address,
-          false,
-          'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
-        ],
-        { initializer: 'initialize' }
-      )) as ZapMedia;
-
-      await zapMedia2.deployed();
-
-      const mediaFactory3 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
+      await mediaDeployer.connect(signers[2]).deployMedia(
+        'TEST MEDIA 2',
+        'TM2',
+        zapMarket.address,
+        false,
+        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
       );
 
-      zapMedia3 = (await upgrades.deployProxy(
-        mediaFactory3,
-        [
-          'Test MEDIA 3',
-          'TM3',
-          zapMarket.address,
-          false,
-          'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
-        ],
-        { initializer: 'initialize' }
-      )) as ZapMedia;
+      await mediaDeployer.connect(signers[3]).deployMedia(
+        'TEST MEDIA 3',
+        'TM3',
+        zapMarket.address,
+        false,
+        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
+      );
 
-      await zapMedia3.deployed();
+      const deployedFilter = mediaDeployer.filters.MediaDeployed(null);
+
+      const eventLog1: Event = (await mediaDeployer.queryFilter(deployedFilter))[0];
+      const eventLog2: Event = (await mediaDeployer.queryFilter(deployedFilter))[1];
+      const eventLog3: Event = (await mediaDeployer.queryFilter(deployedFilter))[2];
+
+      const mediaAddress1 = eventLog1.args?.mediaContract;
+      const mediaAddress2 = eventLog2.args?.mediaContract;
+      const mediaAddress3 = eventLog3.args?.mediaContract;
+
+      zapMedia1 = new ethers.Contract(mediaAddress1, zmABI, signers[1]) as ZapMedia;
+      zapMedia2 = new ethers.Contract(mediaAddress2, zmABI, signers[2]) as ZapMedia;
+      zapMedia3 = new ethers.Contract(mediaAddress3, zmABI, signers[3]) as ZapMedia;
 
       ask1.currency = zapTokenBsc.address;
 
@@ -245,12 +230,12 @@ describe('ZapMarket Test', () => {
     });
 
     describe("#Initialize", function () {
+
       it("Should not initialize twice", async () => {
         await expect(
           zapMarket.initializeMarket(zapVault.address)).to.be.revertedWith("Initializable: contract is already initialized")
       })
     })
-
 
     it('Should get the platform fee', async () => {
 
@@ -297,6 +282,7 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should get collection metadata', async () => {
+
       const metadata1 = await zapMedia1.collectionMetadata();
       const metadata2 = await zapMedia2.collectionMetadata();
       const metadata3 = await zapMedia3.collectionMetadata();
@@ -312,23 +298,34 @@ describe('ZapMarket Test', () => {
       expect(ethers.utils.toUtf8String(metadata3)).to.equal(
         'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
       );
+
     });
 
-    it('Should get media owner', async () => {
+    it.only('Should get media owner', async () => {
 
-      const zapMedia1Address = await zapMarket.mediaContracts(
-        signers[1].address,
-        BigNumber.from('0')
-      );
+      console.log({
+        media1: zapMedia1.address,
+        media2: zapMedia2.address,
+        media3: zapMedia3.address,
+        mediaDeployer: mediaDeployer.address
+      })
 
-      const zapMedia2Address = await zapMarket.mediaContracts(
-        signers[2].address,
-        BigNumber.from('0')
-      );
+      // console.log(await zapMarket.mediaContracts(signers[1].address, 0))
 
-      expect(zapMedia1Address).to.contain(zapMedia1.address);
+      // const zapMedia1Address = await zapMarket.mediaContracts(
+      //   signers[1].address,
+      //   BigNumber.from('0')
+      // );
+      // console.log(await zapMarket.mediaContracts(signers[]))
 
-      expect(zapMedia2Address).to.contain(zapMedia2.address);
+      // const zapMedia2Address = await zapMarket.mediaContracts(
+      //   signers[2].address,
+      //   BigNumber.from('0')
+      // );
+
+      // expect(zapMedia1Address).to.contain(zapMedia1.address);
+
+      // expect(zapMedia2Address).to.contain(zapMedia2.address);
 
     });
 
@@ -386,7 +383,7 @@ describe('ZapMarket Test', () => {
 
   });
 
-  describe.only('#setBidShares', () => {
+  describe('#setBidShares', () => {
     let data: MediaData;
 
     beforeEach(async () => {
@@ -487,7 +484,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Minted event when a token is minted', async () => {
+    it('Should emit a Minted event when a token is minted', async () => {
 
       // const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
       //   0,

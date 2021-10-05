@@ -244,6 +244,9 @@ contract ZapMarket is IMarket, Ownable {
 
         isConfigured[mediaContract] = true;
 
+        console.log('Incoming contract addresses', mediaContract);
+        console.log('Incoming deployers', deployer);
+
         mediaContracts[deployer].push(mediaContract);
 
         emit MediaContractCreated(mediaContract, name, symbol);
