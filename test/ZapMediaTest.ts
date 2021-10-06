@@ -1240,100 +1240,137 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#burn', () => {
+
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
-                [
-                    "Test MEDIA 1",
-                    "T1",
-                    zapMarket.address,
-                    false,
-                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-                ]
-            )) as ZapMedia;
-            await zapMedia1.deployed();
-            await zapMedia1.mint(mediaData, bidShares);
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
+
+            zapMedia1 = medias[0];
+            zapMedia2 = medias[1];
+            zapMedia3 = medias[2];
+
+            tokenURI = String('media contract 1 - token 1 uri');
+            metadataURI = String('media contract 1 - metadata 1 uri');
+
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
+
+            randomString = Date.now().toString();
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
+
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
+
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+
+            await zapMedia3.mint(mediaData, bidShares);
+
         });
 
         it('should revert when the caller is the owner, but not creator', async () => {
-            await zapMedia1.connect(signers[1]).transferFrom(
-                signers[1].address,
+
+            await zapMedia3.connect(signers[3]).transferFrom(
                 signers[3].address,
+                signers[4].address,
                 0
             );
 
-            await expect(zapMedia1.connect(signers[3]).burn(0)).revertedWith('Media: owner is not creator of media');
-        });
+            await expect(zapMedia3.connect(signers[4]).burn(0))
+                .revertedWith('Media: owner is not creator of media');
 
-        it('should revert when the caller is approved, but the owner is not the creator', async () => {
-            await zapMedia1.connect(signers[1]).transferFrom(
-                signers[1].address,
-                signers[3].address,
-                0
-            );
         });
 
         it("should revert when the caller is approved, but the owner is not the creator", async () => {
-            await zapMedia1
-                .connect(signers[1])
-                .transferFrom(signers[1].address, signers[3].address, 0);
 
-            await zapMedia1.connect(signers[3]).approve(signers[5].address, 0);
+            await zapMedia3
+                .connect(signers[3])
+                .transferFrom(signers[3].address, signers[4].address, 0);
 
-            await expect(zapMedia1.connect(signers[5]).burn(0)).revertedWith(
+            await zapMedia3.connect(signers[4]).approve(signers[5].address, 0);
+
+            await expect(zapMedia3.connect(signers[5]).burn(0)).revertedWith(
                 "Media: owner is not creator of media"
             );
+
         });
 
         it('should revert when the caller is not the owner or a creator', async () => {
-            await expect(zapMedia1.connect(signers[5]).burn(0)).revertedWith('Media: Only approved or owner');
+
+            await expect(zapMedia3.connect(signers[5]).burn(0)).revertedWith('Media: Only approved or owner');
+
         });
 
         it('should revert if the token id does not exist', async () => {
-            await expect(zapMedia1.connect(signers[1]).burn(100)).revertedWith('Media: nonexistent token');
+
+            await expect(zapMedia3.connect(signers[3]).burn(100)).revertedWith('Media: nonexistent token');
+
         });
 
         it('should clear approvals, set remove owner, but maintain tokenURI and contentHash when the owner is creator and caller', async () => {
-            expect(await zapMedia1.connect(signers[1]).approve(signers[5].address, 0));
 
-            expect(await zapMedia1.connect(signers[1]).burn(0));
+            expect(await zapMedia3.connect(signers[3]).approve(signers[4].address, 0));
 
-            await expect(zapMedia1.connect(signers[1]).ownerOf(0)).revertedWith(
+            expect(await zapMedia3.connect(signers[3]).burn(0));
+
+            await expect(zapMedia3.connect(signers[3]).ownerOf(0)).revertedWith(
                 "ERC721: owner query for nonexistent token"
             );
 
-            const totalSupply = await zapMedia1.connect(signers[1]).totalSupply();
+            const totalSupply = await zapMedia3.connect(signers[3]).totalSupply();
+
             expect(totalSupply.toNumber()).eq(0);
 
-            await expect(zapMedia1.connect(signers[1]).getApproved(0)).revertedWith(
+            await expect(zapMedia3.connect(signers[3]).getApproved(0)).revertedWith(
                 'ERC721: approved query for nonexistent token'
             );
 
-            await expect(zapMedia1.connect(signers[1]).tokenURI(0)).revertedWith(
+            await expect(zapMedia3.connect(signers[3]).tokenURI(0)).revertedWith(
                 'ERC721URIStorage: URI query for nonexistent token'
             );
+
         });
 
         it('should clear approvals, set remove owner, but maintain tokenURI and contentHash when the owner is creator and caller is approved', async () => {
-            expect(await zapMedia1.connect(signers[1]).approve(signers[5].address, 0));
 
-            expect(await zapMedia1.connect(signers[5]).burn(0));
+            expect(await zapMedia3.connect(signers[3]).approve(signers[4].address, 0));
 
-            await expect(zapMedia1.connect(signers[1]).ownerOf(0)).revertedWith(
+            expect(await zapMedia3.connect(signers[3]).burn(0));
+
+            await expect(zapMedia1.connect(signers[3]).ownerOf(0)).revertedWith(
                 "ERC721: owner query for nonexistent token"
             );
 
             const totalSupply = await zapMedia1.connect(signers[1]).totalSupply();
+
             expect(totalSupply.toNumber()).eq(0);
 
-            await expect(zapMedia1.connect(signers[1]).getApproved(0)).revertedWith(
+            await expect(zapMedia3.connect(signers[3]).getApproved(0)).revertedWith(
                 'ERC721: approved query for nonexistent token'
             );
 
-            await expect(zapMedia1.connect(signers[1]).tokenURI(0)).revertedWith(
+            await expect(zapMedia3.connect(signers[3]).tokenURI(0)).revertedWith(
                 'ERC721URIStorage: URI query for nonexistent token'
             );
+
         });
+
     });
 
     describe("#updateTokenURI", async () => {
