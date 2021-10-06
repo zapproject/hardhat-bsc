@@ -55,9 +55,10 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
-    bytes32 private constant kecEIP712Domain = keccak256(
+    bytes32 private constant kecEIP712Domain =
+        keccak256(
             'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-    );
+        );
 
     bytes32 private constant kecOne = keccak256(bytes('1'));
 
@@ -141,6 +142,8 @@ contract ZapMedia is
         _;
     }
 
+    address public testing;
+
     /**
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
@@ -157,26 +160,20 @@ contract ZapMedia is
         _init_ownable();
 
         access.marketContract = marketContractAddr;
-        IMarket zapMarket = IMarket(access.marketContract);
 
         bytes memory name_b = bytes(name);
-        bytes memory symbol_b = bytes(symbol);
 
         bytes32 name_b32;
-        bytes32 symbol_b32;
 
         assembly {
             name_b32 := mload(add(name_b, 32))
-            symbol_b32 := mload(add(symbol_b, 32))
         }
 
         kecName = keccak256(name_b);
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         _registerInterface(type(IMedia).interfaceId);
-        zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
 
-        access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
     }
@@ -192,8 +189,7 @@ contract ZapMedia is
         )
         returns (bool)
     {
-        return
-            super.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 
     /**
@@ -264,7 +260,9 @@ contract ZapMedia is
         nonReentrant
     {
         require(
-            access.isPermissive || access.approvedToMint[msg.sender],
+            access.isPermissive ||
+                access.approvedToMint[msg.sender] ||
+                access.owner == msg.sender,
             'Media: Only Approved users can mint'
         );
         require(
@@ -362,7 +360,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
+        IMarket(access.marketContract).setAsk(tokenId, ask);
     }
 
     /**
@@ -375,7 +373,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).removeAsk(address(this), tokenId);
+        IMarket(access.marketContract).removeAsk(tokenId);
     }
 
     /**
@@ -387,18 +385,8 @@ contract ZapMedia is
         nonReentrant
         onlyExistingToken(tokenId)
     {
-        require(
-            msg.sender == bid.bidder,
-            // remove revert string before deployment to mainnet
-            'Market: Bidder must be msg sender'
-        );
-        address mediaContractAddress = address(this);
-        IMarket(access.marketContract).setBid(
-            mediaContractAddress,
-            tokenId,
-            bid,
-            msg.sender
-        );
+        require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
+        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
     }
 
     /**
@@ -410,12 +398,7 @@ contract ZapMedia is
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        address mediaContractAddress = address(this);
-        IMarket(access.marketContract).removeBid(
-            mediaContractAddress,
-            tokenId,
-            msg.sender
-        );
+        IMarket(access.marketContract).removeBid(tokenId, msg.sender);
     }
 
     /**
@@ -610,7 +593,7 @@ contract ZapMedia is
         tokens.previousTokenOwners[tokenId] = creator;
 
         IMarket(access.marketContract).setBidShares(
-            address(this),
+            // address(this),
             tokenId,
             bidShares
         );
@@ -671,7 +654,7 @@ contract ZapMedia is
         address to,
         uint256 tokenId
     ) internal override {
-        IMarket(access.marketContract).removeAsk(address(this), tokenId);
+        IMarket(access.marketContract).removeAsk(tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
     }
@@ -685,8 +668,6 @@ contract ZapMedia is
         assembly {
             chainID := chainid()
         }
-
-        ERC721Upgradeable mediaContract = ERC721Upgradeable(address(this));
 
         return
             keccak256(

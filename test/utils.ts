@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ethers, upgrades } from "hardhat";
 import {
-  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC
+  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, ZapMarket__factory
 } from "../typechain"
 import {
   BadBidder,
@@ -15,6 +15,7 @@ import { keccak256 } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { ContractFactory, Event } from "@ethersproject/contracts";
 import { fromRpcSig } from 'ethereumjs-util';
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 
 export default class Decimal {
@@ -61,6 +62,72 @@ export const deployOtherNFTs = async () => {
 
   return { bad, test };
 };
+
+export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, mediaDeploy: MediaFactory) => {
+  await zapMarket.setMediaFactory(mediaDeploy.address);
+
+  const mediaArgs = [
+    {
+      name: "TEST MEDIA 1",
+      symbol: "TM1",
+      marketContractAddr: zapMarket.address,
+      permissive: true,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    },
+    {
+      name: "TEST MEDIA 2",
+      symbol: "TM2",
+      marketContractAddr: zapMarket.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+    },
+    {
+      name: "TEST MEDIA 2",
+      symbol: "TM2",
+      marketContractAddr: zapMarket.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+    }
+  ]
+
+  const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
+  const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
+  const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[3]);
+
+
+  const medias: ZapMedia[] = [];
+  const contractFactories = [
+    mediaFactory1, mediaFactory2, mediaFactory3
+  ];
+  const mediaDeployers = [
+    signers[1],
+    signers[2],
+    signers[3]
+  ];
+
+
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
+  for (let i = 0; i < mediaArgs.length; i++) {
+    const args = mediaArgs[i];
+    await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
+    );
+
+    filter = mediaDeploy.filters.MediaDeployed(null);
+    eventLog = (await mediaDeploy.queryFilter(filter))[i];
+    mediaAddress = eventLog.args?.mediaContract;
+
+    medias.push(
+      new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMedia
+    );
+  }
+
+  return medias
+}
 
 export const deployZapNFTMarketplace = async () => {
   let market: ZapMarket
@@ -110,25 +177,25 @@ export const deployZapNFTMarketplace = async () => {
 
   const mediaArgs = [
     {
-        name: "Test Media 1",
-        symbol: "TM1",
-        marketContractAddr: market.address,
-        permissive: true,
-        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+      name: "Test Media 1",
+      symbol: "TM1",
+      marketContractAddr: market.address,
+      permissive: true,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
     },
     {
-        name: "Test Media 1",
-        symbol: "TM1",
-        marketContractAddr: market.address,
-        permissive: false,
-        _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+      name: "Test Media 1",
+      symbol: "TM1",
+      marketContractAddr: market.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
     },
     {
-        name: "Test Media 1",
-        symbol: "TM1",
-        marketContractAddr: market.address,
-        permissive: false,
-        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      name: "Test Media 1",
+      symbol: "TM1",
+      marketContractAddr: market.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
     }
   ]
 
@@ -241,6 +308,7 @@ export async function signPermit(
   version: string
 ) {
   const nonce = (await zapMedia1.getPermitNonce(signers[3].address, tokenId)).toNumber();
+
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
   const name = await zapMedia1.name();
 

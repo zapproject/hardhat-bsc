@@ -3,18 +3,17 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
-import {ZapMedia} from "./ZapMedia.sol";
-import {ZapMarket} from "./ZapMarket.sol";
+import {ZapMedia} from './ZapMedia.sol';
+import {ZapMarket} from './ZapMarket.sol';
 
-contract MediaFactory is OwnableUpgradeable{
-
+contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
 
     ZapMarket zapMarket;
 
-    function initialize(address _zapMarket) initializer external {
+    function initialize(address _zapMarket) external initializer {
         zapMarket = ZapMarket(_zapMarket);
     }
 
@@ -26,11 +25,31 @@ contract MediaFactory is OwnableUpgradeable{
         string calldata _collectionMetadata
     ) external returns (address) {
         ZapMedia zapMedia = new ZapMedia();
-        zapMedia.initialize(name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        zapMedia.initialize(
+            name,
+            symbol,
+            marketContractAddr,
+            permissive,
+            _collectionMetadata
+        );
 
         zapMedia.transferOwnership(payable(msg.sender));
 
         zapMarket.registerMedia(address(zapMedia));
+
+
+        bytes memory name_b = bytes(name);
+        bytes memory symbol_b = bytes(symbol);
+
+        bytes32 name_b32;
+        bytes32 symbol_b32;
+
+        assembly {
+            name_b32 := mload(add(name_b, 32))
+            symbol_b32 := mload(add(symbol_b, 32))
+        }
+
+        zapMarket.configure(msg.sender, address(zapMedia), name_b32, symbol_b32);
 
         emit MediaDeployed(address(zapMedia));
 
