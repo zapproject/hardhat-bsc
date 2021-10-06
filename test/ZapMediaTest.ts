@@ -1174,31 +1174,65 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#transfer', () => {
-        it('should remove the ask after a transfer', async () => {
-            const mediaFactory19 = await ethers.getContractFactory("ZapMedia", signers[19]);
-            const zapMedia19 = (await upgrades.deployProxy(mediaFactory19,
-                [
-                    "Test MEDIA 19",
-                    "T19",
-                    zapMarket.address,
-                    false,
-                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-                ]
-            )) as ZapMedia; await zapMedia19.deployed();
-            await setupAuction(zapMedia19, signers[19]);
 
-            await zapMedia19.connect(signers[3]).setAsk(0, ask);
+        it('should remove the ask after a transfer', async () => {
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
+
+            zapMedia1 = medias[0];
+            zapMedia2 = medias[1];
+            zapMedia3 = medias[2];
+
+            tokenURI = String('media contract 1 - token 1 uri');
+            metadataURI = String('media contract 1 - metadata 1 uri');
+
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
+
+            randomString = Date.now().toString();
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
+
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
+
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+
+            ask.currency = zapTokenBsc.address
+
+            await setupAuction(zapMedia2, signers[2]);
+
+            await zapMedia2.connect(signers[4]).setAsk(0, ask);
 
             expect(
-                await zapMedia19
-                    .connect(signers[3])
-                    .transferFrom(signers[3].address, signers[5].address, 0)
+                await zapMedia2
+                    .connect(signers[4])
+                    .transferFrom(signers[4].address, signers[5].address, 0)
             );
+
             const askB = await zapMarket.currentAskForToken(
-                zapMedia19.address,
+                zapMedia2.address,
                 0
             );
+
             expect(await askB.amount.toNumber()).eq(0);
+
             expect(await askB.currency).eq(
                 "0x0000000000000000000000000000000000000000"
             );
