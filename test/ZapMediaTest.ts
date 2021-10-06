@@ -1373,7 +1373,7 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    describe.only("#updateTokenURI", async () => {
+    describe("#updateTokenURI", async () => {
 
         beforeEach(async () => {
 
@@ -1486,84 +1486,123 @@ describe("ZapMedia Test", async () => {
     });
 
     describe('#updateMetadataURI', async () => {
+
         beforeEach(async () => {
-            const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-            zapMedia1 = (await upgrades.deployProxy(mediaFactory1,
-                ["Test MEDIA 1",
-                    "T1",
-                    zapMarket.address,
-                    false,
-                    "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-                ]
-            )) as ZapMedia;
-            await zapMedia1.deployed();
-            await setupAuction(zapMedia1, signers[1]);
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
+
+            zapMedia1 = medias[0];
+            zapMedia2 = medias[1];
+            zapMedia3 = medias[2];
+
+            tokenURI = String('media contract 1 - token 1 uri');
+            metadataURI = String('media contract 1 - metadata 1 uri');
+
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
+
+            randomString = Date.now().toString();
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
+
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
+
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+
+            await setupAuction(zapMedia2, signers[2]);
+
         });
 
         it("should revert if the token does not exist", async () => {
+
             await expect(
-                zapMedia1
-                    .connect(signers[1])
-                    .updateTokenMetadataURI(1, "blah blah")
+                zapMedia2
+                    .connect(signers[2])
+                    .updateTokenMetadataURI(1, "www.test.com")
+
             ).revertedWith("ERC721: operator query for nonexistent token");
+
         });
 
         it("should revert if the caller is not the owner of the token and does not have approval", async () => {
+
             await expect(
-                zapMedia1
+                zapMedia2
                     .connect(signers[5])
-                    .updateTokenMetadataURI(0, "blah blah")
+                    .updateTokenMetadataURI(0, "www.test.com")
             ).revertedWith("Media: Only approved or owner");
+
         });
 
         it("should revert if the uri is empty string", async () => {
+
             await expect(
-                zapMedia1.connect(signers[3]).updateTokenMetadataURI(0, "")
+                zapMedia2.connect(signers[4]).updateTokenMetadataURI(0, "")
             ).revertedWith("Media: specified uri must be non-empty");
+
         });
 
         it("should revert if the token has been burned", async () => {
-            await zapMedia1.connect(signers[1]).mint(
-                {
-                    ...mediaData,
-                    contentHash: otherContentHashBytes,
-                },
-                bidShares,
-            );
-            expect(await zapMedia1.connect(signers[1]).burn(1));
+
+            await zapMedia2.connect(signers[2]).mint(mediaData, bidShares);
+
+            await zapMedia2.connect(signers[2]).burn(1);
 
             await expect(
-                zapMedia1.connect(signers[1]).updateTokenMetadataURI(1, "blah")
+                zapMedia2.connect(signers[2]).updateTokenMetadataURI(1, "www.test.com")
             ).revertedWith("ERC721: operator query for nonexistent token");
+
         });
 
         it("should set the tokenURI to the URI passed if the msg.sender is the owner", async () => {
+
             expect(
-                await zapMedia1
-                    .connect(signers[3])
-                    .updateTokenMetadataURI(0, "blah blah")
+                await zapMedia2
+                    .connect(signers[4])
+                    .updateTokenMetadataURI(0, "www.test.com")
             );
 
-            const tokenURI = await zapMedia1
-                .connect(signers[3])
+            const tokenURI = await zapMedia2
+                .connect(signers[4])
                 .tokenMetadataURI(0);
-            expect(tokenURI).eq("blah blah");
+            expect(tokenURI).eq("www.test.com");
+
         });
 
         it("should set the tokenURI to the URI passed if the msg.sender is approved", async () => {
-            await zapMedia1.connect(signers[3]).approve(signers[5].address, 0);
+
+            await zapMedia2.connect(signers[4]).approve(signers[5].address, 0);
 
             expect(
                 await zapMedia1
                     .connect(signers[5])
-                    .updateTokenMetadataURI(0, "blah blah")
+                    .updateTokenMetadataURI(0, "www.test.com")
             );
 
             const tokenURI = await zapMedia1
-                .connect(signers[3])
+                .connect(signers[4])
                 .tokenMetadataURI(0);
-            expect(tokenURI).eq("blah blah");
+            expect(tokenURI).eq("www.test.com");
+
         });
+
     });
 
     describe("#permit", () => {
