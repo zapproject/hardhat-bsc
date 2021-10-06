@@ -467,7 +467,7 @@ describe("ZapMedia Test", async () => {
 
         })
 
-        it("should mint a token for a given creator with a valid signature", async () => {
+        it.only("should mint a token for a given creator with a valid signature", async () => {
 
             const sig = await signMintWithSig(
                 zapMedia1,
