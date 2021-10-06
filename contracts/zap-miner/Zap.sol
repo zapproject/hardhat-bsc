@@ -465,7 +465,7 @@ contract Zap {
      */
     function addTip(uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0);
-        require(_tip <= 1000, "Tip cannot be greater than 1000 Zap Tokens.");
+        require(_tip <= 10000 * 1e18, "Tip cannot be greater than 1000 Zap Tokens.");
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
