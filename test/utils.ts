@@ -308,6 +308,7 @@ export async function signPermit(
   version: string
 ) {
   const nonce = (await zapMedia1.getPermitNonce(signers[3].address, tokenId)).toNumber();
+
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
   const name = await zapMedia1.name();
 

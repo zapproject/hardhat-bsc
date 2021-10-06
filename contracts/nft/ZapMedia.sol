@@ -260,7 +260,9 @@ contract ZapMedia is
         nonReentrant
     {
         require(
-            access.isPermissive || access.approvedToMint[msg.sender] || access.owner == msg.sender,
+            access.isPermissive ||
+                access.approvedToMint[msg.sender] ||
+                access.owner == msg.sender,
             'Media: Only Approved users can mint'
         );
         require(
@@ -324,6 +326,8 @@ contract ZapMedia is
 
         address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
+        console.log(creator);
+        console.log(recoveredAddress);
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
             'Media: Signature invalid'
