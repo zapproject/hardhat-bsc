@@ -197,35 +197,36 @@ describe("ZapMedia Test", async () => {
 
         it("Should reject if called twice", async () => {
 
-            // await expect(
-            //     zapMarket
-            //         .connect(signers[1])
-            //         .configure(
-            //             signers[1].address,
-            //             zapMedia1.address,
-            //             formatBytes32String("TEST MEDIA 1"),
-            //             formatBytes32String("TM1")
-            //         )
-            // ).to.be.revertedWith("Market: Already configured");
+            await expect(
+                zapMarket
+                    .connect(signers[1])
+                    .configure(
+                        signers[1].address,
+                        zapMedia1.address,
+                        formatBytes32String("TEST MEDIA 1"),
+                        formatBytes32String("TM1")
+                    )
+            ).to.be.reverted;
 
-            // await expect(
-            //     zapMarket
-            //         .connect(signers[2])
-            //         .configure(
-            //             signers[2].address,
-            //             zapMedia2.address,
-            //             formatBytes32String("TEST MEDIA 2"),
-            //             formatBytes32String("TM2")
-            //         )
-            // ).to.be.revertedWith("Market: Already configured");
+            await expect(
+                zapMarket
+                    .connect(signers[2])
+                    .configure(
+                        signers[2].address,
+                        zapMedia2.address,
+                        formatBytes32String("TEST MEDIA 2"),
+                        formatBytes32String("TM2")
+                    )
+            ).to.be.reverted;
 
-            // expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
+            expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
 
-            // expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
+            expect(await zapMarket.isConfigured(zapMedia2.address)).to.be.true;
+
         });
     });
 
-    describe.only("#mint", () => {
+    describe("#mint", () => {
 
         beforeEach(async () => {
 
