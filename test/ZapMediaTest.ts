@@ -1031,16 +1031,21 @@ describe("ZapMedia Test", async () => {
         it('should remove a bid, even if the token is burned', async () => {
 
             await zapMedia1
-                .connect(signers[3])
-                .transferFrom(signers[3].address, signers[1].address, 0);
+                .connect(signers[4])
+                .transferFrom(signers[4].address, signers[1].address, 0);
 
-            await zapMedia1.burn(0);
+            await zapMedia1.connect(signers[1]).burn(0);
+
             const beforeBalance = await zapTokenBsc.balanceOf(
-                signers[4].address
+                signers[6].address
             );
-            expect(await zapMedia1.connect(signers[4]).removeBid(0));
-            const afterBalance = await zapTokenBsc.balanceOf(signers[4].address);
+
+            await zapMedia1.connect(signers[6]).removeBid(0);
+
+            const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
             expect(afterBalance.toNumber()).eq(beforeBalance.toNumber() + 100);
+
         });
     });
 
