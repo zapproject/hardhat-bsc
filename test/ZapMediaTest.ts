@@ -531,22 +531,7 @@ describe("ZapMedia Test", async () => {
 
         });
 
-        it("should mint token if caller is approved", async () => {
-            const mediaFactory2 = await ethers.getContractFactory(
-                "ZapMedia",
-                signers[2]
-            );
-
-            zapMedia2 = (await upgrades.deployProxy(mediaFactory2,
-                [
-                    "TEST MEDIA 2",
-                    "TM2",
-                    zapMarket.address,
-                    false,
-                    'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-                ])) as ZapMedia;
-
-            await zapMedia2.deployed();
+        it.only("should mint token if caller is approved", async () => {
 
             const sig = await signMintWithSig(
                 zapMedia2,
@@ -557,10 +542,12 @@ describe("ZapMedia Test", async () => {
             );
 
             await zapMedia2.approveToMint(signers[1].address);
+
             const beforeNonce = (
                 await zapMedia2.getSigNonces(signers[1].address)
             ).toNumber();
-            await zapMedia2.mintWithSig(
+
+            await zapMedia2.connect(signers[1]).mintWithSig(
                 signers[1].address,
                 mediaData,
                 bidShares,
@@ -573,11 +560,11 @@ describe("ZapMedia Test", async () => {
             const recoveredContentHash = await zapMedia2.getTokenContentHashes(
                 0
             );
-            const recoveredMetadataHash =
-                await zapMedia2.getTokenMetadataHashes(0);
-            const recoveredCreatorBidShare = (
-                await zapMarket.bidSharesForToken(zapMedia2.address, 0)
+            const recoveredMetadataHash = await zapMedia2.getTokenMetadataHashes(0);
+
+            const recoveredCreatorBidShare = (await zapMarket.bidSharesForToken(zapMedia2.address, 0)
             ).creator.value;
+
             const afterNonce = await zapMedia2.getSigNonces(signers[1].address);
 
             expect(recovered).to.eq(signers[1].address);
@@ -585,10 +572,12 @@ describe("ZapMedia Test", async () => {
             expect(recoveredMetadataURI).to.eq(metadataURI);
             expect(recoveredContentHash).to.eq(contentHash);
             expect(recoveredMetadataHash).to.eq(metadataHash);
+
             expect(recoveredCreatorBidShare).to.eq(
-                BigInt(10000000000000000000)
+                BigInt(parseInt(bidShares.creator.value._hex))
             );
             expect(afterNonce).to.eq(BigNumber.from(beforeNonce + 1));
+
         });
 
         it("should not mint a token for a different creator", async () => {
