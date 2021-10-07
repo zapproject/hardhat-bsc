@@ -361,7 +361,7 @@ export async function signMintWithSig(
   const name = await zapMedia1.name();
 
   const chainId = await signers[1].getChainId();
-  const creatorShare = BigInt(10000000000000000000);
+  const creatorShare = BigInt(15000000000000000000);
   const domain = {
     name,
     version,
@@ -391,9 +391,11 @@ export async function signMintWithSig(
   );
   sig = fromRpcSig(sig);
   sig = {
+
     r: sig.r,
     s: sig.s,
     v: sig.v,
+
     deadline: deadline.toString(),
   }
   return sig;
