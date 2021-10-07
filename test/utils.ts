@@ -301,23 +301,23 @@ export const revert = (messages: TemplateStringsArray) =>
   `VM Exception while processing transaction: revert ${messages[0]}`;
 
 export async function signPermit(
-  zapMedia1: ZapMedia,
+  zapMedia: ZapMedia,
   toAddress: any,
   signers: any,
   tokenId: any,
   version: string
 ) {
-  const nonce = (await zapMedia1.getPermitNonce(signers[3].address, tokenId)).toNumber();
+  const nonce = (await zapMedia.getPermitNonce(signers[4].address, tokenId)).toNumber();
 
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-  const name = await zapMedia1.name();
+  const name = await zapMedia.name();
 
   const chainId = await signers[5].getChainId();
   const domain = {
     name,
     version,
     chainId,
-    verifyingContract: zapMedia1.address,
+    verifyingContract: zapMedia.address,
   };
   const types = {
     Permit: [
@@ -333,16 +333,16 @@ export async function signPermit(
     nonce,
     deadline,
   };
-  let sig = await signers[3]._signTypedData(
+  let sig = await signers[4]._signTypedData(
     domain,
     types,
     value
   );
   sig = fromRpcSig(sig);
   sig = {
+    v: sig.v,
     r: sig.r,
     s: sig.s,
-    v: sig.v,
     deadline: deadline.toString(),
   }
 
@@ -350,23 +350,23 @@ export async function signPermit(
 }
 
 export async function signMintWithSig(
-  zapMedia1: ZapMedia,
+  zapMedia: ZapMedia,
   signers: any,
   contentHash: any,
   metadataHash: any,
   version: string
 ) {
-  const nonce = (await zapMedia1.getSigNonces(signers[1].address)).toNumber();
+  const nonce = (await zapMedia.getSigNonces(signers[1].address)).toNumber();
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-  const name = await zapMedia1.name();
+  const name = await zapMedia.name();
 
   const chainId = await signers[1].getChainId();
-  const creatorShare = BigInt(10000000000000000000);
+  const creatorShare = BigInt(15000000000000000000);
   const domain = {
     name,
     version,
     chainId,
-    verifyingContract: zapMedia1.address,
+    verifyingContract: zapMedia.address,
   };
   const types = {
     MintWithSig: [
@@ -391,9 +391,11 @@ export async function signMintWithSig(
   );
   sig = fromRpcSig(sig);
   sig = {
+
     r: sig.r,
     s: sig.s,
     v: sig.v,
+
     deadline: deadline.toString(),
   }
   return sig;
