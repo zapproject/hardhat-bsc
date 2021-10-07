@@ -531,7 +531,7 @@ describe("ZapMedia Test", async () => {
 
         });
 
-        it.only("should mint token if caller is approved", async () => {
+        it("should mint token if caller is approved", async () => {
 
             const sig = await signMintWithSig(
                 zapMedia2,
@@ -581,6 +581,7 @@ describe("ZapMedia Test", async () => {
         });
 
         it("should not mint a token for a different creator", async () => {
+
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -646,7 +647,8 @@ describe("ZapMedia Test", async () => {
             ).revertedWith("Media: Signature invalid");
         });
 
-        it("should not mint a token for a different creator bid share", async () => {
+        it.only("should not mint a token for a different creator bid share", async () => {
+
             const sig = await signMintWithSig(
                 zapMedia1,
                 signers,
@@ -655,14 +657,35 @@ describe("ZapMedia Test", async () => {
                 version
             );
 
+            let invalidBidShares = {
+
+                collaborators: [
+                    ethers.constants.AddressZero,
+                    ethers.constants.AddressZero,
+                    ethers.constants.AddressZero,
+                ],
+                collabShares: [
+                    BigNumber.from('15000000000000000000'),
+                    BigNumber.from('15000000000000000000'),
+                    BigNumber.from('15000000000000000000')
+                ],
+                creator: {
+                    value: BigNumber.from('14000000000000000000')
+                },
+                owner: {
+                    value: BigNumber.from('35000000000000000000')
+                },
+            };
+
             await expect(
                 zapMedia1.mintWithSig(
                     signers[1].address,
                     mediaData,
-                    bidShares,
+                    invalidBidShares,
                     sig
                 )
             ).revertedWith("Media: Signature invalid");
+
         });
 
         it("should not mint a token with an invalid deadline", async () => {

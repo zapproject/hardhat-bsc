@@ -326,9 +326,6 @@ contract ZapMedia is
 
         address recoveredAddress = ECDSA.recover(digest, sig.v, sig.r, sig.s);
 
-        console.log('Recovered', recoveredAddress);
-        console.log('Creator', creator);
-
         require(
             recoveredAddress != address(0) && creator == recoveredAddress,
             'Media: Signature invalid'
