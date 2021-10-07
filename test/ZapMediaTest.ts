@@ -423,7 +423,7 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    describe("#mintWithSig", () => {
+    describe.only("#mintWithSig", () => {
 
         const version = "1";
 
@@ -467,7 +467,7 @@ describe("ZapMedia Test", async () => {
 
         })
 
-        it.only("should mint a token for a given creator with a valid signature", async () => {
+        it("should mint a token for a given creator with a valid signature", async () => {
 
             const sig = await signMintWithSig(
                 zapMedia1,
@@ -477,10 +477,9 @@ describe("ZapMedia Test", async () => {
                 version
             );
 
-            // const beforeNonce = (
-            //     await zapMedia1.getSigNonces(signers[1].address)
-            // ).toNumber();
-
+            const beforeNonce = (
+                await zapMedia1.getSigNonces(signers[1].address)
+            ).toNumber();
 
             await zapMedia1.connect(signers[1]).mintWithSig(
                 signers[1].address,
@@ -489,43 +488,47 @@ describe("ZapMedia Test", async () => {
                 sig
             );
 
-            // const recovered = await zapMedia1.getTokenCreators(1);
-            // const recoveredTokenURI = await zapMedia1.tokenURI(1);
-            // const recoveredMetadataURI = await zapMedia1.tokenMetadataURI(1);
-            // const recoveredContentHash = await zapMedia1.getTokenContentHashes(
-            //     1
-            // );
-            // const recoveredMetadataHash =
-            //     await zapMedia1.getTokenMetadataHashes(1);
-            // const recoveredCreatorBidShare = (
-            //     await zapMarket.bidSharesForToken(zapMedia1.address, 1)
-            // ).creator.value;
-            // const afterNonce = await zapMedia1.getSigNonces(signers[1].address);
+            const recovered = await zapMedia1.getTokenCreators(0);
+            const recoveredTokenURI = await zapMedia1.tokenURI(0);
+            const recoveredMetadataURI = await zapMedia1.tokenMetadataURI(0);
+            const recoveredContentHash = await zapMedia1.getTokenContentHashes(0);
+            const recoveredMetadataHash = await zapMedia1.getTokenMetadataHashes(0);
 
-            // expect(recovered).to.eq(signers[1].address);
-            // expect(recoveredTokenURI).to.eq(tokenURI);
-            // expect(recoveredMetadataURI).to.eq(metadataURI);
-            // expect(recoveredContentHash).to.eq(contentHash);
-            // expect(recoveredMetadataHash).to.eq(metadataHash);
-            // expect(recoveredCreatorBidShare).to.eq(
-            //     BigInt(10000000000000000000)
-            // );
-            // expect(afterNonce).to.eq(BigNumber.from(beforeNonce + 1));
+            const recoveredCreatorBidShare = (
+                await zapMarket.bidSharesForToken(zapMedia1.address, 0)
+            ).creator.value;
+
+            const afterNonce = await zapMedia1.getSigNonces(signers[1].address);
+
+            expect(recovered).to.eq(signers[1].address);
+            expect(recoveredTokenURI).to.eq(tokenURI);
+            expect(recoveredMetadataURI).to.eq(metadataURI);
+            expect(recoveredContentHash).to.eq(contentHash);
+            expect(recoveredMetadataHash).to.eq(metadataHash);
+
+            expect(recoveredCreatorBidShare).to.eq(
+                BigInt(parseInt(bidShares.creator.value._hex))
+            );
+            expect(afterNonce).to.eq(BigNumber.from(beforeNonce + 1));
+
         });
 
         it("should not mint token if caller is not approved", async () => {
+
             const sig = await signMintWithSig(
-                zapMedia1,
+                zapMedia2,
                 signers,
                 contentHashBytes,
                 metadataHashBytes,
                 version
             );
+
             await expect(
-                zapMedia1
-                    .connect(signers[2])
-                    .mintWithSig(signers[1].address, mediaData, bidShares, sig)
+                zapMedia2
+                    .connect(signers[1])
+                    .mintWithSig(signers[2].address, mediaData, bidShares, sig)
             ).revertedWith("Media: Only Approved users can mint");
+
         });
 
         it("should mint token if caller is approved", async () => {

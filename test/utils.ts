@@ -350,15 +350,15 @@ export async function signPermit(
 }
 
 export async function signMintWithSig(
-  zapMedia1: ZapMedia,
+  zapMedia: ZapMedia,
   signers: any,
   contentHash: any,
   metadataHash: any,
   version: string
 ) {
-  const nonce = (await zapMedia1.getSigNonces(signers[1].address)).toNumber();
+  const nonce = (await zapMedia.getSigNonces(signers[1].address)).toNumber();
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-  const name = await zapMedia1.name();
+  const name = await zapMedia.name();
 
   const chainId = await signers[1].getChainId();
   const creatorShare = BigInt(15000000000000000000);
@@ -366,7 +366,7 @@ export async function signMintWithSig(
     name,
     version,
     chainId,
-    verifyingContract: zapMedia1.address,
+    verifyingContract: zapMedia.address,
   };
   const types = {
     MintWithSig: [
