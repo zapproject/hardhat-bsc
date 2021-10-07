@@ -423,7 +423,7 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    describe.only("#mintWithSig", () => {
+    describe("#mintWithSig", () => {
 
         const version = "1";
 
@@ -647,7 +647,7 @@ describe("ZapMedia Test", async () => {
             ).revertedWith("Media: Signature invalid");
         });
 
-        it.only("should not mint a token for a different creator bid share", async () => {
+        it("should not mint a token for a different creator bid share", async () => {
 
             const sig = await signMintWithSig(
                 zapMedia1,
@@ -1740,22 +1740,21 @@ describe("ZapMedia Test", async () => {
         });
 
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
+
             const sig = await signPermit(
                 zapMedia1,
-                signers[3].address,
+                signers[5].address,
                 signers,
                 0,
                 "1"
             );
 
-            await zapMedia1
-                .connect(signers[3])
-                .permit(signers[5].address, 0, sig)
-
+            await zapMedia1.connect(signers[4]).permit(signers[5].address, 0, sig);
 
             expect(await zapMedia1.connect(signers[5]).getApproved(0)).eq(
                 signers[5].address
             );
+
         });
 
         it("should not allow a wallet to set themselves to approved with an invalid signature", async () => {
