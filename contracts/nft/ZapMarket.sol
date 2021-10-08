@@ -368,18 +368,24 @@ contract ZapMarket is IMarket, Ownable {
         // We must check the balance that was actually transferred to the market,
         // as some tokens impose a transfer fee and would not actually transfer the
         // full amount to the market, resulting in locked funds for refunds & bid acceptance
+
         uint256 beforeBalance = token.balanceOf(address(this));
+
         token.safeTransferFrom(spender, address(this), bid.amount);
 
-        uint256 afterBalance = token.balanceOf(address(this));
+        require(
+            token.balanceOf(address(this)) == beforeBalance + bid.amount,
+            'Market: Market balance did not increase from bid'
+        );
 
         _tokenBidders[msg.sender][tokenId][bid.bidder] = Bid(
-            afterBalance - (beforeBalance),
+            bid.amount,
             bid.currency,
             bid.bidder,
             bid.recipient,
             bid.sellOnShare
         );
+
         emit BidCreated(msg.sender, tokenId, bid);
 
         // If a bid meets the criteria for an ask, automatically accept the bid.
