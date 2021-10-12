@@ -220,7 +220,7 @@ export const deployZapNFTMarketplace = async () => {
 
   for (let i = 0; i < mediaArgs.length; i++) {
     const args = mediaArgs[i];
-    await mediaFactory.deployMedia(
+    await mediaFactory.connect(mediaDeployers[i]).deployMedia(
       args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
     );
 
