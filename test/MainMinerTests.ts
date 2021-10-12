@@ -169,7 +169,7 @@ describe("Main Miner Functions", () => {
 
             await master.transferFrom(vault.address, signers[18].address, 100);
             approval = await zapTokenBsc.allowance(vault.address, zapMaster.address);
-            
+
             expect(approval).to.equal(BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9b"));
         }
     )
@@ -219,6 +219,83 @@ describe("Main Miner Functions", () => {
             // Expect the staker timestamp to be greater than 0
             expect(stakerInfo[1]).to.greaterThan(0)
         })
+
+    it('Should not be able to depositStake if the stake status is 1', async () => {
+
+        // Allocate enough to stake
+        await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("1000000000000000000000000")));
+
+        // Attach the ZapMaster instance to Zap
+        zap = zap.attach(zapMaster.address);
+
+        // Connects address 1 as the signer
+        zap = zap.connect(signers[1]);
+
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("1000000000000000000000000")));
+
+        // Stakes 500k Zap to initiate a miner
+        await zap.depositStake();
+
+        const postStakeStatus = await zapMaster.getStakerInfo(signers[1].address);
+
+        expect(parseInt(postStakeStatus[0]._hex)).to.equal(1);
+
+        // Should catch the error trying to deposit a stake after request a withdrawal
+        // Only addresses with a stake status of 0 can be staked
+        await expect(zap.depositStake()).to.be.revertedWith(
+            'ZapStake: Staker is already staked'
+        );
+
+    });
+
+    it("Should not be able to request a stake withdrawal if the stake status is 0", async () => {
+
+        await expect(zap.requestStakingWithdraw()).to.be.revertedWith(
+            'Miner is not staked'
+        );
+
+    });
+
+    it("Should not be able to depositStake if the stake status is 2", async () => {
+
+        // Allocate enough to stake
+        await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("1000000000000000000000000")));
+
+        // Attach the ZapMaster instance to Zap
+        zap = zap.attach(zapMaster.address);
+
+        // Connects address 1 as the signer
+        zap = zap.connect(signers[1]);
+
+        await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("1000000000000000000000000")));
+
+        // Stakes 500k Zap to initiate a miner
+        await zap.depositStake();
+
+        const postStakeStatus = await zapMaster.getStakerInfo(signers[1].address);
+
+        expect(parseInt(postStakeStatus[0]._hex)).to.equal(1);
+
+        // Put in a request to refund stake amount
+        await zap.requestStakingWithdraw();
+
+        // Gets signer 1's stake status after request a refund
+        const postRequestStatus = await zapMaster.getStakerInfo(signers[1].address);
+
+        // Expect signer 1's status to equal 2(Request a withdraw)
+        expect(parseInt(postRequestStatus[0]._hex)).to.equal(2);
+
+        // Increase the evm time by 8 days
+        // A stake can not be withdrawn until 7 days passed
+        await ethers.provider.send("evm_increaseTime", [691200]);
+
+        // Should catch the error trying to deposit a stake after request a withdrawal
+        // Only addresses with a stake status of 0 can be staked
+        await expect(zap.depositStake()).to.be.revertedWith(
+            'ZapStake: Staker is already staked'
+        );
+
+    });
 
     it("Should not stake a miner with a balance less than 500k and return a 0 stake status and timestamp",
         async () => {
@@ -496,7 +573,7 @@ describe("Main Miner Functions", () => {
         zap = zap.attach(zapMaster.address);
 
         await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, (BigNumber.from("500000000000000000000000")));
-        
+
         // Stakes 500k Zap to initiate a miner
         await zap.depositStake();
 
