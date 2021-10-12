@@ -7,10 +7,10 @@ contract Vault {
     using SafeMathM for uint256;
 
     address public zapToken;
-    ZapMaster zapMaster;
+    ZapMaster public zapMaster;
     mapping(address => uint256) private balances;
 
-    uint256 constant MAX_UINT = 2**256 - 1;
+    uint256 constant private MAX_UINT = 2**256 - 1;
 
     constructor (address token, address master) public {
         zapToken = token;

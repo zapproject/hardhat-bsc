@@ -396,7 +396,12 @@ contract ZapMarket is IMarket, Ownable {
             bid.amount >= _tokenAsks[msg.sender][tokenId].amount
         ) {
             // Finalize exchange
+            require(!bidMutex[tokenId], 'There is a bid transaction in progress');
+            bidMutex[tokenId] = true;
+
             _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
+
+            bidMutex[tokenId] = false;
         }
     }
 
