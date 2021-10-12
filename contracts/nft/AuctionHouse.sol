@@ -127,7 +127,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         uint256 auctionId = _auctionIdTracker.current();
         _auctionIdTracker.increment();
 
-        setTokenDetails(tokenId, mediaContract);
+        if (setTokenDetails(tokenId, mediaContract) == false) {
+            require(
+                mediaContract == tokenDetails[mediaContract][tokenId].mediaContract,
+                "Token is already set for a different collection");
+        }
 
         auctions[auctionId] = Auction({
             token: tokenDetails[mediaContract][tokenId],
