@@ -177,7 +177,13 @@ contract ZapMedia is
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
     }
-
+    
+    /**
+    *  @notice Returns a boolean, showing whether or not the given interfaceId is supported
+     * @dev This function is overriden from the ERC721 and ERC165 contract stack
+     * @param interfaceId a bytes4 formatted representation of a contract interface
+     * @return boolean dipicting whether or not the interface is supported
+    */
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -215,6 +221,11 @@ contract ZapMedia is
         _supportedInterfaces[interfaceId] = true;
     }
 
+    /// @notice TokenTransfer hook function
+    /// @dev called from ERC721 Enumerable Upgradeable contract, see here https://docs.openzeppelin.com/contracts/4.x/api/token/erc721#ERC721Enumerable-_beforeTokenTransfer-address-address-uint256-
+    /// @param from the current token owner, if this is the zero address, the token will be minted for `to`
+    /// @param to the receiver's wallet address, if this is the zero address, the token will be burned
+    /// @param tokenId token ID of the ERC721 to be transfered
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -234,6 +245,7 @@ contract ZapMedia is
 
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
+     * @param tokenId the token whose metadata will be attached
      * @return the metadata URI for the token
      */
     function tokenMetadataURI(uint256 tokenId)
@@ -253,6 +265,8 @@ contract ZapMedia is
 
     /**
      * @notice see IMedia
+     * @dev mints an NFT and sets the bidshares for collaborators
+     * @param data The media's metadata and content data, includes content and metadata hash, and token's URI
      */
     function mint(MediaData memory data, IMarket.BidShares memory bidShares)
         public
@@ -280,7 +294,7 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia a
+     * @notice see IMedia
      */
     function mintWithSig(
         address creator,
@@ -417,6 +431,7 @@ contract ZapMedia is
     /**
      * @notice Burn a token.
      * @dev Only callable if the media owner is also the creator.
+     * @param tokenId the ID of the token to burn
      */
     function burn(uint256 tokenId)
         public
@@ -540,6 +555,11 @@ contract ZapMedia is
      * *****************
      */
 
+    /// @notice Returns a bool depicting whether or not the i'th collaborator has shares
+    /// @dev Explain to a developer any extra details
+    /// @param index the "i'th collaborator"
+    /// @param bidShares the bidshares defined for the Collection's NFTs
+    /// @return Boolean that is true if the i'th collaborator has shares for this collection's NFTs
     function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
         internal
         pure
