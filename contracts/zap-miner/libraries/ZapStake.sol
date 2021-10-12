@@ -87,8 +87,8 @@ library ZapStake {
     * and updates the number of stakers in the system.
     */
     function newStake(ZapStorage.ZapStorageStruct storage self, address staker) internal {
-        //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
-        //and they are currently locked for witdhraw
+
+        //Ensure they can only stake if they are not currrently staked 
         require(self.stakerDetails[staker].currentStatus == 0, "ZapStake: Staker is already staked");
         self.uintVars[keccak256("stakerCount")] += 1;
         self.stakerDetails[staker] = ZapStorage.StakeInfo({

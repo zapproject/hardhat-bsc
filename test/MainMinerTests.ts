@@ -220,7 +220,7 @@ describe("Main Miner Functions", () => {
             expect(stakerInfo[1]).to.greaterThan(0)
         })
 
-    it('Should not be able to depositStake if the stake status is 1', async () => {
+    it('Should not be able to depositStake if the stake status is 1(Staked)', async () => {
 
         // Allocate enough to stake
         await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("1000000000000000000000000")));
@@ -248,7 +248,7 @@ describe("Main Miner Functions", () => {
 
     });
 
-    it("Should not be able to request a stake withdrawal if the stake status is 0", async () => {
+    it("Should not be able to request a stake withdrawal if the stake status is 0(Not Staked)", async () => {
 
         await expect(zap.requestStakingWithdraw()).to.be.revertedWith(
             'Miner is not staked'
@@ -256,7 +256,7 @@ describe("Main Miner Functions", () => {
 
     });
 
-    it("Should not be able to depositStake if the stake status is 2", async () => {
+    it("Should not be able to depositStake if the stake status is 2(Request to withdraw)", async () => {
 
         // Allocate enough to stake
         await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("1000000000000000000000000")));
