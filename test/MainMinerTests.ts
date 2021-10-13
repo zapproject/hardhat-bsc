@@ -256,7 +256,7 @@ describe("Main Miner Functions", () => {
 
     });
 
-    it("Should not be able to depositStake if the stake status is 2(Request to withdraw)", async () => {
+    it.only("Should not be able to depositStake if the stake status is 2(Request to withdraw)", async () => {
 
         // Allocate enough to stake
         await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("1000000000000000000000000")));
@@ -294,6 +294,12 @@ describe("Main Miner Functions", () => {
         await expect(zap.depositStake()).to.be.revertedWith(
             'ZapStake: Staker is already staked'
         );
+
+        zap.withdrawStake();
+
+        const vaultUserBal = await vault.userBalance(signers[1].address);
+
+        expect(parseInt(vaultUserBal._hex)).to.equal(0);
 
     });
 
