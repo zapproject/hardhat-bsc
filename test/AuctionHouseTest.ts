@@ -29,7 +29,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { signPermitMessage } from "@zoralabs/zdk";
 
-describe.only("AuctionHouse", () => {
+describe("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -66,13 +66,13 @@ describe.only("AuctionHouse", () => {
 
   });
 
-  async function deploy(signer: SignerWithAddress, currency: string): Promise<AuctionHouse> {
+  async function deploy(signer: SignerWithAddress, currency: string, market: string): Promise<AuctionHouse> {
     let auctionHouse: AuctionHouse;
     let AuctionHouse: AuctionHouse__factory;
 
     AuctionHouse = await ethers.getContractFactory("AuctionHouse", signer) as AuctionHouse__factory;
 
-    auctionHouse = await upgrades.deployProxy(AuctionHouse, [currency], { initializer: 'initialize' }) as AuctionHouse;
+    auctionHouse = await upgrades.deployProxy(AuctionHouse, [currency, market], { initializer: 'initialize' }) as AuctionHouse;
 
 
     return auctionHouse as AuctionHouse;
@@ -101,7 +101,7 @@ describe.only("AuctionHouse", () => {
 
   }
 
-  describe.only("#constructor", () => {
+  describe("#constructor", () => {
 
     it("should be able to deploy", async () => {
 
@@ -154,7 +154,7 @@ describe.only("AuctionHouse", () => {
 
       signers = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[1], zapTokenBsc.address);
+      auctionHouse = await deploy(signers[1], zapTokenBsc.address, media1.address);
 
       await mint(media1);
 
@@ -175,7 +175,7 @@ describe.only("AuctionHouse", () => {
     });
   });
 
-  describe.only("#createAuction", () => {
+  describe("#createAuction", () => {
 
     let auctionHouse: AuctionHouse;
 
@@ -183,7 +183,7 @@ describe.only("AuctionHouse", () => {
 
       signers = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[1], zapTokenBsc.address);
+      auctionHouse = await deploy(signers[1], zapTokenBsc.address, media1.address);
 
       await mint(media1);
 
@@ -316,6 +316,10 @@ describe.only("AuctionHouse", () => {
       ).to.be.revertedWith("function call to a non-contract account")
     });
 
+    it("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
+      const badMarketFact = await ethers.getContractFactory("ZapMarket", signers[5]);
+    });
+
     it.skip("should revert if the given media contract address differs from the one that is already set", async () => {
       // don't mind this, this test will always fail
       // tokens and their medias/collections have a 1-to-1 relationship, not 1-to-many
@@ -397,7 +401,7 @@ describe.only("AuctionHouse", () => {
 
     beforeEach(async () => {
       [deity, admin, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy(deity, zapTokenBsc.address)).connect(curator) as AuctionHouse;
+      auctionHouse = (await deploy(deity, zapTokenBsc.address, media1.address)).connect(curator) as AuctionHouse;
       await mint(media1);
       await approveAuction(media1, auctionHouse);
       await createAuction(
@@ -465,7 +469,7 @@ describe.only("AuctionHouse", () => {
 
     beforeEach(async () => {
       [deity, admin, creator, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy(admin, zapTokenBsc.address)).connect(curator) as AuctionHouse;
+      auctionHouse = (await deploy(admin, zapTokenBsc.address, media1.address)).connect(curator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(
         media1.connect(creator),
@@ -548,7 +552,7 @@ describe.only("AuctionHouse", () => {
 
       curator = signers[4];
 
-      auctionHouse = (await (await deploy(admin, zapTokenBsc.address)).connect(bidderA)) as AuctionHouse;
+      auctionHouse = (await (await deploy(admin, zapTokenBsc.address, media1.address)).connect(bidderA)) as AuctionHouse;
 
       await mint(media1);
 
@@ -877,7 +881,7 @@ describe.only("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, creator, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy(admin, zapTokenBsc.address)).connect(creator) as AuctionHouse;
+      auctionHouse = (await deploy(admin, zapTokenBsc.address, media1.address)).connect(creator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
       // await auctionHouse.setTokenDetails(0, media1.address);
@@ -977,7 +981,7 @@ describe.only("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, creator, curator, bidder, other] = await ethers.getSigners();
-      auctionHouse = (await deploy(creator, zapTokenBsc.address)) as AuctionHouse;
+      auctionHouse = (await deploy(creator, zapTokenBsc.address, media1.address)) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
 
