@@ -256,7 +256,7 @@ describe("Main Miner Functions", () => {
 
     });
 
-    it.only("Should not be able to depositStake if the stake status is 2(Request to withdraw)", async () => {
+    it("Should not be able to depositStake if the stake status is 2(Request to withdraw)", async () => {
 
         // Allocate enough to stake
         await zapTokenBsc.allocate(signers[1].address, (BigNumber.from("1000000000000000000000000")));
