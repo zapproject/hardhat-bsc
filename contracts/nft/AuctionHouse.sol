@@ -72,21 +72,22 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     function setTokenDetails(uint256 tokenId, address mediaContract)
         internal
-        returns (bool)
     {
         require(
             mediaContract != address(0),
             'AuctionHouse: Media Contract Address can not be the zero address'
         );
-        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0))
-            return false;
+
+        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0)){
+            require(
+                mediaContract == tokenDetails[mediaContract][tokenId].mediaContract,
+                "Token is already set for a different collection");
+        }
 
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
             mediaContract: mediaContract
         });
-
-        return true;
     }
 
     /**
@@ -127,11 +128,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         uint256 auctionId = _auctionIdTracker.current();
         _auctionIdTracker.increment();
 
-        if (setTokenDetails(tokenId, mediaContract) == false) {
-            require(
-                mediaContract == tokenDetails[mediaContract][tokenId].mediaContract,
-                "Token is already set for a different collection");
-        }
+        setTokenDetails(tokenId, mediaContract);
 
         auctions[auctionId] = Auction({
             token: tokenDetails[mediaContract][tokenId],
