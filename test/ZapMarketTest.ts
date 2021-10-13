@@ -24,9 +24,11 @@ import { MediaFactory } from '../typechain/MediaFactory';
 
 import { ZapVault } from '../typechain/ZapVault';
 
-import { ZapMarket__factory } from "../typechain";
+import { IERC721Metadata, ZapMarket__factory } from "../typechain";
 
 import { deployJustMedias } from "./utils";
+
+import { BadBidder2 } from "../typechain/BadBidder2";
 
 chai.use(solidity);
 
@@ -1393,4 +1395,157 @@ describe('ZapMarket Test', () => {
     })
 
   });
+
+  describe("Re entrancy", () => {
+    let bid1: any;
+    let bid2: any;
+
+    /**
+     * In this scenario, signer[1] is a malicious user that uses a malicious contract 
+     * to try:
+     * - starting an auction
+     * - bid on that auction last
+     * - accept their bid (highest one) and transfer ownership to themselves
+     * - remove the last bid before _finalizeNFTTransfer() returns to refund the bid
+     */
+    it("should properlly accept bid even when using malicious contract", async () => {
+
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+      const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
+
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
+
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
+
+      zapMarket.setMediaFactory(mediaDeployer.address);
+
+      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
+
+      const badBidder2Factory = await ethers.getContractFactory("BadBidder2", signers[1]);
+
+      zapMedia1 = medias[0];
+      zapMedia2 = medias[1];
+      zapMedia3 = medias[2];
+
+      bid1 = {
+        amount: 200,
+        currency: zapTokenBsc.address,
+        bidder: 0,
+        recipient: signers[8].address,
+        spender: signers[1].address,
+        sellOnShare: {
+          value: BigInt(10000000000000000000)
+        }
+      };
+
+      bid2 = {
+        amount: 300,
+        currency: zapTokenBsc.address,
+        bidder: signers[2].address,
+        recipient: signers[9].address,
+        spender: signers[2].address,
+        sellOnShare: {
+          value: BigInt(10000000000000000000)
+        }
+      };
+
+      const badBidder2 = await badBidder2Factory.deploy(zapMedia1.address, zapTokenBsc.address);
+      await badBidder2.deployed();
+      
+      bid1.bidder = badBidder2.address;
+
+      let metadataHex = ethers.utils.formatBytes32String('{}');
+      let metadataHashRaw = keccak256(metadataHex);
+      metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+      let contentHex = ethers.utils.formatBytes32String('invert');
+      let contentHashRaw = keccak256(contentHex);
+      contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+      let contentHash = contentHashBytes;
+      let metadataHash = metadataHashBytes;
+
+      const data: MediaData = {
+        tokenURI,
+        metadataURI,
+        contentHash,
+        metadataHash
+      };
+
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+
+      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+
+      await zapTokenBsc.mint(signers[1].address, 5000);
+
+      await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
+      await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
+
+      const marketPreBal = await zapTokenBsc.balanceOf(zapMarket.address);
+      expect(parseInt(marketPreBal._hex)).to.equal(0);
+
+      const recipientPreBal = await zapMedia1.balanceOf(bid1.recipient);
+      expect(parseInt(recipientPreBal._hex)).to.equal(0);
+
+      const vaultPreBal = await zapTokenBsc.balanceOf(zapVault.address);
+      expect(parseInt(vaultPreBal._hex)).to.equal(0);
+
+      await zapTokenBsc.connect(signers[0]).allocate(badBidder2.address, 2000);
+      await zapTokenBsc.connect(signers[0]).allocate(signers[2].address, 2000);
+
+      const badBidderPreSet = await zapTokenBsc.balanceOf(badBidder2.address);
+      const owner2PreSet = await zapTokenBsc.balanceOf(signers[2].address);
+
+
+      await zapMedia1.connect(signers[2]).setBid(0, bid2);
+      await badBidder2.connect(signers[1]).setBid(zapMarket.address, bid1);
+      
+      const badBidderPostSet = await zapTokenBsc.balanceOf(badBidder2.address);
+      expect(parseInt(badBidderPostSet._hex)).to.equal(parseInt(badBidderPreSet._hex) - bid1.amount);
+
+      const owner2PostSet = await zapTokenBsc.balanceOf(signers[2].address);
+      expect(parseInt(owner2PostSet._hex)).to.equal(parseInt(owner2PreSet._hex) - bid2.amount);
+
+      const marketPostBal = await zapTokenBsc.balanceOf(zapMarket.address);
+      expect(parseInt(marketPostBal._hex)).to.equal(bid1.amount + bid2.amount);
+
+      await zapMedia1.connect(signers[1]).approve(badBidder2.address, 0);
+
+      await badBidder2.connect(signers[1]).acceptRemoveBid(bid1);
+
+      const badBidderPostAccept = await zapTokenBsc.balanceOf(badBidder2.address);
+      expect(parseInt(badBidderPostAccept)).to.equal(parseInt(badBidderPreSet) - bid1.amount);
+
+      const owner2PostAccept = await zapTokenBsc.balanceOf(signers[2].address);
+      expect(parseInt(owner2PostAccept)).to.equal(parseInt(owner2PreSet) - bid2.amount);
+
+      const zapMarketFilter: EventFilter =
+        zapMarket.filters.BidFinalized(null, null, null);
+
+      const event = (await zapMarket.queryFilter(zapMarketFilter));
+
+      expect(zapMedia1.address).to.equal(event[0].args[2]);
+    });
+  })
 });
