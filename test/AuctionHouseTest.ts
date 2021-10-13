@@ -11,7 +11,8 @@ import {
   ZapTokenBSC,
   ZapVault,
   WETH,
-  MediaFactory
+  MediaFactory,
+  BadMedia
 } from "../typechain";
 import { } from "../typechain";
 import { BigNumber, Contract } from "ethers";
@@ -22,6 +23,7 @@ import {
   deployOtherNFTs,
   deployWETH,
   deployZapNFTMarketplace,
+  deployOneMedia,
   mint,
   ONE_ETH,
   TWO_ETH,
@@ -29,7 +31,7 @@ import {
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { signPermitMessage } from "@zoralabs/zdk";
 
-describe("AuctionHouse", () => {
+describe.only("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -101,7 +103,7 @@ describe("AuctionHouse", () => {
 
   }
 
-  describe("#constructor", () => {
+  describe.only("#constructor", () => {
 
     it("should be able to deploy", async () => {
 
@@ -111,7 +113,7 @@ describe("AuctionHouse", () => {
 
       const auctionHouse = await upgrades.deployProxy(
         AuctionHouse,
-        [zapTokenBsc.address],
+        [zapTokenBsc.address, market.address],
         { initializer: 'initialize' }
       );
 
@@ -154,7 +156,7 @@ describe("AuctionHouse", () => {
 
       signers = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[1], zapTokenBsc.address, media1.address);
+      auctionHouse = await deploy(signers[1], zapTokenBsc.address, market.address);
 
       await mint(media1);
 
@@ -175,7 +177,7 @@ describe("AuctionHouse", () => {
     });
   });
 
-  describe("#createAuction", () => {
+  describe.only("#createAuction", () => {
 
     let auctionHouse: AuctionHouse;
 
@@ -183,7 +185,7 @@ describe("AuctionHouse", () => {
 
       signers = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[1], zapTokenBsc.address, media1.address);
+      auctionHouse = await deploy(signers[1], zapTokenBsc.address, market.address);
 
       await mint(media1);
 
@@ -316,8 +318,44 @@ describe("AuctionHouse", () => {
       ).to.be.revertedWith("function call to a non-contract account")
     });
 
-    it("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
+    it.only("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
       const badMarketFact = await ethers.getContractFactory("ZapMarket", signers[5]);
+      const badMarket = await upgrades.deployProxy(
+        badMarketFact, [zapVault.address],
+        { initializer: "initializeMarket" }) as ZapMarket;
+      // await badMarketFact.deploy(zapVault.address);
+
+      const {...mediaArgs} = {
+        name: "TEST MEDIA " + `${5}`,
+        symbol: "TM" + `${5}`,
+        marketContractAddr: badMarket.address,
+        permissive: false,
+        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+      }
+      const badMediaFact = await ethers.getContractFactory("BadMedia", signers[5]);
+      const badMedia = await upgrades.deployProxy(
+        badMediaFact,
+        [
+          mediaArgs.name, mediaArgs.symbol,
+          mediaArgs.marketContractAddr, mediaArgs.permissive,
+          mediaArgs._collectionMetadata
+        ]
+      ) as BadMedia;
+      // const badMedia = await badMediaFact.deploy(mediaArgs);
+      
+      await badMedia.connect(signers[5]).mint();
+        console.log("bok")
+      await approveAuction((badMedia as unknown) as ZapMedia, auctionHouse);
+        console.log("tok")
+      await expect(
+        createAuction(
+          auctionHouse.connect(signers[5]),
+          signers[5].address,
+          zapTokenBsc.address,
+          undefined,
+          badMedia.address)).to.be.revertedWith(
+            "This market contract is not from Zap's NFT MarketPlace"
+          );
     });
 
     it.skip("should revert if the given media contract address differs from the one that is already set", async () => {
@@ -401,7 +439,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [deity, admin, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy(deity, zapTokenBsc.address, media1.address)).connect(curator) as AuctionHouse;
+      auctionHouse = (await deploy(deity, zapTokenBsc.address, market.address)).connect(curator) as AuctionHouse;
       await mint(media1);
       await approveAuction(media1, auctionHouse);
       await createAuction(
@@ -469,7 +507,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [deity, admin, creator, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy(admin, zapTokenBsc.address, media1.address)).connect(curator) as AuctionHouse;
+      auctionHouse = (await deploy(admin, zapTokenBsc.address, market.address)).connect(curator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(
         media1.connect(creator),
@@ -552,7 +590,7 @@ describe("AuctionHouse", () => {
 
       curator = signers[4];
 
-      auctionHouse = (await (await deploy(admin, zapTokenBsc.address, media1.address)).connect(bidderA)) as AuctionHouse;
+      auctionHouse = (await (await deploy(admin, zapTokenBsc.address, market.address)).connect(bidderA)) as AuctionHouse;
 
       await mint(media1);
 
@@ -881,7 +919,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, creator, curator, bidder] = await ethers.getSigners();
-      auctionHouse = (await deploy(admin, zapTokenBsc.address, media1.address)).connect(creator) as AuctionHouse;
+      auctionHouse = (await deploy(admin, zapTokenBsc.address, market.address)).connect(creator) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
       // await auctionHouse.setTokenDetails(0, media1.address);
@@ -981,7 +1019,7 @@ describe("AuctionHouse", () => {
 
     beforeEach(async () => {
       [admin, creator, curator, bidder, other] = await ethers.getSigners();
-      auctionHouse = (await deploy(creator, zapTokenBsc.address, media1.address)) as AuctionHouse;
+      auctionHouse = (await deploy(creator, zapTokenBsc.address, market.address)) as AuctionHouse;
       await mint(media1.connect(creator));
       await approveAuction(media1.connect(creator), auctionHouse);
 
