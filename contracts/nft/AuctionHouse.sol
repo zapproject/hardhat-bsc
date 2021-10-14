@@ -54,7 +54,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
     bytes4 private constant interfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
-    uint8 constant hundredPercent = 100;
+    uint8 constant public hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
     /**

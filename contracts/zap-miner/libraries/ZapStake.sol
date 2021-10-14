@@ -69,17 +69,6 @@ library ZapStake {
         require(stakes.currentStatus == 2, "Required to request withdraw of stake");
         stakes.currentStatus = 0;
 
-        /*
-            NOT TOTALLY SURE OF THESE FUNCTON NAMES.
-            BUT THE LOGIC SHOULD BE SOMETHING LIKE THIS...
-            // msg.sender is the staker that wants to withdraw their tokens
-            previousBalance = balanceOf(msg.sender); // grab the balance of the staker
-            updateBalanceAtNow(self.balancecs(msg.sender), previousBalance) // update 
-            tranferFrom(vault, msg.sender);
-            
-            // updates the storage portion that keeps track of balances at a block. set it to 0 since staker is unstaking
-            updateBalanceAtNow(self.balancecs(msg.sender), 0) 
-        */
         emit StakeWithdrawn(msg.sender);
     }
 
@@ -98,9 +87,9 @@ library ZapStake {
     * and updates the number of stakers in the system.
     */
     function newStake(ZapStorage.ZapStorageStruct storage self, address staker) internal {
-        //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
-        //and they are currently locked for witdhraw
-        require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "ZapStake: Either already staked or stake time frame ended");
+
+        //Ensure they can only stake if they are not currrently staked 
+        require(self.stakerDetails[staker].currentStatus == 0, "ZapStake: Staker is already staked");
         self.uintVars[keccak256("stakerCount")] += 1;
         self.stakerDetails[staker] = ZapStorage.StakeInfo({
             currentStatus: 1,

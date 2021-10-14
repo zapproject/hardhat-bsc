@@ -30,7 +30,7 @@ import {
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-describe.only("AuctionHouse", () => {
+describe("AuctionHouse", () => {
   let market: ZapMarket;
   let media1: ZapMedia;
   let media2: ZapMedia;
@@ -102,7 +102,7 @@ describe.only("AuctionHouse", () => {
 
   }
 
-  describe.only("#constructor", () => {
+  describe("#constructor", () => {
 
     it("should be able to deploy", async () => {
 
@@ -176,7 +176,7 @@ describe.only("AuctionHouse", () => {
     });
   });
 
-  describe.only("#createAuction", () => {
+  describe("#createAuction", () => {
 
     let auctionHouse: AuctionHouse;
 

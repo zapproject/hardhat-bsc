@@ -81,6 +81,13 @@ contract ZapMarket is IMarket, Ownable {
         _;
     }
 
+    modifier isUnlocked(uint256 tokenId) {
+        require(!bidMutex[tokenId], 'There is a bid transaction in progress');
+        bidMutex[tokenId] = true;
+        _;
+        bidMutex[tokenId] = false;
+    }
+
     /* ****************
      * View Functions
      * ****************
@@ -335,7 +342,8 @@ contract ZapMarket is IMarket, Ownable {
         uint256 tokenId,
         Bid memory bid,
         address spender
-    ) public override onlyMediaCaller {
+    ) public override 
+        onlyMediaCaller {
         BidShares memory bidShares = _bidShares[msg.sender][tokenId];
 
         require(
@@ -408,23 +416,18 @@ contract ZapMarket is IMarket, Ownable {
         public
         override
         onlyMediaCaller
-    {
+        isUnlocked(tokenId) {
         Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
 
         require(bid.amount > 0, 'Market: cannot remove bid amount of 0');
 
-        require(!bidMutex[tokenId], 'There is a bid transaction is progress');
-        bidMutex[tokenId] = true;
-
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
         emit BidRemoved(tokenId, bid, msg.sender);
         delete _tokenBidders[msg.sender][tokenId][bidder];
         token.safeTransfer(bidder, bidAmount);
-
-        bidMutex[tokenId] = false;
     }
 
     /**
@@ -440,7 +443,9 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         Bid calldata expectedBid
-    ) external override onlyMediaCaller {
+    ) external override 
+        onlyMediaCaller 
+        isUnlocked(tokenId) {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
             expectedBid.bidder
         ];
@@ -458,12 +463,7 @@ contract ZapMarket is IMarket, Ownable {
             'Market: Bid invalid for share splitting'
         );
 
-        require(!bidMutex[tokenId], 'There is a bid transaction in progress');
-        bidMutex[tokenId] = true;
-
         _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
-
-        bidMutex[tokenId] = false;
     }
 
     /**
