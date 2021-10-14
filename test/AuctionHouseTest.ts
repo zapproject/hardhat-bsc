@@ -82,7 +82,8 @@ describe("AuctionHouse", () => {
     auctionHouse: AuctionHouse,
     curator: string,
     currency: string,
-    duration?: number
+    duration?: number,
+    media?: string
   ) {
     const tokenId = 0;
     if (!duration) duration = 60 * 60 * 24;
@@ -90,7 +91,7 @@ describe("AuctionHouse", () => {
 
     await auctionHouse.createAuction(
       tokenId,
-      media1.address,
+      media == null ? media1.address : media,
       duration,
       reservePrice,
       curator,
@@ -313,6 +314,21 @@ describe("AuctionHouse", () => {
           signers[1].address, 5, zapTokenBsc.address
         )
       ).to.be.revertedWith("function call to a non-contract account")
+    });
+
+    it.skip("should revert if the given media contract address differs from the one that is already set", async () => {
+      // don't mind this, this test will always fail
+      // tokens and their medias/collections have a 1-to-1 relationship, not 1-to-many
+      const [_, curator] = await ethers.getSigners();
+      await createAuction(auctionHouse, curator.address, zapTokenBsc.address);
+
+      await mint(media2.connect(signers[2]));
+
+      await approveAuction(media2, auctionHouse);
+
+      await expect(
+        createAuction(auctionHouse.connect(signers[2]), curator.address, zapTokenBsc.address, undefined, media2.address)
+      ).to.be.revertedWith("Token is already set for a different collection");
     });
 
     it("should be automatically approved if the creator is the curator", async () => {
