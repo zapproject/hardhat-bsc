@@ -47,7 +47,7 @@ library ZapDispute {
         ZapStorage.Dispute storage disp = self.disputesById[_disputeId];
 
         //ensure that only stakers can vote
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers can vote");
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Only Stakers that are not under dispute can vote");
 
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true, "msg.sender has already voted");
@@ -55,9 +55,8 @@ library ZapDispute {
         //Requre that the user had a balance >0 at time/blockNumber the disupte began
         require(voteWeight > 0, "User must have a balance greater than zero");
 
-        //ensures miners that are under dispute cannot vote
-        require(self.stakerDetails[msg.sender].currentStatus != 3, "Miners undeer dispute cannot vote");
-
+        //Ensure the reporting party cannot vote for that specific dispute
+        require(msg.sender != disp.reportingParty, "The reporting party of the dispute cannot vote");
 
         //Update user voting status to true
         disp.voted[msg.sender] = true;
@@ -93,7 +92,6 @@ library ZapDispute {
         ZapStorage.Request storage _request = self.requestDetails[
             disp.disputeUintVars[keccak256('requestId')]
         ];
-
         
         uint disputeFeeForDisputeId = disp.disputeUintVars[keccak256("fee")];
         address disputeFeeWinnerAddress;
@@ -109,9 +107,12 @@ library ZapDispute {
             ZapStorage.StakeInfo storage stakes = self.stakerDetails[
                 disp.reportedMiner
             ];
+            // instead of percentage, find the multiple of this dispute voters compared to numbe rof staked users
+            uint quorum = (self.uintVars[keccak256("stakerCount")] - 2) / disp.disputeUintVars[keccak256('numberOfVotes')];
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
             // miner and transfer the stakeAmount and dispute fee to the reporting party
-            if (disp.tally > 0) {
+            // the 2nd conditional will check if the amount of voters for this dispute is gte 10% of staked users
+            if (disp.tally > 0 && quorum <= 10) {
                 //Changing the currentStatus and startDate unstakes the reported miner and allows for the
                 //transfer of the stakeAmount
                 stakes.currentStatus = 0;
@@ -120,24 +121,6 @@ library ZapDispute {
                 //Decreases the stakerCount since the miner's stake is being slashed
                 self.uintVars[keccak256('stakerCount')]--;
                 updateDisputeFee(self);
-
-                //Transfers the StakeAmount from the reported miner to the reporting party
-                // ZapTransfer.doTransfer(
-                //     self,
-                //     disp.reportedMiner,
-                //     disp.reportingParty,
-                //     self.uintVars[keccak256('stakeAmount')]
-                // );
-
-
-                //Returns the dispute fee to the reporting party
-                // don't need to run this because tokens transfer will be an actual state change.
-                // ZapTransfer.doTransfer(
-                //     self,
-                //     address(this),
-                //     disp.reportingParty,
-                //     disp.disputeUintVars[keccak256('fee')]
-                // );
                 
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
@@ -165,15 +148,6 @@ library ZapDispute {
                 //Update the miner's current status to staked(currentStatus = 1)
                 stakes.currentStatus = 1;
 
-                //tranfer the dispute fee to the miner
-                // // token is transfer using token.transferFrom right after tallyVotes() in zap.sol
-                // ZapTransfer.doTransfer(
-                //     self,
-                //     address(this),
-                //     disp.reportedMiner,
-                //     disp.disputeUintVars[keccak256('fee')]
-                // );
-
                 if (
                     _request.inDispute[
                         disp.disputeUintVars[keccak256('timestamp')]
@@ -189,15 +163,16 @@ library ZapDispute {
                 // return (address(this), disp.reportedMiner, disputeFeeForDisputeId);
 
             }
-            //If the vote is for a proposed fork require a 20% quorum before exceduting the update to the new zap contract address
+            //If the vote is for a proposed fork require 35% quorum before executing the update to the new zap contract address
         } else {
             if (disp.tally > 0) {
                 require(
                     disp.disputeUintVars[keccak256('quorum')] >
-                        ((self.uintVars[keccak256('total_supply')] * 20) / 100)
+                        ((self.uintVars[keccak256('total_supply')] * 35) / 100)
                 );
-                self.addressVars[keccak256('zapContract')] = disp
-                .proposedForkAddress;
+                if (!disp.isZM) {
+                    self.addressVars[keccak256('zapContract')] = disp.proposedForkAddress;
+                }
                 disp.disputeVotePassed = true;
                 emit NewZapAddress(disp.proposedForkAddress);
             }
@@ -221,7 +196,8 @@ library ZapDispute {
      */
     function proposeFork(
         ZapStorage.ZapStorageStruct storage self,
-        address _propNewZapAddress
+        address _propNewZapAddress,
+        bool zm
     ) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
@@ -232,6 +208,7 @@ library ZapDispute {
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: true,
+            isZM: zm,
             reportedMiner: msg.sender,
             reportingParty: msg.sender,
             proposedForkAddress: _propNewZapAddress,

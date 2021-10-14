@@ -55,6 +55,15 @@ contract ZapMedia is
 
     bytes public collectionMetadata;
 
+    bytes32 private constant kecEIP712Domain =
+        keccak256(
+            'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
+        );
+
+    bytes32 private constant kecOne = keccak256(bytes('1'));
+
+    bytes32 private kecName;
+
     /* *********
      * Modifiers
      * *********
@@ -133,6 +142,8 @@ contract ZapMedia is
         _;
     }
 
+    address public testing;
+
     /**
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
@@ -149,28 +160,30 @@ contract ZapMedia is
         _init_ownable();
 
         access.marketContract = marketContractAddr;
-        IMarket zapMarket = IMarket(access.marketContract);
 
         bytes memory name_b = bytes(name);
-        bytes memory symbol_b = bytes(symbol);
 
         bytes32 name_b32;
-        bytes32 symbol_b32;
 
         assembly {
             name_b32 := mload(add(name_b, 32))
-            symbol_b32 := mload(add(symbol_b, 32))
         }
 
+        kecName = keccak256(name_b);
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
-        zapMarket.configure(msg.sender, address(this), name_b32, symbol_b32);
+        _registerInterface(type(IMedia).interfaceId);
 
-        access.approvedToMint[msg.sender] = true;
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
     }
-
+    
+    /**
+    *  @notice Returns a boolean, showing whether or not the given interfaceId is supported
+     * @dev This function is overriden from the ERC721 and ERC165 contract stack
+     * @param interfaceId a bytes4 formatted representation of a contract interface
+     * @return boolean dipicting whether or not the interface is supported
+    */
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -182,9 +195,7 @@ contract ZapMedia is
         )
         returns (bool)
     {
-        return
-            interfaceId == type(IMedia).interfaceId ||
-            _supportedInterfaces[interfaceId];
+        return super.supportsInterface(interfaceId);
     }
 
     /**
@@ -210,6 +221,11 @@ contract ZapMedia is
         _supportedInterfaces[interfaceId] = true;
     }
 
+    /// @notice TokenTransfer hook function
+    /// @dev called from ERC721 Enumerable Upgradeable contract, see here https://docs.openzeppelin.com/contracts/4.x/api/token/erc721#ERC721Enumerable-_beforeTokenTransfer-address-address-uint256-
+    /// @param from the current token owner, if this is the zero address, the token will be minted for `to`
+    /// @param to the receiver's wallet address, if this is the zero address, the token will be burned
+    /// @param tokenId token ID of the ERC721 to be transfered
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -229,6 +245,7 @@ contract ZapMedia is
 
     /**
      * @notice Return the metadata URI for a piece of media given the token URI
+     * @param tokenId the token whose metadata will be attached
      * @return the metadata URI for the token
      */
     function tokenMetadataURI(uint256 tokenId)
@@ -248,6 +265,8 @@ contract ZapMedia is
 
     /**
      * @notice see IMedia
+     * @dev mints an NFT and sets the bidshares for collaborators
+     * @param data The media's metadata and content data, includes content and metadata hash, and token's URI
      */
     function mint(MediaData memory data, IMarket.BidShares memory bidShares)
         public
@@ -255,7 +274,9 @@ contract ZapMedia is
         nonReentrant
     {
         require(
-            access.isPermissive || access.approvedToMint[msg.sender],
+            access.isPermissive ||
+                access.approvedToMint[msg.sender] ||
+                access.owner == msg.sender,
             'Media: Only Approved users can mint'
         );
         require(
@@ -273,7 +294,7 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia a
+     * @notice see IMedia
      */
     function mintWithSig(
         address creator,
@@ -353,7 +374,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
+        IMarket(access.marketContract).setAsk(tokenId, ask);
     }
 
     /**
@@ -366,7 +387,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).removeAsk(address(this), tokenId);
+        IMarket(access.marketContract).removeAsk(tokenId);
     }
 
     /**
@@ -378,18 +399,8 @@ contract ZapMedia is
         nonReentrant
         onlyExistingToken(tokenId)
     {
-        require(
-            msg.sender == bid.bidder,
-            // remove revert string before deployment to mainnet
-            'Market: Bidder must be msg sender'
-        );
-        address mediaContractAddress = address(this);
-        IMarket(access.marketContract).setBid(
-            mediaContractAddress,
-            tokenId,
-            bid,
-            msg.sender
-        );
+        require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
+        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
     }
 
     /**
@@ -401,12 +412,7 @@ contract ZapMedia is
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        address mediaContractAddress = address(this);
-        IMarket(access.marketContract).removeBid(
-            mediaContractAddress,
-            tokenId,
-            msg.sender
-        );
+        IMarket(access.marketContract).removeBid(tokenId, msg.sender);
     }
 
     /**
@@ -425,6 +431,7 @@ contract ZapMedia is
     /**
      * @notice Burn a token.
      * @dev Only callable if the media owner is also the creator.
+     * @param tokenId the ID of the token to burn
      */
     function burn(uint256 tokenId)
         public
@@ -548,6 +555,11 @@ contract ZapMedia is
      * *****************
      */
 
+    /// @notice Returns a bool depicting whether or not the i'th collaborator has shares
+    /// @dev Explain to a developer any extra details
+    /// @param index the "i'th collaborator"
+    /// @param bidShares the bidshares defined for the Collection's NFTs
+    /// @return Boolean that is true if the i'th collaborator has shares for this collection's NFTs
     function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
         internal
         pure
@@ -601,7 +613,7 @@ contract ZapMedia is
         tokens.previousTokenOwners[tokenId] = creator;
 
         IMarket(access.marketContract).setBidShares(
-            address(this),
+            // address(this),
             tokenId,
             bidShares
         );
@@ -662,7 +674,7 @@ contract ZapMedia is
         address to,
         uint256 tokenId
     ) internal override {
-        IMarket(access.marketContract).removeAsk(address(this), tokenId);
+        IMarket(access.marketContract).removeAsk(tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
     }
@@ -677,17 +689,12 @@ contract ZapMedia is
             chainID := chainid()
         }
 
-        ERC721Upgradeable mediaContract = ERC721Upgradeable(address(this));
-        string memory mediaName = mediaContract.name();
-
         return
             keccak256(
                 abi.encode(
-                    keccak256(
-                        'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-                    ),
-                    keccak256(bytes(mediaName)),
-                    keccak256(bytes('1')),
+                    kecEIP712Domain,
+                    kecName,
+                    kecOne,
                     chainID,
                     address(this)
                 )

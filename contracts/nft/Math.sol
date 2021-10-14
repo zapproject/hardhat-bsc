@@ -3,19 +3,17 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 /**
  * @title Math
  *
  * Library for non-standard Math functions
- * NOTE: This file is a clone of the dydx protocol's Decimal.sol contract.
+ * NOTE: This file is a clone of the dydx protocol's Math.sol contract.
  * It was forked from https://github.com/dydxprotocol/solo at commit
- * 2d8454e02702fe5bc455b848556660629c3cad36. It has not been modified other than to use a
- * newer solidity in the pragma to match the rest of the contract suite of this project.
+ * 2d8454e02702fe5bc455b848556660629c3cad36. It has two modifications
+ *      - uses a newer solidity in the pragma to match the rest of the contract suite of this project.
+ *      - Removed `Require.sol` dependency
  */
 library Math {
-    using SafeMath for uint256;
 
     // ============ Library Functions ============
 
@@ -27,7 +25,7 @@ library Math {
         uint256 numerator,
         uint256 denominator
     ) internal pure returns (uint256) {
-        return target.mul(numerator).div(denominator);
+        return target * (numerator / denominator);
     }
 
     /*
@@ -40,26 +38,26 @@ library Math {
     ) internal pure returns (uint256) {
         if (target == 0 || numerator == 0) {
             // SafeMath will check for zero denominator
-            return SafeMath.div(0, denominator);
+            return 0 / denominator;
         }
-        return target.mul(numerator).sub(1).div(denominator).add(1);
+        return target * ((numerator - 1) / denominator) + 1;
     }
 
     function to128(uint256 number) internal pure returns (uint128) {
         uint128 result = uint128(number);
-        require(result == number, "Math: Unsafe cast to uint128");
+        require(number<=type(uint128).max, "Math: Unsafe cast to uint128");
         return result;
     }
 
     function to96(uint256 number) internal pure returns (uint96) {
         uint96 result = uint96(number);
-        require(result == number, "Math: Unsafe cast to uint96");
+        require(number<=type(uint96).max, "Math: Unsafe cast to uint96");
         return result;
     }
 
     function to32(uint256 number) internal pure returns (uint32) {
         uint32 result = uint32(number);
-        require(result == number, "Math: Unsafe cast to uint32");
+        require(number<=type(uint32).max, "Math: Unsafe cast to uint32");
         return result;
     }
 

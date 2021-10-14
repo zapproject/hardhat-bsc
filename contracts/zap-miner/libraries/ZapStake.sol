@@ -65,7 +65,7 @@ library ZapStake {
         ZapStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
         //passed by since they locked for withdraw
-        // require(now - (now % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
+        require(now - (now % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
         require(stakes.currentStatus == 2, "Required to request withdraw of stake");
         stakes.currentStatus = 0;
 
@@ -98,7 +98,6 @@ library ZapStake {
     * and updates the number of stakers in the system.
     */
     function newStake(ZapStorage.ZapStorageStruct storage self, address staker) internal {
-        // require(ZapTransfer.balanceOf(self,staker) >= self.uintVars[keccak256("stakeAmount")]);
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "ZapStake: Either already staked or stake time frame ended");
@@ -108,8 +107,6 @@ library ZapStake {
             //this resets their stake start date to today
             startDate: now - (now % 86400)
         });
-        // self.uintVars[keccak256("stakeAmount")]
-        // ZapTransfer.updateBalanceAtNow(self.balances[staker], self.uintVars[keccak256("stakeAmount")]);
 
         emit NewStake(staker);
     }

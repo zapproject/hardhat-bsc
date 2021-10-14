@@ -8,8 +8,8 @@ import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
 import {
   keccak256,
-  formatBytes32String,
-  parseBytes32String
+  parseBytes32String,
+  formatBytes32String
 } from 'ethers/lib/utils';
 
 import { BigNumber, Bytes, EventFilter, Event } from 'ethers';
@@ -20,7 +20,13 @@ import { ZapMedia } from '../typechain/ZapMedia';
 
 import { ZapMarket } from '../typechain/ZapMarket';
 
+import { MediaFactory } from '../typechain/MediaFactory';
+
 import { ZapVault } from '../typechain/ZapVault';
+
+import { ZapMarket__factory } from "../typechain";
+
+import { deployJustMedias } from "./utils";
 
 chai.use(solidity);
 
@@ -67,6 +73,7 @@ describe('ZapMarket Test', () => {
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
   let zapVault: ZapVault;
+  let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
 
   let bidShares1 = {
@@ -132,7 +139,10 @@ describe('ZapMarket Test', () => {
     sellOnShare: 0
   };
 
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
   describe('#Configure', () => {
+    let zapMarketFactory: ZapMarket__factory;
 
     beforeEach(async () => {
 
@@ -150,7 +160,7 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
+      zapMarketFactory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
 
       zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
@@ -158,50 +168,21 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.setFee(platformFee);
 
-      const mediaFactory = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[1]
-      );
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-      zapMedia1 = (await upgrades.deployProxy(mediaFactory, [
-        'TEST MEDIA 1',
-        'TM1',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-      ])) as ZapMedia;
-      await zapMedia1.deployed();
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
 
-      const mediaFactory2 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
+      await mediaDeployer.deployed();
 
-      zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-        'TEST MEDIA 2',
-        'TM2',
-        zapMarket.address,
-        false,
-        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
-      ])) as ZapMedia;
+      await zapMarket.setMediaFactory(mediaDeployer.address);
 
-      await zapMedia2.deployed();
+      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      const mediaFactory3 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
-
-      zapMedia3 = (await upgrades.deployProxy(mediaFactory3, [
-        'Test MEDIA 3',
-        'TM3',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
-      ])) as ZapMedia;
-
-      await zapMedia3.deployed();
-
+      zapMedia1 = medias[0];
+      zapMedia2 = medias[1];
+      zapMedia3 = medias[2];
 
       ask1.currency = zapTokenBsc.address;
 
@@ -218,10 +199,17 @@ describe('ZapMarket Test', () => {
 
     });
 
+    describe("#Initialize", function () {
+
+      it("Should not initialize twice", async () => {
+        await expect(
+          zapMarket.initializeMarket(zapVault.address)).to.be.revertedWith("Initializable: contract is already initialized")
+      })
+    })
 
     it('Should get the platform fee', async () => {
 
-      const fee = await zapMarket.viewFee();
+      const fee = await zapMarket.connect(signers[10]).viewFee();
 
       expect(parseInt(fee.value._hex)).to.equal(parseInt(platformFee.fee.value._hex));
 
@@ -264,6 +252,7 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should get collection metadata', async () => {
+
       const metadata1 = await zapMedia1.collectionMetadata();
       const metadata2 = await zapMedia2.collectionMetadata();
       const metadata3 = await zapMedia3.collectionMetadata();
@@ -279,6 +268,7 @@ describe('ZapMarket Test', () => {
       expect(ethers.utils.toUtf8String(metadata3)).to.equal(
         'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
       );
+
     });
 
     it('Should get media owner', async () => {
@@ -287,7 +277,6 @@ describe('ZapMarket Test', () => {
         signers[1].address,
         BigNumber.from('0')
       );
-
       const zapMedia2Address = await zapMarket.mediaContracts(
         signers[2].address,
         BigNumber.from('0')
@@ -299,17 +288,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should reject if called twice', async () => {
-      await expect(
-        zapMarket
-          .connect(signers[1])
-          .configure(
-            signers[1].address,
-            zapMedia1.address,
-            formatBytes32String('TEST MEDIA 1'),
-            formatBytes32String('TM1')
-          )
-      ).to.be.revertedWith('Market: Already configured');
+    it('Should reject if not called from Media Factory', async () => {
 
       await expect(
         zapMarket
@@ -320,7 +299,7 @@ describe('ZapMarket Test', () => {
             formatBytes32String('TEST MEDIA 2'),
             formatBytes32String('TM2')
           )
-      ).to.be.revertedWith('Market: Already configured');
+      ).to.be.revertedWith('Market: Only the media factory can do this action');
 
       await expect(
         zapMarket
@@ -331,7 +310,7 @@ describe('ZapMarket Test', () => {
             formatBytes32String('TEST MEDIA 3'),
             formatBytes32String('TM3')
           )
-      ).to.be.revertedWith('Market: Already configured');
+      ).to.be.revertedWith('Market: Only the media factory can do this action');
 
       expect(await zapMarket.isConfigured(zapMedia1.address)).to.be.true;
 
@@ -342,20 +321,22 @@ describe('ZapMarket Test', () => {
     it('Should emit a MediaContractCreated event on media contract deployment', async () => {
 
       const zapMarketFilter: EventFilter =
-        zapMarket.filters.MediaContractCreated(zapMedia1.address, null, null);
+        zapMarket.filters.MediaContractCreated(null, null, null);
 
-      const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
 
-      expect(event).to.not.be.undefined;
+      expect(event1).to.not.be.undefined;
+      expect(event1.event).to.eq('MediaContractCreated');
+      expect(event1.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(parseBytes32String(event1.args?.name)).to.eq('TEST MEDIA 1');
+      expect(parseBytes32String(event1.args?.symbol)).to.eq('TM1');
 
-
-      expect(event.event).to.eq('MediaContractCreated');
-
-      expect(event.args?.mediaContract).to.eq(zapMedia1.address);
-
-      expect(parseBytes32String(event.args?.name)).to.eq('TEST MEDIA 1');
-
-      expect(parseBytes32String(event.args?.symbol)).to.eq('TM1');
+      expect(event2).to.not.be.undefined;
+      expect(event2.event).to.eq('MediaContractCreated');
+      expect(event2.args?.mediaContract).to.eq(zapMedia2.address);
+      expect(parseBytes32String(event2.args?.name)).to.eq('TEST MEDIA 2');
+      expect(parseBytes32String(event2.args?.symbol)).to.eq('TM2');
 
     });
 
@@ -389,50 +370,17 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.setFee(platformFee);
 
-      const mediaFactory = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[1]
-      );
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      zapMedia1 = (await upgrades.deployProxy(mediaFactory, [
-        'TEST MEDIA 1',
-        'TM1',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-      ])) as ZapMedia;
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
 
-      await zapMedia1.deployed();
+      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      const mediaFactory2 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
-
-      zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-        'TEST MEDIA 2',
-        'TM2',
-        zapMarket.address,
-        false,
-        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
-      ])) as ZapMedia;
-
-      await zapMedia2.deployed();
-
-      const mediaFactory3 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[3]
-      );
-
-      zapMedia3 = (await upgrades.deployProxy(mediaFactory3, [
-        'Test MEDIA 3',
-        'TM3',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
-      ])) as ZapMedia;
-
-      await zapMedia3.deployed();
+      zapMedia1 = medias[0];
+      zapMedia2 = medias[1];
+      zapMedia3 = medias[2];
 
       ask1.currency = zapTokenBsc.address;
 
@@ -466,15 +414,21 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
-        zapMedia1.address
+        null
       );
 
-      const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
 
-      expect(event).to.not.be.undefined;
-      expect(event.event).to.eq('Minted');
-      expect(event.args?.token).to.eq(0);
-      expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(event1).to.not.be.undefined;
+      expect(event1.event).to.eq('Minted');
+      expect(event1.args?.token).to.eq(0);
+      expect(event1.args?.mediaContract).to.eq(zapMedia1.address);
+
+      expect(event2).to.not.be.undefined;
+      expect(event2.event).to.eq('Minted');
+      expect(event2.args?.token).to.eq(0);
+      expect(event2.args?.mediaContract).to.eq(zapMedia2.address);
 
     });
 
@@ -485,18 +439,21 @@ describe('ZapMarket Test', () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Burned(
         0,
-        zapMedia1.address
+        null
       );
 
-      const event: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event1: Event = (await zapMarket.queryFilter(zapMarketFilter))[0];
+      const event2: Event = (await zapMarket.queryFilter(zapMarketFilter))[1];
 
-      expect(event).to.not.be.undefined;
+      expect(event1).to.not.be.undefined;
+      expect(event1.event).to.eq('Burned');
+      expect(event1.args?.token).to.eq(0);
+      expect(event1.args?.mediaContract).to.eq(zapMedia1.address);
 
-      expect(event.event).to.eq('Burned');
-
-      expect(event.args?.token).to.eq(0);
-
-      expect(event.args?.mediaContract).to.eq(zapMedia1.address);
+      expect(event2).to.not.be.undefined;
+      expect(event2.event).to.eq('Burned');
+      expect(event2.args?.token).to.eq(0);
+      expect(event2.args?.mediaContract).to.eq(zapMedia2.address);
 
     });
 
@@ -505,13 +462,13 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMarket
           .connect(signers[3])
-          .setBidShares(zapMedia1.address, 1, bidShares1)
+          .setBidShares(1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
         zapMarket
           .connect(signers[4])
-          .setBidShares(zapMedia2.address, 1, bidShares1)
+          .setBidShares(1, bidShares1)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
@@ -528,11 +485,6 @@ describe('ZapMarket Test', () => {
         0
       );
 
-      const upgradedShares2 = await zapMarket.bidSharesForToken(
-        zapMedia2.address,
-        0
-      );
-
       expect(sharesForToken1.creator.value).to.be.equal(
         bidShares1.creator.value
       );
@@ -543,33 +495,69 @@ describe('ZapMarket Test', () => {
         bidShares2.creator.value
       );
 
-      expect(upgradedShares2.creator.value).to.be.equal(
-        bidShares2.creator.value
-      );
-
       expect(sharesForToken2.owner.value).to.be.equal(bidShares2.owner.value);
 
-      expect(upgradedShares2.owner.value).to.be.equal(bidShares2.owner.value);
+      for (var i = 0.; i < sharesForToken1.collaborators.length; i++) {
+
+        expect(sharesForToken1.collaborators[i]).to.equal(bidShares1.collaborators[i]);
+
+        expect(sharesForToken2.collaborators[i]).to.equal(bidShares2.collaborators[i]);
+
+        expect(parseInt(sharesForToken1.collabShares[i]._hex)).to
+          .equal(parseInt(bidShares1.collabShares[i]._hex));
+
+        expect(parseInt(sharesForToken2.collabShares[i]._hex)).to
+          .equal(parseInt(bidShares2.collabShares[i]._hex));
+
+      }
 
     });
 
     it('Should emit an event when bid shares are updated', async () => {
 
-      const receipt1 = await mint_tx1.wait();
+      const filter_media: EventFilter = zapMarket.filters.BidShareUpdated(
+        null,
+        null,
+        null
+      );
 
-      const eventLog1 = receipt1.events[0];
+      const event_media1: Event = (
+        await zapMarket.queryFilter(filter_media)
+      )[0];
 
-      const receipt2 = await mint_tx2.wait();
+      const event_media2: Event = (
+        await zapMarket.queryFilter(filter_media)
+      )[1];
 
-      const eventLog2 = receipt2.events[0];
+      expect(event_media1.event).to.be.equal("BidShareUpdated");
+      expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
 
-      expect(eventLog1.event).to.be.equal('Transfer');
+      expect(event_media1.args?.bidShares.creator.value).
+        to.equal(bidShares1.creator.value);
 
-      expect(eventLog1.args.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media1.args?.bidShares.owner.value).
+        to.equal(bidShares1.owner.value);
 
-      expect(eventLog2.event).to.be.equal('Transfer');
+      expect(event_media2.event).to.be.equal("BidShareUpdated");
+      expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
 
-      expect(eventLog2.args.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media2.args?.bidShares.creator.value).
+        to.equal(bidShares2.creator.value);
+
+      expect(event_media2.args?.bidShares.owner.value).
+        to.equal(bidShares2.owner.value);
+
+      for (var i = 0; i < event_media1.args?.bidShares.collaborators.length; i++) {
+
+        expect(event_media1.args?.bidShares.collaborators[i]).to.be.equal(bidShares1.collaborators[i]);
+
+        expect(event_media1.args?.bidShares.collabShares[i]).to.be.equal(bidShares1.collabShares[i]);
+
+        expect(event_media2.args?.bidShares.collaborators[i]).to.be.equal(bidShares2.collaborators[i]);
+
+        expect(event_media2.args?.bidShares.collabShares[i]).to.be.equal(bidShares2.collabShares[i]);
+
+      }
 
     });
 
@@ -600,6 +588,11 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia1.connect(signers[1]).mint(data, invalidBidShares)
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
+
+      await expect(
+        zapMedia2.connect(signers[2]).mint(data, invalidBidShares)
+      ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
+
     });
 
   });
@@ -630,49 +623,19 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.setFee(platformFee);
 
-      const mediaFactory = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[1]
-      );
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      zapMedia1 = (await upgrades.deployProxy(mediaFactory, [
-        'TEST MEDIA 1',
-        'TM1',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-      ])) as ZapMedia;
-      await zapMedia1.deployed();
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
 
-      const mediaFactory2 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
+      zapMarket.setMediaFactory(mediaDeployer.address);
 
-      zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-        'TEST MEDIA 2',
-        'TM2',
-        zapMarket.address,
-        false,
-        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
-      ])) as ZapMedia;
+      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      await zapMedia2.deployed();
-
-      const mediaFactory3 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
-
-      zapMedia3 = (await upgrades.deployProxy(mediaFactory3, [
-        'Test MEDIA 3',
-        'TM3',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
-      ])) as ZapMedia;
-
-      await zapMedia3.deployed();
+      zapMedia1 = medias[0];
+      zapMedia2 = medias[1];
+      zapMedia3 = medias[2];
 
       ask1.currency = zapTokenBsc.address;
       ask2.currency = zapTokenBsc.address;
@@ -705,37 +668,34 @@ describe('ZapMarket Test', () => {
 
     it('Should reject if not called by the media address', async () => {
       await expect(
-        zapMarket.connect(signers[5]).setAsk(zapMedia1.address, 1, ask1)
+        zapMarket.connect(signers[5]).setAsk(1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
-        zapMarket.connect(signers[5]).setAsk(zapMedia2.address, 1, ask1)
+        zapMarket.connect(signers[5]).setAsk(1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
 
     it('Should set the ask if called by the media address', async () => {
-      await zapMedia1.connect(signers[1]).setAsk(0, ask1);
 
+      await zapMedia1.connect(signers[1]).setAsk(0, ask1);
       await zapMedia2.connect(signers[2]).setAsk(0, ask2);
 
       const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 0);
-
       const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 0);
 
       expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
-
       expect(getAsk2.amount.toNumber()).to.equal(ask2.amount);
-
       expect(getAsk1.currency).to.equal(zapTokenBsc.address);
+      expect(getAsk2.currency).to.equal(zapTokenBsc.address);
 
     });
 
     it('Should emit an event if the ask is updated', async () => {
 
-      const askTx1 = await zapMedia1.connect(signers[1]).setAsk(0, ask1);
-
-      const askTx2 = await zapMedia2.connect(signers[2]).setAsk(0, ask2);
+      await zapMedia1.connect(signers[1]).setAsk(0, ask1);
+      await zapMedia2.connect(signers[2]).setAsk(0, ask2);
 
       const filter_media1: EventFilter = zapMarket.filters.AskCreated(
         zapMedia1.address,
@@ -758,24 +718,19 @@ describe('ZapMarket Test', () => {
       )[0];
 
       expect(event_media1.event).to.be.equal('AskCreated');
-
       expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
-
       expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
-
       expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
       expect(event_media2.event).to.be.equal('AskCreated');
-
       expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
-
       expect(event_media2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
-
       expect(event_media2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
     });
 
     it('Should reject if the ask is too low', async () => {
+
       await expect(
         zapMedia1.connect(signers[1]).setAsk(0, {
           amount: 1,
@@ -789,7 +744,89 @@ describe('ZapMarket Test', () => {
           currency: zapTokenBsc.address
         })
       ).to.be.revertedWith('Market: Ask invalid for share splitting');
+
     });
+
+    it("Should remove an ask", async () => {
+
+      await zapMedia1.connect(signers[1]).setAsk(0, ask1);
+      await zapMedia2.connect(signers[2]).setAsk(0, ask2);
+
+      const filter_media1: EventFilter = zapMarket.filters.AskCreated(
+        zapMedia1.address,
+        null,
+        null
+      );
+
+      const filter_media2: EventFilter = zapMarket.filters.AskCreated(
+        zapMedia2.address,
+        null,
+        null
+      );
+
+      const event_media1: Event = (
+        await zapMarket.queryFilter(filter_media1)
+      )[0];
+
+      const event_media2: Event = (
+        await zapMarket.queryFilter(filter_media2)
+      )[0];
+
+      expect(event_media1.event).to.be.equal('AskCreated');
+      expect(event_media1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+      expect(event_media2.event).to.be.equal('AskCreated');
+      expect(event_media2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_media2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
+      expect(event_media2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+      await zapMedia1.removeAsk(0);
+      await zapMedia2.removeAsk(0);
+
+      const filter_removeAsk1: EventFilter = zapMarket.filters.AskRemoved(
+        null,
+        null,
+        null
+      );
+
+      const filter_removeAsk2: EventFilter = zapMarket.filters.AskRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_removeAsk1: Event = (
+        await zapMarket.queryFilter(filter_removeAsk1)
+      )[0]
+
+      expect(event_removeAsk1.event).to.be.equal('AskRemoved');
+      expect(event_removeAsk1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeAsk1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_removeAsk1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeAsk1.args?.mediaContract).to.be.equal(zapMedia1.address)
+
+      const event_removeAsk2: Event = (
+        await zapMarket.queryFilter(filter_removeAsk2)
+      )[1]
+
+      expect(event_removeAsk2.event).to.be.equal('AskRemoved');
+      expect(event_removeAsk2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeAsk2.args?.ask.amount.toNumber()).to.be.equal(ask2.amount);
+      expect(event_removeAsk2.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeAsk2.args?.mediaContract).to.be.equal(zapMedia2.address);
+
+      const getAsk1 = await zapMarket.currentAskForToken(zapMedia1.address, 0);
+      const getAsk2 = await zapMarket.currentAskForToken(zapMedia2.address, 0);
+
+      expect(getAsk1.amount.toNumber()).to.be.equal(0);
+      expect(getAsk1.currency).to.be.equal('0x0000000000000000000000000000000000000000');
+
+      expect(getAsk2.amount.toNumber()).to.be.equal(0);
+      expect(getAsk2.currency).to.be.equal('0x0000000000000000000000000000000000000000');
+
+    })
 
   });
 
@@ -821,48 +858,19 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.setFee(platformFee);
 
-      const mediaFactory = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[1]
-      );
-      zapMedia1 = (await upgrades.deployProxy(mediaFactory, [
-        'TEST MEDIA 1',
-        'TM1',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
-      ])) as ZapMedia;
-      await zapMedia1.deployed();
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      const mediaFactory2 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
 
-      zapMedia2 = (await upgrades.deployProxy(mediaFactory2, [
-        'TEST MEDIA 2',
-        'TM2',
-        zapMarket.address,
-        false,
-        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
-      ])) as ZapMedia;
+      zapMarket.setMediaFactory(mediaDeployer.address);
 
-      await zapMedia2.deployed();
+      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      const mediaFactory3 = await ethers.getContractFactory(
-        'ZapMedia',
-        signers[2]
-      );
-
-      zapMedia3 = (await upgrades.deployProxy(mediaFactory3, [
-        'Test MEDIA 3',
-        'TM3',
-        zapMarket.address,
-        false,
-        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
-      ])) as ZapMedia;
-
-      await zapMedia3.deployed();
+      zapMedia1 = medias[0];
+      zapMedia2 = medias[1];
+      zapMedia3 = medias[2];
 
       bid1 = {
         amount: 200,
@@ -913,16 +921,17 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should revert if not called by the media contract', async () => {
+
       await expect(
         zapMarket
           .connect(signers[2])
-          .setBid(zapMedia1.address, 0, bid1, bid1.spender)
+          .setBid(0, bid1, bid1.spender)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
         zapMarket
           .connect(signers[1])
-          .setBid(zapMedia2.address, 0, bid2, bid2.spender)
+          .setBid(0, bid2, bid2.spender)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
@@ -934,6 +943,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount - 1);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount - 1);
@@ -945,6 +955,7 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia2.connect(signers[2]).setBid(0, bid2)
       ).to.be.revertedWith('SafeERC20: low-level call failed');
+
     });
 
     it('Should revert if the bidder does not have enough tokens to bid with', async () => {
@@ -954,6 +965,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount);
@@ -968,6 +980,7 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should revert if the bid currency is 0 address', async () => {
+
       await zapTokenBsc.mint(bid1.bidder, bid1.amount);
       await zapTokenBsc.mint(bid2.bidder, bid2.amount);
 
@@ -984,6 +997,7 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia2.connect(signers[2]).setBid(0, bid2)
       ).to.be.revertedWith('Market: bid currency cannot be 0 address');
+
     });
 
     it('Should revert if the bid recipient is 0 address', async () => {
@@ -993,6 +1007,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount - 1);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount - 1);
@@ -1007,6 +1022,7 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMedia2.connect(signers[2]).setBid(0, bid2)
       ).to.be.revertedWith('Market: bid recipient cannot be 0 address');
+
     });
 
     it('Should revert if the bidder bids 0 tokens', async () => {
@@ -1016,6 +1032,7 @@ describe('ZapMarket Test', () => {
       await zapTokenBsc
         .connect(signers[1])
         .approve(zapMarket.address, bid1.amount);
+
       await zapTokenBsc
         .connect(signers[2])
         .approve(zapMarket.address, bid2.amount);
@@ -1273,7 +1290,7 @@ describe('ZapMarket Test', () => {
       const owner2PreSet = await zapTokenBsc.balanceOf(signers[2].address);
 
       await zapMedia1.setBid(0, bid1);
-      await zapMedia2.setBid(0, bid2);
+      await zapMedia2.setBid(0, bid2)
 
       const owner1PostSet = await zapTokenBsc.balanceOf(signers[1].address);
       expect(parseInt(owner1PostSet._hex)).to.equal(parseInt(owner1PreSet._hex) - bid1.amount);
@@ -1320,5 +1337,60 @@ describe('ZapMarket Test', () => {
       expect(parseInt(collabFourPostBal._hex)).to.equal((15 / 100) * (bid1.amount + bid2.amount));
 
     })
+
+    it("Should remove a bid", async () => {
+
+      await zapTokenBsc.mint(signers[1].address, 5000);
+      await zapTokenBsc.mint(signers[2].address, 5000);
+
+      await zapTokenBsc.connect(signers[1]).approve(zapMarket.address, 10000);
+      await zapTokenBsc.connect(signers[2]).approve(zapMarket.address, 10000);
+
+      await zapMedia1.setBid(0, bid1);
+
+      await zapMedia1.removeBid(0);
+
+      const filter_removeBid1: EventFilter = zapMarket.filters.BidRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_removeBid1: Event = (
+        await zapMarket.queryFilter(filter_removeBid1)
+      )[0]
+
+      expect(event_removeBid1.event).to.be.equal("BidRemoved")
+      expect(event_removeBid1.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeBid1.args?.bid.amount.toNumber()).to.be.equal(bid1.amount);
+      expect(event_removeBid1.args?.bid.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeBid1.args?.bid.bidder).to.be.equal(bid1.bidder);
+      expect(event_removeBid1.args?.bid.recipient).to.be.equal(bid1.recipient);
+      expect(event_removeBid1.args?.mediaContract).to.be.equal(zapMedia1.address);
+
+      await zapMedia2.setBid(0, bid2);
+      await zapMedia2.removeBid(0)
+
+      const filter_removeBid2: EventFilter = zapMarket.filters.BidRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_removeBid2: Event = (
+        await zapMarket.queryFilter(filter_removeBid2)
+      )[1]
+
+      expect(event_removeBid2.event).to.be.equal("BidRemoved")
+      expect(event_removeBid2.args?.tokenId.toNumber()).to.be.equal(0);
+      expect(event_removeBid2.args?.bid.amount.toNumber()).to.be.equal(bid2.amount);
+      expect(event_removeBid2.args?.bid.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeBid2.args?.bid.bidder).to.be.equal(bid2.bidder);
+      expect(event_removeBid2.args?.bid.recipient).to.be.equal(bid2.recipient);
+      expect(event_removeBid2.args?.mediaContract).to.be.equal(zapMedia2.address);
+
+
+    })
+
   });
 });

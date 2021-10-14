@@ -118,8 +118,7 @@ interface IMarket {
     function isRegistered(address mediaContractAddress)
         external
         view
-        returns (bool
-    );
+        returns (bool);
 
     function configure(
         address deployer,
@@ -128,17 +127,11 @@ interface IMarket {
         bytes32 symbol
     ) external;
 
-    function revokeRegistration(
-        address mediaContract
-    ) external;
+    function revokeRegistration(address mediaContract) external;
 
-    function registerMedia(
-        address mediaContract
-    ) external;
+    function registerMedia(address mediaContract) external;
 
-    function setMediaFactory(
-        address _mediaFactory
-    ) external;
+    function setMediaFactory(address _mediaFactory) external;
 
     function mintOrBurn(
         bool isMint,
@@ -146,32 +139,20 @@ interface IMarket {
         address mediaContract
     ) external;
 
-    function setBidShares(
-        address mediaContractAddress,
-        uint256 tokenId,
-        BidShares calldata bidShares
-    ) external;
+    function setBidShares(uint256 tokenId, BidShares calldata bidShares)
+        external;
 
-    function setAsk(
-        address mediaContractAddress,
-        uint256 tokenId,
-        Ask calldata ask
-    ) external;
+    function setAsk(uint256 tokenId, Ask calldata ask) external;
 
-    function removeAsk(address mediaContractAddress, uint256 tokenId) external;
+    function removeAsk(uint256 tokenId) external;
 
     function setBid(
-        address mediaContractAddress,
         uint256 tokenId,
         Bid calldata bid,
         address spender
     ) external;
 
-    function removeBid(
-        address mediaContractAddress,
-        uint256 tokenId,
-        address bidder
-    ) external;
+    function removeBid(uint256 tokenId, address bidder) external;
 
     function acceptBid(
         address mediaContractAddress,

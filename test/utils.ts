@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ethers, upgrades } from "hardhat";
 import {
-  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC
+  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, ZapMarket__factory
 } from "../typechain"
 import {
   BadBidder,
@@ -9,10 +9,13 @@ import {
   WETH,
   BadERC721,
   TestERC721,
+  MediaFactory
 } from "../typechain";
 import { keccak256 } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
+import { ContractFactory, Event } from "@ethersproject/contracts";
 import { fromRpcSig } from 'ethereumjs-util';
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 
 export default class Decimal {
@@ -60,6 +63,94 @@ export const deployOtherNFTs = async () => {
   return { bad, test };
 };
 
+export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, mediaDeploy: MediaFactory) => {
+  await zapMarket.setMediaFactory(mediaDeploy.address);
+
+  const mediaArgs = [
+    {
+      name: "TEST MEDIA 1",
+      symbol: "TM1",
+      marketContractAddr: zapMarket.address,
+      permissive: true,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    },
+    {
+      name: "TEST MEDIA 2",
+      symbol: "TM2",
+      marketContractAddr: zapMarket.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+    },
+    {
+      name: "TEST MEDIA 2",
+      symbol: "TM2",
+      marketContractAddr: zapMarket.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+    }
+  ]
+
+  const medias: ZapMedia[] = [];
+  const mediaDeployers = [
+    signers[1],
+    signers[2],
+    signers[3]
+  ];
+
+
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
+  for (let i = 0; i < mediaArgs.length; i++) {
+    const args = mediaArgs[i];
+    await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
+    );
+
+    filter = mediaDeploy.filters.MediaDeployed(null);
+    eventLog = (await mediaDeploy.queryFilter(filter))[i];
+    mediaAddress = eventLog.args?.mediaContract;
+
+    medias.push(
+      new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMedia
+    );
+  }
+
+  return medias
+}
+
+export const deployOneMedia = async (signer: SignerWithAddress, zapMarket: ZapMarket, fact: MediaFactory, q: number) => {
+  const mediaArgs = {
+    name: "TEST MEDIA " + `${q}`,
+    symbol: "TM" + `${q}`,
+    marketContractAddr: zapMarket.address,
+    permissive: false,
+    _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+  }
+
+  let media: ZapMedia;
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
+  await fact.deployMedia(
+    mediaArgs.name, mediaArgs.symbol,
+    mediaArgs.marketContractAddr, mediaArgs.permissive,
+    mediaArgs._collectionMetadata
+  );
+
+  filter = fact.filters.MediaDeployed(null);
+  eventLog = (await fact.queryFilter(filter))[0];
+  mediaAddress = eventLog.args?.mediaContract;
+  
+  media = new ethers.Contract(mediaAddress, zmABI, signer) as ZapMedia;
+
+  return media;
+}
+
 export const deployZapNFTMarketplace = async () => {
   let market: ZapMarket
   let media1: ZapMedia
@@ -67,6 +158,7 @@ export const deployZapNFTMarketplace = async () => {
   let media3: ZapMedia
   let zapVault: ZapVault
   let zapTokenBsc: ZapTokenBSC
+  let mediaFactory: MediaFactory
 
   let platformFee = {
 
@@ -101,45 +193,60 @@ export const deployZapNFTMarketplace = async () => {
 
   await market.setFee(platformFee);
 
-  const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
+  const mediaFactoryFactory = await ethers.getContractFactory("MediaFactory", deployer0);
+  mediaFactory = (await upgrades.deployProxy(mediaFactoryFactory, [market.address], { initializer: "initialize" })) as MediaFactory;
+  await market.setMediaFactory(mediaFactory.address);
 
-  media1 = await (
-    await upgrades.deployProxy(mediaFactory1, [
-      "Test Media 1",
-      "TM1",
-      market.address,
-      true,
-      "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
-    ])
-  ).deployed() as ZapMedia;
+  const mediaArgs = [
+    {
+      name: "Test Media 1",
+      symbol: "TM1",
+      marketContractAddr: market.address,
+      permissive: true,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    },
+    {
+      name: "Test Media 1",
+      symbol: "TM1",
+      marketContractAddr: market.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+    },
+    {
+      name: "Test Media 1",
+      symbol: "TM1",
+      marketContractAddr: market.address,
+      permissive: false,
+      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+    }
+  ]
 
-  const mediaFactory2 = await ethers.getContractFactory("ZapMedia", deployer2);
-  media2 = await (
-    await upgrades.deployProxy(mediaFactory2,
-      [
-        "Test Media 1",
-        "TM1",
-        market.address,
-        false,
-        "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
-      ])
-  ).deployed() as ZapMedia;
-
-  const mediaFactory3 = await ethers.getContractFactory("ZapMedia", deployer3);
-  media3 = await (
-    await upgrades.deployProxy(mediaFactory3,
-      [
-        "Test Media 1",
-        "TM1",
-        market.address,
-        false,
-        "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-      ]
-    )
-  ).deployed() as ZapMedia;
+  const medias: ZapMedia[] = [];
+  const mediaDeployers = [
+    deployer1, deployer2, deployer3
+  ];
 
 
-  return { market, media1, media2, media3, zapTokenBsc, zapVault };
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
+  for (let i = 0; i < mediaArgs.length; i++) {
+    const args = mediaArgs[i];
+    await mediaFactory.connect(mediaDeployers[i]).deployMedia(
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
+    );
+
+    filter = mediaFactory.filters.MediaDeployed(null);
+    eventLog = (await mediaFactory.queryFilter(filter))[i];
+    mediaAddress = eventLog.args?.mediaContract;
+
+    medias.push(
+      new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMedia
+    );
+  }
+  return { market, medias, zapTokenBsc, zapVault, mediaFactory };
 };
 
 export const deployBidder = async (auction: string, nftContract: string) => {
@@ -208,22 +315,23 @@ export const revert = (messages: TemplateStringsArray) =>
   `VM Exception while processing transaction: revert ${messages[0]}`;
 
 export async function signPermit(
-  zapMedia1: ZapMedia,
+  zapMedia: ZapMedia,
   toAddress: any,
   signers: any,
   tokenId: any,
   version: string
 ) {
-  const nonce = (await zapMedia1.getPermitNonce(signers[3].address, tokenId)).toNumber();
+  const nonce = (await zapMedia.getPermitNonce(signers[4].address, tokenId)).toNumber();
+
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-  const name = await zapMedia1.name();
+  const name = await zapMedia.name();
 
   const chainId = await signers[5].getChainId();
   const domain = {
     name,
     version,
     chainId,
-    verifyingContract: zapMedia1.address,
+    verifyingContract: zapMedia.address,
   };
   const types = {
     Permit: [
@@ -239,16 +347,16 @@ export async function signPermit(
     nonce,
     deadline,
   };
-  let sig = await signers[3]._signTypedData(
+  let sig = await signers[4]._signTypedData(
     domain,
     types,
     value
   );
   sig = fromRpcSig(sig);
   sig = {
+    v: sig.v,
     r: sig.r,
     s: sig.s,
-    v: sig.v,
     deadline: deadline.toString(),
   }
 
@@ -256,23 +364,23 @@ export async function signPermit(
 }
 
 export async function signMintWithSig(
-  zapMedia1: ZapMedia,
+  zapMedia: ZapMedia,
   signers: any,
   contentHash: any,
   metadataHash: any,
   version: string
 ) {
-  const nonce = (await zapMedia1.getSigNonces(signers[1].address)).toNumber();
+  const nonce = (await zapMedia.getSigNonces(signers[1].address)).toNumber();
   const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
-  const name = await zapMedia1.name();
+  const name = await zapMedia.name();
 
   const chainId = await signers[1].getChainId();
-  const creatorShare = BigInt(10000000000000000000);
+  const creatorShare = BigInt(15000000000000000000);
   const domain = {
     name,
     version,
     chainId,
-    verifyingContract: zapMedia1.address,
+    verifyingContract: zapMedia.address,
   };
   const types = {
     MintWithSig: [
@@ -297,9 +405,11 @@ export async function signMintWithSig(
   );
   sig = fromRpcSig(sig);
   sig = {
+
     r: sig.r,
     s: sig.s,
     v: sig.v,
+
     deadline: deadline.toString(),
   }
   return sig;

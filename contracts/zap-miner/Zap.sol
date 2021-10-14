@@ -116,7 +116,7 @@ contract Zap {
 
         //ensure the msg.sender is staked and not in dispute
         require(token.balanceOf(msg.sender) > zap.uintVars[keccak256('disputeFee')], "You do not have a balance to dispute.");
-        require(zap.stakerDetails[msg.sender].currentStatus != 3, "You must not be in dispute to begin one.");
+        
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute
@@ -144,6 +144,7 @@ contract Zap {
         zap.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: false,
+            isZM: false,
             reportedMiner: _miner,
             reportingParty: msg.sender,
             proposedForkAddress: address(0),
@@ -206,16 +207,37 @@ contract Zap {
 
         (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
-        approve(_from, _disputeFee);
-        transferFrom(_from, _to, _disputeFee);
+        ZapStorage.Dispute storage disp = zap.disputesById[_disputeId];
+        bytes memory data;
+
+        if (!disp.isPropFork) {
+            // If this is a normal dispute, send the winners amount to their wallet
+            data = abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                _to, _disputeFee);
+            _callOptionalReturn(token, data);
+
+        }
+
+        if (disp.isZM) {
+            // If this is fork proposal for changing ZapMaster, transfer the zapMaster
+            // total balance of current ZapMaster
+            uint256 zapBalance = token.balanceOf(address(this));
+
+            data = abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                disp.proposedForkAddress, zapBalance);
+            // transfer `zapBalance` ZAP from current ZapMaster to new ZapMaster
+            _callOptionalReturn(token, data);
+        }
     }
 
     /**
      * @dev Allows for a fork to be proposed
      * @param _propNewZapAddress address for new proposed Zap
      */
-    function proposeFork(address _propNewZapAddress) external {
-        zap.proposeFork(_propNewZapAddress);
+    function proposeFork(address _propNewZapAddress, bool isZM) external {
+        zap.proposeFork(_propNewZapAddress, isZM);
             transferFrom(
                 msg.sender,
                 zap.addressVars[keccak256("_owner")],
@@ -317,16 +339,13 @@ contract Zap {
             // Pay the miners
             for (uint256 i = 0; i < 5; i++) {
                 if (a[i].miner != address(0)){
-                    token.approve(address(this), minerReward);
-                    transferFrom(address(this), address(vault), minerReward);
+                    transfer(address(vault), minerReward);
                     vault.deposit(a[i].miner, minerReward);
                 }
             }
 
             // Pay the devshare
-            token.approve(address(this), zap.uintVars[keccak256('devShare')]);
-            transferFrom(
-                address(this),
+            transfer(
                 zap.addressVars[keccak256('_owner')],
                 zap.uintVars[keccak256('devShare')]
             );
@@ -446,7 +465,7 @@ contract Zap {
      */
     function addTip(uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0);
-        require(_tip <= 1000, "Tip cannot be greater than 1000 Zap Tokens.");
+        require(_tip <= 10000 * 1e18, "Tip cannot be greater than 1000 Zap Tokens.");
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {

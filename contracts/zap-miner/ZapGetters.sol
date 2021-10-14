@@ -22,6 +22,7 @@ contract ZapGetters {
 
     constructor(address zapTokenBsc) public {
         token = ZapTokenBSC(zapTokenBsc);
+        zap.addressVars[keccak256('zapTokenContract')] = zapTokenBsc;
     }
 
     /**
