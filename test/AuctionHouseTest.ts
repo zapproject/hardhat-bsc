@@ -26,7 +26,6 @@ import {
   TWO_ETH,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { signPermitMessage } from "@zoralabs/zdk";
 
 describe("AuctionHouse", () => {
   let market: ZapMarket;
@@ -109,9 +108,9 @@ describe("AuctionHouse", () => {
       );
 
       // ASSERTION NOT NEEDED AT THE MOMENT DUE TO THE CONSTRUCTOR ONLY ACCEPTING A TOKEN ADDRESS
-      // expect(await auctionHouse.zora()).to.eq(
+      // expect(await auctionHouse.zap()).to.eq(
       //   media1.address,
-      //   "incorrect zora address"
+      //   "incorrect zap address"
       // );
 
       expect(parseInt(await auctionHouse.timeBuffer(), 0)).to.eq(
@@ -127,7 +126,7 @@ describe("AuctionHouse", () => {
     });
 
     // ASSERTION NOT NEEDED AT THE MOMENT DUE TO THE CONSTRUCTOR ONLY ACCEPTING A TOKEN ADDRESS
-    // it("should not allow a configuration address that is not the Zora Media Protocol", async () => {
+    // it("should not allow a configuration address that is not the Zap Media Protocol", async () => {
 
     //   const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
 
