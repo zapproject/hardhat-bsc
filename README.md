@@ -55,3 +55,16 @@ To Deploy to localhost,
 Run `docker build -t zaphardhat:branchname . `
 -Open Docker Desktop, click the cli button marked with ">-"
 Run `npx hardhat run --network localhost scripts/deploy.ts`
+
+---
+# NFT Contract Documentation
+## Table of Contents
+
+1. [ZapVault](docs/nft/ZapVault.md)
+2. [ZapMarket](docs/nft/ZapMarket.md)
+3. ZapMedia:To Be Added
+4. [AuctionHouse](docs/nft/AuctionHouse.md)
+
+
+
+
