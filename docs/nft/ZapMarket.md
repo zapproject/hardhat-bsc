@@ -1,4 +1,7 @@
 # ZapMarket
+Provides logic for all Media contracts and hosts transactions between an ERC-721 owner and bidders. Each Media contract is configured to the Market after deployment and the Market keeps track of data that represents creation, auctioning, and bidding. This contract will enable the Media owner to utilize state changing  and view functions that are defined inside the Market.
+
+
 ## Events
 ### AskCreated (address,uint256,tuple)
 Emits after an asking price is set by the owner.
