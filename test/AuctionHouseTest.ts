@@ -317,14 +317,14 @@ describe("AuctionHouse", () => {
       ).to.be.revertedWith("function call to a non-contract account")
     });
 
-    it.only("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
+    it("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
       const badMarketFact = await ethers.getContractFactory("ZapMarket", signers[5]);
       const badMarket = await upgrades.deployProxy(
         badMarketFact, [zapVault.address],
         { initializer: "initializeMarket" }) as ZapMarket;
       // await badMarketFact.deploy(zapVault.address);
 
-      const {...mediaArgs} = {
+      const { ...mediaArgs } = {
         name: "TEST MEDIA " + `${5}`,
         symbol: "TM" + `${5}`,
         marketContractAddr: badMarket.address,
@@ -341,11 +341,11 @@ describe("AuctionHouse", () => {
         ]
       ) as BadMedia;
       // const badMedia = await badMediaFact.deploy(mediaArgs);
-      
+
       await badMedia.connect(signers[5]).mint();
-        console.log("bok")
+      console.log("bok")
       await approveAuction((badMedia as unknown) as ZapMedia, auctionHouse);
-        console.log("tok")
+      console.log("tok")
       await expect(
         createAuction(
           auctionHouse.connect(signers[5]),
@@ -659,7 +659,7 @@ describe("AuctionHouse", () => {
       it("should set the first bid time", async () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
-        
+
         await auctionHouse.connect(curator).startAuction(0, true);
         await auctionHouse.createBid(0, ONE_ETH, media1.address);
 
