@@ -90,15 +90,7 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
     }
   ]
 
-  const mediaFactory1 = await ethers.getContractFactory("ZapMedia", signers[1]);
-  const mediaFactory2 = await ethers.getContractFactory("ZapMedia", signers[2]);
-  const mediaFactory3 = await ethers.getContractFactory("ZapMedia", signers[3]);
-
-
   const medias: ZapMedia[] = [];
-  const contractFactories = [
-    mediaFactory1, mediaFactory2, mediaFactory3
-  ];
   const mediaDeployers = [
     signers[1],
     signers[2],
@@ -127,6 +119,36 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
   }
 
   return medias
+}
+
+export const deployOneMedia = async (signer: SignerWithAddress, zapMarket: ZapMarket, fact: MediaFactory, q: number) => {
+  const mediaArgs = {
+    name: "TEST MEDIA " + `${q}`,
+    symbol: "TM" + `${q}`,
+    marketContractAddr: zapMarket.address,
+    permissive: false,
+    _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+  }
+
+  let media: ZapMedia;
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
+
+  await fact.deployMedia(
+    mediaArgs.name, mediaArgs.symbol,
+    mediaArgs.marketContractAddr, mediaArgs.permissive,
+    mediaArgs._collectionMetadata
+  );
+
+  filter = fact.filters.MediaDeployed(null);
+  eventLog = (await fact.queryFilter(filter))[0];
+  mediaAddress = eventLog.args?.mediaContract;
+  
+  media = new ethers.Contract(mediaAddress, zmABI, signer) as ZapMedia;
+
+  return media;
 }
 
 export const deployZapNFTMarketplace = async () => {
@@ -199,15 +221,7 @@ export const deployZapNFTMarketplace = async () => {
     }
   ]
 
-  const mediaFactory1 = await ethers.getContractFactory("ZapMedia", deployer1);
-  const mediaFactory2 = await ethers.getContractFactory("ZapMedia", deployer2);
-  const mediaFactory3 = await ethers.getContractFactory("ZapMedia", deployer3);
-
-
   const medias: ZapMedia[] = [];
-  const contractFactories: ContractFactory[] = [
-    mediaFactory1, mediaFactory2, mediaFactory3
-  ];
   const mediaDeployers = [
     deployer1, deployer2, deployer3
   ];

@@ -45,6 +45,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     // / The address of the WETH contract, so that any ETH transferred can be handled as an ERC-20
     address public wethAddress;
 
+    // verified Market Contract
+    address private marketContract;
+
     // A mapping of all of the auctions currently running.
     mapping(uint256 => IAuctionHouse.Auction) public auctions;
 
@@ -65,9 +68,10 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    function initialize(address _weth) public initializer {
+    function initialize(address _weth, address _marketContract) public initializer {
         __ReentrancyGuard_init();
         wethAddress = _weth;
+        marketContract = _marketContract;
     }
 
     function setTokenDetails(uint256 tokenId, address mediaContract)
@@ -110,7 +114,11 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             'tokenContract does not support ERC721 interface'
         );
         require(
-            IMarket(IMediaExtended(mediaContract).marketContract()).isRegistered(mediaContract),
+            IMediaExtended(mediaContract).marketContract() == marketContract,
+            "This market contract is not from Zap's NFT MarketPlace"
+        );
+        require(
+            IMarket(marketContract).isRegistered(mediaContract),
             "Media contract is not registered with the marketplace"
         );
         require(
@@ -555,8 +563,12 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         address mediaContract
     ) internal returns (bool, uint256) {
         require(
-            IMarket(IMediaExtended(mediaContract).marketContract()).isRegistered(mediaContract)
-            , "This Media Contract is unauthorised to settle auctions"
+            IMediaExtended(mediaContract).marketContract() == marketContract,
+            "This market contract is not from Zap's NFT MarketPlace"
+        );
+        require(
+            IMarket(marketContract).isRegistered(mediaContract),
+            "This Media Contract is unauthorised to settle auctions"
         );
         address currency = auctions[auctionId].auctionCurrency == address(0)
             ? wethAddress
