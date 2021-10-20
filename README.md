@@ -62,7 +62,7 @@ Run `npx hardhat run --network localhost scripts/deploy.ts`
 
 1. [ZapVault](docs/nft/ZapVault.md)
 2. [ZapMarket](docs/nft/ZapMarket.md)
-3. ZapMedia:To Be Added
+3. [ZapMedia](docs/nft/ZapMedia.md)
 4. [AuctionHouse](docs/nft/AuctionHouse.md)
 
 
