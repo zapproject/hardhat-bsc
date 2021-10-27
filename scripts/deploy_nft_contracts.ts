@@ -14,7 +14,7 @@ async function main() {
         },
     };
 
-    const ZapVault = await ethers.getContractFactory("ZapVault");
+    const ZapVault = await ethers.getContractFactory("ZapVault", signers[0]);
     const zapVault = await upgrades.deployProxy(
         ZapVault,
         [tokenAddress],
@@ -34,6 +34,15 @@ async function main() {
 
     await zapMarket.setFee(platformFee);
 
+    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+    const mediaFactory = await upgrades.deployProxy(
+        MediaFactory,
+        [zapMarket.address],
+        { initializer: 'initialize' }
+    );
+    await mediaFactory.deployed();
+    console.log('MediaFactory deployed to:', zapMarket.address);
+
     const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
     const zapMedia = await upgrades.deployProxy(
         ZapMedia,
@@ -51,7 +60,7 @@ async function main() {
 
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
     const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [tokenAddress],
+        [tokenAddress, zapMarket.address],
         { initializer: 'initialize' }
     );
     await auctionHouse.deployed();
