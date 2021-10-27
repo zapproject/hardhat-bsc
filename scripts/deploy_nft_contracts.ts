@@ -43,6 +43,9 @@ async function main() {
     await mediaFactory.deployed();
     console.log('MediaFactory deployed to:', zapMarket.address);
 
+    await zapMarket.setMediaFactory(mediaFactory.address);
+    console.log("MediaFactory set to ZapMarket");
+
     const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
     const zapMedia = await upgrades.deployProxy(
         ZapMedia,
