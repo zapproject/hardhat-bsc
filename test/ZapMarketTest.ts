@@ -1591,25 +1591,35 @@ describe('ZapMarket Test', () => {
 
       zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
       await zapTokenBsc.deployed();
+
+
       const oscreatureFactory = await ethers.getContractFactory(
         'Creature',
       )
+
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
-      const creatureFactoryFactory = await ethers.getContractFactory(
-        'CreatureFactory',
-      );
-      creatureFactory = (await creatureFactoryFactory.deploy(proxy.address, osCreature.address)) as CreatureFactory;
-      await creatureFactory.deployed();
+
+
+
+      // const creatureFactoryFactory = await ethers.getContractFactory(
+      //   'CreatureFactory',
+      // );
+
+
+      // creatureFactory = (await creatureFactoryFactory.deploy(proxy.address, osCreature.address)) as CreatureFactory;
+      // await creatureFactory.deployed();
 
 
     });
 
     it('Testing', async () => {
-      console.log(creatureFactory.signer.getAddress());
-      console.log('zero',signers[0].address)
-      await creatureFactory.connect(signers[1]).mint(0, signers[0].address);
-      
+
+      console.log(await osCreature.mintTo(signers[0].address))
+      // console.log(creatureFactory.signer.getAddress());
+      // console.log('zero',signers[0].address)
+      // await creatureFactory.connect(signers[1]).mint(0, signers[0].address);
+
     })
 
 
