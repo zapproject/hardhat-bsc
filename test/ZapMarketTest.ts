@@ -35,6 +35,7 @@ import { CreatureLootBox } from '../typechain/CreatureLootBox';
 import { CreatureFactory } from '../typechain/CreatureFactory';
 import { ERC721Tradable } from '../typechain/ERC721Tradable';
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
+import { create } from 'domain';
 
 chai.use(solidity);
 
@@ -75,11 +76,11 @@ describe('ZapMarket Test', () => {
     );
     const proxyFactory = await ethers.getContractFactory(
       'MockProxyRegistry'
-      )
+    )
     const proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
     await proxy.deployed();
-    await proxy.setProxy(owner.address,proxyForOwner.address);
-    
+    await proxy.setProxy(owner.address, proxyForOwner.address);
+
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
   });
@@ -1488,7 +1489,7 @@ describe('ZapMarket Test', () => {
 
       const badBidder2 = await badBidder2Factory.deploy(zapMedia1.address, zapTokenBsc.address);
       await badBidder2.deployed();
-      
+
       bid1.bidder = badBidder2.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
@@ -1536,7 +1537,7 @@ describe('ZapMarket Test', () => {
 
       await zapMedia1.connect(signers[2]).setBid(0, bid2);
       await badBidder2.connect(signers[1]).setBid(zapMarket.address, bid1);
-      
+
       const badBidderPostSet = await zapTokenBsc.balanceOf(badBidder2.address);
       expect(parseInt(badBidderPostSet._hex)).to.equal(parseInt(badBidderPreSet._hex) - bid1.amount);
 
@@ -1565,34 +1566,49 @@ describe('ZapMarket Test', () => {
     });
   })
 
-  describe.only("External mint",() => {
+  describe.only("External mint", () => {
+
+    let owner: SignerWithAddress;
+    let proxyForOwner: SignerWithAddress;
+
     beforeEach(async () => {
-    const owner = signers[0];
-    const proxyForOwner = signers[8];
-    const zapTokenFactory = await ethers.getContractFactory(
-      'ZapTokenBSC',
-      signers[0]
-    );
-    const proxyFactory = await ethers.getContractFactory(
-      'MockProxyRegistry'
-      )
-    const proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
-    await proxy.deployed();
-    await proxy.setProxy(owner.address,proxyForOwner.address);
-    
-    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-    await zapTokenBsc.deployed();
-    const oscreatureFactory = await ethers.getContractFactory(
-      'Creature',
-      )
-    osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
-    await osCreature.deployed();
-    const creatureFactoryFactory = await ethers.getContractFactory(
-      'CreatureFactory',
+
+      owner = signers[0];
+      proxyForOwner = signers[8];
+
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
       );
-    creatureFactory = (await creatureFactoryFactory.deploy(proxy.address, osCreature.address)) as CreatureFactory;
-    await creatureFactory.deployed();
+
+      const proxyFactory = await ethers.getContractFactory(
+        'MockProxyRegistry'
+      )
+
+      const proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+      await proxy.deployed();
+      await proxy.setProxy(owner.address, proxyForOwner.address);
+
+      zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+      await zapTokenBsc.deployed();
+      const oscreatureFactory = await ethers.getContractFactory(
+        'Creature',
+      )
+      osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+      await osCreature.deployed();
+      const creatureFactoryFactory = await ethers.getContractFactory(
+        'CreatureFactory',
+      );
+      creatureFactory = (await creatureFactoryFactory.deploy(proxy.address, osCreature.address)) as CreatureFactory;
+      await creatureFactory.deployed();
+
+
     });
+
+    // it('Testing', async () => {
+    //   await creatureFactory.connect(signers[8]).mint(0, signers[0].address)
+    // })
+
 
   });
 });
