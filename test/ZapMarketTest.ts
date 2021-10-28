@@ -30,6 +30,12 @@ import { deployJustMedias } from "./utils";
 
 import { BadBidder2 } from "../typechain/BadBidder2";
 
+import { Creature } from '../typechain/Creature';
+import { CreatureLootBox } from '../typechain/CreatureLootBox';
+import { CreatureFactory } from '../typechain/CreatureFactory';
+import { ERC721Tradable } from '../typechain/ERC721Tradable';
+import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
+
 chai.use(solidity);
 
 type MediaData = {
@@ -41,6 +47,7 @@ type MediaData = {
 
 let tokenURI = 'www.example.com';
 let metadataURI = 'www.example2.com';
+
 let contentHashBytes: Bytes;
 let metadataHashBytes: Bytes;
 let vault: ZapVault;
@@ -60,12 +67,19 @@ describe('ZapMarket Test', () => {
 
   beforeEach(async () => {
     signers = await ethers.getSigners();
-
+    const owner = signers[0];
+    const proxyForOwner = signers[8];
     const zapTokenFactory = await ethers.getContractFactory(
       'ZapTokenBSC',
       signers[0]
     );
-
+    const proxyFactory = await ethers.getContractFactory(
+      'MockProxyRegistry'
+      )
+    const proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+    await proxy.deployed();
+    await proxy.setProxy(owner.address,proxyForOwner.address);
+    
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
   });
@@ -74,7 +88,9 @@ describe('ZapMarket Test', () => {
   let zapMedia1: ZapMedia;
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
-  let zapVault: ZapVault;
+  let zapVault: ZapVault
+  let osCreature: Creature;
+  let creatureFactory: CreatureFactory;
   let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
 
@@ -1548,4 +1564,35 @@ describe('ZapMarket Test', () => {
       expect(zapMedia1.address).to.equal(event[0].args[2]);
     });
   })
+
+  describe.only("External mint",() => {
+    beforeEach(async () => {
+    const owner = signers[0];
+    const proxyForOwner = signers[8];
+    const zapTokenFactory = await ethers.getContractFactory(
+      'ZapTokenBSC',
+      signers[0]
+    );
+    const proxyFactory = await ethers.getContractFactory(
+      'MockProxyRegistry'
+      )
+    const proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+    await proxy.deployed();
+    await proxy.setProxy(owner.address,proxyForOwner.address);
+    
+    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+    await zapTokenBsc.deployed();
+    const oscreatureFactory = await ethers.getContractFactory(
+      'Creature',
+      )
+    osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+    await osCreature.deployed();
+    const creatureFactoryFactory = await ethers.getContractFactory(
+      'CreatureFactory',
+      );
+    creatureFactory = (await creatureFactoryFactory.deploy(proxy.address, osCreature.address)) as CreatureFactory;
+    await creatureFactory.deployed();
+    });
+
+  });
 });
