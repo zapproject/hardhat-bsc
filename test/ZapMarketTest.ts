@@ -1608,8 +1608,8 @@ describe('ZapMarket Test', () => {
     it('Testing', async () => {
       console.log(creatureFactory.signer.getAddress());
       console.log('zero',signers[0].address)
-      await creatureFactory.connect(signers[1]).mint(0, owner.address);
-      // expect()
+      await creatureFactory.connect(signers[1]).mint(0, signers[0].address);
+      
     })
 
 
