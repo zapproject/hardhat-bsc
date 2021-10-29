@@ -1598,6 +1598,7 @@ describe('ZapMarket Test', () => {
 
     it('Should have a external token balance of 1', async () => {
 
+
       expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
     })
