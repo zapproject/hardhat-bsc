@@ -65,10 +65,10 @@ describe("MediaFactory", () => {
         return mediaFactory as MediaFactory;
     }
 
-    async function deployAuction(signer: SignerWithAddress, currency: string) {
+    async function deployAuction(signer: SignerWithAddress, currency: string, market: string) {
         const ahFact = await ethers.getContractFactory("AuctionHouse", signer);
 
-        const auctionHouse = await upgrades.deployProxy(ahFact, [currency], { initializer: 'initialize' }) as AuctionHouse;
+        const auctionHouse = await upgrades.deployProxy(ahFact, [currency, market], { initializer: 'initialize' }) as AuctionHouse;
 
         return auctionHouse as AuctionHouse;
     }
@@ -213,7 +213,7 @@ describe("MediaFactory", () => {
         let badMedia: ZapMedia;
 
         beforeEach(async () => {
-            auctionHouse = await deployAuction(deployer, zapTokenBsc.address);
+            auctionHouse = await deployAuction(deployer, zapTokenBsc.address, zapMarket.address);
             zapMedia = new ethers.Contract(mediaAddress, zmABI, mediaOwner) as ZapMedia;
 
             const platformFee = {
