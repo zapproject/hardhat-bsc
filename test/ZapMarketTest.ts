@@ -24,11 +24,15 @@ import { MediaFactory } from '../typechain/MediaFactory';
 
 import { ZapVault } from '../typechain/ZapVault';
 
-import { IERC721Metadata, ZapMarket__factory } from "../typechain";
+import { ZapMarket__factory } from "../typechain";
 
 import { deployJustMedias } from "./utils";
 
 import { BadBidder2 } from "../typechain/BadBidder2";
+
+import { Creature } from '../typechain/Creature';
+
+import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
 
 chai.use(solidity);
 
@@ -41,6 +45,7 @@ type MediaData = {
 
 let tokenURI = 'www.example.com';
 let metadataURI = 'www.example2.com';
+
 let contentHashBytes: Bytes;
 let metadataHashBytes: Bytes;
 let vault: ZapVault;
@@ -66,6 +71,7 @@ describe('ZapMarket Test', () => {
       signers[0]
     );
 
+
     zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
     await zapTokenBsc.deployed();
   });
@@ -74,7 +80,7 @@ describe('ZapMarket Test', () => {
   let zapMedia1: ZapMedia;
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
-  let zapVault: ZapVault;
+  let zapVault: ZapVault
   let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
 
@@ -1472,7 +1478,7 @@ describe('ZapMarket Test', () => {
 
       const badBidder2 = await badBidder2Factory.deploy(zapMedia1.address, zapTokenBsc.address);
       await badBidder2.deployed();
-      
+
       bid1.bidder = badBidder2.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
@@ -1520,7 +1526,7 @@ describe('ZapMarket Test', () => {
 
       await zapMedia1.connect(signers[2]).setBid(0, bid2);
       await badBidder2.connect(signers[1]).setBid(zapMarket.address, bid1);
-      
+
       const badBidderPostSet = await zapTokenBsc.balanceOf(badBidder2.address);
       expect(parseInt(badBidderPostSet._hex)).to.equal(parseInt(badBidderPreSet._hex) - bid1.amount);
 
@@ -1548,4 +1554,55 @@ describe('ZapMarket Test', () => {
       expect(zapMedia1.address).to.equal(event[0].args[2]);
     });
   })
+
+  describe.only("External mint", () => {
+
+    let owner: SignerWithAddress;
+    let proxyForOwner: SignerWithAddress;
+    let proxy: MockProxyRegistry;
+    let osCreature: Creature;
+
+    beforeEach(async () => {
+
+      owner = signers[0];
+      proxyForOwner = signers[8];
+
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      const proxyFactory = await ethers.getContractFactory(
+        'MockProxyRegistry',
+        signers[0]
+      )
+
+      proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+      await proxy.deployed();
+      await proxy.setProxy(owner.address, proxyForOwner.address);
+
+      zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
+      await zapTokenBsc.deployed();
+
+      const oscreatureFactory = await ethers.getContractFactory(
+        'Creature',
+        signers[0]
+      )
+
+      osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+      await osCreature.deployed();
+
+      await osCreature.mintTo(signers[10].address)
+
+    });
+
+    it('Should have a external token balance of 1', async () => {
+
+
+      expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
+
+    })
+
+  });
+
 });
