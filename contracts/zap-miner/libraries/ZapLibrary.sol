@@ -8,7 +8,6 @@ import './ZapStorage.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title Zap Oracle System Library
