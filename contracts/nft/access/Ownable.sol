@@ -8,7 +8,7 @@ contract Ownable is Initializable {
         address indexed previousOwner,
         address indexed newOwner
     );
-    address owner;
+    address internal owner;
 
     /// @dev The Ownable constructor sets the original `owner` of the contract to the sender account.
 
