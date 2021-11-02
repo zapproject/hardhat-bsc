@@ -343,9 +343,7 @@ describe("AuctionHouse", () => {
       // const badMedia = await badMediaFact.deploy(mediaArgs);
 
       await badMedia.connect(signers[5]).mint();
-      console.log("bok")
       await approveAuction((badMedia as unknown) as ZapMedia, auctionHouse);
-      console.log("tok")
       await expect(
         createAuction(
           auctionHouse.connect(signers[5]),
