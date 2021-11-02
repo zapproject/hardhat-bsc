@@ -323,6 +323,7 @@ describe('Did Mine Test', () => {
 
   })
 
+
   it('Test increased difficulty', async () => {
     // Allocates 5000 ZAP to signer 0
     await zapTokenBsc.allocate(
