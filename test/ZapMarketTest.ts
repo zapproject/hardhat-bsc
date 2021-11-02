@@ -1606,7 +1606,7 @@ describe('ZapMarket Test', () => {
 
   });
 
-  describe.only("Ownership", () => {
+  describe("Ownership", () => {
     beforeEach(async () => {
       const zapTokenFactory = await ethers.getContractFactory(
         'ZapTokenBSC',
