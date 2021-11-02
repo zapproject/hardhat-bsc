@@ -33,6 +33,7 @@ import { BadBidder2 } from "../typechain/BadBidder2";
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
+import { assert } from 'console';
 
 chai.use(solidity);
 
@@ -1603,6 +1604,127 @@ describe('ZapMarket Test', () => {
 
     })
 
+  });
+
+  describe.only("Ownership", () => {
+    beforeEach(async () => {
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+      let zapMarketFactory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
+    });
+
+    it("Should successfully transfer ownership", async () => {
+      let oldOwner = await zapMarket.getOwner();
+      let newOwner = signers[1].address;
+
+      await zapMarket.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await zapMarket.appointedOwner());
+      expect(oldOwner).to.be.equal(await zapMarket.getOwner());
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter = zapMarket.filters.OwnershipTransferInitiated(
+        null, null
+      );
+
+      const event_transferOwnershipInitated: Event = (
+        await zapMarket.queryFilter(filter_transferInitiated)
+      )[0]
+
+      expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+      await zapMarket.connect(signers[1]).claimTransferOwnership();
+      expect(newOwner).to.be.equal(await zapMarket.getOwner());
+      expect(ethers.constants.AddressZero).to.be.equal(await zapMarket.appointedOwner());
+      // listen for transferOwnership event
+      const filter_transfered: EventFilter = zapMarket.filters.OwnershipTransferred(
+        null, null
+      );
+
+      const event_transferredOwnership: Event = (
+        await zapMarket.queryFilter(filter_transfered)
+      )[0]
+
+      expect(event_transferredOwnership.event).to.be.equal("OwnershipTransferred");
+      expect(event_transferredOwnership.args?.previousOwner).to.be.equal(oldOwner);
+      expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
+    });
+
+    it("Should revoke appointed owner", async () => {
+      let oldOwner = await zapMarket.getOwner();
+      let newOwner = signers[1].address;
+
+      await zapMarket.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await zapMarket.appointedOwner());
+      expect(oldOwner).to.be.equal(await zapMarket.getOwner());
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter = zapMarket.filters.OwnershipTransferInitiated(
+        null, null
+      );
+
+      const event_transferOwnershipInitated: Event = (
+        await zapMarket.queryFilter(filter_transferInitiated)
+      )[0]
+
+      expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+      await zapMarket.revokeTransferOwnership();
+      expect(ethers.constants.AddressZero).to.be.equal(await zapMarket.appointedOwner());
+      expect(oldOwner).to.be.equal(await zapMarket.getOwner());
+
+      await expect(zapMarket.connect(signers[1]).claimTransferOwnership()).
+          to.be.revertedWith("No ownership transfer have been initiated");
+    });
+
+    it("Should revert when non owner calls init transfer", async() => {
+      let oldOwner = await zapMarket.getOwner();
+      let newOwner = signers[1].address;
+
+      await expect(zapMarket.connect(signers[1]).initTransferOwnership(newOwner)).
+          to.be.revertedWith("Ownable: Only owner has access to this function");
+    });
+
+    it("Should revert when non owner calls claim transfer", async() => {
+      let oldOwner = await zapMarket.getOwner();
+      let newOwner = signers[1].address;
+
+      await zapMarket.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await zapMarket.appointedOwner());
+      expect(oldOwner).to.be.equal(await zapMarket.getOwner());
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter = zapMarket.filters.OwnershipTransferInitiated(
+        null, null
+      );
+
+      const event_transferOwnershipInitated: Event = (
+        await zapMarket.queryFilter(filter_transferInitiated)
+      )[0]
+
+      expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+      await expect(zapMarket.connect(signers[2]).claimTransferOwnership()).
+          to.be.revertedWith("Caller is not the appointed owner of this contract");
+    });
   });
 
 });
