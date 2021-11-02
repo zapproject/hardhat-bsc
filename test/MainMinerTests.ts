@@ -248,6 +248,8 @@ describe("Main Miner Functions", () => {
 
     });
 
+    
+
     it("Should not be able to request a stake withdrawal if the stake status is 0(Not Staked)", async () => {
 
         await expect(zap.requestStakingWithdraw()).to.be.revertedWith(
@@ -737,5 +739,7 @@ describe("Main Miner Functions", () => {
         expect(symbol).to.equal("ZAPB");
 
     });
+
+   
 
 })
