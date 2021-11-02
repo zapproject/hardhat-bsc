@@ -187,7 +187,7 @@ describe('Did Mine Test', () => {
     // Submits the query string as the request
     // Each request will add a tip starting at 51 and count down until 0
     // Each tip will be stored inside the requestQ array
-    const request_1 = await zap.requestData(api, 'USD', 1000, 52);
+    await zap.requestData(api, 'USD', 1000, 52);
 
     /*
           Gets the data properties for the current request
@@ -198,7 +198,7 @@ describe('Did Mine Test', () => {
       */
     const newCurrentVars: any = await zap.getNewCurrentVariables();
 
-    const request_2 = await zap.requestData(api, 'USD', 1000, 52);
+    await zap.requestData(api, 'USD', 1000, 52);
 
     const getReqQ: BigNumber[] = await zapMaster.getRequestQ();
 
@@ -239,9 +239,10 @@ describe('Did Mine Test', () => {
     expect(reqQ).to.have.length(51);
 
     // check to see that the miner receeived the reward and for the proper amount.
-    let currentBlock = await ethers.provider.getBlockNumber();
+    await ethers.provider.getBlockNumber();
 
     let signerFourVaultBalance = await vault.userBalance(signers[4].address);
+
     expect(signerFourVaultBalance).to.equal(
       BigNumber.from('500005000000000000000010'),
       "Miner's personal vault should have a balance of ~500005 tokens."
@@ -256,7 +257,67 @@ describe('Did Mine Test', () => {
 
     let diff = previousZapMasterBal.sub(currentZapMasterBal);
     expect(diff).to.equal(payOutAmount);
+
   });
+
+  it('Should revert if a miner already submitted a value', async () => {
+
+    let x: string;
+
+    let apix: string;
+
+    // Request string
+    const api: string =
+      'json(https://api.pro.coinbase.com/products/ETH-USD/ticker).price';
+
+    // Allocates 5000 ZAP to signer 0
+    await zapTokenBsc.allocate(
+      signers[0].address,
+      BigNumber.from('600000000000000000000000')
+    );
+
+    // Attach the ZapMaster instance to Zap
+    zap = zap.attach(zapMaster.address);
+
+    // Iterates through signers 1 through 5
+    for (var i = 1; i <= 5; i++) {
+      // Connects addresses 1-5 as the signer
+      zap = zap.connect(signers[i]);
+
+      await zapTokenBsc
+        .connect(signers[i])
+        .approve(zapMaster.address, BigNumber.from('500000000000000000000000'));
+
+      // Stakes 600k Zap to initiate a miner
+      await zap.depositStake();
+    }
+
+    zap = zap.connect(signers[0]);
+
+    // Approves Zap.sol the amount to tip for requestData
+    await zapTokenBsc.approve(zap.address, 5000);
+
+    // Iterates the length of the requestQ array
+    // for (var i = 0; i < 52; i++) {
+    x = 'USD' + i;
+    apix = api + i;
+
+    // Submits the query string as the request
+    // Each request will add a tip starting at 51 and count down until 0
+    // Each tip will be stored inside the requestQ array
+    await zap.requestData(api, 'USD', 1000, 52);
+
+    await zap.connect(signers[1]).submitMiningSolution('nonce', 1, 1200);
+
+    await zap.connect(signers[2]).submitMiningSolution('nonce', 1, 1200);
+
+    await zap.connect(signers[3]).submitMiningSolution('nonce', 1, 1200);
+
+    await expect(zap.connect(signers[3]).submitMiningSolution('nonce', 1, 1200)).to.be.revertedWith(
+      'Miner has already submitted a value'
+    );
+
+  })
 
   it('Test increased difficulty', async () => {
     // Allocates 5000 ZAP to signer 0
@@ -329,9 +390,9 @@ describe('Did Mine Test', () => {
 
     let currentRequestId: any = await getUintVarHelper('currentRequestId');
     let difficulty_before_submission = await getUintVarHelper('difficulty');
-    
+
     await submitSolutionHelper('nonce', currentRequestId, true);
-    
+
     let difficulty_after_submission = await getUintVarHelper('difficulty');
 
 
@@ -367,18 +428,18 @@ async function requestDataHelper(symbol = 'USD', granularity = 1000, tip = 10) {
 }
 
 async function submitSolutionHelper(
-    nonce: string,
-    currentRequestId: BigNumber,
-    advanceTime: boolean = false
+  nonce: string,
+  currentRequestId: BigNumber,
+  advanceTime: boolean = false
 ) {
   const newCurrentVars: any = await zap.getNewCurrentVariables();
 
   for (var i = 1; i <= 5; i++) {
 
     // advance block time to simulate long mining time
-    if (i == 5 && advanceTime){
-          await ethers.provider.send('evm_increaseTime', [1200]); //advanced 20 mins
-      }
+    if (i == 5 && advanceTime) {
+      await ethers.provider.send('evm_increaseTime', [1200]); //advanced 20 mins
+    }
 
     // Each Miner will submit a mining solution
     await zap
