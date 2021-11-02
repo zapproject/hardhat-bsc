@@ -307,12 +307,16 @@ describe('Did Mine Test', () => {
     // Each tip will be stored inside the requestQ array
     await zap.requestData(api, 'USD', 1000, 52);
 
+    // Signer 1 submits a solution
     await zap.connect(signers[1]).submitMiningSolution('nonce', 1, 1200);
 
+    // Signer 2 submits a solution
     await zap.connect(signers[2]).submitMiningSolution('nonce', 1, 1200);
 
+    // Signer 3 submits a solution
     await zap.connect(signers[3]).submitMiningSolution('nonce', 1, 1200);
 
+    // Signer 3 attempts to submit another solution and will cause the transaction to revert
     await expect(zap.connect(signers[3]).submitMiningSolution('nonce', 1, 1200)).to.be.revertedWith(
       'Miner has already submitted a value'
     );
