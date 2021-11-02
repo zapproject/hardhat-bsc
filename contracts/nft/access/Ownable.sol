@@ -37,15 +37,15 @@ contract Ownable is Initializable {
     /// @dev Allows the current owner to intiate the transfer control of the contract to a newOwner.
     /// @param newOwner The address to transfer ownership to.
     function initTransferOwnership(address payable newOwner) public onlyOwner {
-        require(newOwner != address(0));
+        require(newOwner != address(0), "Ownable: Cannot transfer to zero address");
         emit OwnershipTransferInitiated(owner, newOwner);
         appointedOwner = newOwner;
     }
 
     /// @dev Allows new owner to claim the transfer control of the contract
     function claimTransferOwnership() public {
-        require(appointedOwner != address(0), "No ownership transfer have been initiated");
-        require(msg.sender == appointedOwner, "Caller is not the appointed owner of this contract");
+        require(appointedOwner != address(0), "Ownable: No ownership transfer have been initiated");
+        require(msg.sender == appointedOwner, "Ownable: Caller is not the appointed owner of this contract");
 
         emit OwnershipTransferred(owner, appointedOwner);
         owner = appointedOwner;
