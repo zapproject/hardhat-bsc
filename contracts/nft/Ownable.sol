@@ -5,9 +5,14 @@ import {MediaStorage} from "./libraries/MediaStorage.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract Ownable is Initializable {
+    event OwnershipTransferInitiated(
+        address indexed owner,
+        address indexed appointedOwner
+    );
     event OwnershipTransferred(address indexed previousOwner,address indexed newOwner);
 
     MediaStorage.Access internal access;
+    address public appointedOwner;
 
     /// @dev The Ownable constructor sets the original `access.owner` of the contract to the sender account.
     function _init_ownable() public {
@@ -45,11 +50,26 @@ contract Ownable is Initializable {
         return access.marketContract;
     }
 
-    /// @dev Allows the current access.owner to transfer control of the contract to a newOwner.
+    /// @dev Allows the current owner to intiate the transfer control of the contract to a newOwner.
     /// @param newOwner The address to transfer ownership to.
-    function transferOwnership(address payable newOwner) public onlyOwner {
-        require(newOwner != address(0));
-        emit OwnershipTransferred(access.owner, newOwner);
-        access.owner = newOwner;
+    function initTransferOwnership(address payable newOwner) public onlyOwner {
+        require(newOwner != address(0), "Ownable: Cannot transfer to zero address");
+        emit OwnershipTransferInitiated(access.owner, newOwner);
+        appointedOwner = newOwner;
+    }
+
+    /// @dev Allows new owner to claim the transfer control of the contract
+    function claimTransferOwnership() public {
+        require(appointedOwner != address(0), "Ownable: No ownership transfer have been initiated");
+        require(msg.sender == appointedOwner, "Ownable: Caller is not the appointed owner of this contract");
+
+        emit OwnershipTransferred(access.owner, appointedOwner);
+        access.owner = appointedOwner;
+        appointedOwner = address(0);
+    }
+
+    /// @dev Revoke transfer and set appointed owner to 0 address
+    function revokeTransferOwnership() public onlyOwner {
+        appointedOwner = address(0);
     }
 }
