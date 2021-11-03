@@ -4,7 +4,7 @@ import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
 
-import { MediaFactory, ZapMarket, ZapVault, ZapTokenBSC, ZapMedia, AuctionHouse } from '../typechain';
+import { MediaFactory, ZapMarket, ZapVault, ZapTokenBSC, ZapMedia, AuctionHouse, BadMedia } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { Event } from '@ethersproject/contracts';
 import { BigNumber, BigNumberish } from "ethers";
@@ -210,7 +210,7 @@ describe("MediaFactory", () => {
     describe("AuctionHouse", function () {
         let auctionHouse: AuctionHouse;
         let zapMedia: ZapMedia;
-        let badMedia: ZapMedia;
+        let badMedia: BadMedia;
 
         beforeEach(async () => {
             auctionHouse = await deployAuction(deployer, zapTokenBsc.address, zapMarket.address);
@@ -225,7 +225,7 @@ describe("MediaFactory", () => {
         });
 
         it("Should not allow a unregistered media contract to create an auction", async () => {
-            const badMediaFactory = await ethers.getContractFactory("ZapMedia", badActor);
+            const badMediaFactory = await ethers.getContractFactory("BadMedia", badActor);
             badMedia = await upgrades.deployProxy(
                 badMediaFactory,
                 [
@@ -236,26 +236,22 @@ describe("MediaFactory", () => {
                     'https://ipfs.moralis.io:2053/ipfs/QmeWP0pXmNPoUF9Urxyrp7NQZ9unaHEE2d43fbuur6hWWV'
                 ],
                 { initializer: 'initialize' }
-            ) as ZapMedia;
+            ) as BadMedia;
+            await badMedia.mint();
 
-            await expect(mintFrom(badMedia)).to.be.revertedWith("Market: Only media contract");
+            const token = 0;
+            const duration = 60 * 60 * 24;
+            const reservePrice = BigNumber.from(10).pow(18).div(2);
 
-            // These (original) tests  will revert as the bad media is not configured to market
-            // await mintFrom(badMedia);
-
-            // const token = 0;
-            // const duration = 60 * 60 * 24;
-            // const reservePrice = BigNumber.from(10).pow(18).div(2);
-
-            // await expect (auctionHouse.createAuction(
-            //     token,
-            //     badMedia.address,
-            //     duration,
-            //     reservePrice,
-            //     badActor.address,
-            //     5,
-            //     zapTokenBsc.address
-            // )).to.be.revertedWith("Media contract is not registered with the marketplace");
+            await expect (auctionHouse.createAuction(
+                token,
+                badMedia.address,
+                duration,
+                reservePrice,
+                badActor.address,
+                5,
+                zapTokenBsc.address
+            )).to.be.revertedWith("Media contract is not registered with the marketplace");
         });
 
         it("Should create an auction for a registered media contract", async () => {
