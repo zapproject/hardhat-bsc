@@ -53,14 +53,6 @@ contract ZapMaster is ZapGetters {
 
     /**
      * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
-     * @param _zapContract the address of the new Zap Contract
-     */
-    function changeZapContract(address _zapContract) external {
-        zap.changeZapContract(_zapContract);
-    }
-
-    /**
-     * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
      * @param _vaultContract the address of the new Vault Contract
      */
     function changeVaultContract(address _vaultContract) external {
