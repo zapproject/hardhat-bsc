@@ -10,7 +10,7 @@ contract Ownable is Initializable {
     MediaStorage.Access internal access;
 
     /// @dev The Ownable constructor sets the original `access.owner` of the contract to the sender account.
-    function _init_ownable() internal initializer {
+    function initialize() internal initializer {
         access.owner = msg.sender;
     }
 
