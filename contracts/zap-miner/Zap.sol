@@ -226,10 +226,10 @@ contract Zap {
 
         }
 
-        if (disp.isZM) {
+        if (disp.fokedContract == ForkedContract.ZapMasterContract) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
             // total balance of current ZapMaster
-            uint256 zapBalance = token.balanceOf(address(this));
+            uint256 zapMasterBalance = token.balanceOf(address(this));
 
             data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
