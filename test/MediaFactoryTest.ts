@@ -215,7 +215,7 @@ describe("MediaFactory", () => {
         beforeEach(async () => {
             auctionHouse = await deployAuction(deployer, zapTokenBsc.address, zapMarket.address);
             zapMedia = new ethers.Contract(mediaAddress, zmABI, mediaOwner) as ZapMedia;
-
+            
             const platformFee = {
                 fee: {
                     value: BigNumber.from('5000000000000000000')
@@ -237,7 +237,6 @@ describe("MediaFactory", () => {
                 ],
                 { initializer: 'initialize' }
             ) as BadMedia;
-
             await badMedia.mint();
 
             const token = 0;
