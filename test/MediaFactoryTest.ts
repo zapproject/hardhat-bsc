@@ -4,7 +4,7 @@ import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
 
-import { MediaFactory, ZapMarket, ZapVault, ZapTokenBSC, ZapMedia, AuctionHouse } from '../typechain';
+import { MediaFactory, ZapMarket, ZapVault, ZapTokenBSC, ZapMedia, AuctionHouse, BadMedia } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { Event } from '@ethersproject/contracts';
 import { BigNumber, BigNumberish } from "ethers";
@@ -65,10 +65,10 @@ describe("MediaFactory", () => {
         return mediaFactory as MediaFactory;
     }
 
-    async function deployAuction(signer: SignerWithAddress, currency: string) {
+    async function deployAuction(signer: SignerWithAddress, currency: string, market: string) {
         const ahFact = await ethers.getContractFactory("AuctionHouse", signer);
 
-        const auctionHouse = await upgrades.deployProxy(ahFact, [currency], { initializer: 'initialize' }) as AuctionHouse;
+        const auctionHouse = await upgrades.deployProxy(ahFact, [currency, market], { initializer: 'initialize' }) as AuctionHouse;
 
         return auctionHouse as AuctionHouse;
     }
@@ -210,10 +210,10 @@ describe("MediaFactory", () => {
     describe("AuctionHouse", function () {
         let auctionHouse: AuctionHouse;
         let zapMedia: ZapMedia;
-        let badMedia: ZapMedia;
+        let badMedia: BadMedia;
 
         beforeEach(async () => {
-            auctionHouse = await deployAuction(deployer, zapTokenBsc.address);
+            auctionHouse = await deployAuction(deployer, zapTokenBsc.address, zapMarket.address);
             zapMedia = new ethers.Contract(mediaAddress, zmABI, mediaOwner) as ZapMedia;
 
             const platformFee = {
@@ -225,7 +225,7 @@ describe("MediaFactory", () => {
         });
 
         it("Should not allow a unregistered media contract to create an auction", async () => {
-            const badMediaFactory = await ethers.getContractFactory("ZapMedia", badActor);
+            const badMediaFactory = await ethers.getContractFactory("BadMedia", badActor);
             badMedia = await upgrades.deployProxy(
                 badMediaFactory,
                 [
@@ -236,9 +236,9 @@ describe("MediaFactory", () => {
                     'https://ipfs.moralis.io:2053/ipfs/QmeWP0pXmNPoUF9Urxyrp7NQZ9unaHEE2d43fbuur6hWWV'
                 ],
                 { initializer: 'initialize' }
-            ) as ZapMedia;
+            ) as BadMedia;
 
-            await mintFrom(badMedia);
+            await badMedia.mint();
 
             const token = 0;
             const duration = 60 * 60 * 24;
