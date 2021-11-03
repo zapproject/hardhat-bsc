@@ -151,7 +151,7 @@ contract Zap {
         zap.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: false,
-            isZM: false,
+            forkedContract: 0, // aka no contract is being forked for this dispute
             reportedMiner: _miner,
             reportingParty: msg.sender,
             proposedForkAddress: address(0),
@@ -242,9 +242,10 @@ contract Zap {
     /**
      * @dev Allows for a fork to be proposed
      * @param _propNewZapAddress address for new proposed Zap
+     * @param forkedContract contract to be foked: 1 == Zap Contract, 2 == ZapMaster, 3 == Vault Contract
      */
-    function proposeFork(address _propNewZapAddress, bool isZM) external {
-        zap.proposeFork(_propNewZapAddress, isZM);
+    function proposeFork(address _propNewZapAddress, uint256 forkedContract) external {
+        zap.proposeFork(_propNewZapAddress, forkedContract);
             transferFrom(
                 msg.sender,
                 zap.addressVars[keccak256("_owner")],
