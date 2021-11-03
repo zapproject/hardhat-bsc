@@ -237,21 +237,25 @@ describe("MediaFactory", () => {
                 ],
                 { initializer: 'initialize' }
             ) as ZapMedia;
-            await mintFrom(badMedia);
 
-            const token = 0;
-            const duration = 60 * 60 * 24;
-            const reservePrice = BigNumber.from(10).pow(18).div(2);
+            await expect(mintFrom(badMedia)).to.be.revertedWith("Market: Only media contract");
 
-            await expect (auctionHouse.createAuction(
-                token,
-                badMedia.address,
-                duration,
-                reservePrice,
-                badActor.address,
-                5,
-                zapTokenBsc.address
-            )).to.be.revertedWith("Media contract is not registered with the marketplace");
+            // These (original) tests  will revert as the bad media is not configured to market
+            // await mintFrom(badMedia);
+
+            // const token = 0;
+            // const duration = 60 * 60 * 24;
+            // const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+            // await expect (auctionHouse.createAuction(
+            //     token,
+            //     badMedia.address,
+            //     duration,
+            //     reservePrice,
+            //     badActor.address,
+            //     5,
+            //     zapTokenBsc.address
+            // )).to.be.revertedWith("Media contract is not registered with the marketplace");
         });
 
         it("Should create an auction for a registered media contract", async () => {
