@@ -15,7 +15,7 @@ contract Ownable is Initializable {
     address public appointedOwner;
 
     /// @dev The Ownable constructor sets the original `access.owner` of the contract to the sender account.
-    function _init_ownable() public {
+    function _init_ownable() internal {
         access.owner = msg.sender;
     }
 
