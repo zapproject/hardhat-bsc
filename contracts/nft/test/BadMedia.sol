@@ -27,7 +27,7 @@ contract BadMedia is
         string calldata _collectionMetadata
     ) external initializer {
         __ERC721_init(name, symbol);
-        _init_ownable();
+        initialize();
         access.marketContract = marketContractAddr;
     }
 

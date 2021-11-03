@@ -157,7 +157,7 @@ contract ZapMedia is
         string calldata _collectionMetadata
     ) external override initializer {
         __ERC721_init(name, symbol);
-        _init_ownable();
+        initialize();
 
         access.marketContract = marketContractAddr;
 
