@@ -66,6 +66,13 @@ contract Zap {
     using ZapLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
+    /*Global Variables*/
+    enum ForkedContract {
+        NoContract,
+        ZapContract,
+        ZapMasterContract,
+        VaultContract
+    }
     ZapStorage.ZapStorageStruct private zap;
     ZapTokenBSC public token;
     // Vault public vault;
