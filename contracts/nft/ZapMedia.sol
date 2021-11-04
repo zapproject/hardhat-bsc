@@ -14,7 +14,6 @@ import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {Decimal} from './Decimal.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {IMedia} from './interfaces/IMedia.sol';
 import {Ownable} from './Ownable.sol';
