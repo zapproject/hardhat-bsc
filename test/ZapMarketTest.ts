@@ -193,6 +193,10 @@ describe('ZapMarket Test', () => {
       zapMedia2 = medias[1];
       zapMedia3 = medias[2];
 
+      await zapMedia1.claimTransferOwnership();
+      await zapMedia2.claimTransferOwnership();
+      await zapMedia3.claimTransferOwnership();
+
       ask1.currency = zapTokenBsc.address;
 
       let metadataHex = ethers.utils.formatBytes32String('{}');
@@ -390,6 +394,10 @@ describe('ZapMarket Test', () => {
       zapMedia1 = medias[0];
       zapMedia2 = medias[1];
       zapMedia3 = medias[2];
+
+      await zapMedia1.claimTransferOwnership();
+      await zapMedia2.claimTransferOwnership();
+      await zapMedia3.claimTransferOwnership();
 
       ask1.currency = zapTokenBsc.address;
 
@@ -646,6 +654,10 @@ describe('ZapMarket Test', () => {
       zapMedia2 = medias[1];
       zapMedia3 = medias[2];
 
+      await zapMedia1.claimTransferOwnership();
+      await zapMedia2.claimTransferOwnership();
+      await zapMedia3.claimTransferOwnership();
+
       ask1.currency = zapTokenBsc.address;
       ask2.currency = zapTokenBsc.address;
 
@@ -880,6 +892,10 @@ describe('ZapMarket Test', () => {
       zapMedia1 = medias[0];
       zapMedia2 = medias[1];
       zapMedia3 = medias[2];
+
+      await zapMedia1.claimTransferOwnership();
+      await zapMedia2.claimTransferOwnership();
+      await zapMedia3.claimTransferOwnership();
 
       bid1 = {
         amount: 200,
@@ -1454,6 +1470,10 @@ describe('ZapMarket Test', () => {
       zapMedia1 = medias[0];
       zapMedia2 = medias[1];
       zapMedia3 = medias[2];
+
+      await zapMedia1.claimTransferOwnership();
+      await zapMedia2.claimTransferOwnership();
+      await zapMedia3.claimTransferOwnership();
 
       bid1 = {
         amount: 200,

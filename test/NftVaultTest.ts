@@ -51,7 +51,9 @@ describe('NFT Platform Vault Test', () => {
 
         const initialOwner = await zapVault.getOwner();
 
-        await zapVault.transferOwnership(signers[1].address);
+        await zapVault.initTransferOwnership(signers[1].address);
+
+        await zapVault.connect(signers[1]).claimTransferOwnership();
 
         const zapVaultFilter =
             zapVault.filters.OwnershipTransferred(null, null);

@@ -8,7 +8,7 @@ import chai, { expect } from "chai";
 
 import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 
-import { signPermit, signMintWithSig } from "./utils";
+import { signPermit, signMintWithSig, deployOneMedia } from "./utils";
 
 import { ZapMedia } from '../typechain/ZapMedia';
 import { ZapMarket } from "../typechain/ZapMarket";
@@ -175,6 +175,10 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
+
             ask.currency = zapTokenBsc.address;
         });
 
@@ -266,6 +270,10 @@ describe("ZapMedia Test", async () => {
             zapMedia1 = medias[0];
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
+
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
         });
 
         it("should not mint token if caller is not approved", async () => {
@@ -465,6 +473,9 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
         })
 
         it("should mint a token for a given creator with a valid signature", async () => {
@@ -872,6 +883,10 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
+
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
@@ -980,6 +995,10 @@ describe("ZapMedia Test", async () => {
             zapMedia1 = medias[0];
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
+
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
 
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -1097,6 +1116,10 @@ describe("ZapMedia Test", async () => {
             zapMedia1 = medias[0];
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
+            
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
 
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -1281,6 +1304,10 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
+
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
@@ -1346,6 +1373,10 @@ describe("ZapMedia Test", async () => {
             zapMedia1 = medias[0];
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
+
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
 
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -1481,6 +1512,10 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
+
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
@@ -1592,6 +1627,10 @@ describe("ZapMedia Test", async () => {
             zapMedia1 = medias[0];
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
+
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
 
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
@@ -1714,6 +1753,10 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
+
             tokenURI = String('media contract 1 - token 1 uri');
             metadataURI = String('media contract 1 - metadata 1 uri');
 
@@ -1794,6 +1837,9 @@ describe("ZapMedia Test", async () => {
             zapMedia2 = medias[1];
             zapMedia3 = medias[2];
 
+            await zapMedia1.claimTransferOwnership();
+            await zapMedia2.claimTransferOwnership();
+            await zapMedia3.claimTransferOwnership();
         })
 
         it('should return true to supporting metadata interface', async () => {
@@ -1826,6 +1872,9 @@ describe("ZapMedia Test", async () => {
                 zapMedia2 = medias[1];
                 zapMedia3 = medias[2];
 
+                await zapMedia1.claimTransferOwnership();
+                await zapMedia2.claimTransferOwnership();
+                await zapMedia3.claimTransferOwnership();
 
                 tokenURI = String('media contract 1 - token 1 uri');
                 metadataURI = String('media contract 1 - metadata 1 uri');
@@ -1880,4 +1929,128 @@ describe("ZapMedia Test", async () => {
 
         });
     });
+
+    describe("Ownership", () => {
+        beforeEach(async () => {
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deployOneMedia(signers[0], zapMarket, mediaDeployer, 101);
+
+            zapMedia1 = medias;
+            await zapMedia1.claimTransferOwnership();
+        });
+    
+        it("Should successfully transfer ownership", async () => {
+          let oldOwner = await zapMedia1.getOwner();
+          let newOwner = signers[1].address;
+          await zapMedia1.initTransferOwnership(newOwner);
+          expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
+          expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+          // listen for transferOwnershipInitiated event
+          const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
+            null, null
+          );
+    
+          const event_transferOwnershipInitated: Event = (
+            await zapMedia1.queryFilter(filter_transferInitiated)
+          )[1]
+    
+          expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+          expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+          expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+    
+          await zapMedia1.connect(signers[1]).claimTransferOwnership();
+          expect(newOwner).to.be.equal(await zapMedia1.getOwner());
+          expect(ethers.constants.AddressZero).to.be.equal(await zapMedia1.appointedOwner());
+          // listen for transferOwnership event
+          const filter_transfered: EventFilter = zapMedia1.filters.OwnershipTransferred(
+            null, null
+          );
+    
+          const event_transferredOwnership: Event = (
+            await zapMedia1.queryFilter(filter_transfered)
+          )[1]
+    
+          expect(event_transferredOwnership.event).to.be.equal("OwnershipTransferred");
+          expect(event_transferredOwnership.args?.previousOwner).to.be.equal(oldOwner);
+          expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
+        });
+    
+        it("Should revoke appointed owner", async () => {
+          let oldOwner = await zapMedia1.getOwner();
+          let newOwner = signers[1].address;
+    
+          await zapMedia1.initTransferOwnership(newOwner);
+          expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
+          expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+          // listen for transferOwnershipInitiated event
+          const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
+            null, null
+          );
+    
+          const event_transferOwnershipInitated: Event = (
+            await zapMedia1.queryFilter(filter_transferInitiated)
+          )[1]
+    
+          expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+          expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+          expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+    
+          await zapMedia1.revokeTransferOwnership();
+          expect(ethers.constants.AddressZero).to.be.equal(await zapMedia1.appointedOwner());
+          expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+    
+          await expect(zapMedia1.connect(signers[1]).claimTransferOwnership()).
+              to.be.revertedWith("Ownable: No ownership transfer have been initiated");
+        });
+    
+        it("Should revert when non owner calls init transfer", async() => {
+          let newOwner = signers[1].address;
+          await expect(zapMedia1.connect(signers[2]).initTransferOwnership(newOwner)).
+                to.be.reverted;
+            //   to.be.revertedWith("Ownable: Only owner has access to this function");
+    
+          await expect(zapMedia1.connect(signers[0]).initTransferOwnership(ethers.constants.AddressZero)).
+              to.be.revertedWith("Ownable: Cannot transfer to zero address");
+        });
+    
+        it("Should revert when non owner calls claim transfer", async() => {
+          let oldOwner = await zapMedia1.getOwner();
+          let newOwner = signers[1].address;
+    
+          await zapMedia1.initTransferOwnership(newOwner);
+          expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
+          expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+          // listen for transferOwnershipInitiated event
+          const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
+            null, null
+          );
+    
+          const event_transferOwnershipInitated: Event = (
+            await zapMedia1.queryFilter(filter_transferInitiated)
+          )[1]
+    
+          expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+          expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+          expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+    
+          await expect(zapMedia1.connect(signers[2]).claimTransferOwnership()).
+              to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
+        });
+      });
 })

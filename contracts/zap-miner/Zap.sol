@@ -370,10 +370,10 @@ contract Zap {
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
-        token.approve(address(this), stakeAmount);
+       
         transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
-
+        
     }
 
     /**
