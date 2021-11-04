@@ -2020,38 +2020,6 @@ describe("ZapMedia Test", async () => {
                 to.be.revertedWith("Ownable: No ownership transfer have been initiated");
         });
 
-        it("Should revert when non owner calls init transfer", async () => {
-            let newOwner = signers[1].address;
-            await expect(zapMedia1.connect(signers[2]).initTransferOwnership(newOwner)).
-                to.be.reverted;
-            //   to.be.revertedWith("Ownable: Only owner has access to this function");
 
-            await expect(zapMedia1.connect(signers[0]).initTransferOwnership(ethers.constants.AddressZero)).
-                to.be.revertedWith("Ownable: Cannot transfer to zero address");
-        });
-
-        it("Should revert when non owner calls claim transfer", async () => {
-            let oldOwner = await zapMedia1.getOwner();
-            let newOwner = signers[1].address;
-
-            await zapMedia1.initTransferOwnership(newOwner);
-            expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
-            expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
-            // listen for transferOwnershipInitiated event
-            const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
-                null, null
-            );
-
-            const event_transferOwnershipInitated: Event = (
-                await zapMedia1.queryFilter(filter_transferInitiated)
-            )[1]
-
-            expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
-            expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
-            expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
-
-            await expect(zapMedia1.connect(signers[2]).claimTransferOwnership()).
-                to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
-        });
     });
 })
