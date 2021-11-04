@@ -427,7 +427,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it.only('Should emit a Minted event when a token is minted', async () => {
+    it('Should emit a Minted event when a token is minted', async () => {
 
       const zapMarketFilter: EventFilter = zapMarket.filters.Minted(
         0,
