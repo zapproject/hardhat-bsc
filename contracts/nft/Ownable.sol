@@ -15,7 +15,7 @@ contract Ownable is Initializable {
     address public appointedOwner;
 
     /// @dev The Ownable constructor sets the original `access.owner` of the contract to the sender account.
-    function _init_ownable() internal {
+    function initialize_ownable() internal initializer {
         access.owner = msg.sender;
     }
 
@@ -29,8 +29,7 @@ contract Ownable is Initializable {
         _;
     }
 
-    function approveToMint(address toApprove) external {
-        require(msg.sender == access.owner);
+    function approveToMint(address toApprove) external onlyOwner {
         access.approvedToMint[toApprove] = true;
     }
 
