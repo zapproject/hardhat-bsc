@@ -590,11 +590,11 @@ contract ZapMedia is
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
         require(data.contentHash != 0, 'Media: content hash must be non-zero');
 
-        console.log('Hash status', access._contentHashes[data.contentHash]);
         require(
-            access._contentHashes[data.contentHash] == false,
+            !access._contentHashes[data.contentHash],
             'Media: a token has already been created with this content hash'
         );
+
         require(
             data.metadataHash != 0,
             'Media: metadata hash must be non-zero'
