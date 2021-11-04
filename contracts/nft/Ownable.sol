@@ -29,8 +29,7 @@ contract Ownable is Initializable {
         _;
     }
 
-    function approveToMint(address toApprove) external {
-        require(msg.sender == access.owner);
+    function approveToMint(address toApprove) external onlyOwner {
         access.approvedToMint[toApprove] = true;
     }
 
