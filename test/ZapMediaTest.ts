@@ -308,6 +308,8 @@ describe("ZapMedia Test", async () => {
                 await zapMedia2.connect(signers[3]).mint(mediaData, bidShares)
             ).to.be.ok;
 
+           
+
             const ownerOf = await zapMedia2.ownerOf(0);
             const creator = await zapMedia2.getTokenCreators(0);
 
@@ -1991,7 +1993,7 @@ describe("ZapMedia Test", async () => {
           expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
         });
     
-        it("Should revoke appointed owner", async () => {
+        it.only("Should revoke appointed owner", async () => {
           let oldOwner = await zapMedia1.getOwner();
           let newOwner = signers[1].address;
     
@@ -2023,7 +2025,7 @@ describe("ZapMedia Test", async () => {
           let newOwner = signers[1].address;
           await expect(zapMedia1.connect(signers[2]).initTransferOwnership(newOwner)).
                 to.be.reverted;
-            //   to.be.revertedWith("Ownable: Only owner has access to this function");
+            
     
           await expect(zapMedia1.connect(signers[0]).initTransferOwnership(ethers.constants.AddressZero)).
               to.be.revertedWith("Ownable: Cannot transfer to zero address");
@@ -2032,7 +2034,7 @@ describe("ZapMedia Test", async () => {
         it("Should revert when non owner calls claim transfer", async() => {
           let oldOwner = await zapMedia1.getOwner();
           let newOwner = signers[1].address;
-    
+          
           await zapMedia1.initTransferOwnership(newOwner);
           expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
           expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
@@ -2052,5 +2054,14 @@ describe("ZapMedia Test", async () => {
           await expect(zapMedia1.connect(signers[2]).claimTransferOwnership()).
               to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
         });
-      });
+      
+    it.only("Should revoke transfer and set appointed owner to 0 address", async () => {
+       let appointedOwner = signers[0].address;
+
+       await expect(zapMedia1.connect(signers[1]).revokeTransferOwnership()).
+            to.be.revertedWith("onlyOwner error: Only Owner of the Contract can make this Call");
+    });
+    
+    });
+
 })
