@@ -145,7 +145,7 @@
 //         string memory _collectionMetadata
 //     ) external override initializer {
 //         __ERC721_init(name, symbol);
-//         _init_ownable();
+//         initialize_ownable();
 
 //         access.marketContract = marketContractAddr;
 //         IMarket zapMarket = IMarket(access.marketContract);

@@ -238,12 +238,11 @@ describe("MediaFactory", () => {
                 { initializer: 'initialize' }
             ) as BadMedia;
             await badMedia.mint();
-
             const token = 0;
             const duration = 60 * 60 * 24;
             const reservePrice = BigNumber.from(10).pow(18).div(2);
 
-            await expect (auctionHouse.createAuction(
+            await expect(auctionHouse.createAuction(
                 token,
                 badMedia.address,
                 duration,
