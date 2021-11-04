@@ -214,10 +214,16 @@ describe('ZapMarket Test', () => {
 
     describe("#Initialize", function () {
 
+
       it("Should not initialize twice", async () => {
         await expect(
           zapMarket.initializeMarket(zapVault.address)).to.be.revertedWith("Initializable: contract is already initialized")
       })
+    })
+
+    it("Should get the market owner", async () => {
+      const owner = await zapMarket.getOwner()
+      expect(signers[0].address).to.equal(owner)
     })
 
     it('Should get the platform fee', async () => {
@@ -1619,15 +1625,7 @@ describe('ZapMarket Test', () => {
 
     it('Should have a external token balance of 1', async () => {
 
-      console.log(await osCreature.tokenURI(0))
       expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
-
-    })
-
-    it.only('should set address to private', async () => {
-
-      //console.log(await osCreature.tokenURI(0))
-      //expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
     })
 
