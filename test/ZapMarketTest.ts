@@ -1649,7 +1649,7 @@ describe('ZapMarket Test', () => {
       })) as ZapMarket;
     });
 
-    it("Should successfully transfer ownership", async () => {
+    it.only("Should successfully transfer ownership", async () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 

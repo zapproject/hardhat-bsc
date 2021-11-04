@@ -47,7 +47,7 @@ contract Ownable is Initializable {
         require(appointedOwner != address(0), "Ownable: No ownership transfer have been initiated");
         require(msg.sender == appointedOwner, "Ownable: Caller is not the appointed owner of this contract");
 
-        emit OwnershipTransferred(owner, appointedOwner);
+        emit OwnershipTransferred(msg.sender, appointedOwner);
         owner = appointedOwner;
         appointedOwner = address(0);
     }
