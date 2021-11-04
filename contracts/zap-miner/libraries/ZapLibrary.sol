@@ -9,7 +9,6 @@ import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
 
-
 /**
  * @title Zap Oracle System Library
  * @dev Contains the functions' logic for the Zap contract where miners can submit the proof of work
@@ -145,7 +144,7 @@ library ZapLibrary {
             self.uintVars[keccak256('currentReward')] = 6e18;
         }
         if (self.uintVars[keccak256('currentReward')] > 1e18) {
-        // adjust payout = payout * ratio 0.000030612633181126/1e18  
+            // adjust payout = payout * ratio 0.000030612633181126/1e18
             self.uintVars[keccak256('currentReward')] =
                 self.uintVars[keccak256('currentReward')] -
                 (self.uintVars[keccak256('currentReward')] * 30612633181126) /
@@ -299,10 +298,16 @@ library ZapLibrary {
         uint256 _value
     ) public {
         //requre miner is staked
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner is not staked");
+        require(
+            self.stakerDetails[msg.sender].currentStatus == 1,
+            'Miner is not staked'
+        );
 
         //Check the miner is submitting the pow for the current request Id
-        require(_requestId == self.uintVars[keccak256('currentRequestId')], "The solution submitted is not for the current request ID");
+        require(
+            _requestId == self.uintVars[keccak256('currentRequestId')],
+            'The solution submitted is not for the current request ID'
+        );
 
         //Saving the challenge information as unique by using the msg.sender
         require(
@@ -324,12 +329,15 @@ library ZapLibrary {
                 )
             ) %
                 self.uintVars[keccak256('difficulty')] ==
-                0
-            , "Challenge info is not unique"
+                0,
+            'Challenge info is not unique'
         );
 
         //Make sure the miner does not submit a value more than once
-        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner has already submitted a value");
+        require(
+            !self.minersByChallenge[self.currentChallenge][msg.sender],
+            'Miner has already submitted a value'
+        );
 
         // Set miner reward to zero to prevent it from giving rewards before a block is mined
         self.uintVars[keccak256('currentMinerReward')] = 0;

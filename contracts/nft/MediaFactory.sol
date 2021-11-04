@@ -33,7 +33,7 @@ contract MediaFactory is OwnableUpgradeable {
             _collectionMetadata
         );
 
-        zapMedia.transferOwnership(payable(msg.sender));
+        zapMedia.initTransferOwnership(payable(msg.sender));
 
         zapMarket.registerMedia(address(zapMedia));
 
