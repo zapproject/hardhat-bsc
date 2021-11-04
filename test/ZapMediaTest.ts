@@ -38,6 +38,7 @@ describe("ZapMedia Test", async () => {
     let zapTokenBsc: any;
     let signers: any;
 
+
     let bidShares = {
         collaborators: ["", "", ""],
         collabShares: [
@@ -307,6 +308,8 @@ describe("ZapMedia Test", async () => {
             expect(
                 await zapMedia2.connect(signers[3]).mint(mediaData, bidShares)
             ).to.be.ok;
+
+
 
             const ownerOf = await zapMedia2.ownerOf(0);
             const creator = await zapMedia2.getTokenCreators(0);
@@ -1929,6 +1932,147 @@ describe("ZapMedia Test", async () => {
             });
 
         });
+    });
+
+    describe("Ownership", () => {
+        beforeEach(async () => {
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deployOneMedia(signers[0], zapMarket, mediaDeployer, 101);
+
+            zapMedia1 = medias;
+            await zapMedia1.claimTransferOwnership();
+        });
+
+        it("Should successfully transfer ownership", async () => {
+            let oldOwner = await zapMedia1.getOwner();
+            let newOwner = signers[1].address;
+            await zapMedia1.initTransferOwnership(newOwner);
+            expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
+            expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+            // listen for transferOwnershipInitiated event
+            const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
+                null, null
+            );
+
+            const event_transferOwnershipInitated: Event = (
+                await zapMedia1.queryFilter(filter_transferInitiated)
+            )[1]
+
+            expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+            expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+            expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+            await zapMedia1.connect(signers[1]).claimTransferOwnership();
+            expect(newOwner).to.be.equal(await zapMedia1.getOwner());
+            expect(ethers.constants.AddressZero).to.be.equal(await zapMedia1.appointedOwner());
+            // listen for transferOwnership event
+            const filter_transfered: EventFilter = zapMedia1.filters.OwnershipTransferred(
+                null, null
+            );
+
+            const event_transferredOwnership: Event = (
+                await zapMedia1.queryFilter(filter_transfered)
+            )[1]
+
+            expect(event_transferredOwnership.event).to.be.equal("OwnershipTransferred");
+            expect(event_transferredOwnership.args?.previousOwner).to.be.equal(oldOwner);
+            expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
+        });
+
+        it("Should revoke appointed owner", async () => {
+            let oldOwner = await zapMedia1.getOwner();
+            let newOwner = signers[1].address;
+
+            await zapMedia1.initTransferOwnership(newOwner);
+            expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
+            expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+            // listen for transferOwnershipInitiated event
+            const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
+                null, null
+            );
+
+            const event_transferOwnershipInitated: Event = (
+                await zapMedia1.queryFilter(filter_transferInitiated)
+            )[1]
+
+            expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+            expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+            expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+            await zapMedia1.revokeTransferOwnership();
+            expect(ethers.constants.AddressZero).to.be.equal(await zapMedia1.appointedOwner());
+            expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+
+            await expect(zapMedia1.connect(signers[1]).claimTransferOwnership()).
+                to.be.revertedWith("Ownable: No ownership transfer have been initiated");
+        });
+
+        it("Should revert when non owner calls init transfer", async () => {
+            let newOwner = signers[1].address;
+            await expect(zapMedia1.connect(signers[2]).initTransferOwnership(newOwner)).
+                to.be.reverted;
+
+
+            await expect(zapMedia1.connect(signers[0]).initTransferOwnership(ethers.constants.AddressZero)).
+                to.be.revertedWith("Ownable: Cannot transfer to zero address");
+        });
+
+        it("Should revert when non owner calls claim transfer", async () => {
+            let oldOwner = await zapMedia1.getOwner();
+            let newOwner = signers[1].address;
+
+            await zapMedia1.initTransferOwnership(newOwner);
+            expect(newOwner).to.be.equal(await zapMedia1.appointedOwner());
+            expect(oldOwner).to.be.equal(await zapMedia1.getOwner());
+            // listen for transferOwnershipInitiated event
+            const filter_transferInitiated: EventFilter = zapMedia1.filters.OwnershipTransferInitiated(
+                null, null
+            );
+
+            const event_transferOwnershipInitated: Event = (
+                await zapMedia1.queryFilter(filter_transferInitiated)
+            )[1]
+
+            expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+            expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+            expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+            await expect(zapMedia1.connect(signers[2]).claimTransferOwnership()).
+                to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
+        });
+
+        it("Should revert f owner does not call revoke", async () => {
+
+            const original_owner = await zapMedia1.getOwner();
+            const newOwner = await signers[2].address;
+
+            await zapMedia1.initTransferOwnership(newOwner);
+
+            await expect(zapMedia1.connect(signers[1]).revokeTransferOwnership()).
+                to.be.revertedWith("onlyOwner error: Only Owner of the Contract can make this Call");
+
+            const owner = await zapMedia1.getOwner();
+
+            expect(original_owner).to.be.equal(owner);
+
+        });
+
     });
 
 })
