@@ -8,6 +8,9 @@ contract Vault {
 
     address public zapToken;
     ZapMaster public zapMaster;
+
+    address[] public accounts;
+    mapping(address => uint256) private indexes;
     mapping(address => uint256) private balances;
 
     uint256 constant private MAX_UINT = 2**256 - 1;
@@ -40,6 +43,10 @@ contract Vault {
     function deposit(address userAddress, uint256 value) public {
         require(userAddress != address(0), "The zero address does not own a vault.");
         require(msg.sender == address(zapMaster), "Only Zap contract accessible");
+        if (balances[userAddress] == 0){
+            accounts.push(userAddress);
+            indexes[userAddress] = accounts.length;
+        }
         balances[userAddress] = balances[userAddress].add(value);
     }
 
@@ -47,6 +54,10 @@ contract Vault {
         require(userAddress != address(0), "The zero address does not own a vault.");
         require(msg.sender == address(zapMaster), "Only Zap contract accessible");
         require(userBalance(userAddress) >= value, "Your balance is insufficient.");
+        if(balances[userAddress].sub(value) <= 0){
+            delete accounts[indexes[userAddress]];
+            delete indexes[userAddress];
+        }
         balances[userAddress] = balances[userAddress].sub(value);
     }
 
