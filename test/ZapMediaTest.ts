@@ -2057,7 +2057,7 @@ describe("ZapMedia Test", async () => {
         });
       
     
-    it.only("Should revert f owner does not call revoke", async () => {
+    it("Should revert f owner does not call revoke", async () => {
     
     const original_owner = await zapMedia1.getOwner(); 
     const newOwner =  await signers[2].address;
