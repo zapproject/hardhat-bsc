@@ -587,8 +587,7 @@ contract Zap {
      * Increase the approval of ZapMaster for the Vault
      */
     function increaseVaultApproval(address vaultAddress) public returns (bool) {
-        Vault vault = Vault(vaultAddress);
-        return vault.increaseApproval();
+        return Vault(vaultAddress).increaseApproval();
     }
 
     /**
