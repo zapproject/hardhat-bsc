@@ -7,7 +7,6 @@ contract Vault {
     using SafeMathM for uint256;
 
     address public zapToken;
-    ZapMaster public zapMaster;
     address private newVault;
     ZapMaster private zapMaster;
 
