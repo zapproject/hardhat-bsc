@@ -8,6 +8,7 @@ contract Vault {
 
     address public zapToken;
     ZapMaster public zapMaster;
+    address private newVault;
     ZapMaster private zapMaster;
 
     address[] public accounts;
@@ -28,6 +29,7 @@ contract Vault {
                 "Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
         _;
     }
+
     constructor (address token, address master) public {
         zapToken = token;
         zapMaster = ZapMaster(address(uint160(master)));
@@ -53,9 +55,8 @@ contract Vault {
         return tempUint;
     }
 
-    function deposit(address userAddress, uint256 value) public {
+    function deposit(address userAddress, uint256 value) public onlyVaultOrZapMaster {
         require(userAddress != address(0), "The zero address does not own a vault.");
-        require(msg.sender == address(zapMaster), "Only Zap contract accessible");
         if (balances[userAddress] == 0){
             accounts.push(userAddress);
             indexes[userAddress] = accounts.length;
@@ -63,7 +64,7 @@ contract Vault {
         balances[userAddress] = balances[userAddress].add(value);
     }
 
-    function withdraw(address userAddress, uint256 value) public {
+    function withdraw(address userAddress, uint256 value) public onlyVaultOrZapMaster {
         require(userAddress != address(0), "The zero address does not own a vault.");
         require(msg.sender == address(zapMaster), "Only Zap contract accessible");
         require(userBalance(userAddress) >= value, "Your balance is insufficient.");
