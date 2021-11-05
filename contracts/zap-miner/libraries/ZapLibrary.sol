@@ -8,7 +8,7 @@ import './ZapStorage.sol';
 import './ZapDispute.sol';
 import './ZapStake.sol';
 import './ZapGettersLibrary.sol';
-
+import './Constants.sol';
 /**
  * @title Zap Oracle System Library
  * @dev Contains the functions' logic for the Zap contract where miners can submit the proof of work
@@ -257,19 +257,19 @@ library ZapLibrary {
             ); // Save hash for next proof
             emit NewChallenge(
                 self.currentChallenge,
-                self.uintVars[keccak256('currentRequestId')],
-                self.uintVars[keccak256('difficulty')],
+                self.uintVars[Constants.getCurrentRequestId()],
+                self.uintVars[Constants.getDifficulty()],
                 self
                     .requestDetails[
-                        self.uintVars[keccak256('currentRequestId')]
+                        self.uintVars[Constants.getCurrentRequestId()]
                     ]
-                    .apiUintVars[keccak256('granularity')],
+                    .apiUintVars[Constants.getGranularity()],
                 self
                     .requestDetails[
-                        self.uintVars[keccak256('currentRequestId')]
+                        self.uintVars[Constants.getCurrentRequestId()]
                     ]
                     .queryString,
-                self.uintVars[keccak256('currentTotalTips')]
+                self.uintVars[Constants.getCurrentTotalTips()]
             );
             emit NewRequestOnDeck(
                 newRequestId,

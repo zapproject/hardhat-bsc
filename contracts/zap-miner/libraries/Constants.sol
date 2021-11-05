@@ -43,7 +43,13 @@ library Constants{
         function getTimeLastValueHash() public pure returns(bytes32){return TIME_LAST_VALUE_HASH;}
         bytes32 public constant TOTAL_SUPPLY_HASH = keccak256('total_supply');
         function getTotalSupplyHash() public pure returns(bytes32){return TOTAL_SUPPLY_HASH;}
-
-            
+        bytes32 public constant CURRENT_REQUEST_ID = keccak256('currentRequestId');
+        function getCurrentRequestId() public pure returns(bytes32){return CURRENT_REQUEST_ID;}
+        bytes32 public constant DIFFICULTY = keccak256('difficulty');
+        function getDifficulty() public pure returns(bytes32){return DIFFICULTY;}
+        bytes32 public constant GRANULARITY = keccak256('granularity');
+        function getGranularity() public pure returns(bytes32){return GRANULARITY;}
+        bytes32 public constant CURRENT_TOTAL_TIPS = keccak256('currentTotalTips');
+        function getCurrentTotalTips() public pure returns(bytes32){return CURRENT_TOTAL_TIPS;}    
 
 }
