@@ -1716,21 +1716,21 @@ describe('ZapMarket Test', () => {
       expect(oldOwner).to.be.equal(await zapMarket.getOwner());
 
       await expect(zapMarket.connect(signers[1]).claimTransferOwnership()).
-          to.be.revertedWith("Ownable: No ownership transfer have been initiated");
+        to.be.revertedWith("Ownable: No ownership transfer have been initiated");
     });
 
-    it("Should revert when non owner calls init transfer", async() => {
+    it("Should revert when non owner calls init transfer", async () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 
       await expect(zapMarket.connect(signers[1]).initTransferOwnership(newOwner)).
-          to.be.revertedWith("Ownable: Only owner has access to this function");
+        to.be.revertedWith("Ownable: Only owner has access to this function");
 
       await expect(zapMarket.connect(signers[0]).initTransferOwnership(ethers.constants.AddressZero)).
-          to.be.revertedWith("Ownable: Cannot transfer to zero address");
+        to.be.revertedWith("Ownable: Cannot transfer to zero address");
     });
 
-    it("Should revert when non owner calls claim transfer", async() => {
+    it("Should revert when non owner calls claim transfer", async () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 
@@ -1751,7 +1751,7 @@ describe('ZapMarket Test', () => {
       expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
 
       await expect(zapMarket.connect(signers[2]).claimTransferOwnership()).
-          to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
+        to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
     });
   });
 
