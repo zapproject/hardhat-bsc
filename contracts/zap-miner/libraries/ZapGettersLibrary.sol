@@ -3,6 +3,7 @@ pragma solidity =0.5.16;
 import './SafeMathM.sol';
 import './ZapStorage.sol';
 import './Utilities.sol';
+import './Constants.sol';
 
 /**
  * @title Zap Getters Library
@@ -26,8 +27,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _newDeity
     ) internal {
-        require(self.addressVars[keccak256('_deity')] == msg.sender);
-        self.addressVars[keccak256('_deity')] = _newDeity;
+        require(self.addressVars[Constants.DEITY_HASH] == msg.sender);
+        self.addressVars[Constants.DEITY_HASH] = _newDeity;
     }
 
     //Only needs to be in library
@@ -39,7 +40,7 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _zapContract
     ) internal {
-        require(self.addressVars[keccak256('_deity')] == msg.sender);
+        require(self.addressVars[Constants.DEITY_HASH] == msg.sender);
         self.addressVars[keccak256('zapContract')] = _zapContract;
         emit NewZapAddress(_zapContract);
     }
