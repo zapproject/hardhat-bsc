@@ -98,5 +98,6 @@ contract Vault {
                 Vault(newVault).deposit(account, balance);
             }
         }
+        return true;
     }
 }
