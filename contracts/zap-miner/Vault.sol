@@ -15,6 +15,18 @@ contract Vault {
 
     uint256 constant private MAX_UINT = 2**256 - 1;
 
+    modifier onlyZapMaster(){
+        require(address(zapMaster) != address(0));
+        require(msg.sender == address(zapMaster), "Vault: Only the ZapMaster contract can make this call");
+        _;
+    }
+
+    modifier onlyVaultOrZapMaster(){
+        require(address(zapMaster) != address(0));
+        require(msg.sender == address(zapMaster) || (msg.sender == newVault && newVault != address(0)) || msg.sender == address(this),
+                "Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
+        _;
+    }
     constructor (address token, address master) public {
         zapToken = token;
         zapMaster = ZapMaster(address(uint160(master)));
