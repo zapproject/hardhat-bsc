@@ -1754,17 +1754,6 @@ describe('ZapMarket Test', () => {
         to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
     });
 
-    it.only("Should utilize msg.sender instead of owner", async() => {
-    
-      //ownershipTransferred function should utilize msg.sender
-     const owner = await zapMarket.getOwner()
-     console.log(owner)
-     //expect
-
-      //await expect(owner).to.be.equal(msg.sender);
-
-    });
-
   });
 
 });
