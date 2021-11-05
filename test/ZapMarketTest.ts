@@ -1752,12 +1752,11 @@ describe('ZapMarket Test', () => {
     it.only("Should utilize msg.sender instead of owner", async() => {
     
       //ownershipTransferred function should utilize msg.sender
-     const owner = await zapMarket.ownershipTransferred()
+     const owner = await zapMarket.getOwner()
      console.log(owner)
      //expect
 
-      //await expect(zapMarket.connect(signers[1]).initTransferOwnership(newOwner)).
-          //to.be.revertedWith("Ownable: Only owner has access to this function");
+      //await expect(owner).to.be.equal(msg.sender);
 
     });
 
