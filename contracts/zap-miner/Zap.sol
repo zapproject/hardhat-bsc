@@ -234,16 +234,25 @@ contract Zap {
             _callOptionalReturn(token, data);
         }
 
-        if (disp.fokedContract == ForkedContract.ZapMasterContract) {
+        if (disp.forkedContract == uint(ForkedContract.ZapMasterContract)) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
             // total balance of current ZapMaster
             uint256 zapMasterBalance = token.balanceOf(address(this));
 
             data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
-                disp.proposedForkAddress, zapBalance);
-            // transfer `zapBalance` ZAP from current ZapMaster to new ZapMaster
+                disp.proposedForkAddress, zapMasterBalance);
+            // transfer `zapMasterBalance` ZAP from current ZapMaster to new ZapMaster
             _callOptionalReturn(token, data);
+        } else if (disp.forkedContract == uint(ForkedContract.VaultContract)) {
+            // If this is a fork proposal for changing the Vault Contract, transfer
+            // the current Vault balance to the new one
+            increaseVaultApproval(vaultAddress);
+            transfer(disp.proposedForkAddress, token.balanceOf(vaultAddress));
+            // ...and also migrate the accounts from the old vault contract to the new one
+            if (vault.setNewVault(disp.proposedForkAddress)) {
+                assert(vault.migrateVault());
+            }
         }
     }
 
