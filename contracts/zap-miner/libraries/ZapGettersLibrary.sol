@@ -27,8 +27,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _newDeity
     ) internal {
-        require(self.addressVars[Constants.DEITY_HASH] == msg.sender);
-        self.addressVars[Constants.DEITY_HASH] = _newDeity;
+        require(self.addressVars[Constants.getDeityHash()] == msg.sender);
+        self.addressVars[Constants.getDeityHash()] = _newDeity;
     }
 
     //Only needs to be in library
@@ -40,8 +40,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _zapContract
     ) internal {
-        require(self.addressVars[Constants.DEITY_HASH] == msg.sender);
-        self.addressVars[keccak256('zapContract')] = _zapContract;
+        require(self.addressVars[Constants.getDeityHash()] == msg.sender);
+        self.addressVars[Constants.getZapContractHash()] = _zapContract;
         emit NewZapAddress(_zapContract);
     }
 
@@ -49,8 +49,8 @@ library ZapGettersLibrary {
         ZapStorage.ZapStorageStruct storage self,
         address _vaultAddress
     ) internal {
-        require(self.addressVars[keccak256('_owner')] == msg.sender);
-        self.addressVars[keccak256('_vault')] = _vaultAddress;
+        require(self.addressVars[Constants.getOwnerHash()] == msg.sender);
+        self.addressVars[Constants.getVaultHash()] = _vaultAddress;
     }
 
     /*Zap Getters*/
@@ -146,15 +146,15 @@ library ZapGettersLibrary {
             disp.reportingParty,
             disp.proposedForkAddress,
             [  //all these keys are being being calculated
-                disp.disputeUintVars[keccak256('requestId')],
-                disp.disputeUintVars[keccak256('timestamp')],
-                disp.disputeUintVars[keccak256('value')],
-                disp.disputeUintVars[keccak256('minExecutionDate')],
-                disp.disputeUintVars[keccak256('numberOfVotes')],
-                disp.disputeUintVars[keccak256('blockNumber')],
-                disp.disputeUintVars[keccak256('minerSlot')],
-                disp.disputeUintVars[keccak256('quorum')],
-                disp.disputeUintVars[keccak256('fee')]
+                disp.disputeUintVars[Constants.getRequestIdHash()],
+                disp.disputeUintVars[Constants.getTimestampHash()],
+                disp.disputeUintVars[Constants.getValueHash()],
+                disp.disputeUintVars[Constants.getMinExecutionDateHash()],
+                disp.disputeUintVars[Constants.getNumVotesHash()],
+                disp.disputeUintVars[Constants.getBlockNumHash()],
+                disp.disputeUintVars[Constants.getMinerSlotHash()],
+                disp.disputeUintVars[Constants.getQuorumHash()],
+                disp.disputeUintVars[Constants.getFeeHash()]
             ],
             disp.tally
         );
@@ -178,17 +178,17 @@ library ZapGettersLibrary {
     {
         return (
             self.currentChallenge, //these keys below are being calculated
-            self.uintVars[keccak256('currentRequestId')],
-            self.uintVars[keccak256('difficulty')],
+            self.uintVars[Constants.getCurrentRequestIdHash()],
+            self.uintVars[Constants.getDifficultyHash()],
             self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
+                .requestDetails[self.uintVars[Constants.getCurrentRequestIdHash()]]
                 .queryString,
             self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-                .apiUintVars[keccak256('granularity')],
+                .requestDetails[self.uintVars[Constants.getCurrentRequestIdHash()]]
+                .apiUintVars[Constants.getGranularityHash()],
             self
-                .requestDetails[self.uintVars[keccak256('currentRequestId')]]
-                .apiUintVars[keccak256('totalTip')]
+                .requestDetails[self.uintVars[Constants.getCurrentRequestIdHash()]]
+                .apiUintVars[Constants.getTotalTipHash()]
         );
     }
 
@@ -234,9 +234,9 @@ library ZapGettersLibrary {
             retrieveData(
                 self, //more being calculated
                 self.requestIdByTimestamp[
-                    self.uintVars[keccak256('timeOfLastNewValue')]
+                    self.uintVars[Constants.getTimeLastValueHash()]
                 ],
-                self.uintVars[keccak256('timeOfLastNewValue')]
+                self.uintVars[Constants.getTimeLastValueHash()]
             ),
             true
         );
@@ -418,9 +418,9 @@ library ZapGettersLibrary {
             _request.queryString,
             _request.dataSymbol,
             _request.queryHash, //more to be calculated
-            _request.apiUintVars[keccak256('granularity')],
-            _request.apiUintVars[keccak256('requestQPosition')],
-            _request.apiUintVars[keccak256('totalTip')]
+            _request.apiUintVars[Constants.getGranularityHash()],
+            _request.apiUintVars[Constants.getRequestQPositionHash()],
+            _request.apiUintVars[Constants.getTotalTipHash()]
         );
     }
 
@@ -514,7 +514,7 @@ library ZapGettersLibrary {
         return (
             newRequestId, //more being calculated
             self.requestDetails[newRequestId].apiUintVars[
-                keccak256('totalTip')
+                Constants.getTotalTipHash()
             ],
             self.requestDetails[newRequestId].queryString
         );
@@ -572,6 +572,6 @@ library ZapGettersLibrary {
         view
         returns (uint256)
     { //below is caculation
-        return self.uintVars[keccak256('total_supply')];
+        return self.uintVars[Constants.getTotalSupplyHash()];
     }
 }
