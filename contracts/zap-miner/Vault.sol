@@ -8,6 +8,7 @@ contract Vault {
 
     address public zapToken;
     ZapMaster public zapMaster;
+    ZapMaster private zapMaster;
 
     address[] public accounts;
     mapping(address => uint256) private indexes;
