@@ -80,4 +80,24 @@ contract Vault {
     function userBalance(address userAddress) public view returns (uint256 balance) {
         return balances[userAddress];
     }
+
+    function setNewVault(address _newVault) public onlyZapMaster returns (bool success) {
+        require(_newVault != address(0), "Can't set the zero address as the new Vault");
+        newVault = _newVault;
+        return true;
+    }
+
+    function migrateVault() public onlyZapMaster returns (bool success) {
+        require(newVault != address(0), "Can't set the zero address as the new Vault");
+        uint256 balance = 0;
+        address account = address(0);
+        for (uint256 i = 0; i < accounts.length; i++) {
+            account = accounts[i];
+            if (balances[account] > 0){
+                balance = balances[account];
+                withdraw(account, balances[accounts[i]]);
+                Vault(newVault).deposit(account, balance);
+            }
+        }
+    }
 }
