@@ -1649,7 +1649,7 @@ describe('ZapMarket Test', () => {
       })) as ZapMarket;
     });
 
-    it.only("Should successfully transfer ownership", async () => {
+    it("Should successfully transfer ownership", async () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 
@@ -1748,6 +1748,19 @@ describe('ZapMarket Test', () => {
       await expect(zapMarket.connect(signers[2]).claimTransferOwnership()).
           to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
     });
+
+    it.only("Should utilize msg.sender instead of owner", async() => {
+    
+      //ownershipTransferred function should utilize msg.sender
+     const owner = await zapMarket.ownershipTransferred()
+     console.log(owner)
+     //expect
+
+      //await expect(zapMarket.connect(signers[1]).initTransferOwnership(newOwner)).
+          //to.be.revertedWith("Ownable: Only owner has access to this function");
+
+    });
+
   });
 
 });
