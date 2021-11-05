@@ -222,13 +222,16 @@ contract Zap {
         ZapStorage.Dispute storage disp = zap.disputesById[_disputeId];
         bytes memory data;
 
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
         if (!disp.isPropFork) {
             // If this is a normal dispute, send the winners amount to their wallet
+            vault.deposit(_to, _disputeFee);
             data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
                 _to, _disputeFee);
             _callOptionalReturn(token, data);
-
         }
 
         if (disp.fokedContract == ForkedContract.ZapMasterContract) {
