@@ -135,6 +135,11 @@ contract Zap {
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
 
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
+        vault.withdraw(msg.sender, zap.uintVars[keccak256('disputeFee')]);
+        vault.deposit(zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
         transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
 
         //Increase the dispute count by 1
