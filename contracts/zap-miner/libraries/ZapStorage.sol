@@ -20,7 +20,7 @@ library ZapStorage {
         bool disputeVotePassed; //did the vote pass?
         bool isPropFork; //true for fork proposal NEW
         //Contract to be foked: 0 - No Contract to be forked, 1 - Zap Contract, 2 - ZapMaster, 3 - Vault Contract
-        uint256 fokedContract;
+        uint256 forkedContract;
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty; //miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
         address proposedForkAddress; //new fork address (if fork proposal)

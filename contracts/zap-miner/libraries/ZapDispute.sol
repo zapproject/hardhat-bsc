@@ -208,7 +208,7 @@ library ZapDispute {
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
             isPropFork: true,
-            fokedContract: forkedContract,
+            forkedContract: forkedContract,
             reportedMiner: msg.sender,
             reportingParty: msg.sender,
             proposedForkAddress: _propNewZapAddress,
