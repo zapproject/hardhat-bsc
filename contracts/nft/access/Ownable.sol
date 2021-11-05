@@ -39,7 +39,7 @@ contract Ownable is Initializable {
     /// @param newOwner The address to transfer ownership to.
     function initTransferOwnership(address payable newOwner) public onlyOwner {
         require(newOwner != address(0), "Ownable: Cannot transfer to zero address");
-        emit OwnershipTransferInitiated(owner, newOwner);
+        emit OwnershipTransferInitiated(msg.sender, newOwner);
         appointedOwner = newOwner;
     }
 
