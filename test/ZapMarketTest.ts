@@ -214,10 +214,16 @@ describe('ZapMarket Test', () => {
 
     describe("#Initialize", function () {
 
+
       it("Should not initialize twice", async () => {
         await expect(
           zapMarket.initializeMarket(zapVault.address)).to.be.revertedWith("Initializable: contract is already initialized")
       })
+    })
+
+    it("Should get the market owner", async () => {
+      const owner = await zapMarket.getOwner()
+      expect(signers[0].address).to.equal(owner)
     })
 
     it('Should get the platform fee', async () => {
@@ -1619,7 +1625,6 @@ describe('ZapMarket Test', () => {
 
     it('Should have a external token balance of 1', async () => {
 
-
       expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
     })
@@ -1711,21 +1716,21 @@ describe('ZapMarket Test', () => {
       expect(oldOwner).to.be.equal(await zapMarket.getOwner());
 
       await expect(zapMarket.connect(signers[1]).claimTransferOwnership()).
-          to.be.revertedWith("Ownable: No ownership transfer have been initiated");
+        to.be.revertedWith("Ownable: No ownership transfer have been initiated");
     });
 
-    it("Should revert when non owner calls init transfer", async() => {
+    it("Should revert when non owner calls init transfer", async () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 
       await expect(zapMarket.connect(signers[1]).initTransferOwnership(newOwner)).
-          to.be.revertedWith("Ownable: Only owner has access to this function");
+        to.be.revertedWith("Ownable: Only owner has access to this function");
 
       await expect(zapMarket.connect(signers[0]).initTransferOwnership(ethers.constants.AddressZero)).
-          to.be.revertedWith("Ownable: Cannot transfer to zero address");
+        to.be.revertedWith("Ownable: Cannot transfer to zero address");
     });
 
-    it("Should revert when non owner calls claim transfer", async() => {
+    it("Should revert when non owner calls claim transfer", async () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 
@@ -1746,7 +1751,7 @@ describe('ZapMarket Test', () => {
       expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
 
       await expect(zapMarket.connect(signers[2]).claimTransferOwnership()).
-          to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
+        to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
     });
 
     it.only("Should utilize msg.sender instead of owner", async() => {
