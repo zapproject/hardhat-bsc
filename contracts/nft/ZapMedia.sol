@@ -176,13 +176,13 @@ contract ZapMedia is
         access.isPermissive = permissive;
         collectionMetadata = bytes(_collectionMetadata);
     }
-    
+
     /**
-    *  @notice Returns a boolean, showing whether or not the given interfaceId is supported
+     *  @notice Returns a boolean, showing whether or not the given interfaceId is supported
      * @dev This function is overriden from the ERC721 and ERC165 contract stack
      * @param interfaceId a bytes4 formatted representation of a contract interface
      * @return boolean dipicting whether or not the interface is supported
-    */
+     */
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -588,10 +588,12 @@ contract ZapMedia is
         IMarket.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
         require(data.contentHash != 0, 'Media: content hash must be non-zero');
+
         require(
-            access._contentHashes[data.contentHash] == false,
+            !access._contentHashes[data.contentHash],
             'Media: a token has already been created with this content hash'
         );
+
         require(
             data.metadataHash != 0,
             'Media: metadata hash must be non-zero'
