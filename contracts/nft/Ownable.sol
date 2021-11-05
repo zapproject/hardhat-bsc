@@ -25,7 +25,8 @@ contract Ownable is Initializable {
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
-        require(msg.sender == access.owner);
+        require(msg.sender == access.owner,
+        "onlyOwner error: Only Owner of the Contract can make this Call");
         _;
     }
 
