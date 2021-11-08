@@ -61,8 +61,8 @@ contract Vault {
     function deposit(address userAddress, uint256 value) public onlyVaultOrZapMaster {
         require(userAddress != address(0), "The zero address does not own a vault.");
         if (balances[userAddress] == 0){
-            accounts.push(userAddress);
             indexes[userAddress] = accounts.length;
+            accounts.push(userAddress);
         }
         balances[userAddress] = balances[userAddress].add(value);
     }
