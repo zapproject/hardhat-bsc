@@ -167,6 +167,22 @@ describe('Vault Security Test', () => {
         "Vault: Only the ZapMaster contract can make this call");
   });
 
+  it('Should not allow users to directly try to migrate Vault balances into new Vault', async () => {
+    const NewVault: ContractFactory = await ethers.getContractFactory('Vault', {
+      signer: signers[0]
+    });
+    const newVault = (await NewVault.deploy(
+      zapTokenBsc.address,
+      zapMaster.address
+    )) as Vault;
+
+    await newVault.deployed();
+
+    await expect(
+      vault.connect(signers[2]).migrateVault())
+    .to.be.revertedWith(
+      "Vault: Only the ZapMaster contract can make this call");
+  });
   /**
    * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
    */
