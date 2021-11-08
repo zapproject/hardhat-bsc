@@ -1684,6 +1684,7 @@ describe('ZapMarket Test', () => {
         null, null
       );
 
+      
       const event_transferredOwnership: Event = (
         await zapMarket.queryFilter(filter_transfered)
       )[0]
