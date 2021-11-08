@@ -18,7 +18,7 @@ import { Zap } from '../typechain/Zap';
 
 import { Vault } from '../typechain/Vault';
 
-import { BigNumber, ContractFactory } from 'ethers';
+import { BigNumber, ContractFactory, Event } from 'ethers';
 import { collect } from 'underscore';
 import { connect } from 'pm2';
 import { sign } from 'crypto';
@@ -134,7 +134,7 @@ describe('Vault Security Test', () => {
 
     for (var i = 1; i <= 5; i++) {
       // Allocates ZAP to signers 1 - 5
-      await zapTokenBsc.allocate(signers[i].address, 600000);
+      await zapTokenBsc.allocate(signers[i].address, ethers.utils.parseEther("600000.0"));
     }
 
     numVaultOwners = signers.length / 2;
@@ -183,6 +183,63 @@ describe('Vault Security Test', () => {
     .to.be.revertedWith(
       "Vault: Only the ZapMaster contract can make this call");
   });
+
+  it('Should propose a new Vault Contract if the tally reaches a conensus', async () => {
+    for (let i = 1; i <= 5; i++) {
+      const staker = signers[i];
+
+      // depositing stake for signer[i]
+      // this also means that the stakeAmount is transfered to the Current Vault
+      // and that the vault holds accounting for this tx
+      // approving ZM to spend on stakers behalf to lock ZAP in the Vault (contract)
+      await zapTokenBsc.connect(staker).approve(zapMaster.address, ethers.utils.parseEther("500000.0"));
+      await zap.attach(zapMaster.address).connect(staker).depositStake();
+    }
+
+    // deploying new Vault Contract
+    const newVaultFact = await ethers.getContractFactory("Vault", signers[6]);
+    const newVault = await newVaultFact.deploy(zapTokenBsc.address, zapMaster.address) as Vault;
+    await newVault.deployed();
+
+    const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
+    await zapTokenBsc.allocate(signers[1].address, disputeFee);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, disputeFee);
+    const txReceipt = await zap.attach(zapMaster.address).connect(signers[1]).proposeFork(newVault.address, 3);
+
+    const eventFilter = zapDispute.filters.NewForkProposal(null, null, newVault.address);
+    const event: Event = (await zapMaster.queryFilter(eventFilter))[0];
+
+    // ensure that the proposeFork call went through for the right Vault address
+    const retrievedVaultAddress = ethers.utils.getAddress(ethers.utils.hexStripZeros(event.topics[2]));
+    expect(retrievedVaultAddress).to.be.eq(newVault.address);
+
+    const disputeID = BigNumber.from(ethers.utils.hexStripZeros(event.topics[1]));
+    const txBlockNum = txReceipt.blockNumber as number;
+    const timestamp = (await ethers.provider.getBlock(txBlockNum)).timestamp;
+    // 60 secs * 60 * 24 * 7 = 604800 secs = 1 week
+    const sevenDaysLater = timestamp + 604800;
+
+    await ethers.provider.send("evm_setNextBlockTimestamp", [sevenDaysLater]);
+
+    for (let i = 2; i <= 5; i++) {
+      const voter = signers[i];
+
+      // each staker (who did not initiate fork proposal) votes in favor of forking the Vault
+      await zap.attach(zapMaster.address).connect(voter).vote(disputeID, true);
+    }
+
+    const oldVaultBalance = await zapTokenBsc.balanceOf(vault.address);
+    const balanceOfFirstStaker = await vault.userBalance(signers[1].address);
+    const balanceOfLastStaker = await vault.userBalance(signers[5].address);
+
+    await zap.attach(zapMaster.address).connect(signers[1]).tallyVotes(disputeID);
+
+    expect(await zapMaster.getAddressVars(ethers.utils.id("_vault"))).to.be.eq(newVault.address);
+    expect(await zapTokenBsc.balanceOf(newVault.address)).to.be.eq(oldVaultBalance);
+    expect(await newVault.userBalance(signers[1].address)).to.be.eq(balanceOfFirstStaker);
+    expect(await newVault.userBalance(signers[5].address)).to.be.eq(balanceOfLastStaker);
+  });
+
   /**
    * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
    */
