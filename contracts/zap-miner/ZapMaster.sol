@@ -14,6 +14,7 @@ contract ZapMaster is ZapGetters {
     using Address for address;
 
     address public owner;
+    bool private vaultLock;
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
@@ -56,6 +57,8 @@ contract ZapMaster is ZapGetters {
      * @param _vaultContract the address of the new Vault Contract
      */
     function changeVaultContract(address _vaultContract) external {
+        require(!vaultLock);
+        vaultLock = true;
         zap.changeVaultContract(_vaultContract);
     }
 
