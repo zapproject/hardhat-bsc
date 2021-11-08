@@ -84,19 +84,30 @@ contract Vault {
         return balances[userAddress];
     }
 
+    function getZM() public view returns (address zapMasterAddress) {
+        return address(zapMaster);
+    }
+
+    function getZT() public view returns (address zapTokenAddress) {
+        return zapToken;
+    }
+
     function setApproval(address oldVault) public onlyZapMaster returns (bool success) {
         require(!approveLocked, "Cannot set approval after migration");
         approved[oldVault] = true;
         approveLocked = true;
     }
+
     function setNewVault(address _newVault) public onlyZapMaster returns (bool success) {
-        require(_newVault != address(0), "Can't set the zero address as the new Vault");
+        require(_newVault != address(0), "Cannot set the zero address as the new Vault");
         newVault = _newVault;
         return true;
     }
 
     function migrateVault() public onlyZapMaster returns (bool success) {
         require(newVault != address(0), "Can't set the zero address as the new Vault");
+        require(Vault(newVault).getZM() == address(zapMaster), "The new vault must share same ZapMaster contract");
+        require(Vault(newVault).getZT() == zapToken, "The new vault must share the same ZapToken contract");
         uint256 balance = 0;
         address account = address(0);
         for (uint256 i = 0; i < accounts.length; i++) {
