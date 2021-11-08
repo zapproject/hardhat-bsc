@@ -216,13 +216,13 @@ contract Zap {
      */
     function tallyVotes(uint256 _disputeId) external {
 
+        address currentVault = zap.addressVars[keccak256('_vault')];
         (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         ZapStorage.Dispute storage disp = zap.disputesById[_disputeId];
         bytes memory data;
 
-        address vaultAddress = zap.addressVars[keccak256('_vault')];
-        Vault vault = Vault(vaultAddress);
+        Vault vault = Vault(currentVault);
 
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
@@ -244,14 +244,17 @@ contract Zap {
             // transfer `zapMasterBalance` ZAP from current ZapMaster to new ZapMaster
             _callOptionalReturn(token, data);
         } else if (disp.forkedContract == uint(ForkedContract.VaultContract)) {
+            // Approve the current vault to call deposit on the pending, new Vault
+            Vault(disp.proposedForkAddress).setApproval(currentVault);
             // If this is a fork proposal for changing the Vault Contract, transfer
             // the current Vault balance to the new one
-            increaseVaultApproval(vaultAddress);
-            transfer(disp.proposedForkAddress, token.balanceOf(vaultAddress));
+            increaseVaultApproval(currentVault);
+            transferFrom(currentVault, disp.proposedForkAddress, token.balanceOf(currentVault));
             // ...and also migrate the accounts from the old vault contract to the new one
             if (vault.setNewVault(disp.proposedForkAddress)) {
                 assert(vault.migrateVault());
             }
+            zap.addressVars[keccak256('_vault')] = disp.proposedForkAddress;
         }
     }
 
