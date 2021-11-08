@@ -6,13 +6,17 @@ import './ZapMaster.sol';
 contract Vault {
     using SafeMathM for uint256;
 
+    bool private approveLocked;
+
     address public zapToken;
     address private newVault;
+    address[] public accounts;
+
     ZapMaster private zapMaster;
 
-    address[] public accounts;
     mapping(address => uint256) private indexes;
     mapping(address => uint256) private balances;
+    mapping(address => bool) private approved;
 
     uint256 constant private MAX_UINT = 2**256 - 1;
 
@@ -24,7 +28,7 @@ contract Vault {
 
     modifier onlyVaultOrZapMaster(){
         require(address(zapMaster) != address(0));
-        require(msg.sender == address(zapMaster) || (msg.sender == newVault && newVault != address(0)) || msg.sender == address(this),
+        require(msg.sender == address(zapMaster) || approved[msg.sender] || msg.sender == address(this),
                 "Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
         _;
     }
@@ -80,6 +84,11 @@ contract Vault {
         return balances[userAddress];
     }
 
+    function setApproval(address oldVault) public onlyZapMaster returns (bool success) {
+        require(!approveLocked, "Cannot set approval after migration");
+        approved[oldVault] = true;
+        approveLocked = true;
+    }
     function setNewVault(address _newVault) public onlyZapMaster returns (bool success) {
         require(_newVault != address(0), "Can't set the zero address as the new Vault");
         newVault = _newVault;
