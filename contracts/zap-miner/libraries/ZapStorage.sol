@@ -18,7 +18,6 @@ library ZapStorage {
         int256 tally; //current tally of votes for - against measure
         bool executed; //is the dispute settled
         bool disputeVotePassed; //did the vote pass?
-        bool isPropFork; //true for fork proposal NEW
         //Contract to be foked: 0 - No Contract to be forked, 1 - Zap Contract, 2 - ZapMaster, 3 - Vault Contract
         uint256 forkedContract;
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails

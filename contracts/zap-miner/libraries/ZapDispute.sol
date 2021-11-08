@@ -103,7 +103,7 @@ library ZapDispute {
         require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
 
         //If the vote is not a proposed fork
-        if (!disp.isPropFork) {
+        if (disp.forkedContract == 0) {
             ZapStorage.StakeInfo storage stakes = self.stakerDetails[
                 disp.reportedMiner
             ];
@@ -207,7 +207,6 @@ library ZapDispute {
         self.disputeIdByDisputeHash[_hash] = disputeId;
         self.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
-            isPropFork: true,
             forkedContract: forkedContract,
             reportedMiner: msg.sender,
             reportingParty: msg.sender,

@@ -155,7 +155,6 @@ contract Zap {
         //maps the dispute to the Dispute struct
         zap.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
-            isPropFork: false,
             forkedContract: 0, // aka no contract is being forked for this dispute
             reportedMiner: _miner,
             reportingParty: msg.sender,
@@ -225,7 +224,7 @@ contract Zap {
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
-        if (!disp.isPropFork) {
+        if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
             vault.deposit(_to, _disputeFee);
             data = abi.encodeWithSignature(
