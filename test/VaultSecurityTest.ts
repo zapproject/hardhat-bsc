@@ -147,7 +147,25 @@ describe('Vault Security Test', () => {
 
   it('Should revert when withdrawing as non Zap address', async () => {
     await expect(vault.withdraw(signers[1].address, 1)).to.revertedWith("Only Zap contract accessible");
-  })
+  });
+
+  it('Should not allow users to directly set new Vault contract addresses', async () => {
+    const NewVault: ContractFactory = await ethers.getContractFactory('Vault', {
+      signer: signers[0]
+    });
+    const newVault = (await NewVault.deploy(
+      zapTokenBsc.address,
+      zapMaster.address
+    )) as Vault;
+
+    await newVault.deployed();
+
+    
+    await expect(
+      vault.connect(signers[2]).setNewVault(newVault.address)).
+    to.be.revertedWith(
+        "Vault: Only the ZapMaster contract can make this call");
+  });
 
   /**
    * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
