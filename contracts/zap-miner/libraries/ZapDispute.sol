@@ -30,6 +30,11 @@ library ZapDispute {
         bool _active
     ); //emitted upon dispute tally
     event NewZapAddress(address _newZap); //emmited when a proposed fork is voted true
+    event NewForkProposal(
+        uint256 indexed _disputeId,
+        uint256 _timestamp,
+        address indexed proposedContract
+    );
 
     /*Functions*/
 
@@ -223,6 +228,12 @@ library ZapDispute {
         self.disputesById[disputeId].disputeUintVars[
             keccak256('minExecutionDate')
         ] = now + 7 days;
+
+        emit NewForkProposal(
+            disputeId,
+            now,
+            _propNewZapAddress
+        );
     }
 
     /**
