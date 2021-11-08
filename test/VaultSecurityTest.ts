@@ -142,11 +142,11 @@ describe('Vault Security Test', () => {
   });
 
   it('Should revert when depositing as non Zap address', async () => {
-    await expect(vault.deposit(signers[1].address, 1)).to.revertedWith("Only Zap contract accessible");
+    await expect(vault.deposit(signers[1].address, 1)).to.revertedWith("Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
   });
 
   it('Should revert when withdrawing as non Zap address', async () => {
-    await expect(vault.withdraw(signers[1].address, 1)).to.revertedWith("Only Zap contract accessible");
+    await expect(vault.withdraw(signers[1].address, 1)).to.revertedWith("Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
   });
 
   it('Should not allow users to directly set new Vault contract addresses', async () => {
