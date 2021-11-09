@@ -337,6 +337,48 @@ describe('Vault Security Test', () => {
     .to.be.revertedWith(
       "Vault: Only the ZapMaster contract can make this call");
   });
+
+  it("Should not migrate the Vault if the new Vault has a different ERC20 contract to the old one", async () => {
+    await stakeFiveSigners();
+
+    const erc20Factory = await ethers.getContractFactory("ZapToken", signers[6]);
+    const erc20 = await erc20Factory.deploy() as ERC20;
+
+    newVault = await deployNewVault(signers[6], zapMaster, erc20);
+    await newVault.deployed();
+
+    const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
+    await zapTokenBsc.allocate(signers[1].address, disputeFee);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, disputeFee);
+    const txReceipt = await zap.attach(zapMaster.address).connect(signers[1]).proposeFork(newVault.address, 3)
+
+    const eventFilter = zapDispute.filters.NewForkProposal(null, null, newVault.address);
+    const event: Event = (await zapMaster.queryFilter(eventFilter))[0];
+
+    const disputeID = BigNumber.from(ethers.utils.hexStripZeros(event.topics[1]));
+    const txBlockNum = txReceipt.blockNumber as number;
+    const timestamp = (await ethers.provider.getBlock(txBlockNum)).timestamp;
+    // 60 secs * 60 * 24 * 7 = 604800 secs = 1 week
+    const sevenDaysLater = timestamp + 604800;
+
+    // Fast forward 7 days later
+    await ethers.provider.send("evm_setNextBlockTimestamp", [sevenDaysLater]);
+
+    for (let i = 2; i <= 5; i++) {
+      const voter = signers[i];
+
+      // each staker (who did not initiate fork proposal) votes in favor of forking the Vault
+      await zap.attach(zapMaster.address).connect(voter).vote(disputeID, true);
+    }
+
+    assert(zapTokenBsc.address != erc20.address);
+
+    await expect(
+      zap.attach(zapMaster.address).connect(signers[1]).tallyVotes(disputeID))
+    .to.be.revertedWith(
+      "The new vault must share the same ZapToken contract");
+  });
+
   /**
    * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
    */
