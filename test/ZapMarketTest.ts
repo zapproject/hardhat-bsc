@@ -1658,6 +1658,8 @@ describe('ZapMarket Test', () => {
       let oldOwner = await zapMarket.getOwner();
       let newOwner = signers[1].address;
 
+      // utilized msg.sender instead of owner in the ownernshiptransferred function
+
       await zapMarket.initTransferOwnership(newOwner);
       expect(newOwner).to.be.equal(await zapMarket.appointedOwner());
       expect(oldOwner).to.be.equal(await zapMarket.getOwner());
@@ -1682,6 +1684,7 @@ describe('ZapMarket Test', () => {
         null, null
       );
 
+      
       const event_transferredOwnership: Event = (
         await zapMarket.queryFilter(filter_transfered)
       )[0]
@@ -1753,6 +1756,7 @@ describe('ZapMarket Test', () => {
       await expect(zapMarket.connect(signers[2]).claimTransferOwnership()).
         to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
     });
+
   });
 
 });

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 
 contract Ownable is Initializable {
@@ -38,16 +39,17 @@ contract Ownable is Initializable {
     /// @param newOwner The address to transfer ownership to.
     function initTransferOwnership(address payable newOwner) public onlyOwner {
         require(newOwner != address(0), "Ownable: Cannot transfer to zero address");
-        emit OwnershipTransferInitiated(owner, newOwner);
+        emit OwnershipTransferInitiated(msg.sender, newOwner);
         appointedOwner = newOwner;
     }
 
     /// @dev Allows new owner to claim the transfer control of the contract
     function claimTransferOwnership() public {
+        
         require(appointedOwner != address(0), "Ownable: No ownership transfer have been initiated");
         require(msg.sender == appointedOwner, "Ownable: Caller is not the appointed owner of this contract");
 
-        emit OwnershipTransferred(owner, appointedOwner);
+        emit OwnershipTransferred(owner, msg.sender);
         owner = appointedOwner;
         appointedOwner = address(0);
     }
