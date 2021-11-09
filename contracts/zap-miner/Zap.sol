@@ -115,7 +115,7 @@ contract Zap {
         require(zap.stakerDetails[msg.sender].currentStatus == 1, "Only stakers can begin a dispute");
 
         //ensure the msg.sender is staked and not in dispute
-        require(token.balanceOf(msg.sender) > zap.uintVars[keccak256('disputeFee')], "You do not have a balance to dispute.");
+        require(token.balanceOf(msg.sender) >= zap.uintVars[keccak256('disputeFee')], "You do not have a balance to dispute.");
         
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
@@ -370,10 +370,10 @@ contract Zap {
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
-        token.approve(address(this), stakeAmount);
+       
         transferFrom(msg.sender, vaultAddress, stakeAmount);
         vault.deposit(msg.sender, stakeAmount);
-
+        
     }
 
     /**
