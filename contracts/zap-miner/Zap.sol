@@ -394,6 +394,8 @@ contract Zap {
         );
         zap.depositStake();
 
+        zap.uintVars[keccak256("total_supply")] += stakeAmount;
+
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
