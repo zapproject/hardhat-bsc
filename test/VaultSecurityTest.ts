@@ -19,9 +19,8 @@ import { Zap } from '../typechain/Zap';
 import { Vault } from '../typechain/Vault';
 
 import { BigNumber, ContractFactory, Event } from 'ethers';
-import { collect } from 'underscore';
-import { connect } from 'pm2';
-import { sign } from 'crypto';
+
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 const { expect } = chai;
 
@@ -41,11 +40,37 @@ let zap: Zap;
 
 let vault: Vault;
 
+let newVault: Vault;
+
 let signers: any;
 
 let numVaultOwners: number;
 
 let numAuthorizedUsers: number;
+
+async function stakeFiveSigners() {
+  assert(
+    signers[1].address != ethers.constants.AddressZero,
+    "You need to set up the signers before running this function");
+
+  for (let i = 1; i <= 5; i++) {
+    const staker = signers[i];
+
+    // depositing stake for signer[i]
+    // this also means that the stakeAmount is transfered to the Current Vault
+    // and that the vault holds accounting for this tx
+    // approving ZM to spend on stakers behalf to lock ZAP in the Vault (contract)
+    await zapTokenBsc.connect(staker).approve(zapMaster.address, ethers.utils.parseEther("500000.0"));
+    await zap.attach(zapMaster.address).connect(staker).depositStake();
+  }
+}
+
+async function deployNewVault(signer: SignerWithAddress, zm: ZapMaster): Promise<Vault> {
+  const newVaultFact = await ethers.getContractFactory("Vault", signer);
+  const _newVault = newVaultFact.deploy(zapTokenBsc.address, zm.address) as Promise<Vault>;
+
+  return _newVault;
+}
 
 describe('Vault Security Test', () => {
   beforeEach(async () => {
