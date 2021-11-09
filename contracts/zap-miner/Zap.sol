@@ -428,6 +428,8 @@ contract Zap {
         transferFrom(address(vault), msg.sender, userBalance);
 
         vault.withdraw(msg.sender, userBalance);
+
+        zap.uintVars[keccak256('total_supply')] -= userBalance;
     }
 
     /**
