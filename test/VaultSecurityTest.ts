@@ -176,6 +176,12 @@ describe('Vault Security Test', () => {
     await expect(vault.withdraw(signers[1].address, 1)).to.revertedWith("Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
   });
 
+  it('Should revert when `changeVaultContract` is called more than once', async () => {
+    newVault = await deployNewVault(signers[6], zapMaster, zapTokenBsc);
+    await newVault.deployed();
+    await expect(zapMaster.changeVaultContract(newVault.address)).to.be.reverted;
+  });
+
   it('Should not allow users to directly set new Vault contract addresses', async () => {
     const NewVault: ContractFactory = await ethers.getContractFactory('Vault', {
       signer: signers[0]
