@@ -18,6 +18,8 @@ import { Zap } from '../typechain/Zap';
 
 import { Vault } from '../typechain/Vault';
 
+import { ERC20 } from '../typechain/ERC20';
+
 import { BigNumber, ContractFactory, Event } from 'ethers';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -65,9 +67,9 @@ async function stakeFiveSigners() {
   }
 }
 
-async function deployNewVault(signer: SignerWithAddress, zm: ZapMaster): Promise<Vault> {
+async function deployNewVault(signer: SignerWithAddress, zm: ZapMaster, zt: ZapTokenBSC | ERC20): Promise<Vault> {
   const newVaultFact = await ethers.getContractFactory("Vault", signer);
-  const _newVault = newVaultFact.deploy(zapTokenBsc.address, zm.address) as Promise<Vault>;
+  const _newVault = newVaultFact.deploy(zt.address, zm.address) as Promise<Vault>;
 
   return _newVault;
 }
@@ -213,7 +215,7 @@ describe('Vault Security Test', () => {
     await stakeFiveSigners();
 
     // deploying new Vault Contract
-    newVault = await deployNewVault(signers[6], zapMaster);
+    newVault = await deployNewVault(signers[6], zapMaster, zapTokenBsc);
     await newVault.deployed();
 
     const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
@@ -234,6 +236,7 @@ describe('Vault Security Test', () => {
     // 60 secs * 60 * 24 * 7 = 604800 secs = 1 week
     const sevenDaysLater = timestamp + 604800;
 
+    // Fast forward 7 days later
     await ethers.provider.send("evm_setNextBlockTimestamp", [sevenDaysLater]);
 
     for (let i = 2; i <= 5; i++) {
@@ -258,7 +261,7 @@ describe('Vault Security Test', () => {
   it("Should not migrate the Vault contract if the quorum is < 35%", async () => {
     await stakeFiveSigners();
 
-    newVault = await deployNewVault(signers[6], zapMaster);
+    newVault = await deployNewVault(signers[6], zapMaster, zapTokenBsc);
     await newVault.deployed();
 
     const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
@@ -275,15 +278,64 @@ describe('Vault Security Test', () => {
     // 60 secs * 60 * 24 * 7 = 604800 secs = 1 week
     const sevenDaysLater = timestamp + 604800;
 
+    // Fast forward 7 days later
     await ethers.provider.send("evm_setNextBlockTimestamp", [sevenDaysLater]);
 
     // note, it only takes 2 persons who staked 500k ZAP to satisfy the quorum argument
     await zap.attach(zapMaster.address).connect(signers[2]).vote(disputeID, true);
 
-    console.log("Dispute quorum: ", (await zapMaster.getDisputeUintVars(disputeID, ethers.utils.id("quorum"))).toString());
-    console.log("Total Supply: ", (await zapMaster.getUintVar(ethers.utils.id("total_supply"))).toString());
-
     await expect(zap.attach(zapMaster.address).connect(signers[1]).tallyVotes(disputeID)).to.be.reverted;
+  });
+
+  it("Should not migrate the vault if the new Vault contract has a different ZapMaster than the current one", async () => {
+    await stakeFiveSigners();
+
+    const zapMasterFactory: ContractFactory = await ethers.getContractFactory(
+      'ZapMaster',
+      {
+        libraries: {
+          ZapStake: zapStake.address
+        },
+        signer: signers[0]
+      }
+    );
+
+    const zapMaster2 = (await zapMasterFactory.deploy(
+      zap.address,
+      zapTokenBsc.address
+    )) as ZapMaster;
+    await zapMaster2.deployed();
+
+    newVault = await deployNewVault(signers[6], zapMaster2, zapTokenBsc);
+    
+    const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
+    await zapTokenBsc.allocate(signers[1].address, disputeFee);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, disputeFee);
+    const txReceipt = await zap.attach(zapMaster.address).connect(signers[1]).proposeFork(newVault.address, 3)
+
+    const eventFilter = zapDispute.filters.NewForkProposal(null, null, newVault.address);
+    const event: Event = (await zapMaster.queryFilter(eventFilter))[0];
+
+    const disputeID = BigNumber.from(ethers.utils.hexStripZeros(event.topics[1]));
+    const txBlockNum = txReceipt.blockNumber as number;
+    const timestamp = (await ethers.provider.getBlock(txBlockNum)).timestamp;
+    // 60 secs * 60 * 24 * 7 = 604800 secs = 1 week
+    const sevenDaysLater = timestamp + 604800;
+
+    // Fast forward 7 days later
+    await ethers.provider.send("evm_setNextBlockTimestamp", [sevenDaysLater]);
+
+    for (let i = 2; i <= 5; i++) {
+      const voter = signers[i];
+
+      // each staker (who did not initiate fork proposal) votes in favor of forking the Vault
+      await zap.attach(zapMaster.address).connect(voter).vote(disputeID, true);
+    }
+    
+    assert(await newVault.getZM() != zapMaster.address);
+    await expect(zap.attach(zapMaster.address).connect(signers[1]).tallyVotes(disputeID))
+    .to.be.revertedWith(
+      "Vault: Only the ZapMaster contract can make this call");
   });
   /**
    * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
