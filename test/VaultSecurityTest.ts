@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 
 import { solidity } from 'ethereum-waffle';
 
-import chai from 'chai';
+import chai, { assert } from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
@@ -210,20 +210,10 @@ describe('Vault Security Test', () => {
   });
 
   it('Should propose a new Vault Contract if the tally reaches a conensus', async () => {
-    for (let i = 1; i <= 5; i++) {
-      const staker = signers[i];
-
-      // depositing stake for signer[i]
-      // this also means that the stakeAmount is transfered to the Current Vault
-      // and that the vault holds accounting for this tx
-      // approving ZM to spend on stakers behalf to lock ZAP in the Vault (contract)
-      await zapTokenBsc.connect(staker).approve(zapMaster.address, ethers.utils.parseEther("500000.0"));
-      await zap.attach(zapMaster.address).connect(staker).depositStake();
-    }
+    await stakeFiveSigners();
 
     // deploying new Vault Contract
-    const newVaultFact = await ethers.getContractFactory("Vault", signers[6]);
-    const newVault = await newVaultFact.deploy(zapTokenBsc.address, zapMaster.address) as Vault;
+    newVault = await deployNewVault(signers[6], zapMaster);
     await newVault.deployed();
 
     const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
@@ -265,6 +255,36 @@ describe('Vault Security Test', () => {
     expect(await newVault.userBalance(signers[5].address)).to.be.eq(balanceOfLastStaker);
   });
 
+  it("Should not migrate the Vault contract if the quorum is < 35%", async () => {
+    await stakeFiveSigners();
+
+    newVault = await deployNewVault(signers[6], zapMaster);
+    await newVault.deployed();
+
+    const disputeFee = await zapMaster.getUintVar(ethers.utils.id("disputeFee"));
+    await zapTokenBsc.allocate(signers[1].address, disputeFee);
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, disputeFee);
+    const txReceipt = await zap.attach(zapMaster.address).connect(signers[1]).proposeFork(newVault.address, 3);
+
+    const eventFilter = zapDispute.filters.NewForkProposal(null, null, newVault.address);
+    const event: Event = (await zapMaster.queryFilter(eventFilter))[0];
+
+    const disputeID = BigNumber.from(ethers.utils.hexStripZeros(event.topics[1]));
+    const txBlockNum = txReceipt.blockNumber as number;
+    const timestamp = (await ethers.provider.getBlock(txBlockNum)).timestamp;
+    // 60 secs * 60 * 24 * 7 = 604800 secs = 1 week
+    const sevenDaysLater = timestamp + 604800;
+
+    await ethers.provider.send("evm_setNextBlockTimestamp", [sevenDaysLater]);
+
+    // note, it only takes 2 persons who staked 500k ZAP to satisfy the quorum argument
+    await zap.attach(zapMaster.address).connect(signers[2]).vote(disputeID, true);
+
+    console.log("Dispute quorum: ", (await zapMaster.getDisputeUintVars(disputeID, ethers.utils.id("quorum"))).toString());
+    console.log("Total Supply: ", (await zapMaster.getUintVar(ethers.utils.id("total_supply"))).toString());
+
+    await expect(zap.attach(zapMaster.address).connect(signers[1]).tallyVotes(disputeID)).to.be.reverted;
+  });
   /**
    * Tests below are deprecated as now only the Zap/ZapMaster contracts can call the state changing functions
    */
