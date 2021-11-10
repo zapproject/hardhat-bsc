@@ -240,8 +240,19 @@ contract ZapMarket is IMarket, Ownable {
         address deployer,
         address mediaContract,
         bytes32 name,
-        bytes32 symbol
+        bytes32 symbol, 
+        bool isInternal,
+        string memory _Internal,
+        string memory _External
+        
     ) external override onlyMediaFactory {
+        
+         if (isInternal == true) {
+            emit _Internal(mediaContract, name, symbol);
+        } else {
+            emit _External(mediaContract, name, symbol);
+        }
+        
         require(
             isConfigured[mediaContract] != true,
             'Market: Already configured'
@@ -257,6 +268,7 @@ contract ZapMarket is IMarket, Ownable {
         mediaContracts[deployer].push(mediaContract);
 
         emit MediaContractCreated(mediaContract, name, symbol);
+
     }
 
     function mintOrBurn(
@@ -273,13 +285,27 @@ contract ZapMarket is IMarket, Ownable {
         }
     }
 
-    function registerMedia(address mediaContract)
+    function registerMedia(
+    address mediaContract, 
+    bytes32 name, 
+    bytes32 symbol, 
+    bool isInternal,
+    string memory _Internal,
+    string memory _External)
         external
         override
         onlyMediaFactory
     {
         registeredMedias[mediaContract] = true;
+
+         if (isInternal == true) {
+            emit _Internal(mediaContract, name, symbol);
+        } else {
+            emit _External(mediaContract, name, symbol);
+        }
     }
+
+
 
     function revokeRegistration(address mediaContract)
         external

@@ -1588,6 +1588,7 @@ describe('ZapMarket Test', () => {
     let proxyForOwner: SignerWithAddress;
     let proxy: MockProxyRegistry;
     let osCreature: Creature;
+    
 
     beforeEach(async () => {
 
@@ -1621,6 +1622,13 @@ describe('ZapMarket Test', () => {
 
       await osCreature.mintTo(signers[10].address)
 
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
+
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
+
+
     });
 
     it('Should have a external token balance of 1', async () => {
@@ -1629,6 +1637,32 @@ describe('ZapMarket Test', () => {
 
     })
 
+    it("Should configure osCreature to the ZapMarket contract", async () => {
+     
+      const oscreatureFactory = await ethers.getContractFactory(
+        'Creature',
+        signers[0]
+      )
+
+      osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+      await osCreature.deployed();
+
+      // expect (await zapMarket.connect(signers[0]).configure(signers[0].address, 
+      // osCreature.address, 
+      // formatBytes32String('osCreature'), 
+      // formatBytes32String('OSC')));
+      
+
+      // expect(await zapMarket.isConfigured(osCreature.address)).to.be.true;
+
+      // const filter_deployExternalToken: EventFilter = zapMarket.filters.ExternalTokenDeployed(null);
+      
+      // const event_externalTokenDeployed: Event = (
+      //   await zapMarket.queryFilter(filter_deployExternalToken)
+      // )[0]
+      // expect(event_externalTokenDeployed.event).to.be.equal("External Token Deployed");
+
+    })
   });
 
   describe("Ownership", () => {
