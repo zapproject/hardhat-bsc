@@ -143,6 +143,11 @@ contract ZapMedia is
 
     address public testing;
 
+     //function contractURI() public view returns (string memory) {
+        //return _contractURI;
+        console.log(bytes _contractURI)
+    }
+
     /**
      * @notice On deployment, set the market contract address and register the
      * ERC721 metadata interface
@@ -700,10 +705,6 @@ contract ZapMedia is
                     address(this)
                 )
             );
-    }
-
-    function get(contractURI) public returns (string memory) {
-        return _contractURI;
     }
 
 }
