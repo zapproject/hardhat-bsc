@@ -275,11 +275,11 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContract,
         bytes32 name,
         bytes32 symbol, 
-        bool isInternal
+        bool _isInternal
         
     ) external override onlyMediaFactory {
         
-        isInternalMedia[mediaContract]=isInternal;
+        isInternalMedia[mediaContract] = _isInternal;
         
         require(
             isConfigured[mediaContract] != true,
