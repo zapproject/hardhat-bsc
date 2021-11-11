@@ -582,14 +582,18 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             sellOnShare: Decimal.D256(0)
         });
 
-        IERC20Upgradeable(currency).approve(
-            IMediaExtended(mediaContract).marketContract(),
-            bid.amount
-        );
 
         if (IMarket(marketContract).isInternal(mediaContract)){
+            IERC20Upgradeable(currency).approve(
+                IMediaExtended(mediaContract).marketContract(),
+                bid.amount
+            );
             IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
         } else {
+            IERC20Upgradeable(currency).approve(
+                marketContract,
+                bid.amount
+            );
             IMarket(marketContract).setBid(address(this), auctions[auctionId].token.tokenId, bid, address(this));
         }
 
