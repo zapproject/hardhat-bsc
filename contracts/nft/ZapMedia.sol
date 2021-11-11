@@ -373,7 +373,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).setAsk(tokenId, ask);
+        IMarket(access.marketContract).setAsk(address(this), tokenId, ask);
     }
 
     /**
@@ -386,7 +386,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).removeAsk(tokenId);
+        IMarket(access.marketContract).removeAsk(address(this), tokenId);
     }
 
     /**
@@ -399,7 +399,7 @@ contract ZapMedia is
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
+        IMarket(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
     }
 
     /**
@@ -411,7 +411,7 @@ contract ZapMedia is
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        IMarket(access.marketContract).removeBid(tokenId, msg.sender);
+        IMarket(access.marketContract).removeBid(address(this), tokenId, msg.sender);
     }
 
     /**
@@ -675,7 +675,7 @@ contract ZapMedia is
         address to,
         uint256 tokenId
     ) internal override {
-        IMarket(access.marketContract).removeAsk(tokenId);
+        IMarket(access.marketContract).removeAsk(address(this), tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
     }

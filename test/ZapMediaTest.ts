@@ -209,7 +209,8 @@ describe("ZapMedia Test", async () => {
                         signers[1].address,
                         zapMedia1.address,
                         formatBytes32String("TEST MEDIA 1"),
-                        formatBytes32String("TM1")
+                        formatBytes32String("TM1"),
+                        true
                     )
             ).to.be.reverted;
 
@@ -220,7 +221,8 @@ describe("ZapMedia Test", async () => {
                         signers[2].address,
                         zapMedia2.address,
                         formatBytes32String("TEST MEDIA 2"),
-                        formatBytes32String("TM2")
+                        formatBytes32String("TM2"),
+                        true
                     )
             ).to.be.reverted;
 

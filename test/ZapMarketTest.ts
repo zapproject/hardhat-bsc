@@ -81,6 +81,7 @@ describe('ZapMarket Test', () => {
   let zapMedia1: ZapMedia;
   let zapMedia2: ZapMedia;
   let zapMedia3: ZapMedia;
+  let unAuthMedia: ZapMedia;
   let zapVault: ZapVault
   let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
@@ -316,7 +317,8 @@ describe('ZapMarket Test', () => {
             signers[2].address,
             zapMedia2.address,
             formatBytes32String('TEST MEDIA 2'),
-            formatBytes32String('TM2')
+            formatBytes32String('TM2'),
+            true
           )
       ).to.be.revertedWith('Market: Only the media factory can do this action');
 
@@ -327,7 +329,8 @@ describe('ZapMarket Test', () => {
             signers[3].address,
             zapMedia3.address,
             formatBytes32String('TEST MEDIA 3'),
-            formatBytes32String('TM3')
+            formatBytes32String('TM3'),
+            true
           )
       ).to.be.revertedWith('Market: Only the media factory can do this action');
 
@@ -404,6 +407,26 @@ describe('ZapMarket Test', () => {
       await zapMedia1.claimTransferOwnership();
       await zapMedia2.claimTransferOwnership();
       await zapMedia3.claimTransferOwnership();
+
+      const mediaParams = {
+        name: "Unauthorised Media Contract",
+        symbol: "UMC",
+        marketContractAddr: zapMarket.address,
+        permissive: false,
+        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      }
+      const unAuthMediaFact = await ethers.getContractFactory("ZapMedia", signers[9]);
+      unAuthMedia = await upgrades.deployProxy(
+        unAuthMediaFact,
+        [
+          mediaParams.name,
+          mediaParams.symbol,
+          mediaParams.marketContractAddr,
+          mediaParams.permissive,
+          mediaParams._collectionMetadata
+        ]
+      ) as ZapMedia;
+      await unAuthMedia.deployed();
 
       ask1.currency = zapTokenBsc.address;
 
@@ -485,14 +508,14 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMarket
           .connect(signers[3])
-          .setBidShares(1, bidShares1)
-      ).to.be.revertedWith('Market: Only media contract');
+          .setBidShares(unAuthMedia.address, 1, bidShares1)
+      ).to.be.revertedWith('Market: Only a media contract or its factory can do this action');
 
       await expect(
         zapMarket
           .connect(signers[4])
-          .setBidShares(1, bidShares1)
-      ).to.be.revertedWith('Market: Only media contract');
+          .setBidShares(unAuthMedia.address, 1, bidShares1)
+      ).to.be.revertedWith('Market: Only a media contract or its factory can do this action');
 
     });
 
@@ -693,13 +716,13 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it('Should reject if not called by the media address', async () => {
+    it('Should reject if not called by a media address', async () => {
       await expect(
-        zapMarket.connect(signers[5]).setAsk(1, ask1)
+        zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
       await expect(
-        zapMarket.connect(signers[5]).setAsk(1, ask1)
+        zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)
       ).to.be.revertedWith('Market: Only media contract');
 
     });
@@ -903,6 +926,26 @@ describe('ZapMarket Test', () => {
       await zapMedia2.claimTransferOwnership();
       await zapMedia3.claimTransferOwnership();
 
+      const mediaParams = {
+        name: "Unauthorised Media Contract",
+        symbol: "UMC",
+        marketContractAddr: zapMarket.address,
+        permissive: false,
+        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      }
+      const unAuthMediaFact = await ethers.getContractFactory("ZapMedia", signers[9]);
+      unAuthMedia = await upgrades.deployProxy(
+        unAuthMediaFact,
+        [
+          mediaParams.name,
+          mediaParams.symbol,
+          mediaParams.marketContractAddr,
+          mediaParams.permissive,
+          mediaParams._collectionMetadata
+        ]
+      ) as ZapMedia;
+      await unAuthMedia.deployed();
+
       bid1 = {
         amount: 200,
         currency: zapTokenBsc.address,
@@ -956,14 +999,14 @@ describe('ZapMarket Test', () => {
       await expect(
         zapMarket
           .connect(signers[2])
-          .setBid(0, bid1, bid1.spender)
-      ).to.be.revertedWith('Market: Only media contract');
+          .setBid(unAuthMedia.address, 0, bid1, bid1.spender)
+      ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
       await expect(
         zapMarket
           .connect(signers[1])
-          .setBid(0, bid2, bid2.spender)
-      ).to.be.revertedWith('Market: Only media contract');
+          .setBid(unAuthMedia.address, 0, bid2, bid2.spender)
+      ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
     });
 
@@ -1635,7 +1678,7 @@ describe('ZapMarket Test', () => {
 
       expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
-    })
+    });
 
     it("Should configure osCreature to the ZapMarket contract", async () => {
      
@@ -1662,7 +1705,7 @@ describe('ZapMarket Test', () => {
       // )[0]
       // expect(event_externalTokenDeployed.event).to.be.equal("External Token Deployed");
 
-    })
+    });
   });
 
   describe("Ownership", () => {

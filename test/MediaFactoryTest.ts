@@ -214,6 +214,7 @@ describe("MediaFactory", () => {
 
         beforeEach(async () => {
             auctionHouse = await deployAuction(deployer, zapTokenBsc.address, zapMarket.address);
+            await zapMarket.setAuctionHouse(auctionHouse.address);
             zapMedia = new ethers.Contract(mediaAddress, zmABI, mediaOwner) as ZapMedia;
             
             const platformFee = {

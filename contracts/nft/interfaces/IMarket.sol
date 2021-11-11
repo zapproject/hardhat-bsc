@@ -120,6 +120,11 @@ interface IMarket {
         view
         returns (bool);
 
+    function isInternal(address mediaContract)
+        external
+        view
+        returns (bool);
+
     function configure(
         address deployer,
         address mediaContract,
@@ -134,6 +139,8 @@ interface IMarket {
 
     function setMediaFactory(address _mediaFactory) external;
 
+    function setAuctionHouse(address _auctionHouse) external;
+
     function mintOrBurn(
         bool isMint,
         uint256 tokenId,
@@ -143,17 +150,18 @@ interface IMarket {
     function setBidShares(address mediaContract, uint256 tokenId, BidShares calldata bidShares)
         external;
 
-    function setAsk(uint256 tokenId, Ask calldata ask) external;
+    function setAsk(address mediaContract, uint256 tokenId, Ask calldata ask) external;
 
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(address mediaContract, uint256 tokenId) external;
 
     function setBid(
+        address mediaContract, 
         uint256 tokenId,
         Bid calldata bid,
         address spender
     ) external;
 
-    function removeBid(uint256 tokenId, address bidder) external;
+    function removeBid(address mediaContract, uint256 tokenId, address bidder) external;
 
     function acceptBid(
         address mediaContractAddress,
