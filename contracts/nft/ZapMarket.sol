@@ -208,6 +208,10 @@ contract ZapMarket is IMarket, Ownable {
         return isInternalMedia[mediaContract];
     }
 
+    function _isConfigured(address mediaContract) public view override returns (bool) {
+        return isConfigured[mediaContract];
+    }
+
     /**
      * @notice return a % of the specified amount. This function is used to split a bid into shares
      * for a media's shareholders.
