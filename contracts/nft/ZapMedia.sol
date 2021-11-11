@@ -52,7 +52,7 @@ contract ZapMedia is
 
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    bytes public collectionMetadata;
+    bytes internal _contractURI;
 
     bytes32 private constant kecEIP712Domain =
         keccak256(
@@ -153,7 +153,7 @@ contract ZapMedia is
         string calldata symbol,
         address marketContractAddr,
         bool permissive,
-        string calldata _collectionMetadata
+        string calldata collectionURI
     ) external override initializer {
         __ERC721_init(name, symbol);
         initialize_ownable();
@@ -174,7 +174,7 @@ contract ZapMedia is
         _registerInterface(type(IMedia).interfaceId);
 
         access.isPermissive = permissive;
-        collectionMetadata = bytes(_collectionMetadata);
+        _contractURI = bytes(collectionURI);
     }
 
     /**
@@ -701,4 +701,9 @@ contract ZapMedia is
                 )
             );
     }
+
+    function get(contractURI) public returns (string memory) {
+        return _contractURI;
+    }
+
 }
