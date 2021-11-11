@@ -63,7 +63,7 @@ contract MediaFactory is OwnableUpgradeable {
         // address marketContractAddr,
         address tokenAddress,
         uint tokenId,
-        bool permissive,
+        // bool permissive,
         // string calldata _collectionMetadata,
         IMarket.BidShares memory _bidShares
     ) external returns (bool success) {

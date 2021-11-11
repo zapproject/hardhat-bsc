@@ -1643,6 +1643,37 @@ describe('ZapMarket Test', () => {
         signers[0]
       );
 
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+     let zapMarketFactory: ZapMarket__factory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
+
+      await zapMarket.setFee(platformFee);
+
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
+
+      await mediaDeployer.deployed();
+
+      await zapMarket.setMediaFactory(mediaDeployer.address);
+
+
+
+      // external Contract
+
       const proxyFactory = await ethers.getContractFactory(
         'MockProxyRegistry',
         signers[0]
@@ -1652,9 +1683,6 @@ describe('ZapMarket Test', () => {
       await proxy.deployed();
       await proxy.setProxy(owner.address, proxyForOwner.address);
 
-      zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-      await zapTokenBsc.deployed();
-
       const oscreatureFactory = await ethers.getContractFactory(
         'Creature',
         signers[0]
@@ -1663,19 +1691,48 @@ describe('ZapMarket Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
-      await osCreature.mintTo(signers[10].address)
+      // await osCreature.mintTo(signers[10].address)
 
-      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
-        initializer: 'initialize'
-      })) as MediaFactory;
+
+
+    });
+
+    it.only("Should configure external token contract as a media in ZapMarket", async () => {
+      const tokenContractAddress: string = osCreature.address;
+      const tokenContractName: string = await osCreature.name();
+      const tokenContractSymbol: string = await osCreature.symbol();
+
+      const bidShares = {
+        collaborators: [
+          signers[10].address,
+          signers[11].address,
+          signers[12].address
+        ],
+        collabShares: [
+          BigNumber.from('15000000000000000000'),
+          BigNumber.from('15000000000000000000'),
+          BigNumber.from('15000000000000000000')
+        ]
+        ,
+        creator: {
+          value: BigNumber.from('15000000000000000000')
+        },
+        owner: {
+          value: BigNumber.from('35000000000000000000')
+        },
+  
+      }
+      await mediaDeployer.configureExternalToken(tokenContractName, tokenContractSymbol, tokenContractAddress, 1, bidShares)
+
+      expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
+      expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
 
 
     });
 
     it('Should have a external token balance of 1', async () => {
-
+      await osCreature.mintTo(signers[10].address)
       expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
     });
