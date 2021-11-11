@@ -587,25 +587,47 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             bid.amount
         );
 
-        IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
+        if (IMarket(marketContract).isInternal(mediaContract)){
+            IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
+        } else {
+            IMarket(marketContract).setBid(address(this), auctions[auctionId].token.tokenId, bid, address(this));
+        }
 
         // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
         );
 
-        try
-            IMedia(mediaContract).acceptBid(
-                auctions[auctionId].token.tokenId,
-                bid
-            )
-        {} catch {
-            // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
-            IMediaExtended(mediaContract).removeBid(
-                auctions[auctionId].token.tokenId
-            );
-            return (false, 0);
+        if (IMarket(marketContract).isInternal(mediaContract)){
+            try
+                IMedia(mediaContract).acceptBid(
+                    auctions[auctionId].token.tokenId,
+                    bid
+                )
+            {} catch {
+                // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
+                IMediaExtended(mediaContract).removeBid(
+                    auctions[auctionId].token.tokenId
+                );
+                return (false, 0);
+            }
+        } else {
+            try
+                IMarket(marketContract).acceptBid(
+                    mediaContract,
+                    auctions[auctionId].token.tokenId,
+                    bid
+                )
+            {} catch {
+                IMarket(marketContract).removeBid(
+                    mediaContract,
+                    auctions[auctionId].token.tokenId,
+                    address(this)
+                );
+                return (false, 0);
+            }
         }
+        
 
         // 5e17
         uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(
