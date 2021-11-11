@@ -125,6 +125,11 @@ interface IMarket {
         view
         returns (bool);
 
+    function _isConfigured(address mediaContract)
+        external
+        view
+        returns (bool);
+
     function configure(
         address deployer,
         address mediaContract,
