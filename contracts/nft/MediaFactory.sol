@@ -50,7 +50,7 @@ contract MediaFactory is OwnableUpgradeable {
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
-        zapMarket.configure(msg.sender, address(zapMedia), name_b32, symbol_b32);
+        zapMarket.configure(msg.sender, address(zapMedia), name_b32, symbol_b32,false);
 
         emit MediaDeployed(address(zapMedia));
 
@@ -89,7 +89,7 @@ contract MediaFactory is OwnableUpgradeable {
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
-        zapMarket.configure(msg.sender, tokenAddress, name_b32, symbol_b32);
+        zapMarket.configure(msg.sender, tokenAddress, name_b32, symbol_b32, true);
 
         emit ExternalTokenDeployed(tokenAddress);
 

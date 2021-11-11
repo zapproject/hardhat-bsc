@@ -49,6 +49,9 @@ contract ZapMarket is IMarket, Ownable {
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
+    //Mapping determining whether an nft contract is internal or external
+    mapping(address => bool) public isInternalMedia;
+
     // Mapping of token ids of accepted bids to their mutex
     mapping(uint256 => bool) private bidMutex;
 
@@ -241,17 +244,11 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContract,
         bytes32 name,
         bytes32 symbol, 
-        bool isInternal,
-        string memory _Internal,
-        string memory _External
+        bool isInternal
         
     ) external override onlyMediaFactory {
         
-         if (isInternal == true) {
-            emit _Internal(mediaContract, name, symbol);
-        } else {
-            emit _External(mediaContract, name, symbol);
-        }
+        isInternalMedia[mediaContract]=isInternal;
         
         require(
             isConfigured[mediaContract] != true,
@@ -286,23 +283,14 @@ contract ZapMarket is IMarket, Ownable {
     }
 
     function registerMedia(
-    address mediaContract, 
-    bytes32 name, 
-    bytes32 symbol, 
-    bool isInternal,
-    string memory _Internal,
-    string memory _External)
+    address mediaContract
+    )
         external
         override
         onlyMediaFactory
     {
         registeredMedias[mediaContract] = true;
 
-         if (isInternal == true) {
-            emit _Internal(mediaContract, name, symbol);
-        } else {
-            emit _External(mediaContract, name, symbol);
-        }
     }
 
 
