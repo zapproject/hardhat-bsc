@@ -72,7 +72,7 @@ contract ZapMarket is IMarket, Ownable {
     modifier onlyMediaCaller(address mediaContract) {
         require(
             isConfigured[mediaContract] == true,
-            'Market: only media contract'
+            'Market: Only media contract'
         );
 
         _;
@@ -204,6 +204,7 @@ contract ZapMarket is IMarket, Ownable {
             uint256(100) * (Decimal.BASE);
     }
 
+    // AuctionHouse will used this function decide whether to set the bid by ZapMedia or ZapMarket
     function isInternal(address mediaContract) public view override returns (bool){
         return isInternalMedia[mediaContract];
     }
