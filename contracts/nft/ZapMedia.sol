@@ -614,7 +614,7 @@ contract ZapMedia is
         tokens.previousTokenOwners[tokenId] = creator;
 
         IMarket(access.marketContract).setBidShares(
-            // address(this),
+            address(0),
             tokenId,
             bidShares
         );

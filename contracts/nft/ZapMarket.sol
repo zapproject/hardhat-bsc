@@ -307,17 +307,21 @@ contract ZapMarket is IMarket, Ownable {
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
      */
-    function setBidShares(uint256 tokenId, BidShares memory bidShares)
+    function setBidShares(address mediaContract, uint256 tokenId, BidShares memory bidShares)
         public
         override
-        onlyMediaCaller
+        onlyFactoryorMedia
     {
         require(
             isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'
         );
-
-        _bidShares[msg.sender][tokenId] = bidShares;
+        if (isConfigured[msg.sender] == true){
+            _bidShares[msg.sender][tokenId] = bidShares;
+        } else {
+            require(mediaContract != address(0), "Market: Can't set bid share for zero address");
+            _bidShares[mediaContract][tokenId] = bidShares;
+        }
         emit BidShareUpdated(tokenId, bidShares, msg.sender);
     }
 

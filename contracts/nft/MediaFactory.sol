@@ -7,6 +7,7 @@ import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/Own
 
 import {ZapMedia} from './ZapMedia.sol';
 import {ZapMarket} from './ZapMarket.sol';
+import {IMarket} from './interfaces/IMarket.sol';
 
 contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
@@ -50,7 +51,7 @@ contract MediaFactory is OwnableUpgradeable {
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
-        zapMarket.configure(msg.sender, address(zapMedia), name_b32, symbol_b32,false);
+        zapMarket.configure(msg.sender, address(zapMedia), name_b32, symbol_b32, false);
 
         emit MediaDeployed(address(zapMedia));
 
@@ -59,40 +60,37 @@ contract MediaFactory is OwnableUpgradeable {
     function configureExternalToken(
         string calldata name,
         string calldata symbol,
-        address marketContractAddr,
+        // address marketContractAddr,
         address tokenAddress,
+        uint tokenId,
         bool permissive,
-        string calldata _collectionMetadata
-    ) external returns (address) {
-        // ZapMedia zapMedia = new ZapMedia();
-        // zapMedia.initialize(
-        //     name,
-        //     symbol,
-        //     marketContractAddr,
-        //     permissive,
-        //     _collectionMetadata
-        // );
+        // string calldata _collectionMetadata,
+        IMarket.BidShares memory _bidShares
+    ) external returns (bool success) {
 
-        // zapMedia.transferOwnership(payable(msg.sender));
-
-        zapMarket.registerMedia(tokenAddress);
-
-
-        bytes memory name_b = bytes(name);
-        bytes memory symbol_b = bytes(symbol);
-
-        bytes32 name_b32;
-        bytes32 symbol_b32;
-
-        assembly {
-            name_b32 := mload(add(name_b, 32))
-            symbol_b32 := mload(add(symbol_b, 32))
+        if (!(zapMarket.isRegistered(tokenAddress))){
+            zapMarket.registerMedia(tokenAddress);
         }
 
-        zapMarket.configure(msg.sender, tokenAddress, name_b32, symbol_b32, true);
+        if (!(zapMarket.isConfigured(tokenAddress))){
+            bytes memory name_b = bytes(name);
+            bytes memory symbol_b = bytes(symbol);
+
+            bytes32 name_b32;
+            bytes32 symbol_b32;
+
+            assembly {
+                name_b32 := mload(add(name_b, 32))
+                symbol_b32 := mload(add(symbol_b, 32))
+            }
+
+            zapMarket.configure(msg.sender, tokenAddress, name_b32, symbol_b32, true);
+        }
+
+        zapMarket.setBidShares(tokenAddress, tokenId, _bidShares);
 
         emit ExternalTokenDeployed(tokenAddress);
 
-        // return address(zapMedia);
+        return true;
     }
 }
