@@ -563,8 +563,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         address mediaContract
     ) internal returns (bool, uint256) {
         require(
-            IMediaExtended(mediaContract).marketContract() == marketContract,
-            "This market contract is not from Zap's NFT MarketPlace"
+            IMediaExtended(mediaContract).marketContract() == marketContract || IMarket(marketContract)._isConfigured(mediaContract),
+            "This market contract is not from Zap's NFT MarketPlace or its not configured for it"
         );
         require(
             IMarket(marketContract).isRegistered(mediaContract),
