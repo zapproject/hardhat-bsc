@@ -20,7 +20,6 @@ import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
