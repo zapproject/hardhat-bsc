@@ -20,6 +20,7 @@ import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -51,7 +52,7 @@ contract ZapMedia is
 
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    bytes public collectionMetadata;
+    bytes internal _contractURI;
 
     bytes32 private constant kecEIP712Domain =
         keccak256(
@@ -140,7 +141,10 @@ contract ZapMedia is
         _;
     }
 
-    address public testing;
+     //geting the contractURI value
+     function contractURI() public view returns (bytes memory) {
+        return _contractURI;
+    }
 
     /**
      * @notice On deployment, set the market contract address and register the
@@ -152,7 +156,7 @@ contract ZapMedia is
         string calldata symbol,
         address marketContractAddr,
         bool permissive,
-        string calldata _collectionMetadata
+        string calldata collectionURI
     ) external override initializer {
         __ERC721_init(name, symbol);
         initialize_ownable();
@@ -173,7 +177,7 @@ contract ZapMedia is
         _registerInterface(type(IMedia).interfaceId);
 
         access.isPermissive = permissive;
-        collectionMetadata = bytes(_collectionMetadata);
+        _contractURI = bytes(collectionURI);
     }
 
     /**
@@ -700,4 +704,5 @@ contract ZapMedia is
                 )
             );
     }
+
 }
