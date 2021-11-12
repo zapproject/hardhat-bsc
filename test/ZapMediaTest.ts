@@ -2075,16 +2075,5 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    it.only("Should return contractURI value", async () => {
-
-        //console.log(_contractURI)
-        //const original_owner = await zapMedia1.getOwner();
-
-        //await zapMedia1.initTransferOwnership(newOwner);
-
-        //await expect(zapMedia1.connect(signers[1]).revokeTransferOwnership()).
-            //to.be.revertedWith("onlyOwner error: Only Owner of the Contract can make this Call");
-
-    });
 
 })

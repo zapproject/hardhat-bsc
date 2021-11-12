@@ -272,9 +272,9 @@ describe('ZapMarket Test', () => {
 
     it('Should get collection metadata', async () => {
 
-      const metadata1 = await zapMedia1.collectionMetadata();
-      const metadata2 = await zapMedia2.collectionMetadata();
-      const metadata3 = await zapMedia3.collectionMetadata();
+      const metadata1 = await zapMedia1.contractURI();
+      const metadata2 = await zapMedia2.contractURI();
+      const metadata3 = await zapMedia3.contractURI();
 
       expect(ethers.utils.toUtf8String(metadata1)).to.equal(
         'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'

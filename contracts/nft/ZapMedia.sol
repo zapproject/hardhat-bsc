@@ -141,11 +141,9 @@ contract ZapMedia is
         _;
     }
 
-    address public testing;
-
      //geting the contractURI value
-     function contractURI() public pure returns (string memory) {
-        return "https://creatures-api.opensea.io/contract/opensea-creatures";
+     function contractURI() public view returns (bytes memory) {
+        return _contractURI;
     }
 
     /**
