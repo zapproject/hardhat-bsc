@@ -105,9 +105,12 @@ contract MediaFactory is OwnableUpgradeable {
         }
 
         zapMarket.setBidShares(tokenAddress, tokenId, _bidShares);
+       
 
         emit ExternalTokenDeployed(tokenAddress);
 
+      
+
         return true;
-    }
+    } 
 }

@@ -12,7 +12,7 @@ import {
   formatBytes32String
 } from 'ethers/lib/utils';
 
-import { BigNumber, Bytes, EventFilter, Event } from 'ethers';
+import { BigNumber, Bytes, EventFilter, Event, ContractFactory } from 'ethers';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -33,7 +33,9 @@ import { BadBidder2 } from "../typechain/BadBidder2";
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
+
 import { assert } from 'console';
+
 
 chai.use(solidity);
 
@@ -85,6 +87,7 @@ describe('ZapMarket Test', () => {
   let zapVault: ZapVault
   let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
+  let mediaFactory: MediaFactory;
 
   let bidShares1 = {
     collaborators: ["", "", ""],
@@ -1625,13 +1628,14 @@ describe('ZapMarket Test', () => {
     });
   })
 
-  describe.only("External mint", () => {
+  describe("External mint", () => {
 
     let owner: SignerWithAddress;
     let proxyForOwner: SignerWithAddress;
     let proxy: MockProxyRegistry;
     let osCreature: Creature;
-
+    let mediaFactory: ContractFactory;
+    
 
     beforeEach(async () => {
 
@@ -1652,7 +1656,7 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      let zapMarketFactory: ZapMarket__factory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
+     let zapMarketFactory: ZapMarket__factory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
 
       zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
@@ -1669,6 +1673,10 @@ describe('ZapMarket Test', () => {
       await mediaDeployer.deployed();
 
       await zapMarket.setMediaFactory(mediaDeployer.address);
+
+
+
+      // external Contract
 
       const proxyFactory = await ethers.getContractFactory(
         'MockProxyRegistry',
@@ -1687,7 +1695,10 @@ describe('ZapMarket Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
-      await osCreature.mintTo(signers[1].address)
+      // await osCreature.mintTo(signers[10].address)
+
+
+
 
     });
 
@@ -1714,9 +1725,9 @@ describe('ZapMarket Test', () => {
         owner: {
           value: BigNumber.from('35000000000000000000')
         },
-
+  
       }
-      await mediaDeployer.connect(signers[1]).configureExternalToken(tokenContractName, tokenContractSymbol, tokenContractAddress, 1, bidShares)
+      await mediaDeployer.configureExternalToken(tokenContractName, tokenContractSymbol, tokenContractAddress, 1, bidShares)
 
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
@@ -1730,32 +1741,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    it("Should configure osCreature to the ZapMarket contract", async () => {
-
-      const oscreatureFactory = await ethers.getContractFactory(
-        'Creature',
-        signers[0]
-      )
-
-      osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
-      await osCreature.deployed();
-
-      // expect (await zapMarket.connect(signers[0]).configure(signers[0].address, 
-      // osCreature.address, 
-      // formatBytes32String('osCreature'), 
-      // formatBytes32String('OSC')));
-
-
-      // expect(await zapMarket.isConfigured(osCreature.address)).to.be.true;
-
-      // const filter_deployExternalToken: EventFilter = zapMarket.filters.ExternalTokenDeployed(null);
-
-      // const event_externalTokenDeployed: Event = (
-      //   await zapMarket.queryFilter(filter_deployExternalToken)
-      // )[0]
-      // expect(event_externalTokenDeployed.event).to.be.equal("External Token Deployed");
-
-    });
+    
   });
 
   describe("Ownership", () => {
@@ -1811,7 +1797,7 @@ describe('ZapMarket Test', () => {
         null, null
       );
 
-
+      
       const event_transferredOwnership: Event = (
         await zapMarket.queryFilter(filter_transfered)
       )[0]
@@ -1887,3 +1873,7 @@ describe('ZapMarket Test', () => {
   });
 
 });
+function mediaDeployerFactory(mediaDeployerFactory: any, arg1: string[], arg2: { initializer: string; }): MediaFactory | PromiseLike<MediaFactory> {
+  throw new Error('Function not implemented.');
+}
+
