@@ -33,7 +33,6 @@ import { BadBidder2 } from '../typechain/BadBidder2';
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
-import { assert } from 'console';
 
 chai.use(solidity);
 
@@ -207,8 +206,9 @@ describe('ExternalNFT Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
-    //   mint one creature
+      // mint a creature which is the external NFT
       await osCreature.mintTo(signers[10].address);
+      expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
     });
 
@@ -235,7 +235,7 @@ describe('ExternalNFT Test', () => {
           value: BigNumber.from('35000000000000000000')
         }
       };
-      await mediaDeployer.configureExternalToken(
+      await mediaDeployer.connect(signers[10]).configureExternalToken(
         tokenContractName,
         tokenContractSymbol,
         tokenContractAddress,
@@ -245,34 +245,5 @@ describe('ExternalNFT Test', () => {
 
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
-    });
-
-    it('Should have a external token balance of 1', async () => {
-      await osCreature.mintTo(signers[10].address);
-      expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
-    });
-
-    // it('Should configure osCreature to the ZapMarket contract', async () => {
-    //   const oscreatureFactory = await ethers.getContractFactory(
-    //     'Creature',
-    //     signers[0]
-    //   );
-
-    //   osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
-    //   await osCreature.deployed();
-
-    //     expect (await zapMarket.connect(signers[0]).configure(signers[0].address,
-    //     osCreature.address,
-    //     formatBytes32String('osCreature'),
-    //     formatBytes32String('OSC')));
-
-    //     expect(await zapMarket.isConfigured(osCreature.address)).to.be.true;
-
-    //     const filter_deployExternalToken: EventFilter = zapMarket.filters.ExternalTokenDeployed(null);
-
-    //     const event_externalTokenDeployed: Event = (
-    //     await zapMarket.queryFilter(filter_deployExternalToken)
-    //     )[0]
-    //     expect(event_externalTokenDeployed.event).to.be.equal("External Token Deployed");
-    // });
+    });    
 });

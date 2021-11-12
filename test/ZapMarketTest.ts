@@ -1625,7 +1625,7 @@ describe('ZapMarket Test', () => {
     });
   })
 
-  describe.only("External mint", () => {
+  describe("External mint", () => {
 
     let owner: SignerWithAddress;
     let proxyForOwner: SignerWithAddress;
