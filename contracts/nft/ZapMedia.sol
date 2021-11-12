@@ -20,6 +20,7 @@ import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -142,9 +143,9 @@ contract ZapMedia is
 
     address public testing;
 
-     //function contractURI() public view returns (string memory) {
-        //return _contractURI;
-        console.log(bytes _contractURI)
+     //geting the contractURI value
+     function contractURI() public pure returns (string memory) {
+        return "https://creatures-api.opensea.io/contract/opensea-creatures";
     }
 
     /**
