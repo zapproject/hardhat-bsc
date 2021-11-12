@@ -33,7 +33,6 @@ import { BadBidder2 } from '../typechain/BadBidder2';
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
-import { assert } from 'console';
 
 chai.use(solidity);
 
@@ -207,8 +206,9 @@ describe('ExternalNFT Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
-    //   mint one creature
+      // mint a creature which is the external NFT
       await osCreature.mintTo(signers[10].address);
+      expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
 
     });
 
@@ -248,22 +248,10 @@ describe('ExternalNFT Test', () => {
      console.log(bidSharesForTokens); 
      expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
-      expect(bidSharesForTokens.creator);
+      expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
+      expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
+      expect(bidSharesForTokens.collabShares).to.be.eq(bidShares.collabShares);
       expect(bidSharesForTokens.collaborators);
-      expect(bidSharesForTokens.collabShares);
-      expect(bidSharesForTokens.owner);
-     
-      
-      
-    });
-
-    it('Should have a external token balance of 1', async () => {
-      await osCreature.mintTo(signers[10].address);
-      expect(await osCreature.balanceOf(signers[10].address)).to.equal(2);
-    });
-
-  
-    
+      console.log(bidSharesForTokens.collabShares);
+    });    
 });
-
-

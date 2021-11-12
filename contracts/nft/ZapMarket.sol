@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 //import {SafeMathUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
@@ -65,6 +66,19 @@ contract ZapMarket is IMarket, Ownable {
      * Modifiers
      * *********
      */
+
+
+    /**
+     * @notice checks to make sure the owner of the tokenID is msg.sender
+     */
+    modifier onlyTokenOwner(address mediaContract, uint tokenId) {
+        require(
+            IERC721(mediaContract).ownerOf(tokenId) == msg.sender,
+            'Market: Only owner of token can call this method'
+        );
+        _;
+    }
+
 
     /**
      * @notice require that the msg.sender is the configured media contract
@@ -374,6 +388,7 @@ contract ZapMarket is IMarket, Ownable {
         uint256 tokenId,
         Ask memory ask
     ) public override onlyMediaCaller(mediaContract) {
+        console.log(msg.sender);
         require(
             isValidBid(mediaContract, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
