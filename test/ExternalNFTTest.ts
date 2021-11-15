@@ -249,6 +249,8 @@ describe('ExternalNFT Test', () => {
         await zapMarket.queryFilter(filter)
       )[0]
 
+      expect(event.event).to.be.equal("MediaContractCreated")
+
     });
 
 
@@ -367,11 +369,11 @@ describe('ExternalNFT Test', () => {
         metadataHash
       };
 
-      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
-      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      // bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      // bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
-      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      // await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      // await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
     });
   });
