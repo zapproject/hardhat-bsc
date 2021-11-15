@@ -289,23 +289,9 @@ describe('ExternalNFT Test', () => {
     let bid1: any;
     let bid2: any;
     let osCreature: Creature;
-    let unAuthMedia: any;
+    let spender: any;
     
-  beforeEach(async () => {
-
-      const zapTokenFactory = await ethers.getContractFactory(
-        'ZapTokenBSC',
-        signers[0]
-      );
-
-      zapTokenBsc = await zapTokenFactory.deploy();
-      await zapTokenBsc.deployed();
-
-      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
-
-      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
-        initializer: 'initializeVault'
-      })) as ZapVault;
+    beforeEach(async () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
 
@@ -313,87 +299,65 @@ describe('ExternalNFT Test', () => {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
-      await zapMarket.setFee(platformFee);
+     const proxyFactory = await ethers.getContractFactory(
+      'MockProxyRegistry',
+      signers[0]
+    );
 
-      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
+    proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+    await proxy.deployed();
+    await proxy.setProxy(owner.address, proxyForOwner.address);
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
-        initializer: 'initialize'
-      })) as MediaFactory;
+    const oscreatureFactory = await ethers.getContractFactory(
+      'Creature',
+      signers[0]
+    );
 
-      zapMarket.setMediaFactory(mediaDeployer.address);
-
-      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
-
-      // osCreature = medias[0];
-
-
-      await osCreature.claimTransferOwnership();
+    osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+    await osCreature.deployed();
 
 
-      const mediaParams = {
-        name: "Unauthorised Media Contract",
-        symbol: "UMC",
-        marketContractAddr: zapMarket.address,
-        permissive: false,
-        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+    bid1 = {
+      amount: 200,
+      currency: zapTokenBsc.address,
+      bidder: signers[1].address,
+      recipient: signers[8].address,
+      spender: signers[1].address,
+      sellOnShare: {
+        value: BigInt(10000000000000000000)
       }
-      const unAuthMediaFact = await ethers.getContractFactory("ZapMedia", signers[9]);
-      unAuthMedia = await upgrades.deployProxy(
-        unAuthMediaFact,
-        [
-          mediaParams.name,
-          mediaParams.symbol,
-          mediaParams.marketContractAddr,
-          mediaParams.permissive,
-          mediaParams._collectionMetadata
-        ]
-      ) as Creature;
-      await unAuthMedia.deployed();
+    };
 
-      bid1 = {
-        amount: 200,
-        currency: zapTokenBsc.address,
-        bidder: signers[1].address,
-        recipient: signers[8].address,
-        spender: signers[1].address,
-        sellOnShare: {
-          value: BigInt(10000000000000000000)
-        }
-      };
-
-      bid2 = {
-        amount: 200,
-        currency: zapTokenBsc.address,
-        bidder: signers[2].address,
-        recipient: signers[9].address,
-        spender: signers[2].address,
-        sellOnShare: {
-          value: BigInt(10000000000000000000)
-        }
-      };
-
-      let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = keccak256(metadataHex);
-      metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
-
-      let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = keccak256(contentHex);
-      contentHashBytes = ethers.utils.arrayify(contentHashRaw);
-
-      let contentHash = contentHashBytes;
-      let metadataHash = metadataHashBytes;
-
-      const data: MediaData = {
-        tokenURI,
-        metadataURI,
-        contentHash,
-        metadataHash
-      };
-
-
-
+    bid2 = {
+      amount: 200,
+      currency: zapTokenBsc.address,
+      bidder: signers[2].address,
+      recipient: signers[9].address,
+      spender: signers[2].address,
+      sellOnShare: {
+        value: BigInt(10000000000000000000)
+      }
+    };
     });
+ 
+    
+    it('Should revert if external contract is not configured', async () => {
+
+      
+
+      await expect(
+        zapMarket
+          .connect(signers[2])
+          .setBid(osCreature.address, 0, bid1, bid1.spender)
+      ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
+
+      await expect(
+        zapMarket
+          .connect(signers[1])
+          .setBid(osCreature.address, 0, bid2, bid2.spender)
+      ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
+
+    }); 
   });
 
 });
