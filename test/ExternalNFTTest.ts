@@ -222,11 +222,6 @@ describe('ExternalNFT Test', () => {
         bidShares
       );
 
-    const bidSharesForTokens = await zapMarket.bidSharesForToken(
-      tokenContractAddress,
-      tokenByIndex
-    );
-
   });
 
   describe("Configure", () => {
@@ -286,6 +281,20 @@ describe('ExternalNFT Test', () => {
 
     });
 
+    it("Should emit an ExternalTokenDeployed event", async () => {
+
+      const filter: EventFilter = mediaDeployer.filters.ExternalTokenDeployed(
+        null
+      );
+
+      const event: Event = (
+        await mediaDeployer.queryFilter(filter)
+      )[0]
+
+      expect(event.event).to.be.equal('ExternalTokenDeployed');
+      expect(event.args?.extToken).to.be.equal(osCreature.address);
+
+    });
 
   });
 
