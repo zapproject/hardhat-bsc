@@ -412,7 +412,7 @@ contract ZapMarket is IMarket, Ownable {
     function removeAsk(address mediaContract, uint256 tokenId)
         external
         override
-        onlyTokenOwnerOrAuctionHouse(mediaContract, tokenId)
+        onlyMediaOrAuctionHouse(mediaContract)
     {
         emit AskRemoved(tokenId, _tokenAsks[mediaContract][tokenId], mediaContract);
         delete _tokenAsks[mediaContract][tokenId];
