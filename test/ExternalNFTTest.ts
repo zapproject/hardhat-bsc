@@ -232,6 +232,7 @@ describe('ExternalNFT Test', () => {
       const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
 
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
+      expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
       expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
       expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
