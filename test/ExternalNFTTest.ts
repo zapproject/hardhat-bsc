@@ -287,11 +287,8 @@ describe('ExternalNFT Test', () => {
     let bid2: any;
     let osCreature: Creature;
     let unAuthMedia: any;
-    let bidShares1: any;
-    let bidshares2: any;
-
-
-    beforeEach(async () => {
+    
+  beforeEach(async () => {
 
       const zapTokenFactory = await ethers.getContractFactory(
         'ZapTokenBSC',
@@ -325,9 +322,7 @@ describe('ExternalNFT Test', () => {
 
       const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      osCreature = medias[0];
-      
-
+      const osCreature = await ethers.getContractFactory('osCreature', medias[0]);
       await osCreature.claimTransferOwnership();
       
 
