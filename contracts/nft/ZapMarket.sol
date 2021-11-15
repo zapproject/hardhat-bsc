@@ -374,7 +374,7 @@ contract ZapMarket is IMarket, Ownable {
             );
             _bidShares[mediaContract][tokenId] = bidShares;
         }
-        emit BidShareUpdated(tokenId, bidShares, msg.sender);
+        emit BidShareUpdated(tokenId, bidShares, mediaContract);
     }
 
     /**
@@ -386,7 +386,7 @@ contract ZapMarket is IMarket, Ownable {
         uint256 tokenId,
         Ask memory ask
     ) public override onlyTokenOwner(mediaContract, tokenId) {
-    // ) public override onlyTokenOwner(mediaContract, tokenId) {
+        // ) public override onlyTokenOwner(mediaContract, tokenId) {
         require(
             isValidBid(mediaContract, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
