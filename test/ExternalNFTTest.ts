@@ -209,7 +209,6 @@ describe('ExternalNFT Test', () => {
     // mint a creature which is the external NFT
     await osCreature.mintTo(signers[10].address);
     expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
-
   });
 
   it('Should configure external token contract as a media in ZapMarket', async () => {
@@ -217,6 +216,62 @@ describe('ExternalNFT Test', () => {
     const tokenContractName: string = await osCreature.name();
     const tokenContractSymbol: string = await osCreature.symbol();
     const tokenByIndex = await osCreature.tokenByIndex(0);
+
+    const bidShares = {
+      collaborators: [
+        signers[10].address,
+        signers[11].address,
+        signers[12].address
+      ],
+      collabShares: [
+        BigNumber.from('15000000000000000000'),
+        BigNumber.from('15000000000000000000'),
+        BigNumber.from('15000000000000000000')
+      ],
+      creator: {
+        value: BigNumber.from('15000000000000000000')
+      },
+      owner: {
+        value: BigNumber.from('35000000000000000000')
+      }
+    };
+
+    // configure external tokens.
+    // in this case that means we are registering the contract that minted the token being brough into the market.
+    // configureExternalToken also includes setting bidShares
+    await mediaDeployer
+      .connect(signers[10])
+      .configureExternalToken(
+        tokenContractName,
+        tokenContractSymbol,
+        tokenContractAddress,
+        tokenByIndex,
+        bidShares
+      );
+    const bidSharesForTokens = await zapMarket.bidSharesForToken(
+      tokenContractAddress,
+      tokenByIndex
+    );
+
+    expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
+    expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
+    expect(bidSharesForTokens.creator.value).to.be.equal(
+      bidShares.creator.value
+    );
+    expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
+    expect(bidSharesForTokens.collabShares).to.be.eql(bidShares.collabShares);
+    expect(bidSharesForTokens.collaborators).to.eql(
+      bidSharesForTokens.collaborators
+    );
+  });
+
+  it('Should setAsk for external token', async () => {
+    const tokenContractAddress: string = osCreature.address;
+    const tokenContractName: string = await osCreature.name();
+    const tokenContractSymbol: string = await osCreature.symbol();
+    const tokenByIndex = await osCreature.tokenByIndex(0);
+
+    ask1.currency = zapTokenBsc.address;
 
 
     const bidShares = {
@@ -237,21 +292,24 @@ describe('ExternalNFT Test', () => {
         value: BigNumber.from('35000000000000000000')
       }
     };
-    await mediaDeployer.connect(signers[10]).configureExternalToken(
-      tokenContractName,
-      tokenContractSymbol,
-      tokenContractAddress,
-      tokenByIndex,
-      bidShares
-    );
-    const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
 
-    expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
-    expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
-    expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
-    expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
-    expect(bidSharesForTokens.collabShares).to.be.eql(bidShares.collabShares);
-    expect(bidSharesForTokens.collaborators).to.eql(bidSharesForTokens.collaborators);
+    // configure external tokens.
+    // in this case that means we are registering the contract that minted the token being brough into the market.
+    // configureExternalToken also includes setting bidShares
+    await mediaDeployer
+      .connect(signers[10])
+      .configureExternalToken(
+        tokenContractName,
+        tokenContractSymbol,
+        tokenContractAddress,
+        tokenByIndex,
+        bidShares
+      );
 
+    console.log('zapMarket: ', zapMarket.address);
+    // console.log("zapMedia2: ", zapMedia2.address);
+
+    console.log(signers[10].address)
+    await zapMarket.connect(signers[10]).setAsk(tokenContractAddress, 1, ask1);
   });
 });
