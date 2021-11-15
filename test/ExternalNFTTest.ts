@@ -250,7 +250,7 @@ describe('ExternalNFT Test', () => {
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
       expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
       expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
-      expect(bidSharesForTokens.collabShares).to.be.eq(bidShares.collabShares);
+      expect(bidSharesForTokens.collabShares).to.deep.equal(bidShares.collabShares);
       expect(bidSharesForTokens.collaborators);
       console.log(bidSharesForTokens.collabShares);
     });    
