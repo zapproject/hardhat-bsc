@@ -256,6 +256,21 @@ describe('ExternalNFT Test', () => {
 
     });
 
+    it("Should emit a BidSharesUpdated event", async () => {
+
+      const filter: EventFilter = zapMarket.filters.BidShareUpdated(
+        null,
+        null,
+        null
+      );
+
+      const event: Event = (
+        await zapMarket.queryFilter(filter)
+      )[0]
+
+      expect(event.event).to.be.equal("BidShareUpdated");
+    });
+
 
   });
 
