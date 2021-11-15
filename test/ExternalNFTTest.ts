@@ -237,7 +237,6 @@ describe('ExternalNFT Test', () => {
         value: BigNumber.from('35000000000000000000')
       }
     };
-<<<<<<< HEAD
 
     let ask1 = {
       amount: 100,
@@ -372,23 +371,7 @@ describe('ExternalNFT Test', () => {
       expect(bidSharesForTokens.collaborators);
       console.log(bidSharesForTokens.collabShares);
     });    
-=======
-    await mediaDeployer.connect(signers[10]).configureExternalToken(
-      tokenContractName,
-      tokenContractSymbol,
-      tokenContractAddress,
-      tokenByIndex,
-      bidShares
-    );
-    const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
-
-    expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
-    expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
-    expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
-    expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
-    expect(bidSharesForTokens.collabShares).to.be.eql(bidShares.collabShares);
-    expect(bidSharesForTokens.collaborators).to.eql(bidSharesForTokens.collaborators);
-
   });
->>>>>>> 7d71723a257b0d51b3d2c6b9112b86ffc3f9a358
+
+  
 });
