@@ -249,7 +249,10 @@ describe('ExternalNFT Test', () => {
         await zapMarket.queryFilter(filter)
       )[0]
 
-      expect(event.event).to.be.equal("MediaContractCreated")
+      expect(event.event).to.be.equal("MediaContractCreated");
+      expect(event.args?.mediaContract).to.equal(tokenContractAddress);
+      expect(ethers.utils.parseBytes32String(event.args?.name)).to.be.equal(tokenContractName);
+      expect(ethers.utils.parseBytes32String(event.args?.symbol)).to.be.equal(tokenContractSymbol);
 
     });
 
