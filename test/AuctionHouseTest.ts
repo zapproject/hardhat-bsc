@@ -15,7 +15,7 @@ import {
   BadMedia
 } from "../typechain";
 import { } from "../typechain";
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, ContractFactory } from "ethers";
 
 import {
   approveAuction,
@@ -106,7 +106,7 @@ describe("AuctionHouse", () => {
 
     it("should be able to deploy", async () => {
 
-      BigNumber.from(10).pow(18).div(2)
+      // BigNumber.from(10).pow(18).div(2)
 
       const AuctionHouse = await ethers.getContractFactory("AuctionHouse");
 
@@ -1209,4 +1209,66 @@ describe("AuctionHouse", () => {
       });
     });
   });
+
+  describe.only("Upgradeability", () => {
+    let auctionHouse: AuctionHouse;
+    let auctionHouseFactory: ContractFactory;
+    let marketFactory: ContractFactory;
+
+    beforeEach(async () => {
+      const [ deployer ] = await ethers.getSigners();
+
+      const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+      const oldVaultABI = oldVaultArtifact.abi;
+      const oldVaultBytecode = oldVaultArtifact.bytecode;
+      const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, deployer);
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+      const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+      const oldZMABI = oldZMArtifact.abi;
+      const oldZMBytecode = oldZMArtifact.bytecode;
+      const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, deployer);
+      marketFactory = await ethers.getContractFactory("ZapMarket", deployer);
+
+      market = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
+
+      await market.deployed();
+
+      // const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", signers[0]);
+      // mediaFactory = (await upgrades.deployProxy(mediaDeployerFactory, [market.address], {
+      //   initializer: 'initialize'
+      // })) as MediaFactory;
+
+      // await mediaFactory.deployed();
+
+      await market.setMediaFactory(mediaFactory.address);
+
+
+      const AuctionHouse = await ethers.getContractFactory("AuctionHouseOld");
+
+      auctionHouse = await upgrades.deployProxy(
+        AuctionHouse,
+        [zapTokenBsc.address, market.address],
+        { initializer: 'initialize' }
+      ) as AuctionHouse;
+
+      // NOTE: when upgrading, this function must be called on the upgraded ZapMarket
+      // await market.setAuctionHouse(auctionHouse.address);
+
+      auctionHouseFactory = await ethers.getContractFactory("AuctionHouse", deployer);
+    });
+
+    it("Should be able to upgrade v1 AuctionHouse to a version allowing external NFTs", async () => {
+      market = await upgrades.upgradeProxy(market.address, marketFactory) as ZapMarket;
+
+      expect(await upgrades.upgradeProxy(auctionHouse.address, auctionHouseFactory)).to.be.ok;
+
+      await expect(market.setAuctionHouse(auctionHouse.address)).to.not.be.reverted;
+    });
+  })
 })

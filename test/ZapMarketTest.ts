@@ -1863,6 +1863,48 @@ describe('ZapMarket Test', () => {
 
   });
 
+  describe("Upgradability", () => {
+    let zapMarketV2Factory: ContractFactory
+
+    beforeEach(async () => {
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+      const oldVaultABI = oldVaultArtifact.abi;
+      const oldVaultBytecode = oldVaultArtifact.bytecode;
+      const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, signers[0]);
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+      const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+      const oldZMABI = oldZMArtifact.abi;
+      const oldZMBytecode = oldZMArtifact.bytecode;
+      const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, signers[0]);
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
+
+      await zapMarket.deployed();
+
+      const ZMArtifact = require('../artifacts/contracts/nft/ZapMarket.sol/ZapMarket.json');
+      const ZMABI = ZMArtifact.abi;
+      const ZMBytecode = ZMArtifact.bytecode;
+      zapMarketV2Factory = new ethers.ContractFactory(ZMABI, ZMBytecode, signers[0]);
+    });
+    it("Should be able to upgrade v1 ZapMarket to a version allowing external NFTs", async () => {
+      expect(await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory)).to.be.ok;
+    });
+  });
+
 });
 function mediaDeployerFactory(mediaDeployerFactory: any, arg1: string[], arg2: { initializer: string; }): MediaFactory | PromiseLike<MediaFactory> {
   throw new Error('Function not implemented.');

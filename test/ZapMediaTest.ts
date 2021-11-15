@@ -1,6 +1,6 @@
 import { ethers, upgrades } from "hardhat";
 
-import { EventFilter, Event } from "ethers";
+import { EventFilter, Event, ContractFactory } from "ethers";
 
 import { solidity } from "ethereum-waffle";
 
@@ -2075,6 +2075,57 @@ describe("ZapMedia Test", async () => {
 
         });
 
+    });
+
+    describe.only("Upgradeability", () => {
+        let mediaContractFactory: ContractFactory;
+        beforeEach(async () => {
+            // mediaData = {
+            //     tokenURI,
+            //     metadataURI,
+            //     contentHash: contentHashBytes,
+            //     metadataHash: metadataHashBytes,
+            // };
+
+            const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+            const oldVaultABI = oldVaultArtifact.abi;
+            const oldVaultBytecode = oldVaultArtifact.bytecode;
+            const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, signers[0]);
+
+            zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+                initializer: 'initializeVault'
+            })) as ZapVault;
+
+            const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+            const oldZMABI = oldZMArtifact.abi;
+            const oldZMBytecode = oldZMArtifact.bytecode;
+            const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, signers[0]);
+
+            zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+                initializer: 'initializeMarket'
+            })) as ZapMarket;
+
+            await zapMarket.deployed();
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", signers[0]);
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deployOneMedia(signers[0], zapMarket, mediaDeployer, 101);
+
+            zapMedia1 = medias;
+
+            mediaContractFactory = await ethers.getContractFactory("ZapMedia", signers[0]);
+        });
+        it.skip("Should be able to upgrade v1 ZapMedia to a version allowing external NFTs", async () => {
+            // due to how media contracts are deployed, upgrading is not possible
+            // expect(await upgrades.prepareUpgrade(zapMedia1.address, mediaContractFactory)).to.be.ok;
+        });
     });
 
 })

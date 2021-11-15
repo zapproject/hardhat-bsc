@@ -26,31 +26,11 @@ import { ZapVault } from '../typechain/ZapVault';
 
 import { ZapMarket__factory } from '../typechain';
 
-import { deployJustMedias } from './utils';
-
-import { BadBidder2 } from '../typechain/BadBidder2';
-
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
 
 chai.use(solidity);
-
-type MediaData = {
-  tokenURI: string;
-  metadataURI: string;
-  contentHash: Bytes;
-  metadataHash: Bytes;
-};
-
-let tokenURI = 'www.example.com';
-let metadataURI = 'www.example2.com';
-
-let contentHashBytes: Bytes;
-let metadataHashBytes: Bytes;
-let vault: ZapVault;
-let mint_tx1: any;
-let mint_tx2: any;
 
 let platformFee = {
   fee: {
@@ -64,13 +44,14 @@ describe('ExternalNFT Test', () => {
   let proxyForOwner: SignerWithAddress;
   let proxy: MockProxyRegistry;
   let osCreature: Creature;
-
+  let osCreature2: Creature;
   let zapMarket: ZapMarket;
   let zapVault: ZapVault;
   let mediaDeployer: MediaFactory;
   let signers: SignerWithAddress[];
   let bidShares: any;
   let tokenContractAddress: string;
+  let tokenContractAddress2: string;
   let tokenContractName: string;
   let tokenContractSymbol: string;
   let tokenByIndex: BigNumber;
@@ -186,7 +167,20 @@ describe('ExternalNFT Test', () => {
     expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
     expect(await osCreature.ownerOf(1)).to.equal(signers[10].address)
 
+    const oscreatureFactory2 = await ethers.getContractFactory(
+      'Creature',
+      signers[1]
+    );
+
+    osCreature2 = (await oscreatureFactory2.deploy(proxy.address)) as Creature;
+    await osCreature.deployed();
+
+    await osCreature2.mintTo(signers[1].address);
+
+    expect(await osCreature2.balanceOf(signers[1].address)).to.equal(1);
+
     tokenContractAddress = osCreature.address;
+    tokenContractAddress2 = osCreature2.address;
     tokenContractName = await osCreature.name();
     tokenContractSymbol = await osCreature.symbol();
     tokenByIndex = await osCreature.tokenByIndex(0);
@@ -223,11 +217,6 @@ describe('ExternalNFT Test', () => {
         bidShares
       );
 
-    const bidSharesForTokens = await zapMarket.bidSharesForToken(
-      tokenContractAddress,
-      tokenByIndex
-    );
-
   });
 
   describe("Configure", () => {
@@ -237,6 +226,7 @@ describe('ExternalNFT Test', () => {
       // BidShares for tokenID 1
       const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
 
+      expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
       expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
@@ -265,7 +255,7 @@ describe('ExternalNFT Test', () => {
 
     });
 
-    it("Should emit a BidSharesUpdated event", async () => {
+    it("Should emit a BidShareUpdated event", async () => {
 
       const filter: EventFilter = zapMarket.filters.BidShareUpdated(
         null,
@@ -278,7 +268,60 @@ describe('ExternalNFT Test', () => {
       )[0]
 
       expect(event.event).to.be.equal("BidShareUpdated");
+      expect(event.args?.tokenId).to.be.equal(tokenByIndex);
+      expect(event.args?.bidShares.creator.value).to.equal(bidShares.creator.value);
+      expect(event.args?.bidShares.owner.value).to.equal(bidShares.owner.value);
+      expect(event.args?.bidShares.collaborators).to.eql(bidShares.collaborators);
+      expect(event.args?.bidShares.collabShares).to.eql(bidShares.collabShares);
+      expect(event.args?.mediaContract).to.equal(osCreature.address);
+
     });
+    it("Should emit an ExternalTokenDeployed event", async () => {
+
+      const filter: EventFilter = mediaDeployer.filters.ExternalTokenDeployed(
+        null
+      );
+
+      const event: Event = (
+        await mediaDeployer.queryFilter(filter)
+      )[0]
+
+      expect(event.event).to.be.equal('ExternalTokenDeployed');
+      expect(event.args?.extToken).to.be.equal(osCreature.address);
+
+    });
+
+    it("Should revert if a non owner tries to configure an existing tokenID", async () => {
+
+      const tokenID = await osCreature2.tokenByIndex(0);
+
+      await expect(mediaDeployer
+        .connect(signers[2])
+        .configureExternalToken(
+          tokenContractName,
+          tokenContractSymbol,
+          tokenContractAddress2,
+          tokenID,
+          bidShares
+        )).to.be.revertedWith('MediaFactory: Only token owner can configure to ZapMarket');
+
+    })
+
+    it("Should revert if a non existent tokenID tries to be configured", async () => {
+
+      const nonexistentID = 10;
+
+      await expect(mediaDeployer
+        .connect(signers[1])
+        .configureExternalToken(
+          tokenContractName,
+          tokenContractSymbol,
+          tokenContractAddress2,
+          nonexistentID,
+          bidShares
+        )).to.be.revertedWith('ERC721: owner query for nonexistent token');
+
+    })
   });
 
   describe('#setAsk', () => {
@@ -386,35 +429,17 @@ describe('ExternalNFT Test', () => {
       expect(getAsk1.amount.toNumber()).to.be.equal(0);
       expect(getAsk1.currency).to.be.equal('0x0000000000000000000000000000000000000000');
     })
+    
 
   });
 
   describe('#setBid', () => {
     let bid1: any;
     let bid2: any;
-    let zapMedia1: any;
-    let zapMedia2: any;
-    let zapMedia3: any;
-    let unAuthMedia: any;
-    let bidShares1: any;
-    let bidshares2: any;
-
+    let osCreature: Creature;
+    let spender: any;
 
     beforeEach(async () => {
-
-      const zapTokenFactory = await ethers.getContractFactory(
-        'ZapTokenBSC',
-        signers[0]
-      );
-
-      zapTokenBsc = await zapTokenFactory.deploy();
-      await zapTokenBsc.deployed();
-
-      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
-
-      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
-        initializer: 'initializeVault'
-      })) as ZapVault;
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
 
@@ -422,45 +447,23 @@ describe('ExternalNFT Test', () => {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
-      await zapMarket.setFee(platformFee);
+      const proxyFactory = await ethers.getContractFactory(
+        'MockProxyRegistry',
+        signers[0]
+      );
 
-      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
+      proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+      await proxy.deployed();
+      await proxy.setProxy(owner.address, proxyForOwner.address);
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
-        initializer: 'initialize'
-      })) as MediaFactory;
+      const oscreatureFactory = await ethers.getContractFactory(
+        'Creature',
+        signers[0]
+      );
 
-      zapMarket.setMediaFactory(mediaDeployer.address);
+      osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+      await osCreature.deployed();
 
-      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
-
-      zapMedia1 = medias[0];
-      zapMedia2 = medias[1];
-      zapMedia3 = medias[2];
-
-      await zapMedia1.claimTransferOwnership();
-      await zapMedia2.claimTransferOwnership();
-      await zapMedia3.claimTransferOwnership();
-
-      const mediaParams = {
-        name: "Unauthorised Media Contract",
-        symbol: "UMC",
-        marketContractAddr: zapMarket.address,
-        permissive: false,
-        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-      }
-      const unAuthMediaFact = await ethers.getContractFactory("ZapMedia", signers[9]);
-      unAuthMedia = await upgrades.deployProxy(
-        unAuthMediaFact,
-        [
-          mediaParams.name,
-          mediaParams.symbol,
-          mediaParams.marketContractAddr,
-          mediaParams.permissive,
-          mediaParams._collectionMetadata
-        ]
-      ) as ZapMedia;
-      await unAuthMedia.deployed();
 
       bid1 = {
         amount: 200,
@@ -483,30 +486,24 @@ describe('ExternalNFT Test', () => {
           value: BigInt(10000000000000000000)
         }
       };
+    });
 
-      let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHashRaw = keccak256(metadataHex);
-      metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
-      let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHashRaw = keccak256(contentHex);
-      contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+    it('Should revert if external contract is not configured', async () => {
 
-      let contentHash = contentHashBytes;
-      let metadataHash = metadataHashBytes;
 
-      const data: MediaData = {
-        tokenURI,
-        metadataURI,
-        contentHash,
-        metadataHash
-      };
 
-      // bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
-      // bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      await expect(
+        zapMarket
+          .connect(signers[2])
+          .setBid(osCreature.address, 0, bid1, bid1.spender)
+      ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
-      // await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-      // await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      await expect(
+        zapMarket
+          .connect(signers[1])
+          .setBid(osCreature.address, 0, bid2, bid2.spender)
+      ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
     });
   });
