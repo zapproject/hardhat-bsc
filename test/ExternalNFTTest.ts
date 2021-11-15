@@ -73,6 +73,7 @@ describe('ExternalNFT Test', () => {
   let tokenContractAddress: string;
   let tokenContractName: string;
   let tokenContractSymbol: string;
+  let tokenByIndex: BigNumber;
 
   let collaborators = {
     collaboratorTwo: '',
@@ -187,6 +188,7 @@ describe('ExternalNFT Test', () => {
     tokenContractAddress = osCreature.address;
     tokenContractName = await osCreature.name();
     tokenContractSymbol = await osCreature.symbol();
+    tokenByIndex = await osCreature.tokenByIndex(0);
 
     bidShares = {
       collaborators: [
@@ -207,25 +209,23 @@ describe('ExternalNFT Test', () => {
       }
     };
 
+    // TokenID 1 is owned by signer 10
+    // Signer 10 is the only address able to configure this token
+    await mediaDeployer.connect(signers[10]).configureExternalToken(
+      tokenContractName,
+      tokenContractSymbol,
+      tokenContractAddress,
+      tokenByIndex,
+      bidShares
+    );
+
   });
 
   describe("Configure", () => {
 
     it('Should configure external token contract as a media in ZapMarket', async () => {
 
-      // tokenID 1
-      const tokenByIndex = await osCreature.tokenByIndex(0);
-
-      // TokenID 1 is owned by signer 10
-      // Signer 10 is the only address able to configure this token
-      await mediaDeployer.connect(signers[10]).configureExternalToken(
-        tokenContractName,
-        tokenContractSymbol,
-        tokenContractAddress,
-        tokenByIndex,
-        bidShares
-      );
-
+      // BidShares for tokenID 1
       const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
 
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
