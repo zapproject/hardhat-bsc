@@ -722,11 +722,11 @@ describe('ZapMarket Test', () => {
     it('Should reject if not called by a media address', async () => {
       await expect(
         zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)
-      ).to.be.revertedWith('Market: Only media contract');
+      ).to.be.reverted;
 
       await expect(
         zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)
-      ).to.be.revertedWith('Market: Only media contract');
+      ).to.be.reverted;
 
     });
 
@@ -1695,10 +1695,7 @@ describe('ZapMarket Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
-      // await osCreature.mintTo(signers[10].address)
-
-
-
+      await osCreature.mintTo(signers[10].address)
 
     });
 
@@ -1727,7 +1724,7 @@ describe('ZapMarket Test', () => {
         },
   
       }
-      await mediaDeployer.configureExternalToken(tokenContractName, tokenContractSymbol, tokenContractAddress, 1, bidShares)
+      await mediaDeployer.connect(signers[10]).configureExternalToken(tokenContractName, tokenContractSymbol, tokenContractAddress, 1, bidShares)
 
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
@@ -1737,7 +1734,7 @@ describe('ZapMarket Test', () => {
 
     it('Should have a external token balance of 1', async () => {
       await osCreature.mintTo(signers[10].address)
-      expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
+      expect(await osCreature.balanceOf(signers[10].address)).to.equal(2);
 
     });
 

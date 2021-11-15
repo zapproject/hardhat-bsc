@@ -72,9 +72,10 @@ contract ZapMarket is IMarket, Ownable {
      */
     modifier onlyTokenOwner(address mediaContract, uint256 tokenId) {
         require(
-            IERC721(mediaContract).ownerOf(tokenId) == msg.sender,
+            IERC721(mediaContract).ownerOf(tokenId) == tx.origin,
             'Market: Only owner of token can call this method'
         );
+
         _;
     }
 
@@ -86,7 +87,6 @@ contract ZapMarket is IMarket, Ownable {
             isConfigured[mediaContract] == true,
             'Market: Only media contract'
         );
-
         _;
     }
 
@@ -385,7 +385,8 @@ contract ZapMarket is IMarket, Ownable {
         address mediaContract,
         uint256 tokenId,
         Ask memory ask
-    ) public override onlyMediaCaller(mediaContract) {
+    ) public override onlyTokenOwner(mediaContract, tokenId) {
+    // ) public override onlyTokenOwner(mediaContract, tokenId) {
         require(
             isValidBid(mediaContract, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'

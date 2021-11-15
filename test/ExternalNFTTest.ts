@@ -209,14 +209,22 @@ describe('ExternalNFT Test', () => {
       }
     };
 
-    // TokenID 1 is owned by signer 10
-    // Signer 10 is the only address able to configure this token
-    await mediaDeployer.connect(signers[10]).configureExternalToken(
-      tokenContractName,
-      tokenContractSymbol,
+    // configure external tokens.
+    // in this case that means we are registering the contract that minted the token being brough into the market.
+    // configureExternalToken also includes setting bidShares
+    await mediaDeployer
+      .connect(signers[10])
+      .configureExternalToken(
+        tokenContractName,
+        tokenContractSymbol,
+        tokenContractAddress,
+        tokenByIndex,
+        bidShares
+      );
+
+    const bidSharesForTokens = await zapMarket.bidSharesForToken(
       tokenContractAddress,
-      tokenByIndex,
-      bidShares
+      tokenByIndex
     );
 
   });
@@ -254,6 +262,21 @@ describe('ExternalNFT Test', () => {
       expect(ethers.utils.parseBytes32String(event.args?.name)).to.be.equal(tokenContractName);
       expect(ethers.utils.parseBytes32String(event.args?.symbol)).to.be.equal(tokenContractSymbol);
 
+    });
+
+    it("Should emit a BidSharesUpdated event", async () => {
+
+      const filter: EventFilter = zapMarket.filters.BidShareUpdated(
+        null,
+        null,
+        null
+      );
+
+      const event: Event = (
+        await zapMarket.queryFilter(filter)
+      )[0]
+
+      expect(event.event).to.be.equal("BidShareUpdated");
     });
 
 
