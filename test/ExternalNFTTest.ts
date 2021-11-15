@@ -59,19 +59,172 @@ let platformFee = {
 };
 
 describe('ExternalNFT Test', () => {
-    let zapTokenBsc: any;
-    let owner: SignerWithAddress;
-    let proxyForOwner: SignerWithAddress;
-    let proxy: MockProxyRegistry;
-    let osCreature: Creature;
+  let zapTokenBsc: any;
+  let owner: SignerWithAddress;
+  let proxyForOwner: SignerWithAddress;
+  let proxy: MockProxyRegistry;
+  let osCreature: Creature;
 
-    let zapMarket: ZapMarket;
-    let zapVault: ZapVault;
-    let mediaDeployer: MediaFactory;
-    let signers: SignerWithAddress[];
+  let zapMarket: ZapMarket;
+  let zapVault: ZapVault;
+  let mediaDeployer: MediaFactory;
+  let signers: SignerWithAddress[];
 
-    let bidShares1 = {
-      collaborators: ['', '', ''],
+  let bidShares1 = {
+    collaborators: ['', '', ''],
+    collabShares: [
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000')
+    ],
+    creator: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    owner: {
+      value: BigNumber.from('35000000000000000000')
+    }
+  };
+
+  let bidShares2 = {
+    collaborators: ['', '', ''],
+    collabShares: [
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000')
+    ],
+    creator: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    owner: {
+      value: BigNumber.from('35000000000000000000')
+    }
+  };
+
+  let collaborators = {
+    collaboratorTwo: '',
+    collaboratorThree: '',
+    collaboratorFour: ''
+  };
+
+  let invalidBidShares = {
+    collaborators: ['', '', ''],
+    collabShares: [
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000'),
+      BigNumber.from('15000000000000000000')
+    ],
+    creator: {
+      value: BigNumber.from('15000000000000000000')
+    },
+    owner: {
+      value: BigNumber.from('40000000000000000000')
+    }
+  };
+
+  let ask1 = {
+    amount: 100,
+    currency: '',
+    sellOnShare: 0
+  };
+
+  let ask2 = {
+    amount: 200,
+    currency: '',
+    sellOnShare: 0
+  };
+
+  beforeEach(async () => {
+    signers = await ethers.getSigners();
+    owner = signers[0];
+    proxyForOwner = signers[8];
+
+    const zapTokenFactory = await ethers.getContractFactory(
+      'ZapTokenBSC',
+      signers[0]
+    );
+
+    zapTokenBsc = await zapTokenFactory.deploy();
+    await zapTokenBsc.deployed();
+
+    const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+
+    zapVault = (await upgrades.deployProxy(
+      zapVaultFactory,
+      [zapTokenBsc.address],
+      {
+        initializer: 'initializeVault'
+      }
+    )) as ZapVault;
+
+    let zapMarketFactory: ZapMarket__factory = (await ethers.getContractFactory(
+      'ZapMarket'
+    )) as ZapMarket__factory;
+
+    zapMarket = (await upgrades.deployProxy(
+      zapMarketFactory,
+      [zapVault.address],
+      {
+        initializer: 'initializeMarket'
+      }
+    )) as ZapMarket;
+
+    await zapMarket.setFee(platformFee);
+
+    const mediaDeployerFactory = await ethers.getContractFactory(
+      'MediaFactory',
+      signers[0]
+    );
+
+    mediaDeployer = (await upgrades.deployProxy(
+      mediaDeployerFactory,
+      [zapMarket.address],
+      {
+        initializer: 'initialize'
+      }
+    )) as MediaFactory;
+
+    await mediaDeployer.deployed();
+
+    await zapMarket.setMediaFactory(mediaDeployer.address);
+
+    // external Contract
+
+    const proxyFactory = await ethers.getContractFactory(
+      'MockProxyRegistry',
+      signers[0]
+    );
+
+    proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+    await proxy.deployed();
+    await proxy.setProxy(owner.address, proxyForOwner.address);
+
+    const oscreatureFactory = await ethers.getContractFactory(
+      'Creature',
+      signers[0]
+    );
+
+    osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+    await osCreature.deployed();
+
+    // mint a creature which is the external NFT
+    await osCreature.mintTo(signers[10].address);
+    expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
+
+  });
+
+  it('Should configure external token contract as a media in ZapMarket', async () => {
+    const tokenContractAddress: string = osCreature.address;
+    const tokenContractName: string = await osCreature.name();
+    const tokenContractSymbol: string = await osCreature.symbol();
+    const tokenByIndex = await osCreature.tokenByIndex(0);
+
+
+    const bidShares = {
+      collaborators: [
+        signers[10].address,
+        signers[11].address,
+        signers[12].address
+      ],
       collabShares: [
         BigNumber.from('15000000000000000000'),
         BigNumber.from('15000000000000000000'),
@@ -84,42 +237,7 @@ describe('ExternalNFT Test', () => {
         value: BigNumber.from('35000000000000000000')
       }
     };
-
-    let bidShares2 = {
-      collaborators: ['', '', ''],
-      collabShares: [
-        BigNumber.from('15000000000000000000'),
-        BigNumber.from('15000000000000000000'),
-        BigNumber.from('15000000000000000000')
-      ],
-      creator: {
-        value: BigNumber.from('15000000000000000000')
-      },
-      owner: {
-        value: BigNumber.from('35000000000000000000')
-      }
-    };
-
-    let collaborators = {
-      collaboratorTwo: '',
-      collaboratorThree: '',
-      collaboratorFour: ''
-    };
-
-    let invalidBidShares = {
-      collaborators: ['', '', ''],
-      collabShares: [
-        BigNumber.from('15000000000000000000'),
-        BigNumber.from('15000000000000000000'),
-        BigNumber.from('15000000000000000000')
-      ],
-      creator: {
-        value: BigNumber.from('15000000000000000000')
-      },
-      owner: {
-        value: BigNumber.from('40000000000000000000')
-      }
-    };
+<<<<<<< HEAD
 
     let ask1 = {
       amount: 100,
@@ -254,4 +372,23 @@ describe('ExternalNFT Test', () => {
       expect(bidSharesForTokens.collaborators);
       console.log(bidSharesForTokens.collabShares);
     });    
+=======
+    await mediaDeployer.connect(signers[10]).configureExternalToken(
+      tokenContractName,
+      tokenContractSymbol,
+      tokenContractAddress,
+      tokenByIndex,
+      bidShares
+    );
+    const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
+
+    expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
+    expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;
+    expect(bidSharesForTokens.creator.value).to.be.equal(bidShares.creator.value);
+    expect(bidSharesForTokens.owner.value).to.be.equal(bidShares.owner.value);
+    expect(bidSharesForTokens.collabShares).to.be.eql(bidShares.collabShares);
+    expect(bidSharesForTokens.collaborators).to.eql(bidSharesForTokens.collaborators);
+
+  });
+>>>>>>> 7d71723a257b0d51b3d2c6b9112b86ffc3f9a358
 });
