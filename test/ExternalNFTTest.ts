@@ -253,126 +253,127 @@ describe('ExternalNFT Test', () => {
 
 
   });
-describe('#setBid', () => {
-let bid1: any;
-let bid2: any;
-let zapMedia1: any;
-let zapMedia2: any;
-let zapMedia3: any;
-let unAuthMedia: any;
-let bidShares1: any;
-let bidshares2: any;
+
+  describe('#setBid', () => {
+    let bid1: any;
+    let bid2: any;
+    let zapMedia1: any;
+    let zapMedia2: any;
+    let zapMedia3: any;
+    let unAuthMedia: any;
+    let bidShares1: any;
+    let bidshares2: any;
 
 
-beforeEach(async () => {
+    beforeEach(async () => {
 
-  const zapTokenFactory = await ethers.getContractFactory(
-    'ZapTokenBSC',
-    signers[0]
-  );
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
 
-  zapTokenBsc = await zapTokenFactory.deploy();
-  await zapTokenBsc.deployed();
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
 
-  const zapVaultFactory = await ethers.getContractFactory('ZapVault');
+      const zapVaultFactory = await ethers.getContractFactory('ZapVault');
 
-  zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
-    initializer: 'initializeVault'
-  })) as ZapVault;
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
 
-  const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
+      const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
 
-  zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
-    initializer: 'initializeMarket'
-  })) as ZapMarket;
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
 
-  await zapMarket.setFee(platformFee);
+      await zapMarket.setFee(platformFee);
 
-  const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
+      const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-  mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
-    initializer: 'initialize'
-  })) as MediaFactory;
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+        initializer: 'initialize'
+      })) as MediaFactory;
 
-  zapMarket.setMediaFactory(mediaDeployer.address);
+      zapMarket.setMediaFactory(mediaDeployer.address);
 
-  const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
+      const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-  zapMedia1 = medias[0];
-  zapMedia2 = medias[1];
-  zapMedia3 = medias[2];
+      zapMedia1 = medias[0];
+      zapMedia2 = medias[1];
+      zapMedia3 = medias[2];
 
-  await zapMedia1.claimTransferOwnership();
-  await zapMedia2.claimTransferOwnership();
-  await zapMedia3.claimTransferOwnership();
+      await zapMedia1.claimTransferOwnership();
+      await zapMedia2.claimTransferOwnership();
+      await zapMedia3.claimTransferOwnership();
 
-  const mediaParams = {
-    name: "Unauthorised Media Contract",
-    symbol: "UMC",
-    marketContractAddr: zapMarket.address,
-    permissive: false,
-    _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
-  }
-  const unAuthMediaFact = await ethers.getContractFactory("ZapMedia", signers[9]);
-  unAuthMedia = await upgrades.deployProxy(
-    unAuthMediaFact,
-    [
-      mediaParams.name,
-      mediaParams.symbol,
-      mediaParams.marketContractAddr,
-      mediaParams.permissive,
-      mediaParams._collectionMetadata
-    ]
-  ) as ZapMedia;
-  await unAuthMedia.deployed();
+      const mediaParams = {
+        name: "Unauthorised Media Contract",
+        symbol: "UMC",
+        marketContractAddr: zapMarket.address,
+        permissive: false,
+        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      }
+      const unAuthMediaFact = await ethers.getContractFactory("ZapMedia", signers[9]);
+      unAuthMedia = await upgrades.deployProxy(
+        unAuthMediaFact,
+        [
+          mediaParams.name,
+          mediaParams.symbol,
+          mediaParams.marketContractAddr,
+          mediaParams.permissive,
+          mediaParams._collectionMetadata
+        ]
+      ) as ZapMedia;
+      await unAuthMedia.deployed();
 
-  bid1 = {
-    amount: 200,
-    currency: zapTokenBsc.address,
-    bidder: signers[1].address,
-    recipient: signers[8].address,
-    spender: signers[1].address,
-    sellOnShare: {
-      value: BigInt(10000000000000000000)
-    }
-  };
+      bid1 = {
+        amount: 200,
+        currency: zapTokenBsc.address,
+        bidder: signers[1].address,
+        recipient: signers[8].address,
+        spender: signers[1].address,
+        sellOnShare: {
+          value: BigInt(10000000000000000000)
+        }
+      };
 
-  bid2 = {
-    amount: 200,
-    currency: zapTokenBsc.address,
-    bidder: signers[2].address,
-    recipient: signers[9].address,
-    spender: signers[2].address,
-    sellOnShare: {
-      value: BigInt(10000000000000000000)
-    }
-  };
+      bid2 = {
+        amount: 200,
+        currency: zapTokenBsc.address,
+        bidder: signers[2].address,
+        recipient: signers[9].address,
+        spender: signers[2].address,
+        sellOnShare: {
+          value: BigInt(10000000000000000000)
+        }
+      };
 
-  let metadataHex = ethers.utils.formatBytes32String('{}');
-  let metadataHashRaw = keccak256(metadataHex);
-  metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+      let metadataHex = ethers.utils.formatBytes32String('{}');
+      let metadataHashRaw = keccak256(metadataHex);
+      metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
 
-  let contentHex = ethers.utils.formatBytes32String('invert');
-  let contentHashRaw = keccak256(contentHex);
-  contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+      let contentHex = ethers.utils.formatBytes32String('invert');
+      let contentHashRaw = keccak256(contentHex);
+      contentHashBytes = ethers.utils.arrayify(contentHashRaw);
 
-  let contentHash = contentHashBytes;
-  let metadataHash = metadataHashBytes;
+      let contentHash = contentHashBytes;
+      let metadataHash = metadataHashBytes;
 
-  const data: MediaData = {
-    tokenURI,
-    metadataURI,
-    contentHash,
-    metadataHash
-  };
+      const data: MediaData = {
+        tokenURI,
+        metadataURI,
+        contentHash,
+        metadataHash
+      };
 
-  bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
-  bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
-  await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-  await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+      await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+      await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
-});
-});
+    });
+  });
 
 });
