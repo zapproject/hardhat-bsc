@@ -297,6 +297,35 @@ describe('ExternalNFT Test', () => {
 
     });
 
+    it.only("Should revert if a non owner tries to configure an existing tokenID", async () => {
+
+      const oscreatureFactory2 = await ethers.getContractFactory(
+        'Creature',
+        signers[1]
+      );
+
+      let osCreature2 = (await oscreatureFactory2.deploy(proxy.address)) as Creature;
+      await osCreature.deployed();
+
+      await osCreature2.mintTo(signers[1].address);
+
+      const tokenContractName2 = await osCreature.name();
+      const tokenContractSymbol2 = await osCreature.symbol();
+      const tokenContractAddress2 = osCreature2.address;
+      const tokenID = await osCreature.tokenByIndex(0);
+
+      await expect(mediaDeployer
+        .connect(signers[2])
+        .configureExternalToken(
+          tokenContractName2,
+          tokenContractSymbol2,
+          tokenContractAddress2,
+          tokenID,
+          bidShares
+        )).to.be.revertedWith('Only token owner can configure to ZapMarket');
+
+    })
+
   });
 
   describe('#setBid', () => {
