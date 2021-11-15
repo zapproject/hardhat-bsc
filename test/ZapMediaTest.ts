@@ -2077,7 +2077,7 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    describe.only("Upgradeability", () => {
+    describe("Upgradeability", () => {
         let mediaContractFactory: ContractFactory;
         beforeEach(async () => {
             // mediaData = {
