@@ -256,12 +256,10 @@ describe('ExternalNFT Test', () => {
 describe('#setBid', () => {
 let bid1: any;
 let bid2: any;
-let zapMedia1: any;
-let zapMedia2: any;
-let zapMedia3: any;
+let osCreature: any;
 let unAuthMedia: any;
 let bidShares1: any;
-let bidshares2: any;
+let bidShares2: any;
 
 
 beforeEach(async () => {
@@ -298,13 +296,11 @@ beforeEach(async () => {
 
   const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-  zapMedia1 = medias[0];
-  zapMedia2 = medias[1];
-  zapMedia3 = medias[2];
+  osCreature = medias[0];
+ 
 
-  await zapMedia1.claimTransferOwnership();
-  await zapMedia2.claimTransferOwnership();
-  await zapMedia3.claimTransferOwnership();
+  await osCreature.claimTransferOwnership();
+  
 
   const mediaParams = {
     name: "Unauthorised Media Contract",
@@ -369,8 +365,8 @@ beforeEach(async () => {
   bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
   bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
-  await zapMedia1.connect(signers[1]).mint(data, bidShares1);
-  await zapMedia2.connect(signers[2]).mint(data, bidShares2);
+  // await zapMedia1.connect(signers[1]).mint(data, bidShares1);
+  // await zapMedia2.connect(signers[2]).mint(data, bidShares2);
 
 });
 });
