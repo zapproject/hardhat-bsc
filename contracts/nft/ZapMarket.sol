@@ -92,10 +92,10 @@ contract ZapMarket is IMarket, Ownable {
 
     
 
-    modifier onlyOwnerOrAuctionHouse(address caller, uint256 tokenId) {
+    modifier onlyTokenOwnerOrAuctionHouse(address caller, uint256 tokenId) {
         require(
             IERC721(caller).ownerOf(tokenId) == tx.origin || caller == auctionHouse,
-            'Market: Only media or AuctionHouse contract'
+            'Market: Only token owner or AuctionHouse contract'
         );
 
         _;
@@ -413,7 +413,7 @@ contract ZapMarket is IMarket, Ownable {
     function removeAsk(address mediaContract, uint256 tokenId)
         external
         override
-        onlyOwnerOrAuctionHouse(mediaContract, tokenId)
+        onlyTokenOwnerOrAuctionHouse(mediaContract, tokenId)
     {
         emit AskRemoved(tokenId, _tokenAsks[mediaContract][tokenId], mediaContract);
         delete _tokenAsks[mediaContract][tokenId];
