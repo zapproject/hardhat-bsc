@@ -237,6 +237,20 @@ describe('ExternalNFT Test', () => {
 
     });
 
+    it("Should emit a MediaContractCreated event", async () => {
+
+      const filter: EventFilter = zapMarket.filters.MediaContractCreated(
+        null,
+        null,
+        null
+      );
+
+      const event: Event = (
+        await zapMarket.queryFilter(filter)
+      )[0]
+
+    });
+
 
   })
 
