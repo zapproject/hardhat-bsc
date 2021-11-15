@@ -289,8 +289,7 @@ describe('ExternalNFT Test', () => {
       expect(event.args?.bidShares.owner.value).to.equal(bidShares.owner.value);
       expect(event.args?.bidShares.collaborators).to.eql(bidShares.collaborators);
       expect(event.args?.bidShares.collabShares).to.eql(bidShares.collabShares);
-      expect(event.args?.mediaContract).to.equal(signers[10].address);
-
+      expect(event.args?.mediaContract).to.equal(osCreature.address);
 
     });
 
@@ -302,7 +301,7 @@ describe('ExternalNFT Test', () => {
     let bid2: any;
     let osCreature: Creature;
     let spender: any;
-    
+
     beforeEach(async () => {
 
       const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
@@ -311,51 +310,51 @@ describe('ExternalNFT Test', () => {
         initializer: 'initializeMarket'
       })) as ZapMarket;
 
-     const proxyFactory = await ethers.getContractFactory(
-      'MockProxyRegistry',
-      signers[0]
-    );
+      const proxyFactory = await ethers.getContractFactory(
+        'MockProxyRegistry',
+        signers[0]
+      );
 
-    proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
-    await proxy.deployed();
-    await proxy.setProxy(owner.address, proxyForOwner.address);
+      proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+      await proxy.deployed();
+      await proxy.setProxy(owner.address, proxyForOwner.address);
 
-    const oscreatureFactory = await ethers.getContractFactory(
-      'Creature',
-      signers[0]
-    );
+      const oscreatureFactory = await ethers.getContractFactory(
+        'Creature',
+        signers[0]
+      );
 
-    osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
-    await osCreature.deployed();
+      osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+      await osCreature.deployed();
 
 
-    bid1 = {
-      amount: 200,
-      currency: zapTokenBsc.address,
-      bidder: signers[1].address,
-      recipient: signers[8].address,
-      spender: signers[1].address,
-      sellOnShare: {
-        value: BigInt(10000000000000000000)
-      }
-    };
+      bid1 = {
+        amount: 200,
+        currency: zapTokenBsc.address,
+        bidder: signers[1].address,
+        recipient: signers[8].address,
+        spender: signers[1].address,
+        sellOnShare: {
+          value: BigInt(10000000000000000000)
+        }
+      };
 
-    bid2 = {
-      amount: 200,
-      currency: zapTokenBsc.address,
-      bidder: signers[2].address,
-      recipient: signers[9].address,
-      spender: signers[2].address,
-      sellOnShare: {
-        value: BigInt(10000000000000000000)
-      }
-    };
+      bid2 = {
+        amount: 200,
+        currency: zapTokenBsc.address,
+        bidder: signers[2].address,
+        recipient: signers[9].address,
+        spender: signers[2].address,
+        sellOnShare: {
+          value: BigInt(10000000000000000000)
+        }
+      };
     });
- 
-    
+
+
     it('Should revert if external contract is not configured', async () => {
 
-      
+
 
       await expect(
         zapMarket
@@ -369,7 +368,7 @@ describe('ExternalNFT Test', () => {
           .setBid(osCreature.address, 0, bid2, bid2.spender)
       ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
-    }); 
+    });
   });
 
 });
