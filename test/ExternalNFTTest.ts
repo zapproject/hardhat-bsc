@@ -328,11 +328,11 @@ describe('ExternalNFT Test', () => {
 
       const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      osCreature = medias[0];
-      
+      // osCreature = medias[0];
+
 
       await osCreature.claimTransferOwnership();
-      
+
 
       const mediaParams = {
         name: "Unauthorised Media Contract",
@@ -394,7 +394,7 @@ describe('ExternalNFT Test', () => {
         metadataHash
       };
 
-     
+
 
     });
   });
