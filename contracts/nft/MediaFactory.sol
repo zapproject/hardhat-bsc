@@ -67,11 +67,8 @@ contract MediaFactory is OwnableUpgradeable {
     function configureExternalToken(
         string calldata name,
         string calldata symbol,
-        // address marketContractAddr,
         address tokenAddress,
         uint256 tokenId,
-        // bool permissive,
-        // string calldata _collectionMetadata,
         IMarket.BidShares memory _bidShares
     ) external returns (bool success) {
         require(
@@ -105,12 +102,9 @@ contract MediaFactory is OwnableUpgradeable {
         }
 
         zapMarket.setBidShares(tokenAddress, tokenId, _bidShares);
-       
 
         emit ExternalTokenDeployed(tokenAddress);
 
-      
-
         return true;
-    } 
+    }
 }
