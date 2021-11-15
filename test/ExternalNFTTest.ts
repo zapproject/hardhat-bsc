@@ -264,7 +264,7 @@ describe('ExternalNFT Test', () => {
 
     });
 
-    it("Should emit a BidSharesUpdated event", async () => {
+    it("Should emit a BidShareUpdated event", async () => {
 
       const filter: EventFilter = zapMarket.filters.BidShareUpdated(
         null,
@@ -276,7 +276,10 @@ describe('ExternalNFT Test', () => {
         await zapMarket.queryFilter(filter)
       )[0]
 
+      console.log(event)
       expect(event.event).to.be.equal("BidShareUpdated");
+      expect(event.args?.tokenId).to.be.equal(tokenByIndex);
+
     });
 
 
@@ -322,9 +325,11 @@ describe('ExternalNFT Test', () => {
 
       const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      const osCreature = await ethers.getContractFactory('osCreature', medias[0]);
+      // osCreature = medias[0];
+
+
       await osCreature.claimTransferOwnership();
-      
+
 
       const mediaParams = {
         name: "Unauthorised Media Contract",
@@ -386,7 +391,7 @@ describe('ExternalNFT Test', () => {
         metadataHash
       };
 
-     
+
 
     });
   });
