@@ -68,7 +68,7 @@ contract ZapMarket is IMarket, Ownable {
      */
 
     /**
-     * @notice checks to make sure the owner of the tokenID is msg.sender
+     * @notice checks to make sure the owner of the tokenID is caller of the function
      */
     modifier onlyTokenOwner(address mediaContract, uint256 tokenId) {
         require(
@@ -87,6 +87,17 @@ contract ZapMarket is IMarket, Ownable {
             isConfigured[mediaContract] == true,
             'Market: Only media contract'
         );
+        _;
+    }
+
+    
+
+    modifier onlyOwnerOrAuctionHouse(address caller, uint256 tokenId) {
+        require(
+            IERC721(caller).ownerOf(tokenId) == tx.origin || caller == auctionHouse,
+            'Market: Only media or AuctionHouse contract'
+        );
+
         _;
     }
 
@@ -386,7 +397,7 @@ contract ZapMarket is IMarket, Ownable {
         uint256 tokenId,
         Ask memory ask
     ) public override onlyTokenOwner(mediaContract, tokenId) {
-    // ) public override onlyTokenOwner(mediaContract, tokenId) {
+
         require(
             isValidBid(mediaContract, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
@@ -402,10 +413,10 @@ contract ZapMarket is IMarket, Ownable {
     function removeAsk(address mediaContract, uint256 tokenId)
         external
         override
-        onlyMediaOrAuctionHouse(mediaContract)
+        onlyOwnerOrAuctionHouse(mediaContract, tokenId)
     {
-        emit AskRemoved(tokenId, _tokenAsks[msg.sender][tokenId], msg.sender);
-        delete _tokenAsks[msg.sender][tokenId];
+        emit AskRemoved(tokenId, _tokenAsks[mediaContract][tokenId], mediaContract);
+        delete _tokenAsks[mediaContract][tokenId];
     }
 
     /**
