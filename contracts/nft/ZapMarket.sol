@@ -37,8 +37,6 @@ contract ZapMarket is IMarket, Ownable {
     // registered media factory address
     address private mediaFactory;
 
-    address private auctionHouse;
-
     // Mapping from token to mapping from bidder to bid
     mapping(address => mapping(uint256 => mapping(address => Bid)))
         private _tokenBidders;
@@ -52,15 +50,17 @@ contract ZapMarket is IMarket, Ownable {
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
-    //Mapping determining whether an nft contract is internal or external
-    mapping(address => bool) public isInternalMedia;
-
     // Mapping of token ids of accepted bids to their mutex
     mapping(uint256 => bool) private bidMutex;
 
     address platformAddress;
 
     IMarket.PlatformFee platformFee;
+
+    address private auctionHouse;
+
+    //Mapping determining whether an nft contract is internal or external
+    mapping(address => bool) public isInternalMedia;
 
     /* *********
      * Modifiers
