@@ -1,28 +1,30 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity ^0.8.4;
-pragma experimental ABIEncoderV2;
 import 'hardhat/console.sol';
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
 import {Ownable} from './Ownable.sol';
 import {ZapMedia} from './ZapMedia.sol';
-import {ZapMarket} from './ZapMarket.sol';
 import {IMarket} from './interfaces/IMarket.sol';
+
+interface IERC721Extended {
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+}
 
 contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
     event MediaUpdated(address indexed mediaContract);
     event ExternalTokenDeployed(address indexed extToken);
 
-    ZapMarket zapMarket;
+    IMarket zapMarket;
     mapping(address=>address) proxyImplementations;
 
     function initialize(address _zapMarket) external initializer {
-        zapMarket = ZapMarket(_zapMarket);
+        zapMarket = IMarket(_zapMarket);
     }
 
     function upgradeMedia(
@@ -106,9 +108,9 @@ contract MediaFactory is OwnableUpgradeable {
             zapMarket.registerMedia(tokenAddress);
         }
 
-        if (!(zapMarket.isConfigured(tokenAddress))) {
-            bytes memory name_b = bytes(ERC721(tokenAddress).name());
-            bytes memory symbol_b = bytes(ERC721(tokenAddress).symbol());
+        if (!(zapMarket._isConfigured(tokenAddress))) {
+            bytes memory name_b = bytes(IERC721Extended(tokenAddress).name());
+            bytes memory symbol_b = bytes(IERC721Extended(tokenAddress).symbol());
 
             bytes32 name_b32;
             bytes32 symbol_b32;
