@@ -23,14 +23,14 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
         bool permissive,
         string calldata collectionURI
     ) public {
-        __ERC1967Upgrade_init();
+        // __ERC1967Upgrade_init();
 
         _changeAdmin(msg.sender);
 
         _upgradeToAndCall(
             implementation,
             abi.encodeWithSignature(
-                "initialize(string,string,address,bool,string",
+                "initialize(string,string,address,bool,string)",
                 name,
                 symbol,
                 marketContractAddr,
