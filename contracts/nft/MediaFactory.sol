@@ -6,19 +6,37 @@ import 'hardhat/console.sol';
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
+import {MediaProxy} from './MediaProxy.sol';
+import {Ownable} from './Ownable.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {ZapMarket} from './ZapMarket.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 
 contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
+    event MediaUpdated(address indexed mediaContract);
     event ExternalTokenDeployed(address indexed extToken);
 
     ZapMarket zapMarket;
+    mapping(address=>address) proxyImplementations;
 
     function initialize(address _zapMarket) external initializer {
         zapMarket = ZapMarket(_zapMarket);
     }
+
+    function upgradeMedia(
+        address _proxy,
+        address _newImpl
+    ) external {
+        require(
+            msg.sender == ZapMedia(proxyImplementations[_proxy]).getOwner(),
+            "Only the owner can make this upgrade"
+        );
+
+        MediaProxy(_proxy).upgrateTo(_newImpl);
+        emit MediaUpdated(_proxy);
+    }
+
 
     function deployMedia(
         string calldata name,
@@ -27,18 +45,27 @@ contract MediaFactory is OwnableUpgradeable {
         bool permissive,
         string calldata _collectionMetadata
     ) external returns (address) {
+        MediaProxy proxy = new MediaProxy();
         ZapMedia zapMedia = new ZapMedia();
-        zapMedia.initialize(
-            name,
-            symbol,
-            marketContractAddr,
-            permissive,
-            _collectionMetadata
+
+        proxy.initialize(address(zapMedia), name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        address proxyAddress = address(proxy);
+
+        
+        (bool success, bytes memory returndata) = proxyAddress.call(
+            abi.encodeWithSelector(Ownable.initTransferOwnership.selector, payable(msg.sender))
         );
 
-        zapMedia.initTransferOwnership(payable(msg.sender));
+        require(
+            !success && returndata.length != 0,
+            "Creating ZapMedia proxy: Can not transfer ownership of proxy"
+        );
 
-        zapMarket.registerMedia(address(zapMedia));
+        proxyImplementations[proxyAddress] = address(zapMedia);
+
+        zapMarket.registerMedia(proxyAddress);
+
+        zapMarket.registerMedia(proxyAddress);
 
         bytes memory name_b = bytes(name);
         bytes memory symbol_b = bytes(symbol);
@@ -53,15 +80,15 @@ contract MediaFactory is OwnableUpgradeable {
 
         zapMarket.configure(
             msg.sender,
-            address(zapMedia),
+            proxyAddress,
             name_b32,
             symbol_b32,
             true
         );
 
-        emit MediaDeployed(address(zapMedia));
+        emit MediaDeployed(proxyAddress);
 
-        return address(zapMedia);
+        return proxyAddress;
     }
 
     function configureExternalToken(
