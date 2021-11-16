@@ -720,14 +720,8 @@ describe('ZapMarket Test', () => {
     });
 
     it('Should reject if not called by a media address', async () => {
-      await expect(
-        zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)
-      ).to.be.reverted;
-
-      await expect(
-        zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)
-      ).to.be.reverted;
-
+      await expect(zapMarket.connect(signers[4]).setAsk(unAuthMedia.address, 1, ask1)).to.be.reverted;
+      await expect(zapMarket.connect(signers[5]).setAsk(unAuthMedia.address, 1, ask1)).to.be.reverted;
     });
 
     it('Should set the ask if called by the media address', async () => {

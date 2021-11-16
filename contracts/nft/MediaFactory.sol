@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import 'hardhat/console.sol';
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
 import {Ownable} from './Ownable.sol';
@@ -92,8 +93,6 @@ contract MediaFactory is OwnableUpgradeable {
     }
 
     function configureExternalToken(
-        string calldata name,
-        string calldata symbol,
         address tokenAddress,
         uint256 tokenId,
         IMarket.BidShares memory _bidShares
@@ -108,8 +107,8 @@ contract MediaFactory is OwnableUpgradeable {
         }
 
         if (!(zapMarket.isConfigured(tokenAddress))) {
-            bytes memory name_b = bytes(name);
-            bytes memory symbol_b = bytes(symbol);
+            bytes memory name_b = bytes(ERC721(tokenAddress).name());
+            bytes memory symbol_b = bytes(ERC721(tokenAddress).symbol());
 
             bytes32 name_b32;
             bytes32 symbol_b32;

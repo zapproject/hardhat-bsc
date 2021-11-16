@@ -1210,7 +1210,7 @@ describe("AuctionHouse", () => {
     });
   });
 
-  describe.only("Upgradeability", () => {
+  describe("Upgradeability", () => {
     let auctionHouse: AuctionHouse;
     let auctionHouseFactory: ContractFactory;
     let marketFactory: ContractFactory;

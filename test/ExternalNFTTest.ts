@@ -162,9 +162,10 @@ describe('ExternalNFT Test', () => {
     osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
     await osCreature.deployed();
 
-    // mint a creature which is the external NFT
+    // mint a creature which is the external NFT and check it's ownered by signers[10]
     await osCreature.mintTo(signers[10].address);
     expect(await osCreature.balanceOf(signers[10].address)).to.equal(1);
+    expect(await osCreature.ownerOf(1)).to.equal(signers[10].address)
 
     const oscreatureFactory2 = await ethers.getContractFactory(
       'Creature',
@@ -209,8 +210,6 @@ describe('ExternalNFT Test', () => {
     await mediaDeployer
       .connect(signers[10])
       .configureExternalToken(
-        tokenContractName,
-        tokenContractSymbol,
         tokenContractAddress,
         tokenByIndex,
         bidShares
@@ -260,6 +259,7 @@ describe('ExternalNFT Test', () => {
         null,
         null,
         null
+
       );
 
       const event: Event = (
@@ -275,7 +275,6 @@ describe('ExternalNFT Test', () => {
       expect(event.args?.mediaContract).to.equal(osCreature.address);
 
     });
-
     it("Should emit an ExternalTokenDeployed event", async () => {
 
       const filter: EventFilter = mediaDeployer.filters.ExternalTokenDeployed(
@@ -298,8 +297,6 @@ describe('ExternalNFT Test', () => {
       await expect(mediaDeployer
         .connect(signers[2])
         .configureExternalToken(
-          tokenContractName,
-          tokenContractSymbol,
           tokenContractAddress2,
           tokenID,
           bidShares
@@ -314,14 +311,120 @@ describe('ExternalNFT Test', () => {
       await expect(mediaDeployer
         .connect(signers[1])
         .configureExternalToken(
-          tokenContractName,
-          tokenContractSymbol,
           tokenContractAddress2,
           nonexistentID,
           bidShares
         )).to.be.revertedWith('ERC721: owner query for nonexistent token');
 
     })
+  });
+
+  describe('#setAsk', () => {
+
+    beforeEach(async () => {
+      ask1.currency = zapTokenBsc.address;
+    });
+
+    it('Should reject setAsk if not called by token owner', async () => {
+
+      // signers 4 and 5 are NOT the owner to tokenId 1 so expect it TO revert
+      await expect(zapMarket.connect(signers[4]).setAsk(tokenContractAddress, 1, ask1)).to.be.reverted;
+      await expect(zapMarket.connect(signers[5]).setAsk(tokenContractAddress, 1, ask1)).to.be.reverted;
+    });
+
+    it('Should set the ask if called by the owner of the token ', async () => {
+
+      // signer 10 is the owner to tokenId 1 so expect to NOT revert
+      await expect(zapMarket.connect(signers[10]).setAsk(tokenContractAddress, 1, ask1)).to.not.be.reverted;
+
+      // get ask associated with external token
+      const getAsk1 = await zapMarket.currentAskForToken(tokenContractAddress, 1);
+
+      expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
+      expect(getAsk1.currency).to.equal(zapTokenBsc.address);
+
+
+    });
+
+    it('Should emit an event if the ask is updated', async () => {
+
+      await zapMarket.connect(signers[10]).setAsk(tokenContractAddress, 1, ask1);
+
+      const filter_media1: EventFilter = zapMarket.filters.AskCreated(
+        tokenContractAddress,
+        null,
+        null
+      );
+
+      const event_media1: Event = (
+        await zapMarket.queryFilter(filter_media1)
+      )[0];
+
+
+      expect(event_media1.event).to.be.equal('AskCreated');
+      expect(event_media1.args?.tokenId.toNumber()).to.be.equal(1);
+      expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+    });
+
+    it('Should reject if the ask is too low', async () => {
+
+      await expect(
+        zapMarket.connect(signers[10]).setAsk(tokenContractAddress, 1, {
+          amount: 1,
+          currency: zapTokenBsc.address
+        })
+      ).to.be.revertedWith('Market: Ask invalid for share splitting');
+
+    });
+
+    it("Should remove an ask", async () => {
+
+      //set up ask and double check
+      await zapMarket.connect(signers[10]).setAsk(tokenContractAddress, 1, ask1);
+
+      const filter_media1: EventFilter = zapMarket.filters.AskCreated(
+        tokenContractAddress,
+        null,
+        null
+      );
+
+      const event_media1: Event = (
+        await zapMarket.queryFilter(filter_media1)
+      )[0];
+
+      expect(event_media1.event).to.be.equal('AskCreated');
+      expect(event_media1.args?.tokenId.toNumber()).to.be.equal(1);
+      expect(event_media1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_media1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+
+      // remove the ask that was set above
+      await zapMarket.connect(signers[10]).removeAsk(tokenContractAddress, 1);
+
+      const filter_removeAsk1: EventFilter = zapMarket.filters.AskRemoved(
+        null,
+        null,
+        null
+      );
+
+      const event_removeAsk1: Event = (
+        await zapMarket.queryFilter(filter_removeAsk1)
+      )[0]
+
+      expect(event_removeAsk1.event).to.be.equal('AskRemoved');
+      expect(event_removeAsk1.args?.tokenId.toNumber()).to.be.equal(1);
+      expect(event_removeAsk1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
+      expect(event_removeAsk1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+      expect(event_removeAsk1.args?.mediaContract).to.be.equal(tokenContractAddress)
+
+      // since the ask was removed, we are checking that it is not zero for the ask object
+      const getAsk1 = await zapMarket.currentAskForToken(tokenContractAddress, 1);
+
+      expect(getAsk1.amount.toNumber()).to.be.equal(0);
+      expect(getAsk1.currency).to.be.equal('0x0000000000000000000000000000000000000000');
+    })
+
 
   });
 
