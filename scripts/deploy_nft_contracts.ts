@@ -1,5 +1,6 @@
 import { ethers, upgrades } from "hardhat";
 import { BigNumber } from 'ethers';
+import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 
 async function main() {
 
@@ -22,6 +23,8 @@ async function main() {
     );
     await zapVault.deployed();
     console.log("ZapVault deployed to:", zapVault.address);
+    const zapVaultImplAddress = await getImplementationAddress(ethers.provider, zapVault.address);
+    console.log("ZapVault implementation:", zapVaultImplAddress);
 
     const ZapMarket = await ethers.getContractFactory('ZapMarket', signers[0]);
     const zapMarket = await upgrades.deployProxy(
@@ -31,6 +34,8 @@ async function main() {
     );
     await zapMarket.deployed();
     console.log('ZapMarket deployed to:', zapMarket.address);
+    const zapMarketImplAddress = await getImplementationAddress(ethers.provider, zapMarket.address);
+    console.log("ZapMarket implementation:", zapMarketImplAddress);
 
     await zapMarket.setFee(platformFee);
 
@@ -41,10 +46,11 @@ async function main() {
         { initializer: 'initialize' }
     );
     await mediaFactory.deployed();
-    console.log('MediaFactory deployed to:', zapMarket.address);
-
+    console.log('MediaFactory deployed to:', mediaFactory.address);
     await zapMarket.setMediaFactory(mediaFactory.address);
     console.log("MediaFactory set to ZapMarket");
+    const factoryImplAddress = await getImplementationAddress(ethers.provider, mediaFactory.address);
+    console.log("MediaFactory implementation:", factoryImplAddress);
 
     const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
     const zapMedia = await upgrades.deployProxy(
@@ -60,6 +66,8 @@ async function main() {
     );
     await zapMedia.deployed();
     console.log('ZapMedia deployed to:', zapMedia.address);
+    const mediaImplAddress = await getImplementationAddress(ethers.provider, zapMedia.address);
+    console.log("ZapMedia implementation:", mediaImplAddress);
 
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
     const auctionHouse = await upgrades.deployProxy(AuctionHouse,
@@ -68,6 +76,8 @@ async function main() {
     );
     await auctionHouse.deployed();
     console.log('AuctionHouse deployed to:', auctionHouse.address);
+    const auctionImplAddress = await getImplementationAddress(ethers.provider, auctionHouse.address);
+    console.log("AuctionHouse implementation:", auctionImplAddress);
 
 }
 
