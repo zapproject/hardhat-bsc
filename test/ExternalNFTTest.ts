@@ -210,8 +210,6 @@ describe('ExternalNFT Test', () => {
     await mediaDeployer
       .connect(signers[10])
       .configureExternalToken(
-        tokenContractName,
-        tokenContractSymbol,
         tokenContractAddress,
         tokenByIndex,
         bidShares
@@ -298,8 +296,6 @@ describe('ExternalNFT Test', () => {
       await expect(mediaDeployer
         .connect(signers[2])
         .configureExternalToken(
-          tokenContractName,
-          tokenContractSymbol,
           tokenContractAddress2,
           tokenID,
           bidShares
@@ -314,8 +310,6 @@ describe('ExternalNFT Test', () => {
       await expect(mediaDeployer
         .connect(signers[1])
         .configureExternalToken(
-          tokenContractName,
-          tokenContractSymbol,
           tokenContractAddress2,
           nonexistentID,
           bidShares
@@ -331,20 +325,20 @@ describe('ExternalNFT Test', () => {
     });
 
     it('Should reject setAsk if not called by token owner', async () => {
-     
+
       // signers 4 and 5 are NOT the owner to tokenId 1 so expect it TO revert
       await expect(zapMarket.connect(signers[4]).setAsk(tokenContractAddress, 1, ask1)).to.be.reverted;
       await expect(zapMarket.connect(signers[5]).setAsk(tokenContractAddress, 1, ask1)).to.be.reverted;
     });
 
     it('Should set the ask if called by the owner of the token ', async () => {
-      
+
       // signer 10 is the owner to tokenId 1 so expect to NOT revert
       await expect(zapMarket.connect(signers[10]).setAsk(tokenContractAddress, 1, ask1)).to.not.be.reverted;
 
       // get ask associated with external token
       const getAsk1 = await zapMarket.currentAskForToken(tokenContractAddress, 1);
-      
+
       expect(getAsk1.amount.toNumber()).to.equal(ask1.amount);
       expect(getAsk1.currency).to.equal(zapTokenBsc.address);
 
@@ -429,7 +423,7 @@ describe('ExternalNFT Test', () => {
       expect(getAsk1.amount.toNumber()).to.be.equal(0);
       expect(getAsk1.currency).to.be.equal('0x0000000000000000000000000000000000000000');
     })
-    
+
 
   });
 
