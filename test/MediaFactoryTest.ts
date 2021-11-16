@@ -310,7 +310,7 @@ describe("MediaFactory", () => {
 
             await zapMarket.setMediaFactory(mediaFactory.address);
 
-            mediaFactoryFactoryV2 = await ethers.getContractFactory("ZapMedia", deployer);
+            mediaFactoryFactoryV2 = await ethers.getContractFactory("MediaFactory", deployer);
         });
 
         it("Should be able to upgrade v1 MediaFactory to a version allowing external NFTs", async () => {
