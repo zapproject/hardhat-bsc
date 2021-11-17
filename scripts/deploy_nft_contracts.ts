@@ -1,6 +1,7 @@
 import { ethers, upgrades } from "hardhat";
-import { BigNumber } from 'ethers';
+import { BigNumber, Event } from 'ethers';
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
+import { MediaFactory, ZapMedia } from "../typechain";
 
 async function main() {
 
@@ -44,7 +45,7 @@ async function main() {
         MediaFactory,
         [zapMarket.address],
         { initializer: 'initialize' }
-    );
+    ) as MediaFactory;
     await mediaFactory.deployed();
     console.log('MediaFactory deployed to:', mediaFactory.address);
     await zapMarket.setMediaFactory(mediaFactory.address);
@@ -52,19 +53,21 @@ async function main() {
     const factoryImplAddress = await getImplementationAddress(ethers.provider, mediaFactory.address);
     console.log("MediaFactory implementation:", factoryImplAddress);
 
-    const ZapMedia = await ethers.getContractFactory('ZapMedia', signers[0]);
-    const zapMedia = await upgrades.deployProxy(
-        ZapMedia,
-        [
-            "ZapMedia",
-            "ZAPBSC",
-            zapMarket.address,
-            true,
-            'https://ipfs.moralis.io:2053/ipfs/Qmb6X5bYB3J6jq9JPmd5FLx4fa4JviXfV11yN42i96Q5Xt'
-        ],
-        { initializer: 'initialize' }
+    await mediaFactory.deployMedia(
+        "ZapMedia",
+        "ZAPBSC",
+        zapMarket.address,
+        true,
+        'https://ipfs.moralis.io:2053/ipfs/Qmb6X5bYB3J6jq9JPmd5FLx4fa4JviXfV11yN42i96Q5Xt'
     );
+    const mediaDeployedFilter = mediaFactory.filters.MediaDeployed(null);
+    const mediaDeployedEvent: Event = (await mediaFactory.queryFilter(mediaDeployedFilter))[0];
+    const zapMediaAddress = mediaDeployedEvent.args?.mediaContract;
+    const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
+    const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
     await zapMedia.deployed();
+    await zapMedia.connect(signers[0]).claimTransferOwnership();
+
     console.log('ZapMedia deployed to:', zapMedia.address);
     const mediaImplAddress = await getImplementationAddress(ethers.provider, zapMedia.address);
     console.log("ZapMedia implementation:", mediaImplAddress);
