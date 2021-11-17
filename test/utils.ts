@@ -136,7 +136,7 @@ export const deployOneMedia = async (signer: SignerWithAddress, zapMarket: ZapMa
   let mediaAddress: string;
   const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
 
-  await fact.deployMedia(
+  await fact.connect(signer).deployMedia(
     mediaArgs.name, mediaArgs.symbol,
     mediaArgs.marketContractAddr, mediaArgs.permissive,
     mediaArgs.collectionURI
