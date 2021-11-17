@@ -77,6 +77,11 @@ contract MediaFactory is OwnableUpgradeable {
 
         if (!(zapMarket.isRegistered(tokenAddress))) {
             zapMarket.registerMedia(tokenAddress);
+        } else {
+            require(
+                zapMarket.isInternal(tokenAddress),
+                "This operation is meant for external NFTs"
+            );
         }
 
         if (!(zapMarket.isConfigured(tokenAddress))) {
