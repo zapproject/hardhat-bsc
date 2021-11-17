@@ -29,17 +29,18 @@ contract MediaFactory is OwnableUpgradeable {
 
     /// @notice Upgrades ZapMedia contract
     /// @dev calls `upgrateTo` on the MediaProxy contract to upgrade/replace the implementation contract
-    /// @param _proxy a parameter just like in doxygen (must be followed by parameter name)
+    /// @param _proxy ZapMedia Proxy address
     function upgradeMedia(
-        address _proxy,
-        address _newImpl
+        address _proxy
     ) external {
+        require(proxyImplementations[_proxy] != address(0), "This ZapMedia proxy does not exist/does not have an implementation");
         require(
             msg.sender != address(0) && msg.sender == ZapMedia(proxyImplementations[_proxy]).getOwner(),
             "Only the owner can make this upgrade"
         );
+        ZapMedia zapMedia = new ZapMedia();
 
-        MediaProxy(_proxy).upgrateTo(_newImpl);
+        MediaProxy(_proxy).upgrateTo(address(zapMedia));
         emit MediaUpdated(_proxy);
     }
 
