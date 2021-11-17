@@ -72,21 +72,21 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
       symbol: "TM1",
       marketContractAddr: zapMarket.address,
       permissive: true,
-      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+      collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
     },
     {
       name: "TEST MEDIA 2",
       symbol: "TM2",
       marketContractAddr: zapMarket.address,
       permissive: false,
-      _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+      collectionURI: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
     },
     {
       name: "TEST MEDIA 2",
       symbol: "TM2",
       marketContractAddr: zapMarket.address,
       permissive: false,
-      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
     }
   ]
 
@@ -106,7 +106,7 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
   for (let i = 0; i < mediaArgs.length; i++) {
     const args = mediaArgs[i];
     await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
-      args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args.collectionURI
     );
 
     filter = mediaDeploy.filters.MediaDeployed(null);
@@ -127,7 +127,7 @@ export const deployOneMedia = async (signer: SignerWithAddress, zapMarket: ZapMa
     symbol: "TM" + `${q}`,
     marketContractAddr: zapMarket.address,
     permissive: false,
-    _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
   }
 
   let media: ZapMedia;
@@ -139,7 +139,7 @@ export const deployOneMedia = async (signer: SignerWithAddress, zapMarket: ZapMa
   await fact.connect(signer).deployMedia(
     mediaArgs.name, mediaArgs.symbol,
     mediaArgs.marketContractAddr, mediaArgs.permissive,
-    mediaArgs._collectionMetadata
+    mediaArgs.collectionURI
   );
 
   filter = fact.filters.MediaDeployed(null);
@@ -203,21 +203,21 @@ export const deployZapNFTMarketplace = async () => {
       symbol: "TM1",
       marketContractAddr: market.address,
       permissive: true,
-      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+      collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
     },
     {
       name: "Test Media 1",
       symbol: "TM1",
       marketContractAddr: market.address,
       permissive: false,
-      _collectionMetadata: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+      collectionURI: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
     },
     {
       name: "Test Media 1",
       symbol: "TM1",
       marketContractAddr: market.address,
       permissive: false,
-      _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+      collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
     }
   ]
 
@@ -235,7 +235,7 @@ export const deployZapNFTMarketplace = async () => {
   for (let i = 0; i < mediaArgs.length; i++) {
     const args = mediaArgs[i];
     await mediaFactory.connect(mediaDeployers[i]).deployMedia(
-      args.name, args.symbol, args.marketContractAddr, args.permissive, args._collectionMetadata
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args.collectionURI
     );
 
     filter = mediaFactory.filters.MediaDeployed(null);

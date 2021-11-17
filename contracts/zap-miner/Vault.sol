@@ -6,11 +6,32 @@ import './ZapMaster.sol';
 contract Vault {
     using SafeMathM for uint256;
 
+    bool private approveLocked;
+
     address public zapToken;
-    ZapMaster public zapMaster;
+    address private newVault;
+    address[] public accounts;
+
+    ZapMaster private zapMaster;
+
+    mapping(address => uint256) private indexes;
     mapping(address => uint256) private balances;
+    mapping(address => bool) private approved;
 
     uint256 constant private MAX_UINT = 2**256 - 1;
+
+    modifier onlyZapMaster(){
+        require(address(zapMaster) != address(0));
+        require(msg.sender == address(zapMaster), "Vault: Only the ZapMaster contract can make this call");
+        _;
+    }
+
+    modifier onlyVaultOrZapMaster(){
+        require(address(zapMaster) != address(0));
+        require(msg.sender == address(zapMaster) || approved[msg.sender] || msg.sender == address(this),
+                "Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
+        _;
+    }
 
     constructor (address token, address master) public {
         zapToken = token;
@@ -37,20 +58,66 @@ contract Vault {
         return tempUint;
     }
 
-    function deposit(address userAddress, uint256 value) public {
+    function deposit(address userAddress, uint256 value) public onlyVaultOrZapMaster {
         require(userAddress != address(0), "The zero address does not own a vault.");
-        require(msg.sender == address(zapMaster), "Only Zap contract accessible");
+        if (balances[userAddress] == 0){
+            indexes[userAddress] = accounts.length;
+            accounts.push(userAddress);
+        }
         balances[userAddress] = balances[userAddress].add(value);
     }
 
-    function withdraw(address userAddress, uint256 value) public {
+    function withdraw(address userAddress, uint256 value) public onlyVaultOrZapMaster {
         require(userAddress != address(0), "The zero address does not own a vault.");
-        require(msg.sender == address(zapMaster), "Only Zap contract accessible");
         require(userBalance(userAddress) >= value, "Your balance is insufficient.");
-        balances[userAddress] = balances[userAddress].sub(value);
+        if (balances[userAddress].sub(value) == 0) {
+            delete accounts[indexes[userAddress]];
+            delete indexes[userAddress];
+            balances[userAddress] = balances[userAddress].sub(value);
+            delete balances[userAddress];
+        } else {
+            balances[userAddress] = balances[userAddress].sub(value);
+        }
     }
 
     function userBalance(address userAddress) public view returns (uint256 balance) {
         return balances[userAddress];
+    }
+
+    function getZM() public view returns (address zapMasterAddress) {
+        return address(zapMaster);
+    }
+
+    function getZT() public view returns (address zapTokenAddress) {
+        return zapToken;
+    }
+
+    function setApproval(address oldVault) public onlyZapMaster returns (bool success) {
+        require(!approveLocked, "Cannot set approval after migration");
+        approved[oldVault] = true;
+        approveLocked = true;
+    }
+
+    function setNewVault(address _newVault) public onlyZapMaster returns (bool success) {
+        require(_newVault != address(0), "Cannot set the zero address as the new Vault");
+        newVault = _newVault;
+        return true;
+    }
+
+    function migrateVault() public onlyZapMaster returns (bool success) {
+        require(newVault != address(0), "Can't set the zero address as the new Vault");
+        require(Vault(newVault).getZM() == address(zapMaster), "The new vault must share same ZapMaster contract");
+        require(Vault(newVault).getZT() == zapToken, "The new vault must share the same ZapToken contract");
+        uint256 balance = 0;
+        address account = address(0);
+        for (uint256 i = 0; i < accounts.length; i++) {
+            account = accounts[i];
+            if (balances[account] > 0){
+                balance = balances[account];
+                withdraw(account, balances[accounts[i]]);
+                Vault(newVault).deposit(account, balance);
+            }
+        }
+        return true;
     }
 }
