@@ -219,7 +219,7 @@ describe('ExternalNFT Test', () => {
 
   describe("Configure", () => {
 
-    it('Should configure external token contract as a media in ZapMarket', async () => {
+    it.only('Should configure external token contract as a media in ZapMarket', async () => {
 
       // BidShares for tokenID 1
       const bidSharesForTokens = await zapMarket.bidSharesForToken(tokenContractAddress, tokenByIndex);
