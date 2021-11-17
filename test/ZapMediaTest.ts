@@ -22,7 +22,7 @@ import {
     formatBytes32String,
     arrayify
 } from 'ethers/lib/utils';
-import { MediaFactory } from "../typechain";
+import { MediaFactory, MediaProxy } from "../typechain";
 
 const { BigNumber } = ethers;
 
@@ -2081,6 +2081,7 @@ describe("ZapMedia Test", async () => {
         let mediaContractFactoryV2: ContractFactory;
         let mediaDeployerFactoryV2: ContractFactory;
         let marketFactoryV2: ContractFactory;
+        let initData: any[];
         beforeEach(async () => {
 
             tokenURI = String('media contract 1 - token 1 uri');
@@ -2139,7 +2140,7 @@ describe("ZapMedia Test", async () => {
             zapMedia1 = medias;
             await zapMedia1.connect(signers[5]).claimTransferOwnership();
             
-            const initData = [
+            initData = [
                 "TEST MEDIA 2",
                 "TM2",
                 zapMarket.address,
@@ -2219,6 +2220,18 @@ describe("ZapMedia Test", async () => {
                 "ZapMarket needs to be updated as well"
             ).to.not.be.reverted;
             expect(await zapMedia1.ownerOf(1)).to.be.eq(owner);
+        });
+
+        it("Should not allow a non-owner to upgrade a ZapMedia contract", async () => {
+            mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
+            const owner = await zapMedia1.getOwner();
+
+            // owner is signers[5]
+            await expect(
+                mediaDeployer.connect(signers[0]).upgradeMedia(zapMedia1.address)
+            ).to.be.revertedWith(
+                "Only the owner can make this upgrade"
+            );
         });
     });
 
