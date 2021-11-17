@@ -25,7 +25,8 @@ contract Ownable is Initializable {
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
-        require(msg.sender == access.owner);
+        require(msg.sender == access.owner,
+        "onlyOwner error: Only Owner of the Contract can make this Call");
         _;
     }
 
@@ -62,7 +63,7 @@ contract Ownable is Initializable {
         require(appointedOwner != address(0), "Ownable: No ownership transfer have been initiated");
         require(msg.sender == appointedOwner, "Ownable: Caller is not the appointed owner of this contract");
 
-        emit OwnershipTransferred(access.owner, appointedOwner);
+        emit OwnershipTransferred(access.owner, msg.sender); // where msg.sender == appointedOwner
         access.owner = appointedOwner;
         appointedOwner = address(0);
     }

@@ -329,7 +329,7 @@ describe("AuctionHouse", () => {
         symbol: "TM" + `${5}`,
         marketContractAddr: badMarket.address,
         permissive: false,
-        _collectionMetadata: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+        collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
       }
       const badMediaFact = await ethers.getContractFactory("BadMedia", signers[5]);
       const badMedia = await upgrades.deployProxy(
@@ -337,7 +337,7 @@ describe("AuctionHouse", () => {
         [
           mediaArgs.name, mediaArgs.symbol,
           mediaArgs.marketContractAddr, mediaArgs.permissive,
-          mediaArgs._collectionMetadata
+          mediaArgs.collectionURI
         ]
       ) as BadMedia;
       // const badMedia = await badMediaFact.deploy(mediaArgs);

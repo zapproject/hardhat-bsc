@@ -14,7 +14,6 @@ import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {Decimal} from './Decimal.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {IMedia} from './interfaces/IMedia.sol';
 import {Ownable} from './Ownable.sol';
@@ -53,7 +52,7 @@ contract ZapMedia is
 
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    bytes public collectionMetadata;
+    bytes internal _contractURI;
 
     bytes32 private constant kecEIP712Domain =
         keccak256(
@@ -142,7 +141,10 @@ contract ZapMedia is
         _;
     }
 
-    address public testing;
+     //geting the contractURI value
+     function contractURI() public view returns (bytes memory) {
+        return _contractURI;
+    }
 
     /**
      * @notice On deployment, set the market contract address and register the
@@ -154,7 +156,7 @@ contract ZapMedia is
         string calldata symbol,
         address marketContractAddr,
         bool permissive,
-        string calldata _collectionMetadata
+        string calldata collectionURI
     ) external override initializer {
         __ERC721_init(name, symbol);
         initialize_ownable();
@@ -175,15 +177,15 @@ contract ZapMedia is
         _registerInterface(type(IMedia).interfaceId);
 
         access.isPermissive = permissive;
-        collectionMetadata = bytes(_collectionMetadata);
+        _contractURI = bytes(collectionURI);
     }
-    
+
     /**
-    *  @notice Returns a boolean, showing whether or not the given interfaceId is supported
+     *  @notice Returns a boolean, showing whether or not the given interfaceId is supported
      * @dev This function is overriden from the ERC721 and ERC165 contract stack
      * @param interfaceId a bytes4 formatted representation of a contract interface
      * @return boolean dipicting whether or not the interface is supported
-    */
+     */
     function supportsInterface(bytes4 interfaceId)
         public
         view
@@ -589,10 +591,12 @@ contract ZapMedia is
         IMarket.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
         require(data.contentHash != 0, 'Media: content hash must be non-zero');
+
         require(
-            access._contentHashes[data.contentHash] == false,
+            !access._contentHashes[data.contentHash],
             'Media: a token has already been created with this content hash'
         );
+
         require(
             data.metadataHash != 0,
             'Media: metadata hash must be non-zero'
@@ -700,4 +704,5 @@ contract ZapMedia is
                 )
             );
     }
+
 }
