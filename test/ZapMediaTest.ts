@@ -2077,7 +2077,7 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    describe("Upgradeability", () => {
+    describe.only("Upgradeability", () => {
         let mediaContractFactoryV2: ContractFactory;
         let mediaDeployerFactoryV2: ContractFactory;
         let marketFactoryV2: ContractFactory;
@@ -2231,6 +2231,23 @@ describe("ZapMedia Test", async () => {
                 mediaDeployer.connect(signers[0]).upgradeMedia(zapMedia1.address)
             ).to.be.revertedWith(
                 "Only the owner can make this upgrade"
+            );
+        });
+
+        it("Should not be able to initialize after being upgraded", async () => {
+            mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
+            await mediaDeployer.connect(signers[5]).upgradeMedia(zapMedia1.address);
+
+            const [tokenname, symbol, marketContractAddr, permissive, collectionMetadata] = initData;
+
+            await expect(zapMedia1.connect(signers[5]).initialize(
+                tokenname,
+                symbol,
+                marketContractAddr,
+                permissive,
+                collectionMetadata
+            )).to.be.revertedWith(
+                "Initializable: contract is already initialized"
             );
         });
     });
