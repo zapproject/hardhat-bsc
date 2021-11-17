@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 contract MediaProxy is ERC1967UpgradeUpgradeable {
 
     modifier onlyAdmin() {
-        require(msg.sender == _getAdmin());
+        require(msg.sender == _getAdmin(), "Only the Admin can call this function");
         _;
     }
 
