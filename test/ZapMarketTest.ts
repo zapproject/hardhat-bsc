@@ -1718,7 +1718,7 @@ describe('ZapMarket Test', () => {
         },
   
       }
-      await mediaDeployer.connect(signers[10]).configureExternalToken(tokenContractName, tokenContractSymbol, tokenContractAddress, 1, bidShares)
+      await mediaDeployer.connect(signers[10]).configureExternalToken(tokenContractAddress, 1, bidShares)
 
       expect(await zapMarket.isConfigured(tokenContractAddress)).to.be.true;
       expect(await zapMarket.isInternal(tokenContractAddress)).to.be.false;

@@ -277,7 +277,7 @@ describe("MediaFactory", () => {
         });
     })
 
-    describe.only("Upgradeability", () => {
+    describe("Upgradeability", () => {
         let mediaFactoryFactoryV2: ContractFactory;
 
         beforeEach(async () => {

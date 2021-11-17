@@ -2078,24 +2078,41 @@ describe("ZapMedia Test", async () => {
     });
 
     describe("Upgradeability", () => {
-        let mediaContractFactory: ContractFactory;
+        let mediaContractFactoryV2: ContractFactory;
+        let mediaDeployerFactoryV2: ContractFactory;
+        let marketFactoryV2: ContractFactory;
         beforeEach(async () => {
-            // mediaData = {
-            //     tokenURI,
-            //     metadataURI,
-            //     contentHash: contentHashBytes,
-            //     metadataHash: metadataHashBytes,
-            // };
 
+            tokenURI = String('media contract 1 - token 1 uri');
+            metadataURI = String('media contract 1 - metadata 1 uri');
+
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
+
+            randomString = Date.now().toString();
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
+
+            zeroContentHashBytes = arrayify(ethers.constants.HashZero);
+
+            mediaData = {
+                tokenURI,
+                metadataURI,
+                contentHash: contentHashBytes,
+                metadataHash: metadataHashBytes,
+            };
+            
             const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
             const oldVaultABI = oldVaultArtifact.abi;
             const oldVaultBytecode = oldVaultArtifact.bytecode;
             const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, signers[0]);
-
+            
             zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
                 initializer: 'initializeVault'
             })) as ZapVault;
-
+            
             const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
             const oldZMABI = oldZMArtifact.abi;
             const oldZMBytecode = oldZMArtifact.bytecode;
@@ -2104,27 +2121,104 @@ describe("ZapMedia Test", async () => {
             zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
                 initializer: 'initializeMarket'
             })) as ZapMarket;
-
+            
             await zapMarket.deployed();
-
+            await zapMarket.setFee(platformFee);
+            
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", signers[0]);
             mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
-
+            
             await mediaDeployer.deployed();
-
+            
             await zapMarket.setMediaFactory(mediaDeployer.address);
-
-            const medias = await deployOneMedia(signers[0], zapMarket, mediaDeployer, 101);
-
+            
+            const medias = await deployOneMedia(signers[5], zapMarket, mediaDeployer, 101);
+            
             zapMedia1 = medias;
+            await zapMedia1.connect(signers[5]).claimTransferOwnership();
+            
+            const initData = [
+                "TEST MEDIA 2",
+                "TM2",
+                zapMarket.address,
+                false,
+                "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+            ];
 
-            mediaContractFactory = await ethers.getContractFactory("ZapMedia", signers[0]);
+            const zapMediaFactory = await ethers.getContractFactory("ZapMediaOld", signers[0]);
+            zapMedia2 = await upgrades.deployProxy(zapMediaFactory, [...initData]) as ZapMedia;
+            await zapMedia2.deployed();
+
+            mediaContractFactoryV2 = await ethers.getContractFactory("ZapMedia", signers[0]);
+            mediaDeployerFactoryV2 = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+            await zapMedia1.connect(signers[5]).mint(mediaData, bidShares);
+            expect(await zapMedia1.ownerOf(0)).to.be.eq(signers[5].address);
+
+            marketFactoryV2 =  await ethers.getContractFactory("ZapMarket", signers[0]);
+
         });
-        it.skip("Should be able to upgrade v1 ZapMedia to a version allowing external NFTs", async () => {
-            // due to how media contracts are deployed, upgrading is not possible
-            // expect(await upgrades.prepareUpgrade(zapMedia1.address, mediaContractFactory)).to.be.ok;
+        it("Should be able to upgrade v1 ZapMedia to a version allowing external NFTs", async () => {
+            await expect(
+                upgrades.upgradeProxy(zapMedia2.address, mediaContractFactoryV2),
+                "ensuring that the media contract's storage is fully upgradeable").to.not.be.reverted;
+            
+            // upgrading to the new MediaFactory which contains ZapMediaV2
+            mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
+            const owner = await zapMedia1.getOwner();
+            
+            // ensuring that ZapMedia can be upgraded
+            await expect(mediaDeployer.connect(signers[5]).upgradeMedia(zapMedia1.address)).to.not.be.reverted;
+            // ensuring the state of the contracts are transfered
+            expect(await zapMedia1.getOwner()).to.be.eq(owner);
+            expect(await zapMedia1.ownerOf(0)).to.be.eq(owner);
+            expect(await zapMedia1.getTokenMetadataURIs(0)).to.be.eq(metadataURI);            
+        });
+
+        it("Should be able to mint once updated along with ZapMarket", async () => {
+            // upgrading to the new MediaFactory which contains ZapMediaV2
+            mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
+            const owner = await zapMedia1.getOwner();
+            await mediaDeployer.connect(signers[5]).upgradeMedia(zapMedia1.address)
+
+            //// minting a second token
+            metadataHex = formatBytes32String("{}");
+            metadataHash = keccak256(metadataHex);
+            metadataHashBytes = arrayify(metadataHash);
+
+            randomString = Date.now().toString();
+            contentHex = formatBytes32String(randomString);
+            contentHash = keccak256(contentHex);
+            contentHashBytes = arrayify(contentHash);
+
+            await expect(zapMedia1.connect(signers[5]).mint(
+                {
+                    tokenURI: String('media contract 2 - token 2 uri'),
+                    metadataURI: String('media contract 2 - metadata 2 uri'),
+                    contentHash: contentHashBytes,
+                    metadataHash: metadataHashBytes
+                },
+                bidShares
+            ),
+                "ZapMarket needs to be updated as well before minting"
+            ).to.be.reverted;
+
+            zapMarket = await upgrades.upgradeProxy(zapMarket.address, marketFactoryV2) as ZapMarket;
+
+            await expect(zapMedia1.connect(signers[5]).mint(
+                {
+                    tokenURI: String('media contract 2 - token 2 uri'),
+                    metadataURI: String('media contract 2 - metadata 2 uri'),
+                    contentHash: contentHashBytes,
+                    metadataHash: metadataHashBytes
+                },
+                bidShares
+            ),
+                "ZapMarket needs to be updated as well"
+            ).to.not.be.reverted;
+            expect(await zapMedia1.ownerOf(1)).to.be.eq(owner);
         });
     });
 

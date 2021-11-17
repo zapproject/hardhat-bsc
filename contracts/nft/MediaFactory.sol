@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity ^0.8.4;
-import 'hardhat/console.sol';
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
@@ -28,15 +27,14 @@ contract MediaFactory is OwnableUpgradeable {
     }
 
     function upgradeMedia(
-        address _proxy,
-        address _newImpl
+        address _proxy
     ) external {
         require(
-            msg.sender == ZapMedia(proxyImplementations[_proxy]).getOwner(),
+            msg.sender == MediaProxy(_proxy).getImplOwner(proxyImplementations[_proxy]),
             "Only the owner can make this upgrade"
         );
-
-        MediaProxy(_proxy).upgrateTo(_newImpl);
+        ZapMedia zapMedia = new ZapMedia();
+        MediaProxy(_proxy).upgrateTo(address(zapMedia));
         emit MediaUpdated(_proxy);
     }
 

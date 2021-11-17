@@ -63,6 +63,15 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
         _upgradeToAndCall(_impl, data, false);
     }
 
+    function getImplOwner(address _impl) public onlyAdmin returns (address _implOwner){
+        (bool success, bytes memory returndata) = _impl.delegatecall(
+            abi.encodeWithSignature("getOwner()")
+        );
+
+        require(success && returndata.length > 0, "Can not get the owner of this ZapMedia");
+        _implOwner = abi.decode(returndata, (address));
+    }
+
     function _delegate(address _impl) internal virtual {
         assembly {
             calldatacopy(0, 0, calldatasize())
