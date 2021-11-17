@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 import {ERC1967UpgradeUpgradeable} from '@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol';
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 /// @title A title that should describe the contract/interface
 /// @author The name of the author
@@ -17,16 +18,13 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
 
     function initialize(
         address implementation,
+        address payable owner,
         string calldata name,
         string calldata symbol,
         address marketContractAddr,
         bool permissive,
         string calldata collectionURI
     ) public {
-        // __ERC1967Upgrade_init();
-
-        _changeAdmin(msg.sender);
-
         _upgradeToAndCall(
             implementation,
             abi.encodeWithSignature(
@@ -39,6 +37,18 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
             ),
             false
         );
+
+        _changeAdmin(msg.sender);
+
+        (bool success, bytes memory returndata) = implementation.delegatecall(
+            abi.encodeWithSignature("initTransferOwnership(address)", owner)
+        );
+
+        require(
+            success && returndata.length == 0,
+            "Creating ZapMedia proxy: Can not transfer ownership of proxy"
+        );
+
     }
 
     function changeAdmin(address newAdmin) external onlyAdmin {

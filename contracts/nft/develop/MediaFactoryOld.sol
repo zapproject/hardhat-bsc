@@ -43,18 +43,8 @@ contract MediaFactoryOld is OwnableUpgradeable {
         MediaProxy proxy = new MediaProxy();
         ZapMediaOld zapMedia = new ZapMediaOld();
 
-        proxy.initialize(address(zapMedia), name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        proxy.initialize(address(zapMedia), payable(msg.sender), name, symbol, marketContractAddr, permissive, _collectionMetadata);
         address proxyAddress = address(proxy);
-
-        
-        (bool success, bytes memory returndata) = proxyAddress.call(
-            abi.encodeWithSelector(Ownable.initTransferOwnership.selector, payable(msg.sender))
-        );
-
-        require(
-            !success && returndata.length != 0,
-            "Creating ZapMedia proxy: Can not transfer ownership of proxy"
-        );
 
         proxyImplementations[proxyAddress] = address(zapMedia);
 
