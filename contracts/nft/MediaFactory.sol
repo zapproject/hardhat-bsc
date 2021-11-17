@@ -14,6 +14,10 @@ interface IERC721Extended {
     function symbol() external view returns (string memory);
 }
 
+/// @title Zap Media Factory Contract
+/// @notice This contract deploys ZapMedia and external ERC721 contracts,
+///         registers and then configures them to be used on the Zap NFT Marketplace
+/// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
 contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
     event MediaUpdated(address indexed mediaContract);
@@ -22,15 +26,21 @@ contract MediaFactory is OwnableUpgradeable {
     IMarket zapMarket;
     mapping(address=>address) proxyImplementations;
 
+    /// @notice Contract constructor
+    /// @dev utilises the OZ Initializable contract; cannot be called twice
+    /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
     function initialize(address _zapMarket) external initializer {
         zapMarket = IMarket(_zapMarket);
     }
 
+    /// @notice Upgrades ZapMedia contract
+    /// @dev calls `upgrateTo` on the MediaProxy contract to upgrade/replace the implementation contract
+    /// @param _proxy a parameter just like in doxygen (must be followed by parameter name)
     function upgradeMedia(
         address _proxy
     ) external {
         require(
-            msg.sender == MediaProxy(_proxy).getImplOwner(proxyImplementations[_proxy]),
+            msg.sender != address(0) && msg.sender == MediaProxy(_proxy).getImplOwner(proxyImplementations[_proxy]),
             "Only the owner can make this upgrade"
         );
         ZapMedia zapMedia = new ZapMedia();
@@ -39,6 +49,15 @@ contract MediaFactory is OwnableUpgradeable {
     }
 
 
+    /// @notice Deploys ZapMedia ERC721 contracts to be used on ZapMarket
+    /// @dev This is the contract factory function, it deploys a proxy contract, then a ZapMedia contract,
+    ///      and then sets the implementation and initializes ZapMedia
+    /// @param name name of the collection
+    /// @param symbol collection's symbol
+    /// @param marketContractAddr ZapMarket contract to attach to, this can not be updated
+    /// @param permissive whether or not you would like this contract to be minted by everyone or just the owner
+    /// @param _collectionMetadata the metadata URI of the collection
+    /// @return the address of the deployed ZapMedia proxy
     function deployMedia(
         string calldata name,
         string calldata symbol,
@@ -53,8 +72,6 @@ contract MediaFactory is OwnableUpgradeable {
         address proxyAddress = address(proxy);
 
         proxyImplementations[proxyAddress] = address(zapMedia);
-
-        zapMarket.registerMedia(proxyAddress);
 
         zapMarket.registerMedia(proxyAddress);
 
@@ -82,6 +99,13 @@ contract MediaFactory is OwnableUpgradeable {
         return proxyAddress;
     }
 
+    /// @notice Configures external ERC721 contracts to be used on ZapMarket
+    /// @dev This function will ensure that the ERC721 minting contract is configured to be used on ZapMarket
+    ///      It also sets the bidshares for the given `tokenId` so that it can configure NFT collaborators
+    /// @param tokenAddress address of the ERC721 contract
+    /// @param tokenId uin256 number identifying the token to set bidshares on
+    /// @param _bidShares bidshares defining the collaboators and what % each gets once an auction is settled
+    /// @return success whether or not this operation was successful
     function configureExternalToken(
         address tokenAddress,
         uint256 tokenId,

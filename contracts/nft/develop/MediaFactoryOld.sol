@@ -9,6 +9,10 @@ import {Ownable} from './Ownable.sol';
 import {ZapMediaOld} from './ZapMediaOld.sol';
 import {ZapMarketOld} from './ZapMarketOld.sol';
 
+/// @title Zap Media Factory Contract
+/// @notice This contract deploys ZapMedia and external ERC721 contracts,
+///         registers and then configures them to be used on the Zap NFT Marketplace
+/// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
 contract MediaFactoryOld is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
     event MediaUpdated(address indexed mediaContract);
@@ -16,16 +20,22 @@ contract MediaFactoryOld is OwnableUpgradeable {
     ZapMarketOld zapMarket;
     mapping(address=>address) proxyImplementations;
 
+    /// @notice Contract constructor
+    /// @dev utilises the OZ Initializable contract; cannot be called twice
+    /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
     function initialize(address _zapMarket) external initializer {
         zapMarket = ZapMarketOld(_zapMarket);
     }
 
+    /// @notice Upgrades ZapMedia contract
+    /// @dev calls `upgrateTo` on the MediaProxy contract to upgrade/replace the implementation contract
+    /// @param _proxy a parameter just like in doxygen (must be followed by parameter name)
     function upgradeMedia(
         address _proxy,
         address _newImpl
     ) external {
         require(
-            msg.sender == ZapMediaOld(proxyImplementations[_proxy]).getOwner(),
+            msg.sender != address(0) && msg.sender == ZapMediaOld(proxyImplementations[_proxy]).getOwner(),
             "Only the owner can make this upgrade"
         );
 
@@ -33,6 +43,15 @@ contract MediaFactoryOld is OwnableUpgradeable {
         emit MediaUpdated(_proxy);
     }
 
+    /// @notice Deploys ZapMedia ERC721 contracts to be used on ZapMarket
+    /// @dev This is the contract factory function, it deploys a proxy contract, then a ZapMedia contract,
+    ///      and then sets the implementation and initializes ZapMedia
+    /// @param name name of the collection
+    /// @param symbol collection's symbol
+    /// @param marketContractAddr ZapMarket contract to attach to, this can not be updated
+    /// @param permissive whether or not you would like this contract to be minted by everyone or just the owner
+    /// @param _collectionMetadata the metadata URI of the collection
+    /// @return the address of the deployed ZapMedia proxy
     function deployMedia(
         string calldata name,
         string calldata symbol,
