@@ -219,14 +219,6 @@ describe('ExternalNFT Test', () => {
         bidShares
       );
 
-    await mediaDeployer
-      .connect(signers[10])
-      .configureExternalToken(
-        tokenContractAddress,
-        tokenByIndex,
-        bidShares
-      );
-
   });
 
   describe("Configure", () => {
@@ -330,10 +322,17 @@ describe('ExternalNFT Test', () => {
 
     })
 
-    // it("Should revert if there is an attempt to configure a tokenID twice", async () => {
+    it("Should revert if there is an attempt to configure a tokenID twice", async () => {
 
+      await expect(mediaDeployer
+        .connect(signers[10])
+        .configureExternalToken(
+          tokenContractAddress,
+          tokenByIndex,
+          bidShares
+        )).to.be.revertedWith('Market: External token already configured');
 
-    // })
+    })
 
 
   });
