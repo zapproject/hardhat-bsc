@@ -29,6 +29,7 @@ import { ZapMarket__factory } from '../typechain';
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
+import { Address } from 'cluster';
 
 chai.use(solidity);
 
@@ -427,11 +428,19 @@ describe('ExternalNFT Test', () => {
 
   });
 
-  describe('#setBid', () => {
+  describe.only('#setBid', () => {
     let bid1: any;
     let bid2: any;
     let osCreature: Creature;
     let spender: any;
+    let bid: any;
+    let setBid: any;
+    let zapMedia: ZapMedia;
+    let address: string;
+    let tokenId: string;
+    
+  
+  
 
     beforeEach(async () => {
 
@@ -458,13 +467,23 @@ describe('ExternalNFT Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
+      await mediaDeployer
+      .connect(signers[10])
+      .configureExternalToken(
+        tokenContractAddress,
+        tokenByIndex,
+        bidShares
+      );
+
+      spender = signers[9];
+
 
       bid1 = {
         amount: 200,
         currency: zapTokenBsc.address,
-        bidder: signers[1].address,
-        recipient: signers[8].address,
-        spender: signers[1].address,
+        bidder: signers[9].address,
+        recipient: signers[9].address,
+        spender: signers[9].address,
         sellOnShare: {
           value: BigInt(10000000000000000000)
         }
@@ -500,6 +519,24 @@ describe('ExternalNFT Test', () => {
       ).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
     });
+
+    // it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
+      
+    //   await zapTokenBsc.mint(spender.address, bid1.amount);
+      
+ 
+    //   await zapTokenBsc
+    //     .connect(spender)
+    //     .approve(zapMarket.address, bid1.amount - 1);
+
+     
+
+    //     await expect(
+    //       zapMedia.connect(signers[10]).setBid(osCreature.address, 1, bid1)
+    //     ).to.be.revertedWith('SafeERC20: low-level call failed');
+  
+     
+    // });
   });
 
 });
