@@ -3,55 +3,56 @@
 pragma solidity ^0.8.4;
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-
+import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
+import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
-import {Ownable} from './Ownable.sol';
-import {ZapMediaOld} from './ZapMediaOld.sol';
-import {ZapMarketOld} from './ZapMarketOld.sol';
+import {IMarket} from './interfaces/IMarket.sol';
+
+interface IERC721Extended {
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+}
 
 /// @title Zap Media Factory Contract
-/// @notice This contract deploys ZapMedia and external ERC721 contracts,
+/// @notice This contract deploys ZapMediaOld and external ERC721 contracts,
 ///         registers and then configures them to be used on the Zap NFT Marketplace
-/// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
+/// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMediaOld
 contract MediaFactoryOld is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
-    event MediaUpdated(address indexed mediaContract);
+    event ExternalTokenDeployed(address indexed extToken);
 
-    ZapMarketOld zapMarket;
-    mapping(address=>address) proxyImplementations;
+    IMarket zapMarket;
+    address beacon;
 
     /// @notice Contract constructor
     /// @dev utilises the OZ Initializable contract; cannot be called twice
     /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
-    function initialize(address _zapMarket) external initializer {
-        zapMarket = ZapMarketOld(_zapMarket);
+    function initialize(address _zapMarket, address zapMediaInterface) external initializer {
+        __Ownable_init();
+        zapMarket = IMarket(_zapMarket);
+        beacon = address(new UpgradeableBeacon(zapMediaInterface));
+        UpgradeableBeacon(beacon).transferOwnership(address(this));
     }
 
-    /// @notice Upgrades ZapMedia contract
-    /// @dev calls `upgrateTo` on the MediaProxy contract to upgrade/replace the implementation contract
-    /// @param _proxy a parameter just like in doxygen (must be followed by parameter name)
-    function upgradeMedia(
-        address _proxy,
-        address _newImpl
-    ) external {
+    /// @notice Upgrades ZapMediaOld contract
+    /// @dev calls `upgrateTo` on the Beacon contract to upgrade/replace the implementation contract
+    function upgradeMedia(address newInterface) external onlyOwner {
         require(
-            msg.sender != address(0) && msg.sender == ZapMediaOld(proxyImplementations[_proxy]).getOwner(),
-            "Only the owner can make this upgrade"
+            msg.sender != address(0),
+            "The zero address can not make contract calls"
         );
-
-        MediaProxy(_proxy).upgrateTo(_newImpl);
-        emit MediaUpdated(_proxy);
+        UpgradeableBeacon(beacon).upgradeTo(newInterface);
     }
 
-    /// @notice Deploys ZapMedia ERC721 contracts to be used on ZapMarket
-    /// @dev This is the contract factory function, it deploys a proxy contract, then a ZapMedia contract,
-    ///      and then sets the implementation and initializes ZapMedia
+    /// @notice Deploys ZapMediaOld ERC721 contracts to be used on ZapMarket
+    /// @dev This is the contract factory function, it deploys a proxy contract, then a ZapMediaOld contract,
+    ///      and then sets the implementation and initializes ZapMediaOld
     /// @param name name of the collection
     /// @param symbol collection's symbol
     /// @param marketContractAddr ZapMarket contract to attach to, this can not be updated
     /// @param permissive whether or not you would like this contract to be minted by everyone or just the owner
     /// @param _collectionMetadata the metadata URI of the collection
-    /// @return the address of the deployed ZapMedia proxy
+    /// @return the address of the deployed ZapMediaOld proxy
     function deployMedia(
         string calldata name,
         string calldata symbol,
@@ -60,15 +61,14 @@ contract MediaFactoryOld is OwnableUpgradeable {
         string calldata _collectionMetadata
     ) external returns (address) {
         MediaProxy proxy = new MediaProxy();
-        ZapMediaOld zapMedia = new ZapMediaOld();
 
-        proxy.initialize(address(zapMedia), payable(msg.sender), name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        proxy.initialize(
+            beacon, payable(msg.sender),
+            name, symbol, marketContractAddr, permissive, _collectionMetadata
+        );
         address proxyAddress = address(proxy);
 
-        proxyImplementations[proxyAddress] = address(zapMedia);
-
         zapMarket.registerMedia(proxyAddress);
-
 
         bytes memory name_b = bytes(name);
         bytes memory symbol_b = bytes(symbol);
@@ -81,7 +81,12 @@ contract MediaFactoryOld is OwnableUpgradeable {
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
-        zapMarket.configure(msg.sender, proxyAddress, name_b32, symbol_b32);
+        zapMarket.configure(
+            msg.sender,
+            proxyAddress,
+            name_b32,
+            symbol_b32
+        );
 
         emit MediaDeployed(proxyAddress);
 

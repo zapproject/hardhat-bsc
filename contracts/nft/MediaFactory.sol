@@ -3,9 +3,9 @@
 pragma solidity ^0.8.4;
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
-import {Ownable} from './Ownable.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 
@@ -20,32 +20,29 @@ interface IERC721Extended {
 /// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
 contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
-    event MediaUpdated(address indexed mediaContract);
     event ExternalTokenDeployed(address indexed extToken);
 
     IMarket zapMarket;
-    mapping(address=>address) proxyImplementations;
+    address beacon;
 
     /// @notice Contract constructor
     /// @dev utilises the OZ Initializable contract; cannot be called twice
     /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
-    function initialize(address _zapMarket) external initializer {
+    function initialize(address _zapMarket, address zapMediaInterface) external initializer {
+        __Ownable_init();
         zapMarket = IMarket(_zapMarket);
+        beacon = address(new UpgradeableBeacon(zapMediaInterface));
+        UpgradeableBeacon(beacon).transferOwnership(address(this));
     }
 
     /// @notice Upgrades ZapMedia contract
-    /// @dev calls `upgrateTo` on the MediaProxy contract to upgrade/replace the implementation contract
-    /// @param _proxy a parameter just like in doxygen (must be followed by parameter name)
-    function upgradeMedia(
-        address _proxy
-    ) external {
+    /// @dev calls `upgrateTo` on the Beacon contract to upgrade/replace the implementation contract
+    function upgradeMedia(address newInterface) external onlyOwner {
         require(
-            msg.sender != address(0) && msg.sender == MediaProxy(_proxy).getImplOwner(proxyImplementations[_proxy]),
-            "Only the owner can make this upgrade"
+            msg.sender != address(0),
+            "The zero address can not make contract calls"
         );
-        ZapMedia zapMedia = new ZapMedia();
-        MediaProxy(_proxy).upgrateTo(address(zapMedia));
-        emit MediaUpdated(_proxy);
+        UpgradeableBeacon(beacon).upgradeTo(newInterface);
     }
 
 
@@ -66,12 +63,12 @@ contract MediaFactory is OwnableUpgradeable {
         string calldata _collectionMetadata
     ) external returns (address) {
         MediaProxy proxy = new MediaProxy();
-        ZapMedia zapMedia = new ZapMedia();
 
-        proxy.initialize(address(zapMedia), payable(msg.sender), name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        proxy.initialize(
+            beacon, payable(msg.sender),
+            name, symbol, marketContractAddr, permissive, _collectionMetadata
+        );
         address proxyAddress = address(proxy);
-
-        proxyImplementations[proxyAddress] = address(zapMedia);
 
         zapMarket.registerMedia(proxyAddress);
 

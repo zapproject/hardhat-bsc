@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 import {ERC1967UpgradeUpgradeable} from '@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol';
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {IBeacon} from '@openzeppelin/contracts/proxy/beacon/IBeacon.sol';
 
 /// @title Upgradeable proxy contract for a ZapMedia
 /// @notice This contract acts as a proxy that delegates calls for ZapMedia.
@@ -18,7 +18,7 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
 
     /// @notice Constructor for the ZapMedia proxy and its implementation
     /// @dev This function is initializable and implements the OZ Initializable contract by inheiritance
-    /// @param implementation the address of the uninitialized ZapMedia contract
+    /// @param beacon the address of the Beacon contract which has the implementation contract address
     /// @param owner the intended owner of the ZapMedia contract
     /// @param name name of the collection
     /// @param symbol collection's symbol
@@ -26,7 +26,7 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
     /// @param permissive whether or not you would like this contract to be minted by everyone or just the owner
     /// @param collectionURI the metadata URI of the collection
     function initialize(
-        address implementation,
+        address beacon,
         address payable owner,
         string calldata name,
         string calldata symbol,
@@ -34,8 +34,8 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
         bool permissive,
         string calldata collectionURI
     ) public {
-        _upgradeToAndCall(
-            implementation,
+        _upgradeBeaconToAndCall(
+            beacon,
             abi.encodeWithSignature(
                 "initialize(string,string,address,bool,string)",
                 name,
@@ -49,7 +49,7 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
 
         _changeAdmin(msg.sender);
 
-        (bool success, bytes memory returndata) = implementation.delegatecall(
+        (bool success, bytes memory returndata) = (IBeacon(beacon).implementation()).delegatecall(
             abi.encodeWithSignature("initTransferOwnership(address)", owner)
         );
 
@@ -66,23 +66,6 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
     /// @param newAdmin the address of the new admin contract
     function changeAdmin(address newAdmin) external onlyAdmin {
         _changeAdmin(newAdmin);
-    }
-
-    /// @notice Upgrades the ERC1967 Proxy to a new implementation
-    /// @dev This is a wrapper function for the ERC1967 _upgradeTo function and uses a modifier
-    ///      to ensure that only the current admin contract can change the admin
-    /// @param _impl the address of the new implementaion contract
-    function upgrateTo(address _impl) external onlyAdmin {
-        _upgradeTo(_impl);
-    }
-
-    /// @notice Upgrades the ERC1967 Proxy to a new implementation and immediately calls a function on it
-    /// @dev This is a wrapper function for the ERC1967 _upgradeToAndCall function and uses a modifier
-    ///      to ensure that only the current admin contract can change the admin
-    /// @param _impl the address of the new implementaion contract
-    /// @param data calldata containing function signature and params to call once `_impl` is updated
-    function upgradeToAndCall(address _impl, bytes memory data) external onlyAdmin{
-        _upgradeToAndCall(_impl, data, false);
     }
 
     /// @notice Get the owner of the ZapMedia implementation
@@ -129,7 +112,7 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
         // ensures that the call is always made to the implementation (ZapMedia)
         // https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#transparent-proxies-and-function-clashes 
         if (msg.sender != _getAdmin()){
-            _delegate(_getImplementation());
+            _delegate(IBeacon(_getBeacon()).implementation());
         }
     }
 }

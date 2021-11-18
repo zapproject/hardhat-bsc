@@ -160,9 +160,12 @@ describe("ZapMedia Test", async () => {
                 metadataHash: metadataHashBytes,
             };
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -258,9 +261,12 @@ describe("ZapMedia Test", async () => {
                 metadataHash: metadataHashBytes,
             };
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -463,9 +469,12 @@ describe("ZapMedia Test", async () => {
                 metadataHash: metadataHashBytes,
             };
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -873,9 +882,12 @@ describe("ZapMedia Test", async () => {
                 },
             };
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -986,9 +998,12 @@ describe("ZapMedia Test", async () => {
 
         beforeEach(async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1107,9 +1122,12 @@ describe("ZapMedia Test", async () => {
                 },
             };
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1294,9 +1312,11 @@ describe("ZapMedia Test", async () => {
 
         it('should remove the ask after a transfer', async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1364,9 +1384,12 @@ describe("ZapMedia Test", async () => {
 
         beforeEach(async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1502,9 +1525,12 @@ describe("ZapMedia Test", async () => {
 
         beforeEach(async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1618,9 +1644,12 @@ describe("ZapMedia Test", async () => {
 
         beforeEach(async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1743,9 +1772,12 @@ describe("ZapMedia Test", async () => {
 
         beforeEach(async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1827,9 +1859,12 @@ describe("ZapMedia Test", async () => {
 
         beforeEach(async () => {
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -1862,9 +1897,12 @@ describe("ZapMedia Test", async () => {
 
             beforeEach(async () => {
 
+                const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+                const zapMediaInterface = await zapMediaFactory.deploy();
+
                 const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-                mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+                mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                     initializer: 'initialize'
                 })) as MediaFactory;
 
@@ -1945,9 +1983,12 @@ describe("ZapMedia Test", async () => {
                 metadataHash: metadataHashBytes,
             };
 
+            const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+            const zapMediaInterface = await zapMediaFactory.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -2077,7 +2118,7 @@ describe("ZapMedia Test", async () => {
 
     });
 
-    describe.only("Upgradeability", () => {
+    describe("Upgradeability", () => {
         let mediaContractFactoryV2: ContractFactory;
         let mediaDeployerFactoryV2: ContractFactory;
         let marketFactoryV2: ContractFactory;
@@ -2125,9 +2166,12 @@ describe("ZapMedia Test", async () => {
             
             await zapMarket.deployed();
             await zapMarket.setFee(platformFee);
+
+            const zapMediaFactoryV1 = await ethers.getContractFactory("ZapMediaOld", signers[5]);
+            const zapMediaInterface = await zapMediaFactoryV1.deploy();
             
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", signers[0]);
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
             
@@ -2171,18 +2215,20 @@ describe("ZapMedia Test", async () => {
             const owner = await zapMedia1.getOwner();
             
             // ensuring that ZapMedia can be upgraded
-            await expect(mediaDeployer.connect(signers[5]).upgradeMedia(zapMedia1.address)).to.not.be.reverted;
+            const zapMediaInterfaceV2 = await mediaContractFactoryV2.deploy();
+            await expect(mediaDeployer.connect(signers[0]).upgradeMedia(zapMediaInterfaceV2.address)).to.not.be.reverted;
             // ensuring the state of the contracts are transfered
             expect(await zapMedia1.getOwner()).to.be.eq(owner);
             expect(await zapMedia1.ownerOf(0)).to.be.eq(owner);
             expect(await zapMedia1.getTokenMetadataURIs(0)).to.be.eq(metadataURI);            
         });
 
-        it("Should be able to mint once updated along with ZapMarket", async () => {
+        it("Should be able to mint once MediaFactory is updated along with ZapMarket", async () => {
             // upgrading to the new MediaFactory which contains ZapMediaV2
             mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
             const owner = await zapMedia1.getOwner();
-            await mediaDeployer.connect(signers[5]).upgradeMedia(zapMedia1.address)
+            const zapMediaInterfaceV2 = await mediaContractFactoryV2.deploy();
+            await mediaDeployer.connect(signers[0]).upgradeMedia(zapMediaInterfaceV2.address);
 
             //// minting a second token
             metadataHex = formatBytes32String("{}");
@@ -2220,23 +2266,26 @@ describe("ZapMedia Test", async () => {
                 "ZapMarket needs to be updated as well"
             ).to.not.be.reverted;
             expect(await zapMedia1.ownerOf(1)).to.be.eq(owner);
+            expect(await zapMedia1.ownerOf(0), "ensuring that pre-upgrade storage persists").to.be.eq(owner);
         });
 
-        it("Should not allow a non-owner to upgrade a ZapMedia contract", async () => {
+        it("Should not allow a non-owner to upgrade the ZapMedia interface", async () => {
             mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
             const owner = await zapMedia1.getOwner();
 
             // owner is signers[5]
+            const zapMediaInterfaceV2 = await mediaContractFactoryV2.deploy();
             await expect(
-                mediaDeployer.connect(signers[0]).upgradeMedia(zapMedia1.address)
+                mediaDeployer.connect(signers[5]).upgradeMedia(zapMediaInterfaceV2.address)
             ).to.be.revertedWith(
-                "Only the owner can make this upgrade"
+                "Ownable: caller is not the owner"
             );
         });
 
         it("Should not be able to initialize after being upgraded", async () => {
             mediaDeployer = await upgrades.upgradeProxy(mediaDeployer, mediaDeployerFactoryV2) as MediaFactory;
-            await mediaDeployer.connect(signers[5]).upgradeMedia(zapMedia1.address);
+            const zapMediaInterfaceV2 = await mediaContractFactoryV2.deploy();
+            await mediaDeployer.connect(signers[0]).upgradeMedia(zapMediaInterfaceV2.address);
 
             const [tokenname, symbol, marketContractAddr, permissive, collectionMetadata] = initData;
 
