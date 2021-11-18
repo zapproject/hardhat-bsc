@@ -441,9 +441,9 @@ describe('ExternalNFT Test', () => {
     let zapMedia: ZapMedia;
     let address: string;
     let tokenId: string;
-    
-  
-  
+
+
+
 
     beforeEach(async () => {
 
@@ -517,23 +517,23 @@ describe('ExternalNFT Test', () => {
     });
 
     // it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
-      
+
     //   await zapTokenBsc.mint(spender.address, bid1.amount);
-      
- 
+
+
     //   await zapTokenBsc
     //     .connect(spender)
     //     .approve(zapMarket.address, bid1.amount - 1);
 
-     
+
 
     //     await expect(
     //       zapMedia.connect(signers[10]).setBid(osCreature.address, 1, bid1)
     //     ).to.be.revertedWith('SafeERC20: low-level call failed');
-  
-     
+
+
     // });
-    
+
   });
 
 });
