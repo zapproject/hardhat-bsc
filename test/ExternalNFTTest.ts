@@ -48,6 +48,7 @@ describe('ExternalNFT Test', () => {
   let zapMarket: ZapMarket;
   let zapVault: ZapVault;
   let mediaDeployer: MediaFactory;
+  let unInitMedia: ZapMedia;
   let signers: SignerWithAddress[];
   let bidShares: any;
   let tokenContractAddress: string;
@@ -131,9 +132,13 @@ describe('ExternalNFT Test', () => {
       signers[0]
     );
 
+    const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
+
+    unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+
     mediaDeployer = (await upgrades.deployProxy(
       mediaDeployerFactory,
-      [zapMarket.address],
+      [zapMarket.address, unInitMedia.address],
       {
         initializer: 'initialize'
       }
@@ -142,8 +147,6 @@ describe('ExternalNFT Test', () => {
     await mediaDeployer.deployed();
 
     await zapMarket.setMediaFactory(mediaDeployer.address);
-
-    // external Contract
 
     const proxyFactory = await ethers.getContractFactory(
       'MockProxyRegistry',
@@ -205,7 +208,7 @@ describe('ExternalNFT Test', () => {
     };
 
     // configure external tokens.
-    // in this case that means we are registering the contract that minted the token being brough into the market.
+    //   in this case that means we are registering the contract that minted the token being brough into the market.
     // configureExternalToken also includes setting bidShares
     await mediaDeployer
       .connect(signers[10])
