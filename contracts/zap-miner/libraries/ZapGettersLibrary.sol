@@ -49,6 +49,7 @@ library ZapGettersLibrary {
         address _vaultAddress
     ) internal {
         require(self.addressVars[keccak256('_owner')] == msg.sender);
+
         self.addressVars[keccak256('_vault')] = _vaultAddress;
     }
 
@@ -127,10 +128,10 @@ library ZapGettersLibrary {
             bytes32,
             bool,
             bool,
-            bool,
             address,
             address,
             address,
+            uint256,
             uint256[9] memory,
             int256
         )
@@ -140,10 +141,10 @@ library ZapGettersLibrary {
             disp.hash,
             disp.executed,
             disp.disputeVotePassed,
-            disp.isPropFork,
             disp.reportedMiner,
             disp.reportingParty,
             disp.proposedForkAddress,
+            disp.forkedContract,
             [  //all these keys are being being calculated
                 disp.disputeUintVars[keccak256('requestId')],
                 disp.disputeUintVars[keccak256('timestamp')],

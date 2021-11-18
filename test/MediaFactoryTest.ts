@@ -54,11 +54,14 @@ describe("MediaFactory", () => {
 
     async function deployMediaFactory(marketAddress: string): Promise<MediaFactory> {
 
+        const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
+        const zapMediaInterface = await zapMediaFactory.deploy();
+
         const MediaFactory = await ethers.getContractFactory("MediaFactory");
 
         const mediaFactory = (await upgrades.deployProxy(
             MediaFactory,
-            [marketAddress],
+            [marketAddress, zapMediaInterface.address],
             { initializer: 'initialize' }
         ));
 
@@ -277,7 +280,7 @@ describe("MediaFactory", () => {
         });
     })
 
-    describe.only("Upgradeability", () => {
+    describe("Upgradeability", () => {
         let mediaFactoryFactoryV2: ContractFactory;
 
         beforeEach(async () => {
@@ -301,8 +304,11 @@ describe("MediaFactory", () => {
 
             await zapMarket.deployed();
 
+            const zapMediaFactoryV1 = await ethers.getContractFactory("ZapMediaOld", deployer);
+            const zapMediaInterface = await zapMediaFactoryV1.deploy();
+
             const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", deployer);
-            mediaFactory = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+            mediaFactory = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
 
@@ -310,12 +316,20 @@ describe("MediaFactory", () => {
 
             await zapMarket.setMediaFactory(mediaFactory.address);
 
-            mediaFactoryFactoryV2 = await ethers.getContractFactory("ZapMedia", deployer);
+            mediaFactoryFactoryV2 = await ethers.getContractFactory("MediaFactory", deployer);
         });
 
         it("Should be able to upgrade v1 MediaFactory to a version allowing external NFTs", async () => {
-            // cannot be upgraded for some weird reason
             expect(await upgrades.upgradeProxy(mediaFactory.address, mediaFactoryFactoryV2)).to.be.ok;
         });
+
+        it("Should not allow non-owners to upgrade the ZapMedia interface", async () => {
+            const zapMediaInterfaceV2 = await mediaFactoryFactoryV2.deploy();
+            await expect(
+                mediaFactory.connect(badActor).upgradeMedia(zapMediaInterfaceV2.address)
+            ).to.be.revertedWith(
+                "Ownable: caller is not the owner"
+            );
+        })
     });
 });
