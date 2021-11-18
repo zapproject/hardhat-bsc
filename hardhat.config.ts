@@ -88,7 +88,6 @@ const config = {
       gas: 12000000,
       gasPrice: 10000000000,
       blockGasLimit: 0x1fffffffffffff,
-      allowUnlimitedContractSize: true,
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
