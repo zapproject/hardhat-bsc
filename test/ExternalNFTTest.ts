@@ -428,7 +428,7 @@ describe('ExternalNFT Test', () => {
 
   });
 
-  describe.only('#setBid', () => {
+  describe('#setBid', () => {
     let bid1: any;
     let bid2: any;
     let osCreature: Creature;
@@ -467,13 +467,6 @@ describe('ExternalNFT Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
-      await mediaDeployer
-      .connect(signers[10])
-      .configureExternalToken(
-        tokenContractAddress,
-        tokenByIndex,
-        bidShares
-      );
 
       spender = signers[9];
 
@@ -537,6 +530,7 @@ describe('ExternalNFT Test', () => {
   
      
     // });
+    
   });
 
 });
