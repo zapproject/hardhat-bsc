@@ -143,8 +143,6 @@ describe('ExternalNFT Test', () => {
 
     await zapMarket.setMediaFactory(mediaDeployer.address);
 
-    // external Contract
-
     const proxyFactory = await ethers.getContractFactory(
       'MockProxyRegistry',
       signers[0]
@@ -215,6 +213,14 @@ describe('ExternalNFT Test', () => {
         bidShares
       );
 
+    await mediaDeployer
+      .connect(signers[10])
+      .configureExternalToken(
+        tokenContractAddress,
+        tokenByIndex,
+        bidShares
+      );
+
   });
 
   describe("Configure", () => {
@@ -274,6 +280,7 @@ describe('ExternalNFT Test', () => {
       expect(event.args?.mediaContract).to.equal(osCreature.address);
 
     });
+
     it("Should emit an ExternalTokenDeployed event", async () => {
 
       const filter: EventFilter = mediaDeployer.filters.ExternalTokenDeployed(
@@ -316,6 +323,13 @@ describe('ExternalNFT Test', () => {
         )).to.be.revertedWith('ERC721: owner query for nonexistent token');
 
     })
+
+    // it("Should revert if there is an attempt to configure a tokenID twice", async () => {
+
+
+    // })
+
+
   });
 
   describe('#setAsk', () => {
