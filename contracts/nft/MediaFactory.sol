@@ -28,6 +28,8 @@ contract MediaFactory is OwnableUpgradeable {
     /// @notice Contract constructor
     /// @dev utilises the OZ Initializable contract; cannot be called twice
     /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
+    /// @param zapMediaInterface the address of the uninitialized ZapMedia contract
+    ///        to be passed to the Beacon constructor argument
     function initialize(address _zapMarket, address zapMediaInterface) external initializer {
         __Ownable_init();
         zapMarket = IMarket(_zapMarket);
