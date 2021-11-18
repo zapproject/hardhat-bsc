@@ -6,13 +6,7 @@ import chai, { expect } from 'chai';
 
 import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 
-import {
-  keccak256,
-  parseBytes32String,
-  formatBytes32String
-} from 'ethers/lib/utils';
-
-import { BigNumber, Bytes, EventFilter, Event } from 'ethers';
+import { BigNumber, EventFilter, Event } from 'ethers';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -29,7 +23,6 @@ import { ZapMarket__factory } from '../typechain';
 import { Creature } from '../typechain/Creature';
 
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
-import { Address } from 'cluster';
 
 chai.use(solidity);
 
@@ -45,7 +38,6 @@ describe('ExternalNFT Test', () => {
   let proxyForOwner: SignerWithAddress;
   let proxy: MockProxyRegistry;
   let osCreature: Creature;
-  let osCreature2: Creature;
   let zapMarket: ZapMarket;
   let zapVault: ZapVault;
   let mediaDeployer: MediaFactory;
@@ -53,7 +45,6 @@ describe('ExternalNFT Test', () => {
   let signers: SignerWithAddress[];
   let bidShares: any;
   let tokenContractAddress: string;
-  let tokenContractAddress2: string;
   let tokenContractName: string;
   let tokenContractSymbol: string;
   let tokenByIndex: BigNumber;
@@ -176,15 +167,7 @@ describe('ExternalNFT Test', () => {
       signers[1]
     );
 
-    osCreature2 = (await oscreatureFactory2.deploy(proxy.address)) as Creature;
-    await osCreature.deployed();
-
-    await osCreature2.mintTo(signers[1].address);
-
-    expect(await osCreature2.balanceOf(signers[1].address)).to.equal(1);
-
     tokenContractAddress = osCreature.address;
-    tokenContractAddress2 = osCreature2.address;
     tokenContractName = await osCreature.name();
     tokenContractSymbol = await osCreature.symbol();
     tokenByIndex = await osCreature.tokenByIndex(0);
@@ -294,14 +277,30 @@ describe('ExternalNFT Test', () => {
 
     });
 
+    it("Should be able to configure a different tokenID on the same collection", async () => {
+
+      await osCreature.mintTo(signers[10].address);
+
+      const tokenId2 = await osCreature.tokenByIndex(1);
+
+      await mediaDeployer
+        .connect(signers[10])
+        .configureExternalToken(
+          tokenContractAddress,
+          tokenId2,
+          bidShares
+        )
+
+    });
+
     it("Should revert if a non owner tries to configure an existing tokenID", async () => {
 
-      const tokenID = await osCreature2.tokenByIndex(0);
+      const tokenID = await osCreature.tokenByIndex(0);
 
       await expect(mediaDeployer
         .connect(signers[2])
         .configureExternalToken(
-          tokenContractAddress2,
+          tokenContractAddress,
           tokenID,
           bidShares
         )).to.be.revertedWith('MediaFactory: Only token owner can configure to ZapMarket');
@@ -315,7 +314,7 @@ describe('ExternalNFT Test', () => {
       await expect(mediaDeployer
         .connect(signers[1])
         .configureExternalToken(
-          tokenContractAddress2,
+          tokenContractAddress,
           nonexistentID,
           bidShares
         )).to.be.revertedWith('ERC721: owner query for nonexistent token');
@@ -333,7 +332,6 @@ describe('ExternalNFT Test', () => {
         )).to.be.revertedWith('Market: External token already configured');
 
     })
-
 
   });
 
