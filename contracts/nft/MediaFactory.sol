@@ -8,9 +8,11 @@ import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
+import 'hardhat/console.sol';
 
 interface IERC721Extended {
     function name() external view returns (string memory);
+
     function symbol() external view returns (string memory);
 }
 
@@ -30,7 +32,10 @@ contract MediaFactory is OwnableUpgradeable {
     /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
     /// @param zapMediaInterface the address of the uninitialized ZapMedia contract
     ///        to be passed to the Beacon constructor argument
-    function initialize(address _zapMarket, address zapMediaInterface) external initializer {
+    function initialize(address _zapMarket, address zapMediaInterface)
+        external
+        initializer
+    {
         __Ownable_init();
         zapMarket = IMarket(_zapMarket);
         beacon = address(new UpgradeableBeacon(zapMediaInterface));
@@ -42,11 +47,10 @@ contract MediaFactory is OwnableUpgradeable {
     function upgradeMedia(address newInterface) external onlyOwner {
         require(
             msg.sender != address(0),
-            "The zero address can not make contract calls"
+            'The zero address can not make contract calls'
         );
         UpgradeableBeacon(beacon).upgradeTo(newInterface);
     }
-
 
     /// @notice Deploys ZapMedia ERC721 contracts to be used on ZapMarket
     /// @dev This is the contract factory function, it deploys a proxy contract, then a ZapMedia contract,
@@ -67,8 +71,13 @@ contract MediaFactory is OwnableUpgradeable {
         MediaProxy proxy = new MediaProxy();
 
         proxy.initialize(
-            beacon, payable(msg.sender),
-            name, symbol, marketContractAddr, permissive, _collectionMetadata
+            beacon,
+            payable(msg.sender),
+            name,
+            symbol,
+            marketContractAddr,
+            permissive,
+            _collectionMetadata
         );
         address proxyAddress = address(proxy);
 
@@ -117,11 +126,18 @@ contract MediaFactory is OwnableUpgradeable {
 
         if (!(zapMarket.isRegistered(tokenAddress))) {
             zapMarket.registerMedia(tokenAddress);
+        } else {
+            require(
+                zapMarket.isInternal(tokenAddress),
+                'This operation is meant for external NFTs'
+            );
         }
 
         if (!(zapMarket._isConfigured(tokenAddress))) {
             bytes memory name_b = bytes(IERC721Extended(tokenAddress).name());
-            bytes memory symbol_b = bytes(IERC721Extended(tokenAddress).symbol());
+            bytes memory symbol_b = bytes(
+                IERC721Extended(tokenAddress).symbol()
+            );
 
             bytes32 name_b32;
             bytes32 symbol_b32;

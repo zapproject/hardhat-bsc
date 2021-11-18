@@ -1642,7 +1642,7 @@ describe('ZapMarket Test', () => {
     let proxy: MockProxyRegistry;
     let osCreature: Creature;
     let mediaFactory: ContractFactory;
-    
+
 
     beforeEach(async () => {
 
@@ -1663,7 +1663,7 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-     let zapMarketFactory: ZapMarket__factory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
+      let zapMarketFactory: ZapMarket__factory = await ethers.getContractFactory('ZapMarket') as ZapMarket__factory;
 
       zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
         initializer: 'initializeMarket'
@@ -1732,7 +1732,7 @@ describe('ZapMarket Test', () => {
         owner: {
           value: BigNumber.from('35000000000000000000')
         },
-  
+
       }
       await mediaDeployer.connect(signers[10]).configureExternalToken(tokenContractAddress, 1, bidShares)
 
@@ -1748,7 +1748,7 @@ describe('ZapMarket Test', () => {
 
     });
 
-    
+
   });
 
   describe("Ownership", () => {
@@ -1804,7 +1804,7 @@ describe('ZapMarket Test', () => {
         null, null
       );
 
-      
+
       const event_transferredOwnership: Event = (
         await zapMarket.queryFilter(filter_transfered)
       )[0]

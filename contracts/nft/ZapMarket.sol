@@ -61,6 +61,8 @@ contract ZapMarket is IMarket, Ownable {
     //Mapping determining whether an nft contract is internal or external
     mapping(address => bool) public isInternalMedia;
 
+    mapping(address => mapping(uint256 => bool)) tokenConfigured;
+
     /* *********
      * Modifiers
      * *********
@@ -89,11 +91,10 @@ contract ZapMarket is IMarket, Ownable {
         _;
     }
 
-    
-
     modifier onlyTokenOwnerOrAuctionHouse(address caller, uint256 tokenId) {
         require(
-            IERC721(caller).ownerOf(tokenId) == tx.origin || caller == auctionHouse,
+            IERC721(caller).ownerOf(tokenId) == tx.origin ||
+                caller == auctionHouse,
             'Market: Only token owner or AuctionHouse contract'
         );
 
@@ -375,13 +376,31 @@ contract ZapMarket is IMarket, Ownable {
             isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'
         );
+
         if (isConfigured[msg.sender] == true) {
             _bidShares[msg.sender][tokenId] = bidShares;
+
+            // Checks if the mediaContract is internal
+            // If the mediaContract is not internal proceed into the else if block
+        } else if (isInternalMedia[mediaContract] == false) {
+            // Require the external tokenId is not configured
+            // If the external tokenId is configured the transaction will revert
+            require(
+                tokenConfigured[mediaContract][tokenId] == false,
+                'Market: External token already configured'
+            );
+
+            // If the mediaContract is external and the tokenId is not configured set the bidShares
+            _bidShares[mediaContract][tokenId] = bidShares;
+
+            // Set the external tokenId configuration status to true
+            tokenConfigured[mediaContract][tokenId] = true;
         } else {
             require(
                 mediaContract != address(0),
                 "Market: Can't set bid share for zero address"
             );
+
             _bidShares[mediaContract][tokenId] = bidShares;
         }
         emit BidShareUpdated(tokenId, bidShares, mediaContract);
@@ -413,7 +432,11 @@ contract ZapMarket is IMarket, Ownable {
         override
         onlyMediaOrAuctionHouse(mediaContract)
     {
-        emit AskRemoved(tokenId, _tokenAsks[mediaContract][tokenId], mediaContract);
+        emit AskRemoved(
+            tokenId,
+            _tokenAsks[mediaContract][tokenId],
+            mediaContract
+        );
         delete _tokenAsks[mediaContract][tokenId];
     }
 
