@@ -55,8 +55,8 @@ const config = {
         version: '0.8.4',
         settings: {
           optimizer: {
-            enabled: true
-            // runs
+            enabled: true,
+            // runs: 1
           }
         }
       }
@@ -66,7 +66,7 @@ const config = {
     enabled: true,
     currency: 'USD',
     gasPrice: 0.0,
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   networks: {
     localhost: {
@@ -82,13 +82,12 @@ const config = {
       url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
-      //accounts: { mnemonic: process.env.MNEMONIC }
+      // accounts: { mnemonic: process.env.MNEMONIC }
     },
     hardhat: {
       gas: 12000000,
       gasPrice: 10000000000,
       blockGasLimit: 0x1fffffffffffff,
-      allowUnlimitedContractSize: true,
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,

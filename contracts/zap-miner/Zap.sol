@@ -66,6 +66,13 @@ contract Zap {
     using ZapLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
+    /*Global Variables*/
+    enum ForkedContract {
+        NoContract,
+        ZapContract,
+        ZapMasterContract,
+        VaultContract
+    }
     ZapStorage.ZapStorageStruct private zap;
     ZapTokenBSC public token;
     // Vault public vault;
@@ -128,6 +135,11 @@ contract Zap {
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(zap.disputeIdByDisputeHash[_hash] == 0);
 
+        address vaultAddress = zap.addressVars[keccak256('_vault')];
+        Vault vault = Vault(vaultAddress);
+
+        vault.withdraw(msg.sender, zap.uintVars[keccak256('disputeFee')]);
+        vault.deposit(zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
         transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
 
         //Increase the dispute count by 1
@@ -143,8 +155,7 @@ contract Zap {
         //maps the dispute to the Dispute struct
         zap.disputesById[disputeId] = ZapStorage.Dispute({
             hash: _hash,
-            isPropFork: false,
-            isZM: false,
+            forkedContract: 0, // aka no contract is being forked for this dispute
             reportedMiner: _miner,
             reportingParty: msg.sender,
             proposedForkAddress: address(0),
@@ -205,39 +216,55 @@ contract Zap {
      */
     function tallyVotes(uint256 _disputeId) external {
 
+        address currentVault = zap.addressVars[keccak256('_vault')];
         (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         ZapStorage.Dispute storage disp = zap.disputesById[_disputeId];
         bytes memory data;
 
-        if (!disp.isPropFork) {
+        Vault vault = Vault(currentVault);
+
+        if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
+            vault.deposit(_to, _disputeFee);
             data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
                 _to, _disputeFee);
             _callOptionalReturn(token, data);
-
         }
 
-        if (disp.isZM) {
+        if (disp.forkedContract == uint(ForkedContract.ZapMasterContract)) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
             // total balance of current ZapMaster
-            uint256 zapBalance = token.balanceOf(address(this));
+            uint256 zapMasterBalance = token.balanceOf(address(this));
 
             data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
-                disp.proposedForkAddress, zapBalance);
-            // transfer `zapBalance` ZAP from current ZapMaster to new ZapMaster
+                disp.proposedForkAddress, zapMasterBalance);
+            // transfer `zapMasterBalance` ZAP from current ZapMaster to new ZapMaster
             _callOptionalReturn(token, data);
+        } else if (disp.forkedContract == uint(ForkedContract.VaultContract)) {
+            // Approve the current vault to call deposit on the pending, new Vault
+            Vault(disp.proposedForkAddress).setApproval(currentVault);
+            // If this is a fork proposal for changing the Vault Contract, transfer
+            // the current Vault balance to the new one
+            increaseVaultApproval(currentVault);
+            transferFrom(currentVault, disp.proposedForkAddress, token.balanceOf(currentVault));
+            // ...and also migrate the accounts from the old vault contract to the new one
+            if (vault.setNewVault(disp.proposedForkAddress)) {
+                assert(vault.migrateVault());
+            }
+            zap.addressVars[keccak256('_vault')] = disp.proposedForkAddress;
         }
     }
 
     /**
      * @dev Allows for a fork to be proposed
      * @param _propNewZapAddress address for new proposed Zap
+     * @param forkedContract contract to be foked: 1 == Zap Contract, 2 == ZapMaster, 3 == Vault Contract
      */
-    function proposeFork(address _propNewZapAddress, bool isZM) external {
-        zap.proposeFork(_propNewZapAddress, isZM);
+    function proposeFork(address _propNewZapAddress, uint256 forkedContract) external {
+        zap.proposeFork(_propNewZapAddress, forkedContract);
             transferFrom(
                 msg.sender,
                 zap.addressVars[keccak256("_owner")],
@@ -367,6 +394,8 @@ contract Zap {
         );
         zap.depositStake();
 
+        zap.uintVars[keccak256("total_supply")] += stakeAmount;
+
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
 
@@ -399,6 +428,8 @@ contract Zap {
         transferFrom(address(vault), msg.sender, userBalance);
 
         vault.withdraw(msg.sender, userBalance);
+
+        zap.uintVars[keccak256('total_supply')] -= userBalance;
     }
 
     /**
@@ -579,8 +610,7 @@ contract Zap {
      * Increase the approval of ZapMaster for the Vault
      */
     function increaseVaultApproval(address vaultAddress) public returns (bool) {
-        Vault vault = Vault(vaultAddress);
-        return vault.increaseApproval();
+        return Vault(vaultAddress).increaseApproval();
     }
 
     /**

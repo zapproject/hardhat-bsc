@@ -20,7 +20,6 @@ import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -52,7 +51,7 @@ contract ZapMediaOld is
 
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    bytes internal _contractURI;
+    bytes internal collectionMetadata;
 
     bytes32 private constant kecEIP712Domain =
         keccak256(
@@ -143,7 +142,7 @@ contract ZapMediaOld is
 
      //geting the contractURI value
      function contractURI() public view returns (bytes memory) {
-        return _contractURI;
+        return collectionMetadata;
     }
 
     /**
@@ -177,7 +176,7 @@ contract ZapMediaOld is
         _registerInterface(type(IMedia).interfaceId);
 
         access.isPermissive = permissive;
-        _contractURI = bytes(collectionURI);
+        collectionMetadata = bytes(collectionURI);
     }
 
     /**

@@ -9,7 +9,6 @@ import { ZapTokenBSC } from '../typechain/ZapTokenBSC';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import { ZapVault } from '../typechain/ZapVault';
-import { ContractReceipt } from '@ethersproject/contracts';
 
 chai.use(solidity);
 

@@ -104,10 +104,10 @@ contract ZapGetters {
      * @return bytes32 hash of dispute
      * @return bool executed where true if it has been voted on
      * @return bool disputeVotePassed
-     * @return bool isPropFork true if the dispute is a proposed fork
      * @return address of reportedMiner
      * @return address of reportingParty
      * @return address of proposedForkAddress
+     * @return uint of forkedContract
      * @return uint of requestId
      * @return uint of timestamp
      * @return uint of value
@@ -126,10 +126,10 @@ contract ZapGetters {
             bytes32,
             bool,
             bool,
-            bool,
             address,
             address,
             address,
+            uint256,
             uint256[9] memory,
             int256
         )
