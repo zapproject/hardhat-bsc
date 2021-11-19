@@ -6,7 +6,7 @@ import chai, { expect } from 'chai';
 
 import { MediaFactory, ZapMarket, ZapVault, ZapTokenBSC, ZapMedia, AuctionHouse, BadMedia } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { Event } from '@ethersproject/contracts';
+import { Event, ContractFactory } from '@ethersproject/contracts';
 import { BigNumber, BigNumberish } from "ethers";
 import { sha256 } from "ethers/lib/utils"
 
@@ -279,4 +279,58 @@ describe("MediaFactory", () => {
             expect(eventLog.args?.tokenOwner).to.be.eq(mediaOwner.address);
         });
     })
+
+    describe("Upgradeability", () => {
+
+        let mediaFactoryFactoryV2: ContractFactory;
+
+        beforeEach(async () => {
+            const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+            const oldVaultABI = oldVaultArtifact.abi;
+            const oldVaultBytecode = oldVaultArtifact.bytecode;
+            const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, deployer);
+
+            zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+                initializer: 'initializeVault'
+            })) as ZapVault;
+
+            const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+            const oldZMABI = oldZMArtifact.abi;
+            const oldZMBytecode = oldZMArtifact.bytecode;
+            const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, deployer);
+
+            zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+                initializer: 'initializeMarket'
+            })) as ZapMarket;
+
+            await zapMarket.deployed();
+
+            const zapMediaFactoryV1 = await ethers.getContractFactory("ZapMediaOld", deployer);
+            const zapMediaInterface = await zapMediaFactoryV1.deploy();
+
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", deployer);
+            mediaFactory = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
+                initializer: 'initialize'
+            })) as MediaFactory;
+
+            await mediaFactory.deployed();
+
+            await zapMarket.setMediaFactory(mediaFactory.address);
+
+            mediaFactoryFactoryV2 = await ethers.getContractFactory("MediaFactory", deployer);
+        });
+
+        it("Should be able to upgrade v1 MediaFactory to a version allowing external NFTs", async () => {
+            expect(await upgrades.upgradeProxy(mediaFactory.address, mediaFactoryFactoryV2)).to.be.ok;
+        });
+
+        it("Should not allow non-owners to upgrade the ZapMedia interface", async () => {
+            const zapMediaInterfaceV2 = await mediaFactoryFactoryV2.deploy();
+            await expect(
+                mediaFactory.connect(badActor).upgradeMedia(zapMediaInterfaceV2.address)
+            ).to.be.revertedWith(
+                "Ownable: caller is not the owner"
+            );
+        })
+    });
 });
