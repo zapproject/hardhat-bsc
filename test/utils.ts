@@ -196,8 +196,12 @@ export const deployZapNFTMarketplace = async () => {
 
   await market.setFee(platformFee);
 
+  const unInitMediaFactory = await ethers.getContractFactory('ZapMedia');
+
+  const unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+
   const mediaFactoryFactory = await ethers.getContractFactory("MediaFactory", deployer0);
-  mediaFactory = (await upgrades.deployProxy(mediaFactoryFactory, [market.address], { initializer: "initialize" })) as MediaFactory;
+  mediaFactory = (await upgrades.deployProxy(mediaFactoryFactory, [market.address, unInitMedia.address], { initializer: "initialize" })) as MediaFactory;
   await market.setMediaFactory(mediaFactory.address);
 
   const mediaArgs = [
