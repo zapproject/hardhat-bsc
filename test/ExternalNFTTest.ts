@@ -449,6 +449,7 @@ describe('ExternalNFT Test', () => {
     let zapMarket: ZapMarket;
     let zapVault: ZapVault;
     let osCreature: Creature;
+    let unAuthMedia: Creature;
     let bid: any;
     let bidShares: any;
 
@@ -528,7 +529,12 @@ describe('ExternalNFT Test', () => {
       osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
       await osCreature.deployed();
 
+      unAuthMedia = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+      await unAuthMedia.deployed();
+
       await osCreature.mintTo(signers[10].address);
+
+      await unAuthMedia.mintTo(signers[10].address);
 
       bidShares = {
         collaborators: [
@@ -570,6 +576,16 @@ describe('ExternalNFT Test', () => {
 
     it('Should revert if not called by the media contract', async () => {
 
+      await zapTokenBsc.mint(signers[9].address, bid.amount);
+
+      await zapTokenBsc.connect(signers[9]).approve(zapMarket.address, bid.amount - 1);
+
+      await expect(zapMarket.connect(signers[9]).setBid(
+        unAuthMedia.address,
+        1,
+        bid,
+        bid.spender
+      )).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
     });
 
@@ -578,6 +594,21 @@ describe('ExternalNFT Test', () => {
       await zapTokenBsc.mint(signers[9].address, bid.amount);
 
       await zapTokenBsc.connect(signers[9]).approve(zapMarket.address, bid.amount - 1);
+
+      await expect(zapMarket.connect(signers[9]).setBid(
+        osCreature.address,
+        1,
+        bid,
+        bid.spender
+      )).to.be.revertedWith('SafeERC20: low-level call failed');
+
+    });
+
+    it('Should revert if the bidder does not have enough tokens to bid with', async () => {
+
+      await zapTokenBsc.mint(signers[9].address, bid.amount - 1);
+
+      await zapTokenBsc.connect(signers[9]).approve(zapMarket.address, bid.amount);
 
       await expect(zapMarket.connect(signers[9]).setBid(
         osCreature.address,
