@@ -79,6 +79,7 @@ contract MediaFactory is OwnableUpgradeable {
             permissive,
             _collectionMetadata
         );
+
         address proxyAddress = address(proxy);
 
         zapMarket.registerMedia(proxyAddress);

@@ -65,7 +65,7 @@ export const deployOtherNFTs = async () => {
 
 export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, mediaDeploy: MediaFactory) => {
   await zapMarket.setMediaFactory(mediaDeploy.address);
-  console.log("DEPLOY")
+
   const mediaArgs = [
     {
       name: "TEST MEDIA 1",
@@ -104,7 +104,9 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
   const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
 
   for (let i = 0; i < mediaArgs.length; i++) {
+
     const args = mediaArgs[i];
+
     await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
       args.name, args.symbol, args.marketContractAddr, args.permissive, args.collectionURI
     );
@@ -117,7 +119,6 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
       new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMedia
     );
 
-    console.log("DEPLOY2")
   }
 
   return medias
