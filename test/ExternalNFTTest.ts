@@ -619,7 +619,23 @@ describe('ExternalNFT Test', () => {
 
     });
 
+it('Should revert if the bid curency is 0 address', async () => {
 
-  })
+  await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+  await zapTokenBsc.connect(signers[9]).approve(bid.bidder, bid.amount);
+
+  bid.currency = '0x0000000000000000000000000000000000000000';
+
+  await expect(
+    zapMarket.connect(signers[9]).setBid( osCreature.address,
+      1,
+      bid,
+      bid.spender
+      )).to.be.revertedWith('Market: bid currency cannot be 0 address');
+});
+
+
+  });
 
 });
