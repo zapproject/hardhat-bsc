@@ -3,11 +3,18 @@
 pragma solidity ^0.8.4;
 
 import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-
+import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
+import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
-import {Ownable} from './Ownable.sol';
 import {ZapMedia} from './ZapMedia.sol';
-import {ZapMarket} from './ZapMarket.sol';
+import {IMarket} from './interfaces/IMarket.sol';
+import 'hardhat/console.sol';
+
+interface IERC721Extended {
+    function name() external view returns (string memory);
+
+    function symbol() external view returns (string memory);
+}
 
 /// @title Zap Media Factory Contract
 /// @notice This contract deploys ZapMedia and external ERC721 contracts,
@@ -15,33 +22,34 @@ import {ZapMarket} from './ZapMarket.sol';
 /// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
 contract MediaFactory is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
-    event MediaUpdated(address indexed mediaContract);
+    event ExternalTokenDeployed(address indexed extToken);
 
-    ZapMarket zapMarket;
-    mapping(address=>address) proxyImplementations;
+    IMarket zapMarket;
+    address beacon;
 
     /// @notice Contract constructor
     /// @dev utilises the OZ Initializable contract; cannot be called twice
     /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
-    function initialize(address _zapMarket) external initializer {
-        zapMarket = ZapMarket(_zapMarket);
+    /// @param zapMediaInterface the address of the uninitialized ZapMedia contract
+    ///        to be passed to the Beacon constructor argument
+    function initialize(address _zapMarket, address zapMediaInterface)
+        external
+        initializer
+    {
+        __Ownable_init();
+        zapMarket = IMarket(_zapMarket);
+        beacon = address(new UpgradeableBeacon(zapMediaInterface));
+        UpgradeableBeacon(beacon).transferOwnership(address(this));
     }
 
     /// @notice Upgrades ZapMedia contract
-    /// @dev calls `upgrateTo` on the MediaProxy contract to upgrade/replace the implementation contract
-    /// @param _proxy ZapMedia Proxy address
-    function upgradeMedia(
-        address _proxy
-    ) external {
-        require(proxyImplementations[_proxy] != address(0), "This ZapMedia proxy does not exist/does not have an implementation");
+    /// @dev calls `upgrateTo` on the Beacon contract to upgrade/replace the implementation contract
+    function upgradeMedia(address newInterface) external onlyOwner {
         require(
-            msg.sender != address(0) && msg.sender == ZapMedia(proxyImplementations[_proxy]).getOwner(),
-            "Only the owner can make this upgrade"
+            msg.sender != address(0),
+            'The zero address can not make contract calls'
         );
-        ZapMedia zapMedia = new ZapMedia();
-
-        MediaProxy(_proxy).upgrateTo(address(zapMedia));
-        emit MediaUpdated(_proxy);
+        UpgradeableBeacon(beacon).upgradeTo(newInterface);
     }
 
     /// @notice Deploys ZapMedia ERC721 contracts to be used on ZapMarket
@@ -61,15 +69,19 @@ contract MediaFactory is OwnableUpgradeable {
         string calldata _collectionMetadata
     ) external returns (address) {
         MediaProxy proxy = new MediaProxy();
-        ZapMedia zapMedia = new ZapMedia();
 
-        proxy.initialize(address(zapMedia), payable(msg.sender), name, symbol, marketContractAddr, permissive, _collectionMetadata);
+        proxy.initialize(
+            beacon,
+            payable(msg.sender),
+            name,
+            symbol,
+            marketContractAddr,
+            permissive,
+            _collectionMetadata
+        );
         address proxyAddress = address(proxy);
 
-        proxyImplementations[proxyAddress] = address(zapMedia);
-
         zapMarket.registerMedia(proxyAddress);
-
 
         bytes memory name_b = bytes(name);
         bytes memory symbol_b = bytes(symbol);

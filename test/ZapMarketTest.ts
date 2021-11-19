@@ -177,9 +177,15 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.setFee(platformFee);
 
+      const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
+
+      let unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+
+      await unInitMedia.deployed();
+
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -189,26 +195,26 @@ describe('ZapMarket Test', () => {
 
       const medias = await deployJustMedias(signers, zapMarket, mediaDeployer);
 
-      zapMedia1 = medias[0];
-      zapMedia2 = medias[1];
-      zapMedia3 = medias[2];
+      // zapMedia1 = medias[0];
+      // zapMedia2 = medias[1];
+      // zapMedia3 = medias[2];
 
-      await zapMedia1.claimTransferOwnership();
-      await zapMedia2.claimTransferOwnership();
-      await zapMedia3.claimTransferOwnership();
+      // await zapMedia1.claimTransferOwnership();
+      // await zapMedia2.claimTransferOwnership();
+      // await zapMedia3.claimTransferOwnership();
 
-      ask1.currency = zapTokenBsc.address;
+      // ask1.currency = zapTokenBsc.address;
 
-      let metadataHex = ethers.utils.formatBytes32String('{}');
-      let metadataHash = await keccak256(metadataHex);
-      metadataHashBytes = ethers.utils.arrayify(metadataHash);
+      // let metadataHex = ethers.utils.formatBytes32String('{}');
+      // let metadataHash = await keccak256(metadataHex);
+      // metadataHashBytes = ethers.utils.arrayify(metadataHash);
 
-      let contentHex = ethers.utils.formatBytes32String('invert');
-      let contentHash = await keccak256(contentHex);
-      contentHashBytes = ethers.utils.arrayify(contentHash);
+      // let contentHex = ethers.utils.formatBytes32String('invert');
+      // let contentHash = await keccak256(contentHex);
+      // contentHashBytes = ethers.utils.arrayify(contentHash);
 
-      bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
-      bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      // bidShares1.collaborators = [signers[10].address, signers[11].address, signers[12].address];
+      // bidShares2.collaborators = [signers[10].address, signers[11].address, signers[12].address];
 
     });
 
@@ -221,7 +227,7 @@ describe('ZapMarket Test', () => {
       })
     })
 
-    it("Should get the market owner", async () => {
+    it.only("Should get the market owner", async () => {
       const owner = await zapMarket.getOwner()
       expect(signers[0].address).to.equal(owner)
     })
@@ -1684,7 +1690,7 @@ describe('ZapMarket Test', () => {
         null, null
       );
 
-      
+
       const event_transferredOwnership: Event = (
         await zapMarket.queryFilter(filter_transfered)
       )[0]
