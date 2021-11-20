@@ -12,7 +12,7 @@ import {
   formatBytes32String
 } from 'ethers/lib/utils';
 
-import { BigNumber, Bytes, EventFilter, Event } from 'ethers';
+import { BigNumber, Bytes, EventFilter, Event, ContractFactory } from 'ethers';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
@@ -63,6 +63,18 @@ let platformFee = {
 
 describe('ZapMarket Test', () => {
   let zapTokenBsc: any;
+  let unInitMedia: ZapMedia;
+
+  before(async () => {
+
+    const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
+
+    unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+
+    await unInitMedia.deployed();
+
+  })
+
 
   beforeEach(async () => {
     signers = await ethers.getSigners();
@@ -179,7 +191,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -391,7 +403,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -648,7 +660,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -887,7 +899,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -1425,7 +1437,7 @@ describe('ZapMarket Test', () => {
 
   });
 
-  describe("Re entrancy", () => {
+  describe("#Re-entrancy", () => {
     let bid1: any;
     let bid2: any;
 
@@ -1463,7 +1475,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -1684,7 +1696,7 @@ describe('ZapMarket Test', () => {
         null, null
       );
 
-      
+
       const event_transferredOwnership: Event = (
         await zapMarket.queryFilter(filter_transfered)
       )[0]
@@ -1757,6 +1769,49 @@ describe('ZapMarket Test', () => {
         to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
     });
 
+  });
+
+
+  describe("Upgradability", () => {
+    let zapMarketV2Factory: ContractFactory
+
+    beforeEach(async () => {
+      const zapTokenFactory = await ethers.getContractFactory(
+        'ZapTokenBSC',
+        signers[0]
+      );
+
+      zapTokenBsc = await zapTokenFactory.deploy();
+      await zapTokenBsc.deployed();
+
+      const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+      const oldVaultABI = oldVaultArtifact.abi;
+      const oldVaultBytecode = oldVaultArtifact.bytecode;
+      const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, signers[0]);
+
+      zapVault = (await upgrades.deployProxy(zapVaultFactory, [zapTokenBsc.address], {
+        initializer: 'initializeVault'
+      })) as ZapVault;
+
+      const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+      const oldZMABI = oldZMArtifact.abi;
+      const oldZMBytecode = oldZMArtifact.bytecode;
+      const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, signers[0]);
+
+      zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
+        initializer: 'initializeMarket'
+      })) as ZapMarket;
+
+      await zapMarket.deployed();
+
+      const ZMArtifact = require('../artifacts/contracts/nft/ZapMarket.sol/ZapMarket.json');
+      const ZMABI = ZMArtifact.abi;
+      const ZMBytecode = ZMArtifact.bytecode;
+      zapMarketV2Factory = new ethers.ContractFactory(ZMABI, ZMBytecode, signers[0]);
+    });
+    it("Should be able to upgrade v1 ZapMarket to a version allowing external NFTs", async () => {
+      expect(await upgrades.upgradeProxy(zapMarket.address, zapMarketV2Factory)).to.be.ok;
+    });
   });
 
 });
