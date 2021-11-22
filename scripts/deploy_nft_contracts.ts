@@ -125,13 +125,23 @@ async function main() {
     await zapMarket.setMediaFactory(mediaFactory.address, { gasLimit: setFactoryGas });
     console.log("MediaFactory set to ZapMarket");
 
+    // Gas estimation for deployMedia()
+    const deployMediaGas = await mediaFactory.estimateGas.deployMedia(
+        name,
+        symbol,
+        zapMarket.address,
+        true,
+        contractURI
+    );
+
     // Deploys ZapMedia
     await mediaFactory.deployMedia(
         name,
         symbol,
         zapMarket.address,
         true,
-        contractURI
+        contractURI,
+        { gasLimit: deployMediaGas }
     );
 
     // Filter for MediaDeployed event
