@@ -12,6 +12,9 @@ async function main() {
     // Deployed ZapToken on BSC Testnet
     const bscTestAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
 
+    // ABI for ZapMedia
+    const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
+
     // Collection name
     const name = 'ZapMedia';
 
@@ -149,33 +152,31 @@ async function main() {
     );
 
     const receipt = await tx.wait();
+
     console.log(receipt)
 
-    // ABI for ZapMedia
-    const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
-
     // Creates the instance of ZapMedia
-    const zapMedia = new ethers.Contract(
-        '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
-        zapMediaABI,
-        signers[0]) as ZapMedia;
+    // const zapMedia = new ethers.Contract(
+    //     '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
+    //     zapMediaABI,
+    //     signers[0]) as ZapMedia;
 
-    await zapMedia.claimTransferOwnership()
+    // await zapMedia.claimTransferOwnership()
 
-    await zapMedia.deployed();
-    console.log("ZapMedia deployed to:", zapMedia.address)
+    // await zapMedia.deployed();
+    // console.log("ZapMedia deployed to:", zapMedia.address)
 
     // ************************************************************** //
     // deploy AuctionHouse
     // ************************************************************** //
 
-    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [tokenAddress, '0x1630800181A705aeBd645066Ee2c91e5CD37D1cB'],
-        { initializer: 'initialize' }
-    );
-    await auctionHouse.deployed();
-    console.log('AuctionHouse deployed to:', auctionHouse.address);
+    // const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
+    // const auctionHouse = await upgrades.deployProxy(AuctionHouse,
+    //     [tokenAddress, zapMarket.address],
+    //     { initializer: 'initialize' }
+    // );
+    // await auctionHouse.deployed();
+    // console.log('AuctionHouse deployed to:', auctionHouse.address);
 
 }
 
