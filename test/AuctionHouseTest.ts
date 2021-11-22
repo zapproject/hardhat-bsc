@@ -1131,6 +1131,7 @@ describe("AuctionHouse", () => {
 
 
       expect(await media1.ownerOf(0)).to.be.eq(other.address);
+      expect(await media1.tokenURI(0)).to.be.eq("zap.co");
     });
 
     describe("ETH auction", () => {
