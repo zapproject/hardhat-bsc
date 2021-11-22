@@ -12,12 +12,19 @@ async function main() {
     // Deployed ZapToken on BSC Testnet
     const bscTestAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
 
+    // Collection name
     const name = 'ZapMedia';
 
     // Will store the ZapToken address depending on the network
     let tokenAddress = '';
+
+    // Will store the ZapToken address if localhost deployment is detected
     let localhostAddress = '';
+
+    // Will store the symbol depending on the network
     let symbol = '';
+
+    // Will store the contractURI depending on the network
     let contractURI = '';
 
     try {
@@ -39,7 +46,7 @@ async function main() {
         case 31337:
             tokenAddress = localhostAddress
             symbol = "ZAPLCL";
-            contractURI = ''
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/'
             console.log("Localhost")
             break;
 
@@ -118,6 +125,7 @@ async function main() {
     await zapMarket.setMediaFactory(mediaFactory.address, { gasLimit: setFactoryGas });
     console.log("MediaFactory set to ZapMarket");
 
+    // Deploys ZapMedia
     await mediaFactory.deployMedia(
         name,
         symbol,
@@ -126,19 +134,30 @@ async function main() {
         contractURI
     );
 
+    // Filter for MediaDeployed event
     const mediaDeployedFilter = mediaFactory.filters.MediaDeployed(null);
+
+    // Query for the MediaDepoyed event
     const mediaDeployedEvent: Event = (await mediaFactory.queryFilter(mediaDeployedFilter))[0];
+
+    // Deployed media address from the MediaDeployed event
     const zapMediaAddress = mediaDeployedEvent.args?.mediaContract;
+
+    // ABI for ZapMedia
     const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
+
+    // Creates the instance of ZapMedia
     const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
     await zapMedia.deployed();
 
+    // Gas estimation for claimTransferOwnership()
     const claimGas = await zapMedia.estimateGas.claimTransferOwnership();
     await zapMedia.connect(signers[0]).claimTransferOwnership({ gasLimit: claimGas });
 
     console.log('ZapMedia ownership claimed by', signers[0].address)
     console.log('ZapMedia deployed to:', zapMedia.address);
 
+    // Deployes AuctionHouse
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
     const auctionHouse = await upgrades.deployProxy(AuctionHouse,
         [tokenAddress, zapMarket.address],
