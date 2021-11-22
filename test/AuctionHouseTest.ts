@@ -12,7 +12,8 @@ import {
   ZapVault,
   WETH,
   MediaFactory,
-  BadMedia
+  BadMedia,
+  ZapMediaV2
 } from "../typechain";
 import { } from "../typechain";
 import { BigNumber, Contract, ContractFactory } from "ethers";
@@ -60,11 +61,10 @@ describe("AuctionHouse", () => {
     badERC721 = nfts.bad;
     testERC721 = nfts.test;
 
-    let [_, two, three, bidder] = await ethers.getSigners();
+    signers = await ethers.getSigners();
+    let [_, two, three, bidder] = signers;
 
     await zapTokenBsc.mint(bidder.address, BigNumber.from("10000000000000000000"));
-
-
   });
 
   async function deploy(signer: SignerWithAddress, currency: string, market: string): Promise<AuctionHouse> {
@@ -83,14 +83,17 @@ describe("AuctionHouse", () => {
     auctionHouse: AuctionHouse,
     curator: string,
     currency: string,
+    signer?: SignerWithAddress,
     duration?: number,
-    media?: string
+    media?: string,
   ) {
     const tokenId = 0;
     if (!duration) duration = 60 * 60 * 24;
     const reservePrice = BigNumber.from(10).pow(18).div(2);
 
-    await auctionHouse.createAuction(
+    await auctionHouse.connect(
+      signer == null ? signers[1] : signer
+    ).createAuction(
       tokenId,
       media == null ? media1.address : media,
       duration,
@@ -287,7 +290,7 @@ describe("AuctionHouse", () => {
     it("should revert if the duration is not 24 hrs", async () => {
       const [_, expectedCurator] = await ethers.getSigners();
       await expect(
-        createAuction(auctionHouse, expectedCurator.address, zapTokenBsc.address, 60 * 14)
+        createAuction(auctionHouse, expectedCurator.address, zapTokenBsc.address, undefined, 60 * 14)
       ).to.be.revertedWith("Your auction needs to go on for at least 15 minutes");
     })
 
@@ -356,6 +359,7 @@ describe("AuctionHouse", () => {
           signers[5].address,
           zapTokenBsc.address,
           undefined,
+          undefined,
           badMedia.address)).to.be.revertedWith(
             "This market contract is not from Zap's NFT MarketPlace"
           );
@@ -372,7 +376,12 @@ describe("AuctionHouse", () => {
       await approveAuction(media2, auctionHouse);
 
       await expect(
-        createAuction(auctionHouse.connect(signers[2]), curator.address, zapTokenBsc.address, undefined, media2.address)
+        createAuction(
+          auctionHouse.connect(signers[2]),
+          curator.address,
+          zapTokenBsc.address,
+          undefined, undefined,
+          media2.address)
       ).to.be.revertedWith("Token is already set for a different collection");
     });
 
@@ -519,12 +528,11 @@ describe("AuctionHouse", () => {
         auctionHouse.connect(creator)
       );
 
-      // await auctionHouse.setTokenDetails(0, media1.address);
-
       await createAuction(
         auctionHouse.connect(creator),
         await curator.getAddress(),
-        zapTokenBsc.address
+        zapTokenBsc.address,
+        creator
       );
 
       zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
@@ -1080,6 +1088,49 @@ describe("AuctionHouse", () => {
       expect(await zapTokenBsc.balanceOf(badBidder.address)).to.eq(
         TWO_ETH
       );
+    });
+
+    it("should be able to auction a token after it has been auctioned off; ZapMedia post-upgrade", async () => {
+      await auctionHouse.connect(curator).startAuction(0, true);
+
+      await auctionHouse.connect(bidder).createBid(0, ONE_ETH, media1.address);
+
+      let endTime =
+        (await auctionHouse.auctions(0)).duration.toNumber() +
+        (await auctionHouse.auctions(0)).firstBidTime.toNumber();
+      await ethers.provider.send("evm_setNextBlockTimestamp", [endTime + 1]);
+
+      await auctionHouse.endAuction(0, media1.address);
+
+      expect(await media1.ownerOf(0)).to.be.eq(bidder.address);
+
+      const zapMediaV2Factory = await ethers.getContractFactory("ZapMediaV2");
+      const zapMediaV2Interface = await zapMediaV2Factory.deploy();
+      await zapMediaV2Interface.deployed();
+      await mediaFactory.upgradeMedia(zapMediaV2Interface.address);
+
+      const zmV2ABI = require('../artifacts/contracts/nft/upgradeTests/ZapMediaV2.sol/ZapMediaV2.json').abi;
+
+      media1 = new ethers.Contract(media1.address, zmV2ABI, signers[0]) as ZapMediaV2;
+
+      expect(await media1.returnSuccess()).to.be.eq(true);
+
+      await approveAuction(media1.connect(bidder), auctionHouse);
+      await expect(createAuction(auctionHouse, bidder.address, zapTokenBsc.address, bidder)).to.not.be.reverted;
+
+      await zapTokenBsc.mint(other.address, ONE_ETH);
+      await zapTokenBsc.connect(other).approve(auctionHouse.address, ONE_ETH);
+      await expect(auctionHouse.connect(other).createBid(1, ONE_ETH, media1.address)).to.not.be.reverted;
+
+      endTime =
+        (await auctionHouse.auctions(1)).duration.toNumber() +
+        (await auctionHouse.auctions(1)).firstBidTime.toNumber();
+      await ethers.provider.send("evm_setNextBlockTimestamp", [endTime + 1]);
+
+      await auctionHouse.endAuction(1, media1.address);
+
+
+      expect(await media1.ownerOf(0)).to.be.eq(other.address);
     });
 
     describe("ETH auction", () => {
