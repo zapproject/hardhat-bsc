@@ -1,7 +1,7 @@
 import { ethers, upgrades } from "hardhat";
 import { BigNumber, Event } from 'ethers';
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
-import { MediaFactory, ZapMedia } from "../typechain";
+import { MediaFactory, ZapMedia, ZapVault } from "../typechain";
 import hre from 'hardhat';
 
 async function main() {
@@ -76,57 +76,71 @@ async function main() {
         },
     };
 
-    // Deploy ZapVault
-    const ZapVault = await ethers.getContractFactory("ZapVault", signers[0]);
+    // ************************************************************** //
+    // deploy Zap Vault
+    // ************************************************************** //
+
+    const zapVaultFactory = await ethers.getContractFactory("ZapVault", signers[0]);
+
     const zapVault = await upgrades.deployProxy(
-        ZapVault,
+        zapVaultFactory,
         [tokenAddress],
         { initializer: 'initializeVault' }
-    );
+    ) as ZapVault;
+
     await zapVault.deployed();
     console.log("ZapVault deployed to:", zapVault.address);
 
-    // Deploy ZapMarket
+    // ************************************************************** //
+    // deploy ZapMarket
+    // ************************************************************** //
+
     const ZapMarket = await ethers.getContractFactory('ZapMarket', signers[0]);
+
     const zapMarket = await upgrades.deployProxy(
         ZapMarket,
         [zapVault.address],
         { initializer: 'initializeMarket' }
     );
+
     await zapMarket.deployed();
     console.log('ZapMarket deployed to:', zapMarket.address);
 
-    // Gas estimation for setFee()
-    const setFeeGas = await zapMarket.estimateGas.setFee(platformFee);
+    // set Fee for the platform
+    await zapMarket.setFee(platformFee);
+    console.log("Platform fee set for ZapMarket")
 
-    // Sets the platform fee
-    await zapMarket.setFee(platformFee, { gasLimit: setFeeGas });
+    // ************************************************************** //
+    // deploy ZapMedia Implementation Contract
+    // ************************************************************** //
 
-    // Deploys the Media Interface
-    const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
-    const unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
-    await unInitMedia.deployed();
-    console.log("Media Interface deployed to:", unInitMedia.address);
+    const mediaImplementation = await ethers.getContractFactory('ZapMedia');
 
-    // Deploys the MediaFactory
+    const zapMediaImplementation: ZapMedia = (await mediaImplementation.deploy()) as ZapMedia;
+    await zapMediaImplementation.deployed();
+
+    console.log("zapMediaImplementation:", zapMediaImplementation.address);
+
+    // ************************************************************** //
+    // deploy MediaFactory
+    // ************************************************************** //
+
     const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
     const mediaFactory = await upgrades.deployProxy(
         MediaFactory,
-        [zapMarket.address, unInitMedia.address],
+        [zapMarket.address, zapMediaImplementation.address],
         { initializer: 'initialize' }
     ) as MediaFactory;
+
+    // set mediaFactory address to ZapMarket
+    await zapMarket.setMediaFactory(mediaFactory.address);
+    console.log("MediaFactory set to ZapMarket");
 
     await mediaFactory.deployed();
     console.log('MediaFactory deployed to:', mediaFactory.address);
 
-    // Gas estimation for setMediaFactory()
-    const setFactoryGas = await zapMarket.estimateGas.setMediaFactory(mediaFactory.address)
-
-    await zapMarket.setMediaFactory(mediaFactory.address, { gasLimit: setFactoryGas });
-    console.log("MediaFactory set to ZapMarket");
-
-    // Gas estimation for deployMedia()
-    const deployMediaGas = await mediaFactory.estimateGas.deployMedia(
+    const tx = await mediaFactory.connect(signers[0]).deployMedia(
         name,
         symbol,
         zapMarket.address,
@@ -134,43 +148,30 @@ async function main() {
         contractURI
     );
 
-    // Deploys ZapMedia
-    await mediaFactory.deployMedia(
-        name,
-        symbol,
-        zapMarket.address,
-        true,
-        contractURI,
-        { gasLimit: deployMediaGas }
-    );
-
-    // Filter for MediaDeployed event
-    const mediaDeployedFilter = mediaFactory.filters.MediaDeployed(null);
-
-    // Query for the MediaDepoyed event
-    const mediaDeployedEvent: Event = (await mediaFactory.queryFilter(mediaDeployedFilter))[0];
-
-    // Deployed media address from the MediaDeployed event
-    const zapMediaAddress = mediaDeployedEvent.args?.mediaContract;
+    const receipt = await tx.wait();
+    console.log(receipt)
 
     // ABI for ZapMedia
     const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
 
     // Creates the instance of ZapMedia
-    const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
+    const zapMedia = new ethers.Contract(
+        '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
+        zapMediaABI,
+        signers[0]) as ZapMedia;
+
+    await zapMedia.claimTransferOwnership()
+
     await zapMedia.deployed();
+    console.log("ZapMedia deployed to:", zapMedia.address)
 
-    // Gas estimation for claimTransferOwnership()
-    const claimGas = await zapMedia.estimateGas.claimTransferOwnership();
-    await zapMedia.connect(signers[0]).claimTransferOwnership({ gasLimit: claimGas });
+    // ************************************************************** //
+    // deploy AuctionHouse
+    // ************************************************************** //
 
-    console.log('ZapMedia ownership claimed by', signers[0].address)
-    console.log('ZapMedia deployed to:', zapMedia.address);
-
-    // Deployes AuctionHouse
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
     const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [tokenAddress, zapMarket.address],
+        [tokenAddress, '0x1630800181A705aeBd645066Ee2c91e5CD37D1cB'],
         { initializer: 'initialize' }
     );
     await auctionHouse.deployed();
