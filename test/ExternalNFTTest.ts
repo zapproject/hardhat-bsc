@@ -10,7 +10,7 @@ import { BigNumber, EventFilter, Event } from 'ethers';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-import { ZapMedia } from '../typechain/ZapMedia';
+import { ExternalMedia } from '../typechain/ExternalMedia';
 
 import { ZapMarket } from '../typechain/ZapMarket';
 
@@ -41,7 +41,7 @@ describe('ExternalNFT Test', () => {
   let zapMarket: ZapMarket;
   let zapVault: ZapVault;
   let mediaDeployer: MediaFactory;
-  let unInitMedia: ZapMedia;
+  let unInitMedia: ExternalMedia;
   let signers: SignerWithAddress[];
   let bidShares: any;
   let tokenContractAddress: string;
@@ -126,9 +126,9 @@ describe('ExternalNFT Test', () => {
         signers[0]
       );
 
-      const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
+      const unInitMediaFactory = await ethers.getContractFactory("ExternalMedia");
 
-      unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+      unInitMedia = (await unInitMediaFactory.deploy()) as ExternalMedia;
 
       mediaDeployer = (await upgrades.deployProxy(
         mediaDeployerFactory,
@@ -496,9 +496,9 @@ describe('ExternalNFT Test', () => {
         signers[0]
       );
 
-      const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
+      const unInitMediaFactory = await ethers.getContractFactory("ExternalMedia");
 
-      unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+      unInitMedia = (await unInitMediaFactory.deploy()) as ExternalMedia;
 
       mediaDeployer = (await upgrades.deployProxy(
         mediaDeployerFactory,
