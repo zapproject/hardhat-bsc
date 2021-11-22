@@ -152,8 +152,17 @@ async function main() {
     );
 
     const receipt = await tx.wait();
+    const mediaDeployedEvents = receipt.events as Event[];
+    const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
+    const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
 
-    console.log(receipt)
+    let zapMedia: ZapMedia;
+    zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
+    await zapMedia.connect(signers[0]).claimTransferOwnership();
+    await zapMedia.deployed();
+    console.log("ZapMedia deployed to:", zapMedia.address)
+    await zapMedia.claimTransferOwnership()
+
 
     // Creates the instance of ZapMedia
     // const zapMedia = new ethers.Contract(
@@ -161,22 +170,20 @@ async function main() {
     //     zapMediaABI,
     //     signers[0]) as ZapMedia;
 
-    // await zapMedia.claimTransferOwnership()
 
     // await zapMedia.deployed();
-    // console.log("ZapMedia deployed to:", zapMedia.address)
 
     // ************************************************************** //
     // deploy AuctionHouse
     // ************************************************************** //
 
-    // const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    // const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-    //     [tokenAddress, zapMarket.address],
-    //     { initializer: 'initialize' }
-    // );
-    // await auctionHouse.deployed();
-    // console.log('AuctionHouse deployed to:', auctionHouse.address);
+    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
+    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
+        [tokenAddress, zapMarket.address],
+        { initializer: 'initialize' }
+    );
+    await auctionHouse.deployed();
+    console.log('AuctionHouse deployed to:', auctionHouse.address);
 
 }
 
