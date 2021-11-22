@@ -156,22 +156,15 @@ async function main() {
     const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
     const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
 
-    let zapMedia: ZapMedia;
-    zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
+    const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
     await zapMedia.connect(signers[0]).claimTransferOwnership();
     await zapMedia.deployed();
-    console.log("ZapMedia deployed to:", zapMedia.address)
-    await zapMedia.claimTransferOwnership()
 
+    console.log("ZapMedia deployed to:", zapMedia.address);
 
-    // Creates the instance of ZapMedia
-    // const zapMedia = new ethers.Contract(
-    //     '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
-    //     zapMediaABI,
-    //     signers[0]) as ZapMedia;
+    const claimGas = await zapMedia.estimateGas.claimTransferOwnership();
 
-
-    // await zapMedia.deployed();
+    await zapMedia.claimTransferOwnership({ gasLimit: claimGas });
 
     // ************************************************************** //
     // deploy AuctionHouse
