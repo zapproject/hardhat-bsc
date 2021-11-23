@@ -82,7 +82,7 @@ const config = {
       accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
+      url: 'https://bsc-dataseed1.ninicoin.io/',
       chainId: 56,
       gasPrice: 20000000000,
       accounts: { mnemonic: process.env.MNEMONIC }
