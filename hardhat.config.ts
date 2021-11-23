@@ -84,7 +84,6 @@ const config = {
     binanceMainnet: {
       url: 'https://bsc-dataseed1.ninicoin.io/',
       chainId: 56,
-      gasPrice: 20000000000,
       accounts: { mnemonic: process.env.MNEMONIC }
     },
     testnet: {

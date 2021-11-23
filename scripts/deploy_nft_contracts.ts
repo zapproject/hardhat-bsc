@@ -136,7 +136,7 @@ async function main() {
     const setFeeGas = await zapMarket.estimateGas.setFee(platformFee);
 
     // set Fee for the platform
-    await zapMarket.setFee(platformFee, { gasLimit: parseInt(setFeeGas._hex) });
+    await zapMarket.setFee(platformFee, { gasLimit: 500000 });
     console.log("Platform fee set for ZapMarket")
 
     // ************************************************************** //
