@@ -143,36 +143,36 @@ async function main() {
     // deploy AuctionHouse
     // ************************************************************** //
 
-    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [tokenAddress, '0x220a4Ef4F308f270927268DCA90800EA8F96D046'],
-        { initializer: 'initialize' }
-    );
-    await auctionHouse.deployed();
-    console.log('AuctionHouse deployed to:', auctionHouse.address);
+    // const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
+    // const auctionHouse = await upgrades.deployProxy(AuctionHouse,
+    //     [tokenAddress, '0x220a4Ef4F308f270927268DCA90800EA8F96D046'],
+    //     { initializer: 'initialize' }
+    // );
+    // await auctionHouse.deployed();
+    // console.log('AuctionHouse deployed to:', auctionHouse.address);
 
     // ************************************************************** //
     // deploy ZapMedia Implementation Contract
     // ************************************************************** //
 
-    // const mediaImplementation = await ethers.getContractFactory('ZapMedia');
+    const mediaImplementation = await ethers.getContractFactory('ZapMedia');
 
-    // const zapMediaImplementation: ZapMedia = (await mediaImplementation.deploy()) as ZapMedia;
-    // await zapMediaImplementation.deployed();
+    const zapMediaImplementation: ZapMedia = (await mediaImplementation.deploy()) as ZapMedia;
+    await zapMediaImplementation.deployed();
 
-    // console.log("zapMediaImplementation:", zapMediaImplementation.address);
+    console.log("zapMediaImplementation:", zapMediaImplementation.address);
 
     // ************************************************************** //
     // deploy MediaFactory
     // ************************************************************** //
 
-    // const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-    // const mediaFactory = await upgrades.deployProxy(
-    //     MediaFactory,
-    //     [zapMarket.address, zapMediaImplementation.address],
-    //     { initializer: 'initialize' }
-    // ) as MediaFactory;
+    const mediaFactory = await upgrades.deployProxy(
+        MediaFactory,
+        ['0x220a4ef4f308f270927268dca90800ea8f96d046', zapMediaImplementation.address],
+        { initializer: 'initialize' }
+    ) as MediaFactory;
 
 
     // // Gas estimation for setMediaFactory()
