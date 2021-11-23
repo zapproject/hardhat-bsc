@@ -51,7 +51,7 @@ contract ZapMedia is
 
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    string internal _contractURI;
+    bytes internal _contractURI;
 
     bytes32 private constant kecEIP712Domain =
         keccak256(
@@ -141,7 +141,7 @@ contract ZapMedia is
     }
 
     //geting the contractURI value
-    function contractURI() public view returns (string memory) {
+    function contractURI() public view returns (bytes memory) {
         return _contractURI;
     }
 
@@ -176,7 +176,7 @@ contract ZapMedia is
         _registerInterface(type(IMedia).interfaceId);
 
         access.isPermissive = permissive;
-        _contractURI = collectionURI;
+        _contractURI = bytes(collectionURI);
     }
 
     /**
