@@ -9,8 +9,14 @@ async function main() {
     // Deployed ZapToken on Rinkeby
     const rinkebyAddress = '0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F';
 
+    // Deployed ZapToken on Ethereum Mainnet
+    const ethMainAddress = '0x6781a0f84c7e9e846dcb84a9a5bd49333067b104';
+
     // Deployed ZapToken on BSC Testnet
     const bscTestAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
+
+    // Deployed ZapToken on BSC Mainnet
+    const bscMainAddress = '0xC5326b32E8BaEF125AcD68f8bC646fD646104F1c';
 
     // ABI for ZapMedia
     const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
@@ -45,6 +51,13 @@ async function main() {
 
     switch (chainId) {
 
+        case 1:
+            tokenAddress = ethMainAddress
+            symbol = 'ZAPETH'
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/mainnet'
+            console.log("Ethereum Mainnet")
+            break;
+
         // Localhost deployment
         case 31337:
             tokenAddress = localhostAddress
@@ -68,6 +81,13 @@ async function main() {
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bscTest'
             console.log("BSC TESTNET");
             break;
+
+        // BSC Mainnet Deployment
+        case 56:
+            tokenAddress = bscMainAddress
+            symbol = "ZAPBSC"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
+            console.log("BSC MAINNET")
     }
 
     const signers = await ethers.getSigners();
@@ -114,6 +134,18 @@ async function main() {
     console.log("Platform fee set for ZapMarket")
 
     // ************************************************************** //
+    // deploy AuctionHouse
+    // ************************************************************** //
+
+    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
+    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
+        [tokenAddress, zapMarket.address],
+        { initializer: 'initialize' }
+    );
+    await auctionHouse.deployed();
+    console.log('AuctionHouse deployed to:', auctionHouse.address);
+
+    // ************************************************************** //
     // deploy ZapMedia Implementation Contract
     // ************************************************************** //
 
@@ -136,8 +168,12 @@ async function main() {
         { initializer: 'initialize' }
     ) as MediaFactory;
 
+
+    // Gas estimation for setMediaFactory()
+    const setMediaGas = await zapMarket.estimateGas.setMediaFactory(mediaFactory.address);
+
     // set mediaFactory address to ZapMarket
-    await zapMarket.setMediaFactory(mediaFactory.address);
+    await zapMarket.setMediaFactory(mediaFactory.address, { gasLimit: setMediaGas });
     console.log("MediaFactory set to ZapMarket");
 
     await mediaFactory.deployed();
@@ -157,26 +193,12 @@ async function main() {
     const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
 
     const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
-    await zapMedia.connect(signers[0]).claimTransferOwnership();
     await zapMedia.deployed();
 
     console.log("ZapMedia deployed to:", zapMedia.address);
 
-    const claimGas = await zapMedia.estimateGas.claimTransferOwnership();
-
-    await zapMedia.claimTransferOwnership({ gasLimit: claimGas });
-
-    // ************************************************************** //
-    // deploy AuctionHouse
-    // ************************************************************** //
-
-    const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [tokenAddress, zapMarket.address],
-        { initializer: 'initialize' }
-    );
-    await auctionHouse.deployed();
-    console.log('AuctionHouse deployed to:', auctionHouse.address);
+    const transferGas = await zapMedia.estimateGas.claimTransferOwnership();
+    await zapMedia.claimTransferOwnership({ gasLimit: transferGas });
 
 }
 

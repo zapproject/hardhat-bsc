@@ -72,6 +72,11 @@ const config = {
     localhost: {
       url: 'http://127.0.0.1:8545/'
     },
+    ethMainnet: {
+      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      chainId: 1,
+      accounts: [process.env.MAINNET_PRIVATE_KEY]
+    },
     binanceMainnet: {
       url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
