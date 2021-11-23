@@ -22,7 +22,7 @@ async function main() {
     const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
 
     // Collection name
-    const name = 'ZapMedia';
+    const name = 'Zap Collection';
 
     // Will store the ZapToken address depending on the network
     let tokenAddress = '';
@@ -54,7 +54,7 @@ async function main() {
         // Ethereum mainnet deployment
         case 1:
             tokenAddress = ethMainAddress
-            symbol = 'ZAPETH'
+            symbol = 'ZAP'
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/mainnet'
             console.log("Ethereum Mainnet")
             break;
@@ -86,7 +86,7 @@ async function main() {
         // BSC Mainnet Deployment
         case 56:
             tokenAddress = bscMainAddress
-            symbol = "ZAPBSC"
+            symbol = "ZAP"
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
             console.log("BSC MAINNET")
     }
