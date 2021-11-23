@@ -176,10 +176,10 @@ async function main() {
 
 
     // Gas estimation for setMediaFactory()
-    const setMediaGas = await zapMarket.estimateGas.setMediaFactory('0xB9Ba7f46AaaC2b2c0D145779578B2d7E9302e869');
+    // const setMediaGas = await zapMarket.estimateGas.setMediaFactory('0xB9Ba7f46AaaC2b2c0D145779578B2d7E9302e869');
 
     // set mediaFactory address to ZapMarket
-    await zapMarket.setMediaFactory('0xB9Ba7f46AaaC2b2c0D145779578B2d7E9302e869', { gasLimit: setMediaGas });
+    await zapMarket.setMediaFactory('0xB9Ba7f46AaaC2b2c0D145779578B2d7E9302e869');
     console.log("MediaFactory set to ZapMarket");
 
     // await mediaFactory.deployed();
