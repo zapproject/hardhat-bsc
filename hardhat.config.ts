@@ -69,26 +69,9 @@ const config = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
-    localhost: {
-      url: 'http://127.0.0.1:8545/'
-    },
-    binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
-      chainId: 56,
-      gasPrice: 20000000000
-      // accounts: { mnemonic: process.env.MNEMONIC }
-    },
-    testnet: {
-      url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
-      chainId: 97,
-      gasPrice: 20000000000,
-      // accounts: { mnemonic: process.env.MNEMONIC }
-    },
-    hardhat: {
-      gas: 12000000,
-      gasPrice: 10000000000,
-      blockGasLimit: 0x1fffffffffffff,
-      allowUnlimitedContractSize: true,
+    mainnet: {
+      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: { mnemonic: process.env.MNEMONIC }
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
@@ -97,6 +80,27 @@ const config = {
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [KOVAN_PRIVATE_KEY]
+    },
+    binanceMainnet: {
+      url: 'https://bsc-dataseed.binance.org/',
+      chainId: 56,
+      gasPrice: 20000000000,
+      accounts: { mnemonic: process.env.MNEMONIC }
+    },
+    testnet: {
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: { mnemonic: process.env.MNEMONIC }
+    },
+    hardhat: {
+      gas: 12000000,
+      gasPrice: 10000000000,
+      blockGasLimit: 0x1fffffffffffff,
+      allowUnlimitedContractSize: true,
+    },
+    localhost: {
+      url: 'http://127.0.0.1:8545/'
     },
     coverage: {
       url: 'http://127.0.0.1:8555' // Coverage launches its own ganache-cli client
