@@ -288,15 +288,15 @@ describe('ZapMarket Test', () => {
       const metadata2 = await zapMedia2.contractURI();
       const metadata3 = await zapMedia3.contractURI();
 
-      expect(ethers.utils.toUtf8String(metadata1)).to.equal(
+      expect(metadata1).to.equal(
         'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
       );
 
-      expect(ethers.utils.toUtf8String(metadata2)).to.equal(
+      expect(metadata2).to.equal(
         'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
       );
 
-      expect(ethers.utils.toUtf8String(metadata3)).to.equal(
+      expect(metadata3).to.equal(
         'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
       );
 
