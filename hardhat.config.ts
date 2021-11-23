@@ -69,13 +69,17 @@ const config = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
-    localhost: {
-      url: 'http://127.0.0.1:8545/'
-    },
-    ethMainnet: {
+    mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
-      chainId: 1,
-      accounts: [process.env.MAINNET_PRIVATE_KEY]
+      accounts: { mnemonic: process.env.MNEMONIC }
+    },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [RINKEBY_PRIVATE_KEY]
+    },
+    kovan: {
+      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
       url: 'https://bsc-dataseed.binance.org/',
@@ -95,13 +99,8 @@ const config = {
       blockGasLimit: 0x1fffffffffffff,
       allowUnlimitedContractSize: true,
     },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [RINKEBY_PRIVATE_KEY]
-    },
-    kovan: {
-      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [KOVAN_PRIVATE_KEY]
+    localhost: {
+      url: 'http://127.0.0.1:8545/'
     },
     coverage: {
       url: 'http://127.0.0.1:8555' // Coverage launches its own ganache-cli client

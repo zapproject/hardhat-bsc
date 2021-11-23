@@ -6,11 +6,11 @@ import hre from 'hardhat';
 
 async function main() {
 
-    // Deployed ZapToken on Rinkeby
-    const rinkebyAddress = '0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F';
-
     // Deployed ZapToken on Ethereum Mainnet
     const ethMainAddress = '0x6781a0f84c7e9e846dcb84a9a5bd49333067b104';
+
+    // Deployed ZapToken on Rinkeby
+    const rinkebyAddress = '0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F';
 
     // Deployed ZapToken on BSC Testnet
     const bscTestAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
@@ -51,6 +51,7 @@ async function main() {
 
     switch (chainId) {
 
+        // Ethereum mainnet deployment
         case 1:
             tokenAddress = ethMainAddress
             symbol = 'ZAPETH'
