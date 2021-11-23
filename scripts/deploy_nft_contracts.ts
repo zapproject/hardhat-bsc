@@ -133,11 +133,11 @@ async function main() {
     const ZapMarket = await ethers.getContractFactory("ZapMarket");
     const zapMarket = await ZapMarket.attach('0x220a4Ef4F308f270927268DCA90800EA8F96D046');
 
-    const setFeeGas = await zapMarket.estimateGas.setFee(platformFee);
+    // const setFeeGas = await zapMarket.estimateGas.setFee(platformFee);
 
     // set Fee for the platform
-    await zapMarket.setFee(platformFee, { gasLimit: 500000 });
-    console.log("Platform fee set for ZapMarket")
+    // await zapMarket.setFee(platformFee, { gasLimit: 500000 });
+    // console.log("Platform fee set for ZapMarket")
 
     // ************************************************************** //
     // deploy AuctionHouse
@@ -145,7 +145,7 @@ async function main() {
 
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
     const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-        [tokenAddress, zapMarket.address],
+        [tokenAddress, '0x220a4Ef4F308f270927268DCA90800EA8F96D046'],
         { initializer: 'initialize' }
     );
     await auctionHouse.deployed();
