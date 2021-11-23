@@ -155,32 +155,32 @@ async function main() {
     // deploy ZapMedia Implementation Contract
     // ************************************************************** //
 
-    const mediaImplementation = await ethers.getContractFactory('ZapMedia');
+    // const mediaImplementation = await ethers.getContractFactory('ZapMedia');
 
-    const zapMediaImplementation: ZapMedia = (await mediaImplementation.deploy()) as ZapMedia;
-    await zapMediaImplementation.deployed();
+    // const zapMediaImplementation: ZapMedia = (await mediaImplementation.deploy()) as ZapMedia;
+    // await zapMediaImplementation.deployed();
 
-    console.log("zapMediaImplementation:", zapMediaImplementation.address);
+    // console.log("zapMediaImplementation:", zapMediaImplementation.address);
 
     // ************************************************************** //
     // deploy MediaFactory
     // ************************************************************** //
 
-    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+    // const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-    const mediaFactory = await upgrades.deployProxy(
-        MediaFactory,
-        ['0x220a4ef4f308f270927268dca90800ea8f96d046', zapMediaImplementation.address],
-        { initializer: 'initialize' }
-    ) as MediaFactory;
+    // const mediaFactory = await upgrades.deployProxy(
+    //     MediaFactory,
+    //     ['0x220a4ef4f308f270927268dca90800ea8f96d046', zapMediaImplementation.address],
+    //     { initializer: 'initialize' }
+    // ) as MediaFactory;
 
 
-    // // Gas estimation for setMediaFactory()
-    // const setMediaGas = await zapMarket.estimateGas.setMediaFactory(mediaFactory.address);
+    // Gas estimation for setMediaFactory()
+    const setMediaGas = await zapMarket.estimateGas.setMediaFactory('0xB9Ba7f46AaaC2b2c0D145779578B2d7E9302e869');
 
-    // // set mediaFactory address to ZapMarket
-    // await zapMarket.setMediaFactory(mediaFactory.address, { gasLimit: setMediaGas });
-    // console.log("MediaFactory set to ZapMarket");
+    // set mediaFactory address to ZapMarket
+    await zapMarket.setMediaFactory('0xB9Ba7f46AaaC2b2c0D145779578B2d7E9302e869', { gasLimit: setMediaGas });
+    console.log("MediaFactory set to ZapMarket");
 
     // await mediaFactory.deployed();
     // console.log('MediaFactory deployed to:', mediaFactory.address);
