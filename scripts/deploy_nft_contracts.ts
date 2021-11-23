@@ -133,8 +133,10 @@ async function main() {
     const ZapMarket = await ethers.getContractFactory("ZapMarket");
     const zapMarket = await ZapMarket.attach('0x220a4Ef4F308f270927268DCA90800EA8F96D046');
 
+    const setFeeGas = await zapMarket.estimateGas.setFee(platformFee);
+
     // set Fee for the platform
-    await zapMarket.setFee(platformFee);
+    await zapMarket.setFee(platformFee, { gasLimit: setFeeGas });
     console.log("Platform fee set for ZapMarket")
 
     // ************************************************************** //
