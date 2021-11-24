@@ -103,10 +103,10 @@ async function main() {
         },
     };
 
-    console.log("Contracts deploying to: ", network)
+    console.log("\nContracts deploying to: ", network)
     console.log("Deployer address is: ", signers[0].address)
     console.log("With starting balance: ", ethers.utils.formatEther(await signers[0].getBalance()), "\n")
-    
+
 
     // ************************************************************** //
     // deploy Zap Vault
