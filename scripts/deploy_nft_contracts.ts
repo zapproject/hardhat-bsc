@@ -179,16 +179,16 @@ async function main() {
 
     const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
     const ZapMarket = await ethers.getContractFactory("ZapMarket", signers[0]);
-    
+
     const zapMarket = await ZapMarket.attach('0x53813994415203448cdF5b2113d82b9D0058A23C');
 
     //const mediaFactory = await MediaFactory.attach('0x3fFf716610c5C753dFEe2D61d257DB8bd4361e18');
 
     const mediaFactory = await upgrades.deployProxy(
-         MediaFactory,
+        MediaFactory,
         // zapMarket.address, zapMediaImplementation.address
-         ["0x53813994415203448cdF5b2113d82b9D0058A23C", "0x2477D4C59b87E6b791CC63EaeFBd28276186B1D3"],
-         { initializer: 'initialize', unsafeAllow: [ "delegatecall" ] }
+        ["0x53813994415203448cdF5b2113d82b9D0058A23C", "0x2477D4C59b87E6b791CC63EaeFBd28276186B1D3"],
+        { initializer: 'initialize', unsafeAllow: ["delegatecall"] }
     ) as MediaFactory;
 
     // set mediaFactory address to ZapMarket
@@ -214,6 +214,7 @@ async function main() {
         '0x53813994415203448cdF5b2113d82b9D0058A23C',
         true,
         contractURI,
+        { gasLimit: 2000000 }
     );
 
     const receipt = await tx.wait();
