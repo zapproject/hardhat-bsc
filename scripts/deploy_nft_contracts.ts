@@ -188,7 +188,7 @@ async function main() {
         MediaFactory,
         // zapMarket.address, zapMediaImplementation.address
         ["0x53813994415203448cdF5b2113d82b9D0058A23C", "0x2477D4C59b87E6b791CC63EaeFBd28276186B1D3"],
-        { initializer: 'initialize', unsafeAllow: ["delegatecall"] }
+        { initializer: 'initialize' }
     ) as MediaFactory;
 
     // set mediaFactory address to ZapMarket
