@@ -196,9 +196,9 @@ async function main() {
 
     console.log("ZapMedia deployed to:", zapMedia.address);
 
-    const transferGas = await zapMedia.estimateGas.claimTransferOwnership();
-    await zapMedia.claimTransferOwnership({ gasLimit: transferGas });
+    await zapMedia.claimTransferOwnership();
 
+    console.log("Ownership claimed by", signers[0].address);
 }
 
 main()
