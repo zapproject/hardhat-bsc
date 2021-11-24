@@ -71,7 +71,8 @@ const config = {
   networks: {
     mainnet: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/mainnet',
-      accounts: { mnemonic: process.env.MNEMONIC }
+      accounts: { mnemonic: process.env.MNEMONIC },
+      timeout: 300000
     },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
@@ -87,7 +88,7 @@ const config = {
       gas: 2000000,
       gasPrice: "auto",
       accounts: { mnemonic: process.env.MNEMONIC },
-      tineout: 300000
+      timeout: 300000
     },
     testnet: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
