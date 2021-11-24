@@ -99,6 +99,7 @@ const config = {
       gasPrice: 10000000000,
       blockGasLimit: 0x1fffffffffffff,
       allowUnlimitedContractSize: true,
+      timeout: 300000
     },
     localhost: {
       url: 'http://127.0.0.1:8545/'
