@@ -36,6 +36,9 @@ async function main() {
     // Will store the contractURI depending on the network
     let contractURI = '';
 
+    // Will store the network name
+    let network = '';
+
     try {
 
         localhostAddress = (await hre.deployments.get('ZapTokenBSC')).address;
@@ -56,7 +59,7 @@ async function main() {
             tokenAddress = ethMainAddress
             symbol = 'ZAP'
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/mainnet'
-            console.log("Ethereum Mainnet")
+            network = "Ethereum Mainnet"
             break;
 
         // Localhost deployment
@@ -64,7 +67,7 @@ async function main() {
             tokenAddress = localhostAddress
             symbol = "ZAPLCL";
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/'
-            console.log("Localhost")
+            network = "Localhost"
             break;
 
         // Rinkeby deployment
@@ -72,7 +75,7 @@ async function main() {
             tokenAddress = rinkebyAddress;
             symbol = "ZAPRKBY"
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/rinkeby';
-            console.log("Rinkeby");
+            network = "Rinkeby"
             break;
 
         // BSC Testnet deployment
@@ -80,7 +83,7 @@ async function main() {
             tokenAddress = bscTestAddress
             symbol = "ZAPBSC"
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bscTest'
-            console.log("BSC TESTNET");
+            network = "BSC TESTNET"
             break;
 
         // BSC Mainnet Deployment
@@ -88,7 +91,7 @@ async function main() {
             tokenAddress = bscMainAddress
             symbol = "ZAP"
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
-            console.log("BSC MAINNET")
+            network = "BSC MAINNET"
     }
 
     const signers = await ethers.getSigners();
@@ -99,6 +102,11 @@ async function main() {
             value: BigNumber.from('5000000000000000000')
         },
     };
+
+    console.log("Contracts deploying to: ", network)
+    console.log("Deployer address is: ", signers[0].address)
+    console.log("With starting balance: ", ethers.utils.formatEther(await signers[0].getBalance()), "\n")
+    
 
     // ************************************************************** //
     // deploy Zap Vault
@@ -114,6 +122,8 @@ async function main() {
 
     await zapVault.deployed();
     console.log("ZapVault deployed to:", zapVault.address);
+    console.log("ZapVault Owner: ", await zapVault.getOwner(), "\n")
+
 
     // ************************************************************** //
     // deploy ZapMarket
@@ -129,6 +139,8 @@ async function main() {
 
     await zapMarket.deployed();
     console.log('ZapMarket deployed to:', zapMarket.address);
+    console.log("ZapMarket Owner: ", await zapMarket.getOwner(), "\n")
+
 
     const ZapMarket = await ethers.getContractFactory("ZapMarket");
 
@@ -158,6 +170,8 @@ async function main() {
     await zapMediaImplementation.deployed();
 
     console.log("zapMediaImplementation:", zapMediaImplementation.address);
+    console.log("zapMediaImplementation Owner: ", await zapMediaImplementation.getOwner(), "\n")
+
 
     // ************************************************************** //
     // deploy MediaFactory
@@ -177,6 +191,8 @@ async function main() {
 
     await mediaFactory.deployed();
     console.log('MediaFactory deployed to:', mediaFactory.address);
+    console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
+
 
     const mediaDeployGas = await mediaFactory.estimateGas.deployMedia(
         name,
@@ -207,7 +223,7 @@ async function main() {
 
     await zapMedia.claimTransferOwnership();
 
-    console.log("Ownership claimed by", signers[0].address);
+    console.log("Ownership claimed by", await zapMedia.getOwner(), "\n")
 }
 
 main()
