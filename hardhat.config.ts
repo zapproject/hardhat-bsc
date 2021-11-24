@@ -72,7 +72,7 @@ const config = {
     mainnet: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/mainnet',
       accounts: { mnemonic: process.env.MNEMONIC },
-      timeout: 300000
+      timeout: 900000
     },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
