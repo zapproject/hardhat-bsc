@@ -70,11 +70,11 @@ const config = {
   },
   networks: {
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/mainnet',
       accounts: { mnemonic: process.env.MNEMONIC }
     },
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
       accounts: [RINKEBY_PRIVATE_KEY]
     },
     kovan: {
@@ -82,7 +82,7 @@ const config = {
       accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/mainnet',
       chainId: 56,
       gas: 1700000,
       gasPrice: "auto",
