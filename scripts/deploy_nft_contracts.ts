@@ -178,6 +178,9 @@ async function main() {
     // ************************************************************** //
 
     const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+    const ZapMarket = await ethers.getContractFactory("ZapMarket", signers[0]);
+    
+    const zapMarket = await ZapMarket.attach('0x53813994415203448cdF5b2113d82b9D0058A23C');
 
     //const mediaFactory = await MediaFactory.attach('0x3fFf716610c5C753dFEe2D61d257DB8bd4361e18');
 
