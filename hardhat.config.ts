@@ -82,7 +82,7 @@ const config = {
       accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
-      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/mainnet',
+      url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
       gas: 1700000,
       gasPrice: "auto",
