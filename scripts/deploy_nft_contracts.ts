@@ -112,17 +112,17 @@ async function main() {
     // deploy Zap Vault
     // ************************************************************** //
 
-    const zapVaultFactory = await ethers.getContractFactory("ZapVault", signers[0]);
+    // const zapVaultFactory = await ethers.getContractFactory("ZapVault", signers[0]);
 
-    const zapVault = await upgrades.deployProxy(
-        zapVaultFactory,
-        [tokenAddress],
-        { initializer: 'initializeVault' }
-    ) as ZapVault;
+    // const zapVault = await upgrades.deployProxy(
+    //     zapVaultFactory,
+    //     [tokenAddress],
+    //     { initializer: 'initializeVault' }
+    // ) as ZapVault;
 
-    await zapVault.deployed();
-    console.log("ZapVault deployed to:", zapVault.address);
-    console.log("ZapVault Owner: ", await zapVault.getOwner(), "\n")
+    // await zapVault.deployed();
+    // console.log("ZapVault deployed to:", zapVault.address);
+    // console.log("ZapVault Owner: ", await zapVault.getOwner(), "\n")
 
 
     // ************************************************************** //
