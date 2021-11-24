@@ -178,12 +178,21 @@ async function main() {
     await mediaFactory.deployed();
     console.log('MediaFactory deployed to:', mediaFactory.address);
 
-    const tx = await mediaFactory.connect(signers[0]).deployMedia(
+    const mediaDeployGas = await mediaFactory.estimateGas.deployMedia(
         name,
         symbol,
         zapMarket.address,
         true,
         contractURI
+    );
+
+    const tx = await mediaFactory.deployMedia(
+        name,
+        symbol,
+        zapMarket.address,
+        true,
+        contractURI,
+        { gasLimit: mediaDeployGas }
     );
 
     const receipt = await tx.wait();

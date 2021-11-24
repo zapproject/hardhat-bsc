@@ -89,7 +89,7 @@ const config = {
       accounts: { mnemonic: process.env.MNEMONIC }
     },
     testnet: {
-      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
       chainId: 97,
       gasPrice: 20000000000,
       accounts: { mnemonic: process.env.MNEMONIC }
