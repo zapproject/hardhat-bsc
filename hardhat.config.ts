@@ -71,10 +71,11 @@ const config = {
   networks: {
     mainnet: {
       url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
-      chainId: 1,
-      gasPrice: "auto",
       accounts: { mnemonic: process.env.MNEMONIC },
-      timeout: 900000
+      timeout: 900000,
+      gasPrice: 160000000000,
+      gasMultiplier: 2,
+      blockGasLimit: 30000000
     },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
