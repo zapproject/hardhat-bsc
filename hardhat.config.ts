@@ -86,13 +86,15 @@ const config = {
       chainId: 56,
       gas: 1700000,
       gasPrice: "auto",
-      accounts: { mnemonic: process.env.MNEMONIC }
+      accounts: { mnemonic: process.env.MNEMONIC },
+      tineout: 300000
     },
     testnet: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.MNEMONIC }
+      accounts: { mnemonic: process.env.MNEMONIC },
+      timeout: 300000
     },
     hardhat: {
       gas: 12000000,
