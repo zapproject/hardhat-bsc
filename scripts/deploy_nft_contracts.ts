@@ -189,7 +189,7 @@ async function main() {
     const zapMarket = await zapMarketFactory.attach('0x8215bd8eAa4fff887CCf31F7A38e93e38c829F15');
 
     // set mediaFactory address to ZapMarket
-    await zapMarket.setMediaFactory('0x53813994415203448cdF5b2113d82b9D0058A23C', { gasLimit: 500000 });
+    await zapMarket.setMediaFactory('0x53813994415203448cdF5b2113d82b9D0058A23C', { gasLimit: 100000 });
     console.log("MediaFactory set to ZapMarket");
 
     // await mediaFactory.deployed();
