@@ -72,6 +72,8 @@ const config = {
     mainnet: {
       url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
       accounts: { mnemonic: process.env.MNEMONIC },
+      gasPrice: 160463534099,
+      gas: 500000,
       timeout: 900000,
     },
     rinkeby: {
