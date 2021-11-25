@@ -175,26 +175,24 @@ async function main() {
     // // deploy MediaFactory
     // // ************************************************************** //
 
-    // const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-    // const mediaFactory = await MediaFactory.attach('0x53813994415203448cdF5b2113d82b9D0058A23C')
-
-    // const mediaFactory = await upgrades.deployProxy(
-    //     MediaFactory,
-    //     ['0x8215bd8eAa4fff887CCf31F7A38e93e38c829F15', '0xEfA96E2C4B04b180aEAF0dABECf5f60a7e03b115'],
-    //     { initializer: 'initialize' }
-    // ) as MediaFactory;
+    const mediaFactory = await upgrades.deployProxy(
+        MediaFactory,
+        ['0x8215bd8eAa4fff887CCf31F7A38e93e38c829F15', '0xEfA96E2C4B04b180aEAF0dABECf5f60a7e03b115'],
+        { initializer: 'initialize' }
+    ) as MediaFactory;
 
 
     const zapMarket = await zapMarketFactory.attach('0x8215bd8eAa4fff887CCf31F7A38e93e38c829F15');
 
     // set mediaFactory address to ZapMarket
-    await zapMarket.setMediaFactory('0x53813994415203448cdF5b2113d82b9D0058A23C', { gasLimit: 100000 });
+    await zapMarket.setMediaFactory(mediaFactory.address);
     console.log("MediaFactory set to ZapMarket");
 
-    // await mediaFactory.deployed();
-    // console.log('MediaFactory deployed to:', mediaFactory.address);
-    // console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
+    await mediaFactory.deployed();
+    console.log('MediaFactory deployed to:', mediaFactory.address);
+    console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
 
 
     // const mediaDeployGas = await mediaFactory.estimateGas.deployMedia(
