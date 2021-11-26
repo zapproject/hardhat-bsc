@@ -1,6 +1,8 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 import { DeployFunction } from 'hardhat-deploy/types'
+import { makeDeployProxy } from '@openzeppelin/hardhat-upgrades/dist/deploy-proxy'
+import { ZapVault } from '../typechain'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
@@ -17,9 +19,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await deploy('ZapVault', {
         from: deployer,
         proxy: {
-            methodName: 'initialize',
+            execute: {
+                methodName: 'initializeVault',
+                args: ['0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F']
+            }
         },
-        args: ['0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F'],
+        gasLimit: 40000,
+        gasPrice: '120',
         log: true,
     })
     return !useProxy // When live network, record the script as executed to prevent rexecution
