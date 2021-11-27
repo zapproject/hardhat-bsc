@@ -134,7 +134,8 @@ async function main() {
     const zapMarket = await upgrades.deployProxy(
         zapMarketFactory,
         [zapVault.address],
-        { initializer: 'initializeMarket' }
+        { initializer: 'initializeMarket' },
+
     );
 
     await zapMarket.deployed();
