@@ -1,7 +1,9 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { makeDeployProxy } from '@openzeppelin/hardhat-upgrades/dist/deploy-proxy'
-import { ZapVault } from '../typechain'
+import { ZapMarket } from '../typechain'
+import { ethers } from 'hardhat';
+import { BigNumber } from '@ethersproject/bignumber';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
@@ -12,7 +14,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const useProxy = !hre.network.live
 
-    const vaultAddress = await (await hre.deployments.get('ZapVault')).address
+    const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
+
+    const vaultAddress = await (await hre.deployments.get('ZapVault')).address;
+
+    // Sets the fee at to 5%
+    const platformFee = {
+        fee: {
+            value: BigNumber.from('5000000000000000000')
+        },
+    };
 
     // Proxy only in non-live network (localhost and hardhat network) enabling
     // HCR (Hot Contract Replacement) in live network, proxy is disabled and
@@ -27,7 +38,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         },
         log: true,
     })
-    return useProxy // When live network, record the script as executed to prevent rexecution
+
+    // ZapMarket address
+    const marketAddress = await (await hre.deployments.get('ZapMarket')).address;
+
+    // ZapMarket instance
+    const zapMarket = await zapMarketFactory.attach(marketAddress);
+
+    // Set fee to 5%
+    await zapMarket.setFee(platformFee);
+
+    console.log("Platform fee set for ZapMarket", await zapMarket.viewFee());
+
+    return !useProxy // When live network, record the script as executed to prevent rexecution
+
 }
 
 export default func

@@ -75,7 +75,8 @@ const config = {
     },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
-      accounts: [RINKEBY_PRIVATE_KEY]
+      accounts: [RINKEBY_PRIVATE_KEY],
+      timeout: 60000
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
@@ -87,7 +88,7 @@ const config = {
       gas: 1700000,
       gasPrice: "auto",
       accounts: { mnemonic: process.env.MNEMONIC },
-      tineout: 300000
+      timeout: 300000
     },
     testnet: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',

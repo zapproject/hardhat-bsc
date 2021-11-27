@@ -26,7 +26,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         },
         log: true,
     })
-    return useProxy // When live network, record the script as executed to prevent rexecution
+    return !useProxy // When live network, record the script as executed to prevent rexecution
 }
 
 export default func
