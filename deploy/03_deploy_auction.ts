@@ -20,6 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await deploy('AuctionHouse', {
         from: deployer,
         proxy: {
+            proxyContract: 'OpenZeppelinTransparentProxy',
             execute: {
                 methodName: 'initialize',
                 args: ['0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F', marketAddress]

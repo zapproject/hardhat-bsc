@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+
 import { DeployFunction } from 'hardhat-deploy/types'
 import { makeDeployProxy } from '@openzeppelin/hardhat-upgrades/dist/deploy-proxy'
-import { ZapMarket } from '../typechain'
-import { ethers } from 'hardhat';
-import { BigNumber } from '@ethersproject/bignumber';
+import { ZapMarket, MediaFactory } from '../typechain'
+import { ethers } from 'hardhat'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
@@ -16,45 +16,38 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
 
-    const vaultAddress = await (await hre.deployments.get('ZapVault')).address;
+    // ZapMarket address
+    const marketAddress = await (await hre.deployments.get('ZapMarket')).address;
 
-    // Sets the fee at to 5%
-    const platformFee = {
-        fee: {
-            value: BigNumber.from('5000000000000000000')
-        },
-    };
+    // ZapMedia Impl address
+    const mediaInterfaceAddress = await (await hre.deployments.get('ZapMedia')).address;
 
     // Proxy only in non-live network (localhost and hardhat network) enabling
     // HCR (Hot Contract Replacement) in live network, proxy is disabled and
     // constructor is invoked
-    await deploy('ZapMarket', {
+    await deploy('MediaFactory', {
         from: deployer,
         proxy: {
             proxyContract: 'OpenZeppelinTransparentProxy',
             execute: {
-                methodName: 'initializeMarket',
-                args: [vaultAddress]
+                methodName: 'initialize',
+                args: [marketAddress, mediaInterfaceAddress]
             }
         },
         log: true,
     })
 
-    // ZapMarket address
-    const marketAddress = await (await hre.deployments.get('ZapMarket')).address;
-
-    // ZapMarket instance
     const zapMarket = await zapMarketFactory.attach(marketAddress);
 
-    // Set fee to 5%
-    await zapMarket.setFee(platformFee);
+    const factoryAddress = await (await hre.deployments.get('MediaFactory')).address;
 
-    console.log("Platform fee set for ZapMarket", await zapMarket.viewFee());
+    await zapMarket.setMediaFactory(factoryAddress);
+
+    console.log("MediaFactory set to ZapMarket");
 
     return !useProxy // When live network, record the script as executed to prevent rexecution
-
 }
 
 export default func
-func.id = 'deploy_zap_market'
-func.tags = ['ZapMarket'];
+func.id = 'deploy_media_factory'
+func.tags = ['MediaFactory'];
