@@ -8,13 +8,14 @@ import { Event } from 'ethers';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
-    const { deployments, getNamedAccounts, getUnnamedAccounts } = hre
+    const { deployments, getNamedAccounts, getUnnamedAccounts, network } = hre
     const { deploy } = deployments
     const { deployer } = await getNamedAccounts()
     const unnamed = await getUnnamedAccounts();
     const signers = await ethers.getSigners();
 
-    const useProxy = !hre.network.live
+    // Gets the chainID of the network the contracts are deploying to
+    const chainId = await (await ethers.provider.getNetwork()).chainId;
 
     const factoryAddress = await (await hre.deployments.get('MediaFactory')).address;
 
@@ -28,9 +29,41 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const name = 'Zap Collection';
 
-    const symbol = "ZAPRKBY";
+    let symbol = "";
 
-    const contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/rinkeby';
+    let contractURI = "";
+
+    switch (chainId) {
+
+        // Ethereum mainnet deployment
+        case 1:
+            symbol = 'ZAP'
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/mainnet'
+            break;
+
+        // Localhost deployment
+        case 31337:
+            symbol = "ZAPLCL";
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/'
+            break;
+
+        // Rinkeby deployment
+        case 4:
+            symbol = "ZAPRKBY"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/rinkeby';
+            break;
+
+        // BSC Testnet deployment
+        case 97:
+            symbol = "ZAPBSC"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bscTest'
+            break;
+
+        // BSC Mainnet Deployment
+        case 56:
+            symbol = "ZAP"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
+    }
 
     const tx = await mediaFactory.deployMedia(
         name,
@@ -48,9 +81,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaAbi.abi, signers[0]) as ZapMedia;
     await zapMedia.deployed();
 
-    console.log(zapMedia.address)
-
-    console.log(await zapMedia.symbol())
 }
 
 export default func
