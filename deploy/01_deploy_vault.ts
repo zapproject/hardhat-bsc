@@ -48,6 +48,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         // Ethereum mainnet deployment
         case 1:
             tokenAddress = ethMainAddress
+            console.log("Ethereum Mainnet")
             break;
 
         // Localhost deployment
@@ -59,16 +60,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         // Rinkeby deployment
         case 4:
             tokenAddress = rinkebyAddress;
+            console.log("Rinkeby")
             break;
 
         // BSC Testnet deployment
         case 97:
             tokenAddress = bscTestAddress
+            console.log("BSC Testnet")
             break;
 
         // BSC Mainnet Deployment
         case 56:
             tokenAddress = bscMainAddress
+            console.log("BSC Mainnet")
             break;
     }
 
