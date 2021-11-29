@@ -37,13 +37,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         log: true,
     })
 
-    const zapMarket = await zapMarketFactory.attach(marketAddress);
+    // const zapMarket = await zapMarketFactory.attach(marketAddress);
 
-    const factoryAddress = await (await hre.deployments.get('MediaFactory')).address;
+    // const factoryAddress = await (await hre.deployments.get('MediaFactory')).address;
 
-    await zapMarket.setMediaFactory(factoryAddress);
+    // await zapMarket.setMediaFactory(factoryAddress);
 
-    console.log("MediaFactory set to ZapMarket");
+    // console.log("MediaFactory set to ZapMarket");
 
     return !useProxy // When live network, record the script as executed to prevent rexecution
 }
