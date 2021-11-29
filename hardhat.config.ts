@@ -75,7 +75,7 @@ const config = {
       gasPrice: 160463534099,
       gas: 2000000,
       gasMultiplier: 2,
-      blockGasLimit: 30000000,
+      blockGasLimit: 34000000,
       timeout: 900000,
     },
     rinkeby: {
