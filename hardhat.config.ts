@@ -70,8 +70,13 @@ const config = {
   },
   networks: {
     mainnet: {
-      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/mainnet',
-      accounts: { mnemonic: process.env.MNEMONIC }
+      url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
+      accounts: { mnemonic: process.env.MNEMONIC },
+      gasPrice: 160463534099,
+      gas: 2000000,
+      gasMultiplier: 2,
+      blockGasLimit: 30000000,
+      timeout: 900000,
     },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
@@ -86,9 +91,9 @@ const config = {
       accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
-      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/mainnet',
+      url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
-      gas: 1700000,
+      gas: 2000000,
       gasPrice: "auto",
       accounts: { mnemonic: process.env.MNEMONIC },
       timeout: 300000
