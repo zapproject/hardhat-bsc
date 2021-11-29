@@ -81,6 +81,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaAbi.abi, signers[0]) as ZapMedia;
     await zapMedia.deployed();
 
+    console.log("ZapMedia deployed to:", zapMedia.address);
+
+    await zapMedia.claimTransferOwnership();
+
 }
 
 export default func
