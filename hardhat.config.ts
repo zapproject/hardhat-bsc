@@ -76,10 +76,13 @@ const config = {
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
       accounts: [RINKEBY_PRIVATE_KEY],
-      timeout: 60000
+      timeout: 60000,
+      gas: 30000000, //30 mil
+      gasPrice: 2000000000, //2 gwei
+      gasMultiplier: 2
     },
     kovan: {
-      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/kovan',
       accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
