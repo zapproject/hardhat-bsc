@@ -73,7 +73,7 @@ const config = {
       url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
       accounts: { mnemonic: process.env.MNEMONIC },
       gasPrice: 160463534099,
-      gas: 3400000,
+      gas: 34000000,
       gasMultiplier: 2,
       blockGasLimit: 34000000,
       timeout: 900000,
