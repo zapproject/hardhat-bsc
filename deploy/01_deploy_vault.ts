@@ -23,6 +23,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // Deployed ZapToken on Rinkeby
     const rinkebyAddress = '0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F';
 
+    // Deployed ZapToken on Kovan
+    const kovanAddress = '0x0331048143015c0784D0F9c723E709314aB87460'
+
     // Deployed ZapToken on BSC Testnet
     const bscTestAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
 
@@ -63,6 +66,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             console.log("Rinkeby")
             break;
 
+        case 42:
+            tokenAddress = kovanAddress;
+            console.log("Kovan")
+            break;
         // BSC Testnet deployment
         case 97:
             tokenAddress = bscTestAddress
