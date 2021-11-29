@@ -111,11 +111,12 @@ async function main() {
 
     const zapMarket = await zapMarketFactory.attach('0x8E85743faA25b305967609E2a5E4FA32Ea092cc4');
 
-    const gas = await zapMarket.estimateGas.setFee(platformFee);
+    const gas = await zapMarket.estimateGas.setMediaFactory('0xeC57c2f02Bc13aB37611e0E4c9B4Bf80f5511E5B');
 
-    const setFee = await zapMarket.setFee(platformFee, { gasLimit: gas });
+    const setFactory = await zapMarket.setMediaFactory('0xeC57c2f02Bc13aB37611e0E4c9B4Bf80f5511E5B', { gasLimit: gas })
 
-    console.log(setFee)
+    console.log(setFactory)
+
 
     // // ************************************************************** //
     // // deploy Zap Vault
