@@ -1,9 +1,5 @@
-import { ethers, upgrades } from "hardhat";
-import { BigNumber, Event } from 'ethers';
-import { keccak256 } from "ethers/lib/utils";
-import { getImplementationAddress } from '@openzeppelin/upgrades-core';
-import { MediaFactory, ZapMedia, ZapVault } from "../typechain";
-import hre from 'hardhat';
+import { ethers } from "hardhat";
+import {ZapMedia } from "../typechain";
 
 const ZapMarketAddress = '0x8E85743faA25b305967609E2a5E4FA32Ea092cc4';
 const ZapMediaImplementationAddress = '0x6852ee80fb02ED5e7bEB2B11E4f1F4FAFA24a82d';
@@ -20,21 +16,11 @@ async function main() {
 
     const signers = await ethers.getSigners();
 
-    // create zapMarket from already deployed address
-    const zapMarketFactory = await ethers.getContractFactory('ZapMarket');    
-    const zapMarket = await zapMarketFactory.attach(ZapMarketAddress);
-    
-    console.log(await zapMarket.getOwner());
-    console.log(await zapMarket.viewFee());
-    
-    
     // create zapMediaImplementation from already deployed address
     const zapMediaImplementationFactory = await ethers.getContractFactory('ZapMedia');    
-    const zapMediaImplementation = await zapMediaImplementationFactory.attach(ZapMediaImplementationAddress);
+    const zapMediaImplementation = await zapMediaImplementationFactory.attach(ZapMediaImplementationAddress) as ZapMedia;
 
-    console.log('Owner before: ', await zapMediaImplementation.getOwner());
-    console.log(await zapMediaImplementation.contractURI());
-    
+    console.log('Owner Before: ', await zapMediaImplementation.getOwner());
 
     const name = '';    
     let symbol = '';    
@@ -50,7 +36,7 @@ async function main() {
         false,
         contractURI
     );
-    console.log("gas estimate: ", gas);
+    console.log("Gas Estimate: ", gas.toString());
 
     await zapMediaImplementation
     .connect(signers[0])
@@ -63,7 +49,7 @@ async function main() {
         { gasLimit: gas}
     );
 
-    console.log('Owner after: ', await zapMediaImplementation.getOwner());
+    console.log('Owner After: ', await zapMediaImplementation.getOwner());
     console.log("Name: ", await zapMediaImplementation.name());
     console.log("Symbol: ", await zapMediaImplementation.symbol());
     console.log("ContractURI: ",
