@@ -7,10 +7,6 @@ import hre from 'hardhat';
 
 const ZapMarketAddress = '0x8E85743faA25b305967609E2a5E4FA32Ea092cc4';
 const ZapMediaImplementationAddress = '0x6852ee80fb02ED5e7bEB2B11E4f1F4FAFA24a82d';
-const MediaFactoryAddress = '0xeC57c2f02Bc13aB37611e0E4c9B4Bf80f5511E5B'
-
-// const ZapMarketABI = require('./artifacts/contracts/nft/ZapMarket.sol/ZapMarket.json').abi;
-const ZapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
 
 async function main() {
     const chainId = await (await ethers.provider.getNetwork()).chainId;
@@ -73,62 +69,6 @@ async function main() {
     console.log("ContractURI: ",
       ethers.utils.toUtf8String(await zapMediaImplementation.contractURI())
     );
-
-    // const mfFactory = await ethers.getContractFactory('MediaFactory');
-    // const mediaFactory = await mfFactory.attach(MediaFactoryAddress) as MediaFactory;
-
-    // const tx = await mediaFactory.deployMedia(
-    //     "Test Media 1",
-    //     "TM1",
-    //     ZapMarketAddress,
-    //     true,
-    //     "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
-    // );
-
-    // const receipt = await tx.wait();
-    // const mediaDeployedEvents = receipt.events as Event[];
-    // const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
-    // const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
-
-
-
-    // const ZapMediaProxyAddress = '0xBBd7B3fcA15a10BA76811117Ba83Da259691362d';
-    // const zapMediaProxy = new ethers.Contract(ZapMediaProxyAddress, ZapMediaABI, signers[0]) as ZapMedia;
-
-    // const metadataHex = ethers.utils.formatBytes32String("{}");
-    // const metadataHash = await keccak256(metadataHex);
-    // const hash = ethers.utils.arrayify(metadataHash);
-
-    // await zapMediaProxy.connect((await ethers.getSigners())[5]).mint(
-    //     {
-    //         tokenURI: "zap.co",
-    //         metadataURI: "zap.co",
-    //         contentHash: hash,
-    //         metadataHash: hash,
-    //       },
-    //       {
-    //         collaborators: [
-    //           signers[3].address,
-    //           signers[4].address,
-    //           signers[5].address
-    //         ],
-    //         collabShares: [
-    //           BigNumber.from('15000000000000000000'),
-    //           BigNumber.from('15000000000000000000'),
-    //           BigNumber.from('15000000000000000000')
-    //         ]
-    //         ,
-    //         creator: {
-    //           value: BigNumber.from('15000000000000000000')
-    //         },
-    //         owner: {
-    //           value: BigNumber.from('35000000000000000000')
-    //         },
-
-    //       }
-    // );
-
-    // console.log("Owner of minted token: ", (await zapMediaProxy.ownerOf(0)))
 }
 
 main()
