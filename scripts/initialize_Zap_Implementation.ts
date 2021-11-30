@@ -11,6 +11,14 @@ const ZapMediaImplementationAddress = '0x6852ee80fb02ED5e7bEB2B11E4f1F4FAFA24a82
 // const ZapMediaABI = require('./artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
 
 async function main() {
+    const chainId = await (await ethers.provider.getNetwork()).chainId;
+
+    if (chainId == 1) {
+        console.log('ON REAL MAINNET!!!');
+        return;
+    } else {
+        console.log("Not on MAINNET")
+    }
 
     const signers = await ethers.getSigners();
 
