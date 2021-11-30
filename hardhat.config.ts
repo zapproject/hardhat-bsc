@@ -110,7 +110,11 @@ const config = {
       gasPrice: 10000000000,
       blockGasLimit: 0x1fffffffffffff,
       allowUnlimitedContractSize: true,
-      timeout: 300000
+      timeout: 300000,
+      // forking: {
+      //   url: "https://eth-mainnet.alchemyapi.io/v2/purTbbUAOxZZnq4jSom9OiNTfeF7nUWy",
+      //   blockNumber: 13710736
+      // }
     },
     localhost: {
       url: 'http://127.0.0.1:8545/'
@@ -139,7 +143,7 @@ try {
   let data = fs.readFileSync("./output/bscGas.txt", 'utf8')
   data = data.replaceAll('"', '')
   data = Number.parseInt(data)
-  config.networks.hardhat.gasPrice = data
+  // config.networks.hardhat.gasPrice = data
   let parsedData = (data / 1000000000).toFixed(2)  // round to 2 decimal places
   config.gasReporter.gasPrice = Number(parsedData)
 } catch (err) {
