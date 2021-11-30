@@ -90,7 +90,7 @@ async function main() {
     const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
     const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
 
-    const zapMedia = new ethers.Contract(zapMediaAddress, ZapMediaABI) as ZapMedia;
+    const zapMedia = new ethers.Contract(zapMediaAddress, ZapMediaABI, signers[0]) as ZapMedia;
 
     const metadataHex = ethers.utils.formatBytes32String("{}");
     const metadataHash = await keccak256(metadataHex);
@@ -125,7 +125,7 @@ async function main() {
           }
     );
 
-    console.log("Token uri of minted token: ", (await zapMedia.ownerOf(0)))
+    console.log("Owner of minted token: ", (await zapMedia.ownerOf(0)))
 }
 
 main()
