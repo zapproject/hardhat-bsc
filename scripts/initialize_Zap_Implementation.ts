@@ -16,8 +16,8 @@ async function main() {
     const chainId = await (await ethers.provider.getNetwork()).chainId;
 
     if (chainId == 1) {
-        console.log('ON REAL MAINNET!!!');
-        return;
+        console.log('ON MAINNET!!!');
+        // return;
     } else {
         console.log("Not on MAINNET")
     }
@@ -74,58 +74,61 @@ async function main() {
       ethers.utils.toUtf8String(await zapMediaImplementation.contractURI())
     );
 
-    const mfFactory = await ethers.getContractFactory('MediaFactory');
-    const mediaFactory = await mfFactory.attach(MediaFactoryAddress) as MediaFactory;
+    // const mfFactory = await ethers.getContractFactory('MediaFactory');
+    // const mediaFactory = await mfFactory.attach(MediaFactoryAddress) as MediaFactory;
 
-    const tx = await mediaFactory.deployMedia(
-        "Test Media 1",
-        "TM1",
-        ZapMarketAddress,
-        true,
-        "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
-    );
+    // const tx = await mediaFactory.deployMedia(
+    //     "Test Media 1",
+    //     "TM1",
+    //     ZapMarketAddress,
+    //     true,
+    //     "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    // );
 
-    const receipt = await tx.wait();
-    const mediaDeployedEvents = receipt.events as Event[];
-    const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
-    const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
+    // const receipt = await tx.wait();
+    // const mediaDeployedEvents = receipt.events as Event[];
+    // const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
+    // const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
 
-    const zapMedia = new ethers.Contract(zapMediaAddress, ZapMediaABI, signers[0]) as ZapMedia;
 
-    const metadataHex = ethers.utils.formatBytes32String("{}");
-    const metadataHash = await keccak256(metadataHex);
-    const hash = ethers.utils.arrayify(metadataHash);
 
-    await zapMedia.connect((await ethers.getSigners())[5]).mint(
-        {
-            tokenURI: "zap.co",
-            metadataURI: "zap.co",
-            contentHash: hash,
-            metadataHash: hash,
-          },
-          {
-            collaborators: [
-              signers[3].address,
-              signers[4].address,
-              signers[5].address
-            ],
-            collabShares: [
-              BigNumber.from('15000000000000000000'),
-              BigNumber.from('15000000000000000000'),
-              BigNumber.from('15000000000000000000')
-            ]
-            ,
-            creator: {
-              value: BigNumber.from('15000000000000000000')
-            },
-            owner: {
-              value: BigNumber.from('35000000000000000000')
-            },
+    // const ZapMediaProxyAddress = '0xBBd7B3fcA15a10BA76811117Ba83Da259691362d';
+    // const zapMediaProxy = new ethers.Contract(ZapMediaProxyAddress, ZapMediaABI, signers[0]) as ZapMedia;
 
-          }
-    );
+    // const metadataHex = ethers.utils.formatBytes32String("{}");
+    // const metadataHash = await keccak256(metadataHex);
+    // const hash = ethers.utils.arrayify(metadataHash);
 
-    console.log("Owner of minted token: ", (await zapMedia.ownerOf(0)))
+    // await zapMediaProxy.connect((await ethers.getSigners())[5]).mint(
+    //     {
+    //         tokenURI: "zap.co",
+    //         metadataURI: "zap.co",
+    //         contentHash: hash,
+    //         metadataHash: hash,
+    //       },
+    //       {
+    //         collaborators: [
+    //           signers[3].address,
+    //           signers[4].address,
+    //           signers[5].address
+    //         ],
+    //         collabShares: [
+    //           BigNumber.from('15000000000000000000'),
+    //           BigNumber.from('15000000000000000000'),
+    //           BigNumber.from('15000000000000000000')
+    //         ]
+    //         ,
+    //         creator: {
+    //           value: BigNumber.from('15000000000000000000')
+    //         },
+    //         owner: {
+    //           value: BigNumber.from('35000000000000000000')
+    //         },
+
+    //       }
+    // );
+
+    // console.log("Owner of minted token: ", (await zapMediaProxy.ownerOf(0)))
 }
 
 main()
