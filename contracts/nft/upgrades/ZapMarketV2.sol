@@ -58,6 +58,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     //Mapping determining whether an nft contract is internal or external
     mapping(address => bool) public isInternalMedia;
 
+    mapping(address => mapping(uint256 => bool)) tokenConfigured;
+
     /* *********
      * Modifiers
      * *********
@@ -88,6 +90,14 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         bidMutex[tokenId] = true;
         _;
         bidMutex[tokenId] = false;
+    }
+
+    modifier onlyFactoryorMedia() {
+        require(
+            (isConfigured[msg.sender] == true) || (msg.sender == mediaFactory),
+            'Market: Only a media contract or its factory can do this action'
+        );
+        _;
     }
 
     /* ****************
@@ -298,18 +308,43 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice Sets bid shares for a particular tokenId. These bid shares must
      * sum to 100.
      */
-    function setBidShares(uint256 tokenId, BidShares memory bidShares)
-        public
-        override
-        onlyMediaCaller
-    {
+    function setBidShares(
+        address mediaContract,
+        uint256 tokenId,
+        BidShares memory bidShares
+    ) public override onlyFactoryorMedia {
         require(
             isValidBidShares(bidShares),
             'Market: Invalid bid shares, must sum to 100'
         );
 
-        _bidShares[msg.sender][tokenId] = bidShares;
-        emit BidShareUpdated(tokenId, bidShares, msg.sender);
+        if (isConfigured[msg.sender] == true) {
+            _bidShares[msg.sender][tokenId] = bidShares;
+
+            // Checks if the mediaContract is internal
+            // If the mediaContract is not internal proceed into the else if block
+        } else if (isInternalMedia[mediaContract] == false) {
+            // Require the external tokenId is not configured
+            // If the external tokenId is configured the transaction will revert
+            require(
+                tokenConfigured[mediaContract][tokenId] == false,
+                'Market: External token already configured'
+            );
+
+            // If the mediaContract is external and the tokenId is not configured set the bidShares
+            _bidShares[mediaContract][tokenId] = bidShares;
+
+            // Set the external tokenId configuration status to true
+            tokenConfigured[mediaContract][tokenId] = true;
+        } else {
+            require(
+                mediaContract != address(0),
+                "Market: Can't set bid share for zero address"
+            );
+
+            _bidShares[mediaContract][tokenId] = bidShares;
+        }
+        emit BidShareUpdated(tokenId, bidShares, mediaContract);
     }
 
     /**
