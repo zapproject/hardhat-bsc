@@ -7,7 +7,7 @@ import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/Upgradeabl
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from '../MediaProxy.sol';
 import {ZapMedia} from '../ZapMedia.sol';
-import {IMarket} from '../interfaces/IMarket.sol';
+import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
 import 'hardhat/console.sol';
 
 interface IERC721Extended {
@@ -24,7 +24,7 @@ contract MediaFactoryV2 is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
     event ExternalTokenDeployed(address indexed extToken);
 
-    IMarket zapMarket;
+    IMarketV2 zapMarket;
     address beacon;
 
     /// @notice Contract constructor
@@ -37,7 +37,7 @@ contract MediaFactoryV2 is OwnableUpgradeable {
         initializer
     {
         __Ownable_init();
-        zapMarket = IMarket(_zapMarket);
+        zapMarket = IMarketV2(_zapMarket);
         beacon = address(new UpgradeableBeacon(zapMediaInterface));
         UpgradeableBeacon(beacon).transferOwnership(address(this));
     }
@@ -112,7 +112,7 @@ contract MediaFactoryV2 is OwnableUpgradeable {
     function configureExternalToken(
         address tokenAddress,
         uint256 tokenId,
-        IMarket.BidShares memory _bidShares
+        IMarketV2.BidShares memory _bidShares
     ) external returns (bool success) {
         require(
             IERC721(tokenAddress).ownerOf(tokenId) == msg.sender,
