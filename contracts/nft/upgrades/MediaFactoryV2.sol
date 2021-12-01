@@ -101,4 +101,61 @@ contract MediaFactoryV2 is OwnableUpgradeable {
 
         return proxyAddress;
     }
+
+    /// @notice Configures external ERC721 contracts to be used on ZapMarket
+    /// @dev This function will ensure that the ERC721 minting contract is configured to be used on ZapMarket
+    ///      It also sets the bidshares for the given `tokenId` so that it can configure NFT collaborators
+    /// @param tokenAddress address of the ERC721 contract
+    /// @param tokenId uin256 number identifying the token to set bidshares on
+    /// @param _bidShares bidshares defining the collaboators and what % each gets once an auction is settled
+    /// @return success whether or not this operation was successful
+    function configureExternalToken(
+        address tokenAddress,
+        uint256 tokenId,
+        IMarket.BidShares memory _bidShares
+    ) external returns (bool success) {
+        require(
+            IERC721(tokenAddress).ownerOf(tokenId) == msg.sender,
+            'MediaFactory: Only token owner can configure to ZapMarket'
+        );
+
+        if (!(zapMarket.isRegistered(tokenAddress))) {
+            zapMarket.registerMedia(tokenAddress);
+        }
+        // else {
+        //     require(
+        //         zapMarket.isInternal(tokenAddress),
+        //         'This operation is meant for external NFTs'
+        //     );
+        // }
+
+        if (!(zapMarket._isConfigured(tokenAddress))) {
+            bytes memory name_b = bytes(IERC721Extended(tokenAddress).name());
+            bytes memory symbol_b = bytes(
+                IERC721Extended(tokenAddress).symbol()
+            );
+
+            bytes32 name_b32;
+            bytes32 symbol_b32;
+
+            assembly {
+                name_b32 := mload(add(name_b, 32))
+                symbol_b32 := mload(add(symbol_b, 32))
+            }
+
+            zapMarket.configure(
+                msg.sender,
+                tokenAddress,
+                name_b32,
+                symbol_b32,
+                false
+            );
+        }
+
+        zapMarket.setBidShares(tokenAddress, tokenId, _bidShares);
+
+        emit ExternalTokenDeployed(tokenAddress);
+
+        return true;
+    }
 }
