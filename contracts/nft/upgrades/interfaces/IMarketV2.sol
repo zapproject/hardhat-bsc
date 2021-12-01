@@ -124,7 +124,8 @@ interface IMarketV2 {
         address deployer,
         address mediaContract,
         bytes32 name,
-        bytes32 symbol
+        bytes32 symbol,
+        bool isInternal
     ) external;
 
     function revokeRegistration(address mediaContract) external;
