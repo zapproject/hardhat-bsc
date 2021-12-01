@@ -159,4 +159,6 @@ interface IMarketV2 {
         uint256 tokenId,
         Bid calldata expectedBid
     ) external;
+
+    function _isConfigured(address mediaContract) external view returns (bool);
 }
