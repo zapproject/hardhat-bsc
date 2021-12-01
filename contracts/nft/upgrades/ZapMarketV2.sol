@@ -239,7 +239,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address deployer,
         address mediaContract,
         bytes32 name,
-        bytes32 symbol
+        bytes32 symbol,
+        bool _isInternal
     ) external override onlyMediaFactory {
         require(
             isConfigured[mediaContract] != true,
