@@ -55,6 +55,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     IMarketV2.PlatformFee platformFee;
 
+    //Mapping determining whether an nft contract is internal or external
+    mapping(address => bool) public isInternalMedia;
+
     /* *********
      * Modifiers
      * *********
@@ -242,6 +245,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         bytes32 symbol,
         bool _isInternal
     ) external override onlyMediaFactory {
+        isInternalMedia[mediaContract] = _isInternal;
+
         require(
             isConfigured[mediaContract] != true,
             'Market: Already configured'
