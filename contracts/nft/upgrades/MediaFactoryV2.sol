@@ -95,7 +95,13 @@ contract MediaFactoryV2 is OwnableUpgradeable {
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
-        zapMarket.configure(msg.sender, proxyAddress, name_b32, symbol_b32);
+        zapMarket.configure(
+            msg.sender,
+            proxyAddress,
+            name_b32,
+            symbol_b32,
+            false
+        );
 
         emit MediaDeployed(proxyAddress);
 
