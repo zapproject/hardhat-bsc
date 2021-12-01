@@ -10,14 +10,14 @@ import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ER
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {Decimal} from '../Decimal.sol';
 import {ZapMedia} from '../ZapMedia.sol';
-import {IMarket} from '../interfaces/IMarket.sol';
+import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
 import {Ownable} from '../access/Ownable.sol';
 
 /**
  * @title A Market for pieces of media
  * @notice This contract contains all of the market logic for Media
  */
-contract ZapMarketV2 is IMarket, Ownable {
+contract ZapMarketV2 is IMarketV2, Ownable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /* *******
@@ -53,7 +53,7 @@ contract ZapMarketV2 is IMarket, Ownable {
 
     address platformAddress;
 
-    IMarket.PlatformFee platformFee;
+    IMarketV2.PlatformFee platformFee;
 
     /* *********
      * Modifiers
@@ -226,7 +226,7 @@ contract ZapMarketV2 is IMarket, Ownable {
         return platformFee.fee;
     }
 
-    function setFee(IMarket.PlatformFee memory newFee) public onlyOwner {
+    function setFee(IMarketV2.PlatformFee memory newFee) public onlyOwner {
         platformFee = newFee;
     }
 
@@ -461,6 +461,15 @@ contract ZapMarketV2 is IMarket, Ownable {
         );
 
         _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
+    }
+
+    function _isConfigured(address mediaContract)
+        public
+        view
+        override
+        returns (bool)
+    {
+        return isConfigured[mediaContract];
     }
 
     /**
