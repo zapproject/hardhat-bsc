@@ -65,6 +65,18 @@ let platformFee = {
 
 describe('ZapMarket Test', () => {
   let zapTokenBsc: any;
+  let unInitMedia: ZapMedia;
+
+  before(async () => {
+
+    const unInitMediaFactory = await ethers.getContractFactory("ZapMedia");
+
+    unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
+
+    await unInitMedia.deployed();
+
+  })
+
 
   beforeEach(async () => {
     signers = await ethers.getSigners();
@@ -186,7 +198,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -402,7 +414,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -681,7 +693,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -917,7 +929,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 
@@ -1475,7 +1487,7 @@ describe('ZapMarket Test', () => {
 
   });
 
-  describe("Re entrancy", () => {
+  describe("#Re-entrancy", () => {
     let bid1: any;
     let bid2: any;
 
@@ -1516,7 +1528,7 @@ describe('ZapMarket Test', () => {
 
       const mediaDeployerFactory = await ethers.getContractFactory("MediaFactory");
 
-      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
+      mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
         initializer: 'initialize'
       })) as MediaFactory;
 

@@ -27,7 +27,10 @@ contract MediaFactoryOld is OwnableUpgradeable {
     /// @notice Contract constructor
     /// @dev utilises the OZ Initializable contract; cannot be called twice
     /// @param _zapMarket the address of the ZapMarket contract to register and configure each ERC721 on
-    function initialize(address _zapMarket, address zapMediaInterface) external initializer {
+    function initialize(address _zapMarket, address zapMediaInterface)
+        external
+        initializer
+    {
         __Ownable_init();
         zapMarket = IMarket(_zapMarket);
         beacon = address(new UpgradeableBeacon(zapMediaInterface));
@@ -39,7 +42,7 @@ contract MediaFactoryOld is OwnableUpgradeable {
     function upgradeMedia(address newInterface) external onlyOwner {
         require(
             msg.sender != address(0),
-            "The zero address can not make contract calls"
+            'The zero address can not make contract calls'
         );
         UpgradeableBeacon(beacon).upgradeTo(newInterface);
     }
@@ -63,8 +66,13 @@ contract MediaFactoryOld is OwnableUpgradeable {
         MediaProxy proxy = new MediaProxy();
 
         proxy.initialize(
-            beacon, payable(msg.sender),
-            name, symbol, marketContractAddr, permissive, _collectionMetadata
+            beacon,
+            payable(msg.sender),
+            name,
+            symbol,
+            marketContractAddr,
+            permissive,
+            _collectionMetadata
         );
         address proxyAddress = address(proxy);
 
@@ -81,12 +89,7 @@ contract MediaFactoryOld is OwnableUpgradeable {
             symbol_b32 := mload(add(symbol_b, 32))
         }
 
-        zapMarket.configure(
-            msg.sender,
-            proxyAddress,
-            name_b32,
-            symbol_b32
-        );
+        zapMarket.configure(msg.sender, proxyAddress, name_b32, symbol_b32);
 
         emit MediaDeployed(proxyAddress);
 

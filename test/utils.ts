@@ -104,7 +104,9 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
   const zmABI = require("../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json").abi;
 
   for (let i = 0; i < mediaArgs.length; i++) {
+
     const args = mediaArgs[i];
+
     await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
       args.name, args.symbol, args.marketContractAddr, args.permissive, args.collectionURI
     );
@@ -116,6 +118,7 @@ export const deployJustMedias = async (signers: SignerWithAddress[], zapMarket: 
     medias.push(
       new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMedia
     );
+
   }
 
   return medias
@@ -145,7 +148,7 @@ export const deployOneMedia = async (signer: SignerWithAddress, zapMarket: ZapMa
   filter = fact.filters.MediaDeployed(null);
   eventLog = (await fact.queryFilter(filter))[0];
   mediaAddress = eventLog.args?.mediaContract;
-  
+
   media = new ethers.Contract(mediaAddress, zmABI, signer) as ZapMedia;
 
   return media;
@@ -193,11 +196,12 @@ export const deployZapNFTMarketplace = async () => {
 
   await market.setFee(platformFee);
 
-  const zapMediaFactory = await ethers.getContractFactory("ZapMedia", deployer0);
-  const zapMediaInterface = await zapMediaFactory.deploy();
+  const unInitMediaFactory = await ethers.getContractFactory('ZapMedia');
+
+  const unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
 
   const mediaFactoryFactory = await ethers.getContractFactory("MediaFactory", deployer0);
-  mediaFactory = (await upgrades.deployProxy(mediaFactoryFactory, [market.address, zapMediaInterface.address], { initializer: "initialize" })) as MediaFactory;
+  mediaFactory = (await upgrades.deployProxy(mediaFactoryFactory, [market.address, unInitMedia.address], { initializer: "initialize" })) as MediaFactory;
   await market.setMediaFactory(mediaFactory.address);
 
   const mediaArgs = [

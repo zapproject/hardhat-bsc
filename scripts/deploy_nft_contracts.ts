@@ -1,87 +1,231 @@
 import { ethers, upgrades } from "hardhat";
 import { BigNumber, Event } from 'ethers';
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
-import { MediaFactory, ZapMedia, ZapVault, ZapMarket, AuctionHouse } from "../typechain";
+import { MediaFactory, ZapMedia, ZapVault } from "../typechain";
+import hre from 'hardhat';
 
 async function main() {
 
+    // Deployed ZapToken on Ethereum Mainnet
+    const ethMainAddress = '0x6781a0f84c7e9e846dcb84a9a5bd49333067b104';
+
+    // Deployed ZapToken on Rinkeby
+    const rinkebyAddress = '0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F';
+
+    // Deployed ZapToken on BSC Testnet
+    const bscTestAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
+
+    // Deployed ZapToken on BSC Mainnet
+    const bscMainAddress = '0xC5326b32E8BaEF125AcD68f8bC646fD646104F1c';
+
+    // ABI for ZapMedia
+    const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
+
+    // Collection name
+    const name = 'Zap Collection';
+
+    // Will store the ZapToken address depending on the network
+    let tokenAddress = '';
+
+    // Will store the ZapToken address if localhost deployment is detected
+    let localhostAddress = '';
+
+    // Will store the symbol depending on the network
+    let symbol = '';
+
+    // Will store the contractURI depending on the network
+    let contractURI = '';
+
+    // Will store the network name
+    let network = '';
+
+    try {
+
+        localhostAddress = (await hre.deployments.get('ZapTokenBSC')).address;
+
+    } catch (err) {
+
+        console.log("Localhost ZapTokenBSC deployment not detected")
+
+    }
+
+    // Gets the chainID of the network the contracts are deploying to
+    const chainId = await (await ethers.provider.getNetwork()).chainId;
+
+    switch (chainId) {
+
+        // Ethereum mainnet deployment
+        case 1:
+            tokenAddress = ethMainAddress
+            symbol = 'ZAP'
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/mainnet'
+            network = "Ethereum Mainnet"
+            break;
+
+        // Localhost deployment
+        case 31337:
+            tokenAddress = localhostAddress
+            symbol = "ZAPLCL";
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/'
+            network = "Localhost"
+            break;
+
+        // Rinkeby deployment
+        case 4:
+            tokenAddress = rinkebyAddress;
+            symbol = "ZAPRKBY"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/rinkeby';
+            network = "Rinkeby"
+            break;
+
+        // BSC Testnet deployment
+        case 97:
+            tokenAddress = bscTestAddress
+            symbol = "ZAPBSC"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bscTest'
+            network = "BSC TESTNET"
+            break;
+
+        // BSC Mainnet Deployment
+        case 56:
+            tokenAddress = bscMainAddress
+            symbol = "ZAP"
+            contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
+            network = "BSC MAINNET"
+    }
+
     const signers = await ethers.getSigners();
 
-    // ZapTokenBSC testnet address used for the Faucet
-    const tokenAddress = '0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8';
-
+    // Sets the fee at to 5%
     const platformFee = {
         fee: {
             value: BigNumber.from('5000000000000000000')
         },
     };
 
-    const ZapVault = await ethers.getContractFactory("ZapVault", signers[0]);
+    console.log("\nContracts deploying to: ", network)
+    console.log("Deployer address is: ", signers[0].address)
+    console.log("With starting balance: ", ethers.utils.formatEther(await signers[0].getBalance()), "\n")
+
+
+    // ************************************************************** //
+    // deploy Zap Vault
+    // ************************************************************** //
+
+    const zapVaultFactory = await ethers.getContractFactory("ZapVault", signers[0]);
+
     const zapVault = await upgrades.deployProxy(
-        ZapVault,
+        zapVaultFactory,
         [tokenAddress],
         { initializer: 'initializeVault' }
     ) as ZapVault;
     await zapVault.deployed();
     console.log("ZapVault deployed to:", zapVault.address);
-    const zapVaultImplAddress = await getImplementationAddress(ethers.provider, zapVault.address);
-    console.log("ZapVault implementation:", zapVaultImplAddress);
+    console.log("ZapVault Balance: ", await zapVault.vaultBalance(), "\n")
 
-    const ZapMarket = await ethers.getContractFactory('ZapMarket', signers[0]);
+
+    // // ************************************************************** //
+    // // deploy ZapMarket
+    // // ************************************************************** //
+
+    const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
+
     const zapMarket = await upgrades.deployProxy(
-        ZapMarket,
+        zapMarketFactory,
         [zapVault.address],
-        { initializer: 'initializeMarket' }
-    ) as ZapMarket;
+        { initializer: 'initializeMarket' },
+
+    );
+
     await zapMarket.deployed();
     console.log('ZapMarket deployed to:', zapMarket.address);
-    const zapMarketImplAddress = await getImplementationAddress(ethers.provider, zapMarket.address);
-    console.log("ZapMarket implementation:", zapMarketImplAddress);
+    console.log("ZapMarket isRegistered (should be false): ", await zapMarket.isRegistered(zapVault.address), "\n");
 
+    // const ZapMarket = await ethers.getContractFactory("ZapMarket");
+
+    // set Fee for the platform
     await zapMarket.setFee(platformFee);
+    console.log("Platform fee set for ZapMarket")
 
-    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
-    const mediaFactory = await upgrades.deployProxy(
-        MediaFactory,
-        [zapMarket.address],
-        { initializer: 'initialize' }
-    ) as MediaFactory;
-    await mediaFactory.deployed();
-    console.log('MediaFactory deployed to:', mediaFactory.address);
-    await zapMarket.setMediaFactory(mediaFactory.address);
-    console.log("MediaFactory set to ZapMarket");
-    const factoryImplAddress = await getImplementationAddress(ethers.provider, mediaFactory.address);
-    console.log("MediaFactory implementation:", factoryImplAddress);
-
-    await mediaFactory.deployMedia(
-        "ZapMedia",
-        "ZAPBSC",
-        zapMarket.address,
-        true,
-        'https://ipfs.moralis.io:2053/ipfs/Qmb6X5bYB3J6jq9JPmd5FLx4fa4JviXfV11yN42i96Q5Xt'
-    );
-    const mediaDeployedFilter = mediaFactory.filters.MediaDeployed(null);
-    const mediaDeployedEvent: Event = (await mediaFactory.queryFilter(mediaDeployedFilter))[0];
-    const zapMediaAddress = mediaDeployedEvent.args?.mediaContract;
-    const zapMediaABI = require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
-    const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
-    await zapMedia.deployed();
-    await zapMedia.connect(signers[0]).claimTransferOwnership();
-
-    console.log('ZapMedia deployed to:', zapMedia.address);
-    const mediaImplAddress = await getImplementationAddress(ethers.provider, zapMedia.address);
-    console.log("ZapMedia implementation:", mediaImplAddress);
+    // // ************************************************************** //
+    // // deploy AuctionHouse
+    // // ************************************************************** //
 
     const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
     const auctionHouse = await upgrades.deployProxy(AuctionHouse,
         [tokenAddress, zapMarket.address],
         { initializer: 'initialize' }
-    ) as AuctionHouse;
+    );
     await auctionHouse.deployed();
     console.log('AuctionHouse deployed to:', auctionHouse.address);
-    const auctionImplAddress = await getImplementationAddress(ethers.provider, auctionHouse.address);
-    console.log("AuctionHouse implementation:", auctionImplAddress);
 
+    // ************************************************************** //
+    // deploy ZapMedia Implementation Contract
+    // ************************************************************** //
+
+    const mediaImplementation = await ethers.getContractFactory('ZapMedia');
+
+    const zapMediaImplementation: ZapMedia = (await mediaImplementation.deploy()) as ZapMedia;
+    await zapMediaImplementation.deployed();
+
+    console.log("zapMediaImplementation deployed to:", zapMediaImplementation.address);
+    console.log("zapMediaImplementation Owner: ", await zapMediaImplementation.getOwner(), "\n")
+    console.log("zapMediaImplementation Contract URI (should be null): ", await zapMediaImplementation.contractURI(), "\n")
+
+    // // ************************************************************** //
+    // // deploy MediaFactory
+    // // ************************************************************** //
+
+    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
+    const mediaFactory = await upgrades.deployProxy(
+        MediaFactory,
+        [zapMarket.address, zapMediaImplementation.address],
+        { initializer: 'initialize' }
+    ) as MediaFactory;
+
+    
+    await mediaFactory.deployed();
+
+    // set mediaFactory address to ZapMarket
+    await zapMarket.setMediaFactory(mediaFactory.address);
+    console.log("MediaFactory set to ZapMarket");
+
+    console.log('MediaFactory deployed to:', mediaFactory.address);
+    console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
+
+
+    // const mediaDeployGas = await mediaFactory.estimateGas.deployMedia(
+    //     name,
+    //     symbol,
+    //     zapMarket.address,
+    //     true,
+    //     contractURI
+    // );
+
+    const tx = await mediaFactory.deployMedia(
+        name,
+        symbol,
+        zapMarket.address,
+        true,
+        contractURI,
+    //     { gasLimit: mediaDeployGas }
+    );
+
+    const receipt = await tx.wait();
+    const mediaDeployedEvents = receipt.events as Event[];
+    const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
+    const zapMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
+
+    const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
+    await zapMedia.deployed();
+
+    console.log("ZapMedia deployed to:", zapMedia.address);
+    console.log("ZapMedia contract URI (this time it should show something): ", await zapMedia.contractURI());
+
+    await zapMedia.claimTransferOwnership();
+
+    console.log("Ownership claimed by", await zapMedia.getOwner(), "\n")
 }
 
 main()

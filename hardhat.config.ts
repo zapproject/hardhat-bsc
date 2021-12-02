@@ -69,33 +69,51 @@ const config = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   networks: {
-    localhost: {
-      url: 'http://127.0.0.1:8545/'
+    mainnet: {
+      url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
+      accounts: { mnemonic: process.env.MNEMONIC },
+      gasPrice: 160463534099,
+      gas: 2000000,
+      gasMultiplier: 2,
+      blockGasLimit: 30000000,
+      timeout: 900000,
+    },
+    rinkeby: {
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
+      accounts: [RINKEBY_PRIVATE_KEY],
+      timeout: 60000,
+      gas: 30000000, //30 mil
+      gasPrice: 2000000000, //2 gwei
+      gasMultiplier: 2
+    },
+    kovan: {
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/kovan',
+      accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
       url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
-      gasPrice: 20000000000
-      // accounts: { mnemonic: process.env.MNEMONIC }
+      gas: 2000000,
+      gasPrice: "auto",
+      accounts: { mnemonic: process.env.MNEMONIC },
+      timeout: 300000
     },
     testnet: {
-      url: 'https://data-seed-prebsc-1-s2.binance.org:8545',
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
       chainId: 97,
       gasPrice: 20000000000,
-      // accounts: { mnemonic: process.env.MNEMONIC }
+      accounts: { mnemonic: process.env.MNEMONIC },
+      timeout: 300000
     },
     hardhat: {
       gas: 12000000,
       gasPrice: 10000000000,
       blockGasLimit: 0x1fffffffffffff,
+      allowUnlimitedContractSize: true,
+      timeout: 300000
     },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [RINKEBY_PRIVATE_KEY]
-    },
-    kovan: {
-      url: `https://kovan.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [KOVAN_PRIVATE_KEY]
+    localhost: {
+      url: 'http://127.0.0.1:8545/'
     },
     coverage: {
       url: 'http://127.0.0.1:8555' // Coverage launches its own ganache-cli client

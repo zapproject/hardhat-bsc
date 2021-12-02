@@ -140,8 +140,8 @@ contract ZapMediaOld is
         _;
     }
 
-     //geting the contractURI value
-     function contractURI() public view returns (bytes memory) {
+    //geting the contractURI value
+    function contractURI() public view returns (bytes memory) {
         return collectionMetadata;
     }
 
@@ -703,5 +703,4 @@ contract ZapMediaOld is
                 )
             );
     }
-
 }

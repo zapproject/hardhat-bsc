@@ -10,9 +10,11 @@ import {IBeacon} from '@openzeppelin/contracts/proxy/beacon/IBeacon.sol';
 ///         it stores the ZapMedia implementation address which can be upgraded by the admin
 /// @dev Implements the OpenZeppelin ERC1967UpgradeUpgradeable contract
 contract MediaProxy is ERC1967UpgradeUpgradeable {
-
     modifier onlyAdmin() {
-        require(msg.sender == _getAdmin(), "Only the Admin can call this function");
+        require(
+            msg.sender == _getAdmin(),
+            'Only the Admin can call this function'
+        );
         _;
     }
 
@@ -37,7 +39,7 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
         _upgradeBeaconToAndCall(
             beacon,
             abi.encodeWithSignature(
-                "initialize(string,string,address,bool,string)",
+                'initialize(string,string,address,bool,string)',
                 name,
                 symbol,
                 marketContractAddr,
@@ -49,15 +51,16 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
 
         _changeAdmin(msg.sender);
 
-        (bool success, bytes memory returndata) = (IBeacon(beacon).implementation()).delegatecall(
-            abi.encodeWithSignature("initTransferOwnership(address)", owner)
-        );
+        (bool success, bytes memory returndata) = (
+            IBeacon(beacon).implementation()
+        ).delegatecall(
+                abi.encodeWithSignature('initTransferOwnership(address)', owner)
+            );
 
         require(
             success && returndata.length == 0,
-            "Creating ZapMedia proxy: Can not transfer ownership of proxy"
+            'Creating ZapMedia proxy: Can not transfer ownership of proxy'
         );
-
     }
 
     /// @notice Changes the admin contract of this ERC1967 contract
@@ -72,12 +75,19 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
     /// @dev This makes a `delegatecall`, which means that __the `owner` is stored in this proxy's state__
     /// @param _impl address of the implementation which has the getOwner function bytecode
     /// @return _implOwner address of this ZapMedia's owner
-    function getImplOwner(address _impl) public onlyAdmin returns (address _implOwner){
+    function getImplOwner(address _impl)
+        public
+        onlyAdmin
+        returns (address _implOwner)
+    {
         (bool success, bytes memory returndata) = _impl.delegatecall(
-            abi.encodeWithSignature("getOwner()")
+            abi.encodeWithSignature('getOwner()')
         );
 
-        require(success && returndata.length > 0, "Can not get the owner of this ZapMedia");
+        require(
+            success && returndata.length > 0,
+            'Can not get the owner of this ZapMedia'
+        );
         _implOwner = abi.decode(returndata, (address));
     }
 
@@ -85,33 +95,26 @@ contract MediaProxy is ERC1967UpgradeUpgradeable {
         assembly {
             calldatacopy(0, 0, calldatasize())
 
-            let result := delegatecall(
-                gas(),
-                _impl,
-                0,
-                calldatasize(),
-                0,
-                0
-            )
+            let result := delegatecall(gas(), _impl, 0, calldatasize(), 0, 0)
 
             // Copy the returned data.
             returndatacopy(0, 0, returndatasize())
 
             switch result
-                // delegatecall returns 0 on error.
-                case 0 {
-                    revert(0, returndatasize())
-                }
-                default {
-                    return(0, returndatasize())
-                }
+            // delegatecall returns 0 on error.
+            case 0 {
+                revert(0, returndatasize())
             }
+            default {
+                return(0, returndatasize())
+            }
+        }
     }
 
     fallback() external {
         // ensures that the call is always made to the implementation (ZapMedia)
-        // https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#transparent-proxies-and-function-clashes 
-        if (msg.sender != _getAdmin()){
+        // https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#transparent-proxies-and-function-clashes
+        if (msg.sender != _getAdmin()) {
             _delegate(IBeacon(_getBeacon()).implementation());
         }
     }

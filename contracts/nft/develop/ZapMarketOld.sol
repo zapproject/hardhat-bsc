@@ -341,8 +341,7 @@ contract ZapMarketOld is IMarket, Ownable {
         uint256 tokenId,
         Bid memory bid,
         address spender
-    ) public override 
-        onlyMediaCaller {
+    ) public override onlyMediaCaller {
         BidShares memory bidShares = _bidShares[msg.sender][tokenId];
 
         require(
@@ -415,7 +414,8 @@ contract ZapMarketOld is IMarket, Ownable {
         public
         override
         onlyMediaCaller
-        isUnlocked(tokenId) {
+        isUnlocked(tokenId)
+    {
         Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
@@ -442,9 +442,7 @@ contract ZapMarketOld is IMarket, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         Bid calldata expectedBid
-    ) external override 
-        onlyMediaCaller 
-        isUnlocked(tokenId) {
+    ) external override onlyMediaCaller isUnlocked(tokenId) {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
             expectedBid.bidder
         ];
@@ -518,7 +516,10 @@ contract ZapMarketOld is IMarket, Ownable {
         );
 
         // Transfer media to bid recipient
-        ZapMediaOld(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
+        ZapMediaOld(mediaContractAddress).auctionTransfer(
+            tokenId,
+            bid.recipient
+        );
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare

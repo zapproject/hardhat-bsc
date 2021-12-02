@@ -53,7 +53,7 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
     bytes4 private constant interfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
-    uint8 constant public hundredPercent = 100;
+    uint8 public constant hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
     /**
@@ -67,24 +67,27 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    function initialize(address _weth, address _marketContract) public initializer {
+    function initialize(address _weth, address _marketContract)
+        public
+        initializer
+    {
         __ReentrancyGuard_init();
         wethAddress = _weth;
         marketContract = _marketContract;
     }
 
-    function setTokenDetails(uint256 tokenId, address mediaContract)
-        internal
-    {
+    function setTokenDetails(uint256 tokenId, address mediaContract) internal {
         require(
             mediaContract != address(0),
             'AuctionHouseOld: Media Contract Address can not be the zero address'
         );
 
-        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0)){
+        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0)) {
             require(
-                mediaContract == tokenDetails[mediaContract][tokenId].mediaContract,
-                "Token is already set for a different collection");
+                mediaContract ==
+                    tokenDetails[mediaContract][tokenId].mediaContract,
+                'Token is already set for a different collection'
+            );
         }
 
         tokenDetails[mediaContract][tokenId] = TokenDetails({
@@ -107,7 +110,10 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
         uint8 curatorFeePercentage,
         address auctionCurrency
     ) public override nonReentrant returns (uint256) {
-        require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
+        require(
+            duration >= 60 * 15,
+            'Your auction needs to go on for at least 15 minutes'
+        );
         require(
             IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
             'tokenContract does not support ERC721 interface'
@@ -118,7 +124,7 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
         );
         require(
             IMarket(marketContract).isRegistered(mediaContract),
-            "Media contract is not registered with the marketplace"
+            'Media contract is not registered with the marketplace'
         );
         require(
             curatorFeePercentage < hundredPercent,
@@ -305,9 +311,9 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
         // we want to know by how much the timestamp is less than start + duration
         // if the difference is less than the timeBuffer, increase the duration by the timeBuffer
         uint256 timeDiff = auctions[auctionId]
-                .firstBidTime
-                .add(auctions[auctionId].duration)
-                .sub(block.timestamp);
+            .firstBidTime
+            .add(auctions[auctionId].duration)
+            .sub(block.timestamp);
 
         if (timeDiff < timeBuffer) {
             // Playing code golf for gas optimization:
@@ -458,7 +464,10 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
                 auctions[auctionId].curator == msg.sender,
             'Can only be called by auction creator or curator'
         );
-        require(auctions[auctionId].bidder == address(0), "You can't cancel an auction that has a bid");
+        require(
+            auctions[auctionId].bidder == address(0),
+            "You can't cancel an auction that has a bid"
+        );
         _cancelAuction(auctionId);
     }
 
@@ -567,7 +576,7 @@ contract AuctionHouseOld is IAuctionHouse, ReentrancyGuardUpgradeable {
         );
         require(
             IMarket(marketContract).isRegistered(mediaContract),
-            "This Media Contract is unauthorised to settle auctions"
+            'This Media Contract is unauthorised to settle auctions'
         );
         address currency = auctions[auctionId].auctionCurrency == address(0)
             ? wethAddress

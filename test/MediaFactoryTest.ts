@@ -6,8 +6,8 @@ import chai, { expect } from 'chai';
 
 import { MediaFactory, ZapMarket, ZapVault, ZapTokenBSC, ZapMedia, AuctionHouse, BadMedia } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { Event } from '@ethersproject/contracts';
-import { BigNumber, BigNumberish, ContractFactory } from "ethers";
+import { Event, ContractFactory } from '@ethersproject/contracts';
+import { BigNumber, BigNumberish } from "ethers";
 import { sha256 } from "ethers/lib/utils"
 
 chai.use(solidity);
@@ -54,14 +54,15 @@ describe("MediaFactory", () => {
 
     async function deployMediaFactory(marketAddress: string): Promise<MediaFactory> {
 
-        const zapMediaFactory = await ethers.getContractFactory("ZapMedia");
-        const zapMediaInterface = await zapMediaFactory.deploy();
+        const unInitMediaFactory = await ethers.getContractFactory('ZapMedia');
+
+        const unInitMedia = (await unInitMediaFactory.deploy()) as ZapMedia;
 
         const MediaFactory = await ethers.getContractFactory("MediaFactory");
 
         const mediaFactory = (await upgrades.deployProxy(
             MediaFactory,
-            [marketAddress, zapMediaInterface.address],
+            [marketAddress, unInitMedia.address],
             { initializer: 'initialize' }
         ));
 
@@ -84,39 +85,39 @@ describe("MediaFactory", () => {
         const signers = await ethers.getSigners();
 
         let collaborators = {
-          collaboratorTwo: signers[10].address,
-          collaboratorThree: signers[11].address,
-          collaboratorFour: signers[12].address
+            collaboratorTwo: signers[10].address,
+            collaboratorThree: signers[11].address,
+            collaboratorFour: signers[12].address
         }
 
         await media.mint(
-          {
-            tokenURI: "zap.co",
-            metadataURI: "zap.co",
-            contentHash: hash,
-            metadataHash: hash,
-          },
-          {
-            collaborators: [
-              signers[10].address,
-              signers[11].address,
-              signers[12].address
-            ],
-            collabShares: [
-              BigNumber.from('15000000000000000000'),
-              BigNumber.from('15000000000000000000'),
-              BigNumber.from('15000000000000000000')
-            ]
-            ,
-            creator: {
-              value: BigNumber.from('15000000000000000000')
+            {
+                tokenURI: "zap.co",
+                metadataURI: "zap.co",
+                contentHash: hash,
+                metadataHash: hash,
             },
-            owner: {
-              value: BigNumber.from('35000000000000000000')
-            },
-          }
+            {
+                collaborators: [
+                    signers[10].address,
+                    signers[11].address,
+                    signers[12].address
+                ],
+                collabShares: [
+                    BigNumber.from('15000000000000000000'),
+                    BigNumber.from('15000000000000000000'),
+                    BigNumber.from('15000000000000000000')
+                ]
+                ,
+                creator: {
+                    value: BigNumber.from('15000000000000000000')
+                },
+                owner: {
+                    value: BigNumber.from('35000000000000000000')
+                },
+            }
         );
-      };
+    };
 
     async function createAuction(
         media: string,
@@ -125,22 +126,22 @@ describe("MediaFactory", () => {
         currency: string,
         duration?: number,
         token?: BigNumberish
-      ) {
-        if(!token) token = 0;
-        if(!duration) duration = 60 * 60 * 24;
+    ) {
+        if (!token) token = 0;
+        if (!duration) duration = 60 * 60 * 24;
 
         const reservePrice = BigNumber.from(10).pow(18).div(2);
 
         await auctionHouse.createAuction(
-          token,
-          media,
-          duration,
-          reservePrice,
-          curator,
-          5,
-          currency
+            token,
+            media,
+            duration,
+            reservePrice,
+            curator,
+            5,
+            currency
         );
-      }
+    }
 
     let zapTokenBsc: ZapTokenBSC;
     let zapVault: ZapVault;
@@ -162,7 +163,7 @@ describe("MediaFactory", () => {
 
         await zapMarket.setMediaFactory(mediaFactory.address);
 
-        [ deployer, mediaOwner, badActor ] = await ethers.getSigners();
+        [deployer, mediaOwner, badActor] = await ethers.getSigners();
 
         await mediaFactory.connect(mediaOwner).deployMedia(
             'TEST MEDIA 1',
@@ -219,7 +220,7 @@ describe("MediaFactory", () => {
             auctionHouse = await deployAuction(deployer, zapTokenBsc.address, zapMarket.address);
             await zapMarket.setAuctionHouse(auctionHouse.address);
             zapMedia = new ethers.Contract(mediaAddress, zmABI, mediaOwner) as ZapMedia;
-            
+
             const platformFee = {
                 fee: {
                     value: BigNumber.from('5000000000000000000')
@@ -270,13 +271,13 @@ describe("MediaFactory", () => {
                 null, null, null
             );
 
-            const eventLog =  (await auctionHouse.queryFilter(createdfilter))[0];
+            const eventLog = (await auctionHouse.queryFilter(createdfilter))[0];
 
-            expect(eventLog.args?.tokenId).to.be.      eq(0);
-            expect(eventLog.args?.auctionId).to.be.    eq(0);
+            expect(eventLog.args?.tokenId).to.be.eq(0);
+            expect(eventLog.args?.auctionId).to.be.eq(0);
             expect(eventLog.args?.mediaContract).to.be.eq(zapMedia.address);
-            expect(eventLog.args?.curator).to.be.      eq(mediaOwner.address);
-            expect(eventLog.args?.tokenOwner).to.be.   eq(mediaOwner.address);
+            expect(eventLog.args?.curator).to.be.eq(mediaOwner.address);
+            expect(eventLog.args?.tokenOwner).to.be.eq(mediaOwner.address);
         });
     })
 
