@@ -1,8 +1,8 @@
 import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
-import { BigNumber } from 'ethers';
+import { BigNumber, ContractFactory } from 'ethers';
 
-import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory } from '../typechain';
+import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC } from '../typechain';
 
 import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils';
 
@@ -10,12 +10,16 @@ import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
 import { sign } from 'crypto';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 
 describe("Testing", () => {
 
+    let signers: SignerWithAddress[]
+    let zapTokenBsc: ZapTokenBSC
     let zapVault: ZapVault
     let zapMarket: ZapMarket
+    let zapMarketFactory: any
     let mediaFactory: MediaFactory
     let zapMedia: ZapMedia
     let zapMarketV2: ZapMarketV2
@@ -62,17 +66,20 @@ describe("Testing", () => {
 
     before(async () => {
 
-        // 20 accoun
-        const signers = await ethers.getSigners();
+        // 20 test accounts
+        signers = await ethers.getSigners();
 
         // Gets the deployed NFT contract fixtures from the 
         await deployments.fixture();
+
+        // Gets the ZapTokenBSC contract deployment
+        const zapTokenBscFactory = await deployments.get('ZapTokenBSC');
 
         // Gets the ZapVault contract deployment
         const zapVaultFactory = await deployments.get('ZapVault');
 
         // Gets the ZapMarket contract deployment
-        const zapMarketFactory = await deployments.get('ZapMarket');
+        zapMarketFactory = await deployments.get('ZapMarket');
 
         // Gets the MediaFactory contract deployment
         const mediaFactoryFactory = await deployments.get('MediaFactory');
@@ -86,6 +93,24 @@ describe("Testing", () => {
         await newProxyAdmin.deployed();
 
         const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
+
+        const defaultProxyAdmin = new ethers.Contract(
+            defaultProxyAdminDeployment.address,
+            defaultProxyAdminDeployment.abi,
+            signers[0]
+        );
+
+        zapTokenBsc = await ethers.getContractAt(
+            'ZapTokenBSC',
+            zapTokenBscFactory.address,
+            signers[0]
+        ) as ZapTokenBSC;
+
+        zapVault = await ethers.getContractAt(
+            'ZapVault',
+            zapVaultFactory.address,
+            signers[0]
+        ) as ZapVault;
 
         // ZapMarket contract instance
         zapMarket = await ethers.getContractAt(
@@ -122,43 +147,53 @@ describe("Testing", () => {
         // ZapMedia contract instance
         zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
 
+        // Sets the token collaborators
         bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
 
+        // Signer[0] mints a token
+        // tokenId is currently 0
         await zapMedia.mint(data, bidShares);
-
-        // const defaultProxyAdmin = new ethers.Contract(
-        //     defaultProxyAdminDeployment.address,
-        //     defaultProxyAdminDeployment.abi,
-        //     signers[0]
-        // );
-
-        // const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0])
-        // const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
-
-        // await deployments.deploy('ZapMarket', {
-        //     from: deployer,
-        //     contract: "ZapMarketV2",
-        //     proxy: {
-        //         proxyContract: 'OpenZeppelinTransparentProxy',
-        //     },
-        //     log: true,
-        // })
-
-        // zapMarketV2 = new ethers.Contract(
-        //     zapMarketFactory.address, ZapMarketV2.interface, signers[0]
-        // ) as ZapMarketV2;
-
-
-        // // const zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, ZapMarketV2, {})
-
 
     })
 
-    it('testing', async function () {
+    describe("Upgradeable Initialize", () => {
 
-        // await expect(zapMarketV2._isConfigured(ethers.constants.AddressZero)).to.not.be.false
+        beforeEach(async () => {
 
-    });
+            const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0])
+            const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
+
+            await deployments.deploy('ZapMarket', {
+                from: signers[0].address,
+                contract: "ZapMarketV2",
+                proxy: {
+                    proxyContract: 'OpenZeppelinTransparentProxy',
+                },
+                log: true,
+            })
+
+            zapMarketV2 = new ethers.Contract(
+                zapMarketFactory.address, ZapMarketV2.interface, signers[0]
+            ) as ZapMarketV2;
+        })
+
+        it("Should not be able to initialize ZapMarketV2 twice", async () => {
+
+            await expect(zapMarketV2.initializeMarket(zapVault.address)).to.be.revertedWith(
+                'Initializable: contract is already initialized'
+            );
+        });
+
+        it("Should return the same owner address between ZapMarketV1 and ZapMarketV2 ", async () => {
+
+            const ownerV1 = await zapMarket.getOwner();
+            const ownerV2 = await zapMarketV2.getOwner();
+
+            expect(ownerV1).to.be.equal(ownerV2);
+
+        });
+
+    })
 
 
 });
