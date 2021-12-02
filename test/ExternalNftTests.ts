@@ -18,13 +18,18 @@ describe("Testing", () => {
     let zapMedia: ZapMedia
     let zapMarketV2: ZapMarketV2
 
+
+    const name = 'Zap Collection';
+    const symbol = 'ZAP';
+    const contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/';
+
     beforeEach(async () => {
 
         // 20 accoun
         const signers = await ethers.getSigners();
 
         // Gets the deployed NFT contract fixtures from the 
-        await deployments.fixture(['ZapTokenBSC', 'ZapVault', 'ZapMarket', 'MediaFactory']);
+        await deployments.fixture();
 
         // Gets the ZapVault contract deployment
         const zapVaultFactory = await deployments.get('ZapVault');
@@ -33,7 +38,9 @@ describe("Testing", () => {
         const zapMarketFactory = await deployments.get('ZapMarket');
 
         // Gets the MediaFactory contract deployment
-        const mediaFactoryFactory = await await deployments.get('MediaFactory');
+        const mediaFactoryFactory = await deployments.get('MediaFactory');
+
+        const zapMediaFactory = await deployments.get('ZapMedia')
 
         // Deploy NewProxyAdmin contract
         const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
@@ -58,11 +65,28 @@ describe("Testing", () => {
             signers[0]
         ) as MediaFactory;
 
-        const defaultProxyAdmin = new ethers.Contract(
-            defaultProxyAdminDeployment.address,
-            defaultProxyAdminDeployment.abi,
-            signers[0]
+        await mediaFactory.deployMedia(
+            name,
+            symbol,
+            zapMarket.address,
+            true,
+            contractURI,
         );
+
+        const filter = mediaFactory.filters.MediaDeployed(null);
+
+        const event = (await mediaFactory.queryFilter(filter))[0];
+
+        const mediaAddress = event.args.mediaContract;
+
+        zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
+
+
+        // const defaultProxyAdmin = new ethers.Contract(
+        //     defaultProxyAdminDeployment.address,
+        //     defaultProxyAdminDeployment.abi,
+        //     signers[0]
+        // );
 
         // const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0])
         // const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
@@ -88,7 +112,7 @@ describe("Testing", () => {
 
     it('testing', async function () {
 
-        await expect(zapMarketV2._isConfigured(ethers.constants.AddressZero)).to.not.be.false
+        // await expect(zapMarketV2._isConfigured(ethers.constants.AddressZero)).to.not.be.false
 
     });
 
