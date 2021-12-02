@@ -55,6 +55,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     IMarketV2.PlatformFee platformFee;
 
+    address private auctionHouse;
+
     //Mapping determining whether an nft contract is internal or external
     mapping(address => bool) public isInternalMedia;
 
