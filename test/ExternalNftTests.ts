@@ -1,4 +1,6 @@
-import { ethers, upgrades, deployments, getNamedAccounts } from 'hardhat';
+import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
+
+import { BigNumber } from 'ethers';
 
 import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory } from '../typechain';
 
@@ -18,12 +20,47 @@ describe("Testing", () => {
     let zapMedia: ZapMedia
     let zapMarketV2: ZapMarketV2
 
-
     const name = 'Zap Collection';
     const symbol = 'ZAP';
     const contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/';
 
-    beforeEach(async () => {
+    let tokenURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/rinkeby'
+    let metadataURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/rinkeby'
+
+    let metadataHex = ethers.utils.formatBytes32String('Testing');
+    let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+    let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+    let contentHex = ethers.utils.formatBytes32String('Testing');
+    let contentHashRaw = ethers.utils.keccak256(contentHex);
+    let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+    let contentHash = contentHashBytes;
+    let metadataHash = metadataHashBytes;
+
+    const data = {
+        tokenURI,
+        metadataURI,
+        contentHash,
+        metadataHash
+    };
+
+    let bidShares = {
+        collaborators: ["", "", ""],
+        collabShares: [
+            BigNumber.from('15000000000000000000'),
+            BigNumber.from('15000000000000000000'),
+            BigNumber.from('15000000000000000000')
+        ],
+        creator: {
+            value: BigNumber.from('15000000000000000000')
+        },
+        owner: {
+            value: BigNumber.from('35000000000000000000')
+        },
+    };
+
+    before(async () => {
 
         // 20 accoun
         const signers = await ethers.getSigners();
@@ -40,7 +77,8 @@ describe("Testing", () => {
         // Gets the MediaFactory contract deployment
         const mediaFactoryFactory = await deployments.get('MediaFactory');
 
-        const zapMediaFactory = await deployments.get('ZapMedia')
+        // Gets the ZapMedia implementation deployment
+        const zapMediaFactory = await deployments.get('ZapMedia');
 
         // Deploy NewProxyAdmin contract
         const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
@@ -48,8 +86,6 @@ describe("Testing", () => {
         await newProxyAdmin.deployed();
 
         const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
-
-        // zapVault = await ethers.getContractAt('ZapVault', vaultFactory.address) as ZapVault;
 
         // ZapMarket contract instance
         zapMarket = await ethers.getContractAt(
@@ -65,6 +101,7 @@ describe("Testing", () => {
             signers[0]
         ) as MediaFactory;
 
+        // Deploy ZapMedia
         await mediaFactory.deployMedia(
             name,
             symbol,
@@ -73,14 +110,21 @@ describe("Testing", () => {
             contractURI,
         );
 
+        // Filter for the MediaDeployed event
         const filter = mediaFactory.filters.MediaDeployed(null);
 
+        // Query for the MediaDeployed event
         const event = (await mediaFactory.queryFilter(filter))[0];
 
+        // Store the zapMedia address
         const mediaAddress = event.args.mediaContract;
 
+        // ZapMedia contract instance
         zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
 
+        bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
+
+        await zapMedia.mint(data, bidShares);
 
         // const defaultProxyAdmin = new ethers.Contract(
         //     defaultProxyAdminDeployment.address,
