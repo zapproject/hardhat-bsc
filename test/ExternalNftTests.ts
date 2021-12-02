@@ -1,4 +1,4 @@
-import { ethers, upgrades, deployments } from 'hardhat';
+import { ethers, upgrades, deployments, getNamedAccounts } from 'hardhat';
 
 import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin } from '../typechain';
 
@@ -19,10 +19,12 @@ describe("Testing", () => {
 
         const signers = await ethers.getSigners()
         await deployments.fixture(['ZapTokenBSC', 'ZapVault', 'ZapMarket']);
+        const { deployer } = await getNamedAccounts();
 
         const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
         const newProxyAdmin = await newProxyAdminFactory.deploy() as NewProxyAdmin;
         await newProxyAdmin.deployed();
+        const zapVaultFactory = await deployments.get('ZapVault');
         const zapMarketFactory = await deployments.get('ZapMarket');
         const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
 
@@ -37,17 +39,19 @@ describe("Testing", () => {
         const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0])
         const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
 
-        const newImplAddress = await upgrades.prepareUpgrade(
-            zapMarket,
-            ZapMarketV2
-        );
 
-        console.log("deployed impl address: ", newImplAddress);
-        await upgrades.admin.changeProxyAdmin(zapMarket.address, newProxyAdmin.address);
+        await deployments.deploy('ZapMarket', {
+            from: deployer,
+            contract: "ZapMarketV2",
+            proxy: {
+                proxyContract: 'OpenZeppelinTransparentProxy',
+            },
+            log: true,
+        })
 
-        await newProxyAdmin.upgrade(zapMarket.address, newImplAddress);
-
-        zapMarketV2 = (zapMarket as unknown) as ZapMarketV2;
+        zapMarketV2 = new ethers.Contract(
+            zapMarketFactory.address, ZapMarketV2.interface, signers[0]
+        ) as ZapMarketV2;
 
 
         // const zapMarketV2 = await upgrades.upgradeProxy(zapMarket.address, ZapMarketV2, {})
@@ -56,7 +60,7 @@ describe("Testing", () => {
     })
 
     it('testing', async function () {
-        await expect(zapMarket._isConfigured(ethers.constants.AddressZero)).to.not.be.reverted
+        await expect(zapMarketV2._isConfigured(ethers.constants.AddressZero)).to.not.be.false
     });
 
 
