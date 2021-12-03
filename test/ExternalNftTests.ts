@@ -2,7 +2,7 @@ import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
 import { BigNumber, ContractFactory } from 'ethers';
 
-import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC } from '../typechain';
+import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC, ExternalMedia } from '../typechain';
 
 import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils';
 
@@ -11,6 +11,11 @@ import { solidity } from 'ethereum-waffle';
 import chai, { expect } from 'chai';
 import { sign } from 'crypto';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+
+import { Creature } from '../typechain/Creature';
+import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
+
+
 
 
 describe("Testing", () => {
@@ -23,6 +28,7 @@ describe("Testing", () => {
     let mediaFactory: MediaFactory
     let zapMedia: ZapMedia
     let zapMarketV2: ZapMarketV2
+    let externalMedia: ExternalMedia
 
     const name = 'Zap Collection';
     const symbol = 'ZAP';
@@ -156,7 +162,7 @@ describe("Testing", () => {
 
     })
 
-    describe("Upgradeable Initialize", () => {
+    describe.skip("Upgradeable Initialize", () => {
 
         beforeEach(async () => {
 
@@ -194,6 +200,54 @@ describe("Testing", () => {
         });
 
     })
+
+    describe("wrap and register external NFT contract", () => {
+        let owner: SignerWithAddress;
+        let proxyForOwner: SignerWithAddress;
+
+        let proxy: MockProxyRegistry;
+
+        let osCreature: Creature;
+        beforeEach(async () => {
+            owner = signers[0];
+            proxyForOwner = signers[8];
+
+            const proxyFactory = await ethers.getContractFactory(
+                'MockProxyRegistry',
+                signers[0]
+            )
+
+            proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+            await proxy.deployed();
+            await proxy.setProxy(owner.address, proxyForOwner.address);
+
+
+            const oscreatureFactory = await ethers.getContractFactory(
+                'Creature',
+                signers[0]
+            )
+
+            osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+            await osCreature.deployed();
+
+            // signers[10] mints 
+            await osCreature.mintTo(signers[10].address)
+
+        });
+
+        it("external should...", async () => {
+            console.log(osCreature.address);
+            console.log(osCreature.balanceOf(signers[10].address))
+
+            const ExternalMediaFactory = await ethers.getContractFactory("ExternalMedia", signers[0])
+            externalMedia = await ExternalMediaFactory.deploy() as ExternalMedia;
+
+            await externalMedia.connect(signers[10]).enterMarketplace(osCreature.address);
+
+            console.log(await externalMedia.connect(signers[10]).getListOfContracts());
+
+        });
+    });
 
 
 });
