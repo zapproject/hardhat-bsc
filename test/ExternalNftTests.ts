@@ -2,7 +2,7 @@ import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
 import { BigNumber, ContractFactory } from 'ethers';
 
-import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC } from '../typechain';
+import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, MediaFactoryV2, ZapTokenBSC } from '../typechain';
 
 import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils';
 
@@ -20,6 +20,9 @@ describe("Testing", () => {
     let zapVault: ZapVault
     let zapMarket: ZapMarket
     let zapMarketFactory: any
+    let zapMediaFactory: any
+    let mediaFactoryFactory: any
+    let mediaImpl: ZapMedia;
     let mediaFactory: MediaFactory
     let zapMedia: ZapMedia
     let zapMarketV2: ZapMarketV2
@@ -66,6 +69,12 @@ describe("Testing", () => {
         },
     };
 
+    let ask1 = {
+        amount: 100,
+        currency: '',
+        sellOnShare: 0
+    };
+
     before(async () => {
 
         // 20 test accounts
@@ -84,10 +93,10 @@ describe("Testing", () => {
         zapMarketFactory = await deployments.get('ZapMarket');
 
         // Gets the MediaFactory contract deployment
-        const mediaFactoryFactory = await deployments.get('MediaFactory');
+        mediaFactoryFactory = await deployments.get('MediaFactory');
 
         // Gets the ZapMedia implementation deployment
-        const zapMediaFactory = await deployments.get('ZapMedia');
+        zapMediaFactory = await deployments.get('ZapMedia');
 
         // Deploy NewProxyAdmin contract
         const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
@@ -120,6 +129,7 @@ describe("Testing", () => {
             zapMarketFactory.address,
             signers[0]
         ) as ZapMarket;
+
 
         // MediaFactory contract instance
         mediaFactory = await ethers.getContractAt(
@@ -156,6 +166,12 @@ describe("Testing", () => {
         // tokenId is currently 0
         await zapMedia.mint(data, bidShares);
 
+        ask1.currency = zapTokenBsc.address;
+
+        await zapMedia.setAsk(
+            0,
+            ask1
+        );
 
         const proxyFactory = await ethers.getContractFactory(
             'MockProxyRegistry',
@@ -175,6 +191,51 @@ describe("Testing", () => {
         await osCreature.deployed();
 
         await osCreature.mintTo(signers[0].address);
+
+    })
+
+    describe("External Token", () => {
+
+        let mediaFactoryV2: MediaFactoryV2
+
+        beforeEach(async () => {
+
+            const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+            const MediaFactoryV2 = await ethers.getContractFactory('MediaFactoryV2', signers[0]);
+
+            const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
+
+            await deployments.deploy('ZapMarket', {
+                from: signers[0].address,
+                contract: "ZapMarketV2",
+                proxy: {
+                    proxyContract: 'OpenZeppelinTransparentProxy',
+                },
+                log: true,
+            })
+
+            await deployments.deploy('MediaFactory', {
+                from: signers[0].address,
+                contract: "MediaFactoryV2",
+                proxy: {
+                    proxyContract: 'OpenZeppelinTransparentProxy',
+                },
+                log: true,
+            })
+
+            zapMarketV2 = new ethers.Contract(
+                zapMarketFactory.address, ZapMarketV2.interface, signers[0]
+            ) as ZapMarketV2;
+
+            mediaFactoryV2 = new ethers.Contract(
+                mediaFactoryFactory.address, MediaFactoryV2.interface, signers[0]
+            ) as MediaFactoryV2
+
+        })
+
+        it("Testing", async () => {
+
+        })
 
     })
 
