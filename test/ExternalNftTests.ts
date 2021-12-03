@@ -2,7 +2,7 @@ import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
 import { BigNumber, ContractFactory } from 'ethers';
 
-import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC } from '../typechain';
+import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC } from '../typechain';
 
 import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils';
 
@@ -23,6 +23,8 @@ describe("Testing", () => {
     let mediaFactory: MediaFactory
     let zapMedia: ZapMedia
     let zapMarketV2: ZapMarketV2
+    let proxy: MockProxyRegistry
+    let osCreature: Creature
 
     const name = 'Zap Collection';
     const symbol = 'ZAP';
@@ -153,6 +155,26 @@ describe("Testing", () => {
         // Signer[0] mints a token
         // tokenId is currently 0
         await zapMedia.mint(data, bidShares);
+
+
+        const proxyFactory = await ethers.getContractFactory(
+            'MockProxyRegistry',
+            signers[0]
+        )
+
+        proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+        await proxy.deployed();
+
+        await proxy.setProxy(signers[0].address, signers[0].address);
+        const oscreatureFactory = await ethers.getContractFactory(
+            'Creature',
+            signers[0]
+        )
+
+        osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+        await osCreature.deployed();
+
+        await osCreature.mintTo(signers[0].address);
 
     })
 
