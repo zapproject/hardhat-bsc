@@ -29,17 +29,9 @@ import './libraries/Constants.sol';
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-// contract ExternalMedia is
-//     IMedia,
-//     ERC721BurnableUpgradeable,
-//     ReentrancyGuardUpgradeable,
-//     Ownable,
-//     MediaGetter,
-//     ERC721URIStorageUpgradeable,
-//     ERC721EnumerableUpgradeable,
-//     ERC165StorageUpgradeable
-// {
+
 contract ExternalMedia is Ownable {
+
     // ************************************************************************
     // LIBRARY DECLARATION
     // ------------------------------------------------------------------------

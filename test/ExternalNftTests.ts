@@ -1,6 +1,6 @@
 import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
-import { BigNumber, ContractFactory } from 'ethers';
+import { BigNumber, ContractFactory, Event } from 'ethers';
 
 import { ZapMarket, ZapMedia, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, ZapTokenBSC, ExternalMedia } from '../typechain';
 
@@ -15,6 +15,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { Creature } from '../typechain/Creature';
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
 
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 
 
@@ -237,14 +238,45 @@ describe("Testing", () => {
 
         it("external should...", async () => {
             console.log(osCreature.address);
-            console.log(osCreature.balanceOf(signers[10].address))
+            console.log(await osCreature.balanceOf(signers[10].address))
 
-            const ExternalMediaFactory = await ethers.getContractFactory("ExternalMedia", signers[0])
-            externalMedia = await ExternalMediaFactory.deploy() as ExternalMedia;
+            // const ExternalMediaFactory = await ethers.getContractFactory("ExternalMedia", signers[0])
+            // externalMedia = await ExternalMediaFactory.deploy() as ExternalMedia;
 
-            await externalMedia.connect(signers[10]).enterMarketplace(osCreature.address);
+            // await externalMedia.connect(signers[10]).enterMarketplace(osCreature.address);
 
-            console.log(await externalMedia.connect(signers[10]).getListOfContracts());
+            // console.log(await externalMedia.connect(signers[10]).getListOfContracts());
+
+            // have mediaFactory deploy ExternalMedia contract
+
+            const name = "External Media Contract";
+            const symbol = "EMC"
+            const contractURI = "https://www.example.com"
+
+            const tx = await mediaFactory.deployMedia(
+                name,
+                symbol,
+                zapMarket.address,
+                false,
+                contractURI,
+            );
+
+            const receipt = await tx.wait();
+            const mediaDeployedEvents = receipt.events as Event[];
+            const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
+            const externalMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
+            const externalMediaAbi = require("../artifacts/contracts/nft/ExternalMedia.sol/ExternalMedia.json").abi;
+
+
+            const externalMedia = new ethers.Contract(externalMediaAddress, externalMediaAbi, signers[0]) as ZapMedia;
+            await externalMedia.deployed();
+
+            console.log("externalMedia deployed to:", externalMedia.address);
+
+            await externalMedia.claimTransferOwnership();
+
+            console.log(await zapMarket.isConfigured(externalMedia.address));
+            console.log(await zapMarket.isRegistered(externalMedia.address));
 
         });
     });
