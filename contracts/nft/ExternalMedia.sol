@@ -10,7 +10,6 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 
-
 import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -18,11 +17,13 @@ import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {IMarket} from './interfaces/IMarket.sol';
-import {IMedia} from './interfaces/IMedia.sol';
+import {IExternalMedia} from './interfaces/IExternalMedia.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
+
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -31,58 +32,61 @@ import './libraries/Constants.sol';
  */
 
 contract ExternalMedia is Ownable {
-
     // ************************************************************************
     // LIBRARY DECLARATION
     // ------------------------------------------------------------------------
 
     using Address for address;
-    
 
     // ------------------------------------------------------------------------
     // END LIBRARY DECLARATIONS
     // ************************************************************************
 
-
-
     // ************************************************************************
     // MAPPING DECLARATIONS
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
     mapping(bytes4 => bool) private _supportedInterfaces;
 
-    mapping(address => address[]) listOfExternalAddresses;
-    mapping(address => bool) holdsExternalAddress;
+    mapping(address => address[]) internal listOfExternalAddresses;
+    mapping(address => bool) internal holdsExternalAddress;
 
     // ------------------------------------------------------------------------
     // END MAPPING DECLARATIONS
     // ************************************************************************
-    
-
-
 
     // ************************************************************************
     // MODIFIER DECLARATIONS
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
+    modifier connectToExternalContract(address _NFTContractAddress) {
+        require(_NFTContractAddress.isContract(), 'ExternalMedia: Not a contract');
+        require(_NFTContractAddress != address(0), 'ExternalMedia: Cannot be 0-address');
+        extContract = IERC721(_NFTContractAddress);
+        _;
+    }
 
+    modifier onlyTokenOwner(address _NFTContractAddress, uint256 tokenID) {
+        extContract = IERC721(_NFTContractAddress);
+        require(extContract.ownerOf(tokenID) == msg.sender, "ExternalMedia: Not the token owner");
+        
+        _;
+    }
+
+    
 
     // ************************************************************************
     // END MODIFIER DECLARATIONS
-    // ------------------------------------------------------------------------    
-
-
+    // ------------------------------------------------------------------------
 
     // ************************************************************************
     // VARIABLE DECLARATIONS
-    // ------------------------------------------------------------------------    
+    // ------------------------------------------------------------------------
     bytes internal _contractURI;
-
     bytes32 private kecName;
+    IERC721 internal extContract;
 
     // ************************************************************************
     // END VARIABLE DECLARATIONS
-    // ------------------------------------------------------------------------ 
-
-
+    // ------------------------------------------------------------------------
 
     // /**
     //  * @notice On deployment, set the market contract address and register the
@@ -90,80 +94,82 @@ contract ExternalMedia is Ownable {
     //  */
 
     function initialize(
-        string calldata name,
-        string calldata symbol,
-        address marketContractAddr,
-        bool permissive,
-        string calldata collectionURI
-    ) external initializer {
+        // string calldata name,
+        // string calldata symbol,
+        address marketContractAddr
+    )
+        external
+        // bool permissive,
+        // string calldata collectionURI
+        initializer
+    {
         // __ERC721_init(name, symbol);
-        // initialize_ownable();
+        initialize_ownable();
 
         access.marketContract = marketContractAddr;
 
-        bytes memory name_b = bytes(name);
+        bytes memory name_b = bytes('External Media');
+        bytes memory symbol_b = bytes('EXM');
 
         bytes32 name_b32;
+        bytes32 symbol_b32;
 
         assembly {
             name_b32 := mload(add(name_b, 32))
+            symbol_b32 := mload(add(symbol_b, 32))
         }
 
         kecName = keccak256(name_b);
-        _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
+        _registerInterface(0x80ac58cd); // registers old erc721 interface for AuctionHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
-        _registerInterface(type(IMedia).interfaceId);
+        _registerInterface(type(IExternalMedia).interfaceId);
 
         // access.isPermissive = permissive;
-        _contractURI = bytes(collectionURI);
+        // _contractURI = bytes(collectionURI);
+        console.log('REACHED HERE');
+
+        // console.log("MSG>SENDER INSIDE INITIALIZE", msg.sender);
+
+        // initTransferOwnership(payable(msg.sender));
     }
 
+    function enterMarketplace(address _NFTContractAddress)
+        public
+        connectToExternalContract(_NFTContractAddress)
+    {
+        require(
+            extContract.balanceOf(msg.sender) >= 0,
+            'No tokens available to add to marketplace'
+        );
 
-
-
-    function enterMarketplace(address _NFTContractAddress) public returns (string memory) {
-        // require(_NFTContractAddress.isContract(), "Not a contract");
-        require(_NFTContractAddress != address(0), "Cannot be 0-address");
-        
-                
-        IERC721 extContract = IERC721(_NFTContractAddress);
-        require(extContract.balanceOf(msg.sender) >= 0, "No tokens available to add to marketplace");
-
-
-        require(holdsExternalAddress[_NFTContractAddress] == false, "Already in marketplace.");
+        require(
+            holdsExternalAddress[_NFTContractAddress] == false,
+            'Already in marketplace.'
+        );
 
         listOfExternalAddresses[msg.sender].push(_NFTContractAddress);
         holdsExternalAddress[_NFTContractAddress] = true;
-
-        return "Hello World";
     }
 
     function getListOfContracts() public view returns (address[] memory) {
         return listOfExternalAddresses[msg.sender];
     }
 
-
-    function checkBalance(address _NFTContractAddress) public view returns (uint) {
+    function checkBalance(address _NFTContractAddress)
+        public
+        view
+        returns (uint256)
+    {
         IERC721 extContract = IERC721(_NFTContractAddress);
         return extContract.balanceOf(msg.sender);
     }
 
-
-
-
-
-// function _registerInterface(bytes4 interfaceId) internal virtual override {
-function _registerInterface(bytes4 interfaceId) internal virtual {
+    // function _registerInterface(bytes4 interfaceId) internal virtual override {
+    function _registerInterface(bytes4 interfaceId) internal virtual {
         require(interfaceId != 0xffffffff, 'ERC165: invalid interface id');
         _supportedInterfaces[interfaceId] = true;
     }
 
-
-
-
-
-
-
     // =================================================================================
     // =================================================================================
     // =================================================================================
@@ -173,8 +179,6 @@ function _registerInterface(bytes4 interfaceId) internal virtual {
     // =================================================================================
     // =================================================================================
     // =================================================================================
-
-
 
     // using Counters for Counters.Counter;
     // using EnumerableSet for EnumerableSet.UintSet;
@@ -207,17 +211,16 @@ function _registerInterface(bytes4 interfaceId) internal virtual {
     //  * *********
     //  */
 
-    // /**
-    //  * @notice Require that the token has not been burned and has been minted
-    //  */
-    // modifier onlyExistingToken(uint256 tokenId) {
-    //     require(
-    //         _exists(tokenId),
-    //         // remove revert string before deployment to mainnet
-    //         'Media: nonexistent token'
-    //     );
-    //     _;
-    // }
+    /**
+     * @notice Require that the token has not been burned and has been minted
+     */
+    modifier onlyExistingToken(address _NFTContractAddress, uint256 tokenId) {
+        require(
+            _exists(_NFTContractAddress, tokenId),
+            'Media: nonexistent token'
+        );
+        _;
+    }
 
     // /**
     //  * @notice Require that the token has had a content hash set
@@ -279,6 +282,23 @@ function _registerInterface(bytes4 interfaceId) internal virtual {
     //     );
     //     _;
     // }
+
+    /**
+     * @dev Returns whether `tokenId` exists.
+     *
+     * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
+     *
+     * Tokens start existing when they are minted (`_mint`),
+     * and stop existing when they are burned (`_burn`).
+     */
+    function _exists(address _NFTContractAddress, uint256 tokenId)
+        internal
+        virtual
+        connectToExternalContract(_NFTContractAddress)
+        returns (bool)
+    {
+        return extContract.ownerOf(tokenId) != address(0);        
+    }
 
     // //geting the contractURI value
     // function contractURI() public view returns (bytes memory) {
@@ -389,13 +409,14 @@ function _registerInterface(bytes4 interfaceId) internal virtual {
     //  * @param tokenId the token whose metadata will be attached
     //  * @return the metadata URI for the token
     //  */
-    // function tokenMetadataURI(uint256 tokenId)
+    // function tokenMetadataURI(address _NFTContractAddress, uint256 tokenId)
     //     external
     //     view
-    //     override
-    //     onlyTokenCreated(tokenId)
+    //     // override
+    //     onlyExistingToken(_NFTContractAddress, tokenId)
     //     returns (string memory)
     // {
+    //     extContract.
     //     return access._tokenMetadataURIs[tokenId];
     // }
 
@@ -508,14 +529,18 @@ function _registerInterface(bytes4 interfaceId) internal virtual {
     // /**
     //  * @notice see IMedia
     //  */
-    // function setAsk(uint256 tokenId, IMarket.Ask memory ask)
+    // function setAsk(address _NFTContractAddress, uint256 tokenId, IMarket.Ask memory ask)
     //     public
-    //     override
-    //     nonReentrant
-    //     onlyApprovedOrOwner(msg.sender, tokenId)
-    //     onlyExistingToken(tokenId)
+    //     // override
+    //     // nonReentrant
+    //     onlyTokenOwner(_NFTContractAddress, tokenId)
+    //     onlyExistingToken(_NFTContractAddress, tokenId)
     // {
-    //     IMarket(access.marketContract).setAsk(tokenId, ask);
+    //     // can't use below to set ask.
+    //     // setAsk is going to need an External specific function 
+    //     // or modifiy setAsk now to accept a contract address
+    //     IMarket(access.marketContract).setAsk(_NFTContractAddress, tokenId, ask);
+    //     // console.log("SET ASK");
     // }
 
     // /**

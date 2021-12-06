@@ -9,6 +9,7 @@ import {MediaProxy} from './MediaProxy.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import 'hardhat/console.sol';
+import {ExternalMedia} from './ExternalMedia.sol';
 
 interface IERC721Extended {
     function name() external view returns (string memory);
@@ -100,5 +101,31 @@ contract MediaFactory is OwnableUpgradeable {
         emit MediaDeployed(proxyAddress);
 
         return proxyAddress;
+    }
+
+
+    function configureAndRegisterExternalMedia(
+        address externalMediaA
+    ) external returns (address) {
+
+
+        zapMarket.registerMedia(externalMediaA);
+
+        bytes memory name_b = bytes("External Media");
+        bytes memory symbol_b = bytes("ExM");
+
+        bytes32 name_b32;
+        bytes32 symbol_b32;
+
+        assembly {
+            name_b32 := mload(add(name_b, 32))
+            symbol_b32 := mload(add(symbol_b, 32))
+        }
+
+        zapMarket.configure(msg.sender, externalMediaA, name_b32, symbol_b32);
+
+        emit MediaDeployed(externalMediaA);
+
+        console.log("CONFIGURED AND REGISTERED!");
     }
 }

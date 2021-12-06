@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import {MediaStorage} from "./libraries/MediaStorage.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import 'hardhat/console.sol';
 
 contract Ownable is Initializable {
     event OwnershipTransferInitiated(
@@ -53,6 +54,7 @@ contract Ownable is Initializable {
     /// @dev Allows the current owner to intiate the transfer control of the contract to a newOwner.
     /// @param newOwner The address to transfer ownership to.
     function initTransferOwnership(address payable newOwner) public onlyOwner {
+        console.log("REACHED INSIDE - OWNABLE");
         require(newOwner != address(0), "Ownable: Cannot transfer to zero address");
         emit OwnershipTransferInitiated(access.owner, newOwner);
         appointedOwner = newOwner;

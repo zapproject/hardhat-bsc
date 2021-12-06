@@ -1,4 +1,4 @@
-import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
+import { ethers, upgrades, deployments, getNamedAccounts } from 'hardhat';
 
 import { BigNumber, ContractFactory, Event } from 'ethers';
 
@@ -16,6 +16,8 @@ import { Creature } from '../typechain/Creature';
 import { MockProxyRegistry } from '../typechain/MockProxyRegistry';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+
+const hre = require("hardhat")
 
 
 
@@ -240,44 +242,34 @@ describe("Testing", () => {
             console.log(osCreature.address);
             console.log(await osCreature.balanceOf(signers[10].address))
 
-            // const ExternalMediaFactory = await ethers.getContractFactory("ExternalMedia", signers[0])
-            // externalMedia = await ExternalMediaFactory.deploy() as ExternalMedia;
-
-            // await externalMedia.connect(signers[10]).enterMarketplace(osCreature.address);
-
-            // console.log(await externalMedia.connect(signers[10]).getListOfContracts());
-
-            // have mediaFactory deploy ExternalMedia contract
-
-            const name = "External Media Contract";
-            const symbol = "EMC"
-            const contractURI = "https://www.example.com"
-
-            const tx = await mediaFactory.deployMedia(
-                name,
-                symbol,
-                zapMarket.address,
-                false,
-                contractURI,
-            );
-
-            const receipt = await tx.wait();
-            const mediaDeployedEvents = receipt.events as Event[];
-            const mediaDeployedEvent = mediaDeployedEvents.slice(-1);
-            const externalMediaAddress = mediaDeployedEvent[0].args?.mediaContract;
-            const externalMediaAbi = require("../artifacts/contracts/nft/ExternalMedia.sol/ExternalMedia.json").abi;
+            const ExternalMediaFactory = await ethers.getContractFactory("ExternalMedia", signers[0])
 
 
-            const externalMedia = new ethers.Contract(externalMediaAddress, externalMediaAbi, signers[0]) as ZapMedia;
-            await externalMedia.deployed();
+            // use hardhat-deploy to deploy ExternalMedia
+            await deployments.deploy('ExternalMedia', {
+                from: signers[0].address,
+                proxy: {
+                    proxyContract: 'OpenZeppelinTransparentProxy',
+                    execute: {
+                        methodName: "initialize",
+                        args: [zapMarket.address]
+                    }
+                },
+                log: true,
+            })
 
-            console.log("externalMedia deployed to:", externalMedia.address);
+            // this externalMediaAddress is the address to the proxy contract
+            const externalMediaAddress = await (await hre.deployments.get('ExternalMedia')).address;
+            const externalMedia = await ExternalMediaFactory.attach(externalMediaAddress);
+            console.log(externalMedia);
+            console.log(externalMedia.functions);
 
-            await externalMedia.claimTransferOwnership();
+            console.log("Owner of externalMedia: ", await externalMedia.getOwner())
 
-            console.log(await zapMarket.isConfigured(externalMedia.address));
-            console.log(await zapMarket.isRegistered(externalMedia.address));
+            console.log("configuring");
+            await mediaFactory.configureAndRegisterExternalMedia(externalMediaAddress);
 
+            
         });
     });
 
