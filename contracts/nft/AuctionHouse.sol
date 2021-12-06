@@ -56,6 +56,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     uint8 constant public hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
+    uint256[] private currAuctions;
+    mapping(uint256 => uint256) private currAuctionIndex;
+
     /**
      * @notice Require that the specified auction exists
      */
@@ -174,6 +177,9 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         ) {
             _approveAuction(auctionId, true);
         }
+
+        currAuctions.push(auctionId);
+        currAuctionIndex[auctionId] = currAuctions.length;
 
         return auctionId;
     }
@@ -441,6 +447,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             currency
         );
         delete auctions[auctionId];
+        remove(currAuctions[currAuctionIndex[auctionId]]);
+        delete currAuctionIndex[auctionId];
     }
 
     /**
@@ -460,6 +468,28 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         );
         require(auctions[auctionId].bidder == address(0), "You can't cancel an auction that has a bid");
         _cancelAuction(auctionId);
+    }
+
+    function getNumAuction() external view override returns (uint256){
+        return currAuctions.length;
+    }
+
+    function getAuctionId(uint index) external view override returns (uint256) {
+        return currAuctions[index];
+    }
+
+    function viewAuction(uint256 index) external view override returns (Auction memory) {
+        return auctions[currAuctions[index]];
+    }
+
+    function remove(uint _index) internal {
+        require(_index < currAuctions.length, "index out of bound");
+
+        for (uint i = _index; i < currAuctions.length - 1; i++) {
+            currAuctionIndex[currAuctions[i + 1]] = i;
+            currAuctions[i] = currAuctions[i + 1];
+        }
+        currAuctions.pop();
     }
 
     /**
@@ -538,6 +568,8 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             tokenOwner
         );
         delete auctions[auctionId];
+        remove(currAuctions[currAuctionIndex[auctionId]]);
+        delete currAuctionIndex[auctionId];
     }
 
     function _approveAuction(uint256 auctionId, bool approved) internal {

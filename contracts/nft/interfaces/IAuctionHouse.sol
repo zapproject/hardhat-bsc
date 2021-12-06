@@ -127,4 +127,10 @@ interface IAuctionHouse {
     function endAuction(uint256 auctionId, address mediaContract) external;
 
     function cancelAuction(uint256 auctionId) external;
+
+    function getNumAuction() external view returns (uint256);
+
+    function getAuctionId(uint index) external view returns (uint256);
+
+    function viewAuction(uint256 index) external view returns (Auction memory);
 }
