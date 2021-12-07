@@ -146,7 +146,11 @@ interface IMarketV2 {
         BidShares calldata bidShares
     ) external;
 
-    function setAsk(uint256 tokenId, Ask calldata ask) external;
+    function setAsk(
+        address mediaContract,
+        uint256 tokenId,
+        Ask calldata ask
+    ) external;
 
     function removeAsk(uint256 tokenId) external;
 
