@@ -102,6 +102,15 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         _;
     }
 
+    modifier onlyMediaOrAuctionHouse(address caller) {
+        require(
+            isConfigured[caller] == true || caller == auctionHouse,
+            'Market: Only media or AuctionHouse contract'
+        );
+
+        _;
+    }
+
     /* ****************
      * View Functions
      * ****************
