@@ -379,9 +379,17 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     /**
      * @notice removes an ask for a token and emits an AskRemoved event
      */
-    function removeAsk(uint256 tokenId) external override onlyMediaCaller {
-        emit AskRemoved(tokenId, _tokenAsks[msg.sender][tokenId], msg.sender);
-        delete _tokenAsks[msg.sender][tokenId];
+    function removeAsk(address mediaContract, uint256 tokenId)
+        external
+        override
+        onlyMediaOrAuctionHouse(mediaContract)
+    {
+        emit AskRemoved(
+            tokenId,
+            _tokenAsks[mediaContract][tokenId],
+            msg.sender
+        );
+        delete _tokenAsks[mediaContract][tokenId];
     }
 
     /**
