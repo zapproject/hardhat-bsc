@@ -111,6 +111,18 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         _;
     }
 
+    /**
+     * @notice checks to make sure the owner of the tokenID is caller of the function
+     */
+    modifier onlyTokenOwner(address mediaContract, uint256 tokenId) {
+        require(
+            IERC721Upgradeable(mediaContract).ownerOf(tokenId) == tx.origin,
+            'Market: Only owner of token can call this method'
+        );
+
+        _;
+    }
+
     /* ****************
      * View Functions
      * ****************
@@ -366,7 +378,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address mediaContract,
         uint256 tokenId,
         Ask memory ask
-    ) public override onlyMediaCaller {
+    ) public override onlyTokenOwner(mediaContract, tokenId) {
         require(
             isValidBid(mediaContract, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
@@ -387,7 +399,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         emit AskRemoved(
             tokenId,
             _tokenAsks[mediaContract][tokenId],
-            msg.sender
+            mediaContract
         );
         delete _tokenAsks[mediaContract][tokenId];
     }

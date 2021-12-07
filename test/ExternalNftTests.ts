@@ -352,10 +352,10 @@ describe("Testing", () => {
 
         describe('#setAsk', () => {
 
-            it.only('Should reject setAsk if not called by token owner', async () => {
+            it('Should reject setAsk if not called by token owner', async () => {
 
                 await expect(zapMarketV2.connect(signers[4]).setAsk(osCreature.address, 1, ask))
-                    .to.be.revertedWith('Market: Only media contract');
+                    .to.be.revertedWith('Market: Only owner of token can call this method');
             });
 
             it('Should set the ask if called by the owner of the token ', async () => {
@@ -383,7 +383,7 @@ describe("Testing", () => {
                 );
 
                 const filter: EventFilter = zapMarketV2.filters.AskCreated(
-                    null,
+                    osCreature.address,
                     null,
                     null
                 );
@@ -419,7 +419,7 @@ describe("Testing", () => {
                 );
 
                 const filter: EventFilter = zapMarketV2.filters.AskCreated(
-                    null,
+                    osCreature.address,
                     null,
                     null
                 );
@@ -433,36 +433,32 @@ describe("Testing", () => {
                 expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
                 expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
-
                 // remove the ask that was set above
-                await zapMarket.connect(signers[10]).removeAsk(tokenContractAddress, 1);
+                await zapMarketV2.connect(signers[0]).removeAsk(osCreature.address, 1);
 
-                //     const filter_removeAsk1: EventFilter = zapMarket.filters.AskRemoved(
-                //         null,
-                //         null,
-                //         null
-                //     );
+                const askRemovedFilter: EventFilter = zapMarketV2.filters.AskRemoved(
+                    null,
+                    null,
+                    null
+                );
 
-                //     const event_removeAsk1: Event = (
-                //         await zapMarket.queryFilter(filter_removeAsk1)
-                //     )[0]
+                const askRemovedEvent: Event = (
+                    await zapMarketV2.queryFilter(askRemovedFilter)
+                )[0]
 
-                //     expect(event_removeAsk1.event).to.be.equal('AskRemoved');
-                //     expect(event_removeAsk1.args?.tokenId.toNumber()).to.be.equal(1);
-                //     expect(event_removeAsk1.args?.ask.amount.toNumber()).to.be.equal(ask1.amount);
-                //     expect(event_removeAsk1.args?.ask.currency).to.be.equal(zapTokenBsc.address);
-                //     expect(event_removeAsk1.args?.mediaContract).to.be.equal(tokenContractAddress)
+                expect(askRemovedEvent.event).to.be.equal('AskRemoved');
+                expect(askRemovedEvent.args?.tokenId.toNumber()).to.be.equal(1);
+                expect(askRemovedEvent.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+                expect(askRemovedEvent.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+                expect(askRemovedEvent.args?.mediaContract).to.be.equal(osCreature.address);
 
-                //     // since the ask was removed, we are checking that it is not zero for the ask object
-                //     const getAsk1 = await zapMarket.currentAskForToken(tokenContractAddress, 1);
+                // since the ask was removed, we are checking that it is not zero for the ask object
+                const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
 
-                //     expect(getAsk1.amount.toNumber()).to.be.equal(0);
-                //     expect(getAsk1.currency).to.be.equal('0x0000000000000000000000000000000000000000');
-                // })
+                expect(getAsk.amount.toNumber()).to.be.equal(0);
+                expect(getAsk.currency).to.be.equal(ethers.constants.AddressZero);
 
-            });
-
-        })
-
-    });
-
+            })
+        });
+    })
+})

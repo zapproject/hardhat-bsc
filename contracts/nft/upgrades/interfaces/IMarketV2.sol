@@ -152,7 +152,7 @@ interface IMarketV2 {
         Ask calldata ask
     ) external;
 
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(address mediaContract, uint256 tokenId) external;
 
     function setBid(
         uint256 tokenId,
