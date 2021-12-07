@@ -75,130 +75,135 @@ describe("Testing", () => {
         sellOnShare: 0
     };
 
-    before(async () => {
-
-        // 20 test accounts
-        signers = await ethers.getSigners();
-
-        // Gets the deployed NFT contract fixtures from the 
-        await deployments.fixture();
-
-        // Gets the ZapTokenBSC contract deployment
-        const zapTokenBscFactory = await deployments.get('ZapTokenBSC');
-
-        // Gets the ZapVault contract deployment
-        const zapVaultFactory = await deployments.get('ZapVault');
-
-        // Gets the ZapMarket contract deployment
-        zapMarketFactory = await deployments.get('ZapMarket');
-
-        // Gets the MediaFactory contract deployment
-        mediaFactoryFactory = await deployments.get('MediaFactory');
-
-        // Gets the ZapMedia implementation deployment
-        zapMediaFactory = await deployments.get('ZapMedia');
-
-        // Deploy NewProxyAdmin contract
-        const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
-        const newProxyAdmin = await newProxyAdminFactory.deploy() as NewProxyAdmin;
-        await newProxyAdmin.deployed();
-
-        const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
-
-        const defaultProxyAdmin = new ethers.Contract(
-            defaultProxyAdminDeployment.address,
-            defaultProxyAdminDeployment.abi,
-            signers[0]
-        );
-
-        zapTokenBsc = await ethers.getContractAt(
-            'ZapTokenBSC',
-            zapTokenBscFactory.address,
-            signers[0]
-        ) as ZapTokenBSC;
-
-        zapVault = await ethers.getContractAt(
-            'ZapVault',
-            zapVaultFactory.address,
-            signers[0]
-        ) as ZapVault;
-
-        // ZapMarket contract instance
-        zapMarket = await ethers.getContractAt(
-            'ZapMarket',
-            zapMarketFactory.address,
-            signers[0]
-        ) as ZapMarket;
-
-
-        // MediaFactory contract instance
-        mediaFactory = await ethers.getContractAt(
-            'MediaFactory',
-            mediaFactoryFactory.address,
-            signers[0]
-        ) as MediaFactory;
-
-        // Deploy ZapMedia
-        await mediaFactory.deployMedia(
-            name,
-            symbol,
-            zapMarket.address,
-            true,
-            contractURI,
-        );
-
-        // Filter for the MediaDeployed event
-        const filter = mediaFactory.filters.MediaDeployed(null);
-
-        // Query for the MediaDeployed event
-        const event = (await mediaFactory.queryFilter(filter))[0];
-
-        // Store the zapMedia address
-        const mediaAddress = event.args.mediaContract;
-
-        // ZapMedia contract instance
-        zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
-
-        // Sets the token collaborators
-        bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
-
-        // Signer[0] mints a token
-        // tokenId is currently 0
-        await zapMedia.mint(data, bidShares);
-
-        ask1.currency = zapTokenBsc.address;
-
-        await zapMedia.setAsk(
-            0,
-            ask1
-        );
-
-        const proxyFactory = await ethers.getContractFactory(
-            'MockProxyRegistry',
-            signers[0]
-        )
-
-        proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
-        await proxy.deployed();
-
-        await proxy.setProxy(signers[0].address, signers[0].address);
-        const oscreatureFactory = await ethers.getContractFactory(
-            'Creature',
-            signers[0]
-        )
-
-        osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
-        await osCreature.deployed();
-
-        await osCreature.mintTo(signers[0].address);
-
-    })
-
-    describe("External Token", () => {
+    describe("#Upgradeablity: External NFT Initialization", () => {
 
         let mediaFactoryV2: MediaFactoryV2
 
         beforeEach(async () => {
+
+            signers = await ethers.getSigners();
+
+            // Gets the deployed NFT contract fixtures from the 
+            await deployments.fixture();
+
+            // Gets the ZapTokenBSC contract deployment
+            const zapTokenBscFactory = await deployments.get('ZapTokenBSC');
+
+            // Gets the ZapVault contract deployment
+            const zapVaultFactory = await deployments.get('ZapVault');
+
+            // Gets the ZapMarket contract deployment
+            zapMarketFactory = await deployments.get('ZapMarket');
+
+            // Gets the MediaFactory contract deployment
+            mediaFactoryFactory = await deployments.get('MediaFactory');
+
+            // Gets the ZapMedia implementation deployment
+            zapMediaFactory = await deployments.get('ZapMedia');
+
+            // Deploy NewProxyAdmin contract
+            const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
+            const newProxyAdmin = await newProxyAdminFactory.deploy() as NewProxyAdmin;
+            await newProxyAdmin.deployed();
+
+            const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
+
+            const defaultProxyAdmin = new ethers.Contract(
+                defaultProxyAdminDeployment.address,
+                defaultProxyAdminDeployment.abi,
+                signers[0]
+            );
+
+            zapTokenBsc = await ethers.getContractAt(
+                'ZapTokenBSC',
+                zapTokenBscFactory.address,
+                signers[0]
+            ) as ZapTokenBSC;
+
+            zapVault = await ethers.getContractAt(
+                'ZapVault',
+                zapVaultFactory.address,
+                signers[0]
+            ) as ZapVault;
+
+            // ZapMarket contract instance
+            zapMarket = await ethers.getContractAt(
+                'ZapMarket',
+                zapMarketFactory.address,
+                signers[0]
+            ) as ZapMarket;
+
+
+            // MediaFactory contract instance
+            mediaFactory = await ethers.getContractAt(
+                'MediaFactory',
+                mediaFactoryFactory.address,
+                signers[0]
+            ) as MediaFactory;
+
+            // Deploy ZapMedia
+            await mediaFactory.deployMedia(
+                name,
+                symbol,
+                zapMarket.address,
+                true,
+                contractURI,
+            );
+
+            // Filter for the MediaDeployed event
+            const filter = mediaFactory.filters.MediaDeployed(null);
+
+            // Query for the MediaDeployed event
+            const event = (await mediaFactory.queryFilter(filter))[0];
+
+            // Store the zapMedia address
+            const mediaAddress = event.args.mediaContract;
+
+            // ZapMedia contract instance
+            zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
+
+            // Sets the token collaborators
+            bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
+
+            // Signer[0] mints a token
+            // tokenId is currently 0
+            await zapMedia.mint(data, bidShares);
+
+            ask1.currency = zapTokenBsc.address;
+
+            await zapMedia.setAsk(
+                0,
+                ask1
+            );
+
+            const proxyFactory = await ethers.getContractFactory(
+                'MockProxyRegistry',
+                signers[0]
+            )
+
+            proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+            await proxy.deployed();
+
+            await proxy.setProxy(signers[0].address, signers[0].address);
+            const oscreatureFactory = await ethers.getContractFactory(
+                'Creature',
+                signers[0]
+            )
+
+            osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+            await osCreature.deployed();
+
+            await osCreature.mintTo(signers[0].address);
+
+
+
+
+
+
+
+
+
+
 
             const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
             const MediaFactoryV2 = await ethers.getContractFactory('MediaFactoryV2', signers[0]);
@@ -231,53 +236,29 @@ describe("Testing", () => {
                 mediaFactoryFactory.address, MediaFactoryV2.interface, signers[0]
             ) as MediaFactoryV2
 
-        })
-
-        it("Testing", async () => {
-
-        })
-
-    })
-
-    describe("Upgradeable Initialize", () => {
-
-        beforeEach(async () => {
-
-            const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0])
-            const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
-
-            await deployments.deploy('ZapMarket', {
-                from: signers[0].address,
-                contract: "ZapMarketV2",
-                proxy: {
-                    proxyContract: 'OpenZeppelinTransparentProxy',
-                },
-                log: true,
-            })
-
-            zapMarketV2 = new ethers.Contract(
-                zapMarketFactory.address, ZapMarketV2.interface, signers[0]
-            ) as ZapMarketV2;
-        })
-
-        it("Should not be able to initialize ZapMarketV2 twice", async () => {
-
-            await expect(zapMarketV2.initializeMarket(zapVault.address)).to.be.revertedWith(
-                'Initializable: contract is already initialized'
+            mediaFactoryV2.configureExternalToken(
+                osCreature.address,
+                1,
+                bidShares
             );
-        });
+        })
 
-        it("Should return the same owner address between ZapMarketV1 and ZapMarketV2 ", async () => {
+        it("Should be registered to MediaFactoryV2", async () => {
 
-            const ownerV1 = await zapMarket.getOwner();
-            const ownerV2 = await zapMarketV2.getOwner();
+            const isRegistered = await zapMarketV2.isRegistered(osCreature.address);
 
-            expect(ownerV1).to.be.equal(ownerV2);
+            expect(isRegistered).to.be.true;
 
-        });
+        })
 
+        it("Should be configured to ZapmarketV2", async () => {
+
+            const isConfigured = await zapMarketV2._isConfigured(osCreature.address);
+
+            expect(isConfigured).to.be.true;
+
+        })
     })
-
 
 });
 
