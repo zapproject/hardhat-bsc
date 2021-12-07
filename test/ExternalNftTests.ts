@@ -1,6 +1,6 @@
 import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
-import { BigNumber, ContractFactory } from 'ethers';
+import { BigNumber, ContractFactory, Event, EventFilter } from 'ethers';
 
 import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, MediaFactoryV2, ZapTokenBSC } from '../typechain';
 
@@ -197,13 +197,9 @@ describe("Testing", () => {
 
 
 
-
-
-
-
-
-
-
+            //*****************************************************************************
+            //  UPGRADING TO ZapMarketV2 & MediaFactoryV2
+            //*****************************************************************************
 
             const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
             const MediaFactoryV2 = await ethers.getContractFactory('MediaFactoryV2', signers[0]);
@@ -251,13 +247,34 @@ describe("Testing", () => {
 
         })
 
-        it("Should be configured to ZapmarketV2", async () => {
+        it("Should be configured to ZapMarketV2", async () => {
 
             const isConfigured = await zapMarketV2._isConfigured(osCreature.address);
 
             expect(isConfigured).to.be.true;
 
         })
+
+        it("Should emit a MediaContractCreated event", async () => {
+
+            const filter: EventFilter = zapMarketV2.filters.MediaContractCreated(
+                null,
+                null,
+                null
+            );
+
+            const event: Event = (
+                await zapMarketV2.queryFilter(filter)
+            )[2]
+
+            expect(event.event).to.be.equal("MediaContractCreated");
+            expect(event.args?.mediaContract).to.equal(osCreature.address);
+            expect(ethers.utils.parseBytes32String(event.args?.name)).to.be.equal(await osCreature.name());
+            expect(ethers.utils.parseBytes32String(event.args?.symbol)).to.be.equal(await osCreature.symbol());
+
+        });
+
+
     })
 
 });
