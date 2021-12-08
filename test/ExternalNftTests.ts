@@ -12,7 +12,6 @@ import chai, { expect } from 'chai';
 import { sign } from 'crypto';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-
 describe("Testing", () => {
 
     let signers: SignerWithAddress[]
@@ -75,169 +74,169 @@ describe("Testing", () => {
         sellOnShare: 0
     };
 
-    describe("#Upgradeablity: External NFT Initialization", () => {
-
-        let mediaFactoryV2: MediaFactoryV2
-
-        beforeEach(async () => {
-
-            signers = await ethers.getSigners();
-
-            // Gets the deployed NFT contract fixtures from the 
-            await deployments.fixture();
-
-            // Gets the ZapTokenBSC contract deployment
-            const zapTokenBscFactory = await deployments.get('ZapTokenBSC');
-
-            // Gets the ZapVault contract deployment
-            const zapVaultFactory = await deployments.get('ZapVault');
-
-            // Gets the ZapMarket contract deployment
-            zapMarketFactory = await deployments.get('ZapMarket');
-
-            // Gets the MediaFactory contract deployment
-            mediaFactoryFactory = await deployments.get('MediaFactory');
-
-            // Gets the ZapMedia implementation deployment
-            zapMediaFactory = await deployments.get('ZapMedia');
-
-            // Deploy NewProxyAdmin contract
-            const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
-            const newProxyAdmin = await newProxyAdminFactory.deploy() as NewProxyAdmin;
-            await newProxyAdmin.deployed();
-
-            const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
-
-            const defaultProxyAdmin = new ethers.Contract(
-                defaultProxyAdminDeployment.address,
-                defaultProxyAdminDeployment.abi,
-                signers[0]
-            );
-
-            zapTokenBsc = await ethers.getContractAt(
-                'ZapTokenBSC',
-                zapTokenBscFactory.address,
-                signers[0]
-            ) as ZapTokenBSC;
-
-            zapVault = await ethers.getContractAt(
-                'ZapVault',
-                zapVaultFactory.address,
-                signers[0]
-            ) as ZapVault;
-
-            // ZapMarket contract instance
-            zapMarket = await ethers.getContractAt(
-                'ZapMarket',
-                zapMarketFactory.address,
-                signers[0]
-            ) as ZapMarket;
 
 
-            // MediaFactory contract instance
-            mediaFactory = await ethers.getContractAt(
-                'MediaFactory',
-                mediaFactoryFactory.address,
-                signers[0]
-            ) as MediaFactory;
+    let mediaFactoryV2: MediaFactoryV2
 
-            // Deploy ZapMedia
-            await mediaFactory.deployMedia(
-                name,
-                symbol,
-                zapMarket.address,
-                true,
-                contractURI,
-            );
+    beforeEach(async () => {
 
-            // Filter for the MediaDeployed event
-            const filter = mediaFactory.filters.MediaDeployed(null);
+        signers = await ethers.getSigners();
 
-            // Query for the MediaDeployed event
-            const event = (await mediaFactory.queryFilter(filter))[0];
+        // Gets the deployed NFT contract fixtures from the 
+        await deployments.fixture();
 
-            // Store the zapMedia address
-            const mediaAddress = event.args.mediaContract;
+        // Gets the ZapTokenBSC contract deployment
+        const zapTokenBscFactory = await deployments.get('ZapTokenBSC');
 
-            // ZapMedia contract instance
-            zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
+        // Gets the ZapVault contract deployment
+        const zapVaultFactory = await deployments.get('ZapVault');
 
-            // Sets the token collaborators
-            bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
+        // Gets the ZapMarket contract deployment
+        zapMarketFactory = await deployments.get('ZapMarket');
 
-            // Signer[0] mints a token
-            // tokenId is currently 0
-            await zapMedia.mint(data, bidShares);
+        // Gets the MediaFactory contract deployment
+        mediaFactoryFactory = await deployments.get('MediaFactory');
 
-            ask.currency = zapTokenBsc.address;
+        // Gets the ZapMedia implementation deployment
+        zapMediaFactory = await deployments.get('ZapMedia');
 
-            await zapMedia.setAsk(
-                0,
-                ask
-            );
+        // Deploy NewProxyAdmin contract
+        const newProxyAdminFactory = await ethers.getContractFactory("NewProxyAdmin", signers[0]);
+        const newProxyAdmin = await newProxyAdminFactory.deploy() as NewProxyAdmin;
+        await newProxyAdmin.deployed();
 
-            const proxyFactory = await ethers.getContractFactory(
-                'MockProxyRegistry',
-                signers[0]
-            )
+        const defaultProxyAdminDeployment = await deployments.get('DefaultProxyAdmin');
 
-            proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
-            await proxy.deployed();
+        const defaultProxyAdmin = new ethers.Contract(
+            defaultProxyAdminDeployment.address,
+            defaultProxyAdminDeployment.abi,
+            signers[0]
+        );
 
-            await proxy.setProxy(signers[0].address, signers[0].address);
-            const oscreatureFactory = await ethers.getContractFactory(
-                'Creature',
-                signers[0]
-            )
+        zapTokenBsc = await ethers.getContractAt(
+            'ZapTokenBSC',
+            zapTokenBscFactory.address,
+            signers[0]
+        ) as ZapTokenBSC;
 
-            osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
-            await osCreature.deployed();
+        zapVault = await ethers.getContractAt(
+            'ZapVault',
+            zapVaultFactory.address,
+            signers[0]
+        ) as ZapVault;
 
-            await osCreature.mintTo(signers[0].address);
+        // ZapMarket contract instance
+        zapMarket = await ethers.getContractAt(
+            'ZapMarket',
+            zapMarketFactory.address,
+            signers[0]
+        ) as ZapMarket;
 
 
+        // MediaFactory contract instance
+        mediaFactory = await ethers.getContractAt(
+            'MediaFactory',
+            mediaFactoryFactory.address,
+            signers[0]
+        ) as MediaFactory;
 
-            //*****************************************************************************
-            //  UPGRADING TO ZapMarketV2 & MediaFactoryV2
-            //*****************************************************************************
+        // Deploy ZapMedia
+        await mediaFactory.deployMedia(
+            name,
+            symbol,
+            zapMarket.address,
+            true,
+            contractURI,
+        );
 
-            const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
-            const MediaFactoryV2 = await ethers.getContractFactory('MediaFactoryV2', signers[0]);
+        // Filter for the MediaDeployed event
+        const filter = mediaFactory.filters.MediaDeployed(null);
 
-            const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
+        // Query for the MediaDeployed event
+        const event = (await mediaFactory.queryFilter(filter))[0];
 
-            await deployments.deploy('ZapMarket', {
-                from: signers[0].address,
-                contract: "ZapMarketV2",
-                proxy: {
-                    proxyContract: 'OpenZeppelinTransparentProxy',
-                },
-                log: true,
-            })
+        // Store the zapMedia address
+        const mediaAddress = event.args.mediaContract;
 
-            await deployments.deploy('MediaFactory', {
-                from: signers[0].address,
-                contract: "MediaFactoryV2",
-                proxy: {
-                    proxyContract: 'OpenZeppelinTransparentProxy',
-                },
-                log: true,
-            })
+        // ZapMedia contract instance
+        zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
 
-            zapMarketV2 = new ethers.Contract(
-                zapMarketFactory.address, ZapMarketV2.interface, signers[0]
-            ) as ZapMarketV2;
+        // Sets the token collaborators
+        bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
 
-            mediaFactoryV2 = new ethers.Contract(
-                mediaFactoryFactory.address, MediaFactoryV2.interface, signers[0]
-            ) as MediaFactoryV2
+        // Signer[0] mints a token
+        // tokenId is currently 0
+        await zapMedia.mint(data, bidShares);
 
-            mediaFactoryV2.configureExternalToken(
-                osCreature.address,
-                1,
-                bidShares
-            );
+        ask.currency = zapTokenBsc.address;
+
+        await zapMedia.setAsk(
+            0,
+            ask
+        );
+
+        const proxyFactory = await ethers.getContractFactory(
+            'MockProxyRegistry',
+            signers[0]
+        )
+
+        proxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+        await proxy.deployed();
+
+        await proxy.setProxy(signers[0].address, signers[0].address);
+        const oscreatureFactory = await ethers.getContractFactory(
+            'Creature',
+            signers[0]
+        )
+
+        osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
+        await osCreature.deployed();
+
+        await osCreature.mintTo(signers[0].address);
+
+        //*****************************************************************************
+        //  UPGRADING TO ZapMarketV2 & MediaFactoryV2
+        //*****************************************************************************
+
+        const ZapMarketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+        const MediaFactoryV2 = await ethers.getContractFactory('MediaFactoryV2', signers[0]);
+
+        const proxyAdmin = await upgrades.erc1967.getAdminAddress(zapMarketFactory.address);
+
+        await deployments.deploy('ZapMarket', {
+            from: signers[0].address,
+            contract: "ZapMarketV2",
+            proxy: {
+                proxyContract: 'OpenZeppelinTransparentProxy',
+            },
+            log: true,
         })
+
+        await deployments.deploy('MediaFactory', {
+            from: signers[0].address,
+            contract: "MediaFactoryV2",
+            proxy: {
+                proxyContract: 'OpenZeppelinTransparentProxy',
+            },
+            log: true,
+        })
+
+        zapMarketV2 = new ethers.Contract(
+            zapMarketFactory.address, ZapMarketV2.interface, signers[0]
+        ) as ZapMarketV2;
+
+        mediaFactoryV2 = new ethers.Contract(
+            mediaFactoryFactory.address, MediaFactoryV2.interface, signers[0]
+        ) as MediaFactoryV2
+
+        mediaFactoryV2.configureExternalToken(
+            osCreature.address,
+            1,
+            bidShares
+        );
+    })
+
+    describe("#Upgradeablity: External NFT Initialization", () => {
 
         it("Should be registered to MediaFactoryV2", async () => {
 
@@ -330,135 +329,188 @@ describe("Testing", () => {
                     bidShares
                 )).to.be.revertedWith('ERC721: owner query for nonexistent token')
         })
+    })
 
-        describe("#setBidShares", () => {
+    describe("#setBidShares", () => {
 
-            it("Should get the bidShares for the external NFT", async () => {
+        it("Should get the bidShares for the external NFT", async () => {
 
-                const bidSharesForToken = await zapMarketV2.bidSharesForToken(osCreature.address, 1)
+            const bidSharesForToken = await zapMarketV2.bidSharesForToken(osCreature.address, 1)
 
-                expect(bidSharesForToken.creator.value).to.equal(bidShares.creator.value);
-                expect(bidSharesForToken.owner.value).to.equal(bidShares.owner.value);
+            expect(bidSharesForToken.creator.value).to.equal(bidShares.creator.value);
+            expect(bidSharesForToken.owner.value).to.equal(bidShares.owner.value);
 
-                for (var i = 0; i < bidShares.collaborators.length; i++) {
+            for (var i = 0; i < bidShares.collaborators.length; i++) {
 
-                    expect(bidSharesForToken.collaborators[i]).to.equal(bidShares.collaborators[i]);
-                    expect(bidSharesForToken.collabShares[i]).to.equal(bidShares.collabShares[i]);
+                expect(bidSharesForToken.collaborators[i]).to.equal(bidShares.collaborators[i]);
+                expect(bidSharesForToken.collabShares[i]).to.equal(bidShares.collabShares[i]);
 
+            }
+
+        })
+    })
+
+    describe('#setAsk', () => {
+
+        it('Should reject setAsk if not called by token owner', async () => {
+
+            await expect(zapMarketV2.connect(signers[4]).setAsk(osCreature.address, 1, ask))
+                .to.be.revertedWith('Market: Only owner of token can call this method');
+        });
+
+        it('Should set the ask if called by the owner of the token ', async () => {
+
+            await zapMarketV2.connect(signers[0]).setAsk(
+                osCreature.address,
+                1,
+                ask
+            );
+
+            // get ask associated with external token
+            const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
+
+            expect(getAsk.amount.toNumber()).to.equal(ask.amount);
+            expect(getAsk.currency).to.equal(zapTokenBsc.address);
+
+        });
+
+        it('Should emit an event if the ask is updated', async () => {
+
+            await zapMarketV2.connect(signers[0]).setAsk(
+                osCreature.address,
+                1,
+                ask
+            );
+
+            const filter: EventFilter = zapMarketV2.filters.AskCreated(
+                osCreature.address,
+                null,
+                null
+            );
+
+            const event: Event = (
+                await zapMarketV2.queryFilter(filter)
+            )[0];
+
+            expect(event.event).to.be.equal('AskCreated');
+            expect(event.args?.tokenId.toNumber()).to.be.equal(1);
+            expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+            expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+        });
+
+        it('Should reject if the ask is too low', async () => {
+
+            await expect(
+                zapMarketV2.connect(signers[0]).setAsk(osCreature.address, 1, {
+                    amount: 13,
+                    currency: zapTokenBsc.address
                 }
+                )).to.be.revertedWith('Market: Ask invalid for share splitting');
 
-            })
+        });
+
+        it("Should remove an ask", async () => {
+
+            await zapMarketV2.connect(signers[0]).setAsk(
+                osCreature.address,
+                1,
+                ask
+            );
+
+            const filter: EventFilter = zapMarketV2.filters.AskCreated(
+                osCreature.address,
+                null,
+                null
+            );
+
+            const event: Event = (
+                await zapMarketV2.queryFilter(filter)
+            )[0];
+
+            expect(event.event).to.be.equal('AskCreated');
+            expect(event.args?.tokenId.toNumber()).to.be.equal(1);
+            expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+            expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+            // remove the ask that was set above
+            await zapMarketV2.connect(signers[0]).removeAsk(osCreature.address, 1);
+
+            const askRemovedFilter: EventFilter = zapMarketV2.filters.AskRemoved(
+                null,
+                null,
+                null
+            );
+
+            const askRemovedEvent: Event = (
+                await zapMarketV2.queryFilter(askRemovedFilter)
+            )[0]
+
+            expect(askRemovedEvent.event).to.be.equal('AskRemoved');
+            expect(askRemovedEvent.args?.tokenId.toNumber()).to.be.equal(1);
+            expect(askRemovedEvent.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+            expect(askRemovedEvent.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+            expect(askRemovedEvent.args?.mediaContract).to.be.equal(osCreature.address);
+
+            // since the ask was removed, we are checking that it is not zero for the ask object
+            const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
+
+            expect(getAsk.amount.toNumber()).to.be.equal(0);
+            expect(getAsk.currency).to.be.equal(ethers.constants.AddressZero);
+
+        })
+    });
+
+    describe("#setBid", () => {
+
+        let unAuthMedia: Creature
+        let unAuthProxy: MockProxyRegistry
+        let bid: any
+
+        beforeEach(async () => {
+
+            const proxyFactory = await ethers.getContractFactory(
+                'MockProxyRegistry',
+                signers[0]
+            );
+
+            unAuthProxy = (await proxyFactory.deploy()) as MockProxyRegistry;
+            await unAuthProxy.deployed();
+
+            await unAuthProxy.setProxy(signers[0].address, signers[0].address);
+            const oscreatureFactory = await ethers.getContractFactory(
+                'Creature',
+                signers[0]
+            )
+
+            unAuthMedia = (await oscreatureFactory.deploy(unAuthProxy.address)) as Creature;
+            await unAuthMedia.deployed();
+
+            bid = {
+                amount: 200,
+                currency: zapTokenBsc.address,
+                bidder: signers[1].address,
+                recipient: signers[1].address,
+                spender: signers[1].address,
+                sellOnShare: {
+                    value: BigInt(10000000000000000000)
+                }
+            };
         })
 
-        describe('#setAsk', () => {
+        it('Should revert if not called by the media contract', async () => {
 
-            it('Should reject setAsk if not called by token owner', async () => {
+            await zapTokenBsc.mint(signers[1].address, bid.amount);
 
-                await expect(zapMarketV2.connect(signers[4]).setAsk(osCreature.address, 1, ask))
-                    .to.be.revertedWith('Market: Only owner of token can call this method');
-            });
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
 
-            it('Should set the ask if called by the owner of the token ', async () => {
+            await expect(zapMarketV2.connect(signers[1]).setBid(
+                unAuthMedia.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
-                await zapMarketV2.connect(signers[0]).setAsk(
-                    osCreature.address,
-                    1,
-                    ask
-                );
-
-                // get ask associated with external token
-                const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
-
-                expect(getAsk.amount.toNumber()).to.equal(ask.amount);
-                expect(getAsk.currency).to.equal(zapTokenBsc.address);
-
-            });
-
-            it('Should emit an event if the ask is updated', async () => {
-
-                await zapMarketV2.connect(signers[0]).setAsk(
-                    osCreature.address,
-                    1,
-                    ask
-                );
-
-                const filter: EventFilter = zapMarketV2.filters.AskCreated(
-                    osCreature.address,
-                    null,
-                    null
-                );
-
-                const event: Event = (
-                    await zapMarketV2.queryFilter(filter)
-                )[0];
-
-                expect(event.event).to.be.equal('AskCreated');
-                expect(event.args?.tokenId.toNumber()).to.be.equal(1);
-                expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
-                expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
-
-            });
-
-            it('Should reject if the ask is too low', async () => {
-
-                await expect(
-                    zapMarketV2.connect(signers[0]).setAsk(osCreature.address, 1, {
-                        amount: 13,
-                        currency: zapTokenBsc.address
-                    }
-                    )).to.be.revertedWith('Market: Ask invalid for share splitting');
-
-            });
-
-            it("Should remove an ask", async () => {
-
-                await zapMarketV2.connect(signers[0]).setAsk(
-                    osCreature.address,
-                    1,
-                    ask
-                );
-
-                const filter: EventFilter = zapMarketV2.filters.AskCreated(
-                    osCreature.address,
-                    null,
-                    null
-                );
-
-                const event: Event = (
-                    await zapMarketV2.queryFilter(filter)
-                )[0];
-
-                expect(event.event).to.be.equal('AskCreated');
-                expect(event.args?.tokenId.toNumber()).to.be.equal(1);
-                expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
-                expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
-
-                // remove the ask that was set above
-                await zapMarketV2.connect(signers[0]).removeAsk(osCreature.address, 1);
-
-                const askRemovedFilter: EventFilter = zapMarketV2.filters.AskRemoved(
-                    null,
-                    null,
-                    null
-                );
-
-                const askRemovedEvent: Event = (
-                    await zapMarketV2.queryFilter(askRemovedFilter)
-                )[0]
-
-                expect(askRemovedEvent.event).to.be.equal('AskRemoved');
-                expect(askRemovedEvent.args?.tokenId.toNumber()).to.be.equal(1);
-                expect(askRemovedEvent.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
-                expect(askRemovedEvent.args?.ask.currency).to.be.equal(zapTokenBsc.address);
-                expect(askRemovedEvent.args?.mediaContract).to.be.equal(osCreature.address);
-
-                // since the ask was removed, we are checking that it is not zero for the ask object
-                const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
-
-                expect(getAsk.amount.toNumber()).to.be.equal(0);
-                expect(getAsk.currency).to.be.equal(ethers.constants.AddressZero);
-
-            })
         });
     })
 })

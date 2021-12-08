@@ -410,10 +410,11 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * If another bid already exists for the bidder, it is refunded.
      */
     function setBid(
+        address mediaContract,
         uint256 tokenId,
         Bid memory bid,
         address spender
-    ) public override onlyMediaCaller {
+    ) public override onlyMediaOrAuctionHouse(mediaContract) {
         BidShares memory bidShares = _bidShares[msg.sender][tokenId];
 
         require(

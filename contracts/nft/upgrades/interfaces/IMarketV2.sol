@@ -155,6 +155,7 @@ interface IMarketV2 {
     function removeAsk(address mediaContract, uint256 tokenId) external;
 
     function setBid(
+        address mediaContract,
         uint256 tokenId,
         Bid calldata bid,
         address spender
