@@ -466,6 +466,8 @@ describe("Testing", () => {
         let unAuthMedia: Creature
         let unAuthProxy: MockProxyRegistry
         let bid: any
+        let newBid: any
+        let largeBid: any
 
         beforeEach(async () => {
 
@@ -496,6 +498,29 @@ describe("Testing", () => {
                     value: BigInt(10000000000000000000)
                 }
             };
+
+            newBid = {
+                amount: 400,
+                currency: zapTokenBsc.address,
+                bidder: signers[1].address,
+                recipient: signers[1].address,
+                spender: signers[1].address,
+                sellOnShare: {
+                    value: BigInt(10000000000000000000)
+                }
+            };
+
+            largeBid = {
+                amount: 600,
+                currency: zapTokenBsc.address,
+                bidder: signers[2].address,
+                recipient: signers[2].address,
+                spender: signers[2].address,
+                sellOnShare: {
+                    value: BigInt(10000000000000000000)
+                }
+            };
+
         })
 
         it('Should revert if not called by the media contract', async () => {
@@ -601,7 +626,7 @@ describe("Testing", () => {
 
         it('Should set a valid bid', async () => {
 
-            await zapTokenBsc.mint(signers[1].address, bid.amount);
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             await zapTokenBsc
                 .connect(signers[1])
@@ -661,6 +686,54 @@ describe("Testing", () => {
 
         });
 
+        it("Should set a larger valid bid than the minimum bid", async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+            await zapTokenBsc.mint(largeBid.bidder, largeBid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+            await zapTokenBsc.connect(signers[2]).approve(zapMarketV2.address, largeBid.amount);
+
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            );
+
+            await zapMarketV2.connect(signers[2]).setBid(
+                osCreature.address,
+                1,
+                largeBid,
+                largeBid.spender
+            );
+
+        })
+
+        it('Should refund the original bid if the bidder bids again', async () => {
+
+            await zapTokenBsc.mint(signers[1].address, bid.amount + newBid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount + newBid.amount);
+
+            // Set the first bid of 200 tokens
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            );
+
+            // Set the second bid of 400 tokens
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                newBid,
+                newBid.spender
+            );
+
+
+        })
 
     })
 })

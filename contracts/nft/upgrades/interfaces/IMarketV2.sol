@@ -161,7 +161,11 @@ interface IMarketV2 {
         address spender
     ) external;
 
-    function removeBid(uint256 tokenId, address bidder) external;
+    function removeBid(
+        address mediaContract,
+        uint256 tokenId,
+        address bidder
+    ) external;
 
     function acceptBid(
         address mediaContractAddress,
