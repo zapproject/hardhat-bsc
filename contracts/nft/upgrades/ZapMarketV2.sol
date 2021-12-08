@@ -415,7 +415,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         Bid memory bid,
         address spender
     ) public override onlyMediaOrAuctionHouse(mediaContract) {
-        BidShares memory bidShares = _bidShares[msg.sender][tokenId];
+        BidShares memory bidShares = _bidShares[mediaContract][tokenId];
 
         require(
             bidShares.creator.value + (bid.sellOnShare.value) <=
@@ -433,7 +433,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: bid recipient cannot be 0 address'
         );
 
-        Bid storage existingBid = _tokenBidders[msg.sender][tokenId][
+        Bid storage existingBid = _tokenBidders[mediaContract][tokenId][
             bid.bidder
         ];
 
@@ -457,7 +457,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Market balance did not increase from bid'
         );
 
-        _tokenBidders[msg.sender][tokenId][bid.bidder] = Bid(
+        _tokenBidders[mediaContract][tokenId][bid.bidder] = Bid(
             bid.amount,
             bid.currency,
             bid.bidder,

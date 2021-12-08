@@ -461,7 +461,7 @@ describe("Testing", () => {
         })
     });
 
-    describe("#setBid", () => {
+    describe.only("#setBid", () => {
 
         let unAuthMedia: Creature
         let unAuthProxy: MockProxyRegistry
@@ -500,7 +500,7 @@ describe("Testing", () => {
 
         it('Should revert if not called by the media contract', async () => {
 
-            await zapTokenBsc.mint(signers[1].address, bid.amount);
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
 
@@ -512,5 +512,148 @@ describe("Testing", () => {
             )).to.be.revertedWith('Market: Only media or AuctionHouse contract');
 
         });
+
+        it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
+
+            await expect(zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith('SafeERC20: low-level call failed');
+
+        });
+
+        it('Should revert if the bidder does not have enough tokens to bid with', async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount - 1);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+
+            await expect(zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            )).to.be.revertedWith('SafeERC20: low-level call failed');
+
+        });
+
+        it('Should revert if the bid currency is zero address', async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+
+            bid.currency = ethers.constants.AddressZero;
+
+            await expect(
+                zapMarketV2.connect(signers[1]).setBid(
+                    osCreature.address,
+                    1,
+                    bid,
+                    bid.spender
+                )).to.be.revertedWith('Market: bid currency cannot be 0 address');
+        });
+
+        it('Should revert if the bid recipient is zero address', async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc
+                .connect(signers[1])
+                .approve(zapMarketV2.address, bid.amount);
+
+            bid.recipient = ethers.constants.AddressZero;
+
+            await expect(
+                zapMarketV2.connect(signers[1]).setBid(
+                    osCreature.address,
+                    1,
+                    bid,
+                    bid.spender
+                )).to.be.revertedWith('Market: bid recipient cannot be 0 address');
+        });
+
+        it('Should revert if the bidder bids 0 tokens', async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc
+                .connect(signers[1])
+                .approve(zapMarketV2.address, bid.amount);
+
+            bid.amount = 0;
+
+            await expect(
+                zapMarketV2.connect(signers[1]).setBid(
+                    osCreature.address,
+                    1,
+                    bid,
+                    bid.spender
+                )).to.be.revertedWith('Market: cannot bid amount of 0');
+
+        });
+
+        it('Should set a valid bid', async () => {
+
+            await zapTokenBsc.mint(signers[1].address, bid.amount);
+
+            await zapTokenBsc
+                .connect(signers[1])
+                .approve(zapMarketV2.address, bid.amount);
+
+            const bidderPreBal = await zapTokenBsc.balanceOf(bid.bidder);
+
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            );
+
+            const bidderPostBal = await zapTokenBsc.balanceOf(bid.bidder);
+
+            const getBid = await zapMarket.bidForTokenBidder(
+                osCreature.address,
+                1,
+                bid.bidder
+            );
+
+            console.log(getBid)
+
+            // const getBid2 = await zapMarket.bidForTokenBidder(
+            //     zapMedia2.address,
+            //     0,
+            //     bid2.bidder
+            // );
+
+            // expect(getBid1.currency).to.equal(zapTokenBsc.address);
+
+            // expect(getBid1.amount.toNumber()).to.equal(bid1.amount);
+
+            // expect(getBid1.bidder).to.equal(bid1.bidder);
+
+            // expect(beforeBalance1.toNumber()).to.equal(
+            //     afterBalance1.toNumber() + bid1.amount
+            // );
+
+            // expect(getBid2.currency).to.equal(zapTokenBsc.address);
+
+            // expect(getBid2.amount.toNumber()).to.equal(bid2.amount);
+
+            // expect(getBid2.bidder).to.equal(bid2.bidder);
+
+            // expect(beforeBalance2.toNumber()).to.equal(
+            //     afterBalance2.toNumber() + bid2.amount
+            // );
+
+        });
+
+
     })
 })
