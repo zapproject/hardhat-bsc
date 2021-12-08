@@ -770,5 +770,55 @@ describe("Testing", () => {
 
         })
 
+        it("Should remove a bid", async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+
+            const bidPreBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            );
+
+            const bidPostBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.bidder);
+
+            await zapMarketV2.connect(signers[1]).removeBid(osCreature.address, 1, bid.bidder);
+
+            const removePostBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const marketRemovePostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            const removeBidFilter = zapMarketV2.filters.BidRemoved(
+                null,
+                null,
+                null
+            );
+
+            const removeBidEvent = (await zapMarketV2.queryFilter(removeBidFilter))[0]
+            const eventName = removeBidEvent.event;
+
+            expect(bidPostBal).to.equal(0);
+            expect(marketPostBal).to.equal(bid.amount);
+
+            expect(removePostBal).to.equal(bidPreBal);
+            expect(marketRemovePostBal).to.equal(marketPreBal);
+
+            expect(eventName).to.equal('BidRemoved');
+            expect(removeBidEvent.args?.mediaContract).to.equal(osCreature.address);
+            expect(removeBidEvent.args?.tokenId).to.equal(1);
+            expect(removeBidEvent.args?.bid.amount).to.equal(bid.amount);
+            expect(removeBidEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
+            expect(removeBidEvent.args?.bid.bidder).to.equal(bid.bidder);
+            expect(removeBidEvent.args?.bid.recipient).to.equal(bid.recipient);
+            expect(removeBidEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
+
+        })
+
     })
 })
