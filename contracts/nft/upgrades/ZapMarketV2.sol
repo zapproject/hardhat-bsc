@@ -487,7 +487,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address mediaContract,
         uint256 tokenId,
         address bidder
-    ) public override onlyMediaCaller isUnlocked(tokenId) {
+    )
+        public
+        override
+        onlyMediaOrAuctionHouse(mediaContract)
+        isUnlocked(tokenId)
+    {
         Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
