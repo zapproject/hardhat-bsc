@@ -439,7 +439,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
         // If there is an existing bid, refund it before continuing
         if (existingBid.amount > 0) {
-            removeBid(tokenId, bid.bidder);
+            removeBid(mediaContract, tokenId, bid.bidder);
         }
 
         IERC20Upgradeable token = IERC20Upgradeable(bid.currency);
@@ -493,7 +493,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         onlyMediaOrAuctionHouse(mediaContract)
         isUnlocked(tokenId)
     {
-        Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
+        Bid storage bid = _tokenBidders[mediaContract][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
 
@@ -501,7 +501,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
         IERC20Upgradeable token = IERC20Upgradeable(bidCurrency);
 
-        emit BidRemoved(tokenId, bid, msg.sender);
+        emit BidRemoved(tokenId, bid, mediaContract);
         delete _tokenBidders[msg.sender][tokenId][bidder];
         token.safeTransfer(bidder, bidAmount);
     }

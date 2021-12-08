@@ -716,6 +716,9 @@ describe("Testing", () => {
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount + newBid.amount);
 
+
+            const bidPreBal = await zapTokenBsc.balanceOf(bid.bidder);
+
             // Set the first bid of 200 tokens
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
@@ -723,6 +726,8 @@ describe("Testing", () => {
                 bid,
                 bid.spender
             );
+
+            const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder);
 
             // Set the second bid of 400 tokens
             await zapMarketV2.connect(signers[1]).setBid(
@@ -732,6 +737,7 @@ describe("Testing", () => {
                 newBid.spender
             );
 
+            expect(bidPostBal).to.equal(bidPreBal.toNumber() - bid.amount);
 
         })
 
