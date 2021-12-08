@@ -820,5 +820,21 @@ describe("Testing", () => {
 
         })
 
+        it.only("Should accept a bid", async () => {
+
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
+
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                bid,
+                bid.spender
+            );
+
+            await zapMarketV2.connect(signers[0]).acceptBid(osCreature.address, 1, bid)
+        })
+
     })
 })

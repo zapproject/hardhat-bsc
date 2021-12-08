@@ -519,7 +519,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address mediaContractAddress,
         uint256 tokenId,
         Bid calldata expectedBid
-    ) external override onlyMediaCaller isUnlocked(tokenId) {
+    )
+        external
+        override
+        onlyMediaOrAuctionHouse(mediaContractAddress)
+        isUnlocked(tokenId)
+    {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
             expectedBid.bidder
         ];
