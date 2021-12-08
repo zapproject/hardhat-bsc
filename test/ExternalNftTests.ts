@@ -710,12 +710,11 @@ describe("Testing", () => {
 
         })
 
-        it('Should refund the original bid if the bidder bids again', async () => {
+        it.only('Should refund the original bid if the bidder bids again', async () => {
 
             await zapTokenBsc.mint(signers[1].address, bid.amount + newBid.amount);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount + newBid.amount);
-
 
             const bidPreBal = await zapTokenBsc.balanceOf(bid.bidder);
 
@@ -728,6 +727,9 @@ describe("Testing", () => {
             );
 
             const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder);
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            const newBidPreBal = await zapTokenBsc.balanceOf(newBid.bidder);
 
             // Set the second bid of 400 tokens
             await zapMarketV2.connect(signers[1]).setBid(
@@ -737,7 +739,34 @@ describe("Testing", () => {
                 newBid.spender
             );
 
+            const removeBidFilter = zapMarketV2.filters.BidRemoved(
+                null,
+                null,
+                null
+            );
+
+            const removeBidEvent = (await zapMarketV2.queryFilter(removeBidFilter))[0]
+            const eventName = removeBidEvent.event;
+
+            const newBidPostBal = await zapTokenBsc.balanceOf(newBid.bidder);
+            const newMarketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            expect(eventName).to.equal('BidRemoved');
+            expect(removeBidEvent.args?.mediaContract).to.equal(osCreature.address);
+            expect(removeBidEvent.args?.tokenId).to.equal(1);
+            expect(removeBidEvent.args?.bid.amount).to.equal(bid.amount);
+            expect(removeBidEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
+            expect(removeBidEvent.args?.bid.bidder).to.equal(bid.bidder);
+            expect(removeBidEvent.args?.bid.recipient).to.equal(bid.recipient);
+            expect(removeBidEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
+
+
             expect(bidPostBal).to.equal(bidPreBal.toNumber() - bid.amount);
+            expect(marketPostBal).to.equal(bid.amount);
+
+            expect(newBidPreBal).to.equal(bidPostBal);
+            expect(newBidPostBal).to.equal(bid.amount);
+            expect(newMarketPostBal).to.equal(newBid.amount);
 
         })
 
