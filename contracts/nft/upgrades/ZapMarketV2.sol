@@ -483,12 +483,11 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice Removes the bid on a particular media for a bidder. The bid amount
      * is transferred from this contract to the bidder, if they have a bid placed.
      */
-    function removeBid(uint256 tokenId, address bidder)
-        public
-        override
-        onlyMediaCaller
-        isUnlocked(tokenId)
-    {
+    function removeBid(
+        address mediaContract,
+        uint256 tokenId,
+        address bidder
+    ) public override onlyMediaCaller isUnlocked(tokenId) {
         Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
