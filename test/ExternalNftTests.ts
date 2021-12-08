@@ -607,8 +607,6 @@ describe("Testing", () => {
                 .connect(signers[1])
                 .approve(zapMarketV2.address, bid.amount);
 
-            const bidderPreBal = await zapTokenBsc.balanceOf(bid.bidder);
-
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
@@ -616,41 +614,50 @@ describe("Testing", () => {
                 bid.spender
             );
 
-            const bidderPostBal = await zapTokenBsc.balanceOf(bid.bidder);
+            const filter = zapMarketV2.filters.BidCreated(
+                null,
+                null,
+                null
+            );
 
-            const getBid = await zapMarket.bidForTokenBidder(
+            const bidCreatedEvent: Event = (await zapMarketV2.queryFilter(filter))[0];
+
+            const eventName = bidCreatedEvent.event;
+
+            const bidderPostBal = await zapTokenBsc.balanceOf(bid.bidder);
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            const getBid = await zapMarketV2.bidForTokenBidder(
                 osCreature.address,
                 1,
                 bid.bidder
             );
 
-            console.log(getBid)
+            expect(eventName).to.equal('BidCreated');
 
-            // const getBid2 = await zapMarket.bidForTokenBidder(
-            //     zapMedia2.address,
-            //     0,
-            //     bid2.bidder
-            // );
+            expect(bidCreatedEvent.args?.mediaContract).to.equal(osCreature.address);
 
-            // expect(getBid1.currency).to.equal(zapTokenBsc.address);
+            expect(bidCreatedEvent.args?.tokenId).to.equal(1);
 
-            // expect(getBid1.amount.toNumber()).to.equal(bid1.amount);
+            expect(bidCreatedEvent.args?.bid.amount).to.equal(bid.amount);
 
-            // expect(getBid1.bidder).to.equal(bid1.bidder);
+            expect(bidCreatedEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
 
-            // expect(beforeBalance1.toNumber()).to.equal(
-            //     afterBalance1.toNumber() + bid1.amount
-            // );
+            expect(bidCreatedEvent.args?.bid.bidder).to.equal(bid.bidder);
 
-            // expect(getBid2.currency).to.equal(zapTokenBsc.address);
+            expect(bidCreatedEvent.args?.bid.recipient).to.equal(bid.recipient);
 
-            // expect(getBid2.amount.toNumber()).to.equal(bid2.amount);
+            expect(bidCreatedEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
 
-            // expect(getBid2.bidder).to.equal(bid2.bidder);
+            expect(getBid.currency).to.equal(zapTokenBsc.address);
 
-            // expect(beforeBalance2.toNumber()).to.equal(
-            //     afterBalance2.toNumber() + bid2.amount
-            // );
+            expect(getBid.amount.toNumber()).to.equal(bid.amount);
+
+            expect(getBid.bidder).to.equal(bid.bidder);
+
+            expect(bidderPostBal).to.equal(0);
+
+            expect(marketPostBal).to.equal(bid.amount);
 
         });
 
