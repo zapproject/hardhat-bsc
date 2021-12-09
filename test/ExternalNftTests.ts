@@ -711,16 +711,26 @@ describe("Testing", () => {
 
         });
 
-        it('Should revert if the bidder bids 0 tokens', async () => {
+        it.only('Should revert if the bidder bids 0 tokens', async () => {
 
+            // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc
                 .connect(signers[1])
                 .approve(zapMarketV2.address, bid.amount);
 
+            // Sets the bid amount to 0
             bid.amount = 0;
 
+            // Bidder balance after failed bid
+            const bidPreBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market balance after failed bid
+            const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Bidders who attempt to place a bid amount if 0 tokens will revert
             await expect(
                 zapMarketV2.connect(signers[1]).setBid(
                     osCreature.address,
@@ -728,6 +738,19 @@ describe("Testing", () => {
                     bid,
                     bid.spender
                 )).to.be.revertedWith('Market: cannot bid amount of 0');
+
+            // Bidder balance after failed bid
+            const bidPostBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market balance after failed bid
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Expect the token balance after the failed bid to equal the before balance
+            // Bidders bid will transfer to ZapMarket on a failed setBid
+            expect(bidPostBal).to.equal(bidPreBal);
+
+            // Expect ZapMarketV2 to have a balance of zero before and after the failed transaction 
+            expect(marketPostBal).to.equal(marketPreBal);
 
         });
 
