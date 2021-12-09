@@ -161,6 +161,11 @@ describe("Testing", () => {
         // ZapMedia contract instance
         zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
 
+        console.log("\n")
+        console.log(zapMedia.address);
+        console.log(zapMedia.getOwner());
+        console.log("\n")
+
         // Sets the token collaborators
         bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
 
@@ -900,13 +905,13 @@ describe("Testing", () => {
 
         })
 
-        it("Should remove a bid", async () => {
+        it.only("Should remove a bid", async () => {
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
-            const bidPreBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const bidPreBal = await zapTokenBsc.balanceOf(bid.bidder);
             const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             await zapMarketV2.connect(signers[1]).setBid(
@@ -916,12 +921,12 @@ describe("Testing", () => {
                 bid.spender
             );
 
-            const bidPostBal = await zapTokenBsc.balanceOf(bid.biddder)
-            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.bidder);
+            const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder)
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             await zapMarketV2.connect(signers[1]).removeBid(osCreature.address, 1, bid.bidder);
 
-            const removePostBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const removePostBal = await zapTokenBsc.balanceOf(bid.bidder)
             const marketRemovePostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             const removeBidFilter = zapMarketV2.filters.BidRemoved(
