@@ -521,11 +521,12 @@ describe("Testing", () => {
                 }
             };
 
-            await zapTokenBsc.mint(bid.bidder, bid.amount);
-
         })
 
         it.only('Should revert if not called by the media contract', async () => {
+
+            // Send the tokens to the bidder to cover the bid amount
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
@@ -554,6 +555,9 @@ describe("Testing", () => {
         });
 
         it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
+
+            // Send the tokens to the bidder to cover the bid amount
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             // Approves ZapMarketV2 for an amount less than the bid amount
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
@@ -587,18 +591,39 @@ describe("Testing", () => {
 
         });
 
-        it('Should revert if the bidder does not have enough tokens to bid with', async () => {
+        it.only('Should revert if the bidder does not have enough tokens to bid with', async () => {
 
+            // Sends the bid amount subtracted by 1 to not afford the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount - 1);
 
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
+            // Bidder balance before bidding
+            const bidPreBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market baalnce before bidding
+            const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Bidders who attempt to place a bid with a balance less than their allowance will revert
             await expect(zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
                 bid,
                 bid.spender
             )).to.be.revertedWith('SafeERC20: low-level call failed');
+
+            // Bidder balance after failed bid
+            const bidPostBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market balance after failed bid
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Expects the bidder balance after the failed setBid to equal the original mint amount
+            expect(bidPostBal).to.equal(bid.amount - 1);
+
+            // Expects the market balance to equal zero after a failed setBid
+            expect(marketPostBal).to.equal(0);
 
         });
 
