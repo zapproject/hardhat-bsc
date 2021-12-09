@@ -12,6 +12,7 @@ import {Decimal} from '../Decimal.sol';
 import {ZapMedia} from '../ZapMedia.sol';
 import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
 import {Ownable} from '../access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
@@ -575,12 +576,19 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             splitShare(bidShares.owner, bid.amount)
         );
 
-        // Transfer bid share to creator of media
-        token.safeTransfer(
-            ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
-            splitShare(bidShares.creator, bid.amount)
-        );
-
+        if (isInternalMedia[mediaContractAddress] == true) {
+            // Transfer bid share to creator of media
+            token.safeTransfer(
+                ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
+                splitShare(bidShares.creator, bid.amount)
+            );
+        } else {
+            // Transfer bid share to creator of media
+            token.safeTransfer(
+                IERC721Upgradeable(mediaContractAddress).ownerOf(tokenId),
+                splitShare(bidShares.creator, bid.amount)
+            );
+        }
         uint256 collaboratorShares = 0;
 
         Decimal.D256 memory thisCollabsShare;
@@ -606,8 +614,20 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             splitShare(platformFee.fee, bid.amount)
         );
 
-        // Transfer media to bid recipient
-        ZapMedia(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
+        if (isInternalMedia[mediaContractAddress] == true) {
+            // Transfer media to bid recipient
+            ZapMedia(mediaContractAddress).auctionTransfer(
+                tokenId,
+                bid.recipient
+            );
+        } else {
+            IERC721Upgradeable(mediaContractAddress).safeTransferFrom(
+                IERC721Upgradeable(mediaContractAddress).ownerOf(tokenId),
+                bid.recipient,
+                tokenId,
+                ''
+            );
+        }
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare

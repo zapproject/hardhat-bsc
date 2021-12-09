@@ -822,6 +822,8 @@ describe("Testing", () => {
 
         it.only("Should accept a bid", async () => {
 
+            await osCreature.setApprovalForAll(zapMarketV2.address, true);
+
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
@@ -833,7 +835,10 @@ describe("Testing", () => {
                 bid.spender
             );
 
-            await zapMarketV2.connect(signers[0]).acceptBid(osCreature.address, 1, bid)
+            console.log("Original Owner", await osCreature.ownerOf(1))
+            await zapMarketV2.connect(signers[0]).acceptBid(osCreature.address, 1, bid);
+            console.log("New Owner", await osCreature.ownerOf(1))
+
         })
 
     })
