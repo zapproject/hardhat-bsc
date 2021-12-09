@@ -534,7 +534,7 @@ describe("Testing", () => {
             const isRegistered = await zapMarketV2.isRegistered(unAuthMedia.address);
 
             // unAuthMedia was not configured to ZapMarket and will return false
-            const isConfigured = await zapMarketV2.isConfigured(osCreature.address);
+            const isConfigured = await zapMarketV2.isConfigured(unAuthMedia.address);
 
             // ERC721 contracts that are not registered to the MediaFactory or configured
             // to ZapMarket have no access to the Markeplace functions
@@ -553,9 +553,7 @@ describe("Testing", () => {
 
         });
 
-        it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
-
-            await zapTokenBsc.mint(bid.bidder, bid.amount);
+        it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
 
