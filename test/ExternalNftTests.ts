@@ -555,14 +555,35 @@ describe("Testing", () => {
 
         it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
+            // Approves ZapMarketV2 for an amount less than the bid amount
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
 
+            // Bidder balance before bidding
+            const bidPreBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market baalnce before bidding
+            const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Bidders who attempt to place a bid with an amount less than their allowance will revert
             await expect(zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
                 bid,
                 bid.spender
             )).to.be.revertedWith('SafeERC20: low-level call failed');
+
+            // Bidder balance after failed bid
+            const bidPostBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market balance after failed bid
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Expect the token balance after the failed bid to equal the before balance
+            // Bidders bid will transfer to ZapMarket on a failed setBid
+            expect(bidPostBal).to.equal(bidPreBal);
+
+            // Expect ZapMarketV2 to have a balance of zero before and after the failed transaction 
+            expect(marketPostBal).to.equal(marketPreBal);
 
         });
 
