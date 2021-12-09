@@ -75,7 +75,6 @@ describe("Testing", () => {
     };
 
 
-
     let mediaFactoryV2: MediaFactoryV2
 
     beforeEach(async () => {
@@ -160,11 +159,6 @@ describe("Testing", () => {
 
         // ZapMedia contract instance
         zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
-
-        console.log("\n")
-        console.log(zapMedia.address);
-        console.log(zapMedia.getOwner());
-        console.log("\n")
 
         // Sets the token collaborators
         bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
@@ -528,7 +522,7 @@ describe("Testing", () => {
 
         })
 
-        it.only('Should revert if not called by the media contract', async () => {
+        it('Should revert if not called by the media contract', async () => {
 
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
@@ -559,7 +553,7 @@ describe("Testing", () => {
 
         });
 
-        it.only('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
+        it('Should revert if the bidder does not have a high enough allowance for their bidding currency', async () => {
 
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
@@ -596,7 +590,7 @@ describe("Testing", () => {
 
         });
 
-        it.only('Should revert if the bidder does not have enough tokens to bid with', async () => {
+        it('Should revert if the bidder does not have enough tokens to bid with', async () => {
 
             // Sends the bid amount subtracted by 1 to not afford the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount - 1);
@@ -673,7 +667,7 @@ describe("Testing", () => {
 
         });
 
-        it.only('Should revert if the bid recipient is a zero address', async () => {
+        it('Should revert if the bid recipient is a zero address', async () => {
 
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
@@ -716,7 +710,7 @@ describe("Testing", () => {
 
         });
 
-        it.only('Should revert if the bidder bids 0 tokens', async () => {
+        it('Should revert if the bidder bids 0 tokens', async () => {
 
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
@@ -761,12 +755,15 @@ describe("Testing", () => {
 
         it('Should set a valid bid', async () => {
 
+            // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc
                 .connect(signers[1])
                 .approve(zapMarketV2.address, bid.amount);
 
+            // Bidder successully sets a bid on an external token
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
@@ -774,37 +771,51 @@ describe("Testing", () => {
                 bid.spender
             );
 
+            // Filters ZapMarketV2 for the BidCreated event
             const filter = zapMarketV2.filters.BidCreated(
                 null,
                 null,
                 null
             );
 
+            // Query ZapMarketV2 for the BidCreated event that emits after the setBid function invokes
             const bidCreatedEvent: Event = (await zapMarketV2.queryFilter(filter))[0];
 
+            // Stores the name of the event that emits after setBid is invoked
             const eventName = bidCreatedEvent.event;
 
+            // The bid amount should be withdrawn from the bidders balance
             const bidderPostBal = await zapTokenBsc.balanceOf(bid.bidder);
+
+            // The bid amount should be transferred to ZapMarketV2's balance 
             const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
+            // Returns the bid a bidder placed on an external token
             const getBid = await zapMarketV2.bidForTokenBidder(
                 osCreature.address,
                 1,
                 bid.bidder
             );
 
+            // Expect the name of the event emitted to be BidCreated
             expect(eventName).to.equal('BidCreated');
 
+            // Expect the emitted external contract address to equal the address of osCreature
             expect(bidCreatedEvent.args?.mediaContract).to.equal(osCreature.address);
 
+            // Expect the emitted external tokenId the bid was set on to equal 1
             expect(bidCreatedEvent.args?.tokenId).to.equal(1);
 
+            // Expect the emitted bid amount to equal the bid amount placed
             expect(bidCreatedEvent.args?.bid.amount).to.equal(bid.amount);
 
+            // Expect the emitted bid currency to equal the bid currency placed
             expect(bidCreatedEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
 
+            // Expect the emitted bidder address to equal the address of who the bid was placed by
             expect(bidCreatedEvent.args?.bid.bidder).to.equal(bid.bidder);
 
+            // Expect the emitted recipient address to equal the 
             expect(bidCreatedEvent.args?.bid.recipient).to.equal(bid.recipient);
 
             expect(bidCreatedEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
@@ -847,13 +858,16 @@ describe("Testing", () => {
 
         it('Should refund the original bid if the bidder bids again', async () => {
 
+            // Send the tokens to the bidder to cover the first small bid and the second large bid
             await zapTokenBsc.mint(signers[1].address, bid.amount + newBid.amount);
 
+            // Approves ZapMarketV2 to hold the first small and second large bid amount
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount + newBid.amount);
 
+            // Bidder balance before placing the first small bid
             const bidPreBal = await zapTokenBsc.balanceOf(bid.bidder);
 
-            // Set the first bid of 200 tokens
+            // Successully sets the first small bid
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
@@ -861,6 +875,7 @@ describe("Testing", () => {
                 bid.spender
             );
 
+            // 
             const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder);
             const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
@@ -905,7 +920,7 @@ describe("Testing", () => {
 
         })
 
-        it.only("Should remove a bid", async () => {
+        it("Should remove a bid", async () => {
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -955,16 +970,15 @@ describe("Testing", () => {
 
         })
 
-        it("Should accept a bid", async () => {
+        it("Should accept a bid on an external NFt", async () => {
 
-            // setApprovalForAll - Caller allows an operator to transfer ERC721's on their behalf
-            // caller = signers[0]
-            // operator = zapMarketV2
-            // approve status = true
+            // The owner of the token allows an operator to transfer ERC721's on their behalf
             await osCreature.setApprovalForAll(zapMarketV2.address, true);
 
+            // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
+            // 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
             await zapMarketV2.connect(signers[1]).setBid(
@@ -974,7 +988,33 @@ describe("Testing", () => {
                 bid.spender
             );
 
+            // Original address that owns tokenId 1 on the external contract before the bid is accepted
+            const originalOwner = await osCreature.ownerOf(1);
+
+            // The owner of the external tokenId accepts the winning bid
             await zapMarketV2.connect(signers[0]).acceptBid(osCreature.address, 1, bid);
+
+            const bidFinalizedFilter = zapMarketV2.filters.BidFinalized(
+                null,
+                null,
+                null
+            );
+
+            const bidFinalizedEvent = (await zapMarketV2.queryFilter(bidFinalizedFilter))[0];
+
+            // The winning bidder should receive the auctioned token
+            const newTokenOwner = await osCreature.ownerOf(1);
+
+            expect(bidFinalizedEvent.event).to.equal("BidFinalized");
+            expect(bidFinalizedEvent.args.mediaContract).to.equal(osCreature.address);
+            expect(bidFinalizedEvent.args.tokenId).to.equal(1);
+            expect(bidFinalizedEvent.args.bid.amount).to.equal(bid.amount);
+            expect(bidFinalizedEvent.args.bid.currency).to.equal(bid.currency);
+            expect(bidFinalizedEvent.args.bid.bidder).to.equal(bid.bidder);
+            expect(bidFinalizedEvent.args.bid.recipient).to.equal(bid.recipient);
+            expect(bidFinalizedEvent.args.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
+            expect(originalOwner).to.equal(signers[0].address);
+            expect(newTokenOwner).to.equal(bid.recipient)
 
         })
 

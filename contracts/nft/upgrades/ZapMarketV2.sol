@@ -576,7 +576,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             splitShare(bidShares.owner, bid.amount)
         );
 
-        if (isInternalMedia[mediaContractAddress] == true) {
+        if (isInternalMedia[mediaContractAddress]) {
             // Transfer bid share to creator of media
             token.safeTransfer(
                 ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
@@ -614,7 +614,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             splitShare(platformFee.fee, bid.amount)
         );
 
-        if (isInternalMedia[mediaContractAddress] == true) {
+        if (isInternalMedia[mediaContractAddress]) {
             // Transfer media to bid recipient
             ZapMedia(mediaContractAddress).auctionTransfer(
                 tokenId,
