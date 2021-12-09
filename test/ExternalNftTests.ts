@@ -627,14 +627,24 @@ describe("Testing", () => {
 
         });
 
-        it('Should revert if the bid currency is zero address', async () => {
+        it('Should revert if the bid currency is a zero address', async () => {
 
+            // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
+            // Sets the bid currency to 0x0000000000000000000000000000000000000000
             bid.currency = ethers.constants.AddressZero;
 
+            // Bidder balance after failed bid
+            const bidPreBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market balance after failed bid
+            const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Bidders who try to setBid without a valid token address will revert
             await expect(
                 zapMarketV2.connect(signers[1]).setBid(
                     osCreature.address,
@@ -642,6 +652,20 @@ describe("Testing", () => {
                     bid,
                     bid.spender
                 )).to.be.revertedWith('Market: bid currency cannot be 0 address');
+
+            // Bidder balance after failed bid
+            const bidPostBal = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Market balance after failed bid
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
+
+            // Expect the token balance after the failed bid to equal the before balance
+            // Bidders bid will transfer to ZapMarket on a failed setBid
+            expect(bidPostBal).to.equal(bidPreBal);
+
+            // Expect ZapMarketV2 to have a balance of zero before and after the failed transaction 
+            expect(marketPostBal).to.equal(marketPreBal);
+
         });
 
         it('Should revert if the bid recipient is zero address', async () => {
