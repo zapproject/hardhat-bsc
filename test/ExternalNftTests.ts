@@ -461,7 +461,7 @@ describe("Testing", () => {
         })
     });
 
-    describe.only("#setBid", () => {
+    describe("#setBid", () => {
 
         let unAuthMedia: Creature
         let unAuthProxy: MockProxyRegistry
@@ -521,20 +521,35 @@ describe("Testing", () => {
                 }
             };
 
-        })
-
-        it('Should revert if not called by the media contract', async () => {
-
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
-            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount - 1);
+        })
 
+        it.only('Should revert if not called by the media contract', async () => {
+
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+
+            // unAuthMedia was not registered to the MediaFactory and will return false
+            const isRegistered = await zapMarketV2.isRegistered(unAuthMedia.address);
+
+            // unAuthMedia was not configured to ZapMarket and will return false
+            const isConfigured = await zapMarketV2.isConfigured(osCreature.address);
+
+            // ERC721 contracts that are not registered to the MediaFactory or configured
+            // to ZapMarket have no access to the Markeplace functions
             await expect(zapMarketV2.connect(signers[1]).setBid(
                 unAuthMedia.address,
                 1,
                 bid,
                 bid.spender
             )).to.be.revertedWith('Market: Only media or AuctionHouse contract');
+
+            // Expect the value of isRegistered to be false
+            expect(isRegistered).to.be.false;
+
+            // Expect the value of isConfigured to be false
+            expect(isConfigured).to.be.false;
 
         });
 
@@ -710,7 +725,7 @@ describe("Testing", () => {
 
         })
 
-        it.only('Should refund the original bid if the bidder bids again', async () => {
+        it('Should refund the original bid if the bidder bids again', async () => {
 
             await zapTokenBsc.mint(signers[1].address, bid.amount + newBid.amount);
 
@@ -820,8 +835,12 @@ describe("Testing", () => {
 
         })
 
-        it.only("Should accept a bid", async () => {
+        it("Should accept a bid", async () => {
 
+            // setApprovalForAll - Caller allows an operator to transfer ERC721's on their behalf
+            // caller = signers[0]
+            // operator = zapMarketV2
+            // approve status = true
             await osCreature.setApprovalForAll(zapMarketV2.address, true);
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
@@ -835,9 +854,7 @@ describe("Testing", () => {
                 bid.spender
             );
 
-            console.log("Original Owner", await osCreature.ownerOf(1))
             await zapMarketV2.connect(signers[0]).acceptBid(osCreature.address, 1, bid);
-            console.log("New Owner", await osCreature.ownerOf(1))
 
         })
 
