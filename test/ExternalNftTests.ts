@@ -161,6 +161,11 @@ describe("Testing", () => {
         // ZapMedia contract instance
         zapMedia = new ethers.Contract(mediaAddress, zapMediaFactory.abi, signers[0]) as ZapMedia;
 
+        console.log("\n")
+        console.log(zapMedia.address);
+        console.log(zapMedia.getOwner());
+        console.log("\n")
+
         // Sets the token collaborators
         bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
 
@@ -461,7 +466,7 @@ describe("Testing", () => {
         })
     });
 
-    describe.only("#setBid", () => {
+    describe("#setBid", () => {
 
         let unAuthMedia: Creature
         let unAuthProxy: MockProxyRegistry
@@ -710,7 +715,7 @@ describe("Testing", () => {
 
         })
 
-        it.only('Should refund the original bid if the bidder bids again', async () => {
+        it('Should refund the original bid if the bidder bids again', async () => {
 
             await zapTokenBsc.mint(signers[1].address, bid.amount + newBid.amount);
 
@@ -770,13 +775,13 @@ describe("Testing", () => {
 
         })
 
-        it("Should remove a bid", async () => {
+        it.only("Should remove a bid", async () => {
 
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
-            const bidPreBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const bidPreBal = await zapTokenBsc.balanceOf(bid.bidder);
             const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             await zapMarketV2.connect(signers[1]).setBid(
@@ -786,12 +791,12 @@ describe("Testing", () => {
                 bid.spender
             );
 
-            const bidPostBal = await zapTokenBsc.balanceOf(bid.biddder)
-            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.bidder);
+            const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder)
+            const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             await zapMarketV2.connect(signers[1]).removeBid(osCreature.address, 1, bid.bidder);
 
-            const removePostBal = await zapTokenBsc.balanceOf(bid.biddder)
+            const removePostBal = await zapTokenBsc.balanceOf(bid.bidder)
             const marketRemovePostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             const removeBidFilter = zapMarketV2.filters.BidRemoved(
@@ -820,7 +825,7 @@ describe("Testing", () => {
 
         })
 
-        it.only("Should accept a bid", async () => {
+        it("Should accept a bid", async () => {
 
             await osCreature.setApprovalForAll(zapMarketV2.address, true);
 
