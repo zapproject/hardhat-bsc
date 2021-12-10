@@ -18,7 +18,7 @@ import { } from "../typechain";
 import { BigNumber, Contract } from "ethers";
 
 import {
-  approveAuction,
+  approveAuctionHouse,
   deployBidder,
   deployOtherNFTs,
   deployWETH,
@@ -159,7 +159,7 @@ describe("AuctionHouse", () => {
 
       await mint(media1);
 
-      await approveAuction(media1, auctionHouse)
+      await approveAuctionHouse(media1, auctionHouse)
     });
 
     it("should fail as non WETH signer", async () => {
@@ -188,7 +188,7 @@ describe("AuctionHouse", () => {
 
       await mint(media1);
 
-      await approveAuction(media1, auctionHouse)
+      await approveAuctionHouse(media1, auctionHouse)
 
     });
 
@@ -343,7 +343,7 @@ describe("AuctionHouse", () => {
       // const badMedia = await badMediaFact.deploy(mediaArgs);
 
       await badMedia.connect(signers[5]).mint();
-      await approveAuction((badMedia as unknown) as ZapMedia, auctionHouse);
+      await approveAuctionHouse((badMedia as unknown) as ZapMedia, auctionHouse);
       await expect(
         createAuction(
           auctionHouse.connect(signers[5]),
@@ -363,7 +363,7 @@ describe("AuctionHouse", () => {
 
       await mint(media2.connect(signers[2]));
 
-      await approveAuction(media2, auctionHouse);
+      await approveAuctionHouse(media2, auctionHouse);
 
       await expect(
         createAuction(auctionHouse.connect(signers[2]), curator.address, zapTokenBsc.address, undefined, media2.address)
@@ -438,7 +438,7 @@ describe("AuctionHouse", () => {
       [deity, admin, curator, bidder] = await ethers.getSigners();
       auctionHouse = (await deploy(deity, zapTokenBsc.address, market.address)).connect(curator) as AuctionHouse;
       await mint(media1);
-      await approveAuction(media1, auctionHouse);
+      await approveAuctionHouse(media1, auctionHouse);
       await createAuction(
         auctionHouse.connect(admin),
         await curator.getAddress(),
@@ -506,7 +506,7 @@ describe("AuctionHouse", () => {
       [deity, admin, creator, curator, bidder] = await ethers.getSigners();
       auctionHouse = (await deploy(admin, zapTokenBsc.address, market.address)).connect(curator) as AuctionHouse;
       await mint(media1.connect(creator));
-      await approveAuction(
+      await approveAuctionHouse(
         media1.connect(creator),
         auctionHouse.connect(creator)
       );
@@ -593,7 +593,7 @@ describe("AuctionHouse", () => {
 
       await media1.approve(curator.address, 0);
 
-      await approveAuction(media1, auctionHouse);
+      await approveAuctionHouse(media1, auctionHouse);
 
       // auctionHouse.setTokenDetails(0, media1.address);
 
@@ -918,7 +918,7 @@ describe("AuctionHouse", () => {
       [admin, creator, curator, bidder] = await ethers.getSigners();
       auctionHouse = (await deploy(admin, zapTokenBsc.address, market.address)).connect(creator) as AuctionHouse;
       await mint(media1.connect(creator));
-      await approveAuction(media1.connect(creator), auctionHouse);
+      await approveAuctionHouse(media1.connect(creator), auctionHouse);
       // await auctionHouse.setTokenDetails(0, media1.address);
       await createAuction(
         auctionHouse.connect(creator),
@@ -1018,7 +1018,7 @@ describe("AuctionHouse", () => {
       [admin, creator, curator, bidder, other] = await ethers.getSigners();
       auctionHouse = (await deploy(creator, zapTokenBsc.address, market.address)) as AuctionHouse;
       await mint(media1.connect(creator));
-      await approveAuction(media1.connect(creator), auctionHouse);
+      await approveAuctionHouse(media1.connect(creator), auctionHouse);
 
       await createAuction(
         auctionHouse.connect(creator),

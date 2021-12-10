@@ -310,7 +310,7 @@ export const mint = async (media: ZapMedia) => {
 
 };
 
-export const approveAuction = async (
+export const approveAuctionHouse = async (
   media: ZapMedia,
   auctionHouse: AuctionHouse
 ) => {
