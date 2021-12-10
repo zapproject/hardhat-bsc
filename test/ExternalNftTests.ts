@@ -238,7 +238,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
         );
     })
 
-    describe.only("#Upgradeablity: External NFT Initialization", () => {
+    describe("#Upgradeablity: External NFT Initialization", () => {
 
         it("Should be registered to MediaFactoryV2", async () => {
 
@@ -342,8 +342,10 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         })
 
-        it("Should revert if there is an attempt to configure a tokenID twice", async () => {
+        it("Should revert if there is an attempt to configure a tokenId twice", async () => {
 
+            // The configureExternalToken function will fail due to the tokenId
+            // already configured to the markeplace
             await expect(mediaFactoryV2
                 .connect(signers[0])
                 .configureExternalToken(
@@ -351,10 +353,13 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                     1,
                     bidShares
                 )).to.be.revertedWith('Market: External token already configured');
+
         })
 
-        it("Should revert if there is an attempt to configure a nonexistent tokenID", async () => {
+        it("Should revert if there is an attempt to configure a nonexistent tokenId", async () => {
 
+            // The configureExternalToken function will fail due to the tokenId
+            // not existing
             await expect(mediaFactoryV2
                 .connect(signers[0])
                 .configureExternalToken(
@@ -362,7 +367,9 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                     101,
                     bidShares
                 )).to.be.revertedWith('ERC721: owner query for nonexistent token')
-        })
+
+        });
+
     })
 
     describe("#setBidShares", () => {
