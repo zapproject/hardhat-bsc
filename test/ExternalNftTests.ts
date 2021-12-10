@@ -376,14 +376,23 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         it("Should get the bidShares for the external NFT", async () => {
 
-            const bidSharesForToken = await zapMarketV2.bidSharesForToken(osCreature.address, 1)
+            // Returns the external NFT bidShares set on the configureExternalToken function
+            const bidSharesForToken = await zapMarketV2.bidSharesForToken(osCreature.address, 1);
 
+            // Expect the returned creator value to equal the creator value set on configuration
             expect(bidSharesForToken.creator.value).to.equal(bidShares.creator.value);
+
+            // Expect the returned owner value to equal the owner value set on configuration
             expect(bidSharesForToken.owner.value).to.equal(bidShares.owner.value);
 
             for (var i = 0; i < bidShares.collaborators.length; i++) {
 
+                // Expect the returned collaborator addresses to equal the collaborator
+                // addresses set on configuration
                 expect(bidSharesForToken.collaborators[i]).to.equal(bidShares.collaborators[i]);
+
+                // Expect the returned collabShare values to equal the collabShare values
+                // set on configuration
                 expect(bidSharesForToken.collabShares[i]).to.equal(bidShares.collabShares[i]);
 
             }
@@ -393,56 +402,78 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
     describe('#setAsk', () => {
 
-        it('Should reject setAsk if not called by token owner', async () => {
+        it('Should reject setAsk if not called by external token owner', async () => {
 
+            // Expect the owner of the external token to not equal the address attempting to setAsk
+            expect(await osCreature.ownerOf(1)).to.not.equal(signers[4].address);
+
+            // The setAsk function will fail due to a non token owner attempting to setAsk
             await expect(zapMarketV2.connect(signers[4]).setAsk(osCreature.address, 1, ask))
                 .to.be.revertedWith('Market: Only owner of token can call this method');
+
         });
 
-        it('Should set the ask if called by the owner of the token ', async () => {
+        it('Should set the ask if called by the owner of the external token ', async () => {
 
+            // Expect the owner of external tokenId to equal the address of signers[0]
+            expect(await osCreature.ownerOf(1)).to.equal(signers[0].address);
+
+            // The owner of the external token succesfully calls the setAsk function
             await zapMarketV2.connect(signers[0]).setAsk(
                 osCreature.address,
                 1,
                 ask
             );
 
-            // get ask associated with external token
+            // Return the  ask associated with external token
             const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
 
+            // Expect the returned ask amount to equal the amount set 
             expect(getAsk.amount.toNumber()).to.equal(ask.amount);
+
+            // Expect the currency returned to equal the currency set
             expect(getAsk.currency).to.equal(zapTokenBsc.address);
 
         });
 
         it('Should emit an event if the ask is updated', async () => {
 
-            // 
+            // The owner of the external token succesfully calls the setAsk function
             await zapMarketV2.connect(signers[0]).setAsk(
                 osCreature.address,
                 1,
                 ask
             );
 
+            // Filter zapMarketV2 for the AskCreated event
             const filter: EventFilter = zapMarketV2.filters.AskCreated(
                 osCreature.address,
                 null,
                 null
             );
 
+            // Query fot the AskCreated event
             const event: Event = (
                 await zapMarketV2.queryFilter(filter)
             )[0];
 
+            // Expect the emitted event name to equal AskCreated
             expect(event.event).to.be.equal('AskCreated');
+
+            // Expect the emitted tokenId to equal 1
             expect(event.args?.tokenId.toNumber()).to.be.equal(1);
+
+            // Expect the emitted ask amount to equal the amount set
             expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+
+            // Expect the emitted currency to equal the currenct set
             expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
         });
 
         it('Should reject if the ask is too low', async () => {
 
+            // The setAsk function will revert if the amount cannit be equally split in the bidShares
             await expect(
                 zapMarketV2.connect(signers[0]).setAsk(osCreature.address, 1, {
                     amount: 13,
@@ -452,52 +483,76 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         });
 
-        it("Should remove an ask", async () => {
+        it("Should remove an external ask", async () => {
 
+            // The owner of the external tokenId successfully setAsk
             await zapMarketV2.connect(signers[0]).setAsk(
                 osCreature.address,
                 1,
                 ask
             );
 
+            // Filter zapMarketV2 for the AskCreated event
             const filter: EventFilter = zapMarketV2.filters.AskCreated(
                 osCreature.address,
                 null,
                 null
             );
 
+            // Query for the AskCreated event
             const event: Event = (
                 await zapMarketV2.queryFilter(filter)
             )[0];
 
+            // The emitted event name should equal AskCreated
             expect(event.event).to.be.equal('AskCreated');
+
+            // The emitted tokenId should equal 1
             expect(event.args?.tokenId.toNumber()).to.be.equal(1);
+
+            // The emitted ask amount should equal the amount set
             expect(event.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+
+            // The emitted ask currency should equal the currency set
             expect(event.args?.ask.currency).to.be.equal(zapTokenBsc.address);
 
-            // remove the ask that was set above
+            // Remove the ask set by the owner
             await zapMarketV2.connect(signers[0]).removeAsk(osCreature.address, 1);
 
+            // Filter for the AskRemoved event
             const askRemovedFilter: EventFilter = zapMarketV2.filters.AskRemoved(
                 null,
                 null,
                 null
             );
 
+            // Query for the AskRemoved event
             const askRemovedEvent: Event = (
                 await zapMarketV2.queryFilter(askRemovedFilter)
             )[0]
 
+            // Expect the emitted event name to equal AskRemoved
             expect(askRemovedEvent.event).to.be.equal('AskRemoved');
+
+            // Expect the emitted tokenId to equal 1
             expect(askRemovedEvent.args?.tokenId.toNumber()).to.be.equal(1);
+
+            // Expect the emitted amount removed to equal the amount set
             expect(askRemovedEvent.args?.ask.amount.toNumber()).to.be.equal(ask.amount);
+
+            // Expect the emitted currency removed to equal the currency set
             expect(askRemovedEvent.args?.ask.currency).to.be.equal(zapTokenBsc.address);
+
+            // Expect the emitted mediaContract the ask was removed on to equal the external contract address
             expect(askRemovedEvent.args?.mediaContract).to.be.equal(osCreature.address);
 
-            // since the ask was removed, we are checking that it is not zero for the ask object
+            // Since the ask was removed, we are checking that it is zero for the ask object
             const getAsk = await zapMarketV2.currentAskForToken(osCreature.address, 1);
 
+            // Expect the returned ask amount after removing to equal 0
             expect(getAsk.amount.toNumber()).to.be.equal(0);
+
+            // Expect the returned ask currency after removing to equal 0x0000000000000000000000000000000000000000
             expect(getAsk.currency).to.be.equal(ethers.constants.AddressZero);
 
         })
@@ -565,7 +620,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         })
 
-        it('Should revert if not called by the media contract', async () => {
+        it('Should revert if not called by the external media contract', async () => {
 
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
@@ -861,28 +916,36 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // Expect the emitted recipient address to equal the 
             expect(bidCreatedEvent.args?.bid.recipient).to.equal(bid.recipient);
 
+            // Expect the emitted sellOnShare value to equal the sellOnShare set
             expect(bidCreatedEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
 
-            expect(getBid.currency).to.equal(zapTokenBsc.address);
+            // Expect the returned currency to equal the currency set
+            expect(getBid.currency).to.equal(bid.currency);
 
+            // Expect the returned amount to equal the amount set
             expect(getBid.amount.toNumber()).to.equal(bid.amount);
 
+            // Expect the returned bidder address to equal the address of the bidder set
             expect(getBid.bidder).to.equal(bid.bidder);
 
+            // Expect the bidders balance to equal zero due to their funds matching the bid amount
+            // On setBid the bid amount will be withrdrawn from the bidders balance
             expect(bidderPostBal).to.equal(0);
 
+            // Expect the market balance to equal the bid amount due to the bidder bid amount
             expect(marketPostBal).to.equal(bid.amount);
 
         });
 
         it("Should set a larger valid bid than the minimum bid", async () => {
 
+            // Send the tokens to the bidder to cover the first small bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
-            await zapTokenBsc.mint(largeBid.bidder, largeBid.amount);
 
+            // Approves ZapMarketV2 to hold the first bid amount until the bid is over
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
-            await zapTokenBsc.connect(signers[2]).approve(zapMarketV2.address, largeBid.amount);
 
+            // Successfully sets the first small bid
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
@@ -890,6 +953,12 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                 bid.spender
             );
 
+            // Send the tokens to the bidder to cover the second large bid amount
+            await zapTokenBsc.mint(largeBid.bidder, largeBid.amount);
+
+            await zapTokenBsc.connect(signers[2]).approve(zapMarketV2.address, largeBid.amount);
+
+            // Successfully sets the second large bid
             await zapMarketV2.connect(signers[2]).setBid(
                 osCreature.address,
                 1,
@@ -918,10 +987,13 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                 bid.spender
             );
 
-            // 
+            // Returns the balance of bidder after setting the bid
             const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder);
+
+            // Returns the balance of the market after the bid was placed
             const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
+            // Returns the balance of the bidder before making a second bid
             const newBidPreBal = await zapTokenBsc.balanceOf(newBid.bidder);
 
             // Set the second bid of 400 tokens
@@ -932,20 +1004,36 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                 newBid.spender
             );
 
+            // Filfter for the BidRemoved event
             const removeBidFilter = zapMarketV2.filters.BidRemoved(
                 null,
                 null,
                 null
             );
 
+            // Query for the BidRemoved event
             const removeBidEvent = (await zapMarketV2.queryFilter(removeBidFilter))[0]
+
+            // The emitted event name of BidRemoved
             const eventName = removeBidEvent.event;
 
+            // Returns the balance of the bidder after making the second bid
+            // The bidders balance should increase from the first bid and
+            // decrease by the second bid
             const newBidPostBal = await zapTokenBsc.balanceOf(newBid.bidder);
+
+            // Returns the balance of the market after the second bid was placed
+            // The market balance should decrease from the first bid and
+            // increase from the second bid
             const newMarketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
+            // Expect the event name emitted to equal BidRemoved
             expect(eventName).to.equal('BidRemoved');
+
+            // Expect the emitted mediaContract address to equal the external contract address
             expect(removeBidEvent.args?.mediaContract).to.equal(osCreature.address);
+
+            // Expect the emitted tokenId to equal 1
             expect(removeBidEvent.args?.tokenId).to.equal(1);
             expect(removeBidEvent.args?.bid.amount).to.equal(bid.amount);
             expect(removeBidEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
