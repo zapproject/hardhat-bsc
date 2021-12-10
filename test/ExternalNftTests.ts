@@ -12,7 +12,7 @@ import chai, { expect } from 'chai';
 import { sign } from 'crypto';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-describe("Testing", () => {
+describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
     let signers: SignerWithAddress[]
     let zapTokenBsc: ZapTokenBSC
@@ -163,12 +163,14 @@ describe("Testing", () => {
         // Sets the token collaborators
         bidShares.collaborators = [signers[1].address, signers[2].address, signers[3].address];
 
-        // Signer[0] mints a token
+        // Signer[0] mints a token on zapMediaV1
         // tokenId is currently 0
         await zapMedia.mint(data, bidShares);
 
+        // Set the ask currency to zapTokenBSC
         ask.currency = zapTokenBsc.address;
 
+        // Ask set tokenId 0 
         await zapMedia.setAsk(
             0,
             ask
@@ -191,6 +193,7 @@ describe("Testing", () => {
         osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
         await osCreature.deployed();
 
+        // Mints the external token to signers[0]
         await osCreature.mintTo(signers[0].address);
 
         //*****************************************************************************
@@ -235,69 +238,100 @@ describe("Testing", () => {
         );
     })
 
-    describe("#Upgradeablity: External NFT Initialization", () => {
+    describe.only("#Upgradeablity: External NFT Initialization", () => {
 
         it("Should be registered to MediaFactoryV2", async () => {
 
+            // The isRegistered status is true
             const isRegistered = await zapMarketV2.isRegistered(osCreature.address);
 
+            // Expext the external contract to be registered to MediaFactoryV2
             expect(isRegistered).to.be.true;
 
         })
 
         it("Should be configured to ZapMarketV2", async () => {
 
+            // The isConfigured status is true
             const isConfigured = await zapMarketV2._isConfigured(osCreature.address);
 
+            // Expect the external contract to be configured to ZapMarketV2
             expect(isConfigured).to.be.true;
 
         })
 
-        it("Should emit a MediaContractCreated event", async () => {
+        it("Should emit a MediaContractCreated event after an external contract is ", async () => {
 
+            // Filters for the MediaContractCreated event on zapMarketV2 
             const filter: EventFilter = zapMarketV2.filters.MediaContractCreated(
                 null,
                 null,
                 null
             );
 
+            // Query the MediaContractCreated event
             const event: Event = (
                 await zapMarketV2.queryFilter(filter)
             )[2]
 
+            // Expect the emitted event name to be MediaContractCreated
             expect(event.event).to.be.equal("MediaContractCreated");
+
+            // Expect the emitted mediaContract address to be the external contract address
             expect(event.args?.mediaContract).to.equal(osCreature.address);
+
+            // Expect the emitted collection name to equal the external collection name
             expect(ethers.utils.parseBytes32String(event.args?.name)).to.be.equal(await osCreature.name());
+
+            // Expect the emitted collection symbol to equal the external collection symbol
             expect(ethers.utils.parseBytes32String(event.args?.symbol)).to.be.equal(await osCreature.symbol());
 
         });
 
         it("Should emit a BidShareUpdated event", async () => {
 
+            // Filter ZapMarketV2 for the BidSharUpdated event
             const filter: EventFilter = zapMarketV2.filters.BidShareUpdated(
                 null,
                 null,
                 null
             );
 
+            // Query ZapMarketV2 for the BidShareUpdated event
             const event: Event = (
                 await zapMarketV2.queryFilter(filter)
             )[1]
 
+            // Expect the emitted event name to be BidShareUpdated
             expect(event.event).to.be.equal("BidShareUpdated");
+
+            // Expect the emitted tokenId to equal 1
             expect(event.args?.tokenId).to.be.equal(1);
+
+            // Expect the emitted creator value to equal the creator value set on external configuration
             expect(event.args?.bidShares.creator.value).to.equal(bidShares.creator.value);
+
+            // Expect the emitted owner value to equal the owner value set on external configuration
             expect(event.args?.bidShares.owner.value).to.equal(bidShares.owner.value);
+
+            // Expect the emitted collaborator addresses to equal the set collaborator addresses
             expect(event.args?.bidShares.collaborators).to.eql(bidShares.collaborators);
+
+            // Expect the emitted collaboShares to equal the set collabShare values
             expect(event.args?.bidShares.collabShares).to.eql(bidShares.collabShares);
+
+            // Expect the emitted meidaContract to equal the external contract address
             expect(event.args?.mediaContract).to.equal(osCreature.address);
 
         });
 
-        it("Should revert if a non owner tries to configure an existing tokenID", async () => {
+        it("Should revert if a non owner tries to configure an existing external tokenId", async () => {
 
-            const tokenID = await osCreature.tokenByIndex(0);
+            // Expect the owner of the external token to not equal the address attempting to configure
+            expect(await osCreature.ownerOf(1)).to.not.equal(signers[11].address);
 
+            // The configureExternalToken function will fail due to a non owner
+            // attempting to configure the tokenId
             await expect(mediaFactoryV2
                 .connect(signers[11])
                 .configureExternalToken(
@@ -305,6 +339,7 @@ describe("Testing", () => {
                     1,
                     bidShares
                 )).to.be.revertedWith('MediaFactory: Only token owner can configure to ZapMarket');
+
         })
 
         it("Should revert if there is an attempt to configure a tokenID twice", async () => {
@@ -375,6 +410,7 @@ describe("Testing", () => {
 
         it('Should emit an event if the ask is updated', async () => {
 
+            // 
             await zapMarketV2.connect(signers[0]).setAsk(
                 osCreature.address,
                 1,
