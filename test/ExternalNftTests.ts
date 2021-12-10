@@ -778,10 +778,10 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // Sets the bid recipient to 0x0000000000000000000000000000000000000000
             bid.recipient = ethers.constants.AddressZero;
 
-            // Bidder balance after failed bid
+            // Bidder balance before failed bid
             const bidPreBal = await zapTokenBsc.balanceOf(signers[1].address);
 
-            // Market balance after failed bid
+            // Market balance before failed bid
             const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
             // Bids placed without a valid recipient address will revert
@@ -956,6 +956,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // Send the tokens to the bidder to cover the second large bid amount
             await zapTokenBsc.mint(largeBid.bidder, largeBid.amount);
 
+            // Approve
             await zapTokenBsc.connect(signers[2]).approve(zapMarketV2.address, largeBid.amount);
 
             // Successfully sets the second large bid
@@ -1004,7 +1005,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                 newBid.spender
             );
 
-            // Filfter for the BidRemoved event
+            // Filter for the BidRemoved event
             const removeBidFilter = zapMarketV2.filters.BidRemoved(
                 null,
                 null,
@@ -1035,31 +1036,55 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
             // Expect the emitted tokenId to equal 1
             expect(removeBidEvent.args?.tokenId).to.equal(1);
+
+            // Expect the emitted removed amount to equal the amount set
             expect(removeBidEvent.args?.bid.amount).to.equal(bid.amount);
-            expect(removeBidEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
+
+            // Expect the emitted removed currency to equal the currency sest
+            expect(removeBidEvent.args?.bid.currency).to.equal(bid.currency);
+
+            // Expect the emitted removed bidder to equal the bidder who placed the bid
             expect(removeBidEvent.args?.bid.bidder).to.equal(bid.bidder);
+
+            // Expect the emitted removed recipient to equal the bidder who placed the bid
             expect(removeBidEvent.args?.bid.recipient).to.equal(bid.recipient);
+
+            // Expect the emitted removed sellOnShare value to equal the sellOnShare value set
             expect(removeBidEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
 
-
+            // Expect first bid amount to be withdrawn from the bidders balance
             expect(bidPostBal).to.equal(bidPreBal.toNumber() - bid.amount);
+
+            // Expect the first bid amount to transfer to the market balance
             expect(marketPostBal).to.equal(bid.amount);
 
+            // Expect the balance before the second bid to equal the balance after the first bid
             expect(newBidPreBal).to.equal(bidPostBal);
+
+            // Expect the balance after the second bid to equal the original bid.amount
+            // A bidders original bid is returned if they bid a second time
             expect(newBidPostBal).to.equal(bid.amount);
+
+            // Expect the balance of the market to equal the new bid amount
             expect(newMarketPostBal).to.equal(newBid.amount);
 
         })
 
         it("Should remove a bid", async () => {
 
+            // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
+            // Balance of the bidder before placing the bid
             const bidPreBal = await zapTokenBsc.balanceOf(bid.bidder);
+
+            // Balance of the market before placing the bid
             const marketPreBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
+            // Successfully sets the bid and transfers the bid amount to the market
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
@@ -1067,36 +1092,73 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
                 bid.spender
             );
 
+            // Balance of the bidder after placing the bid
+            // The bid amount should be withdrawn from the bidders balance
             const bidPostBal = await zapTokenBsc.balanceOf(bid.bidder)
+
+            // Balance of the market after the bid was placed
+            // The bid amount should be transferred to market balance
             const marketPostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
+            // Removes the bid placed
             await zapMarketV2.connect(signers[1]).removeBid(osCreature.address, 1, bid.bidder);
 
-            const removePostBal = await zapTokenBsc.balanceOf(bid.bidder)
+            // Balance of the bidder after removing their bid
+            // After removing the bid the bid amount should be transferred to the bidders balance
+            const removePostBal = await zapTokenBsc.balanceOf(bid.bidder);
+
+            // Balance of the market after the bid was removed
+            // After the removing the bid the bid amount should be withdrawn from the market balance
             const marketRemovePostBal = await zapTokenBsc.balanceOf(zapMarketV2.address);
 
+            // Filter for the BidRemoved event
             const removeBidFilter = zapMarketV2.filters.BidRemoved(
                 null,
                 null,
                 null
             );
 
+            // Query for the BidRemoved event
             const removeBidEvent = (await zapMarketV2.queryFilter(removeBidFilter))[0]
+
+            // BidRemoved event name
             const eventName = removeBidEvent.event;
 
+            // Expect the bidders balance to equal zero after placing a bid
             expect(bidPostBal).to.equal(0);
+
+            // Expect the market balance to increase by the bid amount
             expect(marketPostBal).to.equal(bid.amount);
 
+            // Expect the bid amount to be transferred to the bidders balance after removal
             expect(removePostBal).to.equal(bidPreBal);
+
+            // Expect the bid amount to be withdrawn from the market balance
+            // The balance should return to its original state before the bid was placed
             expect(marketRemovePostBal).to.equal(marketPreBal);
 
+            // Expect the emitted event name to equal BidRemoved
             expect(eventName).to.equal('BidRemoved');
+
+            // Expect the emitted mediaContract to equal the external contract address
             expect(removeBidEvent.args?.mediaContract).to.equal(osCreature.address);
+
+            // Expect the emitted tokenId to equal 1
             expect(removeBidEvent.args?.tokenId).to.equal(1);
+
+            // Expect the emitted amount removed to equal the amount set
             expect(removeBidEvent.args?.bid.amount).to.equal(bid.amount);
+
+            // Expect the emitted currency removed to equal the currency set
             expect(removeBidEvent.args?.bid.currency).to.equal(zapTokenBsc.address);
+
+            // Expect the emitted bidder address remobed to equal the address of the bidder
             expect(removeBidEvent.args?.bid.bidder).to.equal(bid.bidder);
+
+            // Expect the emitted recipient removed to equal the address of the bidder
             expect(removeBidEvent.args?.bid.recipient).to.equal(bid.recipient);
+
+            // Expect the emitted sellOnShare value to equal the sellOnShare value set
             expect(removeBidEvent.args?.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
 
         })
@@ -1109,9 +1171,10 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
-            // 
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
+            // Successfully setBid and transfers the bid amount to the market
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
@@ -1125,26 +1188,47 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // The owner of the external tokenId accepts the winning bid
             await zapMarketV2.connect(signers[0]).acceptBid(osCreature.address, 1, bid);
 
+            // Filter for the BidFinalized event
             const bidFinalizedFilter = zapMarketV2.filters.BidFinalized(
                 null,
                 null,
                 null
             );
 
+            // Query for the BidFinalized event
             const bidFinalizedEvent = (await zapMarketV2.queryFilter(bidFinalizedFilter))[0];
 
             // The winning bidder should receive the auctioned token
             const newTokenOwner = await osCreature.ownerOf(1);
 
+            // Expect the emitted event name to equal BidFinalized
             expect(bidFinalizedEvent.event).to.equal("BidFinalized");
+
+            // Expect the emitted mediaContract to equal the external contract address
             expect(bidFinalizedEvent.args.mediaContract).to.equal(osCreature.address);
+
+            // Expect the emitted tokenId to equal 1
             expect(bidFinalizedEvent.args.tokenId).to.equal(1);
+
+            // Expect the emitted bid amount to equal accepted bid amount 
             expect(bidFinalizedEvent.args.bid.amount).to.equal(bid.amount);
+
+            // Expect the emitted currency to equal the accepted currency
             expect(bidFinalizedEvent.args.bid.currency).to.equal(bid.currency);
+
+            // Expect the emitted bidder address to equal the accepted bidder address
             expect(bidFinalizedEvent.args.bid.bidder).to.equal(bid.bidder);
+
+            // Expect the emitted recipient to equal the accepted recipient
             expect(bidFinalizedEvent.args.bid.recipient).to.equal(bid.recipient);
+
+            // Expect the emitted sellOnShare to equal the accepted sellOnShare
             expect(bidFinalizedEvent.args.bid.sellOnShare.value).to.equal(bid.sellOnShare.value);
+
+            // Expect the original owner of the external tokenId to equal the address of signers[0]
             expect(originalOwner).to.equal(signers[0].address);
+
+            // Expext the accepted bid recipient to be the new owner of the external tokenId
             expect(newTokenOwner).to.equal(bid.recipient)
 
         })
