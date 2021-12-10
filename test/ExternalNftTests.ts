@@ -2,7 +2,7 @@ import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
 import { BigNumber, ContractFactory, Event, EventFilter } from 'ethers';
 
-import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, MediaFactoryV2, ZapTokenBSC } from '../typechain';
+import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, MediaFactoryV2, ZapTokenBSC, AuctionHouse } from '../typechain';
 
 import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils';
 
@@ -238,7 +238,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
         );
     })
 
-    describe.only("#Upgradeablity: External NFT Initialization", () => {
+    describe("#Upgradeablity: External NFT Initialization", () => {
 
         it("Should be registered to MediaFactoryV2", async () => {
 
@@ -1054,5 +1054,46 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         })
 
+    });
+    describe.only("#externalNFTs can use AuctionHouse", () => {
+        let auctionHouseFactory: any;
+        let auctionHouse: AuctionHouse;
+        beforeEach (async () => {
+            // set up Auctionhouse
+            auctionHouseFactory = await deployments.get('AuctionHouse');
+            auctionHouse = await ethers.getContractAt('AuctionHouse', auctionHouseFactory.address, signers[0]) as AuctionHouse;
+        });
+        it("Should create an auction for osCreature NFT", async () => {
+            console.log("isConfigured: ", await zapMarketV2.isConfigured(osCreature.address));
+            console.log("isRegistered: ", await zapMarketV2.isRegistered(osCreature.address));
+            
+            console.log((await osCreature.balanceOf(signers[0].address)).toString());
+
+            const tokenId = 1
+
+            // external NFT contract needs to approve AuctionHouse first
+            await osCreature.approve(auctionHouse.address, tokenId);
+
+
+            // start an auction for an external token
+
+            const mediaContract = osCreature.address
+            const duration = 60 * 60 * 24 * 3 // 3 days in seconds
+            const reservePrice = BigNumber.from('150000000000000000000'); // 150 Zap
+            const curator = signers[1].address
+            const curatorFeePercentage = 5
+            const auctionCurrency = zapTokenBsc.address
+            await auctionHouse.connect(signers[0]).createAuction(
+                tokenId,
+                mediaContract,
+                duration,
+                reservePrice,
+                curator,
+                curatorFeePercentage,
+                auctionCurrency
+            ) 
+            const createdAuction = await auctionHouse.auctions(0);
+            console.log(createdAuction);
+        });
     })
 })
