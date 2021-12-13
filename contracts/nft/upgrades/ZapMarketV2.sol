@@ -12,7 +12,6 @@ import {Decimal} from '../Decimal.sol';
 import {ZapMedia} from '../ZapMedia.sol';
 import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
 import {Ownable} from '../access/Ownable.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
