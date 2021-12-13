@@ -240,8 +240,6 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             bidShares
         );
 
-        // The owner of the token allows an operator to transfer ERC721's on their behalf
-        await osCreature.setApprovalForAll(zapMarketV2.address, true);
     })
 
     describe("#Upgradeablity: External NFT Initialization", () => {
@@ -1190,6 +1188,8 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         it("Should accept a bid on an external NFt", async () => {
 
+            osCreature.approve(zapMarketV2.address, 1);
+
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -1255,40 +1255,43 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         })
 
-        it.only("Should transfer the token directcly", async () => {
+        it("Should transfer the NFT to the bidder if the ask price is met", async () => {
 
-            let test = {
-                amount: ask.amount,
-                currency: zapTokenBsc.address,
-                bidder: signers[1].address,
-                recipient: signers[1].address,
-                spender: signers[1].address,
-                sellOnShare: {
-                    value: BigInt(10000000000000000000)
-                }
-            };
+            // The owner approves ZapMarketV2 to transfer tokenId 1 for auction
+            await osCreature.approve(zapMarketV2.address, 1);
 
             await zapMarketV2.setAsk(osCreature.address, 1, ask);
 
+            // Set the bid amount to the owners ask amount
+            bid.amount = ask.amount;
+
             // Send the tokens to the bidder to cover the ask amount
-            await zapTokenBsc.mint(test.bidder, ask.amount);
+            await zapTokenBsc.mint(bid.bidder, bid.amount);
 
             // Approves ZapMarketV2 to hold the bid amount until the bid is over
-            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, ask.amount);
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
+
+            // Owner of tokenId 1 before the bid
+            const ownerPreBid = await osCreature.ownerOf(1);
+            const nftPreBal = await osCreature.balanceOf(ownerPreBid);
 
             // Successfully setBid and transfers the bid amount to the market
             await zapMarketV2.connect(signers[1]).setBid(
                 osCreature.address,
                 1,
-                test,
-                test.spender
+                bid,
+                bid.spender
             );
 
+            // Owner of tokenid 1 after the bid
+            const ownerPostBid = await osCreature.ownerOf(1);
+            const nftPostBal = await osCreature.balanceOf(ownerPostBid);
 
-            console.log({
-                oldOwner: await osCreature.balanceOf(signers[0].address),
-                newOwner: await osCreature.balanceOf(signers[1].address)
-            })
+            expect(ownerPreBid).to.equal(signers[0].address);
+            expect(nftPreBal).to.equal(1);
+
+            expect(ownerPostBid).to.equal(bid.bidder);
+            expect(nftPostBal).to.equal(1)
 
         })
 
