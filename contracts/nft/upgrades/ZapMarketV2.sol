@@ -61,7 +61,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     //Mapping determining whether an nft contract is internal or external
     mapping(address => bool) public isInternalMedia;
 
-    mapping(address => mapping(uint256 => bool)) tokenConfigured;
+    mapping(address => mapping(uint256 => bool)) externalTokenConfigured;
 
     /* *********
      * Modifiers
@@ -351,7 +351,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             // Require the external tokenId is not configured
             // If the external tokenId is configured the transaction will revert
             require(
-                tokenConfigured[mediaContract][tokenId] == false,
+                externalTokenConfigured[mediaContract][tokenId] == false,
                 'Market: External token already configured'
             );
 
@@ -359,7 +359,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             _bidShares[mediaContract][tokenId] = bidShares;
 
             // Set the external tokenId configuration status to true
-            tokenConfigured[mediaContract][tokenId] = true;
+            externalTokenConfigured[mediaContract][tokenId] = true;
         } else {
             require(
                 mediaContract != address(0),

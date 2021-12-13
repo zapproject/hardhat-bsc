@@ -8,7 +8,6 @@ import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from '../MediaProxy.sol';
 import {ZapMedia} from '../ZapMedia.sol';
 import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
-import 'hardhat/console.sol';
 
 interface IERC721Extended {
     function name() external view returns (string memory);
@@ -22,7 +21,10 @@ interface IERC721Extended {
 /// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
 contract MediaFactoryV2 is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
-    event ExternalTokenDeployed(address indexed extToken);
+    event ExternalTokenConfigured(
+        address indexed externalContract,
+        uint256 tokenId
+    );
 
     IMarketV2 zapMarket;
     address beacon;
@@ -128,12 +130,6 @@ contract MediaFactoryV2 is OwnableUpgradeable {
         if (!(zapMarket.isRegistered(tokenAddress))) {
             zapMarket.registerMedia(tokenAddress);
         }
-        // else {
-        //     require(
-        //         zapMarket.isInternal(tokenAddress),
-        //         'This operation is meant for external NFTs'
-        //     );
-        // }
 
         if (!(zapMarket._isConfigured(tokenAddress))) {
             bytes memory name_b = bytes(IERC721Extended(tokenAddress).name());
@@ -160,7 +156,7 @@ contract MediaFactoryV2 is OwnableUpgradeable {
 
         zapMarket.setBidShares(tokenAddress, tokenId, _bidShares);
 
-        emit ExternalTokenDeployed(tokenAddress);
+        emit ExternalTokenConfigured(tokenAddress, tokenId);
 
         return true;
     }

@@ -9,8 +9,10 @@ import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils'
 import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
-import { sign } from 'crypto';
+
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+
+chai.use(solidity);
 
 describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
@@ -188,8 +190,9 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
         const oscreatureFactory = await ethers.getContractFactory(
             'Creature',
             signers[0]
-        )
+        );
 
+        // External ERC721 contract
         osCreature = (await oscreatureFactory.deploy(proxy.address)) as Creature;
         await osCreature.deployed();
 
@@ -260,7 +263,26 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         })
 
-        it("Should emit a MediaContractCreated event after an external contract is ", async () => {
+        it("Should emit an ExternalTokenConfigured event after an external token is configured", async () => {
+
+            // Filters for the ExternalTokenConfigure event on mediaFactoryV2
+            const filter: EventFilter = mediaFactoryV2.filters.ExternalTokenConfigured(
+                null,
+                null
+            );
+
+            // Query the ExternalTokenConfigured event
+            const event: Event = (await mediaFactoryV2.queryFilter(filter))[0];
+
+            // Expect the externalContract emitted to equal the external contract configured
+            expect(event.args?.externalContract).to.equal(osCreature.address);
+
+            // Expect the tokenId emitted to equal the external tokenId minted and configured
+            expect(event.args?.tokenId).to.equal(1);
+
+        });
+
+        it("Should emit a MediaContractCreated event after an external token is configured", async () => {
 
             // Filters for the MediaContractCreated event on zapMarketV2 
             const filter: EventFilter = zapMarketV2.filters.MediaContractCreated(
