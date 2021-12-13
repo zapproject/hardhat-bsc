@@ -1260,6 +1260,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // The owner approves ZapMarketV2 to transfer tokenId 1 for auction
             await osCreature.approve(zapMarketV2.address, 1);
 
+            // The owner sets the askin
             await zapMarketV2.setAsk(osCreature.address, 1, ask);
 
             // Set the bid amount to the owners ask amount
@@ -1272,8 +1273,13 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, bid.amount);
 
             // Owner of tokenId 1 before the bid
-            const ownerPreBid = await osCreature.ownerOf(1);
-            const nftPreBal = await osCreature.balanceOf(ownerPreBid);
+            const oldOwner = await osCreature.ownerOf(1);
+
+            // Owner NFT balance before the bid
+            const oldOwnerPreBal = await osCreature.balanceOf(oldOwner);
+
+            // New owner NFT balance before the bid
+            const newOwnerPreBal = await osCreature.balanceOf(bid.bidder);
 
             // Successfully setBid and transfers the bid amount to the market
             await zapMarketV2.connect(signers[1]).setBid(
@@ -1284,14 +1290,31 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             );
 
             // Owner of tokenid 1 after the bid
-            const ownerPostBid = await osCreature.ownerOf(1);
-            const nftPostBal = await osCreature.balanceOf(ownerPostBid);
+            const newOwner = await osCreature.ownerOf(1);
 
-            expect(ownerPreBid).to.equal(signers[0].address);
-            expect(nftPreBal).to.equal(1);
+            // The balance of the old owner after the bid
+            const oldOwnerPostBal = await osCreature.balanceOf(signers[0].address);
 
-            expect(ownerPostBid).to.equal(bid.bidder);
-            expect(nftPostBal).to.equal(1)
+            // The balance of the new owner after the bid
+            const newOwnerPostBal = await osCreature.balanceOf(newOwner);
+
+            // Expect the owner of the NFT before the bid to equal signers[0]
+            expect(oldOwner).to.equal(signers[0].address);
+
+            // Expect the owner NFT balance before the bid to equal 1
+            expect(oldOwnerPreBal).to.equal(1);
+
+            // Expect the old owner NFT balance after the bid to equal 0 
+            expect(oldOwnerPostBal).to.equal(0);
+
+            // Expect the new owner of tokenId 1 to equal the bidder address
+            expect(newOwner).to.equal(bid.bidder);
+
+            // Expect the balance of the bidder before the bid to equal 0
+            expect(newOwnerPreBal).to.equal(0);
+
+            // Expect the balance of the bidder after the bid to equal 1
+            expect(newOwnerPostBal).to.equal(1);
 
         })
 
