@@ -239,6 +239,9 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             1,
             bidShares
         );
+
+        // The owner of the token allows an operator to transfer ERC721's on their behalf
+        await osCreature.setApprovalForAll(zapMarketV2.address, true);
     })
 
     describe("#Upgradeablity: External NFT Initialization", () => {
@@ -1187,9 +1190,6 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
         it("Should accept a bid on an external NFt", async () => {
 
-            // The owner of the token allows an operator to transfer ERC721's on their behalf
-            await osCreature.setApprovalForAll(zapMarketV2.address, true);
-
             // Send the tokens to the bidder to cover the bid amount
             await zapTokenBsc.mint(bid.bidder, bid.amount);
 
@@ -1252,6 +1252,43 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
             // Expext the accepted bid recipient to be the new owner of the external tokenId
             expect(newTokenOwner).to.equal(bid.recipient)
+
+        })
+
+        it.only("Should transfer the token directcly", async () => {
+
+            let test = {
+                amount: ask.amount,
+                currency: zapTokenBsc.address,
+                bidder: signers[1].address,
+                recipient: signers[1].address,
+                spender: signers[1].address,
+                sellOnShare: {
+                    value: BigInt(10000000000000000000)
+                }
+            };
+
+            await zapMarketV2.setAsk(osCreature.address, 1, ask);
+
+            // Send the tokens to the bidder to cover the ask amount
+            await zapTokenBsc.mint(test.bidder, ask.amount);
+
+            // Approves ZapMarketV2 to hold the bid amount until the bid is over
+            await zapTokenBsc.connect(signers[1]).approve(zapMarketV2.address, ask.amount);
+
+            // Successfully setBid and transfers the bid amount to the market
+            await zapMarketV2.connect(signers[1]).setBid(
+                osCreature.address,
+                1,
+                test,
+                test.spender
+            );
+
+
+            console.log({
+                oldOwner: await osCreature.balanceOf(signers[0].address),
+                newOwner: await osCreature.balanceOf(signers[1].address)
+            })
 
         })
 

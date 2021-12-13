@@ -12,6 +12,7 @@ import {Decimal} from '../Decimal.sol';
 import {ZapMedia} from '../ZapMedia.sol';
 import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
 import {Ownable} from '../access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
@@ -470,12 +471,13 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[msg.sender][tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[msg.sender][tokenId].currency &&
-            bid.amount >= _tokenAsks[msg.sender][tokenId].amount
+            _tokenAsks[mediaContract][tokenId].currency != address(0) &&
+            bid.currency == _tokenAsks[mediaContract][tokenId].currency &&
+            bid.amount >= _tokenAsks[mediaContract][tokenId].amount
         ) {
+            console.log('ENTER');
             // Finalize exchange
-            _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
+            _finalizeNFTTransfer(mediaContract, tokenId, bid.bidder);
         }
     }
 
