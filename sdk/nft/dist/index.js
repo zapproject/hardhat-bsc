@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ethers_1 = require("ethers");
-console.log(ethers_1.ethers);
+var addresses_1 = require("./addresses");
+console.log(addresses_1.mediaFactory.rinkeby);
 //# sourceMappingURL=index.js.map

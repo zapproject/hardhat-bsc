@@ -1,4 +1,4 @@
 import { ethers } from 'ethers';
+import { mediaFactory } from './addresses';
 
-console.log(ethers);
 
