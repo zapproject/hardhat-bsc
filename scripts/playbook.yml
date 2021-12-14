@@ -1,7 +1,0 @@
-
-- name: Test Action
-  hosts: all
-  tasks:
-    - name: run the service defined in my_project's docker-compose.yml
-        docker_compose:
-          project_src: docker-compose.yml
