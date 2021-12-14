@@ -1,4 +1,4 @@
-export declare const mediaFactory: {
+export declare const mediaFactoryAddress: {
     rinkeby: string;
     ethMainnet: string;
     bscTestnet: string;
