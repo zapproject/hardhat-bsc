@@ -8,6 +8,7 @@ import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
 import './Vault.sol';
+import "hardhat/console.sol";
 
 /**
  * @title Zap Oracle System
@@ -224,14 +225,30 @@ contract Zap {
 
         Vault vault = Vault(currentVault);
 
+        ZapStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
+
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
             vault.deposit(_to, _disputeFee);
-            data = abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                _to, _disputeFee);
-            _callOptionalReturn(token, data);
+            // disabled token transfer to wallet as we want to only transfer within vault and this is a duplicate transfer
+            // data = abi.encodeWithSignature(
+            //     "transfer(address,uint256)",
+            //     _to, _disputeFee);
+            // _callOptionalReturn(token, data);
+
+            // if the disputed has lost, transfer stake amount to dispute initiator and transfer remaining balance to zap owner
+            if (disp.reportingParty == _to) {
+                // transfer stake amount to dispute initiator
+                vault.withdraw(dis.reportedMiner, self.uintVars[keccak256('stakeAmount')]);
+                vault.deposit(_to,self.uintVars[keccak256('stakeAmount')]);
+                // transfer remaining balance to 
+                remainingBalance = vault.balance(dis.reportedMiner);
+                vault.withdraw(dis.reportedMiner, remainingBalance);
+                vault.deposit(address(this), remainingBalance);
+                console.log("Remaining Balance recipient: ", address(this));
+            }
         }
+
 
         if (disp.forkedContract == uint(ForkedContract.ZapMasterContract)) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
