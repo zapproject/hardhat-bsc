@@ -1,0 +1,1 @@
+npx hardhat run --network binanceMainnet scripts/deploy_nft_contracts.ts
