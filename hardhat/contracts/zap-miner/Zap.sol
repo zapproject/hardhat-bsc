@@ -225,7 +225,7 @@ contract Zap {
 
         Vault vault = Vault(currentVault);
 
-        ZapStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
+        ZapStorage.StakeInfo storage stakes = zap.stakerDetails[disp.reportedMiner];
 
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
@@ -239,11 +239,13 @@ contract Zap {
             // if the disputed has lost, transfer stake amount to dispute initiator and transfer remaining balance to zap owner
             if (disp.reportingParty == _to) {
                 // transfer stake amount to dispute initiator
-                vault.withdraw(dis.reportedMiner, self.uintVars[keccak256('stakeAmount')]);
-                vault.deposit(_to,self.uintVars[keccak256('stakeAmount')]);
+                uint256 stakeAmt = zap.uintVars[keccak256('stakeAmount')];
+                vault.withdraw(disp.reportedMiner, stakeAmt);
+                vault.deposit(_to, stakeAmt);
+                
                 // transfer remaining balance to 
-                remainingBalance = vault.balance(dis.reportedMiner);
-                vault.withdraw(dis.reportedMiner, remainingBalance);
+                uint256 remainingBalance = vault.userBalance(disp.reportedMiner);
+                vault.withdraw(disp.reportedMiner, remainingBalance);
                 vault.deposit(address(this), remainingBalance);
                 console.log("Remaining Balance recipient: ", address(this));
             }
