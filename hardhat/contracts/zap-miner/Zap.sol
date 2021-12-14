@@ -230,7 +230,7 @@ contract Zap {
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
             vault.deposit(_to, _disputeFee);
-            // disabled token transfer to wallet as we want to only transfer within vault and this is a duplicate transfer
+            // disabled token transfer to wallet as we want to only transfer within vault and this is a *duplicate* transfer
             // data = abi.encodeWithSignature(
             //     "transfer(address,uint256)",
             //     _to, _disputeFee);
@@ -242,12 +242,13 @@ contract Zap {
                 uint256 stakeAmt = zap.uintVars[keccak256('stakeAmount')];
                 vault.withdraw(disp.reportedMiner, stakeAmt);
                 vault.deposit(_to, stakeAmt);
-                
+
                 // transfer remaining balance to 
                 uint256 remainingBalance = vault.userBalance(disp.reportedMiner);
+                console.log("disputed balance: ", remainingBalance);
                 vault.withdraw(disp.reportedMiner, remainingBalance);
                 vault.deposit(address(this), remainingBalance);
-                console.log("Remaining Balance recipient: ", address(this));
+                console.log("ZM balance: ", vault.userBalance(address(this)));
             }
         }
 

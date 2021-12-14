@@ -160,7 +160,6 @@ describe("Test ZapDispute and it's dispute functions", () => {
     for (var i = 1; i <= 5; i++) {
       // Connects address 1 as the signer
       zap = zap.connect(signers[i]);
-
       /*
         Gets the data properties for the current request
         bytes32 _challenge,
@@ -230,16 +229,16 @@ describe("Test ZapDispute and it's dispute functions", () => {
     let disp = await zapMaster.getAllDisputeVars(disputeId);
 
     // expect to be the address that begain the dispute
-    expect(disp[4]).to.equal(signers[5].address);
+    expect(disp[4]).to.equal(signers[1].address);
     // expect to be the address that is being disputed
-    expect(disp[5]).to.equal(signers[1].address);
+    expect(disp[3]).to.equal(signers[5].address);
     //expect requestID disputed to be 1
     expect(disp[7][0]).to.equal(1);
     // expect timestamp to be the same timestamp used when disputed
     expect(disp[7][1]).to.equal(timeStamp);
   });
 
-  it('Should be able to vote for (true) a dispute.', async () => {
+  it.only('Should be able to vote for (true) a dispute.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
       'timeOfLastNewValue'
@@ -271,14 +270,14 @@ describe("Test ZapDispute and it's dispute functions", () => {
     disputeId = await zapMaster.getUintVar(ddisputecount);
     let disp = await zapMaster.getAllDisputeVars(disputeId);
 
-    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[5]);
+    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[4]);
 
     expect(reporting_miner_wallet_bal).to.equal(BigNumber.from("112500000000000000000000"));
 
     // expect to be the address that begain the dispute
-    expect(disp[4]).to.equal(signers[5].address);
+    expect(disp[4]).to.equal(signers[1].address);
     // expect to be the address that is being disputed
-    expect(disp[5]).to.equal(signers[1].address);
+    expect(disp[3]).to.equal(signers[5].address);
     //expect requestID disputed to be 1
     expect(disp[7][0]).to.equal(1);
     // expect timestamp to be the same timestamp used when disputed
@@ -319,7 +318,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     blockNumber = await ethers.provider.getBlockNumber();
 
-    reporting_miner_wallet_bal = await zapTokenBsc.balanceOf(disp[5]);
+    reporting_miner_wallet_bal = await zapTokenBsc.balanceOf(disp[4]);
 
     // let zMBal = await zap.getBalanceAt(zapMaster.address, blockNumber);
     blockNumber = await ethers.provider.getBlockNumber();
@@ -328,7 +327,15 @@ describe("Test ZapDispute and it's dispute functions", () => {
     let zMBal2 = await zapMaster.balanceOf(zapMaster.address);
 
     // expect balance of winner's wallet to be 600K: 600k(leftover bal. after staking) - 427500 (pay dispute fee) + 427500 (win back dispute fee)  = 600K.
-    expect(reporting_miner_wallet_bal).to.equal(BigNumber.from("600000000000000000000000"));
+    expect(reporting_miner_wallet_bal).to.equal(BigNumber.from("112500000000000000000000"));
+    
+    let zmVaultBal = await vault.userBalance(zapMaster.address)
+
+    expect(zmVaultBal).to.equal(BigNumber.from("5000000000000000010"));
+
+    let initiatorVBal = await vault.userBalance(disp[4]);
+
+    expect(initiatorVBal).to.equal(BigNumber.from("1000005000000000000000010"));
 
   });
   it('Should be able to vote against (false) a dispute.', async () => {
