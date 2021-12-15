@@ -73,7 +73,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      */
     modifier onlyMediaCaller() {
         require(
-            isConfigured[msg.sender] == true,
+            isConfigured[msg.sender],
             'Market: Only media contract'
         );
 
@@ -97,7 +97,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     modifier onlyFactoryorMedia() {
         require(
-            (isConfigured[msg.sender] == true) || (msg.sender == mediaFactory),
+            (isConfigured[msg.sender]) || (msg.sender == mediaFactory),
             'Market: Only a media contract or its factory can do this action'
         );
         _;
@@ -105,7 +105,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     modifier onlyMediaOrAuctionHouse(address caller) {
         require(
-            isConfigured[caller] == true || caller == auctionHouse,
+            isConfigured[caller]|| caller == auctionHouse,
             'Market: Only media or AuctionHouse contract'
         );
 
@@ -305,7 +305,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     ) external override {
         require(msg.sender == mediaContract, 'Market: Media only function');
 
-        if (isMint == true) {
+        if (isMint) {
             emit Minted(tokenId, mediaContract);
         } else {
             emit Burned(tokenId, mediaContract);
@@ -342,16 +342,16 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Invalid bid shares, must sum to 100'
         );
 
-        if (isConfigured[msg.sender] == true) {
+        if (isConfigured[msg.sender]) {
             _bidShares[msg.sender][tokenId] = bidShares;
 
             // Checks if the mediaContract is internal
             // If the mediaContract is not internal proceed into the else if block
-        } else if (isInternalMedia[mediaContract] == false) {
+        } else if (!isInternalMedia[mediaContract]) {
             // Require the external tokenId is not configured
             // If the external tokenId is configured the transaction will revert
             require(
-                externalTokenConfigured[mediaContract][tokenId] == false,
+                !externalTokenConfigured[mediaContract][tokenId],
                 'Market: External token already configured'
             );
 
