@@ -8,7 +8,6 @@ import './libraries/ZapLibrary.sol';
 import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
 import './Vault.sol';
-import "hardhat/console.sol";
 
 /**
  * @title Zap Oracle System
@@ -245,10 +244,8 @@ contract Zap {
 
                 // transfer remaining balance to 
                 uint256 remainingBalance = vault.userBalance(disp.reportedMiner);
-                console.log("disputed balance: ", remainingBalance);
                 vault.withdraw(disp.reportedMiner, remainingBalance);
                 vault.deposit(address(this), remainingBalance);
-                console.log("ZM balance: ", vault.userBalance(address(this)));
             }
         }
 
