@@ -1,1 +1,1 @@
-export declare function deployMedia(network: string): Promise<void>;
+export declare function deployMedia(networkId: number): Promise<void>;

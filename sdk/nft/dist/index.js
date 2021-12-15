@@ -40,32 +40,32 @@ exports.deployMedia = void 0;
 var ethers_1 = require("ethers");
 var addresses_1 = require("./addresses");
 var abi_1 = require("./abi");
-function test() {
+var mediaFactoryAddress;
+function test(networkId) {
+    switch (networkId) {
+        // Rinkeby 
+        case 4:
+            mediaFactoryAddress = addresses_1.mediaFactoryAddresses.rinkeby;
+            console.log("Rinkeby");
+            break;
+    }
+    return mediaFactoryAddress;
+}
+function deployMedia(networkId) {
     return __awaiter(this, void 0, void 0, function () {
-        var provider, chainId;
+        var mf;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, new ethers_1.ethers.providers.JsonRpcProvider('https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby')];
+                case 0:
+                    mf = new ethers_1.ethers.Contract(test(networkId), abi_1.mediaFactoryAbi);
+                    return [4 /*yield*/, mf.deployMedia()];
                 case 1:
-                    provider = _a.sent();
-                    return [4 /*yield*/, provider.getNetwork()];
-                case 2:
-                    chainId = _a.sent();
-                    return [2 /*return*/, chainId];
+                    _a.sent();
+                    return [2 /*return*/];
             }
         });
     });
 }
-function deployMedia(network) {
-    return __awaiter(this, void 0, void 0, function () {
-        var mf;
-        return __generator(this, function (_a) {
-            mf = new ethers_1.ethers.Contract(addresses_1.mediaFactoryAddress.rinkeby, abi_1.mediaFactoryAbi);
-            console.log(mf);
-            return [2 /*return*/];
-        });
-    });
-}
 exports.deployMedia = deployMedia;
-deployMedia('Testing');
+deployMedia(4);
 //# sourceMappingURL=index.js.map
