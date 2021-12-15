@@ -666,7 +666,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // expect voting to have ended
     expect(disp[1]).to.be.true;
 
-    // expect dispute to be successful
+    // expect dispute to have failed
     expect(disp[2]).to.be.false;
   });
 });
