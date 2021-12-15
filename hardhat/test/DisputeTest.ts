@@ -348,6 +348,18 @@ describe("Test ZapDispute and it's dispute functions", () => {
     let disputedVBal = await vault.userBalance(disp[3]);
 
     expect(disputedVBal).to.equal(0);
+
+    /*
+    // Check if the disputed can change their stake status
+    */
+    let initialStakeInfo = await zapMaster.getStakerInfo(disp[3]);
+
+    expect(initialStakeInfo[0]).to.equal(3);
+
+    // Attempt to requestWithdraw
+    await expect(zap.connect(signers[5]).requestStakingWithdraw()).to.be.revertedWith("Miner is not staked");
+
+    expect(initialStakeInfo[0]).to.equal(3);
   });
 
   it('Should be able to vote against (false) a dispute.', async () => {
