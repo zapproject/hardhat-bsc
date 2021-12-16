@@ -6,9 +6,7 @@ const POLLING_INTERVAL = 12000;
 export const injected = new InjectedConnector({
   supportedChainIds: [
     1, // Mainet
-    42, // Kovan
-    56, // BSC
-    97, // BSC-Test
+    4, // Rinkeby
   ],
 });
 
