@@ -15,6 +15,7 @@
     "@web3-react/injected-connector": "^6.0.7",
     "@zoralabs/zdk": "^1.2.6",
     "ethers": "^5.5.2",
+    "lodash": "^4.17.21",
     "node-sass": "5.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -60,6 +61,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "@types/react-router-hash-link": "^2.4.4",
     "@types/styled-components": "^5.1.18",
     "@types/styled-system": "^5.1.13",

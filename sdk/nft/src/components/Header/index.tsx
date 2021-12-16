@@ -1,6 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
+import { Zora } from '@zoralabs/zdk';
+
 import { Button } from '../Toolkit';
 import { injected } from '../../utils/web3React';
 import getAddress from '../../utils/getAddress';
@@ -17,7 +19,17 @@ const WalletWrapper = styled.div`
 
 const Header = () => {
   const { active, account, library, chainId, activate, deactivate } = useWeb3React();
-  console.log(chainId);
+
+  useEffect(() => {
+    if (chainId) {
+      const wallet = library.getSigner();
+
+      const zora = new Zora(wallet, chainId);
+      console.log(zora);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainId]);
+
   const connectHandler = useCallback(async () => {
     try {
       await activate(injected);
