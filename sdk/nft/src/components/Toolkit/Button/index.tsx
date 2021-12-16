@@ -4,7 +4,7 @@ import { space, layout } from 'styled-system';
 const Button = styled.button`
   padding: 18px 36px;
   background: ${({ theme }) => theme.colors.primary};
-  border: ${({ theme }) => `4px solid ${theme.colors.textPrimary}`};
+  border: ${({ theme }) => `4px solid ${theme.colors.primaryText}`};
   border-radius: 14px;
   box-sizing: border-box;
   font-family: FletcherGothicFLF;

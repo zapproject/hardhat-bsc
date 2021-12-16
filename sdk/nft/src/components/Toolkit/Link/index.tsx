@@ -13,7 +13,7 @@ export const Link = styled(BaseLink)<LinkProps>`
   font-size: 32px;
   line-height: 38px;
   text-align: center;
-  color: ${({ theme }) => theme.colors.textPrimary};
+  color: ${({ theme }) => theme.colors.primaryText};
   text-decoration: none;
 
   ${layout}
