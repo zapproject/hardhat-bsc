@@ -2,8 +2,8 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import GlobalStyle from './styles/global';
 
-const Home = lazy(() => import('./components/Home'));
-const About = lazy(() => import('./components/About'));
+const Home = lazy(() => import('./Pages/Home'));
+const About = lazy(() => import('./Pages/About'));
 
 const App = () => (
   <Router>
