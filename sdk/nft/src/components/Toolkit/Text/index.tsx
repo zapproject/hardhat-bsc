@@ -13,15 +13,15 @@ export const Text = styled.div<TextProps>`
   ${baseColor}
 
   ${({ theme }) => theme.mediaQueries.md} {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   ${({ theme }) => theme.mediaQueries.lg} {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   ${({ theme }) => theme.mediaQueries.xl} {
-    font-size: 26px;
+    font-size: 22px;
   }
 `;
 
@@ -30,23 +30,22 @@ Text.defaultProps = {
 };
 
 export const Title = styled(Text)`
-  font-family: FletcherGothicFLF;
   font-style: normal;
   font-weight: 500;
-  font-size: 32px;
-  line-height: 1.2;
+  font-size: 18px;
+  line-height: 1.3;
   letter-spacing: -0.02em;
 
   ${({ theme }) => theme.mediaQueries.md} {
-    font-size: 48px;
+    font-size: 22px;
   }
 
   ${({ theme }) => theme.mediaQueries.lg} {
-    font-size: 52px;
+    font-size: 26px;
   }
 
   ${({ theme }) => theme.mediaQueries.xl} {
-    font-size: 60px;
+    font-size: 30px;
   }
 `;
 
