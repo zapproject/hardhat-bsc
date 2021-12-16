@@ -1,1 +1,2 @@
-export declare function deployMedia(networkId: number): Promise<void>;
+import { Signer } from 'ethers';
+export declare function deployMedia(networkId: number, signer: Signer, collectionName: string, collectionSymbol: string, permissive: boolean, collectionMetadta: string): Promise<void>;

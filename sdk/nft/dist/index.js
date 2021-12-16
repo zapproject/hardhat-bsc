@@ -41,24 +41,35 @@ var ethers_1 = require("ethers");
 var addresses_1 = require("./addresses");
 var abi_1 = require("./abi");
 var mediaFactoryAddress;
-function test(networkId) {
+var zapMarketAddress;
+function contractAddresses(networkId) {
     switch (networkId) {
+        // Localhost
+        case 31337:
+            mediaFactoryAddress = addresses_1.mediaFactoryAddresses.localhost;
+            zapMarketAddress = addresses_1.zapMarketAddresses.localhost;
+            console.log("localhost");
+            break;
         // Rinkeby 
         case 4:
             mediaFactoryAddress = addresses_1.mediaFactoryAddresses.rinkeby;
+            zapMarketAddress = addresses_1.zapMarketAddresses.rinkeby;
             console.log("Rinkeby");
             break;
     }
-    return mediaFactoryAddress;
+    return {
+        mediaFactoryAddress: mediaFactoryAddress,
+        zapMarketAddress: zapMarketAddress
+    };
 }
-function deployMedia(networkId) {
+function deployMedia(networkId, signer, collectionName, collectionSymbol, permissive, collectionMetadta) {
     return __awaiter(this, void 0, void 0, function () {
-        var mf;
+        var mediaFactory;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    mf = new ethers_1.ethers.Contract(test(networkId), abi_1.mediaFactoryAbi);
-                    return [4 /*yield*/, mf.deployMedia()];
+                    mediaFactory = new ethers_1.ethers.Contract(contractAddresses(networkId).mediaFactoryAddress, abi_1.mediaFactoryAbi, signer);
+                    return [4 /*yield*/, mediaFactory.deployMedia(collectionName, collectionSymbol, contractAddresses(networkId).zapMarketAddress, permissive, collectionMetadta)];
                 case 1:
                     _a.sent();
                     return [2 /*return*/];
@@ -67,5 +78,4 @@ function deployMedia(networkId) {
     });
 }
 exports.deployMedia = deployMedia;
-deployMedia(4);
 //# sourceMappingURL=index.js.map
