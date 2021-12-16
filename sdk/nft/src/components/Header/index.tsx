@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
 import { Button } from '../Toolkit';
 import { injected } from '../../utils/web3React';
+import getAddress from '../../utils/getAddress';
 
 const Container = styled.div`
   padding: 50px;
@@ -15,8 +16,8 @@ const WalletWrapper = styled.div`
 `;
 
 const Header = () => {
-  const { active, account, library, connector, activate, deactivate } = useWeb3React();
-
+  const { active, account, library, chainId, activate, deactivate } = useWeb3React();
+  console.log(chainId);
   const connectHandler = useCallback(async () => {
     try {
       await activate(injected);
@@ -39,13 +40,7 @@ const Header = () => {
         <Button type="button" onClick={!active ? connectHandler : disconnectHandler}>
           {!active ? 'Connect Wallet' : 'Disconnect Wallet'}
         </Button>
-        {active ? (
-          <div>
-            Connected with <b>{account}</b>
-          </div>
-        ) : (
-          <div>Not connected</div>
-        )}
+        {account ? <div>{getAddress(account)}</div> : <div>Not connected</div>}
       </WalletWrapper>
     </Container>
   );

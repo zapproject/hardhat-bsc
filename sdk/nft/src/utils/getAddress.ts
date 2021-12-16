@@ -1,6 +1,8 @@
-export const getAddress = (address = '', lengthStart = 5, lengthEnd = 5) => {
-  return `${address.substring(0, lengthStart)}...${address.substring(
-    address.length - lengthEnd,
+const getAddress = (address = '', startLen = 5, endLen = 5) => {
+  return `${address.substring(0, startLen)}...${address.substring(
+    address.length - endLen,
     address.length,
   )}`;
 };
+
+export default getAddress;
