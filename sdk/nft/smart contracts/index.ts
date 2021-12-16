@@ -6,55 +6,47 @@ let mediaFactoryAddress: string;
 let zapMarketAddress: string;
 
 function contractAddresses(networkId: number) {
+  switch (networkId) {
+    // Localhost
+    case 31337:
+      mediaFactoryAddress = mediaFactoryAddresses.localhost;
+      zapMarketAddress = zapMarketAddresses.localhost;
+      console.log('localhost');
+      break;
 
-    switch (networkId) {
+    // Rinkeby
+    case 4:
+      mediaFactoryAddress = mediaFactoryAddresses.rinkeby;
+      zapMarketAddress = zapMarketAddresses.rinkeby;
+      console.log('Rinkeby');
+      break;
+  }
 
-        // Localhost
-        case 31337:
-            mediaFactoryAddress = mediaFactoryAddresses.localhost
-            zapMarketAddress = zapMarketAddresses.localhost
-            console.log("localhost")
-            break;
-
-        // Rinkeby 
-        case 4:
-            mediaFactoryAddress = mediaFactoryAddresses.rinkeby
-            zapMarketAddress = zapMarketAddresses.rinkeby
-            console.log("Rinkeby")
-            break;
-    }
-
-    return {
-        mediaFactoryAddress,
-        zapMarketAddress
-    }
-
+  return {
+    mediaFactoryAddress,
+    zapMarketAddress,
+  };
 }
 
 export async function deployMedia(
-    networkId: number,
-    signer: Signer,
-    collectionName: string,
-    collectionSymbol: string,
-    permissive: boolean,
-    collectionMetadta: string
+  networkId: number,
+  signer: Signer,
+  collectionName: string,
+  collectionSymbol: string,
+  permissive: boolean,
+  collectionMetadta: string,
 ) {
+  const mediaFactory: Contract = new ethers.Contract(
+    contractAddresses(networkId).mediaFactoryAddress,
+    mediaFactoryAbi,
+    signer,
+  );
 
-    const mediaFactory: Contract = new ethers.Contract(
-        contractAddresses(networkId).mediaFactoryAddress,
-        mediaFactoryAbi,
-        signer
-    );
-
-    await mediaFactory.deployMedia(
-        collectionName,
-        collectionSymbol,
-        contractAddresses(networkId).zapMarketAddress,
-        permissive,
-        collectionMetadta
-    );
-
+  await mediaFactory.deployMedia(
+    collectionName,
+    collectionSymbol,
+    contractAddresses(networkId).zapMarketAddress,
+    permissive,
+    collectionMetadta,
+  );
 }
-
-
-

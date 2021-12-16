@@ -21,14 +21,16 @@ const Header = () => {
   const { active, account, library, chainId, activate, deactivate } = useWeb3React();
 
   useEffect(() => {
-    if (chainId) {
+    const getZoraTotalSupply = async (currentChainId: number) => {
       const wallet = library.getSigner();
+      const zora = new Zora(wallet, currentChainId);
+      const totalSupply = await zora.fetchTotalMedia();
+      console.log(totalSupply);
+      return totalSupply;
+    };
 
-      const zora = new Zora(wallet, chainId);
-      console.log(zora);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId]);
+    if (chainId) getZoraTotalSupply(chainId);
+  }, [chainId, library]);
 
   const connectHandler = useCallback(async () => {
     try {
