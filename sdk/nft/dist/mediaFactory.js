@@ -35,46 +35,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var ethers_1 = require("ethers");
-var addresses_1 = require("./addresses");
-var abi_1 = require("./abi");
-var mediaFactoryAddress;
-var zapMarketAddress;
-function contractAddresses(networkId) {
-    switch (networkId) {
-        // Localhost
-        case 31337:
-            mediaFactoryAddress = addresses_1.mediaFactoryAddresses.localhost;
-            zapMarketAddress = addresses_1.zapMarketAddresses.localhost;
-            console.log('localhost');
-            break;
-        // Rinkeby
-        case 4:
-            mediaFactoryAddress = addresses_1.mediaFactoryAddresses.rinkeby;
-            zapMarketAddress = addresses_1.zapMarketAddresses.rinkeby;
-            console.log('Rinkeby');
-            break;
+var _1 = __importDefault(require("."));
+var MediaFactory = /** @class */ (function () {
+    function MediaFactory() {
     }
-    return {
-        mediaFactoryAddress: mediaFactoryAddress,
-        zapMarketAddress: zapMarketAddress,
-    };
-}
-function deployMedia(networkId, signer, collectionName, collectionSymbol, permissive, collectionMetadta) {
-    return __awaiter(this, void 0, void 0, function () {
-        var mediaFactory;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    mediaFactory = new ethers_1.ethers.Contract(contractAddresses(networkId).mediaFactoryAddress, abi_1.mediaFactoryAbi, signer);
-                    return [4 /*yield*/, mediaFactory.deployMedia(collectionName, collectionSymbol, contractAddresses(networkId).zapMarketAddress, permissive, collectionMetadta)];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+    MediaFactory.prototype.deployMedia = function (networkId, signer, collectionName, collectionSymbol, permissive, collectionMetadta) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, (0, _1.default)(networkId, signer, collectionName, collectionSymbol, permissive, collectionMetadta)];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, result];
+                    case 2:
+                        err_1 = _a.sent();
+                        console.log(err_1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
         });
-    });
-}
-exports.default = deployMedia;
-//# sourceMappingURL=index.js.map
+    };
+    return MediaFactory;
+}());
+exports.default = MediaFactory;
+//# sourceMappingURL=mediaFactory.js.map
