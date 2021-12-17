@@ -50,22 +50,21 @@ export const Title = styled(Text)`
 `;
 
 export const SubTitle = styled(Text)`
-  font-family: FletcherGothicFLF;
   font-style: normal;
   font-weight: 500;
-  font-size: 26px;
+  font-size: 18px;
   line-height: 1.2;
 
   ${({ theme }) => theme.mediaQueries.md} {
-    font-size: 36px;
+    font-size: 21px;
   }
 
   ${({ theme }) => theme.mediaQueries.lg} {
-    font-size: 38px;
+    font-size: 24px;
   }
 
   ${({ theme }) => theme.mediaQueries.xl} {
-    font-size: 42px;
+    font-size: 26px;
   }
 `;
 

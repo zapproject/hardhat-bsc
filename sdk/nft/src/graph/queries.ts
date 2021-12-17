@@ -51,7 +51,7 @@ export const queryMedia = gql`
   }
 `;
 
-export const queryAuction = gql`
+export const Query_Auction = gql`
   {
     Auction(
       where: { lastBidder: { _is_null: false }, _not: { endedEvent: {} } }

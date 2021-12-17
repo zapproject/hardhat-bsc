@@ -29,7 +29,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
-  ],
+, "src/Pages/Home/index.js"  ],
   "exclude": [
     "node_modules",
     "dist"

@@ -5,7 +5,7 @@ interface FlexProps extends LayoutProps, SpaceProps {}
 
 const Flex = styled.div<FlexProps>`
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   ${layout}

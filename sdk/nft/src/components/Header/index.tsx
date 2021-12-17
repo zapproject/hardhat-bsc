@@ -25,7 +25,6 @@ const Header = () => {
       const wallet = library.getSigner();
       const zora = new Zora(wallet, currentChainId);
       const totalSupply = await zora.fetchTotalMedia();
-      console.log(totalSupply);
       return totalSupply;
     };
 
