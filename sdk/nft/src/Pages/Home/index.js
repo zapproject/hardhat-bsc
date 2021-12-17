@@ -1,10 +1,9 @@
-// import { useState, useEffect } from 'react';
-// import { request } from 'graphql-request';
+import { useCallback } from 'react';
 import styled from 'styled-components';
 import Web3 from 'web3';
-// import { useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import { useNFT, useNFTMetadata } from '@zoralabs/nft-hooks';
-// import { AuctionHouse } from '@zoralabs/zdk';
+import { AuctionHouse } from '@zoralabs/zdk';
 import {
   Button as BaseButton,
   Flex,
@@ -14,7 +13,6 @@ import {
   Content,
 } from '../../components/Toolkit';
 import timeDiffCalc from '../../utils/timeDiffCalc';
-// import { Query_Auction } from '../../graph/queries';
 
 const Container = styled.div`
   display: flex;
@@ -43,26 +41,17 @@ const Button = styled(BaseButton)`
   padding: 12px 24px;
   font-size: 22px;
   line-height: 1.3;
+  font-family: NiramitRegular;
   border: ${({ theme }) => `2px solid ${theme.colors.primaryText}`};
   border-radius: 5px;
 `;
 
 const Home = () => {
-  // const API_URL = 'https://indexer-prod-mainnet.zora.co/v1/graphql';
-  // const { chainId, library } = useWeb3React();
+  const contractAddress = '0xabEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7';
+  const auctionId = '6713';
+  const { chainId, library } = useWeb3React();
 
-  // useEffect(() => {
-  //   const getZoraTotalSupply = async (currentChainId) => {
-  //     const wallet = library.getSigner();
-  //     const auctionHouse = new AuctionHouse(wallet, currentChainId);
-
-  //     // await auctionHouse.createBid('194000347', Web3.utils.toWei('0.005', 'ether'));
-  //   };
-
-  //   if (chainId) getZoraTotalSupply(chainId);
-  // }, [chainId, library]);
-
-  const { data } = useNFT('0xabEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7', '6713');
+  const { data } = useNFT(contractAddress, auctionId);
   console.log(data);
   const metadataURI = data?.nft?.metadataURI;
   const { metadata } = useNFTMetadata(metadataURI);
@@ -74,6 +63,12 @@ const Home = () => {
   const currency = data?.pricing?.reserve?.current?.highestBid?.pricing?.currency?.symbol;
   const timeDiff =
     new Date(parseInt(data?.pricing?.reserve?.expectedEndTimestamp) * 1000) - new Date();
+
+  const bidHandler = useCallback(async () => {
+    const wallet = library.getSigner();
+    const auctionHouse = new AuctionHouse(wallet, chainId);
+    await auctionHouse.createBid(auctionId, Web3.utils.toWei(highestBid, 'ether'));
+  }, [chainId, highestBid, library]);
 
   return (
     <Container>
@@ -99,7 +94,9 @@ const Home = () => {
               <SubTitle>Auction End Time:&nbsp;&nbsp;</SubTitle>
               <Content>{timeDiffCalc(timeDiff)}</Content>
             </Flex>
-            <Button>Place Bid</Button>
+            <Button type="button" onClick={bidHandler}>
+              Place Bid
+            </Button>
           </ContentWrapper>
         </NFTCard>
       )}
