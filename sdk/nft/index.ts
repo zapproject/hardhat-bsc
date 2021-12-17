@@ -28,7 +28,7 @@ function contractAddresses(networkId: number) {
   };
 }
 
-export async function deployMedia(
+export default async function deployMedia(
   networkId: number,
   signer: Signer,
   collectionName: string,
