@@ -72,10 +72,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
-        require(
-            isConfigured[msg.sender],
-            'Market: Only media contract'
-        );
+        require(isConfigured[msg.sender], 'Market: Only media contract');
 
         _;
     }
@@ -105,7 +102,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     modifier onlyMediaOrAuctionHouse(address caller) {
         require(
-            isConfigured[caller]|| caller == auctionHouse,
+            isConfigured[caller] || caller == auctionHouse,
             'Market: Only media or AuctionHouse contract'
         );
 
@@ -475,7 +472,6 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             bid.currency == _tokenAsks[mediaContract][tokenId].currency &&
             bid.amount >= _tokenAsks[mediaContract][tokenId].amount
         ) {
-            console.log('ENTER');
             // Finalize exchange
             _finalizeNFTTransfer(mediaContract, tokenId, bid.bidder);
         }
