@@ -1187,7 +1187,11 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
         })
 
         it("Should accept a bid on an external NFt", async () => {
-
+            var vaultBefore = await zapTokenBsc.balanceOf(zapVault.address)
+            var before1 = await zapTokenBsc.balanceOf(signers[1].address)
+            var before2 = await zapTokenBsc.balanceOf(signers[2].address)
+            var before3 = await zapTokenBsc.balanceOf(signers[3].address)
+            var ownerBefore = await zapTokenBsc.balanceOf(signers[0].address)
             osCreature.approve(zapMarketV2.address, 1);
 
             // Send the tokens to the bidder to cover the bid amount
@@ -1225,6 +1229,13 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
             // Expect the emitted event name to equal BidFinalized
             expect(bidFinalizedEvent.event).to.equal("BidFinalized");
+            
+            var vaultAfter = await zapTokenBsc.balanceOf(zapVault.address);
+            var after1 = await zapTokenBsc.balanceOf(signers[1].address)
+            var after2 = await zapTokenBsc.balanceOf(signers[2].address)
+            var after3 = await zapTokenBsc.balanceOf(signers[3].address)
+            var ownerAfter = await zapTokenBsc.balanceOf(signers[0].address)
+            
 
             // Expect the emitted mediaContract to equal the external contract address
             expect(bidFinalizedEvent.args.mediaContract).to.equal(osCreature.address);
@@ -1253,6 +1264,20 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             // Expext the accepted bid recipient to be the new owner of the external tokenId
             expect(newTokenOwner).to.equal(bid.recipient)
 
+            //Expect the Zap vault to gain 5% of the bid amount
+            var vaultFee = vaultAfter.sub(vaultBefore);
+            expect(vaultFee).to.equal(bid.amount*0.05)
+            //Expect the Bidshares of the collaborators to have 15% of the bid amount
+            var collabFee1 = after1.sub(before1);
+            expect(collabFee1).to.equal(bid.amount*0.15)
+            var collabFee2 = after1.sub(before2);
+            expect(collabFee2).to.equal(bid.amount*0.15)
+            var collabFee3 = after1.sub(before3);
+            expect(collabFee3).to.equal(bid.amount*0.15)
+
+            //Expect the owner and creator to get 15% + 35% of the bid amount
+            var ownerFee = ownerAfter.sub(ownerBefore);
+            expect(ownerFee).to.equal(bid.amount*0.5)
         })
 
         it("Should transfer the NFT to the bidder if the ask price is met", async () => {
