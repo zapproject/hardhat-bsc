@@ -224,14 +224,31 @@ contract Zap {
 
         Vault vault = Vault(currentVault);
 
+        ZapStorage.StakeInfo storage stakes = zap.stakerDetails[disp.reportedMiner];
+
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
             vault.deposit(_to, _disputeFee);
-            data = abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                _to, _disputeFee);
-            _callOptionalReturn(token, data);
+            // disabled token transfer to wallet as we want to only transfer within vault and this is a *duplicate* transfer
+            // data = abi.encodeWithSignature(
+            //     "transfer(address,uint256)",
+            //     _to, _disputeFee);
+            // _callOptionalReturn(token, data);
+
+            // if the disputed has lost, transfer stake amount to dispute initiator and transfer remaining balance to zap owner
+            if (disp.reportingParty == _to) {
+                // transfer stake amount to dispute initiator
+                uint256 stakeAmt = zap.uintVars[keccak256('stakeAmount')];
+                vault.withdraw(disp.reportedMiner, stakeAmt);
+                vault.deposit(_to, stakeAmt);
+
+                // transfer remaining balance to 
+                uint256 remainingBalance = vault.userBalance(disp.reportedMiner);
+                vault.withdraw(disp.reportedMiner, remainingBalance);
+                vault.deposit(address(this), remainingBalance);
+            }
         }
+
 
         if (disp.forkedContract == uint(ForkedContract.ZapMasterContract)) {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
