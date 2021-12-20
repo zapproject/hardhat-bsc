@@ -1187,11 +1187,23 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
         })
 
         it("Should accept a bid on an external NFt", async () => {
-            var vaultBefore = await zapTokenBsc.balanceOf(zapVault.address)
-            var before1 = await zapTokenBsc.balanceOf(signers[1].address)
-            var before2 = await zapTokenBsc.balanceOf(signers[2].address)
-            var before3 = await zapTokenBsc.balanceOf(signers[3].address)
-            var ownerBefore = await zapTokenBsc.balanceOf(signers[0].address)
+
+            // Vault balance before the bid is accepted
+            const vaultBefore = await zapTokenBsc.balanceOf(zapVault.address);
+
+            // Collaborator 1 balance before the bid is accepted
+            const collab1Pre = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Collaborator 2 balance before the bid accepted
+            const collab2Pre = await zapTokenBsc.balanceOf(signers[2].address);
+
+            // Collaborator 3 balance before the bid is accepted
+            const collab3Pre = await zapTokenBsc.balanceOf(signers[3].address);
+
+            // Owner balance before the bid is accepted
+            const ownerBefore = await zapTokenBsc.balanceOf(signers[0].address);
+
+            // Approve ZapMarketV2 to transfer external tokenId 1 after the bid is accepted
             osCreature.approve(zapMarketV2.address, 1);
 
             // Send the tokens to the bidder to cover the bid amount
@@ -1229,13 +1241,21 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
 
             // Expect the emitted event name to equal BidFinalized
             expect(bidFinalizedEvent.event).to.equal("BidFinalized");
-            
-            var vaultAfter = await zapTokenBsc.balanceOf(zapVault.address);
-            var after1 = await zapTokenBsc.balanceOf(signers[1].address)
-            var after2 = await zapTokenBsc.balanceOf(signers[2].address)
-            var after3 = await zapTokenBsc.balanceOf(signers[3].address)
-            var ownerAfter = await zapTokenBsc.balanceOf(signers[0].address)
-            
+
+            // Vault balance after the bid is accepted
+            const vaultAfter = await zapTokenBsc.balanceOf(zapVault.address);
+
+            // Collaborator 1 balance after the bid was accepted
+            const collab1Post = await zapTokenBsc.balanceOf(signers[1].address);
+
+            // Collaborator 2 balance after the bid was accepted
+            const collab2Post = await zapTokenBsc.balanceOf(signers[2].address);
+
+            // Collaborator 3 balance after the bid was accepted
+            const collab3Post = await zapTokenBsc.balanceOf(signers[3].address);
+
+            // Owner balance after the bid was accepted
+            const ownerAfter = await zapTokenBsc.balanceOf(signers[0].address);
 
             // Expect the emitted mediaContract to equal the external contract address
             expect(bidFinalizedEvent.args.mediaContract).to.equal(osCreature.address);
@@ -1262,22 +1282,28 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             expect(originalOwner).to.equal(signers[0].address);
 
             // Expext the accepted bid recipient to be the new owner of the external tokenId
-            expect(newTokenOwner).to.equal(bid.recipient)
+            expect(newTokenOwner).to.equal(bid.recipient);
 
-            //Expect the Zap vault to gain 5% of the bid amount
-            var vaultFee = vaultAfter.sub(vaultBefore);
-            expect(vaultFee).to.equal(bid.amount*0.05)
-            //Expect the Bidshares of the collaborators to have 15% of the bid amount
-            var collabFee1 = after1.sub(before1);
-            expect(collabFee1).to.equal(bid.amount*0.15)
-            var collabFee2 = after1.sub(before2);
-            expect(collabFee2).to.equal(bid.amount*0.15)
-            var collabFee3 = after1.sub(before3);
-            expect(collabFee3).to.equal(bid.amount*0.15)
+            // Expect the Zap vault to gain 5% of the bid amount
+            const vaultFee = vaultAfter.sub(vaultBefore);
+
+            // Expect the vault balance to increase by the (bid.amount * 0.05)
+            expect(vaultFee).to.equal(bid.amount * 0.05);
+
+            // Expect the Bidshares of the collaborators to have 15% of the bid amount
+            const collabFee1 = collab1Post.sub(collab1Pre);
+            expect(collabFee1).to.equal(bid.amount * 0.15);
+
+            const collabFee2 = collab1Post.sub(collab2Pre);
+            expect(collabFee2).to.equal(bid.amount * 0.15);
+
+            var collabFee3 = collab1Post.sub(collab3Pre);
+            expect(collabFee3).to.equal(bid.amount * 0.15);
 
             //Expect the owner and creator to get 15% + 35% of the bid amount
-            var ownerFee = ownerAfter.sub(ownerBefore);
-            expect(ownerFee).to.equal(bid.amount*0.5)
+            const ownerFee = ownerAfter.sub(ownerBefore);
+            expect(ownerFee).to.equal(bid.amount * 0.5);
+
         })
 
         it("Should transfer the NFT to the bidder if the ask price is met", async () => {
