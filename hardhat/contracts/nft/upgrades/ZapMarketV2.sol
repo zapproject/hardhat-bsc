@@ -61,7 +61,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     //Mapping determining whether an nft contract is internal or external
     mapping(address => bool) public isInternalMedia;
 
-    mapping(address => mapping(uint256 => bool)) tokenConfigured;
+    mapping(address => mapping(uint256 => bool)) externalTokenConfigured;
 
     /* *********
      * Modifiers
@@ -72,10 +72,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice require that the msg.sender is the configured media contract
      */
     modifier onlyMediaCaller() {
-        require(
-            isConfigured[msg.sender] == true,
-            'Market: Only media contract'
-        );
+        require(isConfigured[msg.sender], 'Market: Only media contract');
 
         _;
     }
@@ -97,7 +94,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     modifier onlyFactoryorMedia() {
         require(
-            (isConfigured[msg.sender] == true) || (msg.sender == mediaFactory),
+            (isConfigured[msg.sender]) || (msg.sender == mediaFactory),
             'Market: Only a media contract or its factory can do this action'
         );
         _;
@@ -105,7 +102,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     modifier onlyMediaOrAuctionHouse(address caller) {
         require(
-            isConfigured[caller] == true || caller == auctionHouse,
+            isConfigured[caller] || caller == auctionHouse,
             'Market: Only media or AuctionHouse contract'
         );
 
@@ -305,7 +302,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     ) external override {
         require(msg.sender == mediaContract, 'Market: Media only function');
 
-        if (isMint == true) {
+        if (isMint) {
             emit Minted(tokenId, mediaContract);
         } else {
             emit Burned(tokenId, mediaContract);
@@ -342,16 +339,16 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Invalid bid shares, must sum to 100'
         );
 
-        if (isConfigured[msg.sender] == true) {
+        if (isConfigured[msg.sender]) {
             _bidShares[msg.sender][tokenId] = bidShares;
 
             // Checks if the mediaContract is internal
             // If the mediaContract is not internal proceed into the else if block
-        } else if (isInternalMedia[mediaContract] == false) {
+        } else if (!isInternalMedia[mediaContract]) {
             // Require the external tokenId is not configured
             // If the external tokenId is configured the transaction will revert
             require(
-                tokenConfigured[mediaContract][tokenId] == false,
+                !externalTokenConfigured[mediaContract][tokenId],
                 'Market: External token already configured'
             );
 
@@ -359,7 +356,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             _bidShares[mediaContract][tokenId] = bidShares;
 
             // Set the external tokenId configuration status to true
-            tokenConfigured[mediaContract][tokenId] = true;
+            externalTokenConfigured[mediaContract][tokenId] = true;
         } else {
             require(
                 mediaContract != address(0),
@@ -471,12 +468,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[msg.sender][tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[msg.sender][tokenId].currency &&
-            bid.amount >= _tokenAsks[msg.sender][tokenId].amount
+            _tokenAsks[mediaContract][tokenId].currency != address(0) &&
+            bid.currency == _tokenAsks[mediaContract][tokenId].currency &&
+            bid.amount >= _tokenAsks[mediaContract][tokenId].amount
         ) {
             // Finalize exchange
-            _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
+            _finalizeNFTTransfer(mediaContract, tokenId, bid.bidder);
         }
     }
 

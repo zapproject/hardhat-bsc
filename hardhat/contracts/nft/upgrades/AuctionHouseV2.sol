@@ -54,6 +54,10 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
 
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
+    //Mapping determining whether an nft contract is internal or external
+    mapping(address => bool) public isInternalMedia;
+
+
     bytes4 private constant interfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
     uint8 constant public hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
@@ -107,7 +111,8 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         uint256 reservePrice,
         address payable curator,
         uint8 curatorFeePercentage,
-        address auctionCurrency
+        address auctionCurrency,
+        bool isInternal
     ) public override nonReentrant returns (uint256) {
         require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
@@ -139,7 +144,8 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         _auctionIdTracker.increment();
 
         setTokenDetails(tokenId, mediaContract);
-
+        isInternalMedia[mediaContract]=isInternal;
+        
         auctions[auctionId] = Auction({
             token: tokenDetails[mediaContract][tokenId],
             approved: false,
@@ -269,7 +275,10 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
                 ),
             'Must send more than last bid by minBidIncrementPercentage amount'
         );
-
+        require(
+            IMarketV2(marketContract).isRegistered(mediaContract),
+            "Media contract is not registered with the marketplace"
+        );
         require(
             IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
             "Doesn't support NFT interface"
@@ -278,7 +287,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         // For Zap NFT Marketplace Protocol, ensure that the bid is valid for the current bidShare configuration
         if (auctions[auctionId].token.mediaContract == mediaContract) {
             require(
-                IMarketV2(IMediaExtended(mediaContract).marketContract())
+                IMarketV2(marketContract)
                     .isValidBid(
                         mediaContract,
                         auctions[auctionId].token.tokenId,
@@ -564,10 +573,10 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         uint256 auctionId,
         address mediaContract
     ) internal returns (bool, uint256) {
-        require(
-            IMediaExtended(mediaContract).marketContract() == marketContract,
-            "This market contract is not from Zap's NFT MarketPlace"
-        );
+        // require(
+        //     IMediaExtended(mediaContract).marketContract() == marketContract,
+        //     "This market contract is not from Zap's NFT MarketPlace"
+        // );
         require(
             IMarketV2(marketContract).isRegistered(mediaContract),
             "This Media Contract is unauthorised to settle auctions"
@@ -585,29 +594,50 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         });
 
         IERC20Upgradeable(currency).approve(
-            IMediaExtended(mediaContract).marketContract(),
+            // IMediaExtended(mediaContract).marketContract(),
+            marketContract,
             bid.amount
         );
-
-        IMediaV2(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
-
         // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
         );
-
-        try
-            IMediaV2(mediaContract).acceptBid(
-                auctions[auctionId].token.tokenId,
-                bid
-            )
-        {} catch {
-            // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
-            IMediaExtended(mediaContract).removeBid(
-                auctions[auctionId].token.tokenId
-            );
-            return (false, 0);
+        if(isInternalMedia[mediaContract])
+        {
+            IMediaV2(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
+            try
+                IMediaV2(mediaContract).acceptBid(
+                    auctions[auctionId].token.tokenId,
+                    bid
+                )
+            {} catch {
+                // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
+                IMediaExtended(mediaContract).removeBid(
+                    auctions[auctionId].token.tokenId
+                );
+                return (false, 0);
+            }
         }
+        else
+        {
+            IMarketV2(marketContract).setBid(mediaContract, auctions[auctionId].token.tokenId, bid, msg.sender);
+            try
+                IMarketV2(marketContract).acceptBid(
+                    mediaContract,
+                    auctions[auctionId].token.tokenId,
+                    bid
+                )
+            {} catch {
+                // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
+                IMarketV2(marketContract).removeBid(
+                    mediaContract,
+                    auctions[auctionId].token.tokenId,
+                    msg.sender
+                );
+                return (false, 0);
+            }
+        }
+
 
         // 5e17
         uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(

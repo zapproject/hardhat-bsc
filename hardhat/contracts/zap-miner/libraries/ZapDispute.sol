@@ -109,9 +109,7 @@ library ZapDispute {
 
         //If the vote is not a proposed fork
         if (disp.forkedContract == 0) {
-            ZapStorage.StakeInfo storage stakes = self.stakerDetails[
-                disp.reportedMiner
-            ];
+            ZapStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
             // instead of percentage, find the multiple of this dispute voters compared to numbe rof staked users
             uint quorum = (self.uintVars[keccak256("stakerCount")] - 2) / disp.disputeUintVars[keccak256('numberOfVotes')];
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
@@ -120,7 +118,9 @@ library ZapDispute {
             if (disp.tally > 0 && quorum <= 10) {
                 //Changing the currentStatus and startDate unstakes the reported miner and allows for the
                 //transfer of the stakeAmount
-                stakes.currentStatus = 0;
+
+                // keep status at in dispute
+                // stakes.currentStatus = 0;
                 stakes.startDate = now - (now % 86400);
 
                 //Decreases the stakerCount since the miner's stake is being slashed
