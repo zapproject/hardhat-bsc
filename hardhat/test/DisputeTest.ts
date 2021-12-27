@@ -310,7 +310,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
     // Increase the evm time by 8 days
     // A stake can not be withdrawn until 7 days passed
     await ethers.provider.send('evm_increaseTime', [691200]);
-    await zap.tallyVotes(disputeId);
+    await zap.connect(signers[1]).tallyVotes(disputeId);
 
     disp = await zapMaster.getAllDisputeVars(disputeId);
 
@@ -668,6 +668,75 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     // expect dispute to have failed
     expect(disp[2]).to.be.false;
+  });
+
+  it('Should revert when calling tallyVote() as non staked.', async () => {
+    // Converts the uintVar "stakeAmount" to a bytes array
+    const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
+      'timeOfLastNewValue'
+    );
+
+    // Converts the uintVar "stakeAmount" from a bytes array to a keccak256 hash
+    const timeOfLastNewValueHash: string = ethers.utils.keccak256(
+      timeOfLastNewValueBytes
+    );
+
+    // Gets the the current stake amount
+    let timeStamp: BigNumber = await zapMaster.getUintVar(
+      timeOfLastNewValueHash
+    );
+
+    await zapTokenBsc.connect(signers[1]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
+
+    zap = zap.connect(signers[1]);
+    await zap.beginDispute(1, timeStamp, 4);
+    // Convert to a bytes array
+    const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+    // Convert to a keccak256 hash
+    const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+    // Gets the disputeID also the dispute count
+    let disputeId: BigNumber = await zapMaster.getUintVar(ddisputecount);
+
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    let disp = await zapMaster.getAllDisputeVars(disputeId);
+
+    let reporting_miner_wallet_bal = await zapMaster.balanceOf(disp[4]);
+
+    expect(reporting_miner_wallet_bal).to.equal(BigNumber.from("112500000000000000000000"));
+
+    // expect to be the address that begain the dispute
+    expect(disp[4]).to.equal(signers[1].address);
+    // expect to be the address that is being disputed
+    expect(disp[3]).to.equal(signers[5].address);
+    //expect requestID disputed to be 1
+    expect(disp[7][0]).to.equal(1);
+    // expect timestamp to be the same timestamp used when disputed
+    expect(disp[7][1]).to.equal(timeStamp);
+
+    // vote of a dispute
+    // signers 2-4 vote for the dispute 1
+    for (var i = 2; i < 5; i++) {
+      zap = zap.connect(signers[i]);
+      await zap.vote(disputeId, true);
+    }
+
+    zap = zap.connect(signers[6]);
+    await expect(zap.vote(disputeId, true)).to.be.revertedWith("Only Stakers that are not under dispute can vote");
+
+    disputeId = await zapMaster.getUintVar(ddisputecount);
+    disp = await zapMaster.getAllDisputeVars(disputeId);
+    expect(disp[7][6]).to.equal(4);
+
+    zapMaster.didVote(disputeId, signers[1].address);
+
+    let blockNumber = await ethers.provider.getBlockNumber();
+
+    // Increase the evm time by 8 days
+    // A stake can not be withdrawn until 7 days passed
+    await ethers.provider.send('evm_increaseTime', [691200]);
+    await expect(zap.connect(signers[11]).tallyVotes(disputeId)).to.be.revertedWith("Caller must be staked");
   });
 });
 

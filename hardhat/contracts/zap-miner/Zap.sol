@@ -215,6 +215,7 @@ contract Zap {
      * @param _disputeId is the dispute id
      */
     function tallyVotes(uint256 _disputeId) external {
+        require(zap.stakerDetails[msg.sender].currentStatus == 1, "Caller must be staked");
 
         address currentVault = zap.addressVars[keccak256('_vault')];
         (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
