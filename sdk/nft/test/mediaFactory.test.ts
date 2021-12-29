@@ -24,7 +24,7 @@ function deployMarket(signer: any) {
 
   // Creates the instance of ZapMarket
   const zapMarket = new ethers.Contract(
-    zapMarketAddresses.localhost,
+    zapMarketAddresses['31337'],
     zapMarketAbi,
     signer,
   );
