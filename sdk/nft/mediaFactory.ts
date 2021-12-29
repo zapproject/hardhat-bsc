@@ -16,14 +16,31 @@ const contractAddresses = (networkId: number) => {
     // Localhost
     case 31337:
       mediaFactoryAddress = mediaFactoryAddresses['31337'];
-      zapMarketAddress = zapMarketAddresses.localhost;
+      zapMarketAddress = zapMarketAddresses['31337'];
       break;
 
     // Rinkeby
     case 4:
       mediaFactoryAddress = mediaFactoryAddresses['4'];
-      zapMarketAddress = zapMarketAddresses.rinkeby;
-      console.log('Rinkeby');
+      zapMarketAddress = zapMarketAddresses['4'];
+      break;
+
+    // BSC Testnet
+    case 97:
+      mediaFactoryAddress = mediaFactoryAddresses['97'];
+      zapMarketAddress = zapMarketAddresses['97'];
+      break;
+
+    // Ethereum Mainnet
+    case 1:
+      mediaFactoryAddress = mediaFactoryAddresses['1'];
+      zapMarketAddress = zapMarketAddresses['1'];
+      break;
+
+    // BSC Mainnet
+    case 56:
+      mediaFactoryAddress = mediaFactoryAddresses['56'];
+      zapMarketAddress = zapMarketAddresses['56'];
       break;
   }
 
