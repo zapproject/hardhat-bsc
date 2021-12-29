@@ -1,6 +1,6 @@
 import { Contract, ethers, Signer } from 'ethers';
 import { mediaFactoryAddresses, zapMarketAddresses } from './addresses';
-import { mediaFactoryAbi } from './abi';
+import { mediaFactoryAbi, zapMediaAbi } from './abi';
 import { Address } from 'cluster';
 
 let mediaFactoryAddress: string;
@@ -35,7 +35,6 @@ class MediaFactory {
   contract: Contract;
   networkId: number;
   signer: Signer;
-
 
   constructor(networkId: number, signer: Signer) {
 
@@ -83,7 +82,6 @@ class MediaFactory {
     return eventLog;
 
   };
-
 
 }
 
