@@ -1,13 +1,25 @@
+// Chai test method
 import { expect } from 'chai';
-import { Contract, ethers } from 'ethers';
-import { zapMarketAbi } from '../abi';
-import { eventNames } from 'process';
-import MediaFactory from '../mediaFactory';
-import { zapMarketAddresses } from '../addresses';
-import { sign } from 'crypto';
 
+// Ethers Types
+import { Contract, ethers } from 'ethers';
+
+// ZapMarket ABI
+import { zapMarketAbi } from '../abi';
+
+// MediaFactory class
+import MediaFactory from '../mediaFactory';
+
+// ZapMarket localhost address
+import { zapMarketAddresses } from '../addresses';
+
+// Hardhat localhost connection
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
+/**
+   * Creates the ZapMarket instance.
+   * @param {object} signer - Hardhat localhost abstraction of an Ethereum account.
+   */
 function deployMarket(signer: any) {
 
   const zapMarket = new ethers.Contract(
@@ -19,7 +31,6 @@ function deployMarket(signer: any) {
   return zapMarket;
 
 }
-
 
 describe("MediaFactory", () => {
 
@@ -36,7 +47,7 @@ describe("MediaFactory", () => {
 
   before(async () => {
 
-    signer0 = await provider.getSigner(0);
+    signer0 = provider.getSigner(0);
 
     // Creates 
     mediaFactory = new MediaFactory(31337, signer0);
@@ -68,6 +79,14 @@ describe("MediaFactory", () => {
     const isRegistered = await zapMarket.isRegistered(mediaAddress);
 
     expect(isRegistered).to.equal(true);
+
+  });
+
+  it("Should be configured", async () => {
+
+    const isConfigured = await zapMarket.isConfigured(mediaAddress);
+
+    expect(isConfigured).to.equal(true);
 
   });
 
