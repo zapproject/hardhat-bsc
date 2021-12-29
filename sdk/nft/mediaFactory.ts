@@ -4,8 +4,13 @@ import { mediaFactoryAbi, zapMediaAbi } from './abi';
 import { Address } from 'cluster';
 
 let mediaFactoryAddress: string;
+
 let zapMarketAddress: string;
 
+/**
+   * Returns sthe MediaFactory & ZapMarket contract addresses depending on the networkId.
+   * @param {string} networkId- The numeric value that routes to a blockchain network.
+   */
 const contractAddresses = (networkId: number) => {
   switch (networkId) {
     // Localhost
