@@ -1,11 +1,12 @@
 import { Contract, ethers, Signer } from 'ethers';
 import { mediaFactoryAddresses, zapMarketAddresses } from './addresses';
 import { mediaFactoryAbi } from './abi';
+import { Address } from 'cluster';
 
 let mediaFactoryAddress: string;
 let zapMarketAddress: string;
 
-function contractAddresses(networkId: number) {
+const contractAddresses = (networkId: number) => {
 
   switch (networkId) {
     // Localhost
@@ -31,6 +32,7 @@ function contractAddresses(networkId: number) {
 }
 
 class MediaFactory {
+
   contract: Contract;
   networkId: number;
   signer: Signer;
@@ -45,9 +47,16 @@ class MediaFactory {
       mediaFactoryAbi,
       signer,
     )
-
   }
 
+
+  /**
+ * Deploys a NFT collection
+ * @param {string} collectionName - The name of the NFT collection.
+ * @param {string} collectionSymbol - The symbol of the NFT collection.
+ * @param {boolean} permissive - Determines if minting can be performed other than the collection owner.
+ * @param {string} collectionMetadta - Contract level metadata.
+ */
   deployMedia(
     collectionName: string,
     collectionSymbol: string,
@@ -62,6 +71,7 @@ class MediaFactory {
       collectionMetadta,
     )
   };
+
 
 }
 

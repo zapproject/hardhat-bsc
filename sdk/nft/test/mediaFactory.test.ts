@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { zapMediaAbi } from '../abi';
 import { eventNames } from 'process';
 import MediaFactory from '../mediaFactory';
+import { sign } from 'crypto';
 
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
