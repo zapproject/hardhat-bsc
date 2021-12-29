@@ -33,14 +33,10 @@ describe("MediaFactory", () => {
       "ipfs://testing"
     );
 
-    const receipt = await deployMedia.wait();
-
-    const eventLog = receipt.events[receipt.events.length - 1];
-
     // The event name is "MediaDeployed"
-    const eventName = eventLog.event;
+    const eventName = deployMedia.event;
 
-    testCollectionAddress = eventLog.args.mediaContract;
+    testCollectionAddress = deployMedia.args.mediaContract;
 
     expect(eventName).to.equal('MediaDeployed');
 

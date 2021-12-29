@@ -13,7 +13,6 @@ const contractAddresses = (networkId: number) => {
     case 31337:
       mediaFactoryAddress = mediaFactoryAddresses['31337'];
       zapMarketAddress = zapMarketAddresses.localhost;
-      console.log('localhost');
       break;
 
     // Rinkeby
@@ -49,27 +48,40 @@ class MediaFactory {
     )
   }
 
-
   /**
- * Deploys a NFT collection
+ * Deploys a NFT collection.
  * @param {string} collectionName - The name of the NFT collection.
  * @param {string} collectionSymbol - The symbol of the NFT collection.
  * @param {boolean} permissive - Determines if minting can be performed other than the collection owner.
  * @param {string} collectionMetadta - Contract level metadata.
  */
-  deployMedia(
+  async deployMedia(
     collectionName: string,
     collectionSymbol: string,
     permissive: boolean,
     collectionMetadta: string
   ): Promise<void> {
-    return this.contract.deployMedia(
+
+    const tx = await this.contract.deployMedia(
       collectionName,
       collectionSymbol,
       contractAddresses(this.networkId).zapMarketAddress,
       permissive,
       collectionMetadta,
-    )
+    );
+
+    const receipt = await tx.wait();
+
+    const eventLog = receipt.events[receipt.events.length - 1];
+
+    console.log("\n", {
+      transactionHash: eventLog.transactionHash,
+      event: eventLog.event,
+      deployedCollectionAddress: eventLog.args.mediaContract
+    });
+
+    return eventLog;
+
   };
 
 
