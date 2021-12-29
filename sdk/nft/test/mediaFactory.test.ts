@@ -25,7 +25,6 @@ describe("MediaFactory", () => {
 
   it("Should be able to deploy a Media collection", async () => {
 
-    // 
     const deployMedia = await mediaFactory.deployMedia(
       "Test Collection",
       "TC",

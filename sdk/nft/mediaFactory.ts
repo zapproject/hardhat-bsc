@@ -6,17 +6,18 @@ let mediaFactoryAddress: string;
 let zapMarketAddress: string;
 
 function contractAddresses(networkId: number) {
+
   switch (networkId) {
     // Localhost
     case 31337:
-      mediaFactoryAddress = mediaFactoryAddresses.localhost;
+      mediaFactoryAddress = mediaFactoryAddresses['31337'];
       zapMarketAddress = zapMarketAddresses.localhost;
       console.log('localhost');
       break;
 
     // Rinkeby
     case 4:
-      mediaFactoryAddress = mediaFactoryAddresses.rinkeby;
+      mediaFactoryAddress = mediaFactoryAddresses['4'];
       zapMarketAddress = zapMarketAddresses.rinkeby;
       console.log('Rinkeby');
       break;
@@ -26,6 +27,7 @@ function contractAddresses(networkId: number) {
     mediaFactoryAddress,
     zapMarketAddress,
   };
+
 }
 
 class MediaFactory {
@@ -33,7 +35,9 @@ class MediaFactory {
   networkId: number;
   signer: Signer;
 
+
   constructor(networkId: number, signer: Signer) {
+
     this.networkId = networkId;
     this.signer = signer;
     this.contract = new ethers.Contract(
@@ -41,6 +45,7 @@ class MediaFactory {
       mediaFactoryAbi,
       signer,
     )
+
   }
 
   deployMedia(
