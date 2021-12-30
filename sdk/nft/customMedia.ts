@@ -1,24 +1,28 @@
 import { Contract, ethers, Signer } from 'ethers';
 
+import { contractAddresses } from './utils';
+
+import { zapMarketAbi } from './abi';
+
 class CustomMedia {
+    zapMarket: Contract
     networkId: number;
     signer: Signer;
 
+    constructor(networkId: number, signer: Signer, mediaIndex?: number) {
 
-    constructor(networkId: number, signer: Signer) {
         this.networkId = networkId;
+
         this.signer = signer;
-    }
 
-    media() {
+        this.zapMarket = new ethers.Contract(
+            contractAddresses(networkId).zapMarketAddress,
+            zapMarketAbi,
+            signer,
+        );
 
-        // let market = new ethers.Contract(
-        //     // contractAddresses(networkId).mediaFactoryAddress,
-        //     // mediaFactoryAbi,
-        //     // signer,
-        // );
-
-        // return market;
     }
 
 }
+
+export default CustomMedia;
