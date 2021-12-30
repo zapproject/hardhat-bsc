@@ -10,5 +10,15 @@ class CustomMedia {
         this.signer = signer;
     }
 
+    media() {
+
+        // let market = new ethers.Contract(
+        //     // contractAddresses(networkId).mediaFactoryAddress,
+        //     // mediaFactoryAbi,
+        //     // signer,
+        // );
+
+        // return market;
+    }
 
 }
