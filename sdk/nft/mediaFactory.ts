@@ -46,11 +46,11 @@ class MediaFactory {
 
     const eventLog = receipt.events[receipt.events.length - 1];
 
-    console.log('\n', {
-      transactionHash: eventLog.transactionHash,
-      event: eventLog.event,
-      deployedCollectionAddress: eventLog.args.mediaContract,
-    });
+    // console.log('\n', {
+    //   transactionHash: eventLog.transactionHash,
+    //   event: eventLog.event,
+    //   deployedCollectionAddress: eventLog.args.mediaContract,
+    // });
 
     return eventLog;
   }
