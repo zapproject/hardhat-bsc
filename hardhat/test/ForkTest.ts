@@ -50,6 +50,8 @@ let vault2: Vault;
 
 let signers: any;
 
+let zapAddress: string;
+
 describe("Fork Tests", () => {
 
     beforeEach(async () => {
@@ -106,10 +108,10 @@ describe("Fork Tests", () => {
                 ZapDispute: zapDispute.address
             },
             signer: signers[0]
-        })
+        });
 
         zapStake = (await zapStakeFactory.deploy()) as ZapStake
-        await zapStake.deployed()
+        await zapStake.deployed();
 
         const zapStakeFactory2: ContractFactory = await ethers.getContractFactory("ZapStake", {
 
@@ -117,10 +119,10 @@ describe("Fork Tests", () => {
                 ZapDispute: zapDispute2.address
             },
             signer: signers[0]
-        })
+        });
 
         zapStake2 = (await zapStakeFactory2.deploy()) as ZapStake
-        await zapStake2.deployed()
+        await zapStake2.deployed();
 
         const zapFactory: ContractFactory = await ethers.getContractFactory("Zap", {
 
@@ -131,10 +133,11 @@ describe("Fork Tests", () => {
             },
             signer: signers[0]
 
-        })
+        });
 
         zap = (await zapFactory.deploy(zapTokenBsc.address)) as Zap
-        await zap.deployed()
+        await zap.deployed();
+        zapAddress = zap.address;
 
         const zapFactory2: ContractFactory = await ethers.getContractFactory("Zap", {
 
@@ -145,10 +148,10 @@ describe("Fork Tests", () => {
             },
             signer: signers[0]
 
-        })
+        });
 
         zap2 = (await zapFactory2.deploy(zapTokenBsc.address)) as Zap
-        await zap2.deployed()
+        await zap2.deployed();
 
         const zapMasterFactory: ContractFactory = await ethers.getContractFactory("ZapMaster", {
             libraries: {
@@ -158,7 +161,7 @@ describe("Fork Tests", () => {
         });
 
         zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
-        await zapMaster.deployed()
+        await zapMaster.deployed();
 
         const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });
         vault = (await Vault.deploy(zapTokenBsc.address, zapMaster.address)) as Vault
@@ -170,14 +173,14 @@ describe("Fork Tests", () => {
 
         zap = zap.attach(zapMaster.address);
 
-
         // stake signers 1 to 5.
         for (let i = 0; i <= 5; i++) {
             await zapTokenBsc.allocate(signers[i].address, BigNumber.from("1100000000000000000000000"));
             zap = zap.connect(signers[i]);
     
             await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
-            await zap.depositStake();}
+            await zap.depositStake();
+        }
     });
  
     it("Should fork successfully with all new contracts", async () => {
@@ -228,5 +231,57 @@ describe("Fork Tests", () => {
         const hashZAddress: string = ethers.utils.keccak256(bytesZAddress);
         let newZapAddress = await zapMaster.getAddressVars(hashZAddress);
         expect(zap2.address).to.equal(newZapAddress);
+    });
+
+    it("Should fail fork with all new contracts", async () => {
+        // begin proposing fork
+        zap = zap.connect(signers[0]);
+        // Converts the uintVar "disputeFee" to a bytes array
+        const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes("disputeFee");
+
+        // Converts the uintVar "disputeFee" from a bytes array to a keccak256 hash
+        const disputeFeeHash: string = ethers.utils.keccak256(disputeFeeBytes)
+
+        // Gets the dispute fee
+        const disputeFee: BigNumber = await zapMaster.getUintVar(disputeFeeHash);
+
+        // Convert to a bytes array
+        const bytesZAddress: Uint8Array = ethers.utils.toUtf8Bytes('zapContract');
+
+        // Convert to a keccak256 hash
+        const hashZAddress: string = ethers.utils.keccak256(bytesZAddress);
+
+        // expect(balance).to.greaterThanOrEqual(getDisputeFee);
+        await zapTokenBsc.approve(zap.address, disputeFee);
+    
+        await zap.proposeFork(zap2.address, 1);
+
+        // Convert to a bytes array
+        const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
+
+        // Convert to a keccak256 hash
+        const ddisputecount: string = ethers.utils.keccak256(disputeCount);
+
+        let disputeId = await zapMaster.getUintVar(ddisputecount);
+        // test dispute count after beginDispute
+        expect(disputeId).to.equal(1, 'Dispute count should be 1.');
+
+        let disp = await zapMaster.getAllDisputeVars(disputeId);
+        expect(disp[5]).to.equal(zap2.address, "The proposed fork new zap address is incorrect");
+
+        // start vote for fork
+        for (var i = 1; i <= 5; i++) {
+            zap = zap.connect(signers[i]);
+            await zap.vote(disputeId, false);
+        }
+
+        // Increase the evm time by 8 days
+        // A stake can not be withdrawn until 7 days passed
+        await ethers.provider.send('evm_increaseTime', [691200]);
+        // tally votes
+        await zap.connect(signers[1]).tallyVotes(disputeId);
+        
+        let newZapAddress = await zapMaster.getAddressVars(hashZAddress);
+        expect(zapAddress).to.equal(newZapAddress);
     });
 });
