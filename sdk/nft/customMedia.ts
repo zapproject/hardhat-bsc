@@ -19,7 +19,7 @@ class CustomMedia {
         // if (mediaIndex === undefined) {
 
         //     this.zapMedia = new ethers.Contract(
-        //         contractAddresses(networkId).zapMe,
+        //         contractAddresses(networkId).zapMedia,
         //         zapMarketAbi,
         //         signer,
         //     );
