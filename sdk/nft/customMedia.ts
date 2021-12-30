@@ -6,6 +6,7 @@ import { zapMarketAbi } from './abi';
 
 class CustomMedia {
     zapMarket: Contract
+    // zapMedia: Contract
     networkId: number;
     signer: Signer;
 
@@ -14,6 +15,16 @@ class CustomMedia {
         this.networkId = networkId;
 
         this.signer = signer;
+
+        // if (mediaIndex === undefined) {
+
+        //     this.zapMedia = new ethers.Contract(
+        //         contractAddresses(networkId).zapMe,
+        //         zapMarketAbi,
+        //         signer,
+        //     );
+
+        // }
 
         this.zapMarket = new ethers.Contract(
             contractAddresses(networkId).zapMarketAddress,

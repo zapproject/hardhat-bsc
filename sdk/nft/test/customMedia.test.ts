@@ -20,6 +20,11 @@ describe('MediaFactory', () => {
 
     before(async () => {
 
+        // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        signer0 = provider.getSigner(0);
+
+        customMedia = new CustomMedia(31337, signer0);
+
     });
 
     it('Testing', async () => {

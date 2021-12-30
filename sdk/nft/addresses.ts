@@ -33,3 +33,22 @@ export const zapMarketAddresses = {
   // BSC Mainnet
   56: '0x53813994415203448cdF5b2113d82b9D0058A23C',
 };
+
+export const zapMediaAddresses = {
+
+  // Localhost
+  31337: '0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444',
+
+  // Rinkeby
+  4: '0xa6b70C1Ad5D443d6C53C0A563f56bF0AF7F582D4',
+
+  // Ethereum Mainnet
+  1: '0xBBd7B3fcA15a10BA76811117Ba83Da259691362d',
+
+  // BSC Testnet
+  97: '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
+
+  // BSC Mainnet
+  56: '0x795Ef08D74295f773b6C6D197fC5c6eFD5610B31',
+};
+
