@@ -6,6 +6,8 @@ import { zapMarketAbi, zapMediaAbi } from './abi';
 
 import { MediaData, BidShares } from './types';
 
+import invariant from 'tiny-invariant'
+
 import { network } from 'hardhat';
 
 const info = async (networkId: number, signer: Signer) => {
@@ -36,7 +38,11 @@ class ZapMedia {
 
         if (mediaIndex === undefined) {
 
-            console.log(networkId)
+            if (contractAddresses(networkId) === undefined) {
+
+                throw new TypeError('test')
+
+            }
 
             this.contract = new ethers.Contract(
                 contractAddresses(networkId).zapMediaAddress,
@@ -44,7 +50,6 @@ class ZapMedia {
                 signer,
             );
 
-            console.log(this.contract.address)
         } else {
 
 

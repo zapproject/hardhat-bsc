@@ -1,8 +1,11 @@
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './addresses';
 
+import invariant from 'tiny-invariant'
+
 let mediaFactoryAddress: string;
 
 let zapMarketAddress: string;
+
 
 let zapMediaAddress: string;
 
@@ -73,7 +76,7 @@ export const contractAddresses = (networkId: number): any => {
 
     } else {
 
-        throw new TypeError(`ZapMedia Constructor: Network Id is not supported.`);
+        return undefined;
 
     }
 

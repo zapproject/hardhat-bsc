@@ -77,7 +77,11 @@ describe('ZapMedia', () => {
 
         it("Should throw an error if the networkId is not valid", async () => {
 
-            expect(new ZapMedia(400, signer0)).to.throw()
+            expect(() => {
+                new ZapMedia(300, signer0)
+            }).to.throw(
+                'test'
+            )
         })
 
     })
