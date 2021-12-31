@@ -52,6 +52,8 @@ let signers: any;
 
 let zapAddress: string;
 
+let zapMasterFactory: ContractFactory
+
 describe("Fork Tests", () => {
 
     beforeEach(async () => {
@@ -153,7 +155,7 @@ describe("Fork Tests", () => {
         zap2 = (await zapFactory2.deploy(zapTokenBsc.address)) as Zap
         await zap2.deployed();
 
-        const zapMasterFactory: ContractFactory = await ethers.getContractFactory("ZapMaster", {
+        zapMasterFactory = await ethers.getContractFactory("ZapMaster", {
             libraries: {
                 ZapStake: zapStake.address
             },
@@ -287,14 +289,8 @@ describe("Fork Tests", () => {
 
     it("Should fork successfully with only new ZapMaster", async () => {
         // deploy a new zap master and use existing zap stake and zap contracts
-        const zapMasterFactory2: ContractFactory = await ethers.getContractFactory("ZapMaster", {
-            libraries: {
-                ZapStake: zapStake.address
-            },
-            signer: signers[0]
-        });
 
-        let zapMaster2 = (await zapMasterFactory2.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
+        let zapMaster2 = (await zapMasterFactory.deploy(zapAddress, zapTokenBsc.address)) as ZapMaster
         await zapMaster2.deployed();
 
         // begin proposing fork
@@ -325,7 +321,7 @@ describe("Fork Tests", () => {
         expect(disputeId).to.equal(1, 'Dispute count should be 1.');
 
         let disp = await zapMaster.getAllDisputeVars(disputeId);
-        expect(disp[5]).to.equal(zap2.address, "The proposed fork new zap address is incorrect");
+        expect(disp[5]).to.equal(zapMaster2.address, "The proposed fork new zap master address is incorrect");
 
         // start vote for fork
         for (var i = 1; i <= 5; i++) {
@@ -339,69 +335,32 @@ describe("Fork Tests", () => {
         // tally votes
         await zap.connect(signers[1]).tallyVotes(disputeId);
 
-        // check addresses of contracts
+        // Convert to a bytes array
+        const bytesZAddress: Uint8Array = ethers.utils.toUtf8Bytes('zapContract');
+
+        // Convert to a keccak256 hash
+        const hashZAddress: string = ethers.utils.keccak256(bytesZAddress);
+
+        // check address of zap contract
+        let zapAddCheck = await zapMaster2.getAddressVars(hashZAddress)
+        expect(zapAddress).to.equal(zapAddCheck);
+
+        zap = zap.attach(zapMaster2.address);
+
+        // test dispute count after beginDispute
+        disputeId = await zapMaster.getUintVar(ddisputecount);
+        expect(disputeId).to.equal(1, 'Dispute count should be 1.');
 
         // check if existing data for propose fork exists
+        disp = await zapMaster.getAllDisputeVars(disputeId);
+        expect(disp[5]).to.equal(zapMaster2.address, "The proposed fork new zap mastter address is incorrect");
 
+        /**
+         * CURRENTLY STAKER DATA IS NOT SHARED/TRANSFERRED WITH ZAP & ZAP MASTER
+         */
         // check if existing staker details exists
-
-    });
-
-    it("Should fork successfully with all new contracts", async () => {
-        const zapMasterFactory2: ContractFactory = await ethers.getContractFactory("ZapMaster", {
-            libraries: {
-                ZapStake: zapStake2.address
-            },
-            signer: signers[0]
-        });
-
-        let zapMaster2 = (await zapMasterFactory2.deploy(zap2.address, zapTokenBsc.address)) as ZapMaster
-        await zapMaster2.deployed();
-
-        // begin proposing fork
-        zap = zap.connect(signers[0]);
-
-        // Converts the uintVar "disputeFee" to a bytes array
-        const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes("disputeFee");
-
-        // Converts the uintVar "disputeFee" from a bytes array to a keccak256 hash
-        const disputeFeeHash: string = ethers.utils.keccak256(disputeFeeBytes)
-
-        // Gets the dispute fee
-        const disputeFee: BigNumber = await zapMaster.getUintVar(disputeFeeHash);
-
-        // expect(balance).to.greaterThanOrEqual(getDisputeFee);
-        await zapTokenBsc.approve(zap.address, disputeFee);
-    
-        await zap.proposeFork(zapMaster2.address, 2);
-
-        // Convert to a bytes array
-        const disputeCount: Uint8Array = ethers.utils.toUtf8Bytes('disputeCount');
-
-        // Convert to a keccak256 hash
-        const ddisputecount: string = ethers.utils.keccak256(disputeCount);
-
-        let disputeId = await zapMaster.getUintVar(ddisputecount);
-        // test dispute count after beginDispute
-        expect(disputeId).to.equal(1, 'Dispute count should be 1.');
-
-        let disp = await zapMaster.getAllDisputeVars(disputeId);
-        expect(disp[5]).to.equal(zap2.address, "The proposed fork new zap address is incorrect");
-
-        // start vote for fork
-        for (var i = 1; i <= 5; i++) {
-            zap = zap.connect(signers[i]);
-            await zap.vote(disputeId, true);
-        }
-
-        // Increase the evm time by 8 days
-        // A stake can not be withdrawn until 7 days passed
-        await ethers.provider.send('evm_increaseTime', [691200]);
-        // tally votes
-        await zap.connect(signers[1]).tallyVotes(disputeId);
-
-        // check that there is no existing state data
-
-        // check the addresses of contracts
+        let staker1: BigNumber[] = await zapMaster2.getStakerInfo(signers[1].address);
+        // expect(staker1[0]).to.equal(1);
+        console.log(staker1)
     });
 });
