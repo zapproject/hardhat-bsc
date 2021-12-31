@@ -1,41 +1,23 @@
-import { Contract, ethers, Signer } from 'ethers';
+import { Contract, ethers, Signer, ContractTransaction } from 'ethers';
 
 import { contractAddresses } from './utils';
 
 import { zapMarketAbi, zapMediaAbi } from './abi';
 
-const zapMedia = async (networkId: number, signer: Signer, mediaIndex?: any) => {
+import { MediaData, BidShares } from './types';
 
-    let zapMarket = new ethers.Contract(
+import { network } from 'hardhat';
+
+const info = async (networkId: number, signer: Signer) => {
+
+    const zapMarket = new ethers.Contract(
         contractAddresses(networkId).zapMarketAddress,
         zapMarketAbi,
         signer
     );
 
-    if (mediaIndex === undefined) {
+    return zapMarket
 
-        const internalMedia = new ethers.Contract(
-            contractAddresses(networkId).zapMediaAddress,
-            zapMediaAbi,
-            signer,
-        );
-
-        return internalMedia
-
-    } else {
-
-        const signerAddress = await signer.getAddress();
-
-        const media = await zapMarket.mediaContracts(signerAddress, ethers.BigNumber.from(mediaIndex));
-
-        const customMedia = new ethers.Contract(
-            media,
-            zapMediaAbi,
-            signer,
-        );
-
-        return customMedia
-    }
 }
 
 class ZapMedia {
@@ -52,16 +34,53 @@ class ZapMedia {
 
         this.mediaIndex = mediaIndex;
 
-        this.contract = zapMedia(networkId, signer, mediaIndex)
+        if (mediaIndex === undefined) {
 
+            console.log(networkId)
+
+            this.contract = new ethers.Contract(
+                contractAddresses(networkId).zapMediaAddress,
+                zapMediaAbi,
+                signer,
+            );
+
+            console.log(this.contract.address)
+        } else {
+
+
+        }
 
     }
 
-    async test(): Promise<void> {
-        return this.contract
+    /**
+   * Mints a new piece of media on an instance of the Zora Media Contract
+   * @param mintData
+   * @param bidShares
+   */
+    public async mint(
+        mediaData: MediaData,
+        bidShares: BidShares
+    ): Promise<any> {
+
+        // console.log(mediaData)
+        // console.log(bidShares)
+
+        // const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
+
+
+        return await this.contract.mint(mediaData, bidShares)
+
     }
+
+
+
+
+
+
+
+
+
 
 
 }
-
 export default ZapMedia;

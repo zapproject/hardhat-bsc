@@ -37,7 +37,7 @@ function deployMarket(signer: any) {
 describe("MediaFactory", () => {
 
   // Hardhat signers[0]: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-  let signer0: any
+  let signer1: any
 
   let mediaFactory: any
 
@@ -50,16 +50,16 @@ describe("MediaFactory", () => {
   before(async () => {
 
     // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-    signer0 = provider.getSigner(0);
+    signer1 = provider.getSigner(1);
 
     /*Instantiates the MediaFactory class by passing in
      the chainId for the Hardhat localhost node on port 8545
      and the Hardhat localhost account
     */
-    mediaFactory = new MediaFactory(31337, signer0);
+    mediaFactory = new MediaFactory(31337, signer1);
 
     // ZapMarket contract instance
-    zapMarket = deployMarket(signer0);
+    zapMarket = deployMarket(signer1);
 
     // Deploys a media collection through the mediaFactory
     media = await mediaFactory.deployMedia(

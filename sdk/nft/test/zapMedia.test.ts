@@ -11,33 +11,77 @@ import ZapMedia from '../zapMedia';
 // Hardhat localhost connection
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe('MediaFactory', () => {
+const mediaData = () => {
+
+    let tokenURI = 'www.example.com';
+    let metadataURI = 'www.example.com';
+    let metadataHex = ethers.utils.formatBytes32String(metadataURI);
+    let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+    let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+    let contentHex = ethers.utils.formatBytes32String(tokenURI);
+    let contentHashRaw = ethers.utils.keccak256(contentHex);
+    let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+    let contentHash = contentHashBytes;
+    let metadataHash = metadataHashBytes;
+
+    return {
+        tokenURI,
+        metadataURI,
+        contentHash,
+        metadataHash
+    }
+}
+
+const bidShares = () => {
+
+    const bidShares = {
+        collaborators: [],
+        collabShares: [],
+        creator: {
+            value: BigNumber.from('10000000000000000000')
+        },
+        owner: {
+            value: BigNumber.from('85000000000000000000')
+        },
+    };
+
+    return bidShares
+
+}
+
+describe('ZapMedia', () => {
 
     // Hardhat signers[0]: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-    let signer0: any;
+    let signer1: any;
+    let signer0: any
     let zapMedia: any;
     let customMedia: any;
-    let mediaFactory: any;
 
-    before(async () => {
 
-        // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-        signer0 = provider.getSigner(0);
+    describe('#constructor', () => {
 
-        zapMedia = new ZapMedia(31337, signer0);
+        before(async () => {
 
-        customMedia = new ZapMedia(31337, signer0, 1)
+            signer0 = provider.getSigner(0)
 
-    });
+            // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+            signer1 = provider.getSigner(1);
 
-    it('Testing', async () => {
+            // Instantiates the company ZapMedia class deployed through hardhat-deploy
+            zapMedia = new ZapMedia(31337, signer0);
 
-        const x = await zapMedia.test()
+        });
 
-        const y = await customMedia.test()
 
-        console.log(await x.symbol())
-        console.log(await y.symbol())
+        it("Should throw an error if the networkId is not valid", async () => {
 
-    });
+            expect(new ZapMedia(400, signer0)).to.throw()
+        })
+
+    })
+
+
+
 });

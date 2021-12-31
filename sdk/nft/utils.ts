@@ -10,47 +10,71 @@ let zapMediaAddress: string;
    * Returns sthe MediaFactory & ZapMarket contract addresses depending on the networkId.
    * @param {string} networkId- The numeric value that routes to a blockchain network.
    */
-export const contractAddresses = (networkId: number) => {
-    switch (networkId) {
-        // Localhost
-        case 31337:
-            mediaFactoryAddress = mediaFactoryAddresses['31337'];
-            zapMarketAddress = zapMarketAddresses['31337'];
-            zapMediaAddress = zapMediaAddresses['31337'];
-            break;
+export const contractAddresses = (networkId: number): any => {
 
-        // Rinkeby
-        case 4:
-            mediaFactoryAddress = mediaFactoryAddresses['4'];
-            zapMarketAddress = zapMarketAddresses['4'];
-            zapMediaAddress = zapMediaAddresses['4'];
-            break;
+    if (networkId === 31337) {
+        mediaFactoryAddress = mediaFactoryAddresses['31337'];
+        zapMarketAddress = zapMarketAddresses['31337'];
+        zapMediaAddress = zapMediaAddresses['31337'];
 
-        // BSC Testnet
-        case 97:
-            mediaFactoryAddress = mediaFactoryAddresses['97'];
-            zapMarketAddress = zapMarketAddresses['97'];
-            zapMediaAddress = zapMediaAddresses['97'];
-            break;
+        return {
+            mediaFactoryAddress,
+            zapMarketAddress,
+            zapMediaAddress
+        };
 
-        // Ethereum Mainnet
-        case 1:
-            mediaFactoryAddress = mediaFactoryAddresses['1'];
-            zapMarketAddress = zapMarketAddresses['1'];
-            zapMediaAddress = zapMediaAddresses['1'];
-            break;
+    } else if (networkId === 4) {
 
-        // BSC Mainnet
-        case 56:
-            mediaFactoryAddress = mediaFactoryAddresses['56'];
-            zapMarketAddress = zapMarketAddresses['56'];
-            zapMediaAddress = zapMediaAddresses['56'];
-            break;
+        mediaFactoryAddress = mediaFactoryAddresses['4'];
+        zapMarketAddress = zapMarketAddresses['4'];
+        zapMediaAddress = zapMediaAddresses['4'];
+
+        return {
+            mediaFactoryAddress,
+            zapMarketAddress,
+            zapMediaAddress
+        };
+
+    } else if (networkId === 97) {
+
+        mediaFactoryAddress = mediaFactoryAddresses['97'];
+        zapMarketAddress = zapMarketAddresses['97'];
+        zapMediaAddress = zapMediaAddresses['97'];
+
+        return {
+            mediaFactoryAddress,
+            zapMarketAddress,
+            zapMediaAddress
+        };
+
+    } else if (networkId === 1) {
+
+        mediaFactoryAddress = mediaFactoryAddresses['1'];
+        zapMarketAddress = zapMarketAddresses['1'];
+        zapMediaAddress = zapMediaAddresses['1'];
+
+        return {
+            mediaFactoryAddress,
+            zapMarketAddress,
+            zapMediaAddress
+        };
+
+    } else if (networkId === 56) {
+
+        mediaFactoryAddress = mediaFactoryAddresses['56'];
+        zapMarketAddress = zapMarketAddresses['56'];
+        zapMediaAddress = zapMediaAddresses['56'];
+
+        return {
+            mediaFactoryAddress,
+            zapMarketAddress,
+            zapMediaAddress
+        };
+
+    } else {
+
+        throw new TypeError(`ZapMedia Constructor: Network Id is not supported.`);
+
     }
 
-    return {
-        mediaFactoryAddress,
-        zapMarketAddress,
-        zapMediaAddress
-    };
 };
