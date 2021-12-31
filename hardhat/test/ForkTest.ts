@@ -183,7 +183,7 @@ describe("Fork Tests", () => {
         }
     });
  
-    it("Should fork successfully with all new contracts", async () => {
+    it("Should fork successfully with new contracts", async () => {
         // begin proposing fork
         zap = zap.connect(signers[0]);
         // Converts the uintVar "disputeFee" to a bytes array
@@ -233,7 +233,7 @@ describe("Fork Tests", () => {
         expect(zap2.address).to.equal(newZapAddress);
     });
 
-    it("Should fail fork with all new contracts", async () => {
+    it("Should fail fork with new contracts", async () => {
         // begin proposing fork
         zap = zap.connect(signers[0]);
         // Converts the uintVar "disputeFee" to a bytes array
@@ -283,5 +283,33 @@ describe("Fork Tests", () => {
         
         let newZapAddress = await zapMaster.getAddressVars(hashZAddress);
         expect(zapAddress).to.equal(newZapAddress);
+    });
+
+    it("Should fork successfully with only new ZapMaster", async () => {
+        const zapMasterFactory2: ContractFactory = await ethers.getContractFactory("ZapMaster", {
+            libraries: {
+                ZapStake: zapStake.address
+            },
+            signer: signers[0]
+        });
+
+        let zapMaster2 = (await zapMasterFactory2.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
+        await zapMaster2.deployed();
+
+
+    });
+
+    it("Should fork successfully with all new contracts", async () => {
+        const zapMasterFactory2: ContractFactory = await ethers.getContractFactory("ZapMaster", {
+            libraries: {
+                ZapStake: zapStake2.address
+            },
+            signer: signers[0]
+        });
+
+        let zapMaster2 = (await zapMasterFactory2.deploy(zap2.address, zapTokenBsc.address)) as ZapMaster
+        await zapMaster2.deployed();
+
+
     });
 });
