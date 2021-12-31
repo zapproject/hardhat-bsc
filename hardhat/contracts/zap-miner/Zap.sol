@@ -274,6 +274,7 @@ contract Zap {
             }
             zap.addressVars[keccak256('_vault')] = disp.proposedForkAddress;
         }
+        // else a new Zap contract needs to be added to ZapMaster 
     }
 
     /**

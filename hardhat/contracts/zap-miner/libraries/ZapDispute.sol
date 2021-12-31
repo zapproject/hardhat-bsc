@@ -175,9 +175,11 @@ library ZapDispute {
                     disp.disputeUintVars[keccak256('quorum')] >
                         ((self.uintVars[keccak256('total_supply')] * 35) / 100)
                 );
+
                 if (disp.forkedContract == 1) { // 1 == ZapContract
                     self.addressVars[keccak256('zapContract')] = disp.proposedForkAddress;
                 }
+                
                 disp.disputeVotePassed = true;
                 emit NewZapAddress(disp.proposedForkAddress);
             }
