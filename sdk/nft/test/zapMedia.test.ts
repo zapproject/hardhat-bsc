@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 
 // Ethers Types
-import { Contract, ethers, BigNumber } from 'ethers';
+import { Contract, ethers, BigNumber, Signer } from 'ethers';
 
 import MediaFactory from '../mediaFactory';
 
@@ -57,8 +57,6 @@ describe('ZapMedia', () => {
     let signer1: any;
     let signer0: any
     let zapMedia: any;
-    let customMedia: any;
-
 
     describe('#constructor', () => {
 
@@ -74,15 +72,23 @@ describe('ZapMedia', () => {
 
         });
 
-
-        it("Should throw an error if the networkId is not valid", async () => {
+        it("Should throw an error if the networkId is invalid", async () => {
 
             expect(() => {
                 new ZapMedia(300, signer0)
-            }).to.throw(
-                'test'
-            )
-        })
+            }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+
+        });
+
+        it("Should throw an error if the signer is invalid", async () => {
+
+            const signer0Address = await signer0.getAddress();
+
+            expect(() => {
+                new ZapMedia(31337, signer0Address)
+            }).to.throw('ZapMedia Constructor: Invalid Signer.');
+
+        });
 
     })
 

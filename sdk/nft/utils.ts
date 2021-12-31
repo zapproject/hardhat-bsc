@@ -6,7 +6,6 @@ let mediaFactoryAddress: string;
 
 let zapMarketAddress: string;
 
-
 let zapMediaAddress: string;
 
 /**
@@ -76,8 +75,10 @@ export const contractAddresses = (networkId: number): any => {
 
     } else {
 
-        return undefined;
-
+        invariant(
+            false,
+            'ZapMedia Constructor: Network Id is not supported.'
+        )
     }
 
 };
