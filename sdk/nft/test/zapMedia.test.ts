@@ -1,9 +1,8 @@
-
 import { expect } from 'chai';
 
 import { deployContract, MockProvider, solidity } from 'ethereum-waffle';
 
-import { ethers, BigNumber, Signer } from 'ethers';
+import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
 import MediaFactory from '../mediaFactory';
 
@@ -51,31 +50,19 @@ const bidShares = () => {
 describe('ZapMedia', () => {
     // Hardhat signers[0]: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
     let signer1: any;
-    let signer0: any;
+    // let signer0: any;
     let zapMedia: any;
 
     describe('#constructor', () => {
-
-        before(async () => {
-            signer0 = provider.getSigner(0);
-
-            // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-            signer1 = provider.getSigner(1);
-
-            // Instantiates the company ZapMedia class deployed through hardhat-deploy
-            zapMedia = new ZapMedia(31337, signer0);
-        });
-
         it('Should throw an error if the networkId is invalid', async () => {
+            const signer = Wallet.createRandom();
 
             expect(() => {
-                new ZapMedia(300, signer0);
+                new ZapMedia(300, signer);
             }).to.throw('ZapMedia Constructor: Network Id is not supported.');
         });
 
         it('Should throw an error if the signer is invalid', async () => {
-            const signer0Address = await signer0.getAddress();
-
             expect(() => {
                 new ZapMedia(31337, signer0Address);
             }).to.throw('ZapMedia Constructor: Invalid Signer.');
@@ -83,22 +70,13 @@ describe('ZapMedia', () => {
     });
 
     describe('contract Functions', () => {
-
         // describe('#updateContentURI', () => {
-
         //     const provider = new MockProvider();
-
         //     console.log(provider)
-
         //     // it("Should throw an error if the tokenId was not specified", async () => {
-
         //     //     expect(async () => {
-
         //     //     }).to.throw('ZapMedia Constructor: Invalid Signer.');
-
         //     // })
-
         // })
-    })
-
+    });
 });
