@@ -34,11 +34,7 @@ class ZapMedia {
         this.mediaIndex = mediaIndex;
 
         if (!ethers.Signer.isSigner(signer)) {
-
-            invariant(
-                false,
-                'ZapMedia Constructor: Invalid Signer.'
-            )
+            invariant(false, 'ZapMedia Constructor: Invalid Signer.');
         }
 
         if (mediaIndex === undefined) {
@@ -64,5 +60,21 @@ class ZapMedia {
 
         return await this.contract.mint(mediaData, bidShares);
     }
+
+    public async updateContentURI(
+        mediaId: number,
+        tokenURI: string
+    ): Promise<any> {
+
+        if (mediaId === undefined) {
+            invariant(
+                false,
+                'ZapMedia - updateContentURI: TokenId was not specified.'
+            )
+        }
+
+    }
+
+
 }
 export default ZapMedia;

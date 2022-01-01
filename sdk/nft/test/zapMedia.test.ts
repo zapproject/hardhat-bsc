@@ -1,18 +1,17 @@
-// Chai test method
+
 import { expect } from 'chai';
 
-// Ethers Types
-import { Contract, ethers, BigNumber, Signer } from 'ethers';
+import { deployContract, MockProvider, solidity } from 'ethereum-waffle';
+
+import { ethers, BigNumber, Signer } from 'ethers';
 
 import MediaFactory from '../mediaFactory';
 
 import ZapMedia from '../zapMedia';
 
-// Hardhat localhost connection
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const mediaData = () => {
-
     let tokenURI = 'www.example.com';
     let metadataURI = 'www.example.com';
     let metadataHex = ethers.utils.formatBytes32String(metadataURI);
@@ -30,68 +29,76 @@ const mediaData = () => {
         tokenURI,
         metadataURI,
         contentHash,
-        metadataHash
-    }
-}
+        metadataHash,
+    };
+};
 
 const bidShares = () => {
-
     const bidShares = {
         collaborators: [],
         collabShares: [],
         creator: {
-            value: BigNumber.from('10000000000000000000')
+            value: BigNumber.from('10000000000000000000'),
         },
         owner: {
-            value: BigNumber.from('85000000000000000000')
+            value: BigNumber.from('85000000000000000000'),
         },
     };
 
-    return bidShares
-
-}
+    return bidShares;
+};
 
 describe('ZapMedia', () => {
-
     // Hardhat signers[0]: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
     let signer1: any;
-    let signer0: any
+    let signer0: any;
     let zapMedia: any;
 
     describe('#constructor', () => {
 
         before(async () => {
-
-            signer0 = provider.getSigner(0)
+            signer0 = provider.getSigner(0);
 
             // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
             signer1 = provider.getSigner(1);
 
             // Instantiates the company ZapMedia class deployed through hardhat-deploy
             zapMedia = new ZapMedia(31337, signer0);
-
         });
 
-        it("Should throw an error if the networkId is invalid", async () => {
+        it('Should throw an error if the networkId is invalid', async () => {
 
             expect(() => {
-                new ZapMedia(300, signer0)
+                new ZapMedia(300, signer0);
             }).to.throw('ZapMedia Constructor: Network Id is not supported.');
-
         });
 
-        it("Should throw an error if the signer is invalid", async () => {
-
+        it('Should throw an error if the signer is invalid', async () => {
             const signer0Address = await signer0.getAddress();
 
             expect(() => {
-                new ZapMedia(31337, signer0Address)
+                new ZapMedia(31337, signer0Address);
             }).to.throw('ZapMedia Constructor: Invalid Signer.');
-
         });
+    });
 
+    describe('contract Functions', () => {
+
+        // describe('#updateContentURI', () => {
+
+        //     const provider = new MockProvider();
+
+        //     console.log(provider)
+
+        //     // it("Should throw an error if the tokenId was not specified", async () => {
+
+        //     //     expect(async () => {
+
+        //     //     }).to.throw('ZapMedia Constructor: Invalid Signer.');
+
+        //     // })
+
+        // })
     })
-
-
 
 });
