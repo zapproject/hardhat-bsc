@@ -1,4 +1,4 @@
-import { Contract, ethers, Signer, ContractTransaction } from 'ethers';
+import { Contract, ContractTransaction, ethers, Signer, Wallet } from 'ethers';
 
 import { contractAddresses } from './utils';
 
@@ -33,10 +33,6 @@ class ZapMedia {
 
         this.mediaIndex = mediaIndex;
 
-        if (!ethers.Signer.isSigner(signer)) {
-            invariant(false, 'ZapMedia Constructor: Invalid Signer.');
-        }
-
         if (mediaIndex === undefined) {
             this.contract = new ethers.Contract(
                 contractAddresses(networkId).zapMediaAddress,
@@ -61,20 +57,19 @@ class ZapMedia {
         return await this.contract.mint(mediaData, bidShares);
     }
 
-    public async updateContentURI(
-        mediaId: number,
-        tokenURI: string
-    ): Promise<any> {
+    public async updateContentURI(mediaId: number, tokenURI: string): Promise<any> {
 
-        if (mediaId === undefined) {
+        try {
+
+            return await this.contract.updateTokenURI(mediaId, tokenURI)
+
+        } catch (err) {
             invariant(
                 false,
-                'ZapMedia - updateContentURI: TokenId was not specified.'
+                'ZapMedia - updateContentURI: TokenId does not exist.'
             )
         }
 
     }
-
-
 }
 export default ZapMedia;

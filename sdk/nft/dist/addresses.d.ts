@@ -1,14 +1,21 @@
 export declare const mediaFactoryAddresses: {
-    localhost: string;
-    rinkeby: string;
-    ethMainnet: string;
-    bscTestnet: string;
-    bscMainnet: string;
+    31337: string;
+    4: string;
+    1: string;
+    97: string;
+    56: string;
 };
 export declare const zapMarketAddresses: {
-    localhost: string;
-    rinkeby: string;
-    ethMainnet: string;
-    bscTestnet: string;
-    bscMainet: string;
+    31337: string;
+    4: string;
+    1: string;
+    97: string;
+    56: string;
+};
+export declare const zapMediaAddresses: {
+    31337: string;
+    4: string;
+    1: string;
+    97: string;
+    56: string;
 };

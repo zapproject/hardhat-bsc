@@ -39,42 +39,62 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ethers_1 = require("ethers");
 var utils_1 = require("./utils");
 var abi_1 = require("./abi");
-var MediaFactory = /** @class */ (function () {
-    function MediaFactory(networkId, signer) {
+var info = function (networkId, signer) { return __awaiter(void 0, void 0, void 0, function () {
+    var zapMarket;
+    return __generator(this, function (_a) {
+        zapMarket = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMarketAddress, abi_1.zapMarketAbi, signer);
+        return [2 /*return*/, zapMarket];
+    });
+}); };
+var ZapMedia = /** @class */ (function () {
+    function ZapMedia(networkId, signer, mediaIndex) {
         this.networkId = networkId;
         this.signer = signer;
-        this.contract = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).mediaFactoryAddress, abi_1.mediaFactoryAbi, signer);
+        this.mediaIndex = mediaIndex;
+        if (mediaIndex === undefined) {
+            this.contract = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMediaAddress, abi_1.zapMediaAbi, signer);
+        }
+        else {
+        }
     }
     /**
-     * Deploys a NFT collection.
-     * @param {string} collectionName - The name of the NFT collection.
-     * @param {string} collectionSymbol - The symbol of the NFT collection.
-     * @param {boolean} permissive - Determines if minting can be performed other than the collection owner.
-     * @param {string} collectionMetadta - Contract level metadata.
+     * Mints a new piece of media on an instance of the Zora Media Contract
+     * @param mintData
+     * @param bidShares
      */
-    MediaFactory.prototype.deployMedia = function (collectionName, collectionSymbol, permissive, collectionMetadta) {
+    ZapMedia.prototype.mint = function (mediaData, bidShares) {
         return __awaiter(this, void 0, void 0, function () {
-            var tx, receipt, eventLog;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.contract.deployMedia(collectionName, collectionSymbol, (0, utils_1.contractAddresses)(this.networkId).zapMarketAddress, permissive, collectionMetadta)];
-                    case 1:
-                        tx = _a.sent();
-                        return [4 /*yield*/, tx.wait()];
-                    case 2:
-                        receipt = _a.sent();
-                        eventLog = receipt.events[receipt.events.length - 1];
-                        // console.log('\n', {
-                        //   transactionHash: eventLog.transactionHash,
-                        //   event: eventLog.event,
-                        //   deployedCollectionAddress: eventLog.args.mediaContract,
-                        // });
-                        return [2 /*return*/, eventLog];
+                    case 0: return [4 /*yield*/, this.contract.mint(mediaData, bidShares)];
+                    case 1: 
+                    // console.log(mediaData)
+                    // console.log(bidShares)
+                    // const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
+                    return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    return MediaFactory;
+    ZapMedia.prototype.updateContentURI = function (mediaId, tokenURI) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, _b, err_1;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _c.trys.push([0, 2, , 3]);
+                        _b = (_a = Promise).resolve;
+                        return [4 /*yield*/, this.contract.updateTokenURI(mediaId, tokenURI)];
+                    case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+                    case 2:
+                        err_1 = _c.sent();
+                        throw 'oh no';
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return ZapMedia;
 }());
-exports.default = MediaFactory;
-//# sourceMappingURL=mediaFactory.js.map
+exports.default = ZapMedia;
+//# sourceMappingURL=zapMedia.js.map

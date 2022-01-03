@@ -1,10 +1,6 @@
-import { expect } from 'chai';
-
-import { deployContract, MockProvider, solidity } from 'ethereum-waffle';
+import chai, { expect, should, assert } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
-
-import MediaFactory from '../mediaFactory';
 
 import ZapMedia from '../zapMedia';
 
@@ -61,22 +57,29 @@ describe('ZapMedia', () => {
                 new ZapMedia(300, signer);
             }).to.throw('ZapMedia Constructor: Network Id is not supported.');
         });
-
-        it('Should throw an error if the signer is invalid', async () => {
-            expect(() => {
-                new ZapMedia(31337, signer0Address);
-            }).to.throw('ZapMedia Constructor: Invalid Signer.');
-        });
     });
 
     describe('contract Functions', () => {
-        // describe('#updateContentURI', () => {
-        //     const provider = new MockProvider();
-        //     console.log(provider)
-        //     // it("Should throw an error if the tokenId was not specified", async () => {
-        //     //     expect(async () => {
-        //     //     }).to.throw('ZapMedia Constructor: Invalid Signer.');
-        //     // })
-        // })
+        describe('Write Functions', () => {
+            describe('#updateContentURI', () => {
+                it('Should throw an error if the tokenId does not exist', async () => {
+                    const signer = Wallet.createRandom().connect(provider);
+
+                    const zapMedia = new ZapMedia(31337, signer);
+
+                    await zapMedia
+                        .updateContentURI(0, 'test')
+                        .then((res) => {
+                            // Will never resolve
+                            console.log(res);
+                        })
+                        .catch((err) => {
+                            expect(err.message).to.equal(
+                                'Invariant failed: ZapMedia - updateContentURI: TokenId does not exist.',
+                            );
+                        });
+                });
+            });
+        });
     });
 });
