@@ -12,8 +12,8 @@ const signer = provider.getSigner(0);
 const deployZapToken = async () => {
   const tokenFactory = new ethers.ContractFactory(zapTokenJson.abi, zapTokenJson.bytecode, signer);
 
-  // Deploy an instance of the contract
   const zapToken = await tokenFactory.deploy();
+
   await zapToken.deployed();
 
   return zapToken;
@@ -33,13 +33,20 @@ const deployZapVault = async () => {
   return zapVault;
 };
 
-// const vaultFactory = new ethers.ContractFactory(y.abi, y.bytecode, signer)
-// const vault = await vaultFactory.deploy()
-// await vault.deployed()
+const deployZapMarket = async () => {
+  const zapTokenAddress = (await deployZapToken()).address;
 
-// await vault.initializeVault(token.address)
+  const vaultFactory = new ethers.ContractFactory(zapVaultJson.abi, zapVaultJson.bytecode, signer);
 
-// console.log(await vault.vaultBalance())
+  let zapVault = await vaultFactory.deploy();
+
+  await zapVault.deployed();
+
+  zapVault = zapVault.initialize(zapTokenAddress);
+
+  return zapVault;
+};
+
 module.exports = {
   deployZapToken: deployZapToken,
   deployZapVault: deployZapVault,

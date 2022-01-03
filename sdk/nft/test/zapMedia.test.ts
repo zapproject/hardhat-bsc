@@ -6,10 +6,12 @@ import { constructBidShares } from '../utils';
 
 import ZapMedia from '../zapMedia';
 
+import { contractAddresses } from '../utils';
+
 const { deployZapToken, deployZapVault } = require('../deploy.js')
 
-// const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-
+const ganache = require('ganache-cli');
+const provider = new ethers.providers.Web3Provider(ganache.provider());
 
 const mediaData = () => {
     let tokenURI = 'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
@@ -53,8 +55,11 @@ describe('ZapMedia', () => {
         describe('Write Functions', () => {
 
             let bidShares: any
+            let token: any
 
             beforeEach(async () => {
+
+
 
                 // bidShares = constructBidShares(
                 //     [
@@ -66,6 +71,13 @@ describe('ZapMedia', () => {
                 //     15,
                 //     35
                 // );
+                const chainId = (await provider.getNetwork()).chainId
+
+                console.log(chainId)
+                contractAddresses(1337)
+                token = await deployZapToken()
+
+
 
             })
 
@@ -92,7 +104,9 @@ describe('ZapMedia', () => {
 
                 it("Should update the content uri", async () => {
 
-                    console.log(await zapToken())
+                    console.log(token.address)
+
+
                     // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
                     // const signer = provider.getSigner(1)
 
