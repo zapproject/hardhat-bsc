@@ -178,16 +178,14 @@ describe("Fork Tests", () => {
         // stake signers 1 to 5.
         for (let i = 0; i <= 5; i++) {
             await zapTokenBsc.allocate(signers[i].address, BigNumber.from("1100000000000000000000000"));
-            zap = zap.connect(signers[i]);
-    
             await zapTokenBsc.connect(signers[i]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
-            await zap.depositStake();
+            await zap.connect(signers[i]).depositStake();
         }
     });
  
     it("Should fork successfully with new contracts", async () => {
         // begin proposing fork
-        zap = zap.connect(signers[0]);
+        
         // Converts the uintVar "disputeFee" to a bytes array
         const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes("disputeFee");
 
@@ -217,8 +215,7 @@ describe("Fork Tests", () => {
 
         // start vote for fork
         for (var i = 1; i <= 5; i++) {
-            zap = zap.connect(signers[i]);
-            await zap.vote(disputeId, true);
+            await zap.connect(signers[i]).vote(disputeId, true);
         }
 
         // Increase the evm time by 8 days
@@ -237,7 +234,7 @@ describe("Fork Tests", () => {
 
     it("Should fail fork with new contracts", async () => {
         // begin proposing fork
-        zap = zap.connect(signers[0]);
+
         // Converts the uintVar "disputeFee" to a bytes array
         const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes("disputeFee");
 
@@ -273,8 +270,7 @@ describe("Fork Tests", () => {
 
         // start vote for fork
         for (var i = 1; i <= 5; i++) {
-            zap = zap.connect(signers[i]);
-            await zap.vote(disputeId, false);
+            await zap.connect(signers[i]).vote(disputeId, false);
         }
 
         // Increase the evm time by 8 days
@@ -287,14 +283,19 @@ describe("Fork Tests", () => {
         expect(zapAddress).to.equal(newZapAddress);
     });
 
-    it("Should fork successfully with only new ZapMaster", async () => {
+    it.only("Should fork successfully with only new ZapMaster", async () => {
         // deploy a new zap master and use existing zap stake and zap contracts
+        let zapMasterFactory2 = await ethers.getContractFactory("ZapMaster", {
+            libraries: {
+                ZapStake: zapStake.address
+            },
+            signer: signers[0]
+        });
 
-        let zapMaster2 = (await zapMasterFactory.deploy(zapAddress, zapTokenBsc.address)) as ZapMaster
+        let zapMaster2 = (await zapMasterFactory2.deploy(zapAddress, zapTokenBsc.address)) as ZapMaster
         await zapMaster2.deployed();
 
         // begin proposing fork
-        zap = zap.connect(signers[0]);
 
         // Converts the uintVar "disputeFee" to a bytes array
         const disputeFeeBytes: Uint8Array = ethers.utils.toUtf8Bytes("disputeFee");
@@ -325,8 +326,7 @@ describe("Fork Tests", () => {
 
         // start vote for fork
         for (var i = 1; i <= 5; i++) {
-            zap = zap.connect(signers[i]);
-            await zap.vote(disputeId, true);
+            await zap.connect(signers[i]).vote(disputeId, true);
         }
 
         // Increase the evm time by 8 days
@@ -345,6 +345,12 @@ describe("Fork Tests", () => {
         let zapAddCheck = await zapMaster2.getAddressVars(hashZAddress)
         expect(zapAddress).to.equal(zapAddCheck);
 
+        // await zapTokenBsc.allocate(signers[10].address, BigNumber.from("1100000000000000000000000"));
+        // await zapTokenBsc.connect(signers[10]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
+        // await zap.connect(signers[10]).depositStake();
+        // let staker10: BigNumber[] = await zapMaster.getStakerInfo(signers[10].address);
+        // console.log(staker10)
+
         zap = zap.attach(zapMaster2.address);
 
         // test dispute count after beginDispute
@@ -362,5 +368,13 @@ describe("Fork Tests", () => {
         let staker1: BigNumber[] = await zapMaster2.getStakerInfo(signers[1].address);
         // expect(staker1[0]).to.equal(1);
         console.log(staker1)
+
+        await zapMaster2.functions.changeVaultContract(vault.address);
+        await zapTokenBsc.allocate(zapMaster2.address, BigNumber.from("10000000000000000000000000"));
+        await zapTokenBsc.allocate(signers[10].address, BigNumber.from("1100000000000000000000000"));
+        await zapTokenBsc.connect(signers[10]).approve(zapMaster2.address, BigNumber.from("500000000000000000000000"));
+        await zap.connect(signers[10]).depositStake();
+        let staker10: BigNumber[] = await zapMaster2.getStakerInfo(signers[10].address);
+        console.log(staker10)
     });
 });

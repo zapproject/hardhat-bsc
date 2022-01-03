@@ -255,12 +255,17 @@ contract Zap {
             // If this is fork proposal for changing ZapMaster, transfer the zapMaster
             // total balance of current ZapMaster
             uint256 zapMasterBalance = token.balanceOf(address(this));
+            address newZM = disp.proposedForkAddress;
 
             data = abi.encodeWithSignature(
                 "transfer(address,uint256)",
-                disp.proposedForkAddress, zapMasterBalance);
+                newZM, zapMasterBalance);
             // transfer `zapMasterBalance` ZAP from current ZapMaster to new ZapMaster
             _callOptionalReturn(token, data);
+            // set the new ZapMaster for the vault
+            vault.setZM(newZM);
+            // migrate storage state for new ZapMaster
+            newZM.call(abi.encodeWithSignature("importStorage(ZapStorage)", zap.ZapStorageStruct));
         } else if (disp.forkedContract == uint(ForkedContract.VaultContract)) {
             // Approve the current vault to call deposit on the pending, new Vault
             Vault(disp.proposedForkAddress).setApproval(currentVault);
