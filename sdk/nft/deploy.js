@@ -4,10 +4,20 @@ const zapTokenJson = require('./ZapTokenBSC.json');
 
 const zapVaultJson = require('./ZapVault.json');
 
+const zapMarketJson = require('./ZapMarket.json');
+
+const zapMediaJson = require('./ZapMedia.json');
+
+const mediaFactoryJson = require('./MediaFactory.json');
+
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider());
 
 const signer = provider.getSigner(0);
+
+let zapTokenAddress;
+let zapVaultAddress;
+let zapMarketAddress;
 
 const deployZapToken = async () => {
   const tokenFactory = new ethers.ContractFactory(zapTokenJson.abi, zapTokenJson.bytecode, signer);
@@ -16,38 +26,73 @@ const deployZapToken = async () => {
 
   await zapToken.deployed();
 
+  zapTokenAddress = zapToken.address;
+
   return zapToken;
 };
 
 const deployZapVault = async () => {
-  const zapTokenAddress = (await deployZapToken()).address;
-
   const vaultFactory = new ethers.ContractFactory(zapVaultJson.abi, zapVaultJson.bytecode, signer);
 
   let zapVault = await vaultFactory.deploy();
 
   await zapVault.deployed();
 
-  zapVault = zapVault.initialize(zapTokenAddress);
+  zapVault.initializeVault(zapTokenAddress);
+
+  zapVaultAddress = zapVault.address;
 
   return zapVault;
 };
 
 const deployZapMarket = async () => {
-  const zapTokenAddress = (await deployZapToken()).address;
+  const marketFactory = new ethers.ContractFactory(
+    zapMarketJson.abi,
+    zapMarketJson.bytecode,
+    signer,
+  );
 
-  const vaultFactory = new ethers.ContractFactory(zapVaultJson.abi, zapVaultJson.bytecode, signer);
+  let zapMarket = await marketFactory.deploy();
 
-  let zapVault = await vaultFactory.deploy();
+  await zapMarket.deployed();
 
-  await zapVault.deployed();
+  zapMarketAddress = zapMarket.address;
 
-  zapVault = zapVault.initialize(zapTokenAddress);
+  zapMarket.initializeMarket(zapVaultAddress);
 
-  return zapVault;
+  return zapMarket;
+};
+
+const deployZapMediaImpl = async () => {
+  const mediaFactory = new ethers.ContractFactory(zapMediaJson.abi, zapMediaJson.bytecode, signer);
+
+  let zapMedia = await mediaFactory.deploy();
+
+  await zapMedia.deployed();
+
+  return zapMedia;
+};
+
+const deployMediaFactory = async () => {
+  const mediaFactoryFactory = new ethers.ContractFactory(
+    mediaFactoryJson.abi,
+    mediaFactoryJson.bytecode,
+    signer,
+  );
+
+  let mediaFactory = await mediaFactory.deploy();
+
+  await mediaFactory.deployed();
+
+  await mediaFactory.initializeMarket();
+
+  return mediaFactory;
 };
 
 module.exports = {
   deployZapToken: deployZapToken,
   deployZapVault: deployZapVault,
+  deployZapMarket: deployZapMarket,
+  deployZapMediaImpl: deployZapMediaImpl,
+  deployMediaFactory: deployMediaFactory,
 };

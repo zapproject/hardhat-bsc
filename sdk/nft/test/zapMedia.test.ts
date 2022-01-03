@@ -8,7 +8,7 @@ import ZapMedia from '../zapMedia';
 
 import { contractAddresses } from '../utils';
 
-const { deployZapToken, deployZapVault } = require('../deploy.js')
+const contracts = require('../deploy.js')
 
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider());
@@ -42,7 +42,7 @@ describe('ZapMedia', () => {
     let zapMedia: any;
 
     describe('#constructor', () => {
-        it('Should throw an error if the networkId is invalid', async () => {
+        it.skip('Should throw an error if the networkId is invalid', async () => {
             const signer = Wallet.createRandom();
 
             expect(() => {
@@ -56,10 +56,11 @@ describe('ZapMedia', () => {
 
             let bidShares: any
             let token: any
+            let zapVault: any
+            let zapMarket: any
+            let zapMediaImpl: any
 
             beforeEach(async () => {
-
-
 
                 // bidShares = constructBidShares(
                 //     [
@@ -71,13 +72,11 @@ describe('ZapMedia', () => {
                 //     15,
                 //     35
                 // );
-                const chainId = (await provider.getNetwork()).chainId
 
-                console.log(chainId)
-                contractAddresses(1337)
-                token = await deployZapToken()
-
-
+                token = await contracts.deployZapToken();
+                zapVault = await contracts.deployZapVault();
+                zapMarket = await contracts.deployZapMarket();
+                zapMediaImpl = await contracts.deployZapMediaImpl();
 
             })
 
@@ -103,9 +102,6 @@ describe('ZapMedia', () => {
                 });
 
                 it("Should update the content uri", async () => {
-
-                    console.log(token.address)
-
 
                     // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
                     // const signer = provider.getSigner(1)
