@@ -6,7 +6,10 @@ import { constructBidShares } from '../utils';
 
 import ZapMedia from '../zapMedia';
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+const { deployZapToken, deployZapVault } = require('../deploy.js')
+
+// const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+
 
 const mediaData = () => {
     let tokenURI = 'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
@@ -50,48 +53,55 @@ describe('ZapMedia', () => {
         describe('Write Functions', () => {
 
             let bidShares: any
+
             beforeEach(async () => {
 
-                bidShares = constructBidShares(
-                    [
-                        await provider.getSigner(19).getAddress(),
-                        await provider.getSigner(18).getAddress(),
-                        await provider.getSigner(17).getAddress()
-                    ],
-                    [15, 15, 15],
-                    15,
-                    35
-                )
+                // bidShares = constructBidShares(
+                //     [
+                //         await provider.getSigner(19).getAddress(),
+                //         await provider.getSigner(18).getAddress(),
+                //         await provider.getSigner(17).getAddress()
+                //     ],
+                //     [15, 15, 15],
+                //     15,
+                //     35
+                // );
 
             })
 
             describe('#updateContentURI', () => {
+
                 it.skip('Should throw an error if the tokenId does not exist', async () => {
-                    const signer = provider.getSigner(1)
+                    // const signer = provider.getSigner(1)
 
-                    const zapMedia = new ZapMedia(31337, signer);
+                    // const zapMedia = new ZapMedia(31337, signer);
 
-                    await zapMedia
-                        .updateContentURI(0, 'www.exmaple.com')
-                        .then((res) => {
-                            // Will never resolve
-                            return res
-                        })
-                        .catch((err) => {
-                            expect(err.message).to.equal(
-                                'Invariant failed: ZapMedia - updateContentURI: TokenId does not exist.',
-                            );
-                        });
+                    // await zapMedia
+                    //     .updateContentURI(0, 'www.exmaple.com')
+                    //     .then((res) => {
+                    //         // Will never resolve
+                    //         return res
+                    //     })
+                    //     .catch((err) => {
+                    //         expect(err.message).to.equal(
+                    //             'Invariant failed: ZapMedia - updateContentURI: TokenId does not exist.',
+                    //         );
+                    //     });
+
                 });
 
                 it("Should update the content uri", async () => {
 
-                    const signer = provider.getSigner(1)
+                    console.log(await zapToken())
+                    // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
+                    // const signer = provider.getSigner(1)
 
-                    const zapMedia = new ZapMedia(31337, signer);
+                    // const zapMedia = new ZapMedia(31337, signer);
 
+                    // // await zapMedia.mint(mediaData(), bidShares);
 
-                    await zapMedia.mint(mediaData(), bidShares);
+                    // console.log(provider.prepareRequest("hardhat_reset", []))
+
 
                 })
 

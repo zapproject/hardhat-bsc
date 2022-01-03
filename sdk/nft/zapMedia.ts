@@ -50,15 +50,20 @@ class ZapMedia {
      */
     public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
 
-        validateBidShares(
-            bidShares.collabShares,
-            bidShares.creator,
-            bidShares.owner
-        )
+        try {
 
-        // const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
+            validateBidShares(
+                bidShares.collabShares,
+                bidShares.creator,
+                bidShares.owner
+            );
+        } catch (err: any) {
+            return err.message
+        }
 
-        // return await this.contract.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+        const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
+
+        return await this.contract.mint(mediaData, bidShares, { gasLimit: gasEstimate });
     }
 
     public async updateContentURI(mediaId: number, tokenURI: string): Promise<any> {

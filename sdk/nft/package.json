@@ -31,6 +31,7 @@
   "dependencies": {
     "ethers": "^5.5.2",
     "ganache-cli": "^6.12.2",
+    "ganache-core": "^2.13.2",
     "hardhat": "^2.8.0",
     "tiny-invariant": "^1.2.0"
   }

@@ -90,10 +90,17 @@ export const validateBidShares = (
     owner: DecimalValue
 ) => {
 
+    // Counter for collabShares sum
     let collabShareSum = BigNumber.from(0);
 
+    // Converts 100 to a Decimal hexString value
+    // The hexString value represents 100e18
+    // BidShares must sum to 100 and this value is used to check against it
     const decimal100 = Decimal.new(100);
 
+    // Converts 5 to a Decimal hexString value
+    // The hexString value represents 5e18
+    // The market fee is 5 percent of the bidShares
     const decimalMarketFee = Decimal.new(5);
 
     for (var i = 0; i < collabShares.length; i++) {
@@ -197,6 +204,7 @@ export function constructBidShares(
     // The hexString value represents the owner integer to the 18th
     const decimalOwner = Decimal.new(parseFloat(owner.toFixed(4)));
 
+    // 
     validateBidShares(decimalCollabShares, decimalCreator, decimalOwner)
 
     return {
