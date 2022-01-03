@@ -1,13 +1,13 @@
-import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 
 import { BigNumber, ContractFactory, Event, EventFilter } from 'ethers';
 
-import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, MediaFactoryV2, ZapTokenBSC, AuctionHouse } from '../typechain';
+import { ZapMarket, ZapMedia, Creature, MockProxyRegistry, ZapVault, ZapMarketV2, NewProxyAdmin, MediaFactory, MediaFactoryV2, ZapTokenBSC, AuctionHouse, AuctionHouseV2 } from '../typechain';
 
 import { getProxyAdminFactory } from '@openzeppelin/hardhat-upgrades/dist/utils';
 
 import { solidity } from 'ethereum-waffle';
 
+import { ethers, upgrades, deployments, getNamedAccounts, } from 'hardhat';
 import chai, { expect } from 'chai';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -216,6 +216,7 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             },
             log: true,
         })
+        
 
         await deployments.deploy('MediaFactory', {
             from: signers[0].address,
@@ -1373,10 +1374,38 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
     describe.only("#externalNFTs can use AuctionHouse", () => {
         let auctionHouseFactory: any;
         let auctionHouse: AuctionHouse;
+        let auctionHouseV2: AuctionHouseV2;
         beforeEach (async () => {
+            console.log(zapTokenBsc.address, "test")
             // set up Auctionhouse
-            auctionHouseFactory = await deployments.get('AuctionHouse');
+            const auctionHouseFactory = await deployments.get('AuctionHouse');
+            // console.log(auctionHouseFactory);
+            
             auctionHouse = await ethers.getContractAt('AuctionHouse', auctionHouseFactory.address, signers[0]) as AuctionHouse;
+            // console.log(auctionHouse);
+            // await auctionHouse.createAuction(
+            //     1,
+            //     zapMedia.address,
+            //     60 * 60 * 24 * 3,
+            //     BigNumber.from('150000000000000000000'),
+            //     signers[1].address,
+            //     5,
+            //     zapTokenBsc.address);
+
+
+
+            const AuctionHouseV2 = await ethers.getContractFactory('AuctionHouseV2', signers[0]);
+            await deployments.deploy('AuctionHouse', {
+            from: signers[0].address,
+            contract: "AuctionHouseV2",
+            proxy: {
+                proxyContract: 'OpenZeppelinTransparentProxy',
+            },
+            log: true,
+            })
+            
+            auctionHouseV2 = new ethers.Contract(auctionHouseFactory.address, AuctionHouseV2.interface, signers[0]) as AuctionHouseV2;
+
         });
         it("Should create an auction for osCreature NFT", async () => {
             console.log("isConfigured: ", await zapMarketV2.isConfigured(osCreature.address));
@@ -1398,14 +1427,16 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             const curator = signers[1].address
             const curatorFeePercentage = 5
             const auctionCurrency = zapTokenBsc.address
-            await auctionHouse.connect(signers[0]).createAuction(
+            const isInternal = false;
+            await auctionHouseV2.connect(signers[0]).createAuction(
                 tokenId,
                 mediaContract,
                 duration,
                 reservePrice,
                 curator,
                 curatorFeePercentage,
-                auctionCurrency
+                auctionCurrency,
+                isInternal
             ) 
             const createdAuction = await auctionHouse.auctions(0);
             console.log(createdAuction);
