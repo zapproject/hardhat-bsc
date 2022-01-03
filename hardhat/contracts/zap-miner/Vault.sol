@@ -90,14 +90,14 @@ contract Vault {
         return zapMaster;
     }
 
-    /**
-     * @dev Setter for a new ZapMaster, this will only be invoked during a fork of ZapMaster
-     * @param newZM the address of the new ZapMaster
-     */
-    function setZM(address newZM) public onlyZapMaster {
-        zapMaster = newZM;
-        emit NewZapMasterEvent(zapMaster);
-    }
+    // /**
+    //  * @dev Setter for a new ZapMaster, this will only be invoked during a fork of ZapMaster
+    //  * @param newZM the address of the new ZapMaster
+    //  */
+    // function setZM(address newZM) public onlyZapMaster {
+    //     zapMaster = newZM;
+    //     emit NewZapMasterEvent(zapMaster);
+    // }
 
     function getZT() public view returns (address zapTokenAddress) {
         return zapToken;

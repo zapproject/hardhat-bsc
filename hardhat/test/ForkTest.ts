@@ -52,7 +52,9 @@ let signers: any;
 
 let zapAddress: string;
 
-let zapMasterFactory: ContractFactory
+let zapMasterFactory: ContractFactory;
+
+let zeroAddress = "0x0000000000000000000000000000000000000000";
 
 describe("Fork Tests", () => {
 
@@ -162,7 +164,7 @@ describe("Fork Tests", () => {
             signer: signers[0]
         });
 
-        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
+        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address, zeroAddress)) as ZapMaster
         await zapMaster.deployed();
 
         const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });
@@ -230,6 +232,19 @@ describe("Fork Tests", () => {
         const hashZAddress: string = ethers.utils.keccak256(bytesZAddress);
         let newZapAddress = await zapMaster.getAddressVars(hashZAddress);
         expect(zap2.address).to.equal(newZapAddress);
+
+        // ensure new state is process-able
+        zap2 = zap2.attach(zapMaster.address);
+        await zapTokenBsc.allocate(signers[10].address, BigNumber.from("1100000000000000000000000"));
+        await zapTokenBsc.connect(signers[10]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
+        await zap2.connect(signers[10]).depositStake();
+        let staker10: BigNumber[] = await zapMaster.getStakerInfo(signers[10].address);
+        expect(staker10[0]).to.equal(1);
+
+        // ensure old state is modifying
+        await zap2.connect(signers[1]).requestStakingWithdraw();
+        let staker1Status = await zapMaster.getStakerInfo(signers[1].address);
+        expect(staker1Status[0]).to.equal(2);
     });
 
     it("Should fail fork with new contracts", async () => {
@@ -283,7 +298,8 @@ describe("Fork Tests", () => {
         expect(zapAddress).to.equal(newZapAddress);
     });
 
-    it.only("Should fork successfully with only new ZapMaster", async () => {
+    // 
+    it.skip("Should fork successfully with only new ZapMaster", async () => {
         // deploy a new zap master and use existing zap stake and zap contracts
         let zapMasterFactory2 = await ethers.getContractFactory("ZapMaster", {
             libraries: {
@@ -292,7 +308,7 @@ describe("Fork Tests", () => {
             signer: signers[0]
         });
 
-        let zapMaster2 = (await zapMasterFactory2.deploy(zapAddress, zapTokenBsc.address)) as ZapMaster
+        let zapMaster2 = (await zapMasterFactory2.deploy(zapAddress, zapTokenBsc.address, zapMaster.address)) as ZapMaster
         await zapMaster2.deployed();
 
         // begin proposing fork
@@ -345,12 +361,6 @@ describe("Fork Tests", () => {
         let zapAddCheck = await zapMaster2.getAddressVars(hashZAddress)
         expect(zapAddress).to.equal(zapAddCheck);
 
-        // await zapTokenBsc.allocate(signers[10].address, BigNumber.from("1100000000000000000000000"));
-        // await zapTokenBsc.connect(signers[10]).approve(zapMaster.address, BigNumber.from("500000000000000000000000"));
-        // await zap.connect(signers[10]).depositStake();
-        // let staker10: BigNumber[] = await zapMaster.getStakerInfo(signers[10].address);
-        // console.log(staker10)
-
         zap = zap.attach(zapMaster2.address);
 
         // test dispute count after beginDispute
@@ -365,10 +375,11 @@ describe("Fork Tests", () => {
          * CURRENTLY STAKER DATA IS NOT SHARED/TRANSFERRED WITH ZAP & ZAP MASTER
          */
         // check if existing staker details exists
-        let staker1: BigNumber[] = await zapMaster2.getStakerInfo(signers[1].address);
+        let staker1: BigNumber[] = await zapMaster2.getStakerInfo(signers[0].address);
         // expect(staker1[0]).to.equal(1);
         console.log(staker1)
 
+        // verify shared state of new staker between Zap and new ZapMaster
         await zapMaster2.functions.changeVaultContract(vault.address);
         await zapTokenBsc.allocate(zapMaster2.address, BigNumber.from("10000000000000000000000000"));
         await zapTokenBsc.allocate(signers[10].address, BigNumber.from("1100000000000000000000000"));

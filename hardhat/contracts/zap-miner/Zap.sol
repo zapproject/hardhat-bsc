@@ -263,9 +263,7 @@ contract Zap {
             // transfer `zapMasterBalance` ZAP from current ZapMaster to new ZapMaster
             _callOptionalReturn(token, data);
             // set the new ZapMaster for the vault
-            vault.setZM(newZM);
-            // migrate storage state for new ZapMaster
-            newZM.call(abi.encodeWithSignature("importStorage(ZapStorage)", zap.ZapStorageStruct));
+            // vault.setZM(newZM);
         } else if (disp.forkedContract == uint(ForkedContract.VaultContract)) {
             // Approve the current vault to call deposit on the pending, new Vault
             Vault(disp.proposedForkAddress).setApproval(currentVault);

@@ -11,7 +11,6 @@ import './libraries/Address.sol';
  */
 contract ZapMaster is ZapGetters {
     event NewZapAddress(address _newZap);
-    event ImportedStorage(address _predecessor);
 
     using Address for address;
 
@@ -30,9 +29,8 @@ contract ZapMaster is ZapGetters {
      * If there are no predecessors or no storage transfer is wanted, pass in the zero address.
      * @param _zapContract is the address for the zap contract
      * @param tokenAddress is the address for the ZAP token contract
-     * @param predecessor is the address for the old ZapMaster contract
      */
-    constructor(address _zapContract, address tokenAddress, address predecessor)
+    constructor(address _zapContract, address tokenAddress)
         public
         ZapGetters(tokenAddress)
     {
@@ -40,7 +38,6 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('_owner')] = msg.sender;
         zap.addressVars[keccak256('_deity')] = msg.sender;
         zap.addressVars[keccak256('zapContract')] = _zapContract;
-        zap.addressVars[keccak256('oldZapMaster')] = predecessor;
 
         owner = msg.sender;
 
@@ -64,18 +61,6 @@ contract ZapMaster is ZapGetters {
         require(!vaultLock);
         vaultLock = true;
         zap.changeVaultContract(_vaultContract);
-    }
-
-    /**
-     * @dev Imports storage state from Zap contract during forking of a new ZapMaster
-     * @param _storage the storage struct for transfering state from Zap contract
-     */
-    function importStorage(ZapStorage.ZapStorageStruct calldata _storage) external {
-        address oldZM = zap.addressVars[keccak256('oldZapMaster')];
-        require(msg.sender == oldZM);
-
-        zap = _storage;
-        emit ImportedStorage(oldZM);
     }
 
     /**
