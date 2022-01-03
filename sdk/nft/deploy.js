@@ -18,6 +18,7 @@ const signer = provider.getSigner(0);
 let zapTokenAddress;
 let zapVaultAddress;
 let zapMarketAddress;
+let zapMediaImplAddress;
 
 const deployZapToken = async () => {
   const tokenFactory = new ethers.ContractFactory(zapTokenJson.abi, zapTokenJson.bytecode, signer);
@@ -70,6 +71,8 @@ const deployZapMediaImpl = async () => {
 
   await zapMedia.deployed();
 
+  zapMediaImplAddress = zapMedia.address;
+
   return zapMedia;
 };
 
@@ -80,11 +83,11 @@ const deployMediaFactory = async () => {
     signer,
   );
 
-  let mediaFactory = await mediaFactory.deploy();
+  let mediaFactory = await mediaFactoryFactory.deploy();
 
   await mediaFactory.deployed();
 
-  await mediaFactory.initializeMarket();
+  await mediaFactory.initialize(zapMarketAddress, zapMediaImplAddress);
 
   return mediaFactory;
 };

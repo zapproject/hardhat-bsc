@@ -59,6 +59,7 @@ describe('ZapMedia', () => {
             let zapVault: any
             let zapMarket: any
             let zapMediaImpl: any
+            let mediaFactory: any
 
             beforeEach(async () => {
 
@@ -77,6 +78,9 @@ describe('ZapMedia', () => {
                 zapVault = await contracts.deployZapVault();
                 zapMarket = await contracts.deployZapMarket();
                 zapMediaImpl = await contracts.deployZapMediaImpl();
+                mediaFactory = await contracts.deployMediaFactory
+
+                console.log(await mediaFactory())
 
             })
 
