@@ -30,35 +30,6 @@ const mediaData = () => {
     };
 };
 
-const bidShares = async () => {
-
-    const collaborator1 = await provider.getSigner(19).getAddress();
-    const collaborator2 = await provider.getSigner(18).getAddress();
-    const collaborator3 = await provider.getSigner(17).getAddress();
-
-    // const bidShares = {
-    //     collaborators: [collaborator1, collaborator2, collaborator3],
-    //     collabShares: [
-    //         BigNumber.from('15000000000000000000'),
-    //         BigNumber.from('15000000000000000000'),
-    //         BigNumber.from('15000000000000000000')
-    //     ],
-    //     creator: {
-    //         value: BigNumber.from('15000000000000000000'),
-    //     },
-    //     owner: {
-    //         value: BigNumber.from('35000000000000000000'),
-    //     },
-    // };
-
-    return constructBidShares(
-        [collaborator1, collaborator2, collaborator3],
-        [15, 15, 15],
-        15,
-        35
-    )
-};
-
 describe('ZapMedia', () => {
     // Hardhat signers[0]: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
     let signer1: any;
@@ -77,8 +48,25 @@ describe('ZapMedia', () => {
 
     describe('contract Functions', () => {
         describe('Write Functions', () => {
+
+            let bidShares: any
+            beforeEach(async () => {
+
+                bidShares = constructBidShares(
+                    [
+                        await provider.getSigner(19).getAddress(),
+                        await provider.getSigner(18).getAddress(),
+                        await provider.getSigner(17).getAddress()
+                    ],
+                    [15, 15, 15],
+                    15,
+                    35
+                )
+
+            })
+
             describe('#updateContentURI', () => {
-                it('Should throw an error if the tokenId does not exist', async () => {
+                it.skip('Should throw an error if the tokenId does not exist', async () => {
                     const signer = provider.getSigner(1)
 
                     const zapMedia = new ZapMedia(31337, signer);
@@ -102,9 +90,8 @@ describe('ZapMedia', () => {
 
                     const zapMedia = new ZapMedia(31337, signer);
 
-                    await bidShares()
 
-                    // await zapMedia.mint(mediaData(), await bidShares());
+                    await zapMedia.mint(mediaData(), bidShares);
 
                 })
 

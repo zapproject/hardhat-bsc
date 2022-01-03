@@ -1,6 +1,6 @@
 import { Contract, ContractTransaction, ethers, Signer, Wallet } from 'ethers';
 
-import { contractAddresses, Decimal } from './utils';
+import { contractAddresses, Decimal, validateBidShares } from './utils';
 
 import { zapMarketAbi, zapMediaAbi } from './abi';
 
@@ -50,14 +50,11 @@ class ZapMedia {
      */
     public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
 
-
-
-        // validateBidShares(
-        //     bidShares.collaborators,
-        //     bidShares.collabShares,
-        //     bidShares.creator,
-        //     bidShares.owner
-        // )
+        validateBidShares(
+            bidShares.collabShares,
+            bidShares.creator,
+            bidShares.owner
+        )
 
         // const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
 

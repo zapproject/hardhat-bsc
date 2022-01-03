@@ -199,9 +199,10 @@ export function constructBidShares(
 
     validateBidShares(decimalCollabShares, decimalCreator, decimalOwner)
 
-    // return {
-    //     creator: decimalCreator,
-    //     owner: decimalOwner,
-    //     prevOwner: decimalPrevOwner,
-    // }
+    return {
+        collaborators: collaborators,
+        collabShares: decimalCollabShares,
+        creator: decimalCreator,
+        owner: decimalOwner,
+    }
 }
