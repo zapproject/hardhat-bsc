@@ -1,6 +1,7 @@
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './addresses';
-
+import { DecimalValue, BidShares } from './types';
 import invariant from 'tiny-invariant'
+import { BigNumber } from 'ethers';
 
 let mediaFactoryAddress: string;
 
@@ -82,3 +83,125 @@ export const contractAddresses = (networkId: number): any => {
     }
 
 };
+
+export const validateBidShares = (
+    collabShares: Array<DecimalValue>,
+    creator: DecimalValue,
+    owner: DecimalValue
+) => {
+
+    let collabShareSum = BigNumber.from(0);
+
+    const decimal100 = Decimal.new(100);
+
+    const decimalMarketFee = Decimal.new(5);
+
+    for (var i = 0; i < collabShares.length; i++) {
+
+        collabShareSum = collabShareSum.add(collabShares[i].value);
+    }
+
+    const sum = collabShareSum.add(creator.value).add(owner.value).add(decimalMarketFee.value);
+
+    if (sum.toString() != decimal100.value.toString()) {
+        invariant(
+            false,
+            `The BidShares sum to ${sum.toString()}, but they must sum to ${decimal100.value.toString()}`
+        )
+    }
+
+}
+
+/**
+ * Decimal is a class to make it easy to go from Javascript / Typescript `number` | `string`
+ * to ethers `BigDecimal` with the ability to customize precision
+ */
+export class Decimal {
+    /**
+     * Returns a `DecimalValue` type from the specified value and precision
+     * @param value
+     * @param precision
+     */
+    static new(value: number | string, precision: number = 18): any {
+
+        invariant(
+            precision % 1 == 0 && precision <= 18 && precision > -1,
+            `${precision.toString()} must be a non-negative integer less than or equal to 18`
+        )
+
+        // if type of string, ensure it represents a floating point number or integer
+        if (typeof value == 'string') {
+            invariant(
+                value.match(/^[-+]?[0-9]*\.?[0-9]+$/),
+                'value must represent a floating point number or integer'
+            )
+        } else {
+            value = value.toString()
+        }
+
+        const decimalPlaces = Decimal.countDecimals(value)
+
+        // require that the specified precision is at least as large as the number of decimal places of value
+        invariant(
+            precision >= decimalPlaces,
+            `Precision: ${precision} must be greater than or equal the number of decimal places: ${decimalPlaces} in value: ${value}`
+        )
+
+        const difference = precision - decimalPlaces
+        const zeros = BigNumber.from(10).pow(difference)
+        const abs = BigNumber.from(`${value.replace('.', '')}`)
+        return { value: abs.mul(zeros) }
+    }
+
+    /**
+  * Returns the number of decimals for value
+  * @param value
+  */
+    private static countDecimals(value: string) {
+        if (value.includes('.')) return value.split('.')[1].length || 0
+        return 0
+    }
+}
+
+/**
+ * Constructs a BidShares type.
+ * Throws an error if the BidShares do not sum to 100 with 18 trailing decimals.
+ *
+ * @param creator
+ * @param owner
+ * @param prevOwner
+ */
+export function constructBidShares(
+    collaborators: Array<string>,
+    collabShares: Array<number>,
+    creator: number,
+    owner: number
+): any {
+
+    // Store the collabShares Decimal values
+    let decimalCollabShares = [];
+
+    for (var i = 0; i < collabShares.length; i++) {
+
+        // Converts the collabShare integers to a Decimal hexString value
+        // The hexString value represents a collabShare integer to the 18th
+        decimalCollabShares.push(Decimal.new(parseFloat(collabShares[i].toFixed(4))));
+
+    }
+
+    // Converts the creator integer to a Decimal hexString value
+    // The hexString value represents the creator integer to the 18th
+    const decimalCreator = Decimal.new(parseFloat(creator.toFixed(4)));
+
+    // Converts the owner integer to a Decimal hexString value
+    // The hexString value represents the owner integer to the 18th
+    const decimalOwner = Decimal.new(parseFloat(owner.toFixed(4)));
+
+    validateBidShares(decimalCollabShares, decimalCreator, decimalOwner)
+
+    // return {
+    //     creator: decimalCreator,
+    //     owner: decimalOwner,
+    //     prevOwner: decimalPrevOwner,
+    // }
+}

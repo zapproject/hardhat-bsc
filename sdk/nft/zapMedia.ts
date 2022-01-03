@@ -1,10 +1,10 @@
 import { Contract, ContractTransaction, ethers, Signer, Wallet } from 'ethers';
 
-import { contractAddresses } from './utils';
+import { contractAddresses, Decimal } from './utils';
 
 import { zapMarketAbi, zapMediaAbi } from './abi';
 
-import { MediaData, BidShares } from './types';
+import { MediaData, BidShares, } from './types';
 
 import invariant from 'tiny-invariant';
 
@@ -49,12 +49,19 @@ class ZapMedia {
      * @param bidShares
      */
     public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
-        // console.log(mediaData)
-        // console.log(bidShares)
+
+
+
+        // validateBidShares(
+        //     bidShares.collaborators,
+        //     bidShares.collabShares,
+        //     bidShares.creator,
+        //     bidShares.owner
+        // )
 
         // const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
 
-        return await this.contract.mint(mediaData, bidShares);
+        // return await this.contract.mint(mediaData, bidShares, { gasLimit: gasEstimate });
     }
 
     public async updateContentURI(mediaId: number, tokenURI: string): Promise<any> {
