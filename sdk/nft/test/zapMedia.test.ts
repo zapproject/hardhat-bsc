@@ -81,14 +81,13 @@ describe('ZapMedia', () => {
             mediaFactoryAddresses['1337'] = mediaFactory.address;
             zapMediaAddresses['1337'] = zapMediaAddress;
 
-
-            console.log(ZapMedia)
+            // console.log(new ZapMedia(1337, signer))
         });
 
         it('Should throw an error if the networkId is invalid', async () => {
-            // expect(() => {
-            //     new ZapMedia(300, signer);
-            // }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+            expect(() => {
+                new ZapMedia(300, signer);
+            }).to.throw('ZapMedia Constructor: Network Id is not supported.');
         });
     });
 
