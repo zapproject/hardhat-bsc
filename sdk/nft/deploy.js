@@ -2,7 +2,7 @@ const ethers = require('ethers');
 
 const abis = require('./abi');
 
-const zapVaultJson = require('./ZapVault.json');
+const bytecodes = require('./bytecode');
 
 const zapMarketJson = require('./ZapMarket.json');
 
@@ -23,7 +23,7 @@ let zapMediaImplAddress;
 const deployZapToken = async () => {
   const tokenFactory = new ethers.ContractFactory(
     abis.zapTokenBscAbi,
-    zapTokenJson.bytecode,
+    bytecodes.zapTokenBscBytecode,
     signer,
   );
 
@@ -37,7 +37,11 @@ const deployZapToken = async () => {
 };
 
 const deployZapVault = async () => {
-  const vaultFactory = new ethers.ContractFactory(zapVaultJson.abi, zapVaultJson.bytecode, signer);
+  const vaultFactory = new ethers.ContractFactory(
+    abis.zapVaultAbi,
+    bytecodes.zapVaultBytecode,
+    signer,
+  );
 
   let zapVault = await vaultFactory.deploy();
 

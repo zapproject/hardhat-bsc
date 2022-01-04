@@ -80,6 +80,7 @@ describe('ZapMedia', () => {
             mediaFactoryAddresses['1337'] = mediaFactory.address;
             zapMediaAddresses['1337'] = zapMediaAddress;
 
+
         });
 
         it('Should throw an error if the networkId is invalid', async () => {
