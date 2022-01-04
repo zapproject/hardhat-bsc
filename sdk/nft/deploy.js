@@ -4,8 +4,6 @@ const abis = require('./abi');
 
 const bytecodes = require('./bytecode');
 
-const zapMarketJson = require('./ZapMarket.json');
-
 const zapMediaJson = require('./ZapMedia.json');
 
 const mediaFactoryJson = require('./MediaFactory.json');
@@ -56,8 +54,8 @@ const deployZapVault = async () => {
 
 const deployZapMarket = async () => {
   const marketFactory = new ethers.ContractFactory(
-    zapMarketJson.abi,
-    zapMarketJson.bytecode,
+    abis.zapMarketAbi,
+    bytecodes.zapMarketBytecode,
     signer,
   );
 
