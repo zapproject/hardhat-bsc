@@ -58,9 +58,9 @@ describe('ZapMedia', () => {
         mediaFactory = await contracts.deployMediaFactory();
         zapMedia = await contracts.deployZapMedia();
 
-        // zapMarketAddresses['1337'] = zapMarket.address;
-        // mediaFactoryAddresses['1337'] = mediaFactory.address;
-        // zapMediaAddresses['1337'] = zapMediaAddress;
+        zapMarketAddresses['1337'] = zapMarket.address;
+        mediaFactoryAddresses['1337'] = mediaFactory.address;
+        zapMediaAddresses['1337'] = zapMedia.address;
 
     });
 
