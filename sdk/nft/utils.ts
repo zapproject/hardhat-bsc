@@ -15,10 +15,10 @@ let zapMediaAddress: string;
    */
 export const contractAddresses = (networkId: number): any => {
 
-    if (networkId === 31337) {
-        mediaFactoryAddress = mediaFactoryAddresses['31337'];
-        zapMarketAddress = zapMarketAddresses['31337'];
-        zapMediaAddress = zapMediaAddresses['31337'];
+    if (networkId === 1337) {
+        mediaFactoryAddress = mediaFactoryAddresses['1337'];
+        zapMarketAddress = zapMarketAddresses['1337'];
+        zapMediaAddress = zapMediaAddresses['1337'];
 
         return {
             mediaFactoryAddress,

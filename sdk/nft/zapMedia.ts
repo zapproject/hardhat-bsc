@@ -20,13 +20,15 @@ const info = async (networkId: number, signer: Signer) => {
     return zapMarket;
 };
 
-class ZapMedia {
+export default class ZapMedia {
     networkId: number;
     mediaIndex: any;
     contract: any;
     signer: Signer;
 
     constructor(networkId: number, signer: Signer, mediaIndex?: number) {
+
+        console.log(networkId)
         this.networkId = networkId;
 
         this.signer = signer;
@@ -81,4 +83,3 @@ class ZapMedia {
 
     }
 }
-export default ZapMedia;
