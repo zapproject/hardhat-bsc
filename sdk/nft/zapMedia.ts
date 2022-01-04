@@ -28,7 +28,6 @@ export default class ZapMedia {
 
     constructor(networkId: number, signer: Signer, mediaIndex?: number) {
 
-        console.log(networkId)
         this.networkId = networkId;
 
         this.signer = signer;
@@ -70,16 +69,18 @@ export default class ZapMedia {
 
     public async updateContentURI(mediaId: number, tokenURI: string): Promise<any> {
 
-        try {
+        // return this.contract.functions.symbol()
 
-            return await this.contract.updateTokenURI(mediaId, tokenURI)
+        // try {
 
-        } catch (err) {
-            invariant(
-                false,
-                'ZapMedia - updateContentURI: TokenId does not exist.'
-            )
-        }
+        //     return await this.contract.updateTokenURI(mediaId, tokenURI)
+
+        // } catch (err) {
+        //     invariant(
+        //         false,
+        //         'ZapMedia - updateContentURI: TokenId does not exist.'
+        //     )
+        // }
 
     }
 }

@@ -2,13 +2,12 @@ import chai, { expect, should, assert } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructBidShares } from '../utils';
+import { constructBidShares, contractAddresses } from '../utils';
 
 import ZapMedia from '../zapMedia';
 
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
-
-import { zapMediaAbi } from '../abi';
+import { doesNotMatch } from 'assert';
 
 const contracts = require('../deploy.js');
 
@@ -47,6 +46,7 @@ describe('ZapMedia', () => {
     let zapMediaImpl: any;
     let mediaFactory: any;
     let signer: any;
+    let zapMedia: any
 
     beforeEach(async () => {
         signer = provider.getSigner(0);
@@ -56,81 +56,71 @@ describe('ZapMedia', () => {
         zapMarket = await contracts.deployZapMarket();
         zapMediaImpl = await contracts.deployZapMediaImpl();
         mediaFactory = await contracts.deployMediaFactory();
+        zapMedia = await contracts.deployZapMedia();
 
-        await zapMarket.setMediaFactory(mediaFactory.address);
+        // zapMarketAddresses['1337'] = zapMarket.address;
+        // mediaFactoryAddresses['1337'] = mediaFactory.address;
+        // zapMediaAddresses['1337'] = zapMediaAddress;
 
-        const deployMedia = await mediaFactory.deployMedia(
-            'TEST COLLECTION',
-            'TC',
-            zapMarket.address,
-            true,
-            'https://testing.com',
-        );
-
-        const receipt = await deployMedia.wait();
-
-        const eventLogs = receipt.events[receipt.events.length - 1];
-
-        const zapMediaAddress = eventLogs.args.mediaContract;
-
-        const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaAbi, signer);
-        await zapMedia.claimTransferOwnership();
-
-        zapMarketAddresses['1337'] = zapMarket.address;
-        mediaFactoryAddresses['1337'] = mediaFactory.address;
-        zapMediaAddresses['1337'] = zapMediaAddress;
     });
 
-    describe('#constructor', () => {
-        it('Should throw an error if the networkId is invalid', async () => {
-            expect(() => {
-                new ZapMedia(300, signer);
-            }).to.throw('ZapMedia Constructor: Network Id is not supported.');
-        });
-    });
+    it("testing", async () => {
+        // const zap = new ZapMedia(1337, signer);
 
-    describe('contract Functions', () => {
 
-        describe('Write Functions', () => {
+        // console.log(await zap.updateContentURI(0, 'www.exmaple.com'))
+        // console.log(zapMediaAddresses['1337']);
+    })
 
-            beforeEach(async () => {
-                bidShares = constructBidShares(
-                    [
-                        await provider.getSigner(1).getAddress(),
-                        await provider.getSigner(2).getAddress(),
-                        await provider.getSigner(3).getAddress(),
-                    ],
-                    [15, 15, 15],
-                    15,
-                    35,
-                );
-            });
-
-            describe('#updateContentURI', () => {
-                it.skip('Should throw an error if the tokenId does not exist', async () => {
-                    // const signer = provider.getSigner(1)
-                    // const zapMedia = new ZapMedia(31337, signer);
-                    // await zapMedia
-                    //     .updateContentURI(0, 'www.exmaple.com')
-                    //     .then((res) => {
-                    //         // Will never resolve
-                    //         return res
-                    //     })
-                    //     .catch((err) => {
-                    //         expect(err.message).to.equal(
-                    //             'Invariant failed: ZapMedia - updateContentURI: TokenId does not exist.',
-                    //         );
-                    //     });
-                });
-
-                it('Should update the content uri', async () => {
-                    // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
-                    // const signer = provider.getSigner(1)
-                    // const zapMedia = new ZapMedia(31337, signer);
-                    // // await zapMedia.mint(mediaData(), bidShares);
-                    // console.log(provider.prepareRequest("hardhat_reset", []))
-                });
-            });
-        });
-    });
+    // describe('#constructor', () => {
+    //     it('Should throw an error if the networkId is invalid', async () => {
+    //         expect(() => {
+    //             new ZapMedia(300, signer);
+    //         }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+    //     });
+    // });
 });
+// describe('contract Functions', () => {
+
+//     describe('Write Functions', () => {
+
+//         beforeEach(async () => {
+//             bidShares = constructBidShares(
+//                 [
+//                     await provider.getSigner(1).getAddress(),
+//                     await provider.getSigner(2).getAddress(),
+//                     await provider.getSigner(3).getAddress(),
+//                 ],
+//                 [15, 15, 15],
+//                 15,
+//                 35,
+//             );
+
+//         });
+
+//         describe('#updateContentURI', () => {
+
+//             it('Should throw an error if the tokenId does not exist', async () => {
+
+//                 // .then((res) => {
+//                 //     // Will never resolve
+//                 //     console.log(res)
+//                 // })
+//                 // .catch((err) => {
+//                 //     expect(err.message).to.equal(
+//                 //         'Invariant failed: ZapMedia - updateContentURI: TokenId does not exist.',
+//                 //     );
+//                 // });
+//             });
+
+//             it('Should update the content uri', async () => {
+//                 // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
+//                 // const signer = provider.getSigner(1)
+//                 // const zapMedia = new ZapMedia(31337, signer);
+//                 // // await zapMedia.mint(mediaData(), bidShares);
+//                 // console.log(provider.prepareRequest("hardhat_reset", []))
+//             });
+//         });
+//     });
+// });
+// });

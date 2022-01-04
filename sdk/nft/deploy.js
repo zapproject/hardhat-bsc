@@ -13,6 +13,7 @@ let zapTokenAddress;
 let zapVaultAddress;
 let zapMarketAddress;
 let zapMediaImplAddress;
+let mediaFactoryAddress;
 
 const deployZapToken = async () => {
   const tokenFactory = new ethers.ContractFactory(
@@ -93,9 +94,44 @@ const deployMediaFactory = async () => {
 
   await mediaFactory.deployed();
 
+  mediaFactoryAddress = mediaFactory.address;
+
   await mediaFactory.initialize(zapMarketAddress, zapMediaImplAddress);
 
   return mediaFactory;
+};
+
+const deployZapMedia = async () => {
+  // ZapMarket contract instance
+  const zapMarket = new ethers.Contract(zapMarketAddress, abis.zapMarketAbi, signer);
+
+  // MediaFactory contract instance
+  const mediaFactory = new ethers.Contract(mediaFactoryAddress, abis.mediaFactoryAbi, signer);
+
+  // Sets the MediaFactory to ZapMarket
+  await zapMarket.setMediaFactory(mediaFactoryAddress);
+
+  const deployMedia = await mediaFactory.deployMedia(
+    'TEST COLLECTION',
+    'TC',
+    zapMarket.address,
+    true,
+    'https://testing.com',
+  );
+
+  const receipt = await deployMedia.wait();
+
+  const eventLogs = receipt.events[receipt.events.length - 1];
+
+  const zapMediaAddress = eventLogs.args.mediaContract;
+
+  const zapMedia = new ethers.Contract(zapMediaAddress, abis.zapMediaAbi, signer);
+
+  await zapMedia.deployed();
+
+  await zapMedia.claimTransferOwnership();
+
+  return zapMedia;
 };
 
 module.exports = {
@@ -104,4 +140,5 @@ module.exports = {
   deployZapMarket: deployZapMarket,
   deployZapMediaImpl: deployZapMediaImpl,
   deployMediaFactory: deployMediaFactory,
+  deployZapMedia: deployZapMedia,
 };
