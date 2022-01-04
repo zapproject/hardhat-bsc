@@ -4,71 +4,56 @@ import { contractAddresses, Decimal, validateBidShares } from './utils';
 
 import { zapMediaAbi } from './abi';
 
-import { MediaData, BidShares, } from './types';
+import { MediaData, BidShares } from './types';
 
 import invariant from 'tiny-invariant';
 
 class ZapMedia {
-    networkId: number;
-    mediaIndex: any;
-    contract: any;
-    signer: Signer;
+  networkId: number;
+  mediaIndex: any;
+  contract: any;
+  signer: Signer;
 
-    constructor(networkId: number, signer: Signer, mediaIndex?: number) {
+  constructor(networkId: number, signer: Signer, mediaIndex?: number) {
+    this.networkId = networkId;
 
-        this.networkId = networkId;
+    this.signer = signer;
 
-        this.signer = signer;
+    this.mediaIndex = mediaIndex;
 
-        this.mediaIndex = mediaIndex;
+    if (mediaIndex === undefined) {
+      this.contract = new ethers.Contract(
+        contractAddresses(networkId).zapMediaAddress,
+        zapMediaAbi,
+        signer,
+      );
+    } else {
+    }
+  }
 
-        if (mediaIndex === undefined) {
-
-            this.contract = new ethers.Contract(
-                contractAddresses(networkId).zapMediaAddress,
-                zapMediaAbi,
-                signer,
-            );
-        } else {
-        }
+  /**
+   * Mints a new piece of media on an instance of the Zora Media Contract
+   * @param mintData
+   * @param bidShares
+   */
+  public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
+    try {
+      validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
+    } catch (err: any) {
+      return err.message;
     }
 
-    /**
-     * Mints a new piece of media on an instance of the Zora Media Contract
-     * @param mintData
-     * @param bidShares
-     */
-    public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
+    const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
 
-        try {
+    return await this.contract.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+  }
 
-            validateBidShares(
-                bidShares.collabShares,
-                bidShares.creator,
-                bidShares.owner
-            );
-        } catch (err: any) {
-            return err.message
-        }
-
-        const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
-
-        return await this.contract.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+  public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
+    try {
+      return await this.contract.updateTokenURI(mediaId, tokenURI);
+    } catch (err) {
+      invariant(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
     }
-
-    public async updateContentURI(mediaId: number, tokenURI: string): Promise<any> {
-
-        try {
-
-            return this.contract.updateTokenURI(mediaId, tokenURI)
-
-        } catch (err) {
-            invariant(
-                false,
-                'ZapMedia - updateContentURI: TokenId does not exist.'
-            )
-        }
-
-    }
+  }
 }
-export default ZapMedia
+export default ZapMedia;

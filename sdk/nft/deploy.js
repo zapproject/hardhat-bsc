@@ -1,4 +1,4 @@
-const ethers = require('ethers');
+const { ethers, BigNumber } = require('ethers');
 
 const abis = require('./abi');
 
@@ -50,6 +50,13 @@ const deployZapVault = async () => {
 };
 
 const deployZapMarket = async () => {
+  // Sets the fee at to 5%
+  const platformFee = {
+    fee: {
+      value: BigNumber.from('5000000000000000000'),
+    },
+  };
+
   const marketFactory = new ethers.ContractFactory(
     abis.zapMarketAbi,
     bytecodes.zapMarketBytecode,
@@ -62,8 +69,8 @@ const deployZapMarket = async () => {
 
   zapMarketAddress = zapMarket.address;
 
-  zapMarket.initializeMarket(zapVaultAddress);
-
+  await zapMarket.initializeMarket(zapVaultAddress);
+  await zapMarket.setFee(platformFee);
   return zapMarket;
 };
 
