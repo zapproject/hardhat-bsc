@@ -83,6 +83,7 @@ library ZapStorage {
         // address  keccak256("_owner");//Zap Owner address
         // address  keccak256("_deity");//Zap Owner that can do things at will
         // address  keccak256("_vault");//Address of the vault contract set in Zap.sol
+        // address  keccak256("oldZapMaster); // The predecessor ZapMaster if there exists one (for forking)
         mapping(bytes32 => uint256) uintVars;
         //uint fields in the Zap contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint

@@ -12,7 +12,7 @@ contract Vault {
     address private newVault;
     address[] public accounts;
 
-    ZapMaster private zapMaster;
+    address private zapMaster;
 
     mapping(address => uint256) private indexes;
     mapping(address => uint256) private balances;
@@ -21,21 +21,23 @@ contract Vault {
     uint256 constant private MAX_UINT = 2**256 - 1;
 
     modifier onlyZapMaster(){
-        require(address(zapMaster) != address(0));
-        require(msg.sender == address(zapMaster), "Vault: Only the ZapMaster contract can make this call");
+        require(zapMaster != address(0));
+        require(msg.sender == zapMaster, "Vault: Only the ZapMaster contract can make this call");
         _;
     }
 
     modifier onlyVaultOrZapMaster(){
-        require(address(zapMaster) != address(0));
-        require(msg.sender == address(zapMaster) || approved[msg.sender] || msg.sender == address(this),
+        require(zapMaster != address(0));
+        require(msg.sender == zapMaster || approved[msg.sender] || msg.sender == address(this),
                 "Vault: Only the ZapMaster contract or an authorized Vault Contract can make this call");
         _;
     }
 
+    event NewZapMasterEvent(address _newZapMasterAddress);
+
     constructor (address token, address master) public {
         zapToken = token;
-        zapMaster = ZapMaster(address(uint160(master)));
+        zapMaster = master;
         
         token.call(abi.encodeWithSignature("approve(address,uint256)", master, MAX_UINT));
     }
@@ -85,8 +87,17 @@ contract Vault {
     }
 
     function getZM() public view returns (address zapMasterAddress) {
-        return address(zapMaster);
+        return zapMaster;
     }
+
+    // /**
+    //  * @dev Setter for a new ZapMaster, this will only be invoked during a fork of ZapMaster
+    //  * @param newZM the address of the new ZapMaster
+    //  */
+    // function setZM(address newZM) public onlyZapMaster {
+    //     zapMaster = newZM;
+    //     emit NewZapMasterEvent(zapMaster);
+    // }
 
     function getZT() public view returns (address zapTokenAddress) {
         return zapToken;
@@ -106,7 +117,7 @@ contract Vault {
 
     function migrateVault() public onlyZapMaster returns (bool success) {
         require(newVault != address(0), "Can't set the zero address as the new Vault");
-        require(Vault(newVault).getZM() == address(zapMaster), "The new vault must share same ZapMaster contract");
+        require(Vault(newVault).getZM() == zapMaster, "The new vault must share same ZapMaster contract");
         require(Vault(newVault).getZT() == zapToken, "The new vault must share the same ZapToken contract");
         uint256 balance = 0;
         address account = address(0);

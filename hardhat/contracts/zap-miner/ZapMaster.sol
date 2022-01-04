@@ -11,6 +11,7 @@ import './libraries/Address.sol';
  */
 contract ZapMaster is ZapGetters {
     event NewZapAddress(address _newZap);
+
     using Address for address;
 
     address public owner;
@@ -24,8 +25,10 @@ contract ZapMaster is ZapGetters {
 
     /**
      * @dev The constructor sets the original `zapStorageOwner` of the contract to the sender
-     * account, the zap contract to the Zap master address and owner to the Zap master owner address
+     * account, the zap contract to the Zap master address and owner to the Zap master owner address.
+     * If there are no predecessors or no storage transfer is wanted, pass in the zero address.
      * @param _zapContract is the address for the zap contract
+     * @param tokenAddress is the address for the ZAP token contract
      */
     constructor(address _zapContract, address tokenAddress)
         public
@@ -35,7 +38,6 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('_owner')] = msg.sender;
         zap.addressVars[keccak256('_deity')] = msg.sender;
         zap.addressVars[keccak256('zapContract')] = _zapContract;
-        // zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
 
         owner = msg.sender;
 
@@ -47,8 +49,7 @@ contract ZapMaster is ZapGetters {
      * @dev Only needs to be in library
      * @param _newDeity the new Deity in the contract
      */
-
-    function changeDeity(address _newDeity) external {
+    function changeDeity(address _newDeity) external onlyOwner {
         zap.changeDeity(_newDeity);
     }
 
@@ -56,7 +57,7 @@ contract ZapMaster is ZapGetters {
      * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
      * @param _vaultContract the address of the new Vault Contract
      */
-    function changeVaultContract(address _vaultContract) external {
+    function changeVaultContract(address _vaultContract) external onlyOwner {
         require(!vaultLock);
         vaultLock = true;
         zap.changeVaultContract(_vaultContract);
