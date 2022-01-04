@@ -81,7 +81,6 @@ describe('ZapMedia', () => {
             mediaFactoryAddresses['1337'] = mediaFactory.address;
             zapMediaAddresses['1337'] = zapMediaAddress;
 
-            // console.log(new ZapMedia(1337, signer))
         });
 
         it('Should throw an error if the networkId is invalid', async () => {
