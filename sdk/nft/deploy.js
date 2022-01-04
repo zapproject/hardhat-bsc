@@ -71,7 +71,11 @@ const deployZapMarket = async () => {
 };
 
 const deployZapMediaImpl = async () => {
-  const mediaFactory = new ethers.ContractFactory(zapMediaJson.abi, zapMediaJson.bytecode, signer);
+  const mediaFactory = new ethers.ContractFactory(
+    abis.zapMediaAbi,
+    bytecodes.zapMediaBytecode,
+    signer,
+  );
 
   let zapMedia = await mediaFactory.deploy();
 
