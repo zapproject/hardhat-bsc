@@ -8,8 +8,9 @@ import ZapMedia from '../zapMedia';
 
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
 
+import { zapMediaAbi } from '../abi'
+
 const contracts = require('../deploy.js');
-const zapMediaJson = require('../ZapMedia.json');
 
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider());
@@ -73,7 +74,7 @@ describe('ZapMedia', () => {
 
             const zapMediaAddress = eventLogs.args.mediaContract;
 
-            const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaJson.abi, signer);
+            const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaAbi, signer);
             await zapMedia.claimTransferOwnership();
 
             zapMarketAddresses['1337'] = zapMarket.address;
@@ -81,6 +82,7 @@ describe('ZapMedia', () => {
             zapMediaAddresses['1337'] = zapMediaAddress;
 
 
+            console.log(ZapMedia)
         });
 
         it('Should throw an error if the networkId is invalid', async () => {
