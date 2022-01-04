@@ -2,25 +2,13 @@ import { Contract, ContractTransaction, ethers, Signer, Wallet } from 'ethers';
 
 import { contractAddresses, Decimal, validateBidShares } from './utils';
 
-import { zapMarketAbi, zapMediaAbi } from './abi';
+import { zapMediaAbi } from './abi';
 
 import { MediaData, BidShares, } from './types';
 
 import invariant from 'tiny-invariant';
 
-import { network } from 'hardhat';
-
-const info = async (networkId: number, signer: Signer) => {
-    const zapMarket = new ethers.Contract(
-        contractAddresses(networkId).zapMarketAddress,
-        zapMarketAbi,
-        signer,
-    );
-
-    return zapMarket;
-};
-
-export default class ZapMedia {
+class ZapMedia {
     networkId: number;
     mediaIndex: any;
     contract: any;
@@ -35,6 +23,7 @@ export default class ZapMedia {
         this.mediaIndex = mediaIndex;
 
         if (mediaIndex === undefined) {
+
             this.contract = new ethers.Contract(
                 contractAddresses(networkId).zapMediaAddress,
                 zapMediaAbi,
@@ -69,18 +58,17 @@ export default class ZapMedia {
 
     public async updateContentURI(mediaId: number, tokenURI: string): Promise<any> {
 
-        // return this.contract.functions.symbol()
+        try {
 
-        // try {
+            return this.contract.updateTokenURI(mediaId, tokenURI)
 
-        //     return await this.contract.updateTokenURI(mediaId, tokenURI)
-
-        // } catch (err) {
-        //     invariant(
-        //         false,
-        //         'ZapMedia - updateContentURI: TokenId does not exist.'
-        //     )
-        // }
+        } catch (err) {
+            invariant(
+                false,
+                'ZapMedia - updateContentURI: TokenId does not exist.'
+            )
+        }
 
     }
 }
+export default ZapMedia

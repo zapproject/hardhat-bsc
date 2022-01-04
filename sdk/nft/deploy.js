@@ -5,7 +5,7 @@ const abis = require('./abi');
 const bytecodes = require('./bytecode');
 
 const ganache = require('ganache-cli');
-const provider = new ethers.providers.Web3Provider(ganache.provider());
+const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const signer = provider.getSigner(0);
 

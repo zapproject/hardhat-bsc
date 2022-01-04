@@ -12,7 +12,7 @@ import { doesNotMatch } from 'assert';
 const contracts = require('../deploy.js');
 
 const ganache = require('ganache-cli');
-const provider = new ethers.providers.Web3Provider(ganache.provider());
+const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const mediaData = () => {
     let tokenURI =
@@ -64,63 +64,51 @@ describe('ZapMedia', () => {
 
     });
 
-    it("testing", async () => {
-        // const zap = new ZapMedia(1337, signer);
+    describe('#constructor', () => {
 
+        it('Should throw an error if the networkId is invalid', async () => {
 
-        // console.log(await zap.updateContentURI(0, 'www.exmaple.com'))
-        // console.log(zapMediaAddresses['1337']);
-    })
+            expect(() => {
+                new ZapMedia(300, signer)
+            }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+        });
 
-    // describe('#constructor', () => {
-    //     it('Should throw an error if the networkId is invalid', async () => {
-    //         expect(() => {
-    //             new ZapMedia(300, signer);
-    //         }).to.throw('ZapMedia Constructor: Network Id is not supported.');
-    //     });
-    // });
+    });
+
+    describe('contract Functions', () => {
+
+        describe('Write Functions', () => {
+
+            beforeEach(async () => {
+                // bidShares = constructBidShares(
+                //     [
+                //         await provider.getSigner(1).getAddress(),
+                //         await provider.getSigner(2).getAddress(),
+                //         await provider.getSigner(3).getAddress(),
+                //     ],
+                //     [15, 15, 15],
+                //     15,
+                //     35,
+                // );
+
+            });
+
+            describe('#updateContentURI', () => {
+
+                // it('Should throw an error if the tokenId does not exist', async () => {
+
+                //     const zap = new ZapMedia(1337, signer);
+
+                // });
+
+                // it('Should update the content uri', async () => {
+                //     // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
+                //     // const signer = provider.getSigner(1)
+                //     // const zapMedia = new ZapMedia(31337, signer);
+                //     // // await zapMedia.mint(mediaData(), bidShares);
+                //     // console.log(provider.prepareRequest("hardhat_reset", []))
+                // });
+            });
+        });
+    });
 });
-// describe('contract Functions', () => {
-
-//     describe('Write Functions', () => {
-
-//         beforeEach(async () => {
-//             bidShares = constructBidShares(
-//                 [
-//                     await provider.getSigner(1).getAddress(),
-//                     await provider.getSigner(2).getAddress(),
-//                     await provider.getSigner(3).getAddress(),
-//                 ],
-//                 [15, 15, 15],
-//                 15,
-//                 35,
-//             );
-
-//         });
-
-//         describe('#updateContentURI', () => {
-
-//             it('Should throw an error if the tokenId does not exist', async () => {
-
-//                 // .then((res) => {
-//                 //     // Will never resolve
-//                 //     console.log(res)
-//                 // })
-//                 // .catch((err) => {
-//                 //     expect(err.message).to.equal(
-//                 //         'Invariant failed: ZapMedia - updateContentURI: TokenId does not exist.',
-//                 //     );
-//                 // });
-//             });
-
-//             it('Should update the content uri', async () => {
-//                 // const tokenFactory = new ethers.ContractFactory(x.abi, x.bytecode, signer)
-//                 // const signer = provider.getSigner(1)
-//                 // const zapMedia = new ZapMedia(31337, signer);
-//                 // // await zapMedia.mint(mediaData(), bidShares);
-//                 // console.log(provider.prepareRequest("hardhat_reset", []))
-//             });
-//         });
-//     });
-// });
-// });
