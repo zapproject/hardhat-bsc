@@ -8,7 +8,7 @@ import ZapMedia from '../zapMedia';
 
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
 
-import { zapMediaAbi } from '../abi'
+import { zapMediaAbi } from '../abi';
 
 const contracts = require('../deploy.js');
 
@@ -40,49 +40,47 @@ const mediaData = () => {
 };
 
 describe('ZapMedia', () => {
+    let bidShares: any;
+    let token: any;
+    let zapVault: any;
+    let zapMarket: any;
+    let zapMediaImpl: any;
+    let mediaFactory: any;
+    let signer: any;
+
+    beforeEach(async () => {
+        signer = provider.getSigner(0);
+
+        token = await contracts.deployZapToken();
+        zapVault = await contracts.deployZapVault();
+        zapMarket = await contracts.deployZapMarket();
+        zapMediaImpl = await contracts.deployZapMediaImpl();
+        mediaFactory = await contracts.deployMediaFactory();
+
+        await zapMarket.setMediaFactory(mediaFactory.address);
+
+        const deployMedia = await mediaFactory.deployMedia(
+            'TEST COLLECTION',
+            'TC',
+            zapMarket.address,
+            true,
+            'https://testing.com',
+        );
+
+        const receipt = await deployMedia.wait();
+
+        const eventLogs = receipt.events[receipt.events.length - 1];
+
+        const zapMediaAddress = eventLogs.args.mediaContract;
+
+        const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaAbi, signer);
+        await zapMedia.claimTransferOwnership();
+
+        zapMarketAddresses['1337'] = zapMarket.address;
+        mediaFactoryAddresses['1337'] = mediaFactory.address;
+        zapMediaAddresses['1337'] = zapMediaAddress;
+    });
     describe('#constructor', () => {
-        let bidShares: any;
-        let token: any;
-        let zapVault: any;
-        let zapMarket: any;
-        let zapMediaImpl: any;
-        let mediaFactory: any;
-        let signer: any;
-
-        beforeEach(async () => {
-            signer = provider.getSigner(0);
-
-            token = await contracts.deployZapToken();
-            zapVault = await contracts.deployZapVault();
-            zapMarket = await contracts.deployZapMarket();
-            zapMediaImpl = await contracts.deployZapMediaImpl();
-            mediaFactory = await contracts.deployMediaFactory();
-
-            await zapMarket.setMediaFactory(mediaFactory.address);
-
-            const deployMedia = await mediaFactory.deployMedia(
-                'TEST COLLECTION',
-                'TC',
-                zapMarket.address,
-                true,
-                'https://testing.com',
-            );
-
-            const receipt = await deployMedia.wait();
-
-            const eventLogs = receipt.events[receipt.events.length - 1];
-
-            const zapMediaAddress = eventLogs.args.mediaContract;
-
-            const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaAbi, signer);
-            await zapMedia.claimTransferOwnership();
-
-            zapMarketAddresses['1337'] = zapMarket.address;
-            mediaFactoryAddresses['1337'] = mediaFactory.address;
-            zapMediaAddresses['1337'] = zapMediaAddress;
-
-        });
-
         it('Should throw an error if the networkId is invalid', async () => {
             expect(() => {
                 new ZapMedia(300, signer);
@@ -93,16 +91,16 @@ describe('ZapMedia', () => {
     describe('contract Functions', () => {
         describe('Write Functions', () => {
             beforeEach(async () => {
-                // bidShares = constructBidShares(
-                //     [
-                //         await provider.getSigner(19).getAddress(),
-                //         await provider.getSigner(18).getAddress(),
-                //         await provider.getSigner(17).getAddress()
-                //     ],
-                //     [15, 15, 15],
-                //     15,
-                //     35
-                // );
+                bidShares = constructBidShares(
+                    [
+                        await provider.getSigner(19).getAddress(),
+                        await provider.getSigner(18).getAddress(),
+                        await provider.getSigner(17).getAddress(),
+                    ],
+                    [15, 15, 15],
+                    15,
+                    35,
+                );
             });
 
             describe('#updateContentURI', () => {
