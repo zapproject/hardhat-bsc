@@ -80,6 +80,7 @@ describe('ZapMedia', () => {
         mediaFactoryAddresses['1337'] = mediaFactory.address;
         zapMediaAddresses['1337'] = zapMediaAddress;
     });
+
     describe('#constructor', () => {
         it('Should throw an error if the networkId is invalid', async () => {
             expect(() => {
@@ -89,13 +90,15 @@ describe('ZapMedia', () => {
     });
 
     describe('contract Functions', () => {
+
         describe('Write Functions', () => {
+
             beforeEach(async () => {
                 bidShares = constructBidShares(
                     [
-                        await provider.getSigner(19).getAddress(),
-                        await provider.getSigner(18).getAddress(),
-                        await provider.getSigner(17).getAddress(),
+                        await provider.getSigner(1).getAddress(),
+                        await provider.getSigner(2).getAddress(),
+                        await provider.getSigner(3).getAddress(),
                     ],
                     [15, 15, 15],
                     15,
