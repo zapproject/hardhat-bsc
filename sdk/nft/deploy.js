@@ -4,10 +4,6 @@ const abis = require('./abi');
 
 const bytecodes = require('./bytecode');
 
-const zapMediaJson = require('./ZapMedia.json');
-
-const mediaFactoryJson = require('./MediaFactory.json');
-
 const ganache = require('ganache-cli');
 const provider = new ethers.providers.Web3Provider(ganache.provider());
 
@@ -88,8 +84,8 @@ const deployZapMediaImpl = async () => {
 
 const deployMediaFactory = async () => {
   const mediaFactoryFactory = new ethers.ContractFactory(
-    mediaFactoryJson.abi,
-    mediaFactoryJson.bytecode,
+    abis.mediaFactoryAbi,
+    bytecodes.mediaFactoryBytecode,
     signer,
   );
 
