@@ -212,7 +212,7 @@ describe('ZapMedia', () => {
             });
         });
 
-        it('Should be able to mint', async () => {
+        it.only('Should be able to mint', async () => {
           const media = new ZapMedia(1337, signer);
 
           const preTotalSupply = (await media.fetchTotalMedia()).toNumber();
@@ -223,10 +223,21 @@ describe('ZapMedia', () => {
 
           const owner = await media.fetchOwnerOf(0);
           const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
+          const onChainContentURI = await media.fetchContentURI(0);
+          const onChainMetadataURI = await media.fetchMetadataURI(0);
 
           console.log(onChainBidShares);
-          //   const onChainContentURI = await media.fetchContentURI(0);
-          //   const onChainMetadataURI = await media.fetchMetadataURI(0);
+          expect(owner).to.equal(await signer.getAddress());
+          expect(onChainContentURI).to.equal(mediaData.tokenURI);
+          expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
+          expect(parseInt(onChainBidShares.creator.value)).to.equal(
+            parseInt(bidShares.creator.value),
+          );
+          expect(parseInt(onChainBidShares.owner.value)).to.equal(
+            parseInt(onChainBidShares.owner.value),
+          );
+          expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         });
       });
     });
