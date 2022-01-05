@@ -74,7 +74,9 @@ class ZapMedia {
       validateURI(mediaData.tokenURI);
       validateURI(mediaData.metadataURI);
       validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
-    } catch {}
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
 
     const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
 

@@ -78,7 +78,25 @@ describe('ZapMedia', () => {
         );
       });
 
-      describe.only('#updateContentURI', () => {
+      describe('#updateContentURI', () => {
+        it.only('Should thrown an error if the tokenURI does not begin with `https://`', async () => {
+          //   Instantiates the ZapMedia class
+          const media = new ZapMedia(1337, signer);
+
+          mediaData.tokenURI = 'http://example.com';
+
+          await media
+            .mint(mediaData, bidShares)
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err).to.equal(
+                'Invariant failed: http://example.com must begin with `https://`',
+              );
+            });
+        });
+
         it('Should throw an error if the updateContentURI tokenId does not exist', async () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
