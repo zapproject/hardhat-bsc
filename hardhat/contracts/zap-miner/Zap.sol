@@ -1,13 +1,15 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
-import '../token/ZapTokenBSC.sol';
+// import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
 import './Vault.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Zap Oracle System
@@ -58,6 +60,11 @@ contract Zap {
         address indexed previousOwner,
         address indexed newOwner
     );
+    event NewForkProposal(
+        uint256 indexed _disputeId,
+        uint256 _timestamp,
+        address indexed proposedContract
+    );
 
     using SafeMathM for uint256;
     using Address for address;
@@ -74,14 +81,14 @@ contract Zap {
         VaultContract
     }
     ZapStorage.ZapStorageStruct private zap;
-    ZapTokenBSC public token;
+    IERC20 public token;
     // Vault public vault;
     // address public vaultAddress;
 
     address payable public owner;
 
     constructor(address zapTokenBsc) public {
-        token = ZapTokenBSC(zapTokenBsc);
+        token = IERC20(zapTokenBsc);
         owner = msg.sender;
     }
 
@@ -286,12 +293,43 @@ contract Zap {
      * @param forkedContract contract to be foked: 1 == Zap Contract, 2 == ZapMaster, 3 == Vault Contract
      */
     function proposeFork(address _propNewZapAddress, uint256 forkedContract) external {
-        zap.proposeFork(_propNewZapAddress, forkedContract);
-            transferFrom(
-                msg.sender,
-                zap.addressVars[keccak256("_owner")],
-                zap.uintVars[keccak256('disputeFee')]
-            );
+        bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
+        require(zap.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
+
+        zap.uintVars[keccak256('disputeCount')]++;
+        uint256 disputeId = zap.uintVars[keccak256('disputeCount')];
+        zap.disputeIdByDisputeHash[_hash] = disputeId;
+        ZapStorage.Dispute storage newDispute = ZapStorage.Dispute();
+        newDispute = ZapStorage.Dispute({
+            hash: _hash,
+            forkedContract: forkedContract,
+            reportedMiner: msg.sender,
+            reportingParty: msg.sender,
+            proposedForkAddress: _propNewZapAddress,
+            executed: false,
+            disputeVotePassed: false,
+            tally: 0
+        });
+        zap.disputesById[disputeId].disputeUintVars[
+            keccak256('blockNumber')
+        ] = block.number;
+        zap.disputesById[disputeId].disputeUintVars[keccak256('fee')] = 
+                zap.uintVars[keccak256('disputeFee')];
+        zap.disputesById[disputeId].disputeUintVars[
+            keccak256('minExecutionDate')
+        ] = now + 7 days;
+
+        emit NewForkProposal(
+            disputeId,
+            now,
+            _propNewZapAddress
+        );
+
+        transferFrom(
+            msg.sender,
+            zap.addressVars[keccak256("_owner")],
+            zap.uintVars[keccak256('disputeFee')]
+        );
     }
 
     /**
@@ -468,7 +506,6 @@ contract Zap {
      * @dev Allows for a transfer of tokens to _to
      * @param _to The address to send tokens to
      * @param _amount The amount of tokens to send
-     * @return true if transfer is successful
      */
     function transfer(address _to, uint256 _amount) public {
         _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, _to, _amount));
@@ -480,7 +517,6 @@ contract Zap {
      * @param _from The address holding the tokens being transferred
      * @param _to The address of the recipient
      * @param _amount The amount of tokens to be transferred
-     * @return True if the transfer was successful
      */
     function transferFrom(
         address _from,
@@ -492,7 +528,10 @@ contract Zap {
 
     /**
      * @dev Getter for the current variables that include the 5 requests Id's
-     * @return the challenge, 5 requestsId, difficulty and tip
+     * @return _challenge
+     * @return _requestIds
+     * @return _difficulty
+     * @return _tip
      */
     function getNewCurrentVariables()
         external
@@ -500,7 +539,7 @@ contract Zap {
         returns (
             bytes32 _challenge,
             uint256[5] memory _requestIds,
-            uint256 _difficutly,
+            uint256 _difficulty,
             uint256 _tip
         )
     {
@@ -641,7 +680,7 @@ contract Zap {
      * @param _token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
      */
-    function _callOptionalReturn(ZapTokenBSC _token, bytes memory data) private {
+    function _callOptionalReturn(IERC20 _token, bytes memory data) private {
         // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.

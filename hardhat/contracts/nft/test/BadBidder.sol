@@ -11,7 +11,7 @@ contract BadBidder {
     address auction;
     address zap;
 
-    constructor(address _auction, address _zap) public {
+    constructor(address _auction, address _zap) {
         auction = _auction;
         zap = _zap;
     }

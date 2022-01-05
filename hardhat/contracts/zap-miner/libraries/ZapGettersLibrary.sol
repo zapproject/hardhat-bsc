@@ -1,4 +1,5 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './SafeMathM.sol';
 import './ZapStorage.sol';
@@ -97,27 +98,27 @@ library ZapGettersLibrary {
         return self.addressVars[_data];
     }
 
-    /**
-     * @dev Gets all dispute variables
-     * @param _disputeId to look up
-     * @return bytes32 hash of dispute
-     * @return bool executed where true if it has been voted on
-     * @return bool disputeVotePassed
-     * @return bool isPropFork true if the dispute is a proposed fork
-     * @return address of reportedMiner
-     * @return address of reportingParty
-     * @return address of proposedForkAddress
-     * @return uint of requestId
-     * @return uint of timestamp
-     * @return uint of value
-     * @return uint of minExecutionDate
-     * @return uint of numberOfVotes
-     * @return uint of blocknumber
-     * @return uint of minerSlot
-     * @return uint of quorum
-     * @return uint of fee
-     * @return int count of the current tally
-     */
+    // /**
+    //  * @dev Gets all dispute variables
+    //  * @param _disputeId to look up
+    //  * @return bytes32 hash of dispute
+    //  * @return bool executed where true if it has been voted on
+    //  * @return bool disputeVotePassed
+    //  * @return bool isPropFork true if the dispute is a proposed fork
+    //  * @return address of reportedMiner
+    //  * @return address of reportingParty
+    //  * @return address of proposedForkAddress
+    //  * @return uint of requestId
+    //  * @return uint of timestamp
+    //  * @return uint of value
+    //  * @return uint of minExecutionDate
+    //  * @return uint of numberOfVotes
+    //  * @return uint of blocknumber
+    //  * @return uint of minerSlot
+    //  * @return uint of quorum
+    //  * @return uint of fee
+    //  * @return int count of the current tally
+    //  */
     function getAllDisputeVars(
         ZapStorage.ZapStorageStruct storage self,
         uint256 _disputeId
@@ -297,18 +298,6 @@ library ZapGettersLibrary {
     }
 
     /**
-     * @dev Get the name of the token
-     * @return string of the token name
-     */
-    function getName(ZapStorage.ZapStorageStruct storage self)
-        internal
-        pure
-        returns (string memory)
-    {
-        return 'Zap BEP20';
-    }
-
-    /**
      * @dev Counts the number of values that have been submited for the request
      * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
      * request so far
@@ -455,18 +444,6 @@ library ZapGettersLibrary {
     }
 
     /**
-     * @dev Get the symbol of the token
-     * @return string of the token symbol
-     */
-    function getSymbol(ZapStorage.ZapStorageStruct storage self)
-        internal
-        pure
-        returns (string memory)
-    {
-        return 'ZAPB';
-    }
-
-    /**
      * @dev Gets the timestamp for the value based on their index
      * @param _requestID is the requestId to look up
      * @param _index is the value index to look up
@@ -520,10 +497,10 @@ library ZapGettersLibrary {
         );
     }
 
-    /**
-     * @dev Getter function for the request with highest payout. This function is used withing the getVariablesOnDeck function
-     * @return uint _requestId of request with highest payout at the time the function is called
-     */
+    // /**
+    //  * @dev Getter function for the request with highest payout. This function is used withing the getVariablesOnDeck function
+    //  * @return uint _requestId of request with highest payout at the time the function is called
+    //  */
     function getTopRequestID(ZapStorage.ZapStorageStruct storage self)
         internal
         view

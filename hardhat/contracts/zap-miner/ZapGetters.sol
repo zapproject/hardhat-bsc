@@ -1,10 +1,12 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapGettersLibrary.sol';
 import './libraries/ZapStake.sol';
-import '../token/ZapTokenBSC.sol';
+// import '../token/ZapTokenBSC.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 /**
  * @title Zap Getters
@@ -13,15 +15,14 @@ import '../token/ZapTokenBSC.sol';
  */
 contract ZapGetters {
     using SafeMathM for uint256;
-
     using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
     ZapStorage.ZapStorageStruct internal zap;
-    ZapTokenBSC internal token;
+    IERC20 internal token;
 
-    constructor(address zapTokenBsc) public {
-        token = ZapTokenBSC(zapTokenBsc);
+    constructor(address zapTokenBsc) {
+        token = IERC20(zapTokenBsc);
         zap.addressVars[keccak256('zapTokenContract')] = zapTokenBsc;
     }
 
@@ -98,27 +99,27 @@ contract ZapGetters {
         return zap.getAddressVars(_data);
     }
 
-    /**
-     * @dev Gets all dispute variables
-     * @param _disputeId to look up
-     * @return bytes32 hash of dispute
-     * @return bool executed where true if it has been voted on
-     * @return bool disputeVotePassed
-     * @return address of reportedMiner
-     * @return address of reportingParty
-     * @return address of proposedForkAddress
-     * @return uint of forkedContract
-     * @return uint of requestId
-     * @return uint of timestamp
-     * @return uint of value
-     * @return uint of minExecutionDate
-     * @return uint of numberOfVotes
-     * @return uint of blocknumber
-     * @return uint of minerSlot
-     * @return uint of quorum
-     * @return uint of fee
-     * @return int count of the current tally
-     */
+    // /**
+    //  * @dev Gets all dispute variables
+    //  * @param _disputeId to look up
+    //  * @return bytes32 hash of dispute
+    //  * @return bool executed where true if it has been voted on
+    //  * @return bool disputeVotePassed
+    //  * @return address of reportedMiner
+    //  * @return address of reportingParty
+    //  * @return address of proposedForkAddress
+    //  * @return uint of forkedContract
+    //  * @return uint of requestId
+    //  * @return uint of timestamp
+    //  * @return uint of value
+    //  * @return uint of minExecutionDate
+    //  * @return uint of numberOfVotes
+    //  * @return uint of blocknumber
+    //  * @return uint of minerSlot
+    //  * @return uint of quorum
+    //  * @return uint of fee
+    //  * @return int count of the current tally
+    //  */
     function getAllDisputeVars(uint256 _disputeId)
         public
         view
@@ -232,14 +233,6 @@ contract ZapGetters {
         uint256 _timestamp
     ) external view returns (address[5] memory) {
         return zap.getMinersByRequestIdAndTimestamp(_requestId, _timestamp);
-    }
-
-    /**
-     * @dev Get the name of the token
-     * return string of the token name
-     */
-    function getName() external view returns (string memory) {
-        return zap.getName();
     }
 
     /**
@@ -372,14 +365,6 @@ contract ZapGetters {
         returns (uint256[5] memory)
     {
         return zap.getSubmissionsByTimestamp(_requestId, _timestamp);
-    }
-
-    /**
-     * @dev Get the symbol of the token
-     * return string of the token symbol
-     */
-    function getSymbol() external view returns (string memory) {
-        return zap.getSymbol();
     }
 
     /**
