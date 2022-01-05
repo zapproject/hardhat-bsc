@@ -2,48 +2,19 @@ import chai, { expect, should, assert } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructBidShares, contractAddresses } from '../utils';
+import { constructBidShares, constructMediaData } from '../utils';
 
 import ZapMedia from '../zapMedia';
 
-import { solidity } from 'ethereum-waffle';
-
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
-import { doesNotMatch } from 'assert';
-
-chai.use(solidity);
 
 const contracts = require('../deploy.js');
 
-const ganache = require('ganache-cli');
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-
-const mediaData = () => {
-  let tokenURI =
-    'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
-  let metadataURI =
-    'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
-  let metadataHex = ethers.utils.formatBytes32String('Test');
-  let metadataHashRaw = ethers.utils.keccak256(metadataHex);
-  let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
-
-  let contentHex = ethers.utils.formatBytes32String('Test Car');
-  let contentHashRaw = ethers.utils.keccak256(contentHex);
-  let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
-
-  let contentHash = contentHashBytes;
-  let metadataHash = metadataHashBytes;
-
-  return {
-    tokenURI,
-    metadataURI,
-    contentHash,
-    metadataHash,
-  };
-};
 
 describe('ZapMedia', () => {
   let bidShares: any;
+  let mediaData: any;
   let token: any;
   let zapVault: any;
   let zapMarket: any;
@@ -76,9 +47,26 @@ describe('ZapMedia', () => {
   });
 
   describe('contract Functions', () => {
-    let x: any;
     describe('Write Functions', () => {
       beforeEach(async () => {
+        let metadataHex = ethers.utils.formatBytes32String('Test');
+        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+        let contentHex = ethers.utils.formatBytes32String('Test Car');
+        let contentHashRaw = ethers.utils.keccak256(contentHex);
+        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+        let contentHash = contentHashBytes;
+        let metadataHash = metadataHashBytes;
+
+        mediaData = constructMediaData(
+          'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/',
+          'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/',
+          contentHash,
+          metadataHash,
+        );
+
         bidShares = constructBidShares(
           [
             await provider.getSigner(1).getAddress(),
@@ -109,7 +97,7 @@ describe('ZapMedia', () => {
 
         it.only('Should update the content uri', async () => {
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData(), bidShares);
+          await media.mint(mediaData, bidShares);
           console.log(await media.fetchBalanceOf(await signer.getAddress()));
         });
       });

@@ -1,7 +1,7 @@
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './addresses';
-import { DecimalValue, BidShares } from './types';
+import { DecimalValue, BidShares, MediaData } from './types';
 import invariant from 'tiny-invariant';
-import { BigNumber } from 'ethers';
+import { BigNumber, BytesLike } from 'ethers';
 
 let mediaFactoryAddress: string;
 
@@ -149,6 +149,34 @@ export class Decimal {
     if (value.includes('.')) return value.split('.')[1].length || 0;
     return 0;
   }
+}
+
+/**
+ * Constructs a MediaData type.
+ *
+ * @param tokenURI
+ * @param metadataURI
+ * @param contentHash
+ * @param metadataHash
+ */
+export function constructMediaData(
+  tokenURI: string,
+  metadataURI: string,
+  contentHash: BytesLike,
+  metadataHash: BytesLike,
+): MediaData {
+  // validate the hash to ensure it fits in bytes32
+  //   validateBytes32(contentHash);
+  //   validateBytes32(metadataHash);
+  //   validateURI(tokenURI);
+  //   validateURI(metadataURI);
+
+  return {
+    tokenURI: tokenURI,
+    metadataURI: metadataURI,
+    contentHash: contentHash,
+    metadataHash: metadataHash,
+  };
 }
 
 /**
