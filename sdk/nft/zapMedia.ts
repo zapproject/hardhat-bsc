@@ -96,6 +96,14 @@ class ZapMedia {
   }
 
   /**
+   * Fetches the current ask for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask> {
+    return this.market.currentAskForToken(mediaAddress, mediaId);
+  }
+
+  /**
    * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
    */
   public async fetchTotalMedia(): Promise<BigNumber> {

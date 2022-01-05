@@ -248,6 +248,10 @@ describe('ZapMedia', () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
           await media.setAsk(0, ask);
+
+          const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          console.log(onChainAsk);
         });
       });
     });
