@@ -1,7 +1,7 @@
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './addresses';
-import { DecimalValue, BidShares, MediaData } from './types';
+import { DecimalValue, BidShares, MediaData, Ask } from './types';
 import invariant from 'tiny-invariant';
-import { BigNumber, BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike } from 'ethers';
 
 let mediaFactoryAddress: string;
 
@@ -100,6 +100,19 @@ export const validateBidShares = (
     );
   }
 };
+
+/**
+ * Constructs an Ask.
+ *
+ * @param currency
+ * @param amount
+ */
+export function constructAsk(currency: string, amount: BigNumberish): Ask {
+  return {
+    currency: currency,
+    amount: amount,
+  };
+}
 
 /**
  * Decimal is a class to make it easy to go from Javascript / Typescript `number` | `string`

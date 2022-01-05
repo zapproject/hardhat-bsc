@@ -2,7 +2,7 @@ import chai, { expect, should, assert } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructBidShares, constructMediaData } from '../utils';
+import { constructAsk, constructBidShares, constructMediaData } from '../utils';
 
 import ZapMedia from '../zapMedia';
 
@@ -14,6 +14,7 @@ const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 describe('ZapMedia', () => {
   let bidShares: any;
+  let ask: any;
   let mediaData: any;
   let token: any;
   let zapVault: any;
@@ -76,6 +77,8 @@ describe('ZapMedia', () => {
           15,
           35,
         );
+
+        ask = constructAsk(token.address, 100);
       });
 
       describe('#updateContentURI', () => {
@@ -245,6 +248,8 @@ describe('ZapMedia', () => {
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
+
+          await media.setAsk(0, ask);
         });
       });
     });
