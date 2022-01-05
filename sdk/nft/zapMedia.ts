@@ -1,4 +1,12 @@
-import { Contract, ContractTransaction, BigNumber, ethers, Signer, Wallet } from 'ethers';
+import {
+  Contract,
+  ContractTransaction,
+  BigNumber,
+  BigNumberish,
+  ethers,
+  Signer,
+  Wallet,
+} from 'ethers';
 
 import { contractAddresses, Decimal, validateBidShares } from './utils';
 
@@ -31,6 +39,19 @@ class ZapMedia {
     }
   }
 
+  /*********************
+   * Zap View Methods
+   *********************
+   */
+
+  /**
+   * Fetches the content hash for the specified media on the Zora Media Contract
+   * @param mediaId
+   */
+  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
+    return await this.contract.tokenContentHashes(mediaId);
+  }
+
   /**
    * Mints a new piece of media on an instance of the Zora Media Contract
    * @param mintData
@@ -40,7 +61,7 @@ class ZapMedia {
     try {
       validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
     } catch (err: any) {
-      return 'Oh no ' + err.message;
+      return err.message;
     }
 
     const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
