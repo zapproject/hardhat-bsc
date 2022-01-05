@@ -187,7 +187,7 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#mint', () => {
+      describe('#mint', () => {
         it('throws an error if bid shares do not sum to 100', async () => {
           let bidShareSum = 0;
           const media = new ZapMedia(1337, signer);
@@ -237,6 +237,14 @@ describe('ZapMedia', () => {
           );
           expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+      });
+
+      describe('#setAsk', () => {
+        it('sets an ask for a piece of media', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
         });
       });
     });

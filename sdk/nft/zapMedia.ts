@@ -12,7 +12,7 @@ import { contractAddresses, Decimal, validateBidShares, validateURI } from './ut
 
 import { zapMediaAbi, zapMarketAbi } from './abi';
 
-import { MediaData, BidShares } from './types';
+import { MediaData, BidShares, Ask } from './types';
 
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
@@ -102,6 +102,14 @@ class ZapMedia {
     return this.media.totalSupply();
   }
 
+  public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
+    try {
+      return await this.media.updateTokenURI(mediaId, tokenURI);
+    } catch (err) {
+      invariant(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
+    }
+  }
+
   /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param mintData
@@ -121,12 +129,13 @@ class ZapMedia {
     return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
   }
 
-  public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
-    try {
-      return await this.media.updateTokenURI(mediaId, tokenURI);
-    } catch (err) {
-      invariant(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
-    }
+  /**
+   * Sets an ask on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   * @param ask
+   */
+  public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction> {
+    return this.media.setAsk(mediaId, ask);
   }
 
   /**

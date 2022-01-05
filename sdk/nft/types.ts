@@ -1,21 +1,29 @@
-import { BigNumber, BigNumberish } from '@ethersproject/bignumber'
-import { BytesLike } from '@ethersproject/bytes'
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
+import { BytesLike } from '@ethersproject/bytes';
 
 /**
  * Internal type to represent a Decimal Value
  */
-export type DecimalValue = { value: BigNumber }
+export type DecimalValue = { value: BigNumber };
 
 export type MediaData = {
-    tokenURI: any
-    metadataURI: any
-    contentHash: any
-    metadataHash: any
-}
+  tokenURI: any;
+  metadataURI: any;
+  contentHash: any;
+  metadataHash: any;
+};
+
+/**
+ * Zap Media Protocol Ask
+ */
+export type Ask = {
+  currency: string;
+  amount: BigNumberish;
+};
 
 export type BidShares = {
-    collaborators: any
-    collabShares: any
-    creator: any
-    owner: any
-}
+  collaborators: any;
+  collabShares: any;
+  creator: any;
+  owner: any;
+};
