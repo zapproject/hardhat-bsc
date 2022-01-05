@@ -1,4 +1,4 @@
-import { Contract, ContractTransaction, ethers, Signer, Wallet } from 'ethers';
+import { Contract, ContractTransaction, BigNumber, ethers, Signer, Wallet } from 'ethers';
 
 import { contractAddresses, Decimal, validateBidShares } from './utils';
 
@@ -38,9 +38,10 @@ class ZapMedia {
    */
   public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
     try {
+      console.log(bidShares);
       validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
     } catch (err: any) {
-      return err.message;
+      return 'Oh no ' + err.message;
     }
 
     const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
@@ -54,6 +55,10 @@ class ZapMedia {
     } catch (err) {
       invariant(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
     }
+  }
+
+  public async fetchBalanceOf(owner: string): Promise<BigNumber> {
+    return this.contract.balanceOf(owner);
   }
 }
 export default ZapMedia;

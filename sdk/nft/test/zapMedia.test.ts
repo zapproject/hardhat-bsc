@@ -108,10 +108,9 @@ describe('ZapMedia', () => {
         });
 
         it.only('Should update the content uri', async () => {
-          const media = new ZapMedia(1337, signer);
-          //   console.log(x.collabShares[0]);
-          //   console.log(bidShares.collabShares[0]);
-          //   const tx = await media.mint(mediaData(), bidShares);
+          console.log(bidShares);
+          //   const media = new ZapMedia(1337, signer);
+          //   console.log(await media.mint(mediaData(), bidShares));
         });
       });
     });

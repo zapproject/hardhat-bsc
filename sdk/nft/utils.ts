@@ -183,10 +183,10 @@ export function constructBidShares(
   const decimalOwner = Decimal.new(parseFloat(owner.toFixed(4)));
 
   validateBidShares(decimalCollabShares, decimalCreator, decimalOwner);
-  //   return {
-  //     collaborators: collaborators,
-  //     collabShares: decimalCollabShares,
-  //     creator: decimalCreator,
-  //     owner: decimalOwner,
-  //   };
+  return {
+    collaborators: collaborators,
+    collabShares: decimalCollabShares,
+    creator: decimalCreator,
+    owner: decimalOwner,
+  };
 }
