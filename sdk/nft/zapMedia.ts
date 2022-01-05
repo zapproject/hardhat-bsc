@@ -101,12 +101,12 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the current bid shares for the specified media on an instance of the Zora Media Contract
+   * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  //   public async fetchCurrentBidShares(mediaId: BigNumberish): Promise<BidShares> {
-  //     return this.market.bidSharesForToken(mediaId);
-  //   }
+  public async fetchCurrentBidShares(mediaId: BigNumberish): Promise<BidShares> {
+    return this.market.bidSharesForToken(mediaId);
+  }
 
   /**
    * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
