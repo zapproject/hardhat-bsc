@@ -218,3 +218,14 @@ export function constructBidShares(
     owner: decimalOwner,
   };
 }
+
+/**
+ * Validates the URI is prefixed with `https://`
+ *
+ * @param uri
+ */
+export function validateURI(uri: string) {
+  if (!uri.match(/^https:\/\/(.*)/)) {
+    invariant(false, `${uri} must begin with \`https://\``);
+  }
+}

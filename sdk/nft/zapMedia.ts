@@ -8,7 +8,7 @@ import {
   Wallet,
 } from 'ethers';
 
-import { contractAddresses, Decimal, validateBidShares } from './utils';
+import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
 
 import { zapMediaAbi } from './abi';
 
@@ -71,10 +71,10 @@ class ZapMedia {
    */
   public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
     try {
+      validateURI(mediaData.tokenURI);
+      validateURI(mediaData.metadataURI);
       validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
-    } catch (err: any) {
-      return err.message;
-    }
+    } catch {}
 
     const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
 

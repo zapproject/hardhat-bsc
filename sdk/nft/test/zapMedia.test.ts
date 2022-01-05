@@ -78,8 +78,9 @@ describe('ZapMedia', () => {
         );
       });
 
-      describe('#updateContentURI', () => {
+      describe.only('#updateContentURI', () => {
         it('Should throw an error if the updateContentURI tokenId does not exist', async () => {
+          //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
           await media
@@ -94,7 +95,7 @@ describe('ZapMedia', () => {
             });
         });
 
-        it.only('Should throw an error if the fetchContentURI tokenId does not exist', async () => {
+        it('Should throw an error if the fetchContentURI tokenId does not exist', async () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
