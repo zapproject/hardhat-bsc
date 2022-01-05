@@ -79,8 +79,6 @@ describe('ZapMedia', () => {
         );
 
         ask = constructAsk(token.address, 100);
-
-        await token.mint(await provider.getSigner(1).getAddress(), 10000);
       });
 
       describe('#updateContentURI', () => {
@@ -247,10 +245,9 @@ describe('ZapMedia', () => {
 
       describe.only('#setAsk', () => {
         it('sets an ask for a piece of media', async () => {
-          const signer1 = provider.getSigner(1);
-          //   const media = new ZapMedia(1337, signer1);
-          //   await media.mint(mediaData, bidShares);
-          //   await media.setAsk(0, ask);
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          await media.setAsk(0, ask);
         });
       });
     });
