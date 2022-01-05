@@ -48,6 +48,10 @@ describe('ZapMedia', () => {
 
   describe('contract Functions', () => {
     describe('Write Functions', () => {
+      let tokenURI =
+        'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
+      let metadataURI =
+        'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
       beforeEach(async () => {
         let metadataHex = ethers.utils.formatBytes32String('Test');
         let metadataHashRaw = ethers.utils.keccak256(metadataHex);
@@ -60,12 +64,7 @@ describe('ZapMedia', () => {
         let contentHash = contentHashBytes;
         let metadataHash = metadataHashBytes;
 
-        mediaData = constructMediaData(
-          'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/',
-          'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/',
-          contentHash,
-          metadataHash,
-        );
+        mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
 
         bidShares = constructBidShares(
           [
@@ -96,8 +95,26 @@ describe('ZapMedia', () => {
         });
 
         it.only('Should update the content uri', async () => {
+          //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
+
+          // Mints tokenId 0
           await media.mint(mediaData, bidShares);
+
+          // Returns tokenId 0's tokenURI
+          const fetchTokenURI = await media.fetchContentURI(0);
+
+          // The returned tokenURI should equal the tokenURI configured in the mediaData
+          expect(fetchTokenURI).to.equal(mediaData.tokenURI);
+
+          // Updates tokenId 0's tokenURI
+          await media.updateContentURI(0, 'https://newURI.com');
+
+          // Returns tokenId 0's tokenURI
+          const fetchNewURI = await media.fetchContentURI(0);
+
+          // The new tokenURI returned should equal the updatedURI
+          expect(fetchNewURI).to.equal('https://newURI.com');
         });
       });
     });

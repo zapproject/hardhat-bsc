@@ -45,11 +45,19 @@ class ZapMedia {
    */
 
   /**
-   * Fetches the content hash for the specified media on the Zora Media Contract
+   * Fetches the content hash for the specified media on the Zap Media Contract
    * @param mediaId
    */
   public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
     return await this.contract.tokenContentHashes(mediaId);
+  }
+
+  /**
+   * Fetches the content uri for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
+    return await this.contract.tokenURI(mediaId);
   }
 
   /**
