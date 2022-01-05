@@ -57,7 +57,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
-    return await this.contract.tokenURI(mediaId);
+    try {
+      return await this.contract.tokenURI(mediaId);
+    } catch {
+      invariant(false, 'ZapMedia (fetchContentURI): TokenId does not exist.');
+    }
   }
 
   /**
