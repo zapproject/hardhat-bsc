@@ -222,11 +222,11 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
-          const onChainContentHash = await media.fetchContentHash(0);
-          const onChainMetadataHash = await media.fetchMetadataHash(0);
-          //   const onChainBidShares = await media.fetchCurrentBidShares(0);
-          const onChainContentURI = await media.fetchContentURI(0);
-          const onChainMetadataURI = await media.fetchMetadataURI(0);
+          const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
+
+          console.log(onChainBidShares);
+          //   const onChainContentURI = await media.fetchContentURI(0);
+          //   const onChainMetadataURI = await media.fetchMetadataURI(0);
         });
       });
     });

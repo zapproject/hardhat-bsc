@@ -65,22 +65,6 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the content hash for the specified media on the Zap Media Contract
-   * @param mediaId
-   */
-  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
-    return await this.media.tokenContentHashes(mediaId);
-  }
-
-  /**
-   * Fetches the metadata hash for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
-   */
-  public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
-    return this.media.tokenMetadataHashes(mediaId);
-  }
-
-  /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
@@ -104,8 +88,11 @@ class ZapMedia {
    * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async fetchCurrentBidShares(mediaId: BigNumberish): Promise<BidShares> {
-    return this.market.bidSharesForToken(mediaId);
+  public async fetchCurrentBidShares(
+    mediaAddress: string,
+    mediaId: BigNumberish,
+  ): Promise<BidShares> {
+    return this.market.bidSharesForToken(mediaAddress, mediaId);
   }
 
   /**
