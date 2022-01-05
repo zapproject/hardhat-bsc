@@ -10,16 +10,18 @@ import {
 
 import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
 
-import { zapMediaAbi } from './abi';
+import { zapMediaAbi, zapMarketAbi } from './abi';
 
 import { MediaData, BidShares } from './types';
 
 import invariant from 'tiny-invariant';
+import { timeStamp } from 'console';
 
 class ZapMedia {
   networkId: number;
   mediaIndex: any;
   media: any;
+  market: any;
   signer: Signer;
 
   constructor(networkId: number, signer: Signer, mediaIndex?: number) {
@@ -28,6 +30,12 @@ class ZapMedia {
     this.signer = signer;
 
     this.mediaIndex = mediaIndex;
+
+    this.market = new ethers.Contract(
+      contractAddresses(networkId).zapMarketAddress,
+      zapMarketAbi,
+      signer,
+    );
 
     if (mediaIndex === undefined) {
       this.media = new ethers.Contract(
