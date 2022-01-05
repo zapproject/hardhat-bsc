@@ -38,7 +38,6 @@ class ZapMedia {
    */
   public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
     try {
-      console.log(bidShares);
       validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
     } catch (err: any) {
       return 'Oh no ' + err.message;
