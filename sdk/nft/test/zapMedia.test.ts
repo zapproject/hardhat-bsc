@@ -29,7 +29,6 @@ describe('ZapMedia', () => {
     signer = provider.getSigner(0);
 
     token = await contracts.deployZapToken();
-    tokenAddress = token.address;
     zapVault = await contracts.deployZapVault();
     zapMarket = await contracts.deployZapMarket();
     zapMediaImpl = await contracts.deployZapMediaImpl();
@@ -79,8 +78,6 @@ describe('ZapMedia', () => {
           15,
           35,
         );
-
-        ask = constructAsk(tokenAddress, 100);
       });
 
       describe('#updateContentURI', () => {
@@ -246,9 +243,8 @@ describe('ZapMedia', () => {
       });
 
       describe('#setAsk', () => {
-        it('sets an ask for a piece of media', async () => {
-          const zap = require('@zapSdk');
-
+        it('Should set an ask', async () => {
+          ask = constructAsk(zapMedia.address, 100);
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
