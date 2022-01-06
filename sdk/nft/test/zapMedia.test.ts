@@ -242,7 +242,7 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#setAsk', () => {
+      describe('#setAsk', () => {
         it('Should throw an error if the signer is not approved nor the owner', async () => {
           ask = constructAsk(zapMedia.address, 100);
 
@@ -251,6 +251,14 @@ describe('ZapMedia', () => {
           const media1 = new ZapMedia(1337, signer1);
 
           await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+          const getApproved = await media.fetchApproved(0);
+
+          expect(owner).to.not.equal(await signer1.getAddress());
+          expect(owner).to.equal(await signer.getAddress());
+          expect(getApproved).to.not.equal(await signer1.getAddress());
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
 
           await media1
             .setAsk(0, ask)
@@ -268,6 +276,12 @@ describe('ZapMedia', () => {
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const getApproved = await media.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
 
           await media.setAsk(0, ask);
 
@@ -287,6 +301,12 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           await media.approve(await signer1.getAddress(), 0);
+
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const getApproved = await media.fetchApproved(0);
+          expect(getApproved).to.equal(await signer1.getAddress());
 
           await media1.setAsk(0, ask);
 

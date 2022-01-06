@@ -111,6 +111,14 @@ class ZapMedia {
     return this.media.totalSupply();
   }
 
+  /**
+   * Fetches the approved account for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchApproved(mediaId: BigNumberish): Promise<string> {
+    return this.media.getApproved(mediaId);
+  }
+
   public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
     try {
       return await this.media.updateTokenURI(mediaId, tokenURI);
@@ -130,7 +138,9 @@ class ZapMedia {
    * @param mediaId
    */
   public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
-    return this.media.approve(to, mediaId);
+    const gasEstimate = await this.media.approve(to, mediaId);
+
+    return this.media.approve(to, mediaId, { gasLimit: gasEstimate });
   }
 
   /**
