@@ -143,12 +143,13 @@ class ZapMedia {
    * @param mediaId
    * @param ask
    */
-  public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<void> {
-    const tokenOwner = await this.media.ownerOf(0);
+  public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction> {
+    //
+    const tokenOwner = await this.media.ownerOf(mediaId);
 
     const signerAddress = await this.signer.getAddress();
 
-    const isApproved = await this.media.getApproved(0);
+    const isApproved = await this.media.getApproved(mediaId);
 
     // If the connected signer owns the tokenId invoke setAsk
     // Or if the connected singer is approved by the token owner invoke setAsk
