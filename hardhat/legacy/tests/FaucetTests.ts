@@ -2,9 +2,9 @@ import { ethers } from 'hardhat';
 import { solidity } from 'ethereum-waffle';
 import chai from 'chai';
 
-import { Faucet } from '../typechain/Faucet';
+import { Faucet } from '../../typechain/Faucet';
 
-import { ZapToken } from '../typechain/ZapToken';
+import { ZapToken } from '../../typechain/ZapToken';
 chai.use(solidity);
 
 const { expect } = chai;

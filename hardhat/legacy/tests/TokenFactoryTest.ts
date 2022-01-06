@@ -3,16 +3,16 @@ import { solidity } from 'ethereum-waffle';
 import chai from 'chai';
 import mocha from 'mocha';
 
-import { ZapCoordinator } from '../typechain/ZapCoordinator';
-import { Database } from '../typechain/Database';
-import { Registry } from '../typechain/Registry';
-import { Bondage } from '../typechain/Bondage';
-import { ZapToken } from '../typechain/ZapToken';
-import { CurrentCost } from '../typechain/CurrentCost';
-import { TokenDotFactory } from '../typechain/TokenDotFactory';
-import {DotFactoryFactory} from '../typechain/DotFactoryFactory';
-import { TokenFactory } from '../typechain/TokenFactory';
-import { FactoryToken } from '../typechain/FactoryToken';
+import { ZapCoordinator } from '../../typechain/ZapCoordinator';
+import { Database } from '../../typechain/Database';
+import { Registry } from '../../typechain/Registry';
+import { Bondage } from '../../typechain/Bondage';
+import { ZapToken } from '../../typechain/ZapToken';
+import { CurrentCost } from '../../typechain/CurrentCost';
+import { TokenDotFactory } from '../../typechain/TokenDotFactory';
+import {DotFactoryFactory} from '../../typechain/DotFactoryFactory';
+import { TokenFactory } from '../../typechain/TokenFactory';
+import { FactoryToken } from '../../typechain/FactoryToken';
 chai.use(solidity);
 const { expect } = chai;
 

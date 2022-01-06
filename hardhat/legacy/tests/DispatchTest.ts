@@ -3,17 +3,17 @@ import { solidity } from 'ethereum-waffle';
 import chai from 'chai';
 import mocha from 'mocha';
 
-import { ZapCoordinator } from '../typechain/ZapCoordinator';
-import { Database } from '../typechain/Database';
-import { Registry } from '../typechain/Registry';
-import { Bondage } from '../typechain/Bondage';
-import { ZapToken } from '../typechain/ZapToken';
-import { CurrentCost } from '../typechain/CurrentCost';
-import { Dispatch } from '../typechain/Dispatch';
-import { TestProvider } from '../typechain/TestProvider';
-import { TestClient } from '../typechain/TestClient';
-import { OffChainClient } from '../typechain/OffChainClient';
-import OffChainClientAbi from '../artifacts/contracts/lib/platform/OffChainClient.sol/OffChainClient.json'
+import { ZapCoordinator } from '../../typechain/ZapCoordinator';
+import { Database } from '../../typechain/Database';
+import { Registry } from '../../typechain/Registry';
+import { Bondage } from '../../typechain/Bondage';
+import { ZapToken } from '../../typechain/ZapToken';
+import { CurrentCost } from '../../typechain/CurrentCost';
+import { Dispatch } from '../../typechain/Dispatch';
+import { TestProvider } from '../../typechain/TestProvider';
+import { TestClient } from '../../typechain/TestClient';
+import { OffChainClient } from '../../typechain/OffChainClient';
+import OffChainClientAbi from '../../artifacts/contracts/lib/platform/OffChainClient.sol/OffChainClient.json'
 chai.use(solidity);
 const { expect } = chai;
 

@@ -1,9 +1,9 @@
 import { ethers } from 'hardhat';
 import { solidity } from 'ethereum-waffle';
 import chai from 'chai';
-import { Database } from '../typechain/Database';
+import { Database } from '../../typechain/Database';
 
-import { ZapToken } from '../typechain/ZapToken';
+import { ZapToken } from '../../typechain/ZapToken';
 import { SSL_OP_NETSCAPE_CA_DN_BUG } from 'constants';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address';
 import { assert } from 'console';

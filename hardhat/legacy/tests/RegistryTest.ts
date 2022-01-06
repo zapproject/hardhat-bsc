@@ -4,11 +4,11 @@ import { solidity } from "ethereum-waffle";
 
 import chai from "chai";
 
-import { Database } from "../typechain/Database";
+import { Database } from "../../typechain/Database";
 
-import { ZapCoordinator } from '../typechain/ZapCoordinator';
+import { ZapCoordinator } from '../../typechain/ZapCoordinator';
 
-import { Registry } from '../typechain/Registry';
+import { Registry } from '../../typechain/Registry';
 
 chai.use(solidity);
 
