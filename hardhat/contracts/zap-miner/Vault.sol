@@ -36,7 +36,7 @@ contract Vault {
 
     event NewZapMasterEvent(address _newZapMasterAddress);
 
-    constructor (address token, address master) public {
+    constructor (address token, address master) {
         zapToken = token;
         zapMaster = master;
         

@@ -80,16 +80,16 @@ contract Zap {
         ZapMasterContract,
         VaultContract
     }
+
     ZapStorage.ZapStorageStruct private zap;
+
     IERC20 public token;
-    // Vault public vault;
-    // address public vaultAddress;
 
     address payable public owner;
 
-    constructor(address zapTokenBsc) public {
+    constructor(address zapTokenBsc) {
         token = IERC20(zapTokenBsc);
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     /// @dev Throws if called by any contract other than latest designated caller
@@ -159,17 +159,16 @@ contract Zap {
 
         //maps the dispute hash to the disputeId
         zap.disputeIdByDisputeHash[_hash] = disputeId;
+
         //maps the dispute to the Dispute struct
-        zap.disputesById[disputeId] = ZapStorage.Dispute({
-            hash: _hash,
-            forkedContract: 0, // aka no contract is being forked for this dispute
-            reportedMiner: _miner,
-            reportingParty: msg.sender,
-            proposedForkAddress: address(0),
-            executed: false,
-            disputeVotePassed: false,
-            tally: 0
-        });
+        zap.disputesById[disputeId].hash = _hash;
+        zap.disputesById[disputeId].forkedContract = 0; // aka no contract is being forked for this dispute
+        zap.disputesById[disputeId].reportedMiner = _miner;
+        zap.disputesById[disputeId].reportingParty = msg.sender;
+        zap.disputesById[disputeId].proposedForkAddress = address(0);
+        zap.disputesById[disputeId].executed = false;
+        zap.disputesById[disputeId].disputeVotePassed = false;
+        zap.disputesById[disputeId].tally = 0;
 
         //Saves all the dispute variables for the disputeId
         zap.disputesById[disputeId].disputeUintVars[
@@ -183,7 +182,7 @@ contract Zap {
         ] = _request.valuesByTimestamp[_timestamp][_minerIndex];
         zap.disputesById[disputeId].disputeUintVars[
             keccak256('minExecutionDate')
-        ] = now + 7 days;
+        ] = block.timestamp + 7 days;
         zap.disputesById[disputeId].disputeUintVars[
             keccak256('blockNumber')
         ] = block.number;
@@ -293,37 +292,7 @@ contract Zap {
      * @param forkedContract contract to be foked: 1 == Zap Contract, 2 == ZapMaster, 3 == Vault Contract
      */
     function proposeFork(address _propNewZapAddress, uint256 forkedContract) external {
-        bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
-        require(zap.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
-
-        zap.uintVars[keccak256('disputeCount')]++;
-        uint256 disputeId = zap.uintVars[keccak256('disputeCount')];
-        zap.disputeIdByDisputeHash[_hash] = disputeId;
-        ZapStorage.Dispute storage newDispute = ZapStorage.Dispute();
-        newDispute = ZapStorage.Dispute({
-            hash: _hash,
-            forkedContract: forkedContract,
-            reportedMiner: msg.sender,
-            reportingParty: msg.sender,
-            proposedForkAddress: _propNewZapAddress,
-            executed: false,
-            disputeVotePassed: false,
-            tally: 0
-        });
-        zap.disputesById[disputeId].disputeUintVars[
-            keccak256('blockNumber')
-        ] = block.number;
-        zap.disputesById[disputeId].disputeUintVars[keccak256('fee')] = 
-                zap.uintVars[keccak256('disputeFee')];
-        zap.disputesById[disputeId].disputeUintVars[
-            keccak256('minExecutionDate')
-        ] = now + 7 days;
-
-        emit NewForkProposal(
-            disputeId,
-            now,
-            _propNewZapAddress
-        );
+        zap.proposeFork(_propNewZapAddress, forkedContract);
 
         transferFrom(
             msg.sender,
@@ -365,12 +334,12 @@ contract Zap {
         if (zap.requestIdByQueryHash[_queryHash] == 0) {
             zap.uintVars[keccak256('requestCount')]++;
             uint256 _requestId = zap.uintVars[keccak256('requestCount')];
-            zap.requestDetails[_requestId] = ZapStorage.Request({
-                queryString: _sapi,
-                dataSymbol: _symbol,
-                queryHash: _queryHash,
-                requestTimestamps: new uint256[](0)
-            });
+
+            zap.requestDetails[_requestId].queryString = _sapi;
+            zap.requestDetails[_requestId].dataSymbol = _symbol;
+            zap.requestDetails[_requestId].queryHash = _queryHash;
+            zap.requestDetails[_requestId].requestTimestamps = new uint256[](0);
+
             zap.requestDetails[_requestId].apiUintVars[
                 keccak256('granularity')
             ] = _granularity;

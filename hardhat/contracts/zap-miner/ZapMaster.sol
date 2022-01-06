@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import './ZapGetters.sol';
 import './libraries/Address.sol';
+import './libraries/ZapStake.sol';
 
 /**
  * @title Zap Master
@@ -15,6 +16,8 @@ contract ZapMaster is ZapGetters {
     event Received(address, uint);
 
     using Address for address;
+    using ZapStake for ZapStorage.ZapStorageStruct;
+    using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
 
     address public owner;
     bool private vaultLock;
@@ -33,7 +36,6 @@ contract ZapMaster is ZapGetters {
      * @param tokenAddress is the address for the ZAP token contract
      */
     constructor(address _zapContract, address tokenAddress)
-        public
         ZapGetters(tokenAddress)
     {
         zap.init();
@@ -44,15 +46,6 @@ contract ZapMaster is ZapGetters {
         owner = msg.sender;
 
         emit NewZapAddress(_zapContract);
-    }
-
-    /**
-     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
-     * @dev Only needs to be in library
-     * @param _newDeity the new Deity in the contract
-     */
-    function changeDeity(address _newDeity) external onlyOwner {
-        zap.changeDeity(_newDeity);
     }
 
     /**

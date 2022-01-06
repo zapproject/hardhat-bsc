@@ -198,47 +198,46 @@ library ZapDispute {
         return (address(this), disputeFeeWinnerAddress, disputeFeeForDisputeId);
     }
 
-    // /**
-    //  * @dev Allows for a fork to be proposed
-    //  * @param _propNewZapAddress address for new proposed Zap
-    //  */
-    // function proposeFork(
-    //     ZapStorage.ZapStorageStruct storage self,
-    //     address _propNewZapAddress,
-    //     uint256 forkedContract
-    // ) public {
-    //     bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
-    //     require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
+    /**
+     * @dev Allows for a fork to be proposed
+     * @param _propNewZapAddress address for new proposed Zap
+     */
+    function proposeFork(
+        ZapStorage.ZapStorageStruct storage self,
+        address _propNewZapAddress,
+        uint256 forkedContract
+    ) public {
+        bytes32 _hash = keccak256(abi.encodePacked(_propNewZapAddress));
+        require(self.disputeIdByDisputeHash[_hash] == 0,"Dispute Hash is not equal to zero");
 
-    //     self.uintVars[keccak256('disputeCount')]++;
-    //     uint256 disputeId = self.uintVars[keccak256('disputeCount')];
-    //     self.disputeIdByDisputeHash[_hash] = disputeId;
-    //     ZapStorage.Dispute storage newDispute = ZapStorage.Dispute();
-    //     newDispute = ZapStorage.Dispute({
-    //         hash: _hash,
-    //         forkedContract: forkedContract,
-    //         reportedMiner: msg.sender,
-    //         reportingParty: msg.sender,
-    //         proposedForkAddress: _propNewZapAddress,
-    //         executed: false,
-    //         disputeVotePassed: false,
-    //         tally: 0
-    //     });
-    //     self.disputesById[disputeId].disputeUintVars[
-    //         keccak256('blockNumber')
-    //     ] = block.number;
-    //     self.disputesById[disputeId].disputeUintVars[keccak256('fee')] = self
-    //     .uintVars[keccak256('disputeFee')];
-    //     self.disputesById[disputeId].disputeUintVars[
-    //         keccak256('minExecutionDate')
-    //     ] = now + 7 days;
+        self.uintVars[keccak256('disputeCount')]++;
+        uint256 disputeId = self.uintVars[keccak256('disputeCount')];
+        self.disputeIdByDisputeHash[_hash] = disputeId;
+        
+        self.disputesById[disputeId].hash = _hash;
+        self.disputesById[disputeId].forkedContract = forkedContract;
+        self.disputesById[disputeId].reportedMiner = msg.sender;
+        self.disputesById[disputeId].reportingParty = msg.sender;
+        self.disputesById[disputeId].proposedForkAddress = _propNewZapAddress;
+        self.disputesById[disputeId].executed = false;
+        self.disputesById[disputeId].disputeVotePassed = false;
+        self.disputesById[disputeId].tally = 0;
 
-    //     emit NewForkProposal(
-    //         disputeId,
-    //         now,
-    //         _propNewZapAddress
-    //     );
-    // }
+        self.disputesById[disputeId].disputeUintVars[
+            keccak256('blockNumber')
+        ] = block.number;
+        self.disputesById[disputeId].disputeUintVars[keccak256('fee')] = self
+        .uintVars[keccak256('disputeFee')];
+        self.disputesById[disputeId].disputeUintVars[
+            keccak256('minExecutionDate')
+        ] = block.timestamp + 7 days;
+
+        emit NewForkProposal(
+            disputeId,
+            block.timestamp,
+            _propNewZapAddress
+        );
+    }
 
     /**
      * @dev this function allows the dispute fee to fluctuate based on the number of miners on the system.
