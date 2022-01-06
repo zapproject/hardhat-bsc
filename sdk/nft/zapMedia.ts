@@ -177,10 +177,12 @@ class ZapMedia {
     // Returns the address approved for the tokenId
     const isApproved = await this.media.getApproved(mediaId);
 
+    // setAsk gas estimate
+    const gasEstimate = await this.media.estimateGas.setAsk(mediaId, ask);
     // If the connected signer owns the token invoke setAsk
     // Or if the connected signer is approved by the token owner invoke setAsk
     if (tokenOwner === signerAddress || isApproved === signerAddress) {
-      return this.media.setAsk(mediaId, ask);
+      return this.media.setAsk(mediaId, ask, { gasLimit: gasEstimate });
 
       // If the connected signer is neither throw an error
     } else {
@@ -203,7 +205,8 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    return this.media.updateTokenMetadataURI(mediaId, metadataURI);
+    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(mediaId, metadataURI);
+    return this.media.updateTokenMetadataURI(mediaId, metadataURI, { gasLimit: gasEstimate });
   }
 }
 export default ZapMedia;
