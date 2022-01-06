@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
 import '../interfaces/IMedia.sol';
@@ -27,4 +28,6 @@ contract BadBidder2 {
     fallback() external payable {
         mediaContract.removeBid(0);
     }
+
+    receive() external payable {}
 }

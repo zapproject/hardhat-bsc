@@ -1,4 +1,5 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 //Slightly modified SafeMath library - includes a min and max function, removes useless div function
 library SafeMathM {

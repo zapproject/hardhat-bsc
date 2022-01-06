@@ -1,4 +1,5 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './SafeMathM.sol';
 import './ZapStorage.sol';
@@ -105,7 +106,7 @@ library ZapDispute {
         require(!disp.executed, "This has already been executed");
 
         //Ensure the time for voting has elapsed
-        require(now > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
+        require(block.timestamp > disp.disputeUintVars[keccak256('minExecutionDate')], "Cannot vote at this time.");
 
         //If the vote is not a proposed fork
         if (disp.forkedContract == 0) {
@@ -121,7 +122,7 @@ library ZapDispute {
 
                 // keep status at in dispute
                 // stakes.currentStatus = 0;
-                stakes.startDate = now - (now % 86400);
+                stakes.startDate = block.timestamp - (block.timestamp % 86400);
 
                 //Decreases the stakerCount since the miner's stake is being slashed
                 self.uintVars[keccak256('stakerCount')]--;
@@ -212,16 +213,16 @@ library ZapDispute {
         self.uintVars[keccak256('disputeCount')]++;
         uint256 disputeId = self.uintVars[keccak256('disputeCount')];
         self.disputeIdByDisputeHash[_hash] = disputeId;
-        self.disputesById[disputeId] = ZapStorage.Dispute({
-            hash: _hash,
-            forkedContract: forkedContract,
-            reportedMiner: msg.sender,
-            reportingParty: msg.sender,
-            proposedForkAddress: _propNewZapAddress,
-            executed: false,
-            disputeVotePassed: false,
-            tally: 0
-        });
+        
+        self.disputesById[disputeId].hash = _hash;
+        self.disputesById[disputeId].forkedContract = forkedContract;
+        self.disputesById[disputeId].reportedMiner = msg.sender;
+        self.disputesById[disputeId].reportingParty = msg.sender;
+        self.disputesById[disputeId].proposedForkAddress = _propNewZapAddress;
+        self.disputesById[disputeId].executed = false;
+        self.disputesById[disputeId].disputeVotePassed = false;
+        self.disputesById[disputeId].tally = 0;
+
         self.disputesById[disputeId].disputeUintVars[
             keccak256('blockNumber')
         ] = block.number;
@@ -229,11 +230,11 @@ library ZapDispute {
         .uintVars[keccak256('disputeFee')];
         self.disputesById[disputeId].disputeUintVars[
             keccak256('minExecutionDate')
-        ] = now + 7 days;
+        ] = block.timestamp + 7 days;
 
         emit NewForkProposal(
             disputeId,
-            now,
+            block.timestamp,
             _propNewZapAddress
         );
     }

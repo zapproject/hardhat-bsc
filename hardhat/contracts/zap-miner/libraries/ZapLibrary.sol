@@ -1,5 +1,5 @@
-// pragma solidity =0.5.16;
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './SafeMathM.sol';
 import './SignedSafeMath.sol';
@@ -91,7 +91,7 @@ library ZapLibrary {
                 int256(self.uintVars[keccak256('difficulty')]).mul(
                     int256(self.uintVars[keccak256('timeTarget')]).sub(
                         int256(
-                            now.sub(
+                            block.timestamp.sub(
                                 self.uintVars[keccak256('timeOfLastNewValue')]
                             )
                         )
@@ -117,8 +117,8 @@ library ZapLibrary {
 
         //Sets time of value submission rounded to 1 minute
         self.uintVars[keccak256('timeOfLastNewValue')] =
-            now -
-            (now % 1 minutes);
+            block.timestamp -
+            (block.timestamp % 1 minutes);
 
         //The sorting algorithm that sorts the values of the first five values that come in
         ZapStorage.Details[5] memory a = self.currentMiners;
