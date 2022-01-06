@@ -3,13 +3,13 @@ import { solidity } from 'ethereum-waffle';
 import chai from 'chai';
 import mocha from 'mocha';
 
-import { ZapCoordinator } from '../typechain/ZapCoordinator';
-import { Database } from '../typechain/Database';
-import { Registry } from '../typechain/Registry';
-import { Bondage } from '../typechain/Bondage';
-import { ZapToken } from '../typechain/ZapToken';
-import { CurrentCost } from '../typechain/CurrentCost';
-import { Arbiter } from '../typechain/Arbiter';
+import { ZapCoordinator } from '../../typechain/ZapCoordinator';
+import { Database } from '../../typechain/Database';
+import { Registry } from '../../typechain/Registry';
+import { Bondage } from '../../typechain/Bondage';
+import { ZapToken } from '../../typechain/ZapToken';
+import { CurrentCost } from '../../typechain/CurrentCost';
+import { Arbiter } from '../../typechain/Arbiter';
 chai.use(solidity);
 const { expect } = chai;
 

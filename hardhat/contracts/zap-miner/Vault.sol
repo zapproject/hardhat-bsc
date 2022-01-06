@@ -44,9 +44,9 @@ contract Vault {
     }
 
     function increaseApproval() public returns (bool) {
-        (bool s, bytes memory balance) = zapToken.call(abi.encodeWithSignature("allowance(address,address)", address(this), zapMaster));
+        (, bytes memory balance) = zapToken.call(abi.encodeWithSignature("allowance(address,address)", address(this), zapMaster));
         uint256 amount = MAX_UINT.sub(toUint256(balance, 0));
-        (bool success, bytes memory data) = zapToken.call(abi.encodeWithSignature("increaseApproval(address,uint256)", zapMaster, amount));
+        (bool success, ) = zapToken.call(abi.encodeWithSignature("increaseApproval(address,uint256)", zapMaster, amount));
         return success;
     }
 
@@ -91,20 +91,11 @@ contract Vault {
         return zapMaster;
     }
 
-    // /**
-    //  * @dev Setter for a new ZapMaster, this will only be invoked during a fork of ZapMaster
-    //  * @param newZM the address of the new ZapMaster
-    //  */
-    // function setZM(address newZM) public onlyZapMaster {
-    //     zapMaster = newZM;
-    //     emit NewZapMasterEvent(zapMaster);
-    // }
-
     function getZT() public view returns (address zapTokenAddress) {
         return zapToken;
     }
 
-    function setApproval(address oldVault) public onlyZapMaster returns (bool success) {
+    function setApproval(address oldVault) public onlyZapMaster {
         require(!approveLocked, "Cannot set approval after migration");
         approved[oldVault] = true;
         approveLocked = true;
