@@ -1,4 +1,5 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './libraries/SafeMathM.sol';
 import './ZapMaster.sol';
@@ -35,7 +36,7 @@ contract Vault {
 
     event NewZapMasterEvent(address _newZapMasterAddress);
 
-    constructor (address token, address master) public {
+    constructor (address token, address master) {
         zapToken = token;
         zapMaster = master;
         

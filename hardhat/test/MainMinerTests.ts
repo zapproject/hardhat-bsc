@@ -683,31 +683,6 @@ describe("Main Miner Functions", () => {
         expect(disputeFee).to.equal(970e18);
     })
 
-    it("Should test deity functions", async () => {
-
-        // Converts the uintVar "_deity" to a bytes array
-        const deityBytes: Uint8Array = ethers.utils.toUtf8Bytes("_deity");
-
-        // Converts the uintVar "_deity" from a bytes array to a keccak256 hash
-        const deityHash: string = ethers.utils.keccak256(deityBytes)
-
-        // Gets the deity(owner)
-        const initialDeity: string = await zapMaster.getAddressVars(deityHash);
-
-        // Changes the deity from address 0 to address 1
-        await zapMaster.changeDeity(signers[1].address)
-
-        // Gets the new deity 
-        const newDeity: string = await zapMaster.getAddressVars(deityHash);
-
-        // Expects the deity to be address 0 
-        expect(initialDeity).to.equal(signers[0].address);
-
-        // Expects the new deity to equal address 1
-        expect(newDeity).to.equal(signers[1].address);
-
-    })
-
     it("Should get token supply", async () => {
 
         // Gets the total oracle tokens as a hexString
@@ -720,26 +695,5 @@ describe("Main Miner Functions", () => {
         expect(supply).to.equal(0);
 
     })
-
-    it("Should get token name", async () => {
-
-        // Gets the token name
-        const name: string = await zapMaster.getName();
-
-        // Expects the token name to equal Zap Token
-        expect(name).to.equal("Zap BEP20");
-    })
-
-    it("Should get token symbol", async () => {
-
-        // Gets the token symbol
-        const symbol: string = await zapMaster.getSymbol();
-
-        // Expects the token sybmol to equal ZAP
-        expect(symbol).to.equal("ZAPB");
-
-    });
-
-   
 
 })

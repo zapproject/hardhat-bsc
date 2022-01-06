@@ -1,13 +1,15 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
-import '../token/ZapTokenBSC.sol';
+// import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
 import './Vault.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Zap Oracle System
@@ -58,6 +60,11 @@ contract Zap {
         address indexed previousOwner,
         address indexed newOwner
     );
+    event NewForkProposal(
+        uint256 indexed _disputeId,
+        uint256 _timestamp,
+        address indexed proposedContract
+    );
 
     using SafeMathM for uint256;
     using Address for address;
@@ -73,16 +80,16 @@ contract Zap {
         ZapMasterContract,
         VaultContract
     }
+
     ZapStorage.ZapStorageStruct private zap;
-    ZapTokenBSC public token;
-    // Vault public vault;
-    // address public vaultAddress;
+
+    IERC20 public token;
 
     address payable public owner;
 
-    constructor(address zapTokenBsc) public {
-        token = ZapTokenBSC(zapTokenBsc);
-        owner = msg.sender;
+    constructor(address zapTokenBsc) {
+        token = IERC20(zapTokenBsc);
+        owner = payable(msg.sender);
     }
 
     /// @dev Throws if called by any contract other than latest designated caller
@@ -152,17 +159,16 @@ contract Zap {
 
         //maps the dispute hash to the disputeId
         zap.disputeIdByDisputeHash[_hash] = disputeId;
+
         //maps the dispute to the Dispute struct
-        zap.disputesById[disputeId] = ZapStorage.Dispute({
-            hash: _hash,
-            forkedContract: 0, // aka no contract is being forked for this dispute
-            reportedMiner: _miner,
-            reportingParty: msg.sender,
-            proposedForkAddress: address(0),
-            executed: false,
-            disputeVotePassed: false,
-            tally: 0
-        });
+        zap.disputesById[disputeId].hash = _hash;
+        zap.disputesById[disputeId].forkedContract = 0; // aka no contract is being forked for this dispute
+        zap.disputesById[disputeId].reportedMiner = _miner;
+        zap.disputesById[disputeId].reportingParty = msg.sender;
+        zap.disputesById[disputeId].proposedForkAddress = address(0);
+        zap.disputesById[disputeId].executed = false;
+        zap.disputesById[disputeId].disputeVotePassed = false;
+        zap.disputesById[disputeId].tally = 0;
 
         //Saves all the dispute variables for the disputeId
         zap.disputesById[disputeId].disputeUintVars[
@@ -176,7 +182,7 @@ contract Zap {
         ] = _request.valuesByTimestamp[_timestamp][_minerIndex];
         zap.disputesById[disputeId].disputeUintVars[
             keccak256('minExecutionDate')
-        ] = now + 7 days;
+        ] = block.timestamp + 7 days;
         zap.disputesById[disputeId].disputeUintVars[
             keccak256('blockNumber')
         ] = block.number;
@@ -287,11 +293,12 @@ contract Zap {
      */
     function proposeFork(address _propNewZapAddress, uint256 forkedContract) external {
         zap.proposeFork(_propNewZapAddress, forkedContract);
-            transferFrom(
-                msg.sender,
-                zap.addressVars[keccak256("_owner")],
-                zap.uintVars[keccak256('disputeFee')]
-            );
+
+        transferFrom(
+            msg.sender,
+            zap.addressVars[keccak256("_owner")],
+            zap.uintVars[keccak256('disputeFee')]
+        );
     }
 
     /**
@@ -327,12 +334,12 @@ contract Zap {
         if (zap.requestIdByQueryHash[_queryHash] == 0) {
             zap.uintVars[keccak256('requestCount')]++;
             uint256 _requestId = zap.uintVars[keccak256('requestCount')];
-            zap.requestDetails[_requestId] = ZapStorage.Request({
-                queryString: _sapi,
-                dataSymbol: _symbol,
-                queryHash: _queryHash,
-                requestTimestamps: new uint256[](0)
-            });
+
+            zap.requestDetails[_requestId].queryString = _sapi;
+            zap.requestDetails[_requestId].dataSymbol = _symbol;
+            zap.requestDetails[_requestId].queryHash = _queryHash;
+            zap.requestDetails[_requestId].requestTimestamps = new uint256[](0);
+
             zap.requestDetails[_requestId].apiUintVars[
                 keccak256('granularity')
             ] = _granularity;
@@ -468,7 +475,6 @@ contract Zap {
      * @dev Allows for a transfer of tokens to _to
      * @param _to The address to send tokens to
      * @param _amount The amount of tokens to send
-     * @return true if transfer is successful
      */
     function transfer(address _to, uint256 _amount) public {
         _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, _to, _amount));
@@ -480,7 +486,6 @@ contract Zap {
      * @param _from The address holding the tokens being transferred
      * @param _to The address of the recipient
      * @param _amount The amount of tokens to be transferred
-     * @return True if the transfer was successful
      */
     function transferFrom(
         address _from,
@@ -492,7 +497,10 @@ contract Zap {
 
     /**
      * @dev Getter for the current variables that include the 5 requests Id's
-     * @return the challenge, 5 requestsId, difficulty and tip
+     * @return _challenge
+     * @return _requestIds
+     * @return _difficulty
+     * @return _tip
      */
     function getNewCurrentVariables()
         external
@@ -500,7 +508,7 @@ contract Zap {
         returns (
             bytes32 _challenge,
             uint256[5] memory _requestIds,
-            uint256 _difficutly,
+            uint256 _difficulty,
             uint256 _tip
         )
     {
@@ -641,7 +649,7 @@ contract Zap {
      * @param _token The token targeted by the call.
      * @param data The call data (encoded using abi.encode or one of its variants).
      */
-    function _callOptionalReturn(ZapTokenBSC _token, bytes memory data) private {
+    function _callOptionalReturn(IERC20 _token, bytes memory data) private {
         // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
         // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.

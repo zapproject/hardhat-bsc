@@ -1,4 +1,5 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import "./ZapStorage.sol";
 import "./ZapDispute.sol";
@@ -30,7 +31,7 @@ library ZapStake {
         self.uintVars[keccak256("stakeAmount")] = 500000 * 1e18;
         self.uintVars[keccak256("disputeFee")] = 970 * 1e18;
         self.uintVars[keccak256("timeTarget")]= 600;
-        self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
+        self.uintVars[keccak256("timeOfLastNewValue")] = block.timestamp - block.timestamp  % self.uintVars[keccak256("timeTarget")];
         self.uintVars[keccak256("difficulty")] = 1;
     }
 
@@ -50,7 +51,7 @@ library ZapStake {
 
         //Change the startDate to now since the lock up period begins now
         //and the miner can only withdraw 7 days later from now(check the withdraw function)
-        stakes.startDate = now -(now % 86400);
+        stakes.startDate = block.timestamp -(block.timestamp % 86400);
 
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
@@ -65,7 +66,7 @@ library ZapStake {
         ZapStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
         //passed by since they locked for withdraw
-        require(now - (now % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
+        require(block.timestamp - (block.timestamp % 86400) - stakes.startDate >= 7 days, "Can't withdraw yet. Need to wait at LEAST 7 days from stake start date.");
         require(stakes.currentStatus == 2, "Required to request withdraw of stake");
         stakes.currentStatus = 0;
 
@@ -94,15 +95,15 @@ library ZapStake {
         self.stakerDetails[staker] = ZapStorage.StakeInfo({
             currentStatus: 1,
             //this resets their stake start date to today
-            startDate: now - (now % 86400)
+            startDate: block.timestamp - (block.timestamp % 86400)
         });
 
         emit NewStake(staker);
     }
 
-     /**
+    /**
     * @dev Getter function for the requestId being mined 
-    * @return variables for the current minin event: Challenge, 5 RequestId, difficulty and Totaltips
+    * @return _challenge _requestIds _difficuilty _tip : variables for the current mining event: Challenge, 5 RequestId, difficulty and Totaltips
     */
     function getNewCurrentVariables(ZapStorage.ZapStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficulty, uint256 _tip){
         for(uint i=0;i<5;i++){
