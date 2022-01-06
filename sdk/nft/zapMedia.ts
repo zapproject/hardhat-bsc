@@ -16,6 +16,7 @@ import { MediaData, BidShares, Ask } from './types';
 
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
+import { sign } from 'crypto';
 
 class ZapMedia {
   networkId: number;
@@ -142,8 +143,22 @@ class ZapMedia {
    * @param mediaId
    * @param ask
    */
-  public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction> {
-    return this.media.setAsk(mediaId, ask);
+  public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<void> {
+    const tokenOwner = await this.media.ownerOf(0);
+
+    const signerAddress = await this.signer.getAddress();
+
+    const isApproved = await this.media.getApproved(0);
+
+    // If the connected signer owns the tokenId invoke setAsk
+    // Or if the connected singer is approved by the token owner invoke setAsk
+    if (tokenOwner === signerAddress || isApproved === signerAddress) {
+      return this.media.setAsk(mediaId, ask);
+
+      // If the connected signer is neither throw an error
+    } else {
+      invariant(false, 'ZapMedia (setAsk): Media: Only approved or owner.');
+    }
   }
 
   /**
