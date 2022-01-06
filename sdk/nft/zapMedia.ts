@@ -119,6 +119,20 @@ class ZapMedia {
     }
   }
 
+  /***********************
+   * ERC-721 Write Methods
+   ***********************
+   */
+
+  /**
+   * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
+   * @param to
+   * @param mediaId
+   */
+  public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
+    return this.media.approve(to, mediaId);
+  }
+
   /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param mintData

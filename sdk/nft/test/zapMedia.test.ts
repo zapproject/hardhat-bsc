@@ -243,8 +243,27 @@ describe('ZapMedia', () => {
       });
 
       describe.only('#setAsk', () => {
-        it('Should set an ask', async () => {
+        it('Should throw an error if the signer is not approved nor the owner', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+
           const signer1 = provider.getSigner(1);
+          const media = new ZapMedia(1337, signer);
+          const media1 = new ZapMedia(1337, signer1);
+
+          await media.mint(mediaData, bidShares);
+
+          await media1
+            .setAsk(0, ask)
+            .then((res) => {
+              console.log('Passed?');
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (setAsk): Media: Only approved or owner.',
+              );
+            });
+        });
+        it('Should set an ask by the owner', async () => {
           ask = constructAsk(zapMedia.address, 100);
           const media = new ZapMedia(1337, signer);
 
@@ -252,10 +271,29 @@ describe('ZapMedia', () => {
 
           await media.setAsk(0, ask);
 
-          // const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
+          const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
 
-          // expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
-          // expect(onChainAsk.currency).to.equal(zapMedia.address);
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
+        });
+
+        it('Should set an ask by the approved', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+
+          const signer1 = provider.getSigner(1);
+          const media = new ZapMedia(1337, signer);
+          const media1 = new ZapMedia(1337, signer1);
+
+          await media.mint(mediaData, bidShares);
+
+          await media.approve(await signer1.getAddress(), 0);
+
+          await media1.setAsk(0, ask);
+
+          const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
         });
       });
     });
