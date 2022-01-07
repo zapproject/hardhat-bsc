@@ -433,6 +433,24 @@ describe('ZapMedia', () => {
           expect(postTotalSupply.toNumber()).to.equal(0);
         });
       });
+
+      describe('#approve', () => {
+        it('Should approve another address for a token', async () => {
+          const signer1 = provider.getSigner(1);
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const preApprovedStatus = await media.fetchApproved(0);
+          expect(preApprovedStatus).to.equal(ethers.constants.AddressZero);
+
+          await media.approve(await signer1.getAddress(), 0);
+
+          const postApprovedStatus = await media.fetchApproved(0);
+          expect(postApprovedStatus).to.equal(await signer1.getAddress());
+        });
+      });
     });
   });
 });
