@@ -10,7 +10,7 @@ import {
 
 import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
 
-import { zapMediaAbi, zapMarketAbi } from './abi';
+import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
 import { MediaData, BidShares, Ask } from './types';
 

@@ -1,4 +1,4 @@
-import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './addresses';
+import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './contract/addresses';
 import { DecimalValue, BidShares, MediaData, Ask } from './types';
 import invariant from 'tiny-invariant';
 import { BigNumber, BigNumberish, BytesLike } from 'ethers';

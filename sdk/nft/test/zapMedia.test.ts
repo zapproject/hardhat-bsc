@@ -6,7 +6,11 @@ import { constructAsk, constructBidShares, constructMediaData } from '../utils';
 
 import ZapMedia from '../zapMedia';
 
-import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
+import {
+  mediaFactoryAddresses,
+  zapMarketAddresses,
+  zapMediaAddresses,
+} from '../contract/addresses';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 import {

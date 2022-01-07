@@ -2,7 +2,7 @@ import { Contract, ethers, Signer } from 'ethers';
 
 import { contractAddresses } from './utils';
 
-import { mediaFactoryAbi, zapMediaAbi } from './abi';
+import { mediaFactoryAbi, zapMediaAbi } from './contract/abi';
 
 import { Address } from 'cluster';
 
