@@ -227,5 +227,13 @@ class ZapMedia {
     const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(mediaId, metadataURI);
     return this.media.updateTokenMetadataURI(mediaId, metadataURI, { gasLimit: gasEstimate });
   }
+
+  /**
+   * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async revokeApproval(mediaId: BigNumberish): Promise<ContractTransaction> {
+    return this.media.revokeApproval(mediaId);
+  }
 }
 export default ZapMedia;

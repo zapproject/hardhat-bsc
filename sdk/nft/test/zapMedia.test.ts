@@ -394,6 +394,28 @@ describe('ZapMedia', () => {
           expect(onChainAskRemoved.currency).to.equal(ethers.constants.AddressZero);
         });
       });
+
+      describe('#revokeApproval', () => {
+        it.only("revokes an addresses approval of another address's media", async () => {
+          const signer1 = await provider.getSigner(1);
+
+          // expect(nullApproved).toBe(AddressZero)
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+
+          await media.approve(await signer1.getAddress(), 0);
+
+          const approved = await media.fetchApproved(0);
+          expect(approved).to.equal(await signer1.getAddress());
+
+          const media1 = new ZapMedia(1337, signer1);
+
+          await media1.revokeApproval(0);
+
+          const revokedStatus = await media.fetchApproved(0);
+          expect(revokedStatus).to.equal(ethers.constants.AddressZero);
+        });
+      });
     });
   });
 });
