@@ -2,15 +2,15 @@ import chai, { expect, use } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructAsk, constructBidShares, constructMediaData } from '../utils';
+import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
 
-import ZapMedia from '../zapMedia';
+import ZapMedia from '../src/zapMedia';
 
 import {
   mediaFactoryAddresses,
   zapMarketAddresses,
   zapMediaAddresses,
-} from '../contract/addresses';
+} from '../src/contract/addresses';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 import {
@@ -20,7 +20,7 @@ import {
   deployZapMediaImpl,
   deployMediaFactory,
   deployZapMedia,
-} from '../deploy';
+} from '../src/deploy';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
