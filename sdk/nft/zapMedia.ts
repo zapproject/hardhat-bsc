@@ -163,6 +163,20 @@ class ZapMedia {
   }
 
   /**
+   * Transfers the specified media to the specified to address on an instance of the Zap Media Contract
+   * @param from
+   * @param to
+   * @param mediaId
+   */
+  public async transferFrom(
+    from: string,
+    to: string,
+    mediaId: BigNumberish,
+  ): Promise<ContractTransaction> {
+    return this.media.transferFrom(from, to, mediaId);
+  }
+
+  /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param mintData
    * @param bidShares

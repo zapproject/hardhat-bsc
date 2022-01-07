@@ -488,6 +488,24 @@ describe('ZapMedia', () => {
           expect(revoked).to.be.false;
         });
       });
+
+      describe('#transferFrom', () => {
+        it('Should transferm token to another address', async () => {
+          const recipient = await provider.getSigner().getAddress();
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+
+          expect(owner).to.equal(await signer.getAddress());
+
+          await media.transferFrom(owner, recipient, 0);
+
+          const newOwner = await media.fetchOwnerOf(0);
+
+          expect(newOwner).to.equal(recipient);
+        });
+      });
     });
   });
 });
