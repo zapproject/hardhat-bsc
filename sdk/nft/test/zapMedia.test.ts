@@ -4,8 +4,6 @@ import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
 import { constructAsk, constructBidShares, constructMediaData } from '../utils';
 
-import { deployContract, MockProvider, solidity } from 'ethereum-waffle';
-
 import ZapMedia from '../zapMedia';
 
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
@@ -21,7 +19,6 @@ import {
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-chai.use(solidity);
 describe('ZapMedia', () => {
   let bidShares: any;
   let ask: any;
@@ -251,8 +248,8 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#setAsk', () => {
-        it.only('Should throw an error if the signer is not approved nor the owner', async () => {
+      describe('#setAsk', () => {
+        it('Should throw an error if the signer is not approved nor the owner', async () => {
           ask = constructAsk(zapMedia.address, 100);
 
           const signer1 = provider.getSigner(1);
@@ -261,24 +258,24 @@ describe('ZapMedia', () => {
 
           await media.mint(mediaData, bidShares);
 
-          // const owner = await media.fetchOwnerOf(0);
-          // const getApproved = await media.fetchApproved(0);
+          const owner = await media.fetchOwnerOf(0);
+          const getApproved = await media.fetchApproved(0);
 
-          // expect(owner).to.not.equal(await signer1.getAddress());
-          // expect(owner).to.equal(await signer.getAddress());
-          // expect(getApproved).to.not.equal(await signer1.getAddress());
-          // expect(getApproved).to.equal(ethers.constants.AddressZero);
-          await media.setAsk(0, ask);
-          // await media1
-          //   .setAsk(0, ask)
-          //   .then((res) => {
-          //     console.log('Passed?');
-          //   })
-          //   .catch((err) => {
-          //     expect(err.message).to.equal(
-          //       'Invariant failed: ZapMedia (setAsk): Media: Only approved or owner.',
-          //     );
-          //   });
+          expect(owner).to.not.equal(await signer1.getAddress());
+          expect(owner).to.equal(await signer.getAddress());
+          expect(getApproved).to.not.equal(await signer1.getAddress());
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await media1
+            .setAsk(0, ask)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (setAsk): Media: Only approved or owner.',
+              );
+            });
         });
         it('Should set an ask by the owner', async () => {
           ask = constructAsk(zapMedia.address, 100);

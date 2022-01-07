@@ -138,9 +138,7 @@ class ZapMedia {
    * @param mediaId
    */
   public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
-    const gasEstimate = await this.media.approve(to, mediaId);
-
-    return this.media.approve(to, mediaId, { gasLimit: gasEstimate });
+    return this.media.approve(to, mediaId);
   }
 
   /**
@@ -148,7 +146,7 @@ class ZapMedia {
    * @param mintData
    * @param bidShares
    */
-  public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
+  public async mint(mediaData: MediaData, bidShares: BidShares): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
       validateURI(mediaData.metadataURI);
@@ -177,8 +175,15 @@ class ZapMedia {
     // Returns the address approved for the tokenId
     const isApproved = await this.media.getApproved(mediaId);
 
-    if (tokenOwner !== signerAddress || isApproved !== signerAddress) {
+    // If the signer is not the token owner and the approved address is a zerp address
+    if (tokenOwner !== signerAddress && isApproved === ethers.constants.AddressZero) {
       invariant(false, 'ZapMedia (setAsk): Media: Only approved or owner.');
+
+      // If the signer is not the token owner or if the signer is the approved address
+    } else if (tokenOwner !== signerAddress || isApproved === signerAddress) {
+      return this.media.setAsk(mediaId, ask);
+
+      // If the signer is the token owner and is not the approved address
     } else {
       return this.media.setAsk(mediaId, ask);
     }
