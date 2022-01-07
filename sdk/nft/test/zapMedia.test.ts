@@ -490,7 +490,7 @@ describe('ZapMedia', () => {
       });
 
       describe('#transferFrom', () => {
-        it('Should transferm token to another address', async () => {
+        it('Should transfer token to another address', async () => {
           const recipient = await provider.getSigner().getAddress();
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
