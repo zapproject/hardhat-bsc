@@ -396,8 +396,8 @@ describe('ZapMedia', () => {
       });
 
       describe('#revokeApproval', () => {
-        it.only("revokes an addresses approval of another address's media", async () => {
-          const signer1 = await provider.getSigner(1);
+        it("revokes an addresses approval of another address's media", async () => {
+          const signer1 = provider.getSigner(1);
 
           // expect(nullApproved).toBe(AddressZero)
           const media = new ZapMedia(1337, signer);
@@ -414,6 +414,23 @@ describe('ZapMedia', () => {
 
           const revokedStatus = await media.fetchApproved(0);
           expect(revokedStatus).to.equal(ethers.constants.AddressZero);
+        });
+      });
+
+      describe('#burn', () => {
+        it('Should burn a token', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const preTotalSupply = await media.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          await media.burn(0);
+
+          const postTotalSupply = await media.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
         });
       });
     });

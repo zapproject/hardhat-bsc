@@ -235,5 +235,13 @@ class ZapMedia {
   public async revokeApproval(mediaId: BigNumberish): Promise<ContractTransaction> {
     return this.media.revokeApproval(mediaId);
   }
+
+  /**
+   * Burns the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
+    return this.media.burn(mediaId);
+  }
 }
 export default ZapMedia;
