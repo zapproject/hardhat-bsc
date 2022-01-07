@@ -1,4 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 /**
  * Internal type to represent a Decimal Value
  */
@@ -10,6 +10,13 @@ export declare type MediaData = {
     metadataURI: any;
     contentHash: any;
     metadataHash: any;
+};
+/**
+ * Zap Media Protocol Ask
+ */
+export declare type Ask = {
+    currency: string;
+    amount: BigNumberish;
 };
 export declare type BidShares = {
     collaborators: any;

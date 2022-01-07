@@ -35,62 +35,185 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ethers_1 = require("ethers");
 var utils_1 = require("./utils");
 var abi_1 = require("./abi");
-var info = function (networkId, signer) { return __awaiter(void 0, void 0, void 0, function () {
-    var zapMarket;
-    return __generator(this, function (_a) {
-        zapMarket = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMarketAddress, abi_1.zapMarketAbi, signer);
-        return [2 /*return*/, zapMarket];
-    });
-}); };
+var tiny_invariant_1 = __importDefault(require("tiny-invariant"));
 var ZapMedia = /** @class */ (function () {
     function ZapMedia(networkId, signer, mediaIndex) {
         this.networkId = networkId;
         this.signer = signer;
         this.mediaIndex = mediaIndex;
+        this.market = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMarketAddress, abi_1.zapMarketAbi, signer);
         if (mediaIndex === undefined) {
-            this.contract = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMediaAddress, abi_1.zapMediaAbi, signer);
+            this.media = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMediaAddress, abi_1.zapMediaAbi, signer);
         }
         else {
         }
     }
-    /**
-     * Mints a new piece of media on an instance of the Zora Media Contract
-     * @param mintData
-     * @param bidShares
+    /*********************
+     * Zap View Methods
+     *********************
      */
-    ZapMedia.prototype.mint = function (mediaData, bidShares) {
+    ZapMedia.prototype.fetchBalanceOf = function (owner) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.contract.mint(mediaData, bidShares)];
-                    case 1: 
-                    // console.log(mediaData)
-                    // console.log(bidShares)
-                    // const gasEstimate = await this.contract.estimateGas.mint(mediaData, bidShares);
-                    return [2 /*return*/, _a.sent()];
+                return [2 /*return*/, this.media.balanceOf(owner)];
+            });
+        });
+    };
+    /**
+     * Fetches the owner of the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchOwnerOf = function (mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.ownerOf(mediaId)];
+            });
+        });
+    };
+    /**
+     * Fetches the content uri for the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchContentURI = function (mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.tokenURI(mediaId)];
+                    case 1: return [2 /*return*/, _b.sent()];
+                    case 2:
+                        _a = _b.sent();
+                        (0, tiny_invariant_1.default)(false, 'ZapMedia (fetchContentURI): TokenId does not exist.');
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
+            });
+        });
+    };
+    /**
+     * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchMetadataURI = function (mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.tokenMetadataURI(mediaId)];
+            });
+        });
+    };
+    /**
+     * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchCurrentBidShares = function (mediaAddress, mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.market.bidSharesForToken(mediaAddress, mediaId)];
+            });
+        });
+    };
+    /**
+     * Fetches the current ask for the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchCurrentAsk = function (mediaAddress, mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.market.currentAskForToken(mediaAddress, mediaId)];
+            });
+        });
+    };
+    /**
+     * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
+     */
+    ZapMedia.prototype.fetchTotalMedia = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.totalSupply()];
             });
         });
     };
     ZapMedia.prototype.updateContentURI = function (mediaId, tokenURI) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, err_1;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _c.trys.push([0, 2, , 3]);
-                        _b = (_a = Promise).resolve;
-                        return [4 /*yield*/, this.contract.updateTokenURI(mediaId, tokenURI)];
-                    case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.updateTokenURI(mediaId, tokenURI)];
+                    case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        err_1 = _c.sent();
-                        throw 'oh no';
+                        err_1 = _a.sent();
+                        (0, tiny_invariant_1.default)(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
+                        return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
+            });
+        });
+    };
+    /**
+     * Mints a new piece of media on an instance of the Zap Media Contract
+     * @param mintData
+     * @param bidShares
+     */
+    ZapMedia.prototype.mint = function (mediaData, bidShares) {
+        return __awaiter(this, void 0, void 0, function () {
+            var gasEstimate;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        try {
+                            (0, utils_1.validateURI)(mediaData.tokenURI);
+                            (0, utils_1.validateURI)(mediaData.metadataURI);
+                            (0, utils_1.validateBidShares)(bidShares.collabShares, bidShares.creator, bidShares.owner);
+                        }
+                        catch (err) {
+                            return [2 /*return*/, Promise.reject(err.message)];
+                        }
+                        return [4 /*yield*/, this.media.estimateGas.mint(mediaData, bidShares)];
+                    case 1:
+                        gasEstimate = _a.sent();
+                        return [2 /*return*/, this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate })];
+                }
+            });
+        });
+    };
+    /**
+     * Sets an ask on the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     * @param ask
+     */
+    ZapMedia.prototype.setAsk = function (mediaId, ask) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.setAsk(mediaId, ask)];
+            });
+        });
+    };
+    /**
+     * Updates the metadata uri for the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     * @param metadataURI
+     */
+    ZapMedia.prototype.updateMetadataURI = function (mediaId, metadataURI) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                    (0, utils_1.validateURI)(metadataURI);
+                }
+                catch (err) {
+                    return [2 /*return*/, Promise.reject(err.message)];
+                }
+                return [2 /*return*/, this.media.updateTokenMetadataURI(mediaId, metadataURI)];
             });
         });
     };
