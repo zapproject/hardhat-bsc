@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.zapMediaAddresses = exports.zapMarketAddresses = exports.mediaFactoryAddresses = void 0;
 exports.mediaFactoryAddresses = {
     // Localhost
-    31337: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+    1337: '',
     // Rinkeby
     4: '0x3a8f450C7844A8e8AbeFc7a0A7F37e8beC28c77C',
     // Ethereum Mainnet
@@ -15,7 +15,7 @@ exports.mediaFactoryAddresses = {
 };
 exports.zapMarketAddresses = {
     // Localhost
-    31337: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+    1337: '',
     // Rinkeby
     4: '0x61d099A2799eE012173eceA89ca9FDcA10d02C1c',
     // Ethereum Mainnet
@@ -27,7 +27,7 @@ exports.zapMarketAddresses = {
 };
 exports.zapMediaAddresses = {
     // Localhost
-    31337: '0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444',
+    1337: '',
     // Rinkeby
     4: '0xa6b70C1Ad5D443d6C53C0A563f56bF0AF7F582D4',
     // Ethereum Mainnet

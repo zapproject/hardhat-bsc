@@ -7,6 +7,7 @@ import { constructAsk, constructBidShares, constructMediaData } from '../utils';
 import ZapMedia from '../zapMedia';
 
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 import {
   deployZapToken,
@@ -322,6 +323,20 @@ describe('ZapMedia', () => {
           expect(onChainAsk.currency).to.equal(zapMedia.address);
         });
       });
+
+      describe('#setbid', () => {
+        it('creates a new bid on chain', async () => {
+          const zap = new ZapMedia(1337, signer);
+          await zap.mint(mediaData, bidShares);
+
+          const onChainCurrentBidForBidder = await zap.fetchCurrentBidForBidder(zapMedia.address, 0);
+
+          const nullOnChainBid = await zap.()
+
+          
+        }
+      })
+
     });
   });
 });

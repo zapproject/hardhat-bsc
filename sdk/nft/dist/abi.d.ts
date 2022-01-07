@@ -1,3 +1,44 @@
+export declare const zapTokenBscAbi: ({
+    inputs: never[];
+    payable: boolean;
+    stateMutability: string;
+    type: string;
+    anonymous?: undefined;
+    name?: undefined;
+    constant?: undefined;
+    outputs?: undefined;
+} | {
+    anonymous: boolean;
+    inputs: {
+        indexed: boolean;
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
+    name: string;
+    type: string;
+    payable?: undefined;
+    stateMutability?: undefined;
+    constant?: undefined;
+    outputs?: undefined;
+} | {
+    constant: boolean;
+    inputs: {
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
+    name: string;
+    outputs: {
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
+    payable: boolean;
+    stateMutability: string;
+    type: string;
+    anonymous?: undefined;
+})[];
 export declare const mediaFactoryAbi: ({
     anonymous: boolean;
     inputs: {
@@ -22,6 +63,41 @@ export declare const mediaFactoryAbi: ({
         name: string;
         type: string;
     }[];
+    stateMutability: string;
+    type: string;
+    anonymous?: undefined;
+})[];
+export declare const zapVaultAbi: ({
+    anonymous: boolean;
+    inputs: {
+        indexed: boolean;
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
+    name: string;
+    type: string;
+    outputs?: undefined;
+    stateMutability?: undefined;
+} | {
+    inputs: never[];
+    name: string;
+    outputs: {
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
+    stateMutability: string;
+    type: string;
+    anonymous?: undefined;
+} | {
+    inputs: {
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
+    name: string;
+    outputs: never[];
     stateMutability: string;
     type: string;
     anonymous?: undefined;
