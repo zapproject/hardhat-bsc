@@ -222,6 +222,8 @@ describe('ZapMedia', () => {
         });
 
         it('Should be able to mint', async () => {
+          // require('@zapsdk')
+
           const media = new ZapMedia(1337, signer);
 
           const preTotalSupply = (await media.fetchTotalMedia()).toNumber();
@@ -449,6 +451,41 @@ describe('ZapMedia', () => {
 
           const postApprovedStatus = await media.fetchApproved(0);
           expect(postApprovedStatus).to.equal(await signer1.getAddress());
+        });
+      });
+
+      describe('#setApprovalForAll', () => {
+        it('Should set approval for another address for all tokens owned by owner', async () => {
+          const signer1 = provider.getSigner(1);
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const preApprovalStatus = await media.fetchIsApprovedForAll(
+            await signer.getAddress(),
+            await signer1.getAddress(),
+          );
+
+          expect(preApprovalStatus).to.be.false;
+
+          await media.setApprovalForAll(await signer1.getAddress(), true);
+
+          const postApprovalStatus = await media.fetchIsApprovedForAll(
+            await signer.getAddress(),
+            await signer1.getAddress(),
+          );
+
+          expect(postApprovalStatus).to.be.true;
+
+          await media.setApprovalForAll(await signer1.getAddress(), false);
+
+          const revoked = await media.fetchIsApprovedForAll(
+            await signer.getAddress(),
+            await signer1.getAddress(),
+          );
+
+          expect(revoked).to.be.false;
         });
       });
     });

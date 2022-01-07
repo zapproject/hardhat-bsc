@@ -119,6 +119,15 @@ class ZapMedia {
     return this.media.getApproved(mediaId);
   }
 
+  /**
+   * Fetches if the specified operator is approved for all media owned by the specified owner on an instance of the Zap Media Contract
+   * @param owner
+   * @param operator
+   */
+  public async fetchIsApprovedForAll(owner: string, operator: string): Promise<boolean> {
+    return this.media.isApprovedForAll(owner, operator);
+  }
+
   public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
     try {
       return await this.media.updateTokenURI(mediaId, tokenURI);
@@ -139,6 +148,18 @@ class ZapMedia {
    */
   public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
     return this.media.approve(to, mediaId);
+  }
+
+  /**
+   * Grants approval for all media owner by msg.sender on an instance of the Zap Media Contract
+   * @param operator
+   * @param approved
+   */
+  public async setApprovalForAll(
+    operator: string,
+    approved: boolean,
+  ): Promise<ContractTransaction> {
+    return this.media.setApprovalForAll(operator, approved);
   }
 
   /**
