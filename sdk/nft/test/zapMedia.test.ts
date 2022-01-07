@@ -332,6 +332,68 @@ describe('ZapMedia', () => {
         //   const nullOnChainBid = await zap.()
         // }
       });
+
+      describe('#removeAsk', () => {
+        it('Should throw an error if the removeAsk tokenId does not exist', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+          const media = new ZapMedia(1337, signer);
+
+          await media
+            .removeAsk(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (removeAsk): TokenId does not exist.',
+              );
+            });
+        });
+
+        it('Should throw an error if the tokenId exists but an ask was not set', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .removeAsk(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (removeAsk): Ask was never set.',
+              );
+            });
+        });
+
+        it('Should remove an ask', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const getApproved = await media.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await media.setAsk(0, ask);
+
+          const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
+
+          await media.removeAsk(0);
+
+          const onChainAskRemoved = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          expect(parseInt(onChainAskRemoved.amount.toString())).to.equal(0);
+          expect(onChainAskRemoved.currency).to.equal(ethers.constants.AddressZero);
+        });
+      });
     });
   });
 });

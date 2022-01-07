@@ -190,6 +190,26 @@ class ZapMedia {
   }
 
   /**
+   * Removes the ask on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async removeAsk(mediaId: BigNumberish): Promise<ContractTransaction> {
+    const ask = await this.market.currentAskForToken(this.media.address, mediaId);
+
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (removeAsk): TokenId does not exist.');
+    }
+
+    if (ask.amount == 0) {
+      invariant(false, 'ZapMedia (removeAsk): Ask was never set.');
+    } else {
+      return this.media.removeAsk(mediaId);
+    }
+  }
+
+  /**
    * Updates the metadata uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    * @param metadataURI
