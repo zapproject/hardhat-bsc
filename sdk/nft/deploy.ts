@@ -1,21 +1,20 @@
-const { ethers, BigNumber } = require('ethers');
+import { ethers, BigNumber } from 'ethers';
 
-const abis = require('./abi');
+import * as abis from './abi';
 
-const bytecodes = require('./bytecode');
+import * as bytecodes from './bytecode';
 
-const ganache = require('ganache-cli');
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 const signer = provider.getSigner(0);
 
-let zapTokenAddress;
-let zapVaultAddress;
-let zapMarketAddress;
-let zapMediaImplAddress;
-let mediaFactoryAddress;
+let zapTokenAddress: string;
+let zapVaultAddress: string;
+let zapMarketAddress: string;
+let zapMediaImplAddress: string;
+let mediaFactoryAddress: string;
 
-const deployZapToken = async () => {
+export const deployZapToken = async () => {
   const tokenFactory = new ethers.ContractFactory(
     abis.zapTokenBscAbi,
     bytecodes.zapTokenBscBytecode,
@@ -31,7 +30,7 @@ const deployZapToken = async () => {
   return zapToken;
 };
 
-const deployZapVault = async () => {
+export const deployZapVault = async () => {
   const vaultFactory = new ethers.ContractFactory(
     abis.zapVaultAbi,
     bytecodes.zapVaultBytecode,
@@ -49,7 +48,7 @@ const deployZapVault = async () => {
   return zapVault;
 };
 
-const deployZapMarket = async () => {
+export const deployZapMarket = async () => {
   // Sets the fee at to 5%
   const platformFee = {
     fee: {
@@ -74,7 +73,7 @@ const deployZapMarket = async () => {
   return zapMarket;
 };
 
-const deployZapMediaImpl = async () => {
+export const deployZapMediaImpl = async () => {
   const mediaFactory = new ethers.ContractFactory(
     abis.zapMediaAbi,
     bytecodes.zapMediaBytecode,
@@ -90,7 +89,7 @@ const deployZapMediaImpl = async () => {
   return zapMedia;
 };
 
-const deployMediaFactory = async () => {
+export const deployMediaFactory = async () => {
   const mediaFactoryFactory = new ethers.ContractFactory(
     abis.mediaFactoryAbi,
     bytecodes.mediaFactoryBytecode,
@@ -108,7 +107,7 @@ const deployMediaFactory = async () => {
   return mediaFactory;
 };
 
-const deployZapMedia = async () => {
+export const deployZapMedia = async () => {
   // ZapMarket contract instance
   const zapMarket = new ethers.Contract(zapMarketAddress, abis.zapMarketAbi, signer);
 
@@ -139,13 +138,4 @@ const deployZapMedia = async () => {
   await zapMedia.claimTransferOwnership();
 
   return zapMedia;
-};
-
-module.exports = {
-  deployZapToken: deployZapToken,
-  deployZapVault: deployZapVault,
-  deployZapMarket: deployZapMarket,
-  deployZapMediaImpl: deployZapMediaImpl,
-  deployMediaFactory: deployMediaFactory,
-  deployZapMedia: deployZapMedia,
 };

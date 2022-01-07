@@ -16,6 +16,7 @@ import { MediaData, BidShares, Ask } from './types';
 
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
+import { sign } from 'crypto';
 
 class ZapMedia {
   networkId: number;
@@ -110,6 +111,14 @@ class ZapMedia {
     return this.media.totalSupply();
   }
 
+  /**
+   * Fetches the approved account for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchApproved(mediaId: BigNumberish): Promise<string> {
+    return this.media.getApproved(mediaId);
+  }
+
   public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
     try {
       return await this.media.updateTokenURI(mediaId, tokenURI);
@@ -118,12 +127,26 @@ class ZapMedia {
     }
   }
 
+  /***********************
+   * ERC-721 Write Methods
+   ***********************
+   */
+
+  /**
+   * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
+   * @param to
+   * @param mediaId
+   */
+  public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
+    return this.media.approve(to, mediaId);
+  }
+
   /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param mintData
    * @param bidShares
    */
-  public async mint(mediaData: MediaData, bidShares: BidShares): Promise<any> {
+  public async mint(mediaData: MediaData, bidShares: BidShares): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
       validateURI(mediaData.metadataURI);
@@ -143,7 +166,27 @@ class ZapMedia {
    * @param ask
    */
   public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction> {
-    return this.media.setAsk(mediaId, ask);
+    // Returns the address of the tokenOwner
+    const tokenOwner = await this.media.ownerOf(mediaId);
+
+    // Returns the address of the connected signer
+    const signerAddress = await this.signer.getAddress();
+
+    // Returns the address approved for the tokenId
+    const isApproved = await this.media.getApproved(mediaId);
+
+    // If the signer is not the token owner and the approved address is a zerp address
+    if (tokenOwner !== signerAddress && isApproved === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (setAsk): Media: Only approved or owner.');
+
+      // If the signer is not the token owner or if the signer is the approved address
+    } else if (tokenOwner !== signerAddress || isApproved === signerAddress) {
+      return this.media.setAsk(mediaId, ask);
+
+      // If the signer is the token owner and is not the approved address
+    } else {
+      return this.media.setAsk(mediaId, ask);
+    }
   }
 
   /**
@@ -161,7 +204,8 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    return this.media.updateTokenMetadataURI(mediaId, metadataURI);
+    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(mediaId, metadataURI);
+    return this.media.updateTokenMetadataURI(mediaId, metadataURI, { gasLimit: gasEstimate });
   }
 }
 export default ZapMedia;

@@ -6,7 +6,6 @@ import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
-// import '../token/ZapTokenBSC.sol';
 import './libraries/Address.sol';
 import './Vault.sol';
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -224,14 +223,12 @@ contract Zap {
         require(zap.stakerDetails[msg.sender].currentStatus == 1, "Caller must be staked");
 
         address currentVault = zap.addressVars[keccak256('_vault')];
-        (address _from, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
+        (, address _to, uint256 _disputeFee) = zap.tallyVotes(_disputeId);
 
         ZapStorage.Dispute storage disp = zap.disputesById[_disputeId];
         bytes memory data;
 
         Vault vault = Vault(currentVault);
-
-        ZapStorage.StakeInfo storage stakes = zap.stakerDetails[disp.reportedMiner];
 
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet

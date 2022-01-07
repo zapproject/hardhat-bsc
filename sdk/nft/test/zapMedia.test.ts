@@ -1,4 +1,4 @@
-import chai, { expect, should, assert } from 'chai';
+import chai, { expect, use } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
@@ -9,7 +9,14 @@ import ZapMedia from '../zapMedia';
 import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
-const contracts = require('../deploy.js');
+import {
+  deployZapToken,
+  deployZapVault,
+  deployZapMarket,
+  deployZapMediaImpl,
+  deployMediaFactory,
+  deployZapMedia,
+} from '../deploy';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -18,7 +25,6 @@ describe('ZapMedia', () => {
   let ask: any;
   let mediaData: any;
   let token: any;
-  let tokenAddress: string;
   let zapVault: any;
   let zapMarket: any;
   let zapMediaImpl: any;
@@ -29,13 +35,12 @@ describe('ZapMedia', () => {
   beforeEach(async () => {
     signer = provider.getSigner(0);
 
-    token = await contracts.deployZapToken();
-    tokenAddress = token.address;
-    zapVault = await contracts.deployZapVault();
-    zapMarket = await contracts.deployZapMarket();
-    zapMediaImpl = await contracts.deployZapMediaImpl();
-    mediaFactory = await contracts.deployMediaFactory();
-    zapMedia = await contracts.deployZapMedia();
+    token = await deployZapToken();
+    zapVault = await deployZapVault();
+    zapMarket = await deployZapMarket();
+    zapMediaImpl = await deployZapMediaImpl();
+    mediaFactory = await deployMediaFactory();
+    zapMedia = await deployZapMedia();
 
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
@@ -80,8 +85,6 @@ describe('ZapMedia', () => {
           15,
           35,
         );
-
-        ask = constructAsk(tokenAddress, 100);
       });
 
       describe('#updateContentURI', () => {
@@ -247,13 +250,72 @@ describe('ZapMedia', () => {
       });
 
       describe('#setAsk', () => {
-        it('sets an ask for a piece of media', async () => {
-          const zap = require('@zapSdk');
+        it('Should throw an error if the signer is not approved nor the owner', async () => {
+          ask = constructAsk(zapMedia.address, 100);
 
+          const signer1 = provider.getSigner(1);
+          const media = new ZapMedia(1337, signer);
+          const media1 = new ZapMedia(1337, signer1);
+
+          await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+          const getApproved = await media.fetchApproved(0);
+
+          expect(owner).to.not.equal(await signer1.getAddress());
+          expect(owner).to.equal(await signer.getAddress());
+          expect(getApproved).to.not.equal(await signer1.getAddress());
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await media1
+            .setAsk(0, ask)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (setAsk): Media: Only approved or owner.',
+              );
+            });
+        });
+        it('Should set an ask by the owner', async () => {
+          ask = constructAsk(zapMedia.address, 100);
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const getApproved = await media.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
           await media.setAsk(0, ask);
+
+          const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
+        });
+
+        it('Should set an ask by the approved', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+
+          const signer1 = provider.getSigner(1);
+          const media = new ZapMedia(1337, signer);
+          const media1 = new ZapMedia(1337, signer1);
+
+          await media.mint(mediaData, bidShares);
+
+          await media.approve(await signer1.getAddress(), 0);
+
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const getApproved = await media.fetchApproved(0);
+          expect(getApproved).to.equal(await signer1.getAddress());
+
+          await media1.setAsk(0, ask);
 
           const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
 
