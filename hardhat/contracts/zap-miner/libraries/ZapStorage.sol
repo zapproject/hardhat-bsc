@@ -44,12 +44,6 @@ library ZapStorage {
         uint256 startDate; //stake start date
     }
 
-    //Internal struct to allow balances to be queried by blocknumber for voting purposes
-    struct Checkpoint {
-        uint128 fromBlock; // fromBlock is the block number that the value was generated from
-        uint128 value; // value is the amount of tokens at a specific block number
-    }
-
     struct Request {
         string queryString; //id to string api
         string dataSymbol; //short name for api request
@@ -107,8 +101,6 @@ library ZapStorage {
         mapping(uint256 => uint256) requestIdByTimestamp; //minedTimestamp to apiId
         mapping(uint256 => uint256) requestIdByRequestQIndex; //link from payoutPoolIndex (position in payout pool array) to apiId
         mapping(uint256 => Dispute) disputesById; //disputeId=> Dispute details
-        mapping(address => Checkpoint[]) balances; //balances of a party given blocks
-        mapping(address => mapping(address => uint256)) allowed; //allowance for a given party and approver
         mapping(address => StakeInfo) stakerDetails; //mapping from a persons address to their staking info
         mapping(uint256 => Request) requestDetails; //mapping of apiID to details
         mapping(bytes32 => uint256) requestIdByQueryHash; // api bytes32 gets an id = to count of requests array

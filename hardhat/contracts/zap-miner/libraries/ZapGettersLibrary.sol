@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import './SafeMathM.sol';
 import './ZapStorage.sol';
 import './Utilities.sol';
 
@@ -11,8 +10,6 @@ import './Utilities.sol';
  * libary for the getters logic
  */
 library ZapGettersLibrary {
-    using SafeMathM for uint256;
-
     event NewZapAddress(address _newZap); //emmited when a proposed fork is voted true
 
     /*Functions*/
