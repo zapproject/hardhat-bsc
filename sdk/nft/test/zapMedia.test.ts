@@ -35,6 +35,7 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
+  let fetchMediaByIndex: any;
 
   beforeEach(async () => {
     signer = provider.getSigner(0);
@@ -521,8 +522,27 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           // console.log(await media.isValidBid(0,bid))
-        });
+
+         });
       });
+       describe.only('#fetchMedia', () => {
+         it('Should get media instance by index in the media contract', async () => {
+
+          const media =  new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media.fetchMediaByIndex(0);
+
+        //   if (typeof media.fetchMediaByIndex !== '0x00') {
+        //     throw new TypeError('Numeric collection can only store numbers!')
+        // }
+         console.log(await media.fetchMediaByIndex(0));
+         });
+
+         
+
+       }); 
     });
   });
 });

@@ -19,6 +19,7 @@ import { timeStamp } from 'console';
 import { sign } from 'crypto';
 
 class ZapMedia {
+ 
   networkId: number;
   mediaIndex: any;
   media: any;
@@ -109,6 +110,9 @@ class ZapMedia {
    */
   public async fetchTotalMedia(): Promise<BigNumber> {
     return this.media.totalSupply();
+  }
+  public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
+    return this.media.tokenByIndex(index)
   }
 
   /**
