@@ -225,9 +225,7 @@ describe('ZapMedia', () => {
             });
         });
 
-        it('Should be able to mint', async () => {
-          // require('@zapsdk')
-
+        it.only('Should be able to mint', async () => {
           const media = new ZapMedia(1337, signer);
 
           const preTotalSupply = (await media.fetchTotalMedia()).toNumber();
@@ -237,11 +235,14 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
+          const creator = await media.fetchCreator(0);
+
           const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
           const onChainContentURI = await media.fetchContentURI(0);
           const onChainMetadataURI = await media.fetchMetadataURI(0);
 
           expect(owner).to.equal(await signer.getAddress());
+          expect(creator).to.equal(await signer.getAddress());
           expect(onChainContentURI).to.equal(mediaData.tokenURI);
           expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
