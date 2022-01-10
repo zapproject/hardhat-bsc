@@ -177,6 +177,34 @@ class ZapMedia {
   }
 
   /**
+   * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
+   * @param from
+   * @param to
+   * @param mediaId
+   */
+  public async safeTransferFrom(
+    from: string,
+    to: string,
+    mediaId: BigNumberish,
+  ): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (safeTransferFrom): TokenId does not exist.');
+    }
+
+    if (from === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.');
+    }
+
+    if (to === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.');
+    }
+
+    return this.media['safeTransferFrom(address,address,uint256)'](from, to, mediaId);
+  }
+
+  /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param mintData
    * @param bidShares
