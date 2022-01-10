@@ -225,7 +225,7 @@ describe('ZapMedia', () => {
             });
         });
 
-        it.only('Should be able to mint', async () => {
+        it('Should be able to mint', async () => {
           const media = new ZapMedia(1337, signer);
 
           const preTotalSupply = (await media.fetchTotalMedia()).toNumber();
@@ -253,6 +253,23 @@ describe('ZapMedia', () => {
           );
           expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+      });
+
+      describe.only('#getTokenCreators', () => {
+        it('Should throw an error if the tokenId does not exist', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media
+            .fetchCreator(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (fetchCreator): TokenId does not exist.',
+              );
+            });
         });
       });
 
