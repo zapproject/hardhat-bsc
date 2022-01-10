@@ -1,136 +1,115 @@
-// // Chai test method
-// import { expect } from 'chai';
+// Chai test method
+import { expect } from 'chai';
 
-// // Ethers Types
-// import { Contract, ethers } from 'ethers';
+// Ethers Types
+import { Contract, ethers } from 'ethers';
 
-// // ZapMarket ABI
-// import { zapMarketAbi } from '../abi';
+// ZapMarket ABI
+import { zapMarketAbi } from '../src/contract/abi';
 
-// // MediaFactory class
-// import MediaFactory from '../mediaFactory';
+// MediaFactory class
+import MediaFactory from '../src/mediaFactory';
 
-// // ZapMarket localhost address
-// import { zapMarketAddresses } from '../addresses';
+// ZapMarket localhost address
+import {
+  zapMarketAddresses,
+  mediaFactoryAddresses,
+  zapMediaAddresses,
+} from '../src/contract/addresses';
 
-// // Hardhat localhost connection
-// const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+import {
+  deployZapToken,
+  deployZapVault,
+  deployZapMarket,
+  deployZapMediaImpl,
+  deployMediaFactory,
+  deployZapMedia,
+} from '../src/deploy';
 
-// /**
-//    * Creates the ZapMarket instance.
-//    * @param {object} signer - Hardhat localhost abstraction of an Ethereum account.
-//    */
-// function deployMarket(signer: any) {
+// Hardhat localhost connection
+const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-//     // Creates the instance of ZapMarket
-//     const zapMarket = new ethers.Contract(
-//         zapMarketAddresses['31337'],
-//         zapMarketAbi,
-//         signer,
-//     );
+describe('MediaFactory', () => {
+  let mediaFactory: any;
 
-//     // Returns the ZapMarket instance
-//     return zapMarket;
+  let zapMarket: any;
 
-// }
+  let media: any;
 
-// describe("MediaFactory", () => {
+  let mediaAddress: string;
 
-//     // Hardhat signers[0]: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-//     let signer1: any
+  let token: any;
+  let zapVault: any;
+  let zapMediaImpl: any;
+  let signer: any;
+  let zapMedia: any;
 
-//     let mediaFactory: any
+  before(async () => {
+    signer = provider.getSigner(0);
 
-//     let zapMarket: Contract;
+    token = await deployZapToken();
+    zapVault = await deployZapVault();
+    zapMarket = await deployZapMarket();
+    zapMediaImpl = await deployZapMediaImpl();
+    mediaFactory = await deployMediaFactory();
+    zapMedia = await deployZapMedia();
 
-//     let media: Contract;
+    zapMarketAddresses['1337'] = zapMarket.address;
+    mediaFactoryAddresses['1337'] = mediaFactory.address;
+    zapMediaAddresses['1337'] = zapMedia.address;
 
-//     let mediaAddress: string;
+    mediaFactory = new MediaFactory(1337, signer);
 
-//     before(async () => {
+    // Deploys a media collection through the mediaFactory
+    media = await mediaFactory.deployMedia('Test Collection', 'TC', false, 'ipfs://testing');
 
-//         // Hardhat localhost account: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-//         signer1 = provider.getSigner(1);
+    // Address of the deployed media collection
+    mediaAddress = media.args.mediaContract;
+  });
 
-//         /*Instantiates the MediaFactory class by passing in
-//          the chainId for the Hardhat localhost node on port 8545
-//          and the Hardhat localhost account
-//         */
-//         mediaFactory = new MediaFactory(31337, signer1);
+  it('Should be able to deploy a Media collection', async () => {
+    // The event name is "MediaDeployed"
+    const eventName = media.event;
+    // The emitted name should equal MediaDeployed
+    expect(eventName).to.equal('MediaDeployed');
+  });
 
-//         // ZapMarket contract instance
-//         zapMarket = deployMarket(signer1);
+  it('Should emit a MediaContractCreated event on configuration', async () => {
+    // Filters for the MediaContractCreated event
+    const filter = zapMarket.filters.MediaContractCreated(null, null, null);
 
-//         // Deploys a media collection through the mediaFactory
-//         media = await mediaFactory.deployMedia(
-//             "Test Collection",
-//             "TC",
-//             false,
-//             "ipfs://testing"
-//         );
+    // Transaction logs
+    const eventLogs = await zapMarket.queryFilter(filter);
 
-//         // Address of the deployed media collection
-//         mediaAddress = media.args.mediaContract
+    // Gets the MediaContractCreated event associated with this deployment
+    const event = eventLogs[eventLogs.length - 1];
 
-//     })
+    // The emitted event should equal MediaContractCreated
+    expect(event.event).to.equal('MediaContractCreated');
 
-//     it("Should be able to deploy a Media collection", async () => {
+    // The emitted MediaContractCreated address should equal the emitted MediaDeployed address
+    expect(event.args?.mediaContract).to.equal(mediaAddress);
 
-//         // The event name is "MediaDeployed"
-//         const eventName = media.event;
+    // The emitted collection name should equal the collection name set on deployment
+    expect(event.args?.name).to.equal(ethers.utils.formatBytes32String('Test Collection'));
 
-//         // The emitted name should equal MediaDeployed
-//         expect(eventName).to.equal('MediaDeployed');
+    // The emitted collection symbol should equal the collection symbol set on deployment
+    expect(event.args?.symbol).to.equal(ethers.utils.formatBytes32String('TC'));
+  });
 
-//     });
+  it('Should be registered to MediaFactory', async () => {
+    // Deployed collection registration status
+    const isRegistered = await zapMarket.isRegistered(mediaAddress);
 
-//     it("Should emit a MediaContractCreated event on configuration", async () => {
+    // Registration status should equal true
+    expect(isRegistered).to.equal(true);
+  });
 
-//         // Filters for the MediaContractCreated event
-//         const filter = zapMarket.filters.MediaContractCreated(
-//             null,
-//             null,
-//             null
-//         );
+  it('Should be configured to ZapMarket', async () => {
+    // Deployed collection configuration status
+    const isConfigured = await zapMarket.isConfigured(mediaAddress);
 
-//         // Transaction logs 
-//         const eventLogs = await zapMarket.queryFilter(filter)
-
-//         // Gets the MediaContractCreated event associated with this deployment
-//         const event = eventLogs[eventLogs.length - 1]
-
-//         // The emitted event should equal MediaContractCreated
-//         expect(event.event).to.equal("MediaContractCreated");
-
-//         // The emitted MediaContractCreated address should equal the emitted MediaDeployed address
-//         expect(event.args?.mediaContract).to.equal(mediaAddress);
-
-//         // The emitted collection name should equal the collection name set on deployment
-//         expect(event.args?.name).to.equal(ethers.utils.formatBytes32String('Test Collection'));
-
-//         // The emitted collection symbol should equal the collection symbol set on deployment
-//         expect(event.args?.symbol).to.equal(ethers.utils.formatBytes32String('TC'));
-
-//     });
-
-//     it("Should be registered to MediaFactory", async () => {
-
-//         // Deployed collection registration status
-//         const isRegistered = await zapMarket.isRegistered(mediaAddress);
-
-//         // Registration status should equal true
-//         expect(isRegistered).to.equal(true);
-
-//     });
-
-//     it("Should be configured to ZapMarket", async () => {
-
-//         // Deployed collection configuration status
-//         const isConfigured = await zapMarket.isConfigured(mediaAddress);
-
-//         // Configuration status should equal true
-//         expect(isConfigured).to.equal(true);
-
-//     });
-
-// });
+    // Configuration status should equal true
+    expect(isConfigured).to.equal(true);
+  });
+});
