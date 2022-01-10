@@ -181,7 +181,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
       expect(didMineStatus).to.be.true;
     }
   });
-//186-194
+
   it('Should be able to dispute a submission.', async () => {
     // Converts the uintVar "stakeAmount" to a bytes array
     const timeOfLastNewValueBytes: Uint8Array = ethers.utils.toUtf8Bytes(
@@ -236,6 +236,29 @@ describe("Test ZapDispute and it's dispute functions", () => {
     expect(disp[7][0]).to.equal(1);
     // expect timestamp to be the same timestamp used when disputed
     expect(disp[7][1]).to.equal(timeStamp);
+
+    // check dispute fee increased 
+    let disputeFee = await getUintVarHelper("disputeFee");
+    let stakeAmount = await getUintVarHelper("stakeAmount");
+    let stakers = await getUintVarHelper("stakerCount");
+    let targetMiners = await getUintVarHelper("targetMiners");
+
+    // self.uintVars[keccak256('stakeAmount')].mul(
+    //   1000 -
+    //   (self.uintVars[keccak256('stakerCount')] * 1000) /
+    //   self.uintVars[keccak256('targetMiners')]
+    // ) / 1000
+    expect(disputeFee).to.equal(
+      stakeAmount.mul(
+        BigNumber.from(1000).sub(
+          stakers.mul(
+            BigNumber.from(1000)
+          ).div(targetMiners)
+        )
+      ).div(
+        BigNumber.from(1000)
+      )
+    );
   });
 
   it('Should be able to vote for (true) a dispute.', async () => {
