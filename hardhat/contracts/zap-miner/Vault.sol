@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import './libraries/SafeMathM.sol';
 import './ZapMaster.sol';
 
 contract Vault {
-    using SafeMathM for uint256;
-
     bool private approveLocked;
 
     address public zapToken;
     address private newVault;
-    address[] public accounts;
-
     address private zapMaster;
+    address[] public accounts;
 
     mapping(address => uint256) private indexes;
     mapping(address => uint256) private balances;
@@ -39,13 +35,12 @@ contract Vault {
     constructor (address token, address master) {
         zapToken = token;
         zapMaster = master;
-        
         token.call(abi.encodeWithSignature("approve(address,uint256)", master, MAX_UINT));
     }
 
     function increaseApproval() public returns (bool) {
         (, bytes memory balance) = zapToken.call(abi.encodeWithSignature("allowance(address,address)", address(this), zapMaster));
-        uint256 amount = MAX_UINT.sub(toUint256(balance, 0));
+        uint256 amount = MAX_UINT - toUint256(balance, 0);
         (bool success, ) = zapToken.call(abi.encodeWithSignature("increaseApproval(address,uint256)", zapMaster, amount));
         return success;
     }
@@ -67,19 +62,19 @@ contract Vault {
             indexes[userAddress] = accounts.length;
             accounts.push(userAddress);
         }
-        balances[userAddress] = balances[userAddress].add(value);
+        balances[userAddress] = balances[userAddress] + value;
     }
 
     function withdraw(address userAddress, uint256 value) public onlyVaultOrZapMaster {
         require(userAddress != address(0), "The zero address does not own a vault.");
         require(userBalance(userAddress) >= value, "Your balance is insufficient.");
-        if (balances[userAddress].sub(value) == 0) {
+        if (balances[userAddress] - value == 0) {
             delete accounts[indexes[userAddress]];
             delete indexes[userAddress];
-            balances[userAddress] = balances[userAddress].sub(value);
+            balances[userAddress] = balances[userAddress] - value;
             delete balances[userAddress];
         } else {
-            balances[userAddress] = balances[userAddress].sub(value);
+            balances[userAddress] = balances[userAddress] - value;
         }
     }
 

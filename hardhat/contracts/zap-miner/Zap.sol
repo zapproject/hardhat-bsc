@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapDispute.sol';
 import './libraries/ZapStake.sol';
@@ -65,9 +64,7 @@ contract Zap {
         address indexed proposedContract
     );
 
-    using SafeMathM for uint256;
     using Address for address;
-
     using ZapDispute for ZapStorage.ZapStorageStruct;
     using ZapLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
@@ -552,8 +549,7 @@ contract Zap {
         //If the tip >0 update the tip for the requestId
         if (_tip > 0) {
             _request.apiUintVars[keccak256('totalTip')] = _request
-            .apiUintVars[keccak256('totalTip')]
-            .add(_tip);
+            .apiUintVars[keccak256('totalTip')] + _tip;
         }
         //Set _payout for the submitted request
         uint256 _payout = _request.apiUintVars[keccak256('totalTip')];
