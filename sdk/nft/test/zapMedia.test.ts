@@ -511,7 +511,7 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#safeTransferFrom', () => {
+      describe('#safeTransferFrom', () => {
         it('Should revert if the tokenId does not exist', async () => {
           const recipient = await provider.getSigner(1).getAddress();
 
@@ -529,7 +529,7 @@ describe('ZapMedia', () => {
             });
         });
 
-        it('Should revert if the from is a zero address', async () => {
+        it('Should revert if the (from) is a zero address', async () => {
           const recipient = await provider.getSigner(1).getAddress();
 
           const media = new ZapMedia(1337, signer);
@@ -544,6 +544,23 @@ describe('ZapMedia', () => {
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.',
+              );
+            });
+        });
+
+        it('Should revert if the (to) is a zero address', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .safeTransferFrom(await signer.getAddress(), ethers.constants.AddressZero, 0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.',
               );
             });
         });

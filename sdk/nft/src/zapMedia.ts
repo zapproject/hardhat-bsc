@@ -197,6 +197,10 @@ class ZapMedia {
       invariant(false, 'ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.');
     }
 
+    if (to === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.');
+    }
+
     return this.media['safeTransferFrom(address,address,uint256)'](from, to, mediaId);
   }
 
