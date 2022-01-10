@@ -1,7 +1,7 @@
 export const mediaFactoryAddresses = {
 
   // Localhost
-  31337: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+  1337: '',
 
   // Rinkeby
   4: '0x3a8f450C7844A8e8AbeFc7a0A7F37e8beC28c77C',
@@ -19,7 +19,7 @@ export const mediaFactoryAddresses = {
 export const zapMarketAddresses = {
 
   // Localhost
-  31337: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+  1337: '',
 
   // Rinkeby
   4: '0x61d099A2799eE012173eceA89ca9FDcA10d02C1c',
@@ -33,3 +33,22 @@ export const zapMarketAddresses = {
   // BSC Mainnet
   56: '0x53813994415203448cdF5b2113d82b9D0058A23C',
 };
+
+export const zapMediaAddresses = {
+
+  // Localhost
+  1337: '',
+
+  // Rinkeby
+  4: '0xa6b70C1Ad5D443d6C53C0A563f56bF0AF7F582D4',
+
+  // Ethereum Mainnet
+  1: '0xBBd7B3fcA15a10BA76811117Ba83Da259691362d',
+
+  // BSC Testnet
+  97: '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
+
+  // BSC Mainnet
+  56: '0x795Ef08D74295f773b6C6D197fC5c6eFD5610B31',
+};
+

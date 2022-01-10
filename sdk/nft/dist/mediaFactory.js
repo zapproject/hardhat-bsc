@@ -35,30 +35,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var _1 = __importDefault(require("."));
+var ethers_1 = require("ethers");
+var utils_1 = require("./utils");
+var abi_1 = require("./abi");
 var MediaFactory = /** @class */ (function () {
-    function MediaFactory() {
+    function MediaFactory(networkId, signer) {
+        this.networkId = networkId;
+        this.signer = signer;
+        this.contract = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).mediaFactoryAddress, abi_1.mediaFactoryAbi, signer);
     }
-    MediaFactory.prototype.deployMedia = function (networkId, signer, collectionName, collectionSymbol, permissive, collectionMetadta) {
+    /**
+     * Deploys a NFT collection.
+     * @param {string} collectionName - The name of the NFT collection.
+     * @param {string} collectionSymbol - The symbol of the NFT collection.
+     * @param {boolean} permissive - Determines if minting can be performed other than the collection owner.
+     * @param {string} collectionMetadta - Contract level metadata.
+     */
+    MediaFactory.prototype.deployMedia = function (collectionName, collectionSymbol, permissive, collectionMetadta) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, err_1;
+            var tx, receipt, eventLog;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, (0, _1.default)(networkId, signer, collectionName, collectionSymbol, permissive, collectionMetadta)];
+                    case 0: return [4 /*yield*/, this.contract.deployMedia(collectionName, collectionSymbol, (0, utils_1.contractAddresses)(this.networkId).zapMarketAddress, permissive, collectionMetadta)];
                     case 1:
-                        result = _a.sent();
-                        return [2 /*return*/, result];
+                        tx = _a.sent();
+                        return [4 /*yield*/, tx.wait()];
                     case 2:
-                        err_1 = _a.sent();
-                        console.log(err_1);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        receipt = _a.sent();
+                        eventLog = receipt.events[receipt.events.length - 1];
+                        // console.log('\n', {
+                        //   transactionHash: eventLog.transactionHash,
+                        //   event: eventLog.event,
+                        //   deployedCollectionAddress: eventLog.args.mediaContract,
+                        // });
+                        return [2 /*return*/, eventLog];
                 }
             });
         });
