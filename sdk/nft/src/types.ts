@@ -21,6 +21,17 @@ export type Ask = {
   amount: BigNumberish;
 };
 
+/**
+ * Zap Media Protocol Bid
+ */
+export type Bid = {
+  currency: string;
+  amount: BigNumberish;
+  bidder: string;
+  recipient: string;
+  sellOnShare: DecimalValue;
+};
+
 export type BidShares = {
   collaborators: any;
   collabShares: any;

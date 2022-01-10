@@ -510,6 +510,19 @@ describe('ZapMedia', () => {
           expect(newOwner).to.equal(recipient);
         });
       });
+
+      describe('#isValidBid', () => {
+        it('Should return true if the bid amount can be evenly split by current bidShares', async () => {
+          // const isValid = await zora.isValidBid(0, defaultBid)
+          // expect(isValid).toEqual(true)
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          // console.log(await media.isValidBid(0,bid))
+        });
+      });
     });
   });
 });

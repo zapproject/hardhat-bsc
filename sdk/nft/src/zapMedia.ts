@@ -278,5 +278,22 @@ class ZapMedia {
   public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
     return this.media.burn(mediaId);
   }
+
+  /**
+   * Checks to see if a Bid's amount is evenly splittable given the media's current bidShares
+   *
+   * @param mediaId
+   * @param bid
+   */
+  public async isValidBid(mediaId: BigNumberish, bid: any): Promise<boolean> {
+    const isAmountValid = await this.market.isValidBid(mediaId, bid.amount);
+    const decimal100 = Decimal.new(100);
+    const currentBidShares = await this.fetchCurrentBidShares(this.media.address, mediaId);
+    const isSellOnShareValid = bid.sellOnShare.value.lte(
+      decimal100.value.sub(currentBidShares.creator.value),
+    );
+
+    return isAmountValid && isSellOnShareValid;
+  }
 }
 export default ZapMedia;
