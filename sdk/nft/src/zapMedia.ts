@@ -85,6 +85,16 @@ class ZapMedia {
     return this.media.tokenMetadataURI(mediaId);
   }
 
+
+  /**
+   * Fetches the content hash for the specified media on the Zora Media Contract
+   * @param mediaId
+   */
+  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
+    return this.media.getTokenContentHashes(mediaId);
+  }
+
+
   /**
    * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
    * @param mediaId

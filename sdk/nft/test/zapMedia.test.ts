@@ -59,7 +59,51 @@ describe('ZapMedia', () => {
     });
   });
 
-  describe('contract Functions', () => {
+  describe('Contract Functions', () => {
+    describe('View Functions', () => {
+      let tokenURI =
+        'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
+      let metadataURI =
+        'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
+      beforeEach(async () => {
+        let metadataHex = ethers.utils.formatBytes32String('Test');
+        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+        let contentHex = ethers.utils.formatBytes32String('Test Car');
+        let contentHashRaw = ethers.utils.keccak256(contentHex);
+        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+        let contentHash = contentHashBytes;
+        let metadataHash = metadataHashBytes;
+
+
+        mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
+
+        bidShares = constructBidShares(
+          [
+            await provider.getSigner(1).getAddress(),
+            await provider.getSigner(2).getAddress(),
+            await provider.getSigner(3).getAddress(),
+          ],
+          [15, 15, 15],
+          15,
+          35,
+        );
+      });
+
+      describe("fetchContentHash", () => {
+        it('Should be able to fetch contentHash', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const onChainContentHash = await media.fetchContentHash(0)
+          expect(onChainContentHash).eq(ethers.utils.hexlify(mediaData.contentHash));
+        })
+      })
+
+
+
+    })
     describe('Write Functions', () => {
       let tokenURI =
         'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
