@@ -534,9 +534,9 @@ describe('ZapMedia', () => {
 
           await media.fetchMediaByIndex(0);
 
-        //   if (typeof media.fetchMediaByIndex !== '0x00') {
-        //     throw new TypeError('Numeric collection can only store numbers!')
-        // }
+          //expect(media).to.equal(fetchMediaByIndex(0));
+
+       
          console.log(await media.fetchMediaByIndex(0));
          });
 
