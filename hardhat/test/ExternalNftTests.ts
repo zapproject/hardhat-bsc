@@ -1441,5 +1441,58 @@ describe("External NFT, ZapMarketV2, MediaFactoryV2 Tests", () => {
             const createdAuction = await auctionHouse.auctions(0);
             console.log(createdAuction);
         });
+            // it("Should set the auction as approved", async () => {
+
+            // const tokenId = 1
+
+            // // external NFT contract needs to approve AuctionHouse first
+            // await osCreature.approve(auctionHouse.address, tokenId);
+
+
+            // // start an auction for an external token
+
+            // const mediaContract = osCreature.address
+            // const duration = 60 * 60 * 24 * 3 // 3 days in seconds
+            // const reservePrice = BigNumber.from('150000000000000000000'); // 150 Zap
+            // const curator = signers[1].address
+            // const curatorFeePercentage = 5
+            // const auctionCurrency = zapTokenBsc.address
+            // const isInternal = false;
+            // await auctionHouseV2.connect(signers[0]).createAuction(
+            //     tokenId,
+            //     mediaContract,
+            //     duration,
+            //     reservePrice,
+            //     curator,
+            //     curatorFeePercentage,
+            //     auctionCurrency,
+            //     isInternal
+            // ) 
+            // const createdAuction = await auctionHouse.auctions(0);
+            //   await auctionHouseV2.connect(curator).startAuction(0, true);
+
+            //   // expect((await auctionHouseV2.auctions(0)).approved).to.eq(true);
+            // });
+            // it("should emit an AuctionApproved event", async () => {
+            //   const block = await ethers.provider.getBlockNumber();
+            //   await auctionHouse.startAuction(1, true);
+            //   const events = await auctionHouse.queryFilter(
+            //     auctionHouseV2.filters.AuctionApprovalUpdated(null, null, null, null),
+            //     block
+            //   );
+            //   expect(events.length).eq(1);
+            //   const logDescription = auctionHouseV2.interface.parseLog(events[0]);
+
+            //   expect(logDescription.args.approved).to.eq(true);
+            // });
+            //       it("should set the first bid time", async () => {
+
+            //     await ethers.provider.send("evm_setNextBlockTimestamp", [9617249934]);
+
+            //     await auctionHouseV2.connect(curator).startAuction(0, true);
+            //     await auctionHouseV2.createBid(0, ONE_ETH, media1.address);
+
+            //     expect((await auctionHouse.auctions(0)).firstBidTime).to.eq(9617249934);
+            //   });
     })
 })
