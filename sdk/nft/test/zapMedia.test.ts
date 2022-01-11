@@ -283,6 +283,35 @@ describe('ZapMedia', () => {
         });
       });
 
+      describe('#tokenOfOwnerByIndex', () => {
+        it('Should throw an error if the (owner) is a zero address', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.',
+              );
+            });
+        });
+
+        it('Should return the token of the owner by index', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const tokenId = await media.fetchMediaOfOwnerByIndex(await signer.getAddress(), 0);
+
+          expect(parseInt(tokenId._hex)).to.equal(0);
+        });
+      });
+
       describe('#setAsk', () => {
         it('Should throw an error if the signer is not approved nor the owner', async () => {
           ask = constructAsk(zapMedia.address, 100);
