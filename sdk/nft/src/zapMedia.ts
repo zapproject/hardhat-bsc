@@ -66,6 +66,15 @@ class ZapMedia {
   }
 
   /**
+   * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
+   * @param owner
+   * @param index
+   */
+  public async fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber> {
+    return this.media.tokenOfOwnerByIndex(owner, index);
+  }
+
+  /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
