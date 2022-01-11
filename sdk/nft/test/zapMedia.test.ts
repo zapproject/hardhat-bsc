@@ -92,7 +92,7 @@ describe('ZapMedia', () => {
         );
       });
 
-      describe.only("test fetchContentHash, fetchMetadataHash", () => {
+      describe("test fetchContentHash, fetchMetadataHash", () => {
         it('Should be able to fetch contentHash', async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
@@ -100,8 +100,12 @@ describe('ZapMedia', () => {
           expect(onChainContentHash).eq(ethers.utils.hexlify(mediaData.contentHash));
         })
         it('fetchContentHash should get 0x0 if tokenId doesn\'t exist', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const onChainContentHash = await media.fetchContentHash(56)
 
-
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainContentHash).eq(ethers.constants.HashZero);
         })
         it('Should be able to fetch metadataHash', async () => {
           const media = new ZapMedia(1337, signer);
