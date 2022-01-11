@@ -359,12 +359,18 @@ describe('ZapMedia', () => {
       });
 
       describe('#setbid', () => {
-        // it('creates a new bid on chain', async () => {
-        //   const zap = new ZapMedia(1337, signer);
-        //   await zap.mint(mediaData, bidShares);
-        //   const onChainCurrentBidForBidder = await zap.fetchCurrentBidForBidder(zapMedia.address, 0);
-        //   const nullOnChainBid = await zap.()
-        // }
+        it.only('creates a new bid on chain', async () => {
+          const zap = new ZapMedia(1337, signer);
+          
+          await zap.mint(mediaData, bidShares);
+
+          const signer1 = provider.getSigner(1);
+          const zap1 = new ZapMedia(1337, signer1);
+
+          //const nullOnChainBid = await zap1.fetchCurrentBidForBidder()
+
+          
+        })
       });
 
       describe('#removeAsk', () => {
