@@ -126,6 +126,28 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
+     * Fetches the content hash for the specified media on the ZapMedia Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchContentHash = function (mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.getTokenContentHashes(mediaId)];
+            });
+        });
+    };
+    /**
+   * Fetches the metadata hash for the specified media on the ZapMedia Contract
+   * @param mediaId
+   */
+    ZapMedia.prototype.fetchMetadataHash = function (mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.getTokenMetadataHashes(mediaId)];
+            });
+        });
+    };
+    /**
      * Fetches the creator for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -168,6 +190,18 @@ var ZapMedia = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.market.currentAskForToken(mediaAddress, mediaId)];
+            });
+        });
+    };
+    /**
+    * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
+    * @param mediaId
+    * @param bidder
+    */
+    ZapMedia.prototype.fetchCurrentBidForBidder = function (mediaContractAddress, mediaId, bidder) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder)];
             });
         });
     };
@@ -356,6 +390,18 @@ var ZapMedia = /** @class */ (function () {
                         }
                         return [2 /*return*/];
                 }
+            });
+        });
+    };
+    /**
+   * Sets a bid on the specified media on an instance of the Zora Media Contract
+   * @param mediaId
+   * @param bid
+   */
+    ZapMedia.prototype.setBid = function (mediaId, bid) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.setBid(mediaId, bid)];
             });
         });
     };

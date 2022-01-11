@@ -1,5 +1,5 @@
 import { ContractTransaction, BigNumber, BigNumberish, Signer } from 'ethers';
-import { MediaData, BidShares, Ask } from './types';
+import { MediaData, BidShares, Ask, Bid } from './types';
 declare class ZapMedia {
     networkId: number;
     mediaIndex: any;
@@ -34,6 +34,16 @@ declare class ZapMedia {
      */
     fetchMetadataURI(mediaId: BigNumberish): Promise<string>;
     /**
+     * Fetches the content hash for the specified media on the ZapMedia Contract
+     * @param mediaId
+     */
+    fetchContentHash(mediaId: BigNumberish): Promise<string>;
+    /**
+   * Fetches the metadata hash for the specified media on the ZapMedia Contract
+   * @param mediaId
+   */
+    fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
+    /**
      * Fetches the creator for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -48,6 +58,12 @@ declare class ZapMedia {
      * @param mediaId
      */
     fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask>;
+    /**
+    * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
+    * @param mediaId
+    * @param bidder
+    */
+    fetchCurrentBidForBidder(mediaContractAddress: string, mediaId: BigNumberish, bidder: string): Promise<Bid>;
     /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
@@ -106,6 +122,12 @@ declare class ZapMedia {
      * @param ask
      */
     setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction>;
+    /**
+   * Sets a bid on the specified media on an instance of the Zora Media Contract
+   * @param mediaId
+   * @param bid
+   */
+    setBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction>;
     /**
      * Removes the ask on the specified media on an instance of the Zap Media Contract
      * @param mediaId

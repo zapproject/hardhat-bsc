@@ -22,6 +22,9 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
+import {getSigners} from './test_utils'
+
+
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 describe('ZapMedia', () => {
@@ -37,8 +40,12 @@ describe('ZapMedia', () => {
   let zapMedia: any;
   let bid: any;
 
+  const signers = getSigners(provider);
+
+
   beforeEach(async () => {
-    signer = provider.getSigner(0);
+    signer = signers[0]
+    // signer = provider.getSigner(0);
 
     token = await deployZapToken();
     zapVault = await deployZapVault();
@@ -73,7 +80,75 @@ describe('ZapMedia', () => {
     });
   });
 
-  describe('contract Functions', () => {
+  describe('Contract Functions', () => {
+    describe('View Functions', () => {
+      let tokenURI =
+        'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
+      let metadataURI =
+        'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
+      beforeEach(async () => {
+        let metadataHex = ethers.utils.formatBytes32String('Test');
+        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+        let contentHex = ethers.utils.formatBytes32String('Test Car');
+        let contentHashRaw = ethers.utils.keccak256(contentHex);
+        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+        let contentHash = contentHashBytes;
+        let metadataHash = metadataHashBytes;
+
+
+        mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
+
+        bidShares = constructBidShares(
+          [
+            await provider.getSigner(1).getAddress(),
+            await provider.getSigner(2).getAddress(),
+            await provider.getSigner(3).getAddress(),
+          ],
+          [15, 15, 15],
+          15,
+          35,
+        );
+      });
+
+      describe("test fetchContentHash, fetchMetadataHash", () => {
+        it('Should be able to fetch contentHash', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const onChainContentHash = await media.fetchContentHash(0)
+          expect(onChainContentHash).eq(ethers.utils.hexlify(mediaData.contentHash));
+        })
+        it('fetchContentHash should get 0x0 if tokenId doesn\'t exist', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const onChainContentHash = await media.fetchContentHash(56)
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainContentHash).eq(ethers.constants.HashZero);
+        })
+        it('Should be able to fetch metadataHash', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const onChainMetadataHash = await media.fetchMetadataHash(0)
+          expect(onChainMetadataHash).eq(ethers.utils.hexlify(mediaData.metadataHash));
+
+        })
+        it('fetchMetadataHash should get 0x0 if tokenId doesn\'t exist', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const onChainMetadataHash = await media.fetchMetadataHash(56)
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainMetadataHash).eq(ethers.constants.HashZero);
+
+        })
+      })
+
+
+
+    })
     describe('Write Functions', () => {
       let tokenURI =
         'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
@@ -95,9 +170,9 @@ describe('ZapMedia', () => {
 
         bidShares = constructBidShares(
           [
-            await provider.getSigner(1).getAddress(),
-            await provider.getSigner(2).getAddress(),
-            await provider.getSigner(3).getAddress(),
+            await signers[1].getAddress(),
+            await signers[2].getAddress(),
+            await signers[3].getAddress(),
           ],
           [15, 15, 15],
           15,
@@ -330,7 +405,7 @@ describe('ZapMedia', () => {
         it('Should throw an error if the signer is not approved nor the owner', async () => {
           ask = constructAsk(zapMedia.address, 100);
 
-          const signer1 = provider.getSigner(1);
+          const signer1 = signers[1];
           const media = new ZapMedia(1337, signer);
           const media1 = new ZapMedia(1337, signer1);
 
@@ -378,7 +453,7 @@ describe('ZapMedia', () => {
         it('Should set an ask by the approved', async () => {
           ask = constructAsk(zapMedia.address, 100);
 
-          const signer1 = provider.getSigner(1);
+          const signer1 = signers[1];
           const media = new ZapMedia(1337, signer);
           const media1 = new ZapMedia(1337, signer1);
 
@@ -481,7 +556,7 @@ describe('ZapMedia', () => {
 
       describe('#revokeApproval', () => {
         it("revokes an addresses approval of another address's media", async () => {
-          const signer1 = provider.getSigner(1);
+          const signer1 = signers[1];
 
           // expect(nullApproved).toBe(AddressZero)
           const media = new ZapMedia(1337, signer);
@@ -520,7 +595,7 @@ describe('ZapMedia', () => {
 
       describe('#approve', () => {
         it('Should approve another address for a token', async () => {
-          const signer1 = provider.getSigner(1);
+          const signer1 = signers[1];
 
           const media = new ZapMedia(1337, signer);
 
@@ -538,7 +613,7 @@ describe('ZapMedia', () => {
 
       describe('#setApprovalForAll', () => {
         it('Should set approval for another address for all tokens owned by owner', async () => {
-          const signer1 = provider.getSigner(1);
+          const signer1 = signers[1];
 
           const media = new ZapMedia(1337, signer);
 
@@ -573,7 +648,7 @@ describe('ZapMedia', () => {
 
       describe('#transferFrom', () => {
         it('Should transfer token to another address', async () => {
-          const recipient = await provider.getSigner(1).getAddress();
+          const recipient = await signers[1].getAddress();
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
 
@@ -591,7 +666,7 @@ describe('ZapMedia', () => {
 
       describe('#safeTransferFrom', () => {
         it('Should revert if the tokenId does not exist', async () => {
-          const recipient = await provider.getSigner(1).getAddress();
+          const recipient = await signers[1].getAddress();
 
           const media = new ZapMedia(1337, signer);
 
@@ -608,7 +683,7 @@ describe('ZapMedia', () => {
         });
 
         it('Should revert if the (from) is a zero address', async () => {
-          const recipient = await provider.getSigner(1).getAddress();
+          const recipient = await signers[1].getAddress();
 
           const media = new ZapMedia(1337, signer);
 
@@ -644,7 +719,7 @@ describe('ZapMedia', () => {
         });
 
         it('Should safe transfer a token to an address', async () => {
-          const recipient = await provider.getSigner(1).getAddress();
+          const recipient = await signers[1].getAddress();
 
           const media = new ZapMedia(1337, signer);
 

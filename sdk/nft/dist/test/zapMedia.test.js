@@ -45,6 +45,7 @@ var utils_1 = require("../src/utils");
 var zapMedia_1 = __importDefault(require("../src/zapMedia"));
 var addresses_1 = require("../src/contract/addresses");
 var deploy_1 = require("../src/deploy");
+var test_utils_1 = require("./test_utils");
 var provider = new ethers_1.ethers.providers.JsonRpcProvider('http://localhost:8545');
 describe('ZapMedia', function () {
     var bidShares;
@@ -57,13 +58,16 @@ describe('ZapMedia', function () {
     var mediaFactory;
     var signer;
     var zapMedia;
+    var bid;
+    var signers = (0, test_utils_1.getSigners)(provider);
     beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    signer = provider.getSigner(0);
+                    signer = signers[0];
                     return [4 /*yield*/, (0, deploy_1.deployZapToken)()];
                 case 1:
+                    // signer = provider.getSigner(0);
                     token = _a.sent();
                     return [4 /*yield*/, (0, deploy_1.deployZapVault)()];
                 case 2:
@@ -97,8 +101,8 @@ describe('ZapMedia', function () {
             });
         }); });
     });
-    describe('contract Functions', function () {
-        describe('Write Functions', function () {
+    describe('Contract Functions', function () {
+        describe('View Functions', function () {
             var tokenURI = 'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
             var metadataURI = 'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
             beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -127,6 +131,122 @@ describe('ZapMedia', function () {
                                 _c.sent()
                             ]);
                             return [4 /*yield*/, provider.getSigner(3).getAddress()];
+                        case 3:
+                            bidShares = _a.apply(void 0, [_b.concat([
+                                    _c.sent()
+                                ]), [15, 15, 15],
+                                15,
+                                35]);
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            describe("test fetchContentHash, fetchMetadataHash", function () {
+                it('Should be able to fetch contentHash', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media, onChainContentHash;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, media.fetchContentHash(0)];
+                            case 2:
+                                onChainContentHash = _a.sent();
+                                (0, chai_1.expect)(onChainContentHash).eq(ethers_1.ethers.utils.hexlify(mediaData.contentHash));
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it('fetchContentHash should get 0x0 if tokenId doesn\'t exist', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media, onChainContentHash;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, media.fetchContentHash(56)
+                                    // tokenId doesn't exists, so we expect a default return value of 0x0000...
+                                ];
+                            case 2:
+                                onChainContentHash = _a.sent();
+                                // tokenId doesn't exists, so we expect a default return value of 0x0000...
+                                (0, chai_1.expect)(onChainContentHash).eq(ethers_1.ethers.constants.HashZero);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it('Should be able to fetch metadataHash', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media, onChainMetadataHash;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, media.fetchMetadataHash(0)];
+                            case 2:
+                                onChainMetadataHash = _a.sent();
+                                (0, chai_1.expect)(onChainMetadataHash).eq(ethers_1.ethers.utils.hexlify(mediaData.metadataHash));
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it('fetchMetadataHash should get 0x0 if tokenId doesn\'t exist', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media, onChainMetadataHash;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, media.fetchMetadataHash(56)
+                                    // tokenId doesn't exists, so we expect a default return value of 0x0000...
+                                ];
+                            case 2:
+                                onChainMetadataHash = _a.sent();
+                                // tokenId doesn't exists, so we expect a default return value of 0x0000...
+                                (0, chai_1.expect)(onChainMetadataHash).eq(ethers_1.ethers.constants.HashZero);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+            });
+        });
+        describe('Write Functions', function () {
+            var tokenURI = 'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
+            var metadataURI = 'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
+            beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
+                var metadataHex, metadataHashRaw, metadataHashBytes, contentHex, contentHashRaw, contentHashBytes, contentHash, metadataHash, _a, _b;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
+                        case 0:
+                            metadataHex = ethers_1.ethers.utils.formatBytes32String('Test');
+                            metadataHashRaw = ethers_1.ethers.utils.keccak256(metadataHex);
+                            metadataHashBytes = ethers_1.ethers.utils.arrayify(metadataHashRaw);
+                            contentHex = ethers_1.ethers.utils.formatBytes32String('Test Car');
+                            contentHashRaw = ethers_1.ethers.utils.keccak256(contentHex);
+                            contentHashBytes = ethers_1.ethers.utils.arrayify(contentHashRaw);
+                            contentHash = contentHashBytes;
+                            metadataHash = metadataHashBytes;
+                            mediaData = (0, utils_1.constructMediaData)(tokenURI, metadataURI, contentHash, metadataHash);
+                            _a = utils_1.constructBidShares;
+                            return [4 /*yield*/, signers[1].getAddress()];
+                        case 1:
+                            _b = [
+                                _c.sent()
+                            ];
+                            return [4 /*yield*/, signers[2].getAddress()];
+                        case 2:
+                            _b = _b.concat([
+                                _c.sent()
+                            ]);
+                            return [4 /*yield*/, signers[3].getAddress()];
                         case 3:
                             bidShares = _a.apply(void 0, [_b.concat([
                                     _c.sent()
@@ -444,7 +564,7 @@ describe('ZapMedia', function () {
                         switch (_g.label) {
                             case 0:
                                 ask = (0, utils_1.constructAsk)(zapMedia.address, 100);
-                                signer1 = provider.getSigner(1);
+                                signer1 = signers[1];
                                 media = new zapMedia_1.default(1337, signer);
                                 media1 = new zapMedia_1.default(1337, signer1);
                                 return [4 /*yield*/, media.mint(mediaData, bidShares)];
@@ -522,7 +642,7 @@ describe('ZapMedia', function () {
                         switch (_g.label) {
                             case 0:
                                 ask = (0, utils_1.constructAsk)(zapMedia.address, 100);
-                                signer1 = provider.getSigner(1);
+                                signer1 = signers[1];
                                 media = new zapMedia_1.default(1337, signer);
                                 media1 = new zapMedia_1.default(1337, signer1);
                                 return [4 /*yield*/, media.mint(mediaData, bidShares)];
@@ -561,17 +681,24 @@ describe('ZapMedia', function () {
                 }); });
             });
             describe('#setbid', function () {
-                it.only('creates a new bid on chain', function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var zap, signer1, zap1;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
+                it('creates a new bid on chain', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var zap, signer1, zap1, nullOnChainBid, _a, _b, _c;
+                    return __generator(this, function (_d) {
+                        switch (_d.label) {
                             case 0:
                                 zap = new zapMedia_1.default(1337, signer);
                                 return [4 /*yield*/, zap.mint(mediaData, bidShares)];
                             case 1:
-                                _a.sent();
+                                _d.sent();
                                 signer1 = provider.getSigner(1);
                                 zap1 = new zapMedia_1.default(1337, signer1);
+                                _b = (_a = zap1).fetchCurrentBidForBidder;
+                                _c = [zapMedia.address, 0];
+                                return [4 /*yield*/, signer1.getAddress()];
+                            case 2: return [4 /*yield*/, _b.apply(_a, _c.concat([_d.sent()]))];
+                            case 3:
+                                nullOnChainBid = _d.sent();
+                                (0, chai_1.expect)(nullOnChainBid.currency).to.equal(ethers_1.ethers.constants.AddressZero);
                                 return [2 /*return*/];
                         }
                     });
@@ -670,7 +797,7 @@ describe('ZapMedia', function () {
                     return __generator(this, function (_e) {
                         switch (_e.label) {
                             case 0:
-                                signer1 = provider.getSigner(1);
+                                signer1 = signers[1];
                                 media = new zapMedia_1.default(1337, signer);
                                 return [4 /*yield*/, media.mint(mediaData, bidShares)];
                             case 1:
@@ -739,7 +866,7 @@ describe('ZapMedia', function () {
                     return __generator(this, function (_e) {
                         switch (_e.label) {
                             case 0:
-                                signer1 = provider.getSigner(1);
+                                signer1 = signers[1];
                                 media = new zapMedia_1.default(1337, signer);
                                 return [4 /*yield*/, media.mint(mediaData, bidShares)];
                             case 1:
@@ -771,7 +898,7 @@ describe('ZapMedia', function () {
                     return __generator(this, function (_p) {
                         switch (_p.label) {
                             case 0:
-                                signer1 = provider.getSigner(1);
+                                signer1 = signers[1];
                                 media = new zapMedia_1.default(1337, signer);
                                 return [4 /*yield*/, media.mint(mediaData, bidShares)];
                             case 1:
@@ -823,7 +950,7 @@ describe('ZapMedia', function () {
                     var recipient, media, owner, _a, _b, newOwner;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
-                            case 0: return [4 /*yield*/, provider.getSigner(1).getAddress()];
+                            case 0: return [4 /*yield*/, signers[1].getAddress()];
                             case 1:
                                 recipient = _c.sent();
                                 media = new zapMedia_1.default(1337, signer);
@@ -854,7 +981,7 @@ describe('ZapMedia', function () {
                     var recipient, media, _a, _b;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
-                            case 0: return [4 /*yield*/, provider.getSigner(1).getAddress()];
+                            case 0: return [4 /*yield*/, signers[1].getAddress()];
                             case 1:
                                 recipient = _c.sent();
                                 media = new zapMedia_1.default(1337, signer);
@@ -878,7 +1005,7 @@ describe('ZapMedia', function () {
                     var recipient, media;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0: return [4 /*yield*/, provider.getSigner(1).getAddress()];
+                            case 0: return [4 /*yield*/, signers[1].getAddress()];
                             case 1:
                                 recipient = _a.sent();
                                 media = new zapMedia_1.default(1337, signer);
@@ -928,7 +1055,7 @@ describe('ZapMedia', function () {
                     var recipient, media, _a, _b;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
-                            case 0: return [4 /*yield*/, provider.getSigner(1).getAddress()];
+                            case 0: return [4 /*yield*/, signers[1].getAddress()];
                             case 1:
                                 recipient = _c.sent();
                                 media = new zapMedia_1.default(1337, signer);
