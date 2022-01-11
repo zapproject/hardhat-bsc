@@ -393,6 +393,50 @@ describe('ZapMedia', function () {
                     });
                 }); });
             });
+            describe('#tokenOfOwnerByIndex', function () {
+                it('Should throw an error if the (owner) is a zero address', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, media
+                                        .fetchMediaOfOwnerByIndex(ethers_1.ethers.constants.AddressZero, 0)
+                                        .then(function (res) {
+                                        console.log(res);
+                                    })
+                                        .catch(function (err) {
+                                        (0, chai_1.expect)(err.message).to.equal('Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.');
+                                    })];
+                            case 2:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it('Should return the token of the owner by index', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media, tokenId, _a, _b;
+                    return __generator(this, function (_c) {
+                        switch (_c.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _c.sent();
+                                _b = (_a = media).fetchMediaOfOwnerByIndex;
+                                return [4 /*yield*/, signer.getAddress()];
+                            case 2: return [4 /*yield*/, _b.apply(_a, [_c.sent(), 0])];
+                            case 3:
+                                tokenId = _c.sent();
+                                (0, chai_1.expect)(parseInt(tokenId._hex)).to.equal(0);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+            });
             describe('#setAsk', function () {
                 it('Should throw an error if the signer is not approved nor the owner', function () { return __awaiter(void 0, void 0, void 0, function () {
                     var signer1, media, media1, owner, getApproved, _a, _b, _c, _d, _e, _f;
@@ -518,7 +562,7 @@ describe('ZapMedia', function () {
             });
             describe('#setbid', function () {
                 it.only('creates a new bid on chain', function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var zap, signer1;
+                    var zap, signer1, zap1;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -527,6 +571,7 @@ describe('ZapMedia', function () {
                             case 1:
                                 _a.sent();
                                 signer1 = provider.getSigner(1);
+                                zap1 = new zapMedia_1.default(1337, signer1);
                                 return [2 /*return*/];
                         }
                     });

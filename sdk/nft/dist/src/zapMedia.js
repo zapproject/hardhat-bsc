@@ -78,6 +78,21 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
+     * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
+     * @param owner
+     * @param index
+     */
+    ZapMedia.prototype.fetchMediaOfOwnerByIndex = function (owner, index) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                if (owner === ethers_1.ethers.constants.AddressZero) {
+                    (0, tiny_invariant_1.default)(false, 'ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.');
+                }
+                return [2 /*return*/, this.media.tokenOfOwnerByIndex(owner, index)];
+            });
+        });
+    };
+    /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */

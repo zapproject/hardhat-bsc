@@ -18,6 +18,12 @@ declare class ZapMedia {
      */
     fetchOwnerOf(mediaId: BigNumberish): Promise<string>;
     /**
+     * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
+     * @param owner
+     * @param index
+     */
+    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber>;
+    /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
