@@ -35,6 +35,7 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
+  let bid: any;
 
   beforeEach(async () => {
     signer = provider.getSigner(0);
@@ -49,6 +50,19 @@ describe('ZapMedia', () => {
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
     zapMediaAddresses['1337'] = zapMedia.address;
+
+    // bid = {
+    //   amount: 200,
+    //   currency: zapTokenBsc.address,
+    //   bidder: signers[1].address,
+    //   recipient: signers[8].address,
+    //   spender: signers[1].address,
+    //   sellOnShare: {
+    //     value: BigInt(10000000000000000000)
+    //   }
+
+    console.log(await token.)
+
   });
 
   describe('#constructor', () => {
@@ -399,7 +413,7 @@ describe('ZapMedia', () => {
           const nullOnChainBid = await zap1.fetchCurrentBidForBidder(zapMedia.address, 0, await signer1.getAddress());
 
           expect(nullOnChainBid.currency).to.equal(ethers.constants.AddressZero)
-          await zap1.setBid(0, bid)
+          //await zap1.setBid(0, bid)
         })
       });
 
