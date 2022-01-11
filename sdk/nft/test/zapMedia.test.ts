@@ -61,7 +61,7 @@ describe('ZapMedia', () => {
     //     value: BigInt(10000000000000000000)
     //   }
 
-    console.log(await token.)
+    
 
   });
 
