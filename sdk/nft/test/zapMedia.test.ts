@@ -644,27 +644,24 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           // console.log(await media.isValidBid(0,bid))
-
-         });
+        });
       });
-       describe.only('#fetchMedia', () => {
-         it('Should get media instance by index in the media contract', async () => {
-
-          const media =  new ZapMedia(1337, signer);
+      describe('#fetchMedia', () => {
+        it('Should get media instance by index in the media contract', async () => {
+          const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
 
-          await media.fetchMediaByIndex(0);
+          const tokenId = await media.fetchMediaByIndex(0);
 
-          //expect(media).to.equal(fetchMediaByIndex(0));
+          
 
-       
-         console.log(await media.fetchMediaByIndex(0));
-         });
 
-         
+          expect(parseInt(tokenId._hex)).to.equal(0);
 
-       }); 
+        
+        });
+      });
     });
   });
 });
