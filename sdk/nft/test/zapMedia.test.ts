@@ -226,8 +226,6 @@ describe('ZapMedia', () => {
         });
 
         it('Should be able to mint', async () => {
-          // require('@zapsdk')
-
           const media = new ZapMedia(1337, signer);
 
           const preTotalSupply = (await media.fetchTotalMedia()).toNumber();
@@ -237,11 +235,14 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
+          const creator = await media.fetchCreator(0);
+
           const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
           const onChainContentURI = await media.fetchContentURI(0);
           const onChainMetadataURI = await media.fetchMetadataURI(0);
 
           expect(owner).to.equal(await signer.getAddress());
+          expect(creator).to.equal(await signer.getAddress());
           expect(onChainContentURI).to.equal(mediaData.tokenURI);
           expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
@@ -252,6 +253,33 @@ describe('ZapMedia', () => {
           );
           expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+      });
+
+      describe('#getTokenCreators', () => {
+        it('Should throw an error if the tokenId does not exist', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media
+            .fetchCreator(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (fetchCreator): TokenId does not exist.',
+              );
+            });
+        });
+
+        it('Should return the token creator', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const creator = await media.fetchCreator(0);
+
+          expect(creator).to.equal(await signer.getAddress());
         });
       });
 

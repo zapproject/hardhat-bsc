@@ -86,6 +86,19 @@ class ZapMedia {
   }
 
   /**
+   * Fetches the creator for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchCreator(mediaId: BigNumberish): Promise<string> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (fetchCreator): TokenId does not exist.');
+    }
+    return this.media.getTokenCreators(mediaId);
+  }
+
+  /**
    * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
