@@ -402,7 +402,7 @@ describe('ZapMedia', () => {
       });
 
       describe('#setbid', () => {
-        it.only('creates a new bid on chain', async () => {
+        it('creates a new bid on chain', async () => {
           const zap = new ZapMedia(1337, signer);
           
           await zap.mint(mediaData, bidShares);
