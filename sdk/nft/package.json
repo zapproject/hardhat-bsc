@@ -33,6 +33,7 @@
     "ganache-cli": "^6.12.2",
     "ganache-core": "^2.13.2",
     "hardhat": "^2.8.0",
-    "tiny-invariant": "^1.2.0"
+    "tiny-invariant": "^1.2.0",
+    "tiny-warning": "^1.0.3"
   }
 }

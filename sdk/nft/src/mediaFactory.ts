@@ -2,7 +2,7 @@ import { Contract, ethers, Signer } from 'ethers';
 
 import { contractAddresses } from './utils';
 
-import { mediaFactoryAbi, zapMediaAbi } from './abi';
+import { mediaFactoryAbi, zapMediaAbi } from './contract/abi';
 
 import { Address } from 'cluster';
 
@@ -45,12 +45,6 @@ class MediaFactory {
     const receipt = await tx.wait();
 
     const eventLog = receipt.events[receipt.events.length - 1];
-
-    // console.log('\n', {
-    //   transactionHash: eventLog.transactionHash,
-    //   event: eventLog.event,
-    //   deployedCollectionAddress: eventLog.args.mediaContract,
-    // });
 
     return eventLog;
   }

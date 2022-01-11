@@ -1,8 +1,8 @@
 import { ethers, BigNumber } from 'ethers';
 
-import * as abis from './abi';
+import * as abis from './contract/abi';
 
-import * as bytecodes from './bytecode';
+import * as bytecodes from './contract/bytecode';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import './libraries/SafeMathM.sol';
 import './libraries/ZapStorage.sol';
 import './libraries/ZapGettersLibrary.sol';
 import './libraries/ZapStake.sol';
@@ -13,7 +12,6 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
  * is saved on the ZapGettersLibrary, ZapGettersLibrary, and ZapStake
  */
 contract ZapGetters {
-    using SafeMathM for uint256;
     using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
     using ZapStake for ZapStorage.ZapStorageStruct;
 
@@ -35,7 +33,6 @@ contract ZapGetters {
         view
         returns (uint256)
     {
-        //    return zap.allowance(_user,_spender);
         return token.allowance(_user, _spender);
     }
 
@@ -45,19 +42,8 @@ contract ZapGetters {
      * @return Returns the balance associated with the passed in _user
      */
     function balanceOf(address _user) public view returns (uint256) {
-        // return zap.balanceOf(_user);
         return token.balanceOf(_user);
     }
-
-    /**
-     * @dev Queries the balance of _user at a specific _blockNumber
-     * @param _user The address from which the balance will be retrieved
-     * @param _blockNumber The block number when the balance is queried
-     * @return The balance at _blockNumber
-     */
-    // function balanceOfAt(address _user, uint _blockNumber) external view returns (uint) {
-    //     return zap.balanceOfAt(_user,_blockNumber);
-    // }
 
     /**
      * @dev This function tells you if a given challenge has been completed by a given miner

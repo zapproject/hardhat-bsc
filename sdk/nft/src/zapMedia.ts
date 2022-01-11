@@ -10,7 +10,7 @@ import {
 
 import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
 
-import { zapMediaAbi, zapMarketAbi } from './abi';
+import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
 import { MediaData, BidShares, Ask } from './types';
 
@@ -86,6 +86,19 @@ class ZapMedia {
   }
 
   /**
+   * Fetches the creator for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchCreator(mediaId: BigNumberish): Promise<string> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (fetchCreator): TokenId does not exist.');
+    }
+    return this.media.getTokenCreators(mediaId);
+  }
+
+  /**
    * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
@@ -119,6 +132,15 @@ class ZapMedia {
     return this.media.getApproved(mediaId);
   }
 
+  /**
+   * Fetches if the specified operator is approved for all media owned by the specified owner on an instance of the Zap Media Contract
+   * @param owner
+   * @param operator
+   */
+  public async fetchIsApprovedForAll(owner: string, operator: string): Promise<boolean> {
+    return this.media.isApprovedForAll(owner, operator);
+  }
+
   public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
     try {
       return await this.media.updateTokenURI(mediaId, tokenURI);
@@ -139,6 +161,60 @@ class ZapMedia {
    */
   public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
     return this.media.approve(to, mediaId);
+  }
+
+  /**
+   * Grants approval for all media owner by msg.sender on an instance of the Zap Media Contract
+   * @param operator
+   * @param approved
+   */
+  public async setApprovalForAll(
+    operator: string,
+    approved: boolean,
+  ): Promise<ContractTransaction> {
+    return this.media.setApprovalForAll(operator, approved);
+  }
+
+  /**
+   * Transfers the specified media to the specified to address on an instance of the Zap Media Contract
+   * @param from
+   * @param to
+   * @param mediaId
+   */
+  public async transferFrom(
+    from: string,
+    to: string,
+    mediaId: BigNumberish,
+  ): Promise<ContractTransaction> {
+    return this.media.transferFrom(from, to, mediaId);
+  }
+
+  /**
+   * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
+   * @param from
+   * @param to
+   * @param mediaId
+   */
+  public async safeTransferFrom(
+    from: string,
+    to: string,
+    mediaId: BigNumberish,
+  ): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (safeTransferFrom): TokenId does not exist.');
+    }
+
+    if (from === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.');
+    }
+
+    if (to === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.');
+    }
+
+    return this.media['safeTransferFrom(address,address,uint256)'](from, to, mediaId);
   }
 
   /**
@@ -190,6 +266,26 @@ class ZapMedia {
   }
 
   /**
+   * Removes the ask on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async removeAsk(mediaId: BigNumberish): Promise<ContractTransaction> {
+    const ask = await this.market.currentAskForToken(this.media.address, mediaId);
+
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (removeAsk): TokenId does not exist.');
+    }
+
+    if (ask.amount == 0) {
+      invariant(false, 'ZapMedia (removeAsk): Ask was never set.');
+    } else {
+      return this.media.removeAsk(mediaId);
+    }
+  }
+
+  /**
    * Updates the metadata uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    * @param metadataURI
@@ -206,6 +302,39 @@ class ZapMedia {
 
     const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(mediaId, metadataURI);
     return this.media.updateTokenMetadataURI(mediaId, metadataURI, { gasLimit: gasEstimate });
+  }
+
+  /**
+   * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async revokeApproval(mediaId: BigNumberish): Promise<ContractTransaction> {
+    return this.media.revokeApproval(mediaId);
+  }
+
+  /**
+   * Burns the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
+    return this.media.burn(mediaId);
+  }
+
+  /**
+   * Checks to see if a Bid's amount is evenly splittable given the media's current bidShares
+   *
+   * @param mediaId
+   * @param bid
+   */
+  public async isValidBid(mediaId: BigNumberish, bid: any): Promise<boolean> {
+    const isAmountValid = await this.market.isValidBid(mediaId, bid.amount);
+    const decimal100 = Decimal.new(100);
+    const currentBidShares = await this.fetchCurrentBidShares(this.media.address, mediaId);
+    const isSellOnShareValid = bid.sellOnShare.value.lte(
+      decimal100.value.sub(currentBidShares.creator.value),
+    );
+
+    return isAmountValid && isSellOnShareValid;
   }
 }
 export default ZapMedia;

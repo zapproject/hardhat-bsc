@@ -1,7 +1,9 @@
-import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './addresses';
-import { DecimalValue, BidShares, MediaData, Ask } from './types';
+import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from './contract/addresses';
+import { DecimalValue, BidShares, MediaData, Ask, Bid } from './types';
 import invariant from 'tiny-invariant';
-import { BigNumber, BigNumberish, BytesLike } from 'ethers';
+import warning from 'tiny-warning';
+
+import { BigNumber, BigNumberish, BytesLike, ethers } from 'ethers';
 
 let mediaFactoryAddress: string;
 
@@ -111,6 +113,55 @@ export function constructAsk(currency: string, amount: BigNumberish): Ask {
   return {
     currency: currency,
     amount: amount,
+  };
+}
+
+/**
+ * Constructs a Bid.
+ *
+ * @param currency
+ * @param amount
+ * @param bidder
+ * @param recipient
+ * @param sellOnShare
+ */
+export function constructBid(
+  currency: string,
+  amount: BigNumberish,
+  bidder: string,
+  recipient: string,
+  sellOnShare: number,
+): Bid {
+  let parsedCurrency: string;
+  let parsedBidder: string;
+  let parsedRecipient: string;
+
+  try {
+    parsedCurrency = validateAndParseAddress(currency);
+  } catch (err: any) {
+    throw new Error(`Currency address is invalid: ${err.message}`);
+  }
+
+  try {
+    parsedBidder = validateAndParseAddress(bidder);
+  } catch (err: any) {
+    throw new Error(`Bidder address is invalid: ${err.message}`);
+  }
+
+  try {
+    parsedRecipient = validateAndParseAddress(recipient);
+  } catch (err: any) {
+    throw new Error(`Recipient address is invalid: ${err.message}`);
+  }
+
+  const decimalSellOnShare = Decimal.new(parseFloat(sellOnShare.toFixed(4)));
+
+  return {
+    currency: parsedCurrency,
+    amount: amount,
+    bidder: parsedBidder,
+    recipient: parsedRecipient,
+    sellOnShare: decimalSellOnShare,
   };
 }
 
@@ -240,5 +291,20 @@ export function constructBidShares(
 export function validateURI(uri: string) {
   if (!uri.match(/^https:\/\/(.*)/)) {
     invariant(false, `${uri} must begin with \`https://\``);
+  }
+}
+
+/**
+ * Validates and returns the checksummed address
+ *
+ * @param address
+ */
+export function validateAndParseAddress(address: string): string {
+  try {
+    const checksummedAddress = ethers.utils.getAddress(address);
+    warning(address === checksummedAddress, `${address} is not checksummed.`);
+    return checksummedAddress;
+  } catch (error) {
+    invariant(false, `${address} is not a valid address.`);
   }
 }

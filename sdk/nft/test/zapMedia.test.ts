@@ -2,11 +2,15 @@ import chai, { expect, use } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructAsk, constructBidShares, constructMediaData } from '../utils';
+import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
 
-import ZapMedia from '../zapMedia';
+import ZapMedia from '../src/zapMedia';
 
-import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses } from '../addresses';
+import {
+  mediaFactoryAddresses,
+  zapMarketAddresses,
+  zapMediaAddresses,
+} from '../src/contract/addresses';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 import {
@@ -16,7 +20,7 @@ import {
   deployZapMediaImpl,
   deployMediaFactory,
   deployZapMedia,
-} from '../deploy';
+} from '../src/deploy';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -231,11 +235,14 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
+          const creator = await media.fetchCreator(0);
+
           const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
           const onChainContentURI = await media.fetchContentURI(0);
           const onChainMetadataURI = await media.fetchMetadataURI(0);
 
           expect(owner).to.equal(await signer.getAddress());
+          expect(creator).to.equal(await signer.getAddress());
           expect(onChainContentURI).to.equal(mediaData.tokenURI);
           expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
@@ -246,6 +253,33 @@ describe('ZapMedia', () => {
           );
           expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+      });
+
+      describe('#getTokenCreators', () => {
+        it('Should throw an error if the tokenId does not exist', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media
+            .fetchCreator(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (fetchCreator): TokenId does not exist.',
+              );
+            });
+        });
+
+        it('Should return the token creator', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const creator = await media.fetchCreator(0);
+
+          expect(creator).to.equal(await signer.getAddress());
         });
       });
 
@@ -325,18 +359,263 @@ describe('ZapMedia', () => {
       });
 
       describe('#setbid', () => {
-        it('creates a new bid on chain', async () => {
-          const zap = new ZapMedia(1337, signer);
-          await zap.mint(mediaData, bidShares);
+        // it('creates a new bid on chain', async () => {
+        //   const zap = new ZapMedia(1337, signer);
+        //   await zap.mint(mediaData, bidShares);
+        //   const onChainCurrentBidForBidder = await zap.fetchCurrentBidForBidder(zapMedia.address, 0);
+        //   const nullOnChainBid = await zap.()
+        // }
+      });
 
-          const onChainCurrentBidForBidder = await zap.fetchCurrentBidForBidder(zapMedia.address, 0);
+      describe('#removeAsk', () => {
+        it('Should throw an error if the removeAsk tokenId does not exist', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+          const media = new ZapMedia(1337, signer);
 
-          const nullOnChainBid = await zap.()
+          await media
+            .removeAsk(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (removeAsk): TokenId does not exist.',
+              );
+            });
+        });
 
-          
-        }
-      })
+        it('Should throw an error if the tokenId exists but an ask was not set', async () => {
+          const media = new ZapMedia(1337, signer);
 
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .removeAsk(0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (removeAsk): Ask was never set.',
+              );
+            });
+        });
+
+        it('Should remove an ask', async () => {
+          ask = constructAsk(zapMedia.address, 100);
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const getApproved = await media.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await media.setAsk(0, ask);
+
+          const onChainAsk = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
+
+          await media.removeAsk(0);
+
+          const onChainAskRemoved = await media.fetchCurrentAsk(zapMedia.address, 0);
+
+          expect(parseInt(onChainAskRemoved.amount.toString())).to.equal(0);
+          expect(onChainAskRemoved.currency).to.equal(ethers.constants.AddressZero);
+        });
+      });
+
+      describe('#revokeApproval', () => {
+        it("revokes an addresses approval of another address's media", async () => {
+          const signer1 = provider.getSigner(1);
+
+          // expect(nullApproved).toBe(AddressZero)
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+
+          await media.approve(await signer1.getAddress(), 0);
+
+          const approved = await media.fetchApproved(0);
+          expect(approved).to.equal(await signer1.getAddress());
+
+          const media1 = new ZapMedia(1337, signer1);
+
+          await media1.revokeApproval(0);
+
+          const revokedStatus = await media.fetchApproved(0);
+          expect(revokedStatus).to.equal(ethers.constants.AddressZero);
+        });
+      });
+
+      describe('#burn', () => {
+        it('Should burn a token', async () => {
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+          const owner = await media.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+
+          const preTotalSupply = await media.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          await media.burn(0);
+
+          const postTotalSupply = await media.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
+        });
+      });
+
+      describe('#approve', () => {
+        it('Should approve another address for a token', async () => {
+          const signer1 = provider.getSigner(1);
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const preApprovedStatus = await media.fetchApproved(0);
+          expect(preApprovedStatus).to.equal(ethers.constants.AddressZero);
+
+          await media.approve(await signer1.getAddress(), 0);
+
+          const postApprovedStatus = await media.fetchApproved(0);
+          expect(postApprovedStatus).to.equal(await signer1.getAddress());
+        });
+      });
+
+      describe('#setApprovalForAll', () => {
+        it('Should set approval for another address for all tokens owned by owner', async () => {
+          const signer1 = provider.getSigner(1);
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const preApprovalStatus = await media.fetchIsApprovedForAll(
+            await signer.getAddress(),
+            await signer1.getAddress(),
+          );
+
+          expect(preApprovalStatus).to.be.false;
+
+          await media.setApprovalForAll(await signer1.getAddress(), true);
+
+          const postApprovalStatus = await media.fetchIsApprovedForAll(
+            await signer.getAddress(),
+            await signer1.getAddress(),
+          );
+
+          expect(postApprovalStatus).to.be.true;
+
+          await media.setApprovalForAll(await signer1.getAddress(), false);
+
+          const revoked = await media.fetchIsApprovedForAll(
+            await signer.getAddress(),
+            await signer1.getAddress(),
+          );
+
+          expect(revoked).to.be.false;
+        });
+      });
+
+      describe('#transferFrom', () => {
+        it('Should transfer token to another address', async () => {
+          const recipient = await provider.getSigner(1).getAddress();
+          const media = new ZapMedia(1337, signer);
+          await media.mint(mediaData, bidShares);
+
+          const owner = await media.fetchOwnerOf(0);
+
+          expect(owner).to.equal(await signer.getAddress());
+
+          await media.transferFrom(owner, recipient, 0);
+
+          const newOwner = await media.fetchOwnerOf(0);
+
+          expect(newOwner).to.equal(recipient);
+        });
+      });
+
+      describe('#safeTransferFrom', () => {
+        it('Should revert if the tokenId does not exist', async () => {
+          const recipient = await provider.getSigner(1).getAddress();
+
+          const media = new ZapMedia(1337, signer);
+
+          await media
+            .safeTransferFrom(await signer.getAddress(), recipient, 0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist.',
+              );
+            });
+        });
+
+        it('Should revert if the (from) is a zero address', async () => {
+          const recipient = await provider.getSigner(1).getAddress();
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .safeTransferFrom(ethers.constants.AddressZero, recipient, 0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.',
+              );
+            });
+        });
+
+        it('Should revert if the (to) is a zero address', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .safeTransferFrom(await signer.getAddress(), ethers.constants.AddressZero, 0)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.',
+              );
+            });
+        });
+
+        it('Should safe transfer a token to an address', async () => {
+          const recipient = await provider.getSigner(1).getAddress();
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media.safeTransferFrom(await signer.getAddress(), recipient, 0);
+        });
+      });
+
+      describe('#isValidBid', () => {
+        it('Should return true if the bid amount can be evenly split by current bidShares', async () => {
+          // const isValid = await zora.isValidBid(0, defaultBid)
+          // expect(isValid).toEqual(true)
+
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          // console.log(await media.isValidBid(0,bid))
+        });
+      });
     });
   });
 });
