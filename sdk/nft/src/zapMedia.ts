@@ -102,7 +102,7 @@ class ZapMedia {
 
 
   /**
-   * Fetches the content hash for the specified media on the Zora Media Contract
+   * Fetches the content hash for the specified media on the ZapMedia Contract
    * @param mediaId
    */
   public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
@@ -110,7 +110,7 @@ class ZapMedia {
   }
 
     /**
-   * Fetches the metadata hash for the specified media on an instance of the Zora Media Contract
+   * Fetches the metadata hash for the specified media on the ZapMedia Contract
    * @param mediaId
    */
      public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
