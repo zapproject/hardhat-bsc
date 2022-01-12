@@ -21,6 +21,7 @@ import {
   deployZapMediaImpl,
   deployMediaFactory,
   deployZapMedia,
+  deployAuctionHouse,
 } from '../src/deploy';
 
 // AuctionHouse class
@@ -84,14 +85,14 @@ describe('AuctionHouse', () => {
     zapMediaImpl = await deployZapMediaImpl();
     mediaFactory = await deployMediaFactory();
     zapMedia = await deployZapMedia();
-    auctionHouse = await deployAuction();
+    auctionHouse = await deployAuctionHouse();
 
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
     zapMediaAddresses['1337'] = zapMedia.address;
   });
 
-  it('should be able to deploy', async () => {
+  it.only('should be able to deploy', async () => {
     // auctionHouse = new AuctionHouse(signer, 1337);
     // expect(parseInt(await auctionHouse.timeBuffer(), 0)).to.eq(900, 'time buffer should equal 900');
     // expect(await auctionHouse.minBidIncrementPercentage()).to.eq(
