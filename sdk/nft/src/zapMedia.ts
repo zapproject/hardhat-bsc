@@ -12,7 +12,7 @@ import { contractAddresses, Decimal, validateBidShares, validateURI } from './ut
 
 import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
-import { MediaData, BidShares, Ask, EIP712Signature } from './types';
+import { MediaData, BidShares, Ask, EIP712Signature, EIP712Domain } from './types';
 
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
@@ -132,7 +132,7 @@ class ZapMedia {
     address: string,
     mediaId: BigNumberish
   ): Promise<BigNumber> {
-    return this.media.permitNonces(address, mediaId)
+    return this.media.getPermitNonce(address, mediaId)
   }
 
 
@@ -372,16 +372,17 @@ class ZapMedia {
    */
   public async permit(
     spender: string,
-    mediaId: BigNumberish,
+    tokenId: BigNumberish,
     sig: EIP712Signature
   ): Promise<ContractTransaction> {
     try {
       this.ensureNotReadOnly()
     } catch (err) {
-      return Promise.reject(err.message)
+      if (err instanceof Error) {
+        return Promise.reject(err.message)
+      }
     }
-
-    return this.media.permit(spender, mediaId, sig)
+    return this.media.permit(spender, tokenId, sig)
   }
 
   /**
@@ -417,6 +418,27 @@ class ZapMedia {
     return isAmountValid && isSellOnShareValid;
   }
 
+  /****************
+ * Miscellaneous
+ * **************
+ */
+
+  /**
+   * Returns the EIP-712 Domain for an instance of the Zora Media Contract
+   */
+  public eip712Domain(): EIP712Domain {
+    // Due to a bug in ganache-core, set the chainId to 1 if its a local blockchain
+    // https://github.com/trufflesuite/ganache-core/issues/515
+    const chainId = this.networkId == 1337 ? 1 : this.networkId
+
+    return {
+      name: 'TEST COLLECTION',
+      version: '1',
+      chainId: chainId,
+      verifyingContract: this.media.address,
+    }
+  }
+
   /******************
    * Private Methods
    ******************
@@ -426,7 +448,7 @@ class ZapMedia {
    * Throws an error if called on a readOnly == true instance of Zora Sdk
    * @private
    */
-   private ensureNotReadOnly() {
+  private ensureNotReadOnly() {
     if (this.readOnly) {
       throw new Error(
         'ensureNotReadOnly: readOnly Zora instance cannot call contract methods that require a signer.'
