@@ -18,6 +18,12 @@ declare class ZapMedia {
      */
     fetchOwnerOf(mediaId: BigNumberish): Promise<string>;
     /**
+     * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
+     * @param owner
+     * @param index
+     */
+    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber>;
+    /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -27,6 +33,21 @@ declare class ZapMedia {
      * @param mediaId
      */
     fetchMetadataURI(mediaId: BigNumberish): Promise<string>;
+    /**
+     * Fetches the content hash for the specified media on the ZapMedia Contract
+     * @param mediaId
+     */
+    fetchContentHash(mediaId: BigNumberish): Promise<string>;
+    /**
+     * Fetches the metadata hash for the specified media on the ZapMedia Contract
+     * @param mediaId
+     */
+    fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
+    /**
+     * Fetches the creator for the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    fetchCreator(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -41,6 +62,7 @@ declare class ZapMedia {
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
     fetchTotalMedia(): Promise<BigNumber>;
+    fetchMediaByIndex(index: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the approved account for the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -76,6 +98,13 @@ declare class ZapMedia {
      * @param mediaId
      */
     transferFrom(from: string, to: string, mediaId: BigNumberish): Promise<ContractTransaction>;
+    /**
+     * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
+     * @param from
+     * @param to
+     * @param mediaId
+     */
+    safeTransferFrom(from: string, to: string, mediaId: BigNumberish): Promise<ContractTransaction>;
     /**
      * Mints a new piece of media on an instance of the Zap Media Contract
      * @param mintData
