@@ -1,5 +1,4 @@
 export const mediaFactoryAddresses = {
-
   // Localhost
   1337: '',
 
@@ -17,7 +16,6 @@ export const mediaFactoryAddresses = {
 };
 
 export const zapMarketAddresses = {
-
   // Localhost
   1337: '',
 
@@ -35,7 +33,6 @@ export const zapMarketAddresses = {
 };
 
 export const zapMediaAddresses = {
-
   // Localhost
   1337: '',
 
@@ -67,5 +64,4 @@ export const zapAuctionAddresses = {
 
   // BSC Mainnet
   56: '0x4efdfA627e71E2891EF05a523EE1e619E55Deea4',
-}
-
+};
