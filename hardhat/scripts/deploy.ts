@@ -13,8 +13,12 @@ async function main() {
   //Vault contract deploy
 
   // const zapToken = '0x09d8af358636d9bcc9a3e177b66eb30381a4b1a8';
-  const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
-
+  // const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
+  const ZapTokenBSCFactory = await ethers.getContractFactory("ZapTokenBSC", signers[0]);
+  let zapToken = await ZapTokenBSCFactory.deploy();
+  await zapToken.deployed();
+  console.log("ZapTokenBSC Address: ", zapToken.address)
+  console.log("deployed ZapTokenBSC")
 
   const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
   const ZapGettersLibrary = await zapGettersLibrary.deploy();
@@ -60,7 +64,7 @@ async function main() {
       signer: signers[0]
     });
 
-  let Zap = await zap.deploy(zapToken);
+  let Zap = await zap.deploy(zapToken.address);
   await Zap.deployed();
   console.log("Zap Address:", Zap.address);
   console.log("Deployed Zap")
@@ -72,13 +76,13 @@ async function main() {
     signer: signers[0]
   });
 
-  const ZapMaster = await zapMaster.deploy(Zap.address, zapToken);
+  const ZapMaster = await zapMaster.deploy(Zap.address, zapToken.address);
   await ZapMaster.deployed();
   console.log("ZapMaster Address: " + ZapMaster.address)
   console.log("Deployed ZapMaster")
 
   const vault = await ethers.getContractFactory("Vault", signers[0]);
-  const Vault = await vault.deploy(zapToken, ZapMaster.address);
+  const Vault = await vault.deploy(zapToken.address, ZapMaster.address);
   await Vault.deployed();
   console.log("Vault Address:", Vault.address)
   console.log("deployed Vault")
@@ -86,21 +90,8 @@ async function main() {
   await ZapMaster.changeVaultContract(Vault.address)
 
   // for (let i = 0; i<signers.length; i++){
-  //   await Vault.connect(signers[i]).lockSmith(signers[i].address, ZapMaster.address);
+  //   await zapToken.allocate(signers[i].address, 1000000);
   // }
-
-
-  
-  // await zapToken.approve(
-  //   ZapMaster.address,
-  //   BigNumber.from("10000000000000000000000000")
-  // );
-  // await zapToken.transfer(
-  //   ZapMaster.address,
-  //   BigNumber.from("10000000000000000000000000")
-  // );
-
-
 }
 
 
