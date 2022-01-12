@@ -22,7 +22,7 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import { getSigners } from './test_utils';
+import { getSigners, signPermitMessage } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -97,7 +97,7 @@ describe('ZapMedia', () => {
         );
       });
 
-      describe('test fetchContentHash, fetchMetadataHash', () => {
+      describe('test fetchContentHash, fetchMetadataHash, fetchPermitNonce', () => {
         it('Should be able to fetch contentHash', async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
@@ -126,7 +126,42 @@ describe('ZapMedia', () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
+        it.only('Should be able to fetch permitNonce', async () => {
+          const zap_media = new ZapMedia(1337, signer);
+          await zap_media.mint(mediaData, bidShares);
+          // await zap_media.mint(mediaData, bidShares);
+
+          const anotherMedia = new ZapMedia(1337, signers[1]);
+
+          // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
+          const mainWallet: Wallet = new ethers.Wallet("0x6d1d4236b0f2ef007eec82fcc57a9f9284fc6dad16b4fb9c22939bf9a30419c5")
+          const otherWallet: Wallet = new ethers.Wallet("0xdc3b4bcbcd8890320e5b24a0fa58757d4028d628a4ad5def4b9f0d745955cfd7")
+
+          const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
+          const domain = zap_media.eip712Domain()
+
+          const nonce = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
+          // console.log(nonce)
+          const eipSig = await signPermitMessage(
+            mainWallet,
+            otherWallet.address,
+            0,
+            0,
+            deadline,
+            domain
+          )
+          // console.log(eipSig)
+
+          await anotherMedia.permit(otherWallet.address, 0, eipSig)
+          const approved = await anotherMedia.fetchApproved(0)
+          expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
+
+          // const nonce2 = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
+          // console.log(nonce2.toString())
+
+        });
       });
+
     });
     describe('Write Functions', () => {
       let tokenURI =
