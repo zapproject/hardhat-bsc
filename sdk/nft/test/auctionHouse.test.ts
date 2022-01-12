@@ -14,18 +14,14 @@ const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 describe('MediaFactory', () => {
   let auctionHouse: any;
   let signer: any;
-  let auction: any;
-  let isApproved: boolean;
+  let auctionId: string;
 
   before(async () => {
     signer = provider.getSigner(0);
 
     auctionHouse = new AuctionHouse(signer, 1337);
 
-    // Approve an aunction
-    auction = await auctionHouse.createAuction(16);
-
-    // State of the approved auction
-    isApproved = auction.args.approved;
+    // Create an aunction
+    auctionId = await auctionHouse.createAuction(16, '', 1800, 100, '', 10, '0x15');
   });
 });
