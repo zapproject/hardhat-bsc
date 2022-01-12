@@ -112,7 +112,7 @@ describe('AuctionHouse', () => {
   it("should revert if the curator fee percentage is >= 100", async () => {
     const duration = 60 * 60 * 24;
     const reservePrice = BigNumber.from(10).pow(18).div(2);
-    const owner = await media.args.ownerOf(0);
+    const owner = await media.fetchOwnerOf(0);
 
     await expect(
       auctionHouse.createAuction(
@@ -130,14 +130,19 @@ describe('AuctionHouse', () => {
   });
 
   it("should create an auction", async () => {
+    const owner = await media.fetchOwnerOf(0);
+    const duration = 60 * 60 * 24;
+    const reservePrice = BigNumber.from(10).pow(18).div(2);
 
-    const owner = await media.args.ownerOf(0);
-
-    const [_, expectedCurator] = await ethers.getSigners();
-
-    await createAuction(auctionHouse, await expectedCurator.getAddress(), zapTokenBsc.address);
-
-    const createdAuction = await auctionHouse.auctions(0);
+    const createdAuction = await auctionHouse.createAuction(
+      0,
+      media.args.address,
+      duration,
+      reservePrice,
+      '0x1234',
+      100,
+      '0x15'
+    );
 
     expect(createdAuction.duration).to.eq(24 * 60 * 60);
     expect(createdAuction.reservePrice).to.eq(
@@ -145,7 +150,7 @@ describe('AuctionHouse', () => {
     );
     expect(createdAuction.curatorFeePercentage).to.eq(5);
     expect(createdAuction.tokenOwner).to.eq(owner);
-    expect(createdAuction.curator).to.eq(expectedCurator.address);
+    expect(createdAuction.curator).to.eq('0x1234');
     expect(createdAuction.approved).to.eq(true);
 
   });
