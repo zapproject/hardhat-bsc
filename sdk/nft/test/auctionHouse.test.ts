@@ -24,12 +24,10 @@ import {
   deployAuctionHouse,
 } from '../src/deploy';
 
-// AuctionHouse class
 import { AuctionHouse } from '../src/auctionHouse';
 
 import { getSigners } from './test_utils';
 
-// Hardhat localhost connection
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 describe('AuctionHouse', () => {
@@ -45,38 +43,6 @@ describe('AuctionHouse', () => {
   const signers = getSigners(provider);
 
   beforeEach(async () => {
-    // signer = provider.getSigner(0);
-    // zapMedia = await deployZapMedia();
-    // zapMarket = await deployZapMarket();
-    // const platformFee = {
-    //   fee: {
-    //     value: BigNumber.from('5000000000000000000'),
-    //   },
-    // };
-    // await zapMarket.setFee(platformFee);
-    // mediaFactory = new MediaFactory(1337, signer);
-    // // Deploys a media collection through the mediaFactory
-    // media = await mediaFactory.deployMedia('Test Collection', 'TC', false, 'ipfs://testing');
-    // // Address of the deployed media collection
-    // mediaAddress = media.args.mediaContract;
-    // // Create an auctionHouse
-    // auctionHouse = new AuctionHouse(signer, 1337);
-    // // Approve auction
-    // await media.approve(auctionHouse.address, 0);
-    // CreateAuction
-    // const tokenId = 0;
-    // const duration = 60 * 60 * 24;
-    // const reservePrice = BigNumber.from(10).pow(18).div(2);
-    // auctionId = await auctionHouse.createAuction(
-    //   tokenId,
-    //   mediaAddress,
-    //   duration,
-    //   reservePrice,
-    //   '0x1234',
-    //   10,
-    //   '0x15',
-    // );
-
     signer = signers[0];
 
     token = await deployZapToken();
@@ -90,6 +56,7 @@ describe('AuctionHouse', () => {
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
     zapMediaAddresses['1337'] = zapMedia.address;
+    zapAuctionAddresses['1337'] = auctionHouse.address;
   });
 
   it.only('should be able to deploy', async () => {
