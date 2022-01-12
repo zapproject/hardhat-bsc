@@ -59,6 +59,14 @@ describe('AuctionHouse', () => {
     zapAuctionAddresses['1337'] = auctionHouse.address;
   });
 
+  describe('#constructor', () => {
+    it('Should throw an error if the networkId is invalid', async () => {
+      expect(() => {
+        new AuctionHouse(300, signer);
+      }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+    });
+  });
+
   it.only('should be able to deploy', async () => {
     // auctionHouse = new AuctionHouse(signer, 1337);
     // expect(parseInt(await auctionHouse.timeBuffer(), 0)).to.eq(900, 'time buffer should equal 900');

@@ -1,41 +1,41 @@
-import { BigNumber, BigNumberish, Contract, ethers, Signer } from 'ethers'
-import { Provider } from '@ethersproject/providers'
+import { BigNumber, BigNumberish, Contract, ethers, Signer } from 'ethers';
+import { Provider } from '@ethersproject/providers';
 
 import { contractAddresses } from './utils';
 import { zapAuctionAbi } from './contract/abi';
 
 export interface Auction {
   token: {
-    tokenId: BigNumberish,
-    mediaContract: string
-  }
-  approved: boolean
-  amount: BigNumber
-  duration: BigNumber
-  firstBidTime: BigNumber
-  reservePrice: BigNumber
-  curatorFeePercentage: number
-  tokenOwner: string
-  bidder: string
-  curator: string
-  auctionCurrency: string
+    tokenId: BigNumberish;
+    mediaContract: string;
+  };
+  approved: boolean;
+  amount: BigNumber;
+  duration: BigNumber;
+  firstBidTime: BigNumber;
+  reservePrice: BigNumber;
+  curatorFeePercentage: number;
+  tokenOwner: string;
+  bidder: string;
+  curator: string;
+  auctionCurrency: string;
 }
 
 export class AuctionHouse {
-  public readonly contract: Contract
-  public readonly chainId: number
-  public readonly signerOrProvider: Signer | Provider
-  public readonly mediaContract: string
+  public readonly contract: Contract;
+  public readonly chainId: number;
+  public readonly signer: Signer;
+  public readonly mediaContract: string;
 
-  constructor(signerOrProvider: Signer | Provider, chainId: number) {
-    this.chainId = chainId
-    this.signerOrProvider = signerOrProvider
-    this.mediaContract = contractAddresses(chainId).zapAuctionAddress
+  constructor(chainId: number, signer: Signer) {
+    this.chainId = chainId;
+    this.signer = signer;
+    this.mediaContract = contractAddresses(chainId).zapAuctionAddress;
     this.contract = new ethers.Contract(
       contractAddresses(chainId).zapAuctionAddress,
       zapAuctionAbi,
-      signerOrProvider,
-    )
+      signer,
+    );
   }
 
   public async createAuction(
@@ -54,7 +54,7 @@ export class AuctionHouse {
       reservePrice,
       curator,
       curatorFeePercentages,
-      auctionCurrency
-    )
+      auctionCurrency,
+    );
   }
 }
