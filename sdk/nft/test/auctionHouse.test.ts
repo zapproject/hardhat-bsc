@@ -11,7 +11,7 @@ import { AuctionHouse } from '../src/auctionHouse';
 // Hardhat localhost connection
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe('MediaFactory', () => {
+describe('AuctionHouse', () => {
   let auctionHouse: any;
   let signer: any;
   let auctionId: string;
