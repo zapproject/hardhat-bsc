@@ -721,7 +721,7 @@ describe('ZapMedia', () => {
           // console.log(await media.isValidBid(0,bid))
         });
       });
-      describe('#fetchMedia', () => {
+      describe.only('#fetchMedia', () => {
         it('Should get media instance by index in the media contract', async () => {
           const media = new ZapMedia(1337, signer);
 
@@ -732,12 +732,12 @@ describe('ZapMedia', () => {
           expect(parseInt(tokenId._hex)).to.equal(0);
         });
 
-        it('index out of range', async () => {
+        it('Should throw an error index out of range', async () => {
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
 
-          const tokenId = await media.fetchMediaByIndex(0);
+          await media.fetchMediaByIndex(0);
         });
       });
     });
