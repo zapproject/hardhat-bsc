@@ -100,7 +100,6 @@ class ZapMedia {
     return this.media.tokenMetadataURI(mediaId);
   }
 
-
   /**
    * Fetches the content hash for the specified media on the ZapMedia Contract
    * @param mediaId
@@ -109,14 +108,13 @@ class ZapMedia {
     return this.media.getTokenContentHashes(mediaId);
   }
 
-    /**
+  /**
    * Fetches the metadata hash for the specified media on the ZapMedia Contract
    * @param mediaId
    */
-     public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
-      return this.media.getTokenMetadataHashes(mediaId)
-    }
-
+  public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
+    return this.media.getTokenMetadataHashes(mediaId);
+  }
 
   /**
    * Fetches the creator for the specified media on an instance of the Zap Media Contract
@@ -155,6 +153,15 @@ class ZapMedia {
    */
   public async fetchTotalMedia(): Promise<BigNumber> {
     return this.media.totalSupply();
+  }
+  public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
+    let totalMedia = await this.fetchTotalMedia();
+
+    if (index > parseInt(totalMedia._hex) - 1) {
+      invariant(false, 'ZapMedia (tokenByIndex): Index out of range.');
+    }
+
+    return this.media.tokenByIndex(index);
   }
 
   /**
