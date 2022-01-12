@@ -155,16 +155,13 @@ class ZapMedia {
     return this.media.totalSupply();
   }
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
-    
     let totalMedia = await this.fetchTotalMedia();
-    totalMedia = parseInt(totalMedia._hex);
 
-  
-      return this.media.tokenByIndex(index);
+    if (index > parseInt(totalMedia._hex) - 1) {
+      invariant(false, 'ZapMedia (tokenByIndex): Index out of range.');
+    }
 
-   
-     // invariant(false, 'ZapMedia (tokenByIndex): Index out of range.');
-    
+    return this.media.tokenByIndex(index);
   }
 
   /**

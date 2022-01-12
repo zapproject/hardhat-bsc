@@ -22,8 +22,7 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import {getSigners} from './test_utils'
-
+import { getSigners } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -42,9 +41,8 @@ describe('ZapMedia', () => {
 
   const signers = getSigners(provider);
 
-
   beforeEach(async () => {
-    signer = signers[0]
+    signer = signers[0];
     // signer = provider.getSigner(0);
 
     token = await deployZapToken();
@@ -85,7 +83,6 @@ describe('ZapMedia', () => {
         let contentHash = contentHashBytes;
         let metadataHash = metadataHashBytes;
 
-
         mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
 
         bidShares = constructBidShares(
@@ -100,42 +97,37 @@ describe('ZapMedia', () => {
         );
       });
 
-      describe("test fetchContentHash, fetchMetadataHash", () => {
+      describe('test fetchContentHash, fetchMetadataHash', () => {
         it('Should be able to fetch contentHash', async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
-          const onChainContentHash = await media.fetchContentHash(0)
+          const onChainContentHash = await media.fetchContentHash(0);
           expect(onChainContentHash).eq(ethers.utils.hexlify(mediaData.contentHash));
-        })
-        it('fetchContentHash should get 0x0 if tokenId doesn\'t exist', async () => {
+        });
+        it("fetchContentHash should get 0x0 if tokenId doesn't exist", async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
-          const onChainContentHash = await media.fetchContentHash(56)
+          const onChainContentHash = await media.fetchContentHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainContentHash).eq(ethers.constants.HashZero);
-        })
+        });
         it('Should be able to fetch metadataHash', async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
-          const onChainMetadataHash = await media.fetchMetadataHash(0)
+          const onChainMetadataHash = await media.fetchMetadataHash(0);
           expect(onChainMetadataHash).eq(ethers.utils.hexlify(mediaData.metadataHash));
-
-        })
-        it('fetchMetadataHash should get 0x0 if tokenId doesn\'t exist', async () => {
+        });
+        it("fetchMetadataHash should get 0x0 if tokenId doesn't exist", async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
-          const onChainMetadataHash = await media.fetchMetadataHash(56)
+          const onChainMetadataHash = await media.fetchMetadataHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
-
-        })
-      })
-
-
-
-    })
+        });
+      });
+    });
     describe('Write Functions', () => {
       let tokenURI =
         'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
@@ -737,7 +729,7 @@ describe('ZapMedia', () => {
 
           await media.mint(mediaData, bidShares);
 
-          await media.fetchMediaByIndex(0);
+          await media.fetchMediaByIndex(1);
         });
       });
     });
