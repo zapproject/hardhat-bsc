@@ -97,7 +97,75 @@ describe('ZapMedia', function () {
             });
         }); });
     });
-    describe('contract Functions', function () {
+    describe('Contract Functions', function () {
+        describe('View Functions', function () {
+            var tokenURI = 'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
+            var metadataURI = 'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
+            beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
+                var metadataHex, metadataHashRaw, metadataHashBytes, contentHex, contentHashRaw, contentHashBytes, contentHash, metadataHash, _a, _b;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
+                        case 0:
+                            metadataHex = ethers_1.ethers.utils.formatBytes32String('Test');
+                            metadataHashRaw = ethers_1.ethers.utils.keccak256(metadataHex);
+                            metadataHashBytes = ethers_1.ethers.utils.arrayify(metadataHashRaw);
+                            contentHex = ethers_1.ethers.utils.formatBytes32String('Test Car');
+                            contentHashRaw = ethers_1.ethers.utils.keccak256(contentHex);
+                            contentHashBytes = ethers_1.ethers.utils.arrayify(contentHashRaw);
+                            contentHash = contentHashBytes;
+                            console.log(contentHash);
+                            console.log(contentHash);
+                            console.log(contentHash);
+                            console.log(contentHash);
+                            console.log("**************");
+                            console.log("**************");
+                            console.log("**************");
+                            metadataHash = metadataHashBytes;
+                            mediaData = (0, utils_1.constructMediaData)(tokenURI, metadataURI, contentHash, metadataHash);
+                            _a = utils_1.constructBidShares;
+                            return [4 /*yield*/, provider.getSigner(1).getAddress()];
+                        case 1:
+                            _b = [
+                                _c.sent()
+                            ];
+                            return [4 /*yield*/, provider.getSigner(2).getAddress()];
+                        case 2:
+                            _b = _b.concat([
+                                _c.sent()
+                            ]);
+                            return [4 /*yield*/, provider.getSigner(3).getAddress()];
+                        case 3:
+                            bidShares = _a.apply(void 0, [_b.concat([
+                                    _c.sent()
+                                ]), [15, 15, 15],
+                                15,
+                                35]);
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            describe("fetchContentHash", function () {
+                it.only('Should be able to fetch contentHash', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var media, onChainContentHash;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                media = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, media.mint(mediaData, bidShares)];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, media.fetchContentHash(0)];
+                            case 2:
+                                onChainContentHash = _a.sent();
+                                console.log(onChainContentHash);
+                                console.log(onChainContentHash);
+                                console.log(onChainContentHash);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+            });
+        });
         describe('Write Functions', function () {
             var tokenURI = 'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
             var metadataURI = 'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';

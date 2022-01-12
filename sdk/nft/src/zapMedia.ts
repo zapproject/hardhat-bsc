@@ -101,6 +101,24 @@ class ZapMedia {
     return this.media.tokenMetadataURI(mediaId);
   }
 
+
+  /**
+   * Fetches the content hash for the specified media on the ZapMedia Contract
+   * @param mediaId
+   */
+  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
+    return this.media.getTokenContentHashes(mediaId);
+  }
+
+    /**
+   * Fetches the metadata hash for the specified media on the ZapMedia Contract
+   * @param mediaId
+   */
+     public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
+      return this.media.getTokenMetadataHashes(mediaId)
+    }
+
+
   /**
    * Fetches the creator for the specified media on an instance of the Zap Media Contract
    * @param mediaId
