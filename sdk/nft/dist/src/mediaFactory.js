@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ethers_1 = require("ethers");
 var utils_1 = require("./utils");
-var abi_1 = require("./abi");
+var abi_1 = require("./contract/abi");
 var MediaFactory = /** @class */ (function () {
     function MediaFactory(networkId, signer) {
         this.networkId = networkId;
@@ -64,11 +64,6 @@ var MediaFactory = /** @class */ (function () {
                     case 2:
                         receipt = _a.sent();
                         eventLog = receipt.events[receipt.events.length - 1];
-                        // console.log('\n', {
-                        //   transactionHash: eventLog.transactionHash,
-                        //   event: eventLog.event,
-                        //   deployedCollectionAddress: eventLog.args.mediaContract,
-                        // });
                         return [2 /*return*/, eventLog];
                 }
             });
