@@ -38,6 +38,7 @@ describe('ZapMedia', () => {
   let signer: any;
   let zapMedia: any;
   let fetchMediaByIndex: any;
+  let bid: any;
 
   const signers = getSigners(provider);
 
@@ -56,19 +57,13 @@ describe('ZapMedia', () => {
     mediaFactoryAddresses['1337'] = mediaFactory.address;
     zapMediaAddresses['1337'] = zapMedia.address;
 
-    // bid = {
-    //   amount: 200,
-    //   currency: zapTokenBsc.address,
-    //   bidder: signers[1].address,
-    //   recipient: signers[8].address,
-    //   spender: signers[1].address,
-    //   sellOnShare: {
-    //     value: BigInt(10000000000000000000)
-    //   }
-
-    
-
-  });
+    bid = constructBid(
+      token.address, 
+      200, 
+      await signer[1].getAddress(), 
+      await signer[1].getAddress(),
+      10,
+      );
 
   describe('#constructor', () => {
     it('Should throw an error if the networkId is invalid', async () => {
@@ -468,20 +463,24 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe('#setbid', () => {
+      describe.only('#setbid', () => {
         it('creates a new bid on chain', async () => {
           const zap = new ZapMedia(1337, signer);
-          
+
           await zap.mint(mediaData, bidShares);
 
           const signer1 = provider.getSigner(1);
           const zap1 = new ZapMedia(1337, signer1);
 
-          const nullOnChainBid = await zap1.fetchCurrentBidForBidder(zapMedia.address, 0, await signer1.getAddress());
+          const nullOnChainBid = await zap1.fetchCurrentBidForBidder(
+            zapMedia.address,
+            0,
+            await signer1.getAddress(),
+          );
 
-          expect(nullOnChainBid.currency).to.equal(ethers.constants.AddressZero)
+          expect(nullOnChainBid.currency).to.equal(ethers.constants.AddressZero);
           //await zap1.setBid(0, bid)
-        })
+        });
       });
 
       describe('#removeAsk', () => {
@@ -763,4 +762,5 @@ describe('ZapMedia', () => {
       });
     });
   });
+});
 });
