@@ -19,6 +19,12 @@ import { timeStamp } from 'console';
 import { sign } from 'crypto';
 
 class ZapMedia {
+  eip712Domain() {
+    throw new Error('Method not implemented.');
+  }
+  fetchMintWithSigNonce(address: any) {
+    throw new Error('Method not implemented.');
+  }
   networkId: number;
   mediaIndex: any;
   media: any;
@@ -193,6 +199,32 @@ class ZapMedia {
     const gasEstimate = await this.media.estimateGas.mint(mediaData, bidShares);
 
     return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+  }
+
+  /**
+   * Mints a new piece of media on an instance of the Zap Media Contract
+   * @param creator
+   * @param mediaData
+   * @param bidShares
+   * @param sig
+   */
+  public async mintWithSig(
+    creator: string,
+    mediaData: MediaData,
+    bidShares: BidShares,
+    sig: any // EIP712Signature
+  ): Promise<ContractTransaction> {
+
+    try {
+      // this.ensureNotReadOnly()
+      validateURI(mediaData.metadataURI)
+      validateURI(mediaData.tokenURI)
+      validateBidShares(bidShares.creator, bidShares.owner, bidShares.owner)
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+
+    return this.media.mintWithSig(creator, mediaData, bidShares, sig)
   }
 
   /**

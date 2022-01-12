@@ -2,7 +2,7 @@ import chai, { expect, use } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
+import { constructAsk, constructBidShares, constructMediaData, Decimal } from '../src/utils';
 
 import ZapMedia from '../src/zapMedia';
 
@@ -35,6 +35,7 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
+  let eipSig: any;
 
   beforeEach(async () => {
     signer = provider.getSigner(0);
@@ -89,6 +90,12 @@ describe('ZapMedia', () => {
           15,
           35,
         );
+        eipSig = {
+          deadline: 1000,
+          v: 0,
+          r: '0x00',
+          s: '0x00'
+        }
       });
 
       describe('#updateContentURI', () => {
@@ -254,6 +261,169 @@ describe('ZapMedia', () => {
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         });
       });
+
+      describe.only('#mintWithSig', () => {
+        it('throws an error if bid shares do not sum to 100', async () => {
+          let bidShareSum = 0;
+          const media = new ZapMedia(1337, signer);
+
+          bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
+
+          for (var i = 0; i < bidShares.collabShares.length; i++) {
+            bidShareSum += parseInt(bidShares.collabShares[i]);
+          }
+
+          bidShareSum += parseInt(bidShares.creator.value) + parseInt(bidShares.owner.value) + 5e18;
+          console.log('eipSig', eipSig);
+
+          await media
+            .mintWithSig(
+              signer.address,
+              mediaData,
+              bidShares,
+              eipSig
+              )
+
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err)
+              .to.eq('Invariant failed: The BidShares sum to 75000000000000000000, but they must sum to 100000000000000000000')
+            });
+        });
+
+
+        it('throws an error if the tokenURI does not begin with `https://`', async () => {
+          const media = new ZapMedia(1337, signer);
+          let metadataHex = ethers.utils.formatBytes32String('Test');
+          let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+          let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+          let contentHex = ethers.utils.formatBytes32String('Test Car');
+          let contentHashRaw = ethers.utils.keccak256(contentHex);
+          let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+          // const signer1 = provider.getSigner(1);
+          const invalidMediaData = {
+            tokenURI: 'http://example.com',
+            metadataURI: 'https://metadata.com',
+            contentHash: contentHashBytes,
+            metadataHash: metadataHashBytes,
+          }
+          // const newOwner = await provider.getSigner().getAddress();
+          // expect(media.readOnly).eq(false)
+          // await media.mint(mediaData, bidShares);
+
+          // await media.approve(await signer1.getAddress(), 0);
+
+          // expect(owner).to.equal(await signer.getAddress());
+
+          // const getApproved = await media.fetchApproved(0);
+          // expect(getApproved).to.equal(await signer1.getAddress());
+
+          const mintWithSigInvalid = await media.mintWithSig(
+            signer.address,
+            invalidMediaData,
+            bidShares,
+            eipSig
+          )
+          expect(mintWithSigInvalid).to.equal( 'Invariant failed: http://example.com must begin with `https://`');
+        })
+
+        // it('Should be able to mint', async () => {
+        //   // require('@zapsdk')
+
+        //   const media = new ZapMedia(1337, signer);
+
+        //   const preTotalSupply = (await media.fetchTotalMedia()).toNumber();
+
+        //   expect(preTotalSupply).to.equal(0);
+
+        //   await media.mint(mediaData, bidShares);
+
+        //   const owner = await media.fetchOwnerOf(0);
+        //   const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
+        //   const onChainContentURI = await media.fetchContentURI(0);
+        //   const onChainMetadataURI = await media.fetchMetadataURI(0);
+
+        //   expect(owner).to.equal(await signer.getAddress());
+        //   expect(onChainContentURI).to.equal(mediaData.tokenURI);
+        //   expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
+        //   expect(parseInt(onChainBidShares.creator.value)).to.equal(
+        //     parseInt(bidShares.creator.value),
+        //   );
+        //   expect(parseInt(onChainBidShares.owner.value)).to.equal(
+        //     parseInt(onChainBidShares.owner.value),
+        //   );
+        //   expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
+        //   expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        // });
+      });
+
+
+      //   it('throws an error if the metadataURI does not begin with `https://`', async () => {
+      //     const media = new ZapMedia(1337, signer);
+      //     const invalidMediaData = {
+      //       tokenURI: 'https://example.com',
+      //       metadataURI: 'http://metadata.com',
+      //       contentHash: mediaData.contentHash,
+      //       metadataHash: mediaData.metadataHash,
+      //     }
+
+      //     expect(media.mint(invalidMediaData, bidShares)).to.equal(
+      //       'Invariant failed: http://metadata.com must begin with `https://`'
+      //     )
+      //   })
+
+      //   it('creates a new piece of media', async () => {
+      //     const otherMedia = new ZapMedia(1337, signer);
+      //     const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
+      //     const domain = otherMedia.eip712Domain()
+      //     const nonce = await otherMedia.fetchMintWithSigNonce(signer.address)
+      //     // const eipSig = await otherMedia.(
+      //     //   signer,
+      //     //   mediaData.contentHash,
+      //     //   mediaData.metadataHash,
+      //     //   Decimal.new(10).value,
+      //     //   nonce, // TODO: needs to be a number ? (nonce.toNumber())
+      //     //   deadline,
+      //     //   domain
+      //     // )
+
+      //     const totalSupply = await otherMedia.fetchTotalMedia()
+      //     expect(totalSupply.toNumber()).to.equal(0)
+
+      //     await otherMedia.mintWithSig(
+      //       signer.address,
+      //       mediaData,
+      //       bidShares,
+      //       eipSig
+      //     )
+
+      //     const owner = await otherMedia.fetchOwnerOf(0)
+      //     // TODO: needs to fetch the creator of ?
+      //     const creator = await otherMedia.fetchOwnerOf(0)
+      //     const onChainContentHash = await otherMedia.fetchContentURI(0)
+      //     const onChainMetadataHash = await otherMedia.fetchMetadataURI(0)
+
+      //     const onChainBidShares = await otherMedia.fetchCurrentBidShares(zapMedia.address, 0)
+      //     const onChainContentURI = await otherMedia.fetchContentURI(0)
+      //     const onChainMetadataURI = await otherMedia.fetchMetadataURI(0)
+
+      //     expect(owner.toLowerCase()).to.equal(signer.address.toLowerCase())
+      //     expect(creator.toLowerCase()).to.equal(signer.address.toLowerCase())
+      //     expect(onChainContentHash).to.equal(mediaData.contentHash)
+      //     expect(onChainContentURI).to.equal(mediaData.tokenURI)
+      //     expect(onChainMetadataURI).to.equal(mediaData.metadataURI)
+      //     expect(onChainMetadataHash).to.equal(mediaData.metadataHash)
+      //     expect(onChainBidShares.creator.value).to.equal(bidShares.creator.value)
+      //     expect(onChainBidShares.owner.value).to.equal(bidShares.owner.value)
+      //     // TODO: should be onChainBidShares.prevOwner.value ?
+      //     expect(onChainBidShares.owner.value).to.equal(
+      //       bidShares.prevOwner.value
+      //     )
+      //   })
+      // })
 
       describe('#setAsk', () => {
         it('Should throw an error if the signer is not approved nor the owner', async () => {
