@@ -659,6 +659,17 @@ describe('ZapMedia', () => {
 
           expect(parseInt(tokenId._hex)).to.equal(0);
 
+         it('index out of range', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const tokenId = await media.fetchMediaByIndex(0);
+
+
+
+         }); 
+
         
         });
       });
