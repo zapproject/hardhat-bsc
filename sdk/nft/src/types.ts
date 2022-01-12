@@ -48,3 +48,13 @@ export type BidShares = {
   r: BytesLike
   s: BytesLike
 }
+
+/**
+ * EIP712 Domain
+ */
+ export type EIP712Domain = {
+  name: string
+  version: string
+  chainId: number
+  verifyingContract: string
+}
