@@ -182,6 +182,20 @@ class ZapMedia {
     }
   }
 
+/**fetches the media specified Signature nonce. if signature nonce does not exist, function 
+ * will return an error message
+ * @param address 
+ * @returns sigNonce
+ */
+
+  public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
+    try{
+    return this.media.mintWithSigNonces(address); 
+    } catch (err) {
+      invariant(false, 'ZapMedia (fetchMintWithSigNonce): Address does not exist.');
+    }
+  }
+
   /***********************
    * ERC-721 Write Methods
    ***********************

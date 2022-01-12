@@ -38,6 +38,7 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
+  let address: any;
 
   const signers = getSigners(provider);
 
@@ -718,6 +719,20 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           // console.log(await media.isValidBid(0,bid))
+        });
+        describe.only('#fetchSigNonce',  () => {
+          it('Should fetch the signature nonce of the newly minted media', async () => {
+            const media = new ZapMedia(1337, signer);
+
+           await media.mint(mediaData, bidShares);
+
+           console.log(media.mint(mediaData, bidShares), address);
+
+           const sigNonce = await media.fetchMintWithSigNonce(address);
+
+           expect(sigNonce).to.equal(address);
+
+          });
         });
       });
     });
