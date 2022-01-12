@@ -157,8 +157,7 @@ class ZapMedia {
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
     
     let totalMedia = await this.fetchTotalMedia();
-    totalMedia = parseInt(totalMedia._hex);
-
+    
   
       return this.media.tokenByIndex(index);
 
