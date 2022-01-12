@@ -1,4 +1,9 @@
-import { mediaFactoryAddresses, zapMarketAddresses, zapMediaAddresses, zapAuctionAddresses } from './contract/addresses';
+import {
+  mediaFactoryAddresses,
+  zapMarketAddresses,
+  zapMediaAddresses,
+  zapAuctionAddresses,
+} from './contract/addresses';
 import { DecimalValue, BidShares, MediaData, Ask, Bid } from './types';
 import invariant from 'tiny-invariant';
 import warning from 'tiny-warning';
@@ -28,7 +33,7 @@ export const contractAddresses = (networkId: number): any => {
       mediaFactoryAddress,
       zapMarketAddress,
       zapMediaAddress,
-      zapAuctionAddress
+      zapAuctionAddress,
     };
   } else if (networkId === 4) {
     mediaFactoryAddress = mediaFactoryAddresses['4'];
@@ -40,7 +45,7 @@ export const contractAddresses = (networkId: number): any => {
       mediaFactoryAddress,
       zapMarketAddress,
       zapMediaAddress,
-      zapAuctionAddress
+      zapAuctionAddress,
     };
   } else if (networkId === 97) {
     mediaFactoryAddress = mediaFactoryAddresses['97'];
@@ -52,7 +57,7 @@ export const contractAddresses = (networkId: number): any => {
       mediaFactoryAddress,
       zapMarketAddress,
       zapMediaAddress,
-      zapAuctionAddress
+      zapAuctionAddress,
     };
   } else if (networkId === 1) {
     mediaFactoryAddress = mediaFactoryAddresses['1'];
@@ -64,7 +69,7 @@ export const contractAddresses = (networkId: number): any => {
       mediaFactoryAddress,
       zapMarketAddress,
       zapMediaAddress,
-      zapAuctionAddress
+      zapAuctionAddress,
     };
   } else if (networkId === 56) {
     mediaFactoryAddress = mediaFactoryAddresses['56'];
@@ -76,10 +81,10 @@ export const contractAddresses = (networkId: number): any => {
       mediaFactoryAddress,
       zapMarketAddress,
       zapMediaAddress,
-      zapAuctionAddress
+      zapAuctionAddress,
     };
   } else {
-    invariant(false, 'ZapMedia Constructor: Network Id is not supported.');
+    invariant(false, 'Constructor: Network Id is not supported.');
   }
 };
 

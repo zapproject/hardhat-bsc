@@ -31,6 +31,7 @@ export class AuctionHouse {
     this.chainId = chainId;
     this.signer = signer;
     this.mediaContract = contractAddresses(chainId).zapAuctionAddress;
+
     this.contract = new ethers.Contract(
       contractAddresses(chainId).zapAuctionAddress,
       zapAuctionAbi,
