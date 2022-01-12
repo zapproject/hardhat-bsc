@@ -78,21 +78,6 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
-     * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
-     * @param owner
-     * @param index
-     */
-    ZapMedia.prototype.fetchMediaOfOwnerByIndex = function (owner, index) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                if (owner === ethers_1.ethers.constants.AddressZero) {
-                    (0, tiny_invariant_1.default)(false, 'ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.');
-                }
-                return [2 /*return*/, this.media.tokenOfOwnerByIndex(owner, index)];
-            });
-        });
-    };
-    /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -126,52 +111,6 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
-     * Fetches the content hash for the specified media on the ZapMedia Contract
-     * @param mediaId
-     */
-    ZapMedia.prototype.fetchContentHash = function (mediaId) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.getTokenContentHashes(mediaId)];
-            });
-        });
-    };
-    /**
-   * Fetches the metadata hash for the specified media on the ZapMedia Contract
-   * @param mediaId
-   */
-    ZapMedia.prototype.fetchMetadataHash = function (mediaId) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.getTokenMetadataHashes(mediaId)];
-            });
-        });
-    };
-    /**
-     * Fetches the creator for the specified media on an instance of the Zap Media Contract
-     * @param mediaId
-     */
-    ZapMedia.prototype.fetchCreator = function (mediaId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
-                    case 1:
-                        _a.sent();
-                        return [3 /*break*/, 3];
-                    case 2:
-                        err_1 = _a.sent();
-                        (0, tiny_invariant_1.default)(false, 'ZapMedia (fetchCreator): TokenId does not exist.');
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/, this.media.getTokenCreators(mediaId)];
-                }
-            });
-        });
-    };
-    /**
      * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -190,18 +129,6 @@ var ZapMedia = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.market.currentAskForToken(mediaAddress, mediaId)];
-            });
-        });
-    };
-    /**
-    * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
-    * @param mediaId
-    * @param bidder
-    */
-    ZapMedia.prototype.fetchCurrentBidForBidder = function (mediaContractAddress, mediaId, bidder) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder)];
             });
         });
     };
@@ -240,7 +167,7 @@ var ZapMedia = /** @class */ (function () {
     };
     ZapMedia.prototype.updateContentURI = function (mediaId, tokenURI) {
         return __awaiter(this, void 0, void 0, function () {
-            var err_2;
+            var err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -248,7 +175,7 @@ var ZapMedia = /** @class */ (function () {
                         return [4 /*yield*/, this.media.updateTokenURI(mediaId, tokenURI)];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        err_2 = _a.sent();
+                        err_1 = _a.sent();
                         (0, tiny_invariant_1.default)(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -294,39 +221,6 @@ var ZapMedia = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.media.transferFrom(from, to, mediaId)];
-            });
-        });
-    };
-    /**
-     * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
-     * @param from
-     * @param to
-     * @param mediaId
-     */
-    ZapMedia.prototype.safeTransferFrom = function (from, to, mediaId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
-                    case 1:
-                        _a.sent();
-                        return [3 /*break*/, 3];
-                    case 2:
-                        err_3 = _a.sent();
-                        (0, tiny_invariant_1.default)(false, 'ZapMedia (safeTransferFrom): TokenId does not exist.');
-                        return [3 /*break*/, 3];
-                    case 3:
-                        if (from === ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, 'ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.');
-                        }
-                        if (to === ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, 'ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.');
-                        }
-                        return [2 /*return*/, this.media['safeTransferFrom(address,address,uint256)'](from, to, mediaId)];
-                }
             });
         });
     };
@@ -394,24 +288,12 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
-   * Sets a bid on the specified media on an instance of the Zora Media Contract
-   * @param mediaId
-   * @param bid
-   */
-    ZapMedia.prototype.setBid = function (mediaId, bid) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.setBid(mediaId, bid)];
-            });
-        });
-    };
-    /**
      * Removes the ask on the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
     ZapMedia.prototype.removeAsk = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var ask, err_4;
+            var ask, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.market.currentAskForToken(this.media.address, mediaId)];
@@ -425,7 +307,7 @@ var ZapMedia = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 5];
                     case 4:
-                        err_4 = _a.sent();
+                        err_2 = _a.sent();
                         (0, tiny_invariant_1.default)(false, 'ZapMedia (removeAsk): TokenId does not exist.');
                         return [3 /*break*/, 5];
                     case 5:

@@ -1,5 +1,5 @@
 import { ContractTransaction, BigNumber, BigNumberish, Signer } from 'ethers';
-import { MediaData, BidShares, Ask, Bid } from './types';
+import { MediaData, BidShares, Ask } from './types';
 declare class ZapMedia {
     networkId: number;
     mediaIndex: any;
@@ -18,12 +18,6 @@ declare class ZapMedia {
      */
     fetchOwnerOf(mediaId: BigNumberish): Promise<string>;
     /**
-     * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
-     * @param owner
-     * @param index
-     */
-    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber>;
-    /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -34,21 +28,6 @@ declare class ZapMedia {
      */
     fetchMetadataURI(mediaId: BigNumberish): Promise<string>;
     /**
-     * Fetches the content hash for the specified media on the ZapMedia Contract
-     * @param mediaId
-     */
-    fetchContentHash(mediaId: BigNumberish): Promise<string>;
-    /**
-   * Fetches the metadata hash for the specified media on the ZapMedia Contract
-   * @param mediaId
-   */
-    fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
-    /**
-     * Fetches the creator for the specified media on an instance of the Zap Media Contract
-     * @param mediaId
-     */
-    fetchCreator(mediaId: BigNumberish): Promise<string>;
-    /**
      * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -58,12 +37,6 @@ declare class ZapMedia {
      * @param mediaId
      */
     fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask>;
-    /**
-    * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
-    * @param mediaId
-    * @param bidder
-    */
-    fetchCurrentBidForBidder(mediaContractAddress: string, mediaId: BigNumberish, bidder: string): Promise<Bid>;
     /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
@@ -104,13 +77,6 @@ declare class ZapMedia {
      */
     transferFrom(from: string, to: string, mediaId: BigNumberish): Promise<ContractTransaction>;
     /**
-     * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
-     * @param from
-     * @param to
-     * @param mediaId
-     */
-    safeTransferFrom(from: string, to: string, mediaId: BigNumberish): Promise<ContractTransaction>;
-    /**
      * Mints a new piece of media on an instance of the Zap Media Contract
      * @param mintData
      * @param bidShares
@@ -122,12 +88,6 @@ declare class ZapMedia {
      * @param ask
      */
     setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction>;
-    /**
-   * Sets a bid on the specified media on an instance of the Zora Media Contract
-   * @param mediaId
-   * @param bid
-   */
-    setBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction>;
     /**
      * Removes the ask on the specified media on an instance of the Zap Media Contract
      * @param mediaId
