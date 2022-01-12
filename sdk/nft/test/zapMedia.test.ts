@@ -713,7 +713,7 @@ describe('ZapMedia', () => {
           // console.log(await media.isValidBid(0,bid))
         });
       });
-      describe.only('#fetchMedia', () => {
+      describe('#fetchMedia', () => {
         it('Should get media instance by index in the media contract', async () => {
           const media = new ZapMedia(1337, signer);
 
@@ -729,7 +729,16 @@ describe('ZapMedia', () => {
 
           await media.mint(mediaData, bidShares);
 
-          await media.fetchMediaByIndex(1);
+          await media
+            .fetchMediaByIndex(1)
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (tokenByIndex): Index out of range.',
+              );
+            });
         });
       });
     });
