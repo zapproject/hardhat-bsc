@@ -1,5 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { recoverSignatureFromPermit, Zora, signPermitMessage, sha256FromBuffer, constructBidShares } from '@levinhs/zdk'
+import { recoverSignatureFromPermit, Zora, signPermitMessage, sha256FromBuffer, constructBidShares, signMintWithSigMessage } from '@levinhs/zdk'
+import { recoverSignatureFromMintWithSig } from '@zoralabs/zdk'
 import { expect } from 'chai'
 import { constructMediaData } from '../src/utils'
 
@@ -149,8 +150,60 @@ describe('EIP-712 Utilities', () => {
                 eipSig
             )
 
-            expect
+            expect(recovered.toLowerCase().not.toBe(mainWallet.address.toLowerCase())
+        })
+    })
 
-        }
+    describe('#signMintWithSig', () => {
+        // config addresses need to be added
+    })
+})
+
+it('signs the message correctly', async () => {
+    const provider = new JsonRpcProvider()
+    const [mainWallet] = generatedWallets(provider)
+    const zap = new Zora(provider, 50, zoraConfig.media, zoraConfig.market)
+    const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
+    const domain = zap.eip712Domain()
+    const contentHash = sha256FromBuffer(Buffer.from('example content'))
+    const metadataHash = sha256FromBuffer(Buffer.from('example metadata'))
+
+    const eip712Sig = await signMintWithSigMessage(
+        mainWallet,
+        contentHash,
+        metadataHash,
+        Decimal.new(10).value,
+        1,
+        deadline,
+        domain
+    )
+
+    const recovered = await recoverSignatureFromMintWithSig(
+        contentHash,
+        metadataHash,
+        Decimal.new(10).value,
+        1,
+        deadline,
+        domain,
+        eip712Sig
+    )
+
+    expect(recovered.toLowerCase().to(mainWallet.address.toLowerCase()))
+    })
+
+    it('signs a mintWithSig message that is able to be processed on chain', async () => {
+        const [mainWallet, otherWallet] = generatedWallets(provider)
+        // const onChainConfig = await setupZap(mainWallet, [otherWallet])
+        const onChainConfig = await setupZora(mainWallet, [otherWallet])
+        const otherZap = new Zora(
+            otherWallet,
+            50,
+            onChainConfig.media,
+            onChainConfig.market
+        )
+        const contentHash = sha256FromBuffer(Buffer.from('example content'))
+        const metadataHash = sha256FromBuffer(Buffer.from('example metadata'))
+        const 
+
     })
 })
