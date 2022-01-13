@@ -343,9 +343,7 @@ describe('ZapMedia', () => {
           }
 
           bidShareSum += parseInt(bidShares.creator.value) + parseInt(bidShares.owner.value) + 5e18;
-          console.log('eipSig', eipSig);
 
-          const mainWallet: Wallet = new ethers.Wallet("0x308fdd19b898fbcc19aa4295719f97c5f0685afab346dcacee3d58e45bf0f2b5")
           const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
 
           await media
@@ -367,6 +365,8 @@ describe('ZapMedia', () => {
 
 
         it('throws an error if the tokenURI does not begin with `https://`', async () => {
+          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
+
           const media = new ZapMedia(1337, signer);
           let metadataHex = ethers.utils.formatBytes32String('Test');
           let metadataHashRaw = ethers.utils.keccak256(metadataHex);
@@ -384,7 +384,7 @@ describe('ZapMedia', () => {
           }
 
           await media.mintWithSig(
-            signer.address,
+            otherWallet.address,
             invalidMediaData,
             bidShares,
             eipSig
@@ -397,6 +397,7 @@ describe('ZapMedia', () => {
         })
 
           it('throws an error if the metadataURI does not begin with `https://`', async () => {
+            const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
           const media = new ZapMedia(1337, signer);
           const invalidMediaData = {
             tokenURI: 'https://example.com',
@@ -406,7 +407,7 @@ describe('ZapMedia', () => {
           }
 
           await media.mintWithSig(
-            signer.address,
+            otherWallet.address,
             invalidMediaData,
             bidShares,
             eipSig
@@ -433,11 +434,13 @@ describe('ZapMedia', () => {
             domain
           )
 
+          const mainWallet: Wallet = new ethers.Wallet("0x308fdd19b898fbcc19aa4295719f97c5f0685afab346dcacee3d58e45bf0f2b5")
+          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
           const totalSupply = await otherMedia.fetchTotalMedia()
           expect(totalSupply.toNumber()).to.equal(0)
 
           await otherMedia.mintWithSig(
-            signer.address,
+            otherWallet.address,
             mediaData,
             bidShares,
             eipSig
@@ -453,8 +456,8 @@ describe('ZapMedia', () => {
           const onChainContentURI = await otherMedia.fetchContentURI(0)
           const onChainMetadataURI = await otherMedia.fetchMetadataURI(0)
 
-          expect(owner.toLowerCase()).to.equal(signer.address.toLowerCase())
-          expect(creator.toLowerCase()).to.equal(signer.address.toLowerCase())
+          expect(owner.toLowerCase()).to.equal(mainWallet.address.toLowerCase())
+          expect(creator.toLowerCase()).to.equal(mainWallet.address.toLowerCase())
           expect(onChainContentHash).to.equal(mediaData.contentHash)
           expect(onChainContentURI).to.equal(mediaData.tokenURI)
           expect(onChainMetadataURI).to.equal(mediaData.metadataURI)
