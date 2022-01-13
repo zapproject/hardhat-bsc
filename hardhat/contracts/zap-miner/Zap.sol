@@ -7,7 +7,7 @@ import './libraries/ZapStake.sol';
 import './libraries/ZapLibrary.sol';
 import './libraries/Address.sol';
 import './Vault.sol';
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./interfaces/IERC20.sol";
 
 /**
  * @title Zap Oracle System
@@ -140,7 +140,6 @@ contract Zap {
 
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
-
         vault.withdraw(msg.sender, zap.uintVars[keccak256('disputeFee')]);
         vault.deposit(zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
         transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
