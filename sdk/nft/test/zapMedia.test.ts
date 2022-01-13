@@ -38,7 +38,8 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
-  let address: any;
+  let address: string;
+  let sig: any;
 
   const signers = getSigners(provider);
 
@@ -722,16 +723,17 @@ describe('ZapMedia', () => {
         });
         describe.only('#fetchSigNonce',  () => {
           it('Should fetch the signature nonce of the newly minted media', async () => {
-            const media = new ZapMedia(1337, signer);
+           const media = new ZapMedia(1337, signer);
 
-           await media.mint(mediaData, bidShares);
+           const beforeNonce = {
+             await media.getSigNonces(signers[1].address)
+           }
 
-           console.log(media.mint(mediaData, bidShares), address);
+           await media.mintWithSig(mediaData, bidShares);
 
-           const sigNonce = await media.fetchMintWithSigNonce(address);
+           const fetchSigNonce = await media.fetchMintWithSigNonce(signer.address)
 
-           expect(sigNonce).to.equal(address);
-
+           expect(fetchSigNonce).eq(ethers.utils.hexlify(signer.address));
           });
         });
       });

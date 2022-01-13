@@ -6,6 +6,7 @@ import {
   ethers,
   Signer,
   Wallet,
+
 } from 'ethers';
 
 import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
@@ -19,6 +20,9 @@ import { timeStamp } from 'console';
 import { sign } from 'crypto';
 
 class ZapMedia {
+  getSigNonces(addess: any) {
+    throw new Error('Method not implemented.');
+  }
   networkId: number;
   mediaIndex: any;
   media: any;
@@ -187,10 +191,11 @@ class ZapMedia {
  * @param address 
  * @returns sigNonce
  */
+//  public async mintWithSig(address: string)
 
   public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
     try{
-    return this.media.mintWithSigNonces(address); 
+    return this.media.mintWithSig(address); 
     } catch (err) {
       invariant(false, 'ZapMedia (fetchMintWithSigNonce): Address does not exist.');
     }
