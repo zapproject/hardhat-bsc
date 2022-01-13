@@ -130,7 +130,7 @@ describe('ZapMedia', () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
-        it('Should be able to fetch permitNonce', async () => {
+        it.skip('Should be able to fetch permitNonce', async () => {
           const zap_media = new ZapMedia(1337, signer);
           await zap_media.mint(mediaData, bidShares);
           // await zap_media.mint(mediaData, bidShares);
