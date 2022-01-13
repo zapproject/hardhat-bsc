@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import './libraries/ZapStorage.sol';
 import './libraries/ZapGettersLibrary.sol';
 import './libraries/ZapStake.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import './interfaces/IERC20.sol';
 
 /**
  * @title Zap Getters

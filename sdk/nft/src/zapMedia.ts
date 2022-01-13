@@ -72,6 +72,21 @@ class ZapMedia {
   }
 
   /**
+   * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
+   * @param owner
+   * @param index
+   */
+  public async fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber> {
+    if (owner === ethers.constants.AddressZero) {
+      invariant(
+        false,
+        'ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.',
+      );
+    }
+    return this.media.tokenOfOwnerByIndex(owner, index);
+  }
+
+  /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
@@ -89,6 +104,35 @@ class ZapMedia {
    */
   public async fetchMetadataURI(mediaId: BigNumberish): Promise<string> {
     return this.media.tokenMetadataURI(mediaId);
+  }
+
+  /**
+   * Fetches the content hash for the specified media on the ZapMedia Contract
+   * @param mediaId
+   */
+  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
+    return this.media.getTokenContentHashes(mediaId);
+  }
+
+  /**
+   * Fetches the metadata hash for the specified media on the ZapMedia Contract
+   * @param mediaId
+   */
+  public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
+    return this.media.getTokenMetadataHashes(mediaId);
+  }
+
+  /**
+   * Fetches the creator for the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async fetchCreator(mediaId: BigNumberish): Promise<string> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (fetchCreator): TokenId does not exist.');
+    }
+    return this.media.getTokenCreators(mediaId);
   }
 
   /**
@@ -115,6 +159,15 @@ class ZapMedia {
    */
   public async fetchTotalMedia(): Promise<BigNumber> {
     return this.media.totalSupply();
+  }
+  public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
+    let totalMedia = await this.fetchTotalMedia();
+
+    if (index > parseInt(totalMedia._hex) - 1) {
+      invariant(false, 'ZapMedia (tokenByIndex): Index out of range.');
+    }
+
+    return this.media.tokenByIndex(index);
   }
 
   /**
@@ -183,6 +236,34 @@ class ZapMedia {
   }
 
   /**
+   * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
+   * @param from
+   * @param to
+   * @param mediaId
+   */
+  public async safeTransferFrom(
+    from: string,
+    to: string,
+    mediaId: BigNumberish,
+  ): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, 'ZapMedia (safeTransferFrom): TokenId does not exist.');
+    }
+
+    if (from === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.');
+    }
+
+    if (to === ethers.constants.AddressZero) {
+      invariant(false, 'ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.');
+    }
+
+    return this.media['safeTransferFrom(address,address,uint256)'](from, to, mediaId);
+  }
+
+  /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param mintData
    * @param bidShares
@@ -199,32 +280,6 @@ class ZapMedia {
     const gasEstimate = await this.media.estimateGas.mint(mediaData, bidShares);
 
     return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
-  }
-
-  /**
-   * Mints a new piece of media on an instance of the Zap Media Contract
-   * @param creator
-   * @param mediaData
-   * @param bidShares
-   * @param sig
-   */
-  public async mintWithSig(
-    creator: string,
-    mediaData: MediaData,
-    bidShares: BidShares,
-    sig: any // EIP712Signature
-  ): Promise<ContractTransaction> {
-
-    try {
-      // this.ensureNotReadOnly()
-      validateURI(mediaData.metadataURI)
-      validateURI(mediaData.tokenURI)
-      validateBidShares(bidShares.creator, bidShares.owner, bidShares.owner)
-    } catch (err: any) {
-      return Promise.reject(err.message);
-    }
-
-    return this.media.mintWithSig(creator, mediaData, bidShares, sig)
   }
 
   /**
