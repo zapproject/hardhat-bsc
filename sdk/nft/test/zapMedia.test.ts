@@ -781,21 +781,18 @@ describe('ZapMedia', () => {
 
           await anotherMedia.permit(otherWallet.address, 0, eipSig)
           const approved = await anotherMedia.fetchApproved(0)
-          
 
-          
           expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
-          
+
+          // test to see if approved for another token. should fail.
           await anotherMedia.fetchApproved(1)
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            // // ERC721: approved query for nonexistent token
-            expect(err)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              // // ERC721: approved query for nonexistent token
+              expect(err)
             });
-
-
         });
       })
       describe('#fetchMedia', () => {
