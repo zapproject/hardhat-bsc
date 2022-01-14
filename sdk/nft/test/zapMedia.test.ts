@@ -22,7 +22,7 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import { getSigners } from './test_utils';
+import { getSigners, getWallets } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -39,7 +39,8 @@ describe('ZapMedia', () => {
   let zapMedia: any;
   let fetchMediaByIndex: any;
 
-  const signers = getSigners(provider);
+  const signers = getWallets(provider);
+  // const signers = getSigners(provider);
 
   beforeEach(async () => {
     signer = signers[0];
@@ -87,9 +88,9 @@ describe('ZapMedia', () => {
 
         bidShares = constructBidShares(
           [
-            await provider.getSigner(1).getAddress(),
-            await provider.getSigner(2).getAddress(),
-            await provider.getSigner(3).getAddress(),
+            signers[1].address,
+            signers[2].address,
+            signers[3].address,
           ],
           [15, 15, 15],
           15,
@@ -149,9 +150,9 @@ describe('ZapMedia', () => {
 
         bidShares = constructBidShares(
           [
-            await signers[1].getAddress(),
-            await signers[2].getAddress(),
-            await signers[3].getAddress(),
+            signers[1].address,
+            signers[2].address,
+            signers[3].address,
           ],
           [15, 15, 15],
           15,
@@ -309,8 +310,8 @@ describe('ZapMedia', () => {
           const onChainContentURI = await media.fetchContentURI(0);
           const onChainMetadataURI = await media.fetchMetadataURI(0);
 
-          expect(owner).to.equal(await signer.getAddress());
-          expect(creator).to.equal(await signer.getAddress());
+          expect(owner).to.equal(signer.address);
+          expect(creator).to.equal(signer.address);
           expect(onChainContentURI).to.equal(mediaData.tokenURI);
           expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
@@ -347,7 +348,7 @@ describe('ZapMedia', () => {
 
           const creator = await media.fetchCreator(0);
 
-          expect(creator).to.equal(await signer.getAddress());
+          expect(creator).to.equal(signer.address);
         });
       });
 
@@ -374,7 +375,7 @@ describe('ZapMedia', () => {
 
           await media.mint(mediaData, bidShares);
 
-          const tokenId = await media.fetchMediaOfOwnerByIndex(await signer.getAddress(), 0);
+          const tokenId = await media.fetchMediaOfOwnerByIndex(signer.address, 0);
 
           expect(parseInt(tokenId._hex)).to.equal(0);
         });
@@ -393,9 +394,9 @@ describe('ZapMedia', () => {
           const owner = await media.fetchOwnerOf(0);
           const getApproved = await media.fetchApproved(0);
 
-          expect(owner).to.not.equal(await signer1.getAddress());
-          expect(owner).to.equal(await signer.getAddress());
-          expect(getApproved).to.not.equal(await signer1.getAddress());
+          expect(owner).to.not.equal(signer1.address);
+          expect(owner).to.equal(signer.address);
+          expect(getApproved).to.not.equal(signer1.address);
           expect(getApproved).to.equal(ethers.constants.AddressZero);
 
           await media1
@@ -416,7 +417,7 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
-          expect(owner).to.equal(await signer.getAddress());
+          expect(owner).to.equal(signer.address);
 
           const getApproved = await media.fetchApproved(0);
           expect(getApproved).to.equal(ethers.constants.AddressZero);
@@ -438,13 +439,13 @@ describe('ZapMedia', () => {
 
           await media.mint(mediaData, bidShares);
 
-          await media.approve(await signer1.getAddress(), 0);
+          await media.approve(signer1.address, 0);
 
           const owner = await media.fetchOwnerOf(0);
-          expect(owner).to.equal(await signer.getAddress());
+          expect(owner).to.equal(signer.address);
 
           const getApproved = await media.fetchApproved(0);
-          expect(getApproved).to.equal(await signer1.getAddress());
+          expect(getApproved).to.equal(signer1.address);
 
           await media1.setAsk(0, ask);
 
@@ -505,7 +506,7 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
-          expect(owner).to.equal(await signer.getAddress());
+          expect(owner).to.equal(signer.address);
 
           const getApproved = await media.fetchApproved(0);
           expect(getApproved).to.equal(ethers.constants.AddressZero);
@@ -534,10 +535,10 @@ describe('ZapMedia', () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
 
-          await media.approve(await signer1.getAddress(), 0);
+          await media.approve(signer1.address, 0);
 
           const approved = await media.fetchApproved(0);
-          expect(approved).to.equal(await signer1.getAddress());
+          expect(approved).to.equal(signer1.address);
 
           const media1 = new ZapMedia(1337, signer1);
 
@@ -553,7 +554,7 @@ describe('ZapMedia', () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
           const owner = await media.fetchOwnerOf(0);
-          expect(owner).to.equal(await signer.getAddress());
+          expect(owner).to.equal(signer.address);
 
           const preTotalSupply = await media.fetchTotalMedia();
           expect(preTotalSupply.toNumber()).to.equal(1);
@@ -576,10 +577,10 @@ describe('ZapMedia', () => {
           const preApprovedStatus = await media.fetchApproved(0);
           expect(preApprovedStatus).to.equal(ethers.constants.AddressZero);
 
-          await media.approve(await signer1.getAddress(), 0);
+          await media.approve(signer1.address, 0);
 
           const postApprovedStatus = await media.fetchApproved(0);
-          expect(postApprovedStatus).to.equal(await signer1.getAddress());
+          expect(postApprovedStatus).to.equal(signer1.address);
         });
       });
 
@@ -592,26 +593,26 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           const preApprovalStatus = await media.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signer1.getAddress(),
+            signer.address,
+            signer1.address,
           );
 
           expect(preApprovalStatus).to.be.false;
 
-          await media.setApprovalForAll(await signer1.getAddress(), true);
+          await media.setApprovalForAll(signer1.address, true);
 
           const postApprovalStatus = await media.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signer1.getAddress(),
+            signer.address,
+            signer1.address,
           );
 
           expect(postApprovalStatus).to.be.true;
 
-          await media.setApprovalForAll(await signer1.getAddress(), false);
+          await media.setApprovalForAll(signer1.address, false);
 
           const revoked = await media.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signer1.getAddress(),
+            signer.address,
+            signer1.address,
           );
 
           expect(revoked).to.be.false;
@@ -620,13 +621,13 @@ describe('ZapMedia', () => {
 
       describe('#transferFrom', () => {
         it('Should transfer token to another address', async () => {
-          const recipient = await signers[1].getAddress();
+          const recipient = signers[1].address;
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
 
-          expect(owner).to.equal(await signer.getAddress());
+          expect(owner).to.equal(signer.address);
 
           await media.transferFrom(owner, recipient, 0);
 
@@ -638,12 +639,12 @@ describe('ZapMedia', () => {
 
       describe('#safeTransferFrom', () => {
         it('Should revert if the tokenId does not exist', async () => {
-          const recipient = await signers[1].getAddress();
+          const recipient = signers[1].address;
 
           const media = new ZapMedia(1337, signer);
 
           await media
-            .safeTransferFrom(await signer.getAddress(), recipient, 0)
+            .safeTransferFrom(signer.address, recipient, 0)
             .then((res) => {
               console.log(res);
             })
@@ -655,7 +656,7 @@ describe('ZapMedia', () => {
         });
 
         it('Should revert if the (from) is a zero address', async () => {
-          const recipient = await signers[1].getAddress();
+          const recipient = signers[1].address;
 
           const media = new ZapMedia(1337, signer);
 
@@ -679,7 +680,7 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           await media
-            .safeTransferFrom(await signer.getAddress(), ethers.constants.AddressZero, 0)
+            .safeTransferFrom(signer.address, ethers.constants.AddressZero, 0)
             .then((res) => {
               console.log(res);
             })
@@ -691,13 +692,13 @@ describe('ZapMedia', () => {
         });
 
         it('Should safe transfer a token to an address', async () => {
-          const recipient = await signers[1].getAddress();
+          const recipient = signers[1].address;
 
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
 
-          await media.safeTransferFrom(await signer.getAddress(), recipient, 0);
+          await media.safeTransferFrom(signer.address, recipient, 0);
         });
       });
 
