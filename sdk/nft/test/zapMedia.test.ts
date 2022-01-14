@@ -758,6 +758,15 @@ describe('ZapMedia', () => {
             });
         });
       });
+
+      describe.only('#fetchSignature', () => {
+        it('should get the signature nonce of a newly minted NFT', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+        });
+
+      });
     });
   });
 });
