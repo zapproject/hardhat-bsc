@@ -70,6 +70,7 @@ describe('AuctionHouse', () => {
   describe('Contract Functions', () => {
     describe('Write Functions', () => {
       let media: any;
+      let mediaAddress: any;
       let mediaData: any;
       let bidShares: any;
 
@@ -91,6 +92,7 @@ describe('AuctionHouse', () => {
         let metadataHash = metadataHashBytes;
 
         media = new ZapMedia(1337, signer);
+        mediaAddress = zapMediaAddresses['1337'];
 
         bidShares = constructBidShares(
           [
@@ -110,7 +112,19 @@ describe('AuctionHouse', () => {
 
       describe.only('#createAuction', () => {
         it('Should create an auction', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
           const auctionHouse = new AuctionHouse(1337, signer);
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            '0x0000000000000000000000000000000000000000',
+            5,
+            token,
+          )
         });
       });
     });
