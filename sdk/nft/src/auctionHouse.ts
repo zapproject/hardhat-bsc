@@ -25,12 +25,10 @@ export class AuctionHouse {
   public readonly contract: Contract;
   public readonly chainId: number;
   public readonly signer: Signer;
-  public readonly mediaContract: string;
 
   constructor(chainId: number, signer: Signer) {
     this.chainId = chainId;
     this.signer = signer;
-    this.mediaContract = contractAddresses(chainId).zapAuctionAddress;
 
     this.contract = new ethers.Contract(
       contractAddresses(chainId).zapAuctionAddress,
@@ -41,7 +39,7 @@ export class AuctionHouse {
 
   public async createAuction(
     tokenId: BigNumberish,
-    tokenAddress: string = this.mediaContract,
+    tokenAddress: string,
     duration: BigNumberish,
     reservePrice: BigNumberish,
     curator: string,
