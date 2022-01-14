@@ -9,7 +9,7 @@ import {
 
 } from 'ethers';
 
-import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
+import { contractAddresses, Decimal, validateBidShares, validateURI, validateAndParseAddress } from './utils';
 
 import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
@@ -18,6 +18,7 @@ import { MediaData, BidShares, Ask } from './types';
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
 import { sign } from 'crypto';
+
 
 class ZapMedia {
   getSigNonces(addess: any) {
@@ -201,13 +202,16 @@ class ZapMedia {
 //  public async mintWithSig(address: string)
 
   public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
-    try{
-    return this.media.mintWithSig(address); 
-    } catch (err) {
-      invariant(false, 'ZapMedia (fetchMintWithSigNonce): Address does not exist.');
-    }
+  try {
+    validateAndParseAddress(address);
+  } catch (err: any) {
+    return Promise.reject(err.message);
+  } //err.message.message
+    return this.media.getSigNonces(address); 
+
   }
 
+  
   /***********************
    * ERC-721 Write Methods
    ***********************

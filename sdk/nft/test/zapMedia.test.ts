@@ -57,6 +57,7 @@ describe('ZapMedia', () => {
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
     zapMediaAddresses['1337'] = zapMedia.address;
+   
   });
 
   describe('#constructor', () => {
@@ -705,30 +706,13 @@ describe('ZapMedia', () => {
 
       describe('#isValidBid', () => {
         it('Should return true if the bid amount can be evenly split by current bidShares', async () => {
-          // const isValid = await zora.isValidBid(0, defaultBid)
-          // expect(isValid).toEqual(true)
 
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
 
-          // console.log(await media.isValidBid(0,bid))
         });
-        describe.only('#fetchSigNonce',  () => {
-          it('Should fetch the signature nonce of the newly minted media', async () => {
-           const media = new ZapMedia(1337, signer);
-
-          //  const beforeNonce = {
-          //    await media.getSigNonces(signers[1]._address);
-          //  }
-
-          //  await media.mintWithSig(mediaData, bidShares);
-
-           const fetchSigNonce = await media.fetchMintWithSigNonce(signer.address)
-
-           expect(fetchSigNonce).eq(ethers.utils.hexlify(signer.address));
-          });
-        });
+       
       });
       describe('#fetchMedia', () => {
         it('Should get media instance by index in the media contract', async () => {
@@ -759,14 +743,36 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#fetchSignature', () => {
-        it('should get the signature nonce of a newly minted NFT', async () => {
+      describe('#fetchSignature', () => {
+        it('Should fetch the signature of the newly minted nonce', async () => {
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
+
+          const sigNonce = await media.fetchMintWithSigNonce(await signer.getAddress());
+
+          expect(parseInt(sigNonce._hex)).to.equal(0);
+
         });
 
+        it('Should Revert if address does not exist', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+          .fetchMintWithSigNonce('0x9b713D5416884d12a5BbF13Ee08B6038E74CDe')
+          .then((res) => {
+            return res;
+            
+          })
+          .catch((err) => {
+            expect(err).to.equal(
+             `Invariant failed: 0x9b713D5416884d12a5BbF13Ee08B6038E74CDe is not a valid address.`,
+            );
+          });
+        })
+      });
       });
     });
   });
-});
