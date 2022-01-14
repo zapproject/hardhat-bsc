@@ -108,6 +108,8 @@ describe('AuctionHouse', () => {
         mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
 
         await media.mint(mediaData, bidShares);
+
+        await media.approve(auctionHouse.address, 0);
       });
 
       describe.only('#createAuction', () => {
@@ -118,13 +120,13 @@ describe('AuctionHouse', () => {
           const auctionHouse = new AuctionHouse(1337, signer);
           await auctionHouse.createAuction(
             0,
-            mediaAddress,
+            zapMedia.address,
             duration,
             reservePrice,
             '0x0000000000000000000000000000000000000000',
             5,
-            token,
-          )
+            token.address,
+          );
         });
       });
     });
