@@ -38,3 +38,23 @@ export type BidShares = {
   creator: any;
   owner: any;
 };
+
+/**
+ * EIP712 Signature
+ */
+ export type EIP712Signature = {
+  deadline: BigNumberish
+  v: number
+  r: BytesLike
+  s: BytesLike
+}
+
+/**
+ * EIP712 Domain
+ */
+ export type EIP712Domain = {
+  name: string
+  version: string
+  chainId: number
+  verifyingContract: string
+}
