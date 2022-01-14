@@ -375,13 +375,13 @@ class ZapMedia {
     tokenId: BigNumberish,
     sig: EIP712Signature
   ): Promise<ContractTransaction> {
-    try {
-      this.ensureNotReadOnly()
-    } catch (err) {
-      if (err instanceof Error) {
-        return Promise.reject(err.message)
-      }
-    }
+    // try {
+    //   this.ensureNotReadOnly()
+    // } catch (err) {
+    //   if (err instanceof Error) {
+    //     return Promise.reject(err.message)
+    //   }
+    // }
     return this.media.permit(spender, tokenId, sig)
   }
 
@@ -439,21 +439,21 @@ class ZapMedia {
     }
   }
 
-  /******************
-   * Private Methods
-   ******************
-   */
+  // /******************
+  //  * Private Methods
+  //  ******************
+  //  */
 
-  /**
-   * Throws an error if called on a readOnly == true instance of Zora Sdk
-   * @private
-   */
-  private ensureNotReadOnly() {
-    if (this.readOnly) {
-      throw new Error(
-        'ensureNotReadOnly: readOnly Zora instance cannot call contract methods that require a signer.'
-      )
-    }
-  }
+  // /**
+  //  * Throws an error if called on a readOnly == true instance of Zora Sdk
+  //  * @private
+  //  */
+  // private ensureNotReadOnly() {
+  //   if (this.readOnly) {
+  //     throw new Error(
+  //       'ensureNotReadOnly: readOnly Zora instance cannot call contract methods that require a signer.'
+  //     )
+  //   }
+  // }
 }
 export default ZapMedia;
