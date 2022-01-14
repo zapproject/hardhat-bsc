@@ -199,14 +199,14 @@ class ZapMedia {
  * @param address 
  * @returns sigNonce
  */
-//  public async mintWithSig(address: string)
+
 
   public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
   try {
     validateAndParseAddress(address);
   } catch (err: any) {
     return Promise.reject(err.message);
-  } //err.message.message
+  } 
     return this.media.getSigNonces(address); 
 
   }
