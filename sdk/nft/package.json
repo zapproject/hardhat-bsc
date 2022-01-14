@@ -5,6 +5,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "tsc",
+    "ganache": "node server.js",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register --timeout 100000 'test/**/*.ts'"
   },
   "keywords": [],
