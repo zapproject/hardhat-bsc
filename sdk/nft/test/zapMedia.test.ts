@@ -44,8 +44,6 @@ describe('ZapMedia', () => {
   const signers = getWallets(provider);
   // const signers = getSigners(provider);
   const test = getTestAccounts()
-  console.log(test)
-  console.log(signers)
 
   beforeEach(async () => {
     signer = signers[0];
@@ -104,7 +102,7 @@ describe('ZapMedia', () => {
       });
 
       describe('test fetchContentHash, fetchMetadataHash, fetchPermitNonce', () => {
-        it('Should be able to fetch contentHash', async () => {
+        it.only('Should be able to fetch contentHash', async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
           const onChainContentHash = await media.fetchContentHash(0);
