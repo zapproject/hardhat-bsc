@@ -88,10 +88,11 @@ async function main() {
   console.log("deployed Vault")
 
   await ZapMaster.changeVaultContract(Vault.address)
+  await zapToken.allocate(signers[0].address, "10000000000000000000000000");
 
-  // for (let i = 0; i<signers.length; i++){
-  //   await zapToken.allocate(signers[i].address, 1000000);
-  // }
+  for (let i = 0; i<signers.length; i++){
+    await zapToken.allocate(signers[i].address, "1000000000000000000000000");
+  }
 }
 
 
