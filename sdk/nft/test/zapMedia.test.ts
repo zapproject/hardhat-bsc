@@ -755,7 +755,7 @@ describe('ZapMedia', () => {
         });
        
       });
-      describe('#permit', () => {
+      describe.skip('#permit', () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           const zap_media = new ZapMedia(1337, signer);
           await zap_media.mint(mediaData, bidShares);
