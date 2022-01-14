@@ -6,9 +6,10 @@ import {
   ethers,
   Signer,
   Wallet,
+
 } from 'ethers';
 
-import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
+import { contractAddresses, Decimal, validateBidShares, validateURI, validateAndParseAddress } from './utils';
 
 import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
@@ -18,7 +19,11 @@ import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
 import { sign } from 'crypto';
 
+
 class ZapMedia {
+  getSigNonces(addess: any) {
+    throw new Error('Method not implemented.');
+  }
   networkId: number;
   mediaIndex: any;
   media: any;
@@ -209,6 +214,24 @@ class ZapMedia {
     }
   }
 
+/**fetches the media specified Signature nonce. if signature nonce does not exist, function 
+ * will return an error message
+ * @param address 
+ * @returns sigNonce
+ */
+
+
+  public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
+  try {
+    validateAndParseAddress(address);
+  } catch (err: any) {
+    return Promise.reject(err.message);
+  } 
+    return this.media.getSigNonces(address); 
+
+  }
+
+  
   /***********************
    * ERC-721 Write Methods
    ***********************
