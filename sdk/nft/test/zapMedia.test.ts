@@ -22,7 +22,7 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import { getSigners, getWallets } from './test_utils';
+import { getSigners, getWallets, getTestAccounts } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -41,6 +41,9 @@ describe('ZapMedia', () => {
 
   const signers = getWallets(provider);
   // const signers = getSigners(provider);
+  const test = getTestAccounts()
+  console.log(test)
+  console.log(signers)
 
   beforeEach(async () => {
     signer = signers[0];
@@ -59,7 +62,7 @@ describe('ZapMedia', () => {
   });
 
   describe('#constructor', () => {
-    it('Should throw an error if the networkId is invalid', async () => {
+    it.only('Should throw an error if the networkId is invalid', async () => {
       expect(() => {
         new ZapMedia(300, signer);
       }).to.throw('ZapMedia Constructor: Network Id is not supported.');
