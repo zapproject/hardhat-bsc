@@ -21,7 +21,7 @@ export interface Auction {
   auctionCurrency: string;
 }
 
-export class AuctionHouse {
+class AuctionHouse {
   public readonly contract: Contract;
   public readonly chainId: number;
   public readonly signer: Signer;
@@ -57,3 +57,5 @@ export class AuctionHouse {
     );
   }
 }
+
+export default AuctionHouse;
