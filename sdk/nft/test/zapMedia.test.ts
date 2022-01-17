@@ -24,6 +24,7 @@ import {
 } from '../src/deploy';
 
 import { getSigners, signPermitMessage } from './test_utils';
+import { EIP712Signature } from '../src/types';
 
 
 
@@ -61,7 +62,7 @@ describe('ZapMedia', () => {
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
     zapMediaAddresses['1337'] = zapMedia.address;
-   
+
   });
 
   describe('#constructor', () => {
@@ -134,39 +135,72 @@ describe('ZapMedia', () => {
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
         it.skip('Should be able to fetch permitNonce', async () => {
-          const zap_media = new ZapMedia(1337, signer);
-          await zap_media.mint(mediaData, bidShares);
-          // await zap_media.mint(mediaData, bidShares);
-
-          const anotherMedia = new ZapMedia(1337, signers[1]);
-
-          // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
-          const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819")
+          // created wallets using privateKey because we need a wallet instance when creating a signature
           const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3")
+          const account9: Wallet = new ethers.Wallet("0x915c40257f694fef7d8058fe4db4ba53f1343b592a8175ea18e7ece20d2987d7")
 
+          // connect to media contracts through ZapMedia class
+          const zap_media = new ZapMedia(1337, signer);
+          const zapMedia1 = new ZapMedia(1337, signers[1]);
+
+          // mint a token by zapMedia1 in preparation to give permit to accounts 9 and 8
+          await zapMedia1.mint(mediaData, bidShares);
+
+          // get the arguments needed for EIP712 signature standard
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = zap_media.eip712Domain()
+          const nonce = await (await zap_media.fetchPermitNonce(otherWallet.address, 0)).toNumber()
 
-          const nonce = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
-          // console.log(nonce)
-          // const eipSig = await signPermitMessage(
-          //   mainWallet,
-          //   otherWallet.address,
-          //   0,
-          //   0,
-          //   deadline,
-          //   domain
-          // )
+          // generate the signature
+          let eipSig: EIP712Signature = await signPermitMessage(
+            otherWallet,
+            account9.address,
+            0,
+            nonce,
+            deadline,
+            domain
+          )
 
-          // await anotherMedia.permit(otherWallet.address, 0, eipSig)
-          // const approved = await anotherMedia.fetchApproved(0)
-          // console.log(approved)
-          // // const approved2 = await anotherMedia.fetchApproved(3)
-          // // console.log(approved2)
-          // expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
+          // permit account9 == give approval to account 9 for tokenId 0.
+          await zapMedia1.permit(account9.address, 0, eipSig)
 
-          // const nonce2 = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
-          // console.log(nonce2.toString())
+          // test account 9 is approved for tokenId 0
+          const firstApprovedAddr = await zapMedia1.fetchApproved(0)
+          expect(firstApprovedAddr.toLowerCase()).to.equal(account9.address.toLowerCase())
+
+
+          const nonce2 = await (await zap_media.fetchPermitNonce(otherWallet.address, 0)).toNumber()
+
+          expect(nonce2).to.equal(nonce + 1)
+
+
+          // give permission to account 8 for the same tokenId
+          const account8: Wallet = new ethers.Wallet("0x81c92fdc4c4703cb0da2af8ceae63160426425935f3bb701edd53ffa5c227417")
+
+          eipSig = await signPermitMessage(
+            otherWallet,
+            account8.address,
+            0,
+            nonce2,
+            deadline,
+            domain
+          )
+
+          await zapMedia1.permit(account8.address, 0, eipSig)
+
+          // test account 8 is approved for tokenId 0
+
+          const secondApprovedAddr = await zapMedia1.fetchApproved(0)
+          expect(secondApprovedAddr.toLowerCase()).to.equal(account8.address.toLowerCase())
+
+
+          const nonce3 = await (await zap_media.fetchPermitNonce(otherWallet.address, 0)).toNumber()
+          expect(nonce3).to.equal(nonce2 + 1)
+
+          const tokenThatDoesntExist = 38
+          const nonceForTokenThatDoesntExist = await (await zap_media.fetchPermitNonce(otherWallet.address, tokenThatDoesntExist)).toNumber()
+          expect(nonceForTokenThatDoesntExist).to.equal(0)
+
 
         });
       });
@@ -753,40 +787,42 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
         });
-       
+
       });
       describe.skip('#permit', () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           const zap_media = new ZapMedia(1337, signer);
           await zap_media.mint(mediaData, bidShares);
 
-          const anotherMedia = new ZapMedia(1337, signers[1]);
-
-          // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
+          // created wallets using privateKey because we need a wallet instance when creating a signature
           const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819")
           const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3")
 
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = zap_media.eip712Domain()
 
-          // const nonce = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
-          // console.log(nonce)
+          const nonce = await (await zap_media.fetchPermitNonce(mainWallet.address, 0)).toNumber()
+          console.log(nonce)
+
           const eipSig = await signPermitMessage(
             mainWallet,
             otherWallet.address,
             0,
-            0,
+            nonce,
             deadline,
             domain
           )
 
-          await anotherMedia.permit(otherWallet.address, 0, eipSig)
-          const approved = await anotherMedia.fetchApproved(0)
+          await zap_media.permit(otherWallet.address, 0, eipSig)
+          const approved = await zap_media.fetchApproved(0)
 
           expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
 
+          const nonce2 = await (await zap_media.fetchPermitNonce(mainWallet.address, 0)).toNumber()
+          console.log(nonce2)
+
           // test to see if approved for another token. should fail.
-          await anotherMedia.fetchApproved(1)
+          await zap_media.fetchApproved(1)
             .then((res) => {
               console.log(res);
             })
@@ -843,18 +879,18 @@ describe('ZapMedia', () => {
           await media.mint(mediaData, bidShares);
 
           await media
-          .fetchMintWithSigNonce('0x9b713D5416884d12a5BbF13Ee08B6038E74CDe')
-          .then((res) => {
-            return res;
-            
-          })
-          .catch((err) => {
-            expect(err).to.equal(
-             `Invariant failed: 0x9b713D5416884d12a5BbF13Ee08B6038E74CDe is not a valid address.`,
-            );
-          });
+            .fetchMintWithSigNonce('0x9b713D5416884d12a5BbF13Ee08B6038E74CDe')
+            .then((res) => {
+              return res;
+
+            })
+            .catch((err) => {
+              expect(err).to.equal(
+                `Invariant failed: 0x9b713D5416884d12a5BbF13Ee08B6038E74CDe is not a valid address.`,
+              );
+            });
         })
-      });
       });
     });
   });
+});
