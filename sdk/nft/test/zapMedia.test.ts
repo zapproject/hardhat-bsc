@@ -24,6 +24,7 @@ import {
 } from '../src/deploy';
 
 import { getSigners, signPermitMessage } from './test_utils';
+import { EIP712Signature } from '../src/types';
 
 
 
@@ -133,12 +134,13 @@ describe('ZapMedia', () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
-        it.skip('Should be able to fetch permitNonce', async () => {
+        it.only('Should be able to fetch permitNonce', async () => {
           const zap_media = new ZapMedia(1337, signer);
-          await zap_media.mint(mediaData, bidShares);
           // await zap_media.mint(mediaData, bidShares);
-
+          // await zap_media.mint(mediaData, bidShares);
+          
           const anotherMedia = new ZapMedia(1337, signers[1]);
+          await anotherMedia.mint(mediaData, bidShares);
 
           // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
           const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819")
@@ -147,26 +149,26 @@ describe('ZapMedia', () => {
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = zap_media.eip712Domain()
 
-          const nonce = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
-          // console.log(nonce)
-          // const eipSig = await signPermitMessage(
-          //   mainWallet,
-          //   otherWallet.address,
-          //   0,
-          //   0,
-          //   deadline,
-          //   domain
-          // )
+          const nonce = await (await anotherMedia.fetchPermitNonce(otherWallet.address, 0)).toNumber()
+          console.log(nonce)
+          const eipSig:EIP712Signature = await signPermitMessage(
+            otherWallet,
+            otherWallet.address,
+            0,
+            nonce,
+            deadline,
+            domain
+          )
 
-          // await anotherMedia.permit(otherWallet.address, 0, eipSig)
-          // const approved = await anotherMedia.fetchApproved(0)
-          // console.log(approved)
-          // // const approved2 = await anotherMedia.fetchApproved(3)
-          // // console.log(approved2)
-          // expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
+          await zap_media.permit(otherWallet.address, 0, eipSig)
+          const approved = await anotherMedia.fetchApproved(0)
+          console.log(approved)
+          // const approved2 = await anotherMedia.fetchApproved(3)
+          // console.log(approved2)
+          expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
 
-          // const nonce2 = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
-          // console.log(nonce2.toString())
+          const nonce2 = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
+          console.log(nonce2.toString())
 
         });
       });
@@ -755,7 +757,7 @@ describe('ZapMedia', () => {
         });
        
       });
-      describe.skip('#permit', () => {
+      describe.only('#permit', () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           const zap_media = new ZapMedia(1337, signer);
           await zap_media.mint(mediaData, bidShares);
@@ -763,8 +765,8 @@ describe('ZapMedia', () => {
           const anotherMedia = new ZapMedia(1337, signers[1]);
 
           // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
-          const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819")
-          const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3")
+          const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819", provider)
+          const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3", provider)
 
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = zap_media.eip712Domain()
