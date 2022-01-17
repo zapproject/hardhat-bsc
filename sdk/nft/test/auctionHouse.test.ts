@@ -118,8 +118,6 @@ describe('AuctionHouse', () => {
         mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
 
         await media.mint(mediaData, bidShares);
-
-        await media.approve(auctionHouse.address, 0);
       });
 
       describe.only('#createAuction', () => {
@@ -128,9 +126,12 @@ describe('AuctionHouse', () => {
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
           const auctionHouse = new AuctionHouse(1337, signer);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
           await auctionHouse.createAuction(
             0,
-            zapMedia.address,
+            mediaAddress,
             duration,
             reservePrice,
             '0x0000000000000000000000000000000000000000',
@@ -139,29 +140,86 @@ describe('AuctionHouse', () => {
           );
         });
 
-        it('Should revert if the token contract does not support the ERC721 interface', () => {
+        it('Should reject if the auctionHouse is not approved', async () => {
+          const duration = 60 * 60 * 24;
+
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          const auctionHouse = new AuctionHouse(1337, signer);
+
+          await auctionHouse
+            .createAuction(
+              0,
+              mediaAddress,
+              duration,
+              reservePrice,
+              '0x0000000000000000000000000000000000000000',
+              5,
+              token.address,
+            )
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: AuctionHouse (createAuction): Transfer caller is not owner nor approved.',
+              );
+            });
+        });
+
+        it('Should reject if the caller is not approved', async () => {
+          const duration = 60 * 60 * 24;
+
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          const unapprovedSigner = signers[1];
+
+          const auctionHouse = new AuctionHouse(1337, unapprovedSigner);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse
+            .createAuction(
+              0,
+              mediaAddress,
+              duration,
+              reservePrice,
+              '0x0000000000000000000000000000000000000000',
+              5,
+              token.address,
+            )
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: AuctionHouse (createAuction): Caller is not approved or token owner.',
+              );
+            });
+        });
+
+        it.skip('Should revert if the token contract does not support the ERC721 interface', () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          auctionHouse.createAuction(
-            0,
-            badERC721.address,
-            duration,
-            reservePrice,
-            '0x0000000000000000000000000000000000000000',
-            5,
-            token.address,
-          )
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            expect(err.message).to.equal(
-              'tokenContract does not support ERC721 interface',
-            );
-          });
+          auctionHouse
+            .createAuction(
+              0,
+              badERC721.address,
+              duration,
+              reservePrice,
+              '0x0000000000000000000000000000000000000000',
+              5,
+              token.address,
+            )
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal('tokenContract does not support ERC721 interface');
+            });
         });
       });
     });

@@ -29,6 +29,7 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "assert": "^2.0.0",
     "eth-sig-util": "^3.0.1",
     "ethers": "^5.5.2",
     "ganache-cli": "^6.12.2",
