@@ -248,6 +248,9 @@ describe.only('AuctionHouse', () => {
 
           console.log(createdAuction);
           expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
+
+          expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
+          expect(createdAuction.approved).to.be.true;
         });
       });
     });
