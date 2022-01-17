@@ -30,7 +30,7 @@ import { getSigners } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe.only('AuctionHouse', () => {
+describe('AuctionHouse', () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
