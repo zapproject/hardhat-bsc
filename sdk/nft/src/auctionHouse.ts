@@ -51,12 +51,14 @@ class AuctionHouse {
     curatorFeePercentages: number,
     auctionCurrency: string,
   ) {
+    // Checks if the tokenId exists if not throw an error
     try {
       await this.media.fetchOwnerOf(tokenId);
     } catch {
       invariant(false, 'AuctionHouse (createAuction): TokenId does not exist.');
     }
 
+    // Fetches the address who owns the tokenId
     const owner = await this.media.fetchOwnerOf(tokenId);
 
     // Fetches the address approved to the tokenId
