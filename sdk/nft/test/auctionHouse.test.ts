@@ -197,7 +197,7 @@ describe.only('AuctionHouse', () => {
             });
         });
 
-        it('Should revert if the tokenId does not exist', async () => {
+        it('Should reject if the tokenId does not exist', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
