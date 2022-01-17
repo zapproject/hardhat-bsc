@@ -28,12 +28,9 @@ import ZapMedia from '../src/zapMedia';
 
 import { getSigners } from './test_utils';
 
-import { badERC721Abi } from '../src/contract/abi';
-import { badERC721Bytecode } from '../src/contract/bytecode';
-
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe('AuctionHouse', () => {
+describe.only('AuctionHouse', () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -42,7 +39,6 @@ describe('AuctionHouse', () => {
   let signer: Signer;
   let zapMedia: Contract;
   let auctionHouse: Contract;
-  let badERC721: Contract;
 
   const signers = getSigners(provider);
 
@@ -56,12 +52,6 @@ describe('AuctionHouse', () => {
     mediaFactory = await deployMediaFactory();
     zapMedia = await deployZapMedia();
     auctionHouse = await deployAuctionHouse();
-
-    const badERC721Factory = new ethers.ContractFactory(badERC721Abi, badERC721Bytecode, signer);
-
-    badERC721 = await badERC721Factory.deploy();
-
-    await badERC721.deployed();
 
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
@@ -120,26 +110,7 @@ describe('AuctionHouse', () => {
         await media.mint(mediaData, bidShares);
       });
 
-      describe.only('#createAuction', () => {
-        it('Should create an auction', async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
-
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse.createAuction(
-            0,
-            mediaAddress,
-            duration,
-            reservePrice,
-            '0x0000000000000000000000000000000000000000',
-            5,
-            token.address,
-          );
-        });
-
+      describe('#createAuction', () => {
         it('Should reject if the auctionHouse is not approved', async () => {
           const duration = 60 * 60 * 24;
 
@@ -154,7 +125,7 @@ describe('AuctionHouse', () => {
               duration,
               reservePrice,
               '0x0000000000000000000000000000000000000000',
-              5,
+              0,
               token.address,
             )
             .then((res) => {
@@ -185,7 +156,7 @@ describe('AuctionHouse', () => {
               duration,
               reservePrice,
               '0x0000000000000000000000000000000000000000',
-              5,
+              0,
               token.address,
             )
             .then((res) => {
@@ -198,28 +169,23 @@ describe('AuctionHouse', () => {
             });
         });
 
-        it.skip('Should revert if the token contract does not support the ERC721 interface', () => {
+        it('Should create an auction', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          auctionHouse
-            .createAuction(
-              0,
-              badERC721.address,
-              duration,
-              reservePrice,
-              '0x0000000000000000000000000000000000000000',
-              5,
-              token.address,
-            )
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              expect(err.message).to.equal('tokenContract does not support ERC721 interface');
-            });
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            '0x0000000000000000000000000000000000000000',
+            0,
+            token.address,
+          );
         });
       });
     });
