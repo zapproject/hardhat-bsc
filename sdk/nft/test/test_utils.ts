@@ -27,9 +27,6 @@ export async function signPermitMessage(
 ) {
   
   const tokenId = mediaId
-
-  // return new Promise<EIP712Signature>(async (res, reject) => {
-  // try {
     
   const types = {
     Permit: [
@@ -58,46 +55,4 @@ export async function signPermitMessage(
     deadline: deadline.toString(),
   }
   return sig;
-
-
-  // const sig = signTypedData_v4(Buffer.from(owner.privateKey.slice(2), 'hex'), {
-  //   data: {
-  //     types: {
-  //       EIP712Domain: [
-  //         { name: 'name', type: 'string' },
-  //         { name: 'version', type: 'string' },
-  //         { name: 'chainId', type: 'uint256' },
-  //         { name: 'verifyingContract', type: 'address' },
-  //       ],
-  //       Permit: [
-  //         { name: 'spender', type: 'address' },
-  //         { name: 'tokenId', type: 'uint256' },
-  //         { name: 'nonce', type: 'uint256' },
-  //         { name: 'deadline', type: 'uint256' },
-  //       ],
-  //     },
-  //     primaryType: 'Permit',
-  //     domain: domain,
-  //     message: {
-  //       spender: toAddress,
-  //       tokenId,
-  //       nonce,
-  //       deadline,
-  //     },
-  //   },
-  // })
-
-  //   const response = fromRpcSig(sig)
-
-  //   res({
-  //     r: response.r,
-  //     s: response.s,
-  //     v: response.v,
-  //     deadline: deadline.toString(),
-  //   })
-  // } catch (e) {
-  //   console.error(e)
-  //   reject(e)
-  // }
-  // })
 }
