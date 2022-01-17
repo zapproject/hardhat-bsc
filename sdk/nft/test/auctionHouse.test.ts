@@ -169,6 +169,34 @@ describe.only('AuctionHouse', () => {
             });
         });
 
+        it('Should reject if the curator fee is 100', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          const auctionHouse = new AuctionHouse(1337, signer);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse
+            .createAuction(
+              0,
+              mediaAddress,
+              duration,
+              reservePrice,
+              await signers[1].getAddress(),
+              100,
+              token.address,
+            )
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: AuctionHouse (createAuction): CuratorFeePercentage must be less than 100.',
+              );
+            });
+        });
+
         it('Should create an auction', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);

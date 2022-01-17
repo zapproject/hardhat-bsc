@@ -61,8 +61,12 @@ class AuctionHouse {
     // Fetches the address of the caller
     const signerAddress = await this.signer.getAddress();
 
-    // If the caller is the tokenId owner and the auctionHouse address is not approved throw an error
-    if (signerAddress == owner && this.auctionHouse.address !== approved) {
+    // If the curator fee is not less than 100 thrown an error
+    if (curatorFeePercentages == 100) {
+      invariant(false, 'AuctionHouse (createAuction): CuratorFeePercentage must be less than 100.');
+
+      // If the caller is the tokenId owner and the auctionHouse address is not approved throw an error
+    } else if (signerAddress == owner && this.auctionHouse.address !== approved) {
       invariant(false, 'AuctionHouse (createAuction): Transfer caller is not owner nor approved.');
 
       // If the caller is not the tokenId owner and the auctionHouse is approved throw an error
