@@ -139,23 +139,29 @@ describe('AuctionHouse', () => {
           );
         });
 
-        it('Should revert if the token contract does not support the ERC721 interface', async () => {
+        it('Should revert if the token contract does not support the ERC721 interface', () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          await expect(() => {
-            auctionHouse.createAuction(
-              0,
-              badERC721.address,
-              duration,
-              reservePrice,
-              '0x0000000000000000000000000000000000000000',
-              5,
-              token.address,
-            )
-          }).not.to.throw('tokenContract does not support ERC721 interface');
+          auctionHouse.createAuction(
+            0,
+            badERC721.address,
+            duration,
+            reservePrice,
+            '0x0000000000000000000000000000000000000000',
+            5,
+            token.address,
+          )
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            expect(err.message).to.equal(
+              'tokenContract does not support ERC721 interface',
+            );
+          });
         });
       });
     });
