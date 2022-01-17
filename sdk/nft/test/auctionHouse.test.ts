@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 
 // Ethers Types
-import { BigNumber, Contract, ethers } from 'ethers';
+import { BigNumber, Contract, ethers, Signer } from 'ethers';
 
 import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
 
@@ -31,14 +31,15 @@ import { getSigners } from './test_utils';
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 describe('AuctionHouse', () => {
-  let token: any;
-  let zapVault: any;
-  let zapMarket: any;
-  let zapMediaImpl: any;
-  let mediaFactory: any;
-  let signer: any;
-  let zapMedia: any;
-  let auctionHouse: any;
+  let token: Contract;
+  let zapVault: Contract;
+  let zapMarket: Contract;
+  let zapMediaImpl: Contract;
+  let mediaFactory: Contract;
+  let signer: Signer;
+  let zapMedia: Contract;
+  let auctionHouse: Contract;
+  let badERC721: Contract;
 
   const signers = getSigners(provider);
 
