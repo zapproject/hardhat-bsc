@@ -135,7 +135,7 @@ describe('ZapMedia', () => {
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
         it.only('Should be able to fetch permitNonce', async () => {
-          // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
+          // created wallets using privateKey because we need a wallet instance when creating a signature
           const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3")
           const account9: Wallet = new ethers.Wallet("0x915c40257f694fef7d8058fe4db4ba53f1343b592a8175ea18e7ece20d2987d7")
 
@@ -196,6 +196,10 @@ describe('ZapMedia', () => {
 
           const nonce3 = await (await zap_media.fetchPermitNonce(otherWallet.address, 0)).toNumber()
           expect(nonce3).to.equal(nonce2 + 1)
+
+          const tokenThatDoesntExist = 38
+          const nonceForTokenThatDoesntExist = await (await zap_media.fetchPermitNonce(otherWallet.address, tokenThatDoesntExist)).toNumber()
+          expect(nonceForTokenThatDoesntExist).to.equal(0)
 
 
         });
@@ -785,38 +789,40 @@ describe('ZapMedia', () => {
         });
 
       });
-      describe.skip('#permit', () => {
+      describe.only('#permit', () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           const zap_media = new ZapMedia(1337, signer);
           await zap_media.mint(mediaData, bidShares);
 
-          const anotherMedia = new ZapMedia(1337, signers[1]);
-
-          // created wallets using privateKey because we needed to use the private key when signing in signPermitMessage
-          const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819", provider)
-          const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3", provider)
+          // created wallets using privateKey because we need a wallet instance when creating a signature
+          const mainWallet: Wallet = new ethers.Wallet("0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819")
+          const otherWallet: Wallet = new ethers.Wallet("0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3")
 
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = zap_media.eip712Domain()
 
-          // const nonce = await anotherMedia.fetchPermitNonce(otherWallet.address, 0)
-          // console.log(nonce)
+          const nonce = await (await zap_media.fetchPermitNonce(mainWallet.address, 0)).toNumber()
+          console.log(nonce)
+
           const eipSig = await signPermitMessage(
             mainWallet,
             otherWallet.address,
             0,
-            0,
+            nonce,
             deadline,
             domain
           )
 
-          await anotherMedia.permit(otherWallet.address, 0, eipSig)
-          const approved = await anotherMedia.fetchApproved(0)
+          await zap_media.permit(otherWallet.address, 0, eipSig)
+          const approved = await zap_media.fetchApproved(0)
 
           expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase())
 
+          const nonce2 = await (await zap_media.fetchPermitNonce(mainWallet.address, 0)).toNumber()
+          console.log(nonce2)
+
           // test to see if approved for another token. should fail.
-          await anotherMedia.fetchApproved(1)
+          await zap_media.fetchApproved(1)
             .then((res) => {
               console.log(res);
             })
