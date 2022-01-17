@@ -42,6 +42,10 @@ class AuctionHouse {
     this.media = new ZapMedia(chainId, signer);
   }
 
+  public async fetchAuction(auctionId: BigNumberish): Promise<Auction> {
+    return this.auctionHouse.auctions(auctionId);
+  }
+
   public async createAuction(
     tokenId: BigNumberish,
     tokenAddress: string,

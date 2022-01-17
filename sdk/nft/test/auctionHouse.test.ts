@@ -27,6 +27,7 @@ import AuctionHouse from '../src/auctionHouse';
 import ZapMedia from '../src/zapMedia';
 
 import { getSigners } from './test_utils';
+import { create } from 'domain';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -225,7 +226,7 @@ describe.only('AuctionHouse', () => {
             });
         });
 
-        it('Should create an auction', async () => {
+        it.only('Should create an auction', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -242,6 +243,11 @@ describe.only('AuctionHouse', () => {
             0,
             token.address,
           );
+
+          const createdAuction = await auctionHouse.fetchAuction(0);
+
+          console.log(createdAuction);
+          expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
         });
       });
     });
