@@ -194,7 +194,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async fetchApproved(mediaId: BigNumberish): Promise<string> {
-    return this.media.getApproved(mediaId);
+    try {
+      return await this.media.getApproved(mediaId);
+    } catch (err) {
+      invariant(false, 'ZapMedia (fetchApproved): TokenId does not exist.');
+    }
   }
 
   /**
