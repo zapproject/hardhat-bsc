@@ -19,12 +19,16 @@ import { timeStamp } from 'console';
 import { sign } from 'crypto';
 
 class ZapMedia {
-  eip712Domain() {
-    throw new Error('Method not implemented.');
+
+  /**
+   * Fetches the current mintWithSig nonce for the specified address
+   * @param address
+   * @param mediaId
+   */
+  public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
+    return this.media.mintWithSigNonces(address)
   }
-  fetchMintWithSigNonce(address: any) {
-    throw new Error('Method not implemented.');
-  }
+
   networkId: number;
   mediaIndex: any;
   media: any;

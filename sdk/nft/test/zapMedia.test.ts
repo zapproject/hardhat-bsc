@@ -23,7 +23,7 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import { getSigners, signPermitMessage } from './test_utils';
+import { getSigners, signPermitMessage, signMintWithSigMessage } from './test_utils';
 
 
 
@@ -461,22 +461,23 @@ describe('ZapMedia', () => {
         });
 
         it.only('creates a new piece of media', async () => {
-          const otherMedia = new ZapMedia(1337, signer);
+          const mainWallet: Wallet = new ethers.Wallet("0x308fdd19b898fbcc19aa4295719f97c5f0685afab346dcacee3d58e45bf0f2b5")
+          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
+
+          const otherMedia = new ZapMedia(1337, otherWallet);
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = otherMedia.eip712Domain()
-          const nonce = await otherMedia.fetchMintWithSigNonce(signer.address)
-          const eipSig = await signPermit(
-            signer,
+          const nonce = await otherMedia.fetchMintWithSigNonce(mainWallet.address)
+          const eipSig = await signMintWithSigMessage(
+            mainWallet,
             mediaData.contentHash,
             mediaData.metadataHash,
             Decimal.new(10).value,
-            nonce, // TODO: needs to be a number ? (nonce.toNumber())
+            nonce.toNumber(),
             deadline,
             domain
           )
 
-          const mainWallet: Wallet = new ethers.Wallet("0x308fdd19b898fbcc19aa4295719f97c5f0685afab346dcacee3d58e45bf0f2b5")
-          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
           const totalSupply = await otherMedia.fetchTotalMedia()
           expect(totalSupply.toNumber()).to.equal(0)
 
@@ -488,8 +489,7 @@ describe('ZapMedia', () => {
           )
 
           const owner = await otherMedia.fetchOwnerOf(0)
-          // TODO: needs to fetch the creator of ?
-          const creator = await otherMedia.fetchOwnerOf(0)
+          const creator = await otherMedia.fetchCreator(0)
           const onChainContentHash = await otherMedia.fetchContentURI(0)
           const onChainMetadataHash = await otherMedia.fetchMetadataURI(0)
 
@@ -505,12 +505,10 @@ describe('ZapMedia', () => {
           expect(onChainMetadataHash).to.equal(mediaData.metadataHash)
           expect(onChainBidShares.creator.value).to.equal(bidShares.creator.value)
           expect(onChainBidShares.owner.value).to.equal(bidShares.owner.value)
-          // TODO: should be onChainBidShares.prevOwner.value ?
           expect(onChainBidShares.owner.value).to.equal(
             bidShares.prevOwner.value
           )
         })
-      })
       });
 
       describe('#getTokenCreators', () => {
