@@ -5,7 +5,6 @@ import { contractAddresses } from './utils';
 import { zapAuctionAbi, zapMediaAbi } from './contract/abi';
 import ZapMedia from './zapMedia';
 import invariant from 'tiny-invariant';
-import assert from 'assert';
 
 export interface Auction {
   token: {
@@ -52,11 +51,16 @@ class AuctionHouse {
     curatorFeePercentages: number,
     auctionCurrency: string,
   ) {
+    try {
+      await this.media.fetchOwnerOf(tokenId);
+    } catch {
+      invariant(false, 'AuctionHouse (createAuction): TokenId does not exist.');
+    }
+
+    const owner = await this.media.fetchOwnerOf(tokenId);
+
     // Fetches the address approved to the tokenId
     const approved = await this.media.fetchApproved(tokenId);
-
-    // Fetches the address who owns the tokenId
-    const owner = await this.media.fetchOwnerOf(tokenId);
 
     // Fetches the address of the caller
     const signerAddress = await this.signer.getAddress();

@@ -30,7 +30,7 @@ import { getSigners } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe('AuctionHouse', () => {
+describe.only('AuctionHouse', () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -193,6 +193,34 @@ describe('AuctionHouse', () => {
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): CuratorFeePercentage must be less than 100.',
+              );
+            });
+        });
+
+        it('Should revert if the tokenId does not exist', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          const auctionHouse = new AuctionHouse(1337, signer);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse
+            .createAuction(
+              300,
+              mediaAddress,
+              duration,
+              reservePrice,
+              '0x0000000000000000000000000000000000000000',
+              0,
+              token.address,
+            )
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: AuctionHouse (createAuction): TokenId does not exist.',
               );
             });
         });
