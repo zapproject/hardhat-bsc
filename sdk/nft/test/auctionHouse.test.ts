@@ -28,6 +28,9 @@ import ZapMedia from '../src/zapMedia';
 
 import { getSigners } from './test_utils';
 
+import { badERC721Abi } from '../src/contract/abi';
+import { badERC721Bytecode } from '../src/contract/bytecode';
+
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
 describe('AuctionHouse', () => {
@@ -53,6 +56,8 @@ describe('AuctionHouse', () => {
     mediaFactory = await deployMediaFactory();
     zapMedia = await deployZapMedia();
     auctionHouse = await deployAuctionHouse();
+
+    const badERC721Factory = new ethers.ContractFactory(badERC721Abi, badERC721Bytecode, signer);
 
     zapMarketAddresses['1337'] = zapMarket.address;
     mediaFactoryAddresses['1337'] = mediaFactory.address;
