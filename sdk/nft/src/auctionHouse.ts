@@ -106,6 +106,8 @@ class AuctionHouse {
 
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
+    } else if (auctionInfo.curator !== (await this.signer.getAddress())) {
+      invariant(false, 'AuctionHouse (startAuction): Only the curator can start this auction.');
     }
     return this.auctionHouse.startAuction(auctionId, approved);
   }
