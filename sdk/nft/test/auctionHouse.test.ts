@@ -286,13 +286,13 @@ describe('AuctionHouse', () => {
 
       describe.only('#startAuction', () => {
         let auctionHouse: AuctionHouse;
-        let curatorAuctionHouse: AuctionHouse;
+        let curatorConnected: AuctionHouse;
         let curator: Signer;
 
         beforeEach(async () => {
           curator = signers[9];
           auctionHouse = new AuctionHouse(1337, signer);
-          curatorAuctionHouse = new AuctionHouse(1337, curator);
+          curatorConnected = new AuctionHouse(1337, curator);
 
           await media.approve(auctionHouse.auctionHouse.address, 0);
         });
@@ -311,7 +311,7 @@ describe('AuctionHouse', () => {
             token.address,
           );
 
-          await curatorAuctionHouse.startAuction(0, true);
+          await curatorConnected.startAuction(0, true);
 
           const createdAuction = await auctionHouse.fetchAuction(0);
 
