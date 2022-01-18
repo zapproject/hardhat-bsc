@@ -69,7 +69,7 @@ describe('ZapMedia', () => {
     it('Should throw an error if the networkId is invalid', async () => {
       expect(() => {
         new ZapMedia(300, signer);
-      }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+      }).to.throw('Constructor: Network Id is not supported.');
     });
   });
 
