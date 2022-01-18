@@ -101,7 +101,9 @@ class AuctionHouse {
     }
   }
 
-  public async startAuction(auctionId: BigNumberish) {}
+  public async startAuction(auctionId: BigNumberish, approved: boolean) {
+    return this.auctionHouse.startAuction();
+  }
 }
 
 export default AuctionHouse;
