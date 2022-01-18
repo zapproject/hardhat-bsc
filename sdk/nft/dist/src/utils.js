@@ -11,6 +11,7 @@ var ethers_1 = require("ethers");
 var mediaFactoryAddress;
 var zapMarketAddress;
 var zapMediaAddress;
+var zapAuctionAddress;
 /**
  * Returns the MediaFactory, ZapMarket, and ZapMedia contract addresses depending on the networkId.
  * @param {string} networkId- The numeric value that routes to a blockchain network.
@@ -20,54 +21,64 @@ var contractAddresses = function (networkId) {
         mediaFactoryAddress = addresses_1.mediaFactoryAddresses['1337'];
         zapMarketAddress = addresses_1.zapMarketAddresses['1337'];
         zapMediaAddress = addresses_1.zapMediaAddresses['1337'];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses['1337'];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 4) {
         mediaFactoryAddress = addresses_1.mediaFactoryAddresses['4'];
         zapMarketAddress = addresses_1.zapMarketAddresses['4'];
         zapMediaAddress = addresses_1.zapMediaAddresses['4'];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses['4'];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 97) {
         mediaFactoryAddress = addresses_1.mediaFactoryAddresses['97'];
         zapMarketAddress = addresses_1.zapMarketAddresses['97'];
         zapMediaAddress = addresses_1.zapMediaAddresses['97'];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses['97'];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 1) {
         mediaFactoryAddress = addresses_1.mediaFactoryAddresses['1'];
         zapMarketAddress = addresses_1.zapMarketAddresses['1'];
         zapMediaAddress = addresses_1.zapMediaAddresses['1'];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses['1'];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 56) {
         mediaFactoryAddress = addresses_1.mediaFactoryAddresses['56'];
         zapMarketAddress = addresses_1.zapMarketAddresses['56'];
         zapMediaAddress = addresses_1.zapMediaAddresses['56'];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses['56'];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else {
-        (0, tiny_invariant_1.default)(false, 'ZapMedia Constructor: Network Id is not supported.');
+        (0, tiny_invariant_1.default)(false, 'Constructor: Network Id is not supported.');
     }
 };
 exports.contractAddresses = contractAddresses;

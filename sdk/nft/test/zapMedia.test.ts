@@ -1,9 +1,9 @@
 import chai, { expect, use } from 'chai';
 
 
-import { ethers, BigNumber, Signer, Wallet } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 
-import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
+import { constructAsk, constructBidShares, constructMediaData, Decimal } from '../src/utils';
 
 import ZapMedia from '../src/zapMedia';
 
@@ -23,7 +23,7 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import { getSigners, signPermitMessage } from './test_utils';
+import { getSigners, signPermitMessage,signMintWithSigMessage } from './test_utils';
 import { EIP712Signature } from '../src/types';
 
 
@@ -42,6 +42,7 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
+  let eipSig: any;
   let address: string;
   let sig: any;
   let fetchMediaByIndex: any;
@@ -103,6 +104,12 @@ describe('ZapMedia', () => {
           15,
           35,
         );
+        eipSig = {
+          deadline: 1000,
+          v: 0,
+          r: '0x00',
+          s: '0x00'
+        }
       });
 
       describe('test fetchContentHash, fetchMetadataHash, fetchPermitNonce', () => {
@@ -400,6 +407,146 @@ describe('ZapMedia', () => {
           expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         });
+      });
+
+      describe('#mintWithSig', () => {
+        it('throws an error if bid shares do not sum to 100', async () => {
+          let bidShareSum = 0;
+          const media = new ZapMedia(1337, signer);
+
+          bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
+
+          for (var i = 0; i < bidShares.collabShares.length; i++) {
+            bidShareSum += parseInt(bidShares.collabShares[i]);
+          }
+
+          bidShareSum += parseInt(bidShares.creator.value) + parseInt(bidShares.owner.value) + 5e18;
+
+          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
+
+          await media
+            .mintWithSig(
+              otherWallet.address,
+              mediaData,
+              bidShares,
+              eipSig
+              )
+
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err)
+              .to.eq('Invariant failed: The BidShares sum to 75000000000000000000, but they must sum to 100000000000000000000')
+            });
+        });
+
+
+        it('throws an error if the tokenURI does not begin with `https://`', async () => {
+          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
+
+          const media = new ZapMedia(1337, signer);
+          let metadataHex = ethers.utils.formatBytes32String('Test');
+          let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+          let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+          let contentHex = ethers.utils.formatBytes32String('Test Car');
+          let contentHashRaw = ethers.utils.keccak256(contentHex);
+          let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+          // const signer1 = provider.getSigner(1);
+          const invalidMediaData = {
+            tokenURI: 'http://example.com',
+            metadataURI: 'https://metadata.com',
+            contentHash: contentHashBytes,
+            metadataHash: metadataHashBytes,
+          }
+
+          await media.mintWithSig(
+            otherWallet.address,
+            invalidMediaData,
+            bidShares,
+            eipSig
+          ).then((res) => {
+            return res;
+          })
+          .catch((err) => {
+            expect(err).to.eq( 'Invariant failed: http://example.com must begin with `https://`');
+          });
+        })
+
+          it('throws an error if the metadataURI does not begin with `https://`', async () => {
+            const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
+          const media = new ZapMedia(1337, signer);
+          const invalidMediaData = {
+            tokenURI: 'https://example.com',
+            metadataURI: 'http://metadata.com',
+            contentHash: mediaData.contentHash,
+            metadataHash: mediaData.metadataHash,
+          }
+
+          await media.mintWithSig(
+            otherWallet.address,
+            invalidMediaData,
+            bidShares,
+            eipSig
+          ).then((res) => {
+            return res;
+          })
+          .catch((err) => {
+            expect(err).to.eq( 'Invariant failed: http://metadata.com must begin with `https://`');
+          });
+        });
+
+        it.skip('creates a new piece of media', async () => {
+          const mainWallet: Wallet = new ethers.Wallet("0xb91c5477014656c1da52b3d4b6c03b59019c9a3b5730e61391cec269bc2e03e3")
+          const media = new ZapMedia(1337, signer);
+          const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
+          const domain = media.eip712Domain()
+          const nonce = await media.fetchMintWithSigNonce(mainWallet.address)
+          const media1ContentHash = ethers.utils.hexlify(mediaData.contentHash);
+          const media1MetadataHash = ethers.utils.hexlify(mediaData.metadataHash)
+          const eipSig = await signMintWithSigMessage(
+            mainWallet,
+            media1ContentHash,
+            media1MetadataHash,
+            Decimal.new(20).value,
+            nonce.toNumber(),
+            deadline,
+            domain
+          )
+
+          const totalSupply = await media.fetchTotalMedia()
+          expect(totalSupply.toNumber()).to.eq(0)
+
+          // sum would not eq to 100 here, due to having an extra 20 decimalMarketFee added to it, and thus never passing the test here. Otherwise without adding that fee to it (bid shares), will sum to 100.
+          await media.mintWithSig(
+            mainWallet.address,
+            mediaData,
+            bidShares,
+            eipSig
+          )
+
+          const owner = await media.fetchOwnerOf(0)
+          const creator = await media.fetchCreator(0)
+          const onChainContentHash = await media.fetchContentHash(0)
+          const onChainMetadataHash = await media.fetchMetadataHash(0)
+
+          const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0)
+          const onChainContentURI = await media.fetchContentURI(0)
+          const onChainMetadataURI = await media.fetchMetadataURI(0)
+
+          expect(owner.toLowerCase()).to.be(mainWallet.address.toLowerCase())
+          expect(creator.toLowerCase()).to.be(mainWallet.address.toLowerCase())
+          expect(onChainContentHash).to.be(mediaData.contentHash)
+          expect(onChainContentURI).to.be(mediaData.tokenURI)
+          expect(onChainMetadataURI).to.be(mediaData.metadataURI)
+          expect(onChainMetadataHash).to.be(mediaData.metadataHash)
+          expect(onChainBidShares.creator.value).to.eq(bidShares.creator.value)
+          expect(onChainBidShares.owner.value).to.eq(bidShares.owner.value)
+          expect(onChainBidShares.creator.value).to.eq(
+            bidShares.owner.value
+          )
+        })
       });
 
       describe('#getTokenCreators', () => {
