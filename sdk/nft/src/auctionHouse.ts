@@ -102,7 +102,7 @@ class AuctionHouse {
   }
 
   public async startAuction(auctionId: BigNumberish, approved: boolean) {
-    return this.auctionHouse.startAuction();
+    return this.auctionHouse.startAuction(auctionId, approved);
   }
 }
 

@@ -21,7 +21,7 @@ import {
   deployAuctionHouse,
 } from '../src/deploy';
 
-import AuctionHouse from '../src/auctionHouse';
+import AuctionHouse, { Auction } from '../src/auctionHouse';
 import ZapMedia from '../src/zapMedia';
 
 import { getSigners } from './test_utils';
@@ -280,6 +280,49 @@ describe('AuctionHouse', () => {
           expect(parseInt(createdAuction.reservePrice._hex)).to.equal(parseInt(reservePrice._hex));
           expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
           expect(createdAuction.curator).to.equal(ethers.constants.AddressZero);
+          expect(createdAuction.auctionCurrency).to.equal(token.address);
+        });
+      });
+
+      describe.only('#startAuction', () => {
+        let auctionHouse: AuctionHouse;
+        let curatorAuctionHouse: AuctionHouse;
+        let curator: Signer;
+
+        beforeEach(async () => {
+          curator = signers[9];
+          auctionHouse = new AuctionHouse(1337, signer);
+          curatorAuctionHouse = new AuctionHouse(1337, curator);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+        });
+
+        it('Should start auction if the curator is not a zero address or token owner', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            await curator.getAddress(),
+            0,
+            token.address,
+          );
+
+          await curatorAuctionHouse.startAuction(0, true);
+
+          const createdAuction = await auctionHouse.fetchAuction(0);
+
+          expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
+          expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
+          expect(createdAuction.approved).to.be.true;
+          expect(parseInt(createdAuction.duration._hex)).to.equal(60 * 60 * 24);
+          expect(createdAuction.curatorFeePercentage).to.equal(0);
+          expect(parseInt(createdAuction.reservePrice._hex)).to.equal(parseInt(reservePrice._hex));
+          expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
+          expect(createdAuction.curator).to.equal(await curator.getAddress());
           expect(createdAuction.auctionCurrency).to.equal(token.address);
         });
       });
