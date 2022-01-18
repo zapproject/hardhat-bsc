@@ -342,7 +342,7 @@ class ZapMedia {
       // this.ensureNotReadOnly()
       validateURI(mediaData.metadataURI)
       validateURI(mediaData.tokenURI)
-      validateBidShares(bidShares.collabShares, bidShares.owner, bidShares.owner)
+      validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
     } catch (err: any) {
       return Promise.reject(err.message);
     }

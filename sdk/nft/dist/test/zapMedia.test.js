@@ -569,7 +569,7 @@ describe('ZapMedia', function () {
                                     })
                                         .catch(function (err) {
                                         (0, chai_1.expect)(err)
-                                            .to.eq('Invariant failed: The BidShares sum to 75000000000000000000, but they must sum to 100000000000000000000');
+                                            .to.eq("Invariant failed: The BidShares sum to ".concat(bidShareSum, ", but they must sum to 100000000000000000000"));
                                     })];
                             case 1:
                                 _a.sent();
@@ -633,10 +633,10 @@ describe('ZapMedia', function () {
                         }
                     });
                 }); });
-                it.only('creates a new piece of media', function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var mainWallet, media, deadline, domain, nonce, media1ContentHash, media1MetadataHash, eipSig, totalSupply, metadataHex, metadataHashRaw, metadataHashBytes, contentHex, contentHashRaw, contentHashBytes, contentHash, metadataHash, _a, _b;
-                    return __generator(this, function (_c) {
-                        switch (_c.label) {
+                it.skip('creates a new piece of media', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var mainWallet, media, deadline, domain, nonce, media1ContentHash, media1MetadataHash, eipSig, totalSupply, owner, creator, onChainContentHash, onChainMetadataHash, mediaContentHash, mediaMetadataHash, onChainBidShares, onChainContentURI, onChainMetadataURI;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
                             case 0:
                                 mainWallet = new ethers_1.ethers.Wallet("0xb91c5477014656c1da52b3d4b6c03b59019c9a3b5730e61391cec269bc2e03e3");
                                 media = new zapMedia_1.default(1337, signer);
@@ -645,50 +645,51 @@ describe('ZapMedia', function () {
                                 domain = media.eip712Domain();
                                 return [4 /*yield*/, media.fetchMintWithSigNonce(mainWallet.address)];
                             case 1:
-                                nonce = _c.sent();
-                                console.log('nonce', nonce);
+                                nonce = _a.sent();
                                 media1ContentHash = ethers_1.ethers.utils.hexlify(mediaData.contentHash);
-                                console.log('media1ContentHash', media1ContentHash);
                                 media1MetadataHash = ethers_1.ethers.utils.hexlify(mediaData.metadataHash);
-                                console.log('media1MetadataHash', media1MetadataHash);
-                                return [4 /*yield*/, (0, test_utils_1.signMintWithSigMessage)(mainWallet, media1ContentHash, media1MetadataHash, utils_1.Decimal.new(10).value, nonce.toNumber(), deadline, domain)];
+                                return [4 /*yield*/, (0, test_utils_1.signMintWithSigMessage)(mainWallet, media1ContentHash, media1MetadataHash, utils_1.Decimal.new(15).value, nonce.toNumber(), deadline, domain)];
                             case 2:
-                                eipSig = _c.sent();
-                                console.log('eipSig', eipSig);
+                                eipSig = _a.sent();
                                 return [4 /*yield*/, media.fetchTotalMedia()];
                             case 3:
-                                totalSupply = _c.sent();
+                                totalSupply = _a.sent();
                                 (0, chai_1.expect)(totalSupply.toNumber()).to.eq(0);
-                                metadataHex = ethers_1.ethers.utils.formatBytes32String('Test');
-                                metadataHashRaw = ethers_1.ethers.utils.keccak256(metadataHex);
-                                metadataHashBytes = ethers_1.ethers.utils.arrayify(metadataHashRaw);
-                                contentHex = ethers_1.ethers.utils.formatBytes32String('Test Car');
-                                contentHashRaw = ethers_1.ethers.utils.keccak256(contentHex);
-                                contentHashBytes = ethers_1.ethers.utils.arrayify(contentHashRaw);
-                                contentHash = contentHashBytes;
-                                metadataHash = metadataHashBytes;
-                                mediaData = (0, utils_1.constructMediaData)(tokenURI, metadataURI, contentHash, metadataHash);
-                                _a = utils_1.constructBidShares;
-                                return [4 /*yield*/, provider.getSigner(1).getAddress()];
-                            case 4:
-                                _b = [
-                                    _c.sent()
-                                ];
-                                return [4 /*yield*/, provider.getSigner(2).getAddress()];
-                            case 5:
-                                _b = _b.concat([
-                                    _c.sent()
-                                ]);
-                                return [4 /*yield*/, provider.getSigner(3).getAddress()];
-                            case 6:
-                                bidShares = _a.apply(void 0, [_b.concat([
-                                        _c.sent()
-                                    ]), [15, 15, 15],
-                                    15,
-                                    35]);
                                 return [4 /*yield*/, media.mintWithSig(mainWallet.address, mediaData, bidShares, eipSig)];
+                            case 4:
+                                _a.sent();
+                                return [4 /*yield*/, media.fetchOwnerOf(0)];
+                            case 5:
+                                owner = _a.sent();
+                                return [4 /*yield*/, media.fetchCreator(0)];
+                            case 6:
+                                creator = _a.sent();
+                                return [4 /*yield*/, media.fetchContentHash(0)];
                             case 7:
-                                _c.sent();
+                                onChainContentHash = _a.sent();
+                                return [4 /*yield*/, media.fetchMetadataHash(0)];
+                            case 8:
+                                onChainMetadataHash = _a.sent();
+                                mediaContentHash = ethers_1.ethers.utils.hexlify(mediaData.contentHash);
+                                mediaMetadataHash = ethers_1.ethers.utils.hexlify(mediaData.metadataHash);
+                                return [4 /*yield*/, media.fetchCurrentBidShares(zapMedia.address, 0)];
+                            case 9:
+                                onChainBidShares = _a.sent();
+                                return [4 /*yield*/, media.fetchContentURI(0)];
+                            case 10:
+                                onChainContentURI = _a.sent();
+                                return [4 /*yield*/, media.fetchMetadataURI(0)];
+                            case 11:
+                                onChainMetadataURI = _a.sent();
+                                (0, chai_1.expect)(owner.toLowerCase()).to.eq(mainWallet.address.toLowerCase());
+                                (0, chai_1.expect)(creator.toLowerCase()).to.eq(mainWallet.address.toLowerCase());
+                                (0, chai_1.expect)(onChainContentHash).to.eq(mediaContentHash);
+                                (0, chai_1.expect)(onChainContentURI).to.eq(mediaData.tokenURI);
+                                (0, chai_1.expect)(onChainMetadataURI).to.eq(mediaData.metadataURI);
+                                (0, chai_1.expect)(onChainMetadataHash).to.eq(mediaMetadataHash);
+                                (0, chai_1.expect)(parseInt(onChainBidShares.creator.value)).to.eq(parseInt(bidShares.creator.value));
+                                (0, chai_1.expect)(parseInt(onChainBidShares.owner.value)).to.eq(parseInt(bidShares.owner.value));
+                                (0, chai_1.expect)(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
                                 return [2 /*return*/];
                         }
                     });

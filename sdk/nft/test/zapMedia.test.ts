@@ -409,7 +409,7 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#mintWithSig', () => {
+      describe('#mintWithSig', () => {
         it('throws an error if bid shares do not sum to 100', async () => {
           let bidShareSum = 0;
           const media = new ZapMedia(1337, signer);
@@ -497,7 +497,7 @@ describe('ZapMedia', () => {
           });
         });
 
-        it.skip('creates a new piece of media', async () => {
+        it('creates a new piece of media', async () => {
           const mainWallet: Wallet = new ethers.Wallet("0xb91c5477014656c1da52b3d4b6c03b59019c9a3b5730e61391cec269bc2e03e3")
           const media = new ZapMedia(1337, signer);
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
