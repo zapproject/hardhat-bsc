@@ -305,6 +305,25 @@ describe('AuctionHouse', () => {
           });
         });
 
+        it.only('Should reject if the auction has already started', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            await curator.getAddress(),
+            0,
+            token.address,
+          );
+
+          await curatorConnected.startAuction(0, true);
+
+          await curatorConnected.startAuction(0, true);
+        });
+
         it('Should reject if a valid curator does not start the auction', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);

@@ -109,6 +109,10 @@ class AuctionHouse {
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
 
+      // If the fetched firstBidTime is not 0 throw an error
+    } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
+      invariant(false, 'AuctionHouse (startAuction): Auction has already started.');
+
       // If the fetched curator address does not equal the caller address throw an error
     } else if (auctionInfo.curator !== (await this.signer.getAddress())) {
       invariant(false, 'AuctionHouse (startAuction): Only the curator can start this auction.');
