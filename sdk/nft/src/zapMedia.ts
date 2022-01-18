@@ -218,9 +218,9 @@ class ZapMedia {
     }
   }
 
-/**fetches the media specified Signature nonce. if signature nonce does not exist, function 
+/**fetches the media specified Signature nonce. if signature nonce does not exist, function
  * will return an error message
- * @param address 
+ * @param address
  * @returns sigNonce
  */
 
@@ -230,12 +230,12 @@ class ZapMedia {
     validateAndParseAddress(address);
   } catch (err: any) {
     return Promise.reject(err.message);
-  } 
-    return this.media.getSigNonces(address); 
+  }
+    return this.media.getSigNonces(address);
 
   }
 
-  
+
   /***********************
    * ERC-721 Write Methods
    ***********************
@@ -322,6 +322,34 @@ class ZapMedia {
 
     return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
   }
+
+
+  /**
+   * Mints a new piece of media on an instance of the Zap Media Contract
+   * @param creator
+   * @param mediaData
+   * @param bidShares
+   * @param sig
+   */
+   public async mintWithSig(
+    creator: string,
+    mediaData: MediaData,
+    bidShares: BidShares,
+    sig: EIP712Signature
+  ): Promise<ContractTransaction> {
+
+    try {
+      // this.ensureNotReadOnly()
+      validateURI(mediaData.metadataURI)
+      validateURI(mediaData.tokenURI)
+      validateBidShares(bidShares.creator, bidShares.owner, bidShares.owner)
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+
+    return this.media.mintWithSig(creator, mediaData, bidShares, sig)
+  }
+
 
   /**
    * Sets an ask on the specified media on an instance of the Zap Media Contract
