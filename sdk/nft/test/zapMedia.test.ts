@@ -464,13 +464,22 @@ describe('ZapMedia', () => {
         });
 
         it.only('creates a new piece of media', async () => {
-          const mainWallet: Wallet = new ethers.Wallet("0x308fdd19b898fbcc19aa4295719f97c5f0685afab346dcacee3d58e45bf0f2b5")
-          const otherWallet: Wallet = new ethers.Wallet("0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9")
+          console.log('test start ----------------> ')
+          const mainWallet: Wallet = new ethers.Wallet("0x6eb19b7e2c3e16af22e057b864e5bfb2b24e93c8f8e2bdb1c110cbd95806eb46", provider)
+          console.log('main wallet', mainWallet)
+          const otherWallet: Wallet = new ethers.Wallet("0x76b8656496a1184dcda65fd31d57543c58d4a8edf98121407d790f772330c5b1", provider)
+          console.log('other wallet', otherWallet)
 
           const otherMedia = new ZapMedia(1337, otherWallet);
+          console.log('other media', otherMedia)
+
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
+          console.log('other wallet', deadline)
+
           const domain = otherMedia.eip712Domain()
+          console.log('nonce start =======')
           const nonce = await otherMedia.fetchMintWithSigNonce(mainWallet.address)
+          console.log('passed nonce ')
           const eipSig = await signMintWithSigMessage(
             mainWallet,
             mediaData.contentHash,
@@ -480,12 +489,13 @@ describe('ZapMedia', () => {
             deadline,
             domain
           )
+          console.log('passed eip sig')
 
           const totalSupply = await otherMedia.fetchTotalMedia()
           expect(totalSupply.toNumber()).to.equal(0)
 
           await otherMedia.mintWithSig(
-            otherWallet.address,
+            mainWallet.address,
             mediaData,
             bidShares,
             eipSig
