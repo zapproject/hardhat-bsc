@@ -31,7 +31,7 @@ import { create } from 'domain';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe.only('AuctionHouse', () => {
+describe('AuctionHouse', () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -226,7 +226,7 @@ describe.only('AuctionHouse', () => {
             });
         });
 
-        it.only('Should create an auction', async () => {
+        it('Should create an auction', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -246,11 +246,16 @@ describe.only('AuctionHouse', () => {
 
           const createdAuction = await auctionHouse.fetchAuction(0);
 
-          console.log(createdAuction);
           expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
 
           expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
           expect(createdAuction.approved).to.be.true;
+          expect(parseInt(createdAuction.duration._hex)).to.equal(60 * 60 * 24);
+          expect(createdAuction.curatorFeePercentage).to.equal(0);
+          expect(parseInt(createdAuction.reservePrice._hex)).to.equal(parseInt(reservePrice._hex));
+          expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
+          expect(createdAuction.curator).to.equal(ethers.constants.AddressZero);
+          expect(createdAuction.auctionCurrency).to.equal(token.address);
         });
       });
     });
