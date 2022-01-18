@@ -284,7 +284,7 @@ describe('AuctionHouse', () => {
         });
       });
 
-      describe.only('#startAuction', () => {
+      describe('#startAuction', () => {
         let auctionHouse: AuctionHouse;
         let curatorConnected: AuctionHouse;
         let curator: Signer;

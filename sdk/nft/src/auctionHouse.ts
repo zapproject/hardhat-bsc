@@ -102,13 +102,19 @@ class AuctionHouse {
   }
 
   public async startAuction(auctionId: BigNumberish, approved: boolean) {
+    // Fetches the auction details
     const auctionInfo = await this.fetchAuction(auctionId);
 
+    // If the fetched media returns a zero address this means the auction does not exist and throw an error
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
+
+      // If the fetched curator address does not equal the caller address throw an error
     } else if (auctionInfo.curator !== (await this.signer.getAddress())) {
       invariant(false, 'AuctionHouse (startAuction): Only the curator can start this auction.');
     }
+
+    // If the auctionId exists and the curator is the caller invoke startCreation
     return this.auctionHouse.startAuction(auctionId, approved);
   }
 }
