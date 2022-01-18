@@ -409,7 +409,7 @@ describe('ZapMedia', () => {
         });
       });
 
-      describe.only('#mintWithSig', () => {
+      describe('#mintWithSig', () => {
         it('throws an error if bid shares do not sum to 100', async () => {
           let bidShareSum = 0;
           const media = new ZapMedia(1337, signer);
