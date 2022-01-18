@@ -425,7 +425,7 @@ var ZapMedia = /** @class */ (function () {
                     // this.ensureNotReadOnly()
                     (0, utils_1.validateURI)(mediaData.metadataURI);
                     (0, utils_1.validateURI)(mediaData.tokenURI);
-                    (0, utils_1.validateBidShares)(bidShares.creator, bidShares.owner, bidShares.owner);
+                    (0, utils_1.validateBidShares)(bidShares.collabShares, bidShares.owner, bidShares.owner);
                 }
                 catch (err) {
                     return [2 /*return*/, Promise.reject(err.message)];

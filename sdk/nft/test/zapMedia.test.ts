@@ -430,14 +430,14 @@ describe('ZapMedia', () => {
               mediaData,
               bidShares,
               eipSig
-              )
+            )
 
             .then((res) => {
               return res;
             })
             .catch((err) => {
               expect(err)
-              .to.eq('Invariant failed: The BidShares sum to 75000000000000000000, but they must sum to 100000000000000000000')
+                .to.eq(`Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`)
             });
         });
 
@@ -497,7 +497,7 @@ describe('ZapMedia', () => {
           });
         });
 
-        it.skip('creates a new piece of media', async () => {
+        it('creates a new piece of media', async () => {
           const mainWallet: Wallet = new ethers.Wallet("0xb91c5477014656c1da52b3d4b6c03b59019c9a3b5730e61391cec269bc2e03e3")
           const media = new ZapMedia(1337, signer);
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
@@ -509,7 +509,7 @@ describe('ZapMedia', () => {
             mainWallet,
             media1ContentHash,
             media1MetadataHash,
-            Decimal.new(20).value,
+            Decimal.new(15).value,
             nonce.toNumber(),
             deadline,
             domain
@@ -518,7 +518,6 @@ describe('ZapMedia', () => {
           const totalSupply = await media.fetchTotalMedia()
           expect(totalSupply.toNumber()).to.eq(0)
 
-          // sum would not eq to 100 here, due to having an extra 20 decimalMarketFee added to it, and thus never passing the test here. Otherwise without adding that fee to it (bid shares), will sum to 100.
           await media.mintWithSig(
             mainWallet.address,
             mediaData,
@@ -530,22 +529,22 @@ describe('ZapMedia', () => {
           const creator = await media.fetchCreator(0)
           const onChainContentHash = await media.fetchContentHash(0)
           const onChainMetadataHash = await media.fetchMetadataHash(0)
+          const mediaContentHash = ethers.utils.hexlify(mediaData.contentHash)
+          const mediaMetadataHash = ethers.utils.hexlify(mediaData.metadataHash)
 
           const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0)
           const onChainContentURI = await media.fetchContentURI(0)
           const onChainMetadataURI = await media.fetchMetadataURI(0)
 
-          expect(owner.toLowerCase()).to.be(mainWallet.address.toLowerCase())
-          expect(creator.toLowerCase()).to.be(mainWallet.address.toLowerCase())
-          expect(onChainContentHash).to.be(mediaData.contentHash)
-          expect(onChainContentURI).to.be(mediaData.tokenURI)
-          expect(onChainMetadataURI).to.be(mediaData.metadataURI)
-          expect(onChainMetadataHash).to.be(mediaData.metadataHash)
-          expect(onChainBidShares.creator.value).to.eq(bidShares.creator.value)
-          expect(onChainBidShares.owner.value).to.eq(bidShares.owner.value)
-          expect(onChainBidShares.creator.value).to.eq(
-            bidShares.owner.value
-          )
+          expect(owner.toLowerCase()).to.eq(mainWallet.address.toLowerCase())
+          expect(creator.toLowerCase()).to.eq(mainWallet.address.toLowerCase())
+          expect(onChainContentHash).to.eq(mediaContentHash)
+          expect(onChainContentURI).to.eq(mediaData.tokenURI)
+          expect(onChainMetadataURI).to.eq(mediaData.metadataURI)
+          expect(onChainMetadataHash).to.eq(mediaMetadataHash)
+          expect(parseInt(onChainBidShares.creator.value)).to.eq(parseInt(bidShares.creator.value))
+          expect(parseInt(onChainBidShares.owner.value)).to.eq(parseInt(bidShares.owner.value))
+          expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         })
       });
 
