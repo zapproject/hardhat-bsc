@@ -100,6 +100,8 @@ class AuctionHouse {
       );
     }
   }
+
+  public async startAuction(auctionId: BigNumberish) {}
 }
 
 export default AuctionHouse;
