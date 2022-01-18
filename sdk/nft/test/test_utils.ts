@@ -120,3 +120,25 @@ export async function signMintWithSigMessage(
     }
   })
 }
+
+/**
+ * Validates if the input is exactly 32 bytes
+ * Expects a hex string with a 0x prefix or a Bytes type
+ *
+ * @param value
+ */
+ export function validateBytes32(value: BytesLike) {
+  if (typeof value == 'string') {
+    if (isHexString(value) && hexDataLength(value) == 32) {
+      return
+    }
+
+    invariant(false, `${value} is not a 0x prefixed 32 bytes hex string`)
+  } else {
+    if (hexDataLength(hexlify(value)) == 32) {
+      return
+    }
+
+    invariant(false, `value is not a length 32 byte array`)
+  }
+}
