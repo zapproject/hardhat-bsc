@@ -503,11 +503,8 @@ describe('ZapMedia', () => {
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
           const domain = media.eip712Domain()
           const nonce = await media.fetchMintWithSigNonce(mainWallet.address)
-          console.log('nonce', nonce)
           const media1ContentHash = ethers.utils.hexlify(mediaData.contentHash);
-          console.log('media1ContentHash', media1ContentHash)
           const media1MetadataHash = ethers.utils.hexlify(mediaData.metadataHash)
-          console.log('media1MetadataHash', media1MetadataHash)
           const eipSig = await signMintWithSigMessage(
             mainWallet,
             media1ContentHash,
@@ -517,8 +514,6 @@ describe('ZapMedia', () => {
             deadline,
             domain
           )
-
-          console.log('eipSig', eipSig)
 
           const totalSupply = await media.fetchTotalMedia()
           expect(totalSupply.toNumber()).to.eq(0)
