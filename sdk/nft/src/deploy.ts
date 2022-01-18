@@ -73,6 +73,22 @@ export const deployZapMarket = async () => {
   return zapMarket;
 };
 
+export const deployAuctionHouse = async () => {
+  const auctionHouseFactory = new ethers.ContractFactory(
+    abis.zapAuctionAbi,
+    bytecodes.auctionHouseBytecode,
+    signer,
+  );
+
+  let auctionHouse = await auctionHouseFactory.deploy();
+
+  auctionHouse.deployed();
+
+  await auctionHouse.initialize(zapTokenAddress, zapMarketAddress);
+
+  return auctionHouse;
+};
+
 export const deployZapMediaImpl = async () => {
   const mediaFactory = new ethers.ContractFactory(
     abis.zapMediaAbi,
