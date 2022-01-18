@@ -1,10 +1,8 @@
-// Chai test method
 import { expect } from 'chai';
 
-// Ethers Types
 import { BigNumber, Contract, ethers, Signer } from 'ethers';
 
-import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
+import { constructBidShares, constructMediaData } from '../src/utils';
 
 import {
   zapMarketAddresses,
@@ -27,7 +25,6 @@ import AuctionHouse from '../src/auctionHouse';
 import ZapMedia from '../src/zapMedia';
 
 import { getSigners } from './test_utils';
-import { create } from 'domain';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -222,6 +219,34 @@ describe('AuctionHouse', () => {
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): TokenId does not exist.',
+              );
+            });
+        });
+
+        it('Should reject if the mediaContract is a zero address', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          const auctionHouse = new AuctionHouse(1337, signer);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse
+            .createAuction(
+              0,
+              ethers.constants.AddressZero,
+              duration,
+              reservePrice,
+              '0x0000000000000000000000000000000000000000',
+              0,
+              token.address,
+            )
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: AuctionHouse (createAuction): Media cannot be a zero address.',
               );
             });
         });
