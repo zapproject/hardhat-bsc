@@ -297,6 +297,14 @@ describe('AuctionHouse', () => {
           await media.approve(auctionHouse.auctionHouse.address, 0);
         });
 
+        it('Should reject if the auctionId does not exist', async () => {
+          await curatorConnected.startAuction(0, true).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (startAuction): AuctionId does not exist.',
+            );
+          });
+        });
+
         it('Should start auction if the curator is not a zero address or token owner', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);

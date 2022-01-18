@@ -102,6 +102,11 @@ class AuctionHouse {
   }
 
   public async startAuction(auctionId: BigNumberish, approved: boolean) {
+    const auctionInfo = await this.fetchAuction(0);
+
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
+    }
     return this.auctionHouse.startAuction(auctionId, approved);
   }
 }
