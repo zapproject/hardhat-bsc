@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zapMediaAddresses = exports.zapMarketAddresses = exports.mediaFactoryAddresses = void 0;
+exports.zapAuctionAddresses = exports.zapMediaAddresses = exports.zapMarketAddresses = exports.mediaFactoryAddresses = void 0;
 exports.mediaFactoryAddresses = {
     // Localhost
     1337: '',
@@ -36,5 +36,17 @@ exports.zapMediaAddresses = {
     97: '0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375',
     // BSC Mainnet
     56: '0x795Ef08D74295f773b6C6D197fC5c6eFD5610B31',
+};
+exports.zapAuctionAddresses = {
+    // Localhost
+    1337: '',
+    // Rinkeby
+    4: '0x1580946938a30e1F010c64854ee77D345887A535',
+    // Ethereum Mainnet
+    1: '0xceED738456A64C55640bf211c659D05B108D7E93',
+    // BSC Testnet
+    97: '0x798a9CDd42ed45735d0704B350Ee6D86e4B1abdF',
+    // BSC Mainnet
+    56: '0x4efdfA627e71E2891EF05a523EE1e619E55Deea4',
 };
 //# sourceMappingURL=addresses.js.map
