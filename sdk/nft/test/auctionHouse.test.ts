@@ -305,7 +305,7 @@ describe('AuctionHouse', () => {
           });
         });
 
-        it.only('Should reject if the auction has already started', async () => {
+        it('Should reject if the auction has already started', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -321,7 +321,11 @@ describe('AuctionHouse', () => {
 
           await curatorConnected.startAuction(0, true);
 
-          await curatorConnected.startAuction(0, true);
+          await curatorConnected.startAuction(0, true).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (startAuction): Auction has already started.',
+            );
+          });
         });
 
         it('Should reject if a valid curator does not start the auction', async () => {
