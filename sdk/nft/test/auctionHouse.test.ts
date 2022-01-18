@@ -305,6 +305,27 @@ describe('AuctionHouse', () => {
           });
         });
 
+        it('Should reject if a valid curator does not start the auction', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            await curator.getAddress(),
+            0,
+            token.address,
+          );
+
+          await auctionHouse.startAuction(0, true).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (startAuction): Only the curator can start this auction.',
+            );
+          });
+        });
+
         it('Should start auction if the curator is not a zero address or token owner', async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
