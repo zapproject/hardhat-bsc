@@ -1,7 +1,7 @@
 import chai, { expect, use } from 'chai';
 
 
-import { ethers, BigNumber, Signer, Wallet } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 
 import { constructAsk, constructBidShares, constructMediaData, Decimal } from '../src/utils';
 
@@ -498,62 +498,60 @@ describe('ZapMedia', () => {
         });
 
         it.only('creates a new piece of media', async () => {
-          console.log('test start ----------------> ')
-          const mainWallet: Wallet = new ethers.Wallet("0x6eb19b7e2c3e16af22e057b864e5bfb2b24e93c8f8e2bdb1c110cbd95806eb46", provider)
-          console.log('main wallet', mainWallet)
-          const otherWallet: Wallet = new ethers.Wallet("0x76b8656496a1184dcda65fd31d57543c58d4a8edf98121407d790f772330c5b1", provider)
-          console.log('other wallet', otherWallet)
-
-          const otherMedia = new ZapMedia(1337, otherWallet);
-          console.log('other media', otherMedia)
-
+          const mainWallet: Wallet = new ethers.Wallet("0xb91c5477014656c1da52b3d4b6c03b59019c9a3b5730e61391cec269bc2e03e3")
+          const media = new ZapMedia(1337, signer);
           const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24 // 24 hours
-          console.log('other wallet', deadline)
-
-          const domain = otherMedia.eip712Domain()
-          console.log('nonce start =======')
-          const nonce = await otherMedia.fetchMintWithSigNonce(mainWallet.address)
-          console.log('passed nonce ')
+          const domain = media.eip712Domain()
+          const nonce = await media.fetchMintWithSigNonce(mainWallet.address)
+          console.log('nonce', nonce)
+          const media1ContentHash = ethers.utils.hexlify(mediaData.contentHash);
+          console.log('media1ContentHash', media1ContentHash)
+          const media1MetadataHash = ethers.utils.hexlify(mediaData.metadataHash)
+          console.log('media1MetadataHash', media1MetadataHash)
           const eipSig = await signMintWithSigMessage(
             mainWallet,
-            mediaData.contentHash,
-            mediaData.metadataHash,
+            media1ContentHash,
+            media1MetadataHash,
             Decimal.new(10).value,
             nonce.toNumber(),
             deadline,
             domain
           )
-          console.log('passed eip sig')
 
-          const totalSupply = await otherMedia.fetchTotalMedia()
-          expect(totalSupply.toNumber()).to.equal(0)
+          console.log('eipSig', eipSig)
 
-          await otherMedia.mintWithSig(
+          const totalSupply = await media.fetchTotalMedia()
+          expect(totalSupply.toNumber()).to.eq(0)
+
+          let metadataHex = ethers.utils.formatBytes32String('Test');
+        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+        let contentHex = ethers.utils.formatBytes32String('Test Car');
+        let contentHashRaw = ethers.utils.keccak256(contentHex);
+        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+        let contentHash = contentHashBytes;
+        let metadataHash = metadataHashBytes;
+
+        mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
+
+        bidShares = constructBidShares(
+          [
+            await provider.getSigner(1).getAddress(),
+            await provider.getSigner(2).getAddress(),
+            await provider.getSigner(3).getAddress(),
+          ],
+          [15, 15, 15],
+          15,
+          35,
+        );
+
+          await media.mintWithSig(
             mainWallet.address,
             mediaData,
             bidShares,
             eipSig
-          )
-
-          const owner = await otherMedia.fetchOwnerOf(0)
-          const creator = await otherMedia.fetchCreator(0)
-          const onChainContentHash = await otherMedia.fetchContentURI(0)
-          const onChainMetadataHash = await otherMedia.fetchMetadataURI(0)
-
-          const onChainBidShares = await otherMedia.fetchCurrentBidShares(zapMedia.address, 0)
-          const onChainContentURI = await otherMedia.fetchContentURI(0)
-          const onChainMetadataURI = await otherMedia.fetchMetadataURI(0)
-
-          expect(owner.toLowerCase()).to.equal(mainWallet.address.toLowerCase())
-          expect(creator.toLowerCase()).to.equal(mainWallet.address.toLowerCase())
-          expect(onChainContentHash).to.equal(mediaData.contentHash)
-          expect(onChainContentURI).to.equal(mediaData.tokenURI)
-          expect(onChainMetadataURI).to.equal(mediaData.metadataURI)
-          expect(onChainMetadataHash).to.equal(mediaData.metadataHash)
-          expect(onChainBidShares.creator.value).to.equal(bidShares.creator.value)
-          expect(onChainBidShares.owner.value).to.equal(bidShares.owner.value)
-          expect(onChainBidShares.owner.value).to.equal(
-            bidShares.prevOwner.value
           )
         })
       });

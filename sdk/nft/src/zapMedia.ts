@@ -335,7 +335,7 @@ class ZapMedia {
     creator: string,
     mediaData: MediaData,
     bidShares: BidShares,
-    sig: any // EIP712Signature
+    sig: EIP712Signature
   ): Promise<ContractTransaction> {
 
     try {
