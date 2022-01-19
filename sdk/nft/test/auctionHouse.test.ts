@@ -427,6 +427,25 @@ describe('AuctionHouse', () => {
           await token.mint(await bidder.getAddress(), 1000);
         });
 
+        it('Should revert if the auction id does not exist', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner attempts invoke the setAuctionReservePrice on a non existent auction id
+          await auctionHouse.setAuctionReservePrice(1, 200).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (setAuctionReservePrice): AuctionId does not exist.',
+            );
+          });
+        });
+
+        it('Should set the auction reserve price when called by the token owner', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner invokes the setAuctionReservePrice
+          await auctionHouse.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+        });
+
         it('Should set the auction reserve price when called by the curator', async () => {
           // The curator(signer[4]) connected to the AuctionHouse class
           // The curator invokes the setAuctionReservePrice
@@ -464,15 +483,6 @@ describe('AuctionHouse', () => {
 
           // The returned currency should equal the currency set on createAuction
           expect(createdAuction.auctionCurrency).to.equal(token.address);
-        });
-
-        it('Should set the auction reserve price when called by the token owner', async () => {
-          // The owner(signer[0]) connected to the AuctionHouse class
-          // The owner invokes the setAuctionReservePrice
-          await auctionHouse.setAuctionReservePrice(0, 200);
-
-          // The curator invokes startAuction
-          await curatorConnected.startAuction(0, true);
         });
       });
     });

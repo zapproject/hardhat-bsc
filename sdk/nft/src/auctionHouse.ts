@@ -123,6 +123,13 @@ class AuctionHouse {
   }
 
   public async setAuctionReservePrice(auctionId: BigNumberish, reservePrice: BigNumberish) {
+    // Fetches the auction details
+    const auctionInfo = await this.fetchAuction(auctionId);
+
+    // If the fetched media returns a zero address this means the auction does not exist and throw an error
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(false, 'AuctionHouse (setAuctionReservePrice): AuctionId does not exist.');
+    }
     return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
   }
 }
