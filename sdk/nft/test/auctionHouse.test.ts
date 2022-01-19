@@ -126,9 +126,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): Transfer caller is not owner nor approved.',
@@ -157,9 +154,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): Caller is not approved or token owner.',
@@ -185,9 +179,6 @@ describe('AuctionHouse', () => {
               100,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): CuratorFeePercentage must be less than 100.',
@@ -213,9 +204,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): TokenId does not exist.',
@@ -241,9 +229,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): Media cannot be a zero address.',
@@ -375,6 +360,145 @@ describe('AuctionHouse', () => {
           expect(parseInt(createdAuction.reservePrice._hex)).to.equal(parseInt(reservePrice._hex));
           expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
           expect(createdAuction.curator).to.equal(await curator.getAddress());
+          expect(createdAuction.auctionCurrency).to.equal(token.address);
+        });
+      });
+
+      describe('#setAuctionReservePrice', () => {
+        const duration = 60 * 60 * 24;
+        const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+        // An instance of the AuctionHouse class that will be connected to signer[0]
+        let auctionHouse: AuctionHouse;
+
+        // An instance of the AuctionHouse class that will be connected to signer[9]
+        let curatorConnected: AuctionHouse;
+
+        // Will be set to signers[9]
+        let curator: Signer;
+
+        // Will be set to signers[4]
+        let bidder: Signer;
+
+        beforeEach(async () => {
+          // Assign the curator to signer[9]
+          curator = signers[9];
+
+          // Assign the bidder to signer[4]
+          bidder = signers[4];
+
+          // The owner(signers[0]) connected to the AuctionHouse class as a signer
+          auctionHouse = new AuctionHouse(1337, signer);
+
+          // The curator(signers[9]) connected to the AuctionHouse class as a signer
+          curatorConnected = new AuctionHouse(1337, curator);
+
+          // The owner(signer[0]) of tokenId 0 approves the auctionHouse
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          // The owner(signer[0]) creates the auction
+          // The curator is neither a zero address or token owner so the curator has to invoke startAuction
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            0,
+            await curator.getAddress(),
+            0,
+            token.address,
+          );
+
+          // Transfer 1000 tokens to the bidder
+          await token.mint(await bidder.getAddress(), 1000);
+        });
+
+        it('Should reject if the auction id does not exist', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner attempts invoke the setAuctionReservePrice on a non existent auction id
+          await auctionHouse.setAuctionReservePrice(1, 200).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (setAuctionReservePrice): AuctionId does not exist.',
+            );
+          });
+        });
+
+        it('Should reject if not called by the curator or owner', async () => {
+          // Bad signer
+          const badSigner = signers[8];
+
+          // AuctionHouse class instance
+          const badSignerConnected = new AuctionHouse(1337, badSigner);
+
+          // The badSigner(signer[8]) connected to the AuctionHouse class
+          // The badSigner attempts invoke the setAuctionReservePrice when its not the curator or token owner
+          await badSignerConnected.setAuctionReservePrice(0, 200).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
+            );
+          });
+        });
+
+        it('Should reject if the auction already started', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner invokes the setAuctionReservePrice
+          await auctionHouse.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+
+          // The owner attempts to invoke the setAuctionReserverPrice after the auction has already started
+          await auctionHouse.setAuctionReservePrice(0, 200).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (setAuctionReservePrice): Auction has already started.',
+            );
+          });
+        });
+
+        it('Should set the auction reserve price when called by the token owner', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner invokes the setAuctionReservePrice
+          await auctionHouse.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+        });
+
+        it('Should set the auction reserve price when called by the curator', async () => {
+          // The curator(signer[4]) connected to the AuctionHouse class
+          // The curator invokes the setAuctionReservePrice
+          await curatorConnected.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+
+          // Fetches the details from auction id 0
+          const createdAuction = await curatorConnected.fetchAuction(0);
+
+          // The returned tokenId should equal 0
+          expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
+
+          // The returned mediaContract address should equal the address the tokenId belongs to
+          expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
+
+          // The returned auction approval status should equal true after the curator invokes startAuction
+          expect(createdAuction.approved).to.be.true;
+
+          // The returned duration should equal the duration set on createAuction
+          expect(parseInt(createdAuction.duration._hex)).to.equal(duration);
+
+          // The returned curatorFeePercentage should equal the fee set on createAuction
+          expect(createdAuction.curatorFeePercentage).to.equal(0);
+
+          // The returned reservePrice should equal the amount the curator set on setAuctionReservePrice
+          expect(parseInt(createdAuction.reservePrice._hex)).to.equal(200);
+
+          // The returned tokenId owner should equal the address who minted
+          expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
+
+          // The returned curator should equal the address set on createAuction
+          expect(createdAuction.curator).to.equal(await curator.getAddress());
+
+          // The returned currency should equal the currency set on createAuction
           expect(createdAuction.auctionCurrency).to.equal(token.address);
         });
       });
