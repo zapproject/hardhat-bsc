@@ -121,6 +121,10 @@ class AuctionHouse {
     // If the auctionId exists and the curator is the caller invoke startCreation
     return this.auctionHouse.startAuction(auctionId, approved);
   }
+
+  public async setAuctionReservePrice(auctionId: BigNumberish, reservePrice: BigNumberish) {
+    return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
+  }
 }
 
 export default AuctionHouse;
