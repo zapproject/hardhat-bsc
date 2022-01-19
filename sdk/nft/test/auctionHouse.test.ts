@@ -126,9 +126,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): Transfer caller is not owner nor approved.',
@@ -157,9 +154,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): Caller is not approved or token owner.',
@@ -185,9 +179,6 @@ describe('AuctionHouse', () => {
               100,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): CuratorFeePercentage must be less than 100.',
@@ -213,9 +204,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): TokenId does not exist.',
@@ -241,9 +229,6 @@ describe('AuctionHouse', () => {
               0,
               token.address,
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: AuctionHouse (createAuction): Media cannot be a zero address.',
