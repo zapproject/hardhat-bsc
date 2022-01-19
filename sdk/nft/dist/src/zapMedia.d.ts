@@ -1,11 +1,17 @@
 import { ContractTransaction, BigNumber, BigNumberish, Signer } from 'ethers';
+<<<<<<< HEAD
 import { MediaData, BidShares, Ask, Bid } from './types';
+=======
+import { MediaData, BidShares, Ask, EIP712Signature, EIP712Domain } from './types';
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
 declare class ZapMedia {
+    getSigNonces(addess: any): void;
     networkId: number;
     mediaIndex: any;
     media: any;
     market: any;
     signer: Signer;
+    readOnly: boolean;
     constructor(networkId: number, signer: Signer, mediaIndex?: number);
     /*********************
      * Zap View Methods
@@ -44,6 +50,15 @@ declare class ZapMedia {
      */
     fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
     /**
+<<<<<<< HEAD
+=======
+     * Fetches the permit nonce on the specified media id for the owner address
+     * @param address
+     * @param mediaId
+     */
+    fetchPermitNonce(address: string, mediaId: BigNumberish): Promise<BigNumber>;
+    /**
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
      * Fetches the creator for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -81,6 +96,12 @@ declare class ZapMedia {
      */
     fetchIsApprovedForAll(owner: string, operator: string): Promise<boolean>;
     updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction>;
+    /**fetches the media specified Signature nonce. if signature nonce does not exist, function
+     * will return an error message
+     * @param address
+     * @returns sigNonce
+     */
+    fetchMintWithSigNonce(address: string): Promise<BigNumber>;
     /***********************
      * ERC-721 Write Methods
      ***********************
@@ -118,6 +139,14 @@ declare class ZapMedia {
      */
     mint(mediaData: MediaData, bidShares: BidShares): Promise<ContractTransaction>;
     /**
+     * Mints a new piece of media on an instance of the Zap Media Contract
+     * @param creator
+     * @param mediaData
+     * @param bidShares
+     * @param sig
+     */
+    mintWithSig(creator: string, mediaData: MediaData, bidShares: BidShares, sig: EIP712Signature): Promise<ContractTransaction>;
+    /**
      * Sets an ask on the specified media on an instance of the Zap Media Contract
      * @param mediaId
      * @param ask
@@ -135,6 +164,13 @@ declare class ZapMedia {
      */
     updateMetadataURI(mediaId: BigNumberish, metadataURI: string): Promise<ContractTransaction>;
     /**
+     * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+     * @param sender
+     * @param mediaId
+     * @param sig
+     */
+    permit(spender: string, tokenId: BigNumberish, sig: EIP712Signature): Promise<ContractTransaction>;
+    /**
      * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -151,5 +187,13 @@ declare class ZapMedia {
      * @param bid
      */
     isValidBid(mediaId: BigNumberish, bid: any): Promise<boolean>;
+    /****************
+   * Miscellaneous
+   * **************
+   */
+    /**
+     * Returns the EIP-712 Domain for an instance of the Zora Media Contract
+     */
+    eip712Domain(): EIP712Domain;
 }
 export default ZapMedia;

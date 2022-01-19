@@ -54,7 +54,16 @@ var ZapMedia = /** @class */ (function () {
         }
         else {
         }
+        if (ethers_1.Signer.isSigner(signer)) {
+            this.readOnly = false;
+        }
+        else {
+            this.readOnly = true;
+        }
     }
+    ZapMedia.prototype.getSigNonces = function (addess) {
+        throw new Error('Method not implemented.');
+    };
     /*********************
      * Zap View Methods
      *********************
@@ -148,6 +157,21 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
+<<<<<<< HEAD
+=======
+     * Fetches the permit nonce on the specified media id for the owner address
+     * @param address
+     * @param mediaId
+     */
+    ZapMedia.prototype.fetchPermitNonce = function (address, mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.media.getPermitNonce(address, mediaId)];
+            });
+        });
+    };
+    /**
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
      * Fetches the creator for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -237,8 +261,19 @@ var ZapMedia = /** @class */ (function () {
      */
     ZapMedia.prototype.fetchApproved = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
+            var err_2;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.getApproved(mediaId)];
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        err_2 = _a.sent();
+                        (0, tiny_invariant_1.default)(false, 'ZapMedia (fetchApproved): TokenId does not exist.');
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
             });
         });
     };
@@ -256,7 +291,11 @@ var ZapMedia = /** @class */ (function () {
     };
     ZapMedia.prototype.updateContentURI = function (mediaId, tokenURI) {
         return __awaiter(this, void 0, void 0, function () {
+<<<<<<< HEAD
             var err_2;
+=======
+            var err_3;
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -264,11 +303,33 @@ var ZapMedia = /** @class */ (function () {
                         return [4 /*yield*/, this.media.updateTokenURI(mediaId, tokenURI)];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
+<<<<<<< HEAD
                         err_2 = _a.sent();
+=======
+                        err_3 = _a.sent();
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
                         (0, tiny_invariant_1.default)(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
+            });
+        });
+    };
+    /**fetches the media specified Signature nonce. if signature nonce does not exist, function
+     * will return an error message
+     * @param address
+     * @returns sigNonce
+     */
+    ZapMedia.prototype.fetchMintWithSigNonce = function (address) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                    (0, utils_1.validateAndParseAddress)(address);
+                }
+                catch (err) {
+                    return [2 /*return*/, Promise.reject(err.message)];
+                }
+                return [2 /*return*/, this.media.getSigNonces(address)];
             });
         });
     };
@@ -321,7 +382,11 @@ var ZapMedia = /** @class */ (function () {
      */
     ZapMedia.prototype.safeTransferFrom = function (from, to, mediaId) {
         return __awaiter(this, void 0, void 0, function () {
+<<<<<<< HEAD
             var err_3;
+=======
+            var err_4;
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -331,7 +396,11 @@ var ZapMedia = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 3];
                     case 2:
+<<<<<<< HEAD
                         err_3 = _a.sent();
+=======
+                        err_4 = _a.sent();
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
                         (0, tiny_invariant_1.default)(false, 'ZapMedia (safeTransferFrom): TokenId does not exist.');
                         return [3 /*break*/, 3];
                     case 3:
@@ -370,6 +439,29 @@ var ZapMedia = /** @class */ (function () {
                         gasEstimate = _a.sent();
                         return [2 /*return*/, this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate })];
                 }
+            });
+        });
+    };
+    /**
+     * Mints a new piece of media on an instance of the Zap Media Contract
+     * @param creator
+     * @param mediaData
+     * @param bidShares
+     * @param sig
+     */
+    ZapMedia.prototype.mintWithSig = function (creator, mediaData, bidShares, sig) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                    // this.ensureNotReadOnly()
+                    (0, utils_1.validateURI)(mediaData.metadataURI);
+                    (0, utils_1.validateURI)(mediaData.tokenURI);
+                    (0, utils_1.validateBidShares)(bidShares.collabShares, bidShares.owner, bidShares.owner);
+                }
+                catch (err) {
+                    return [2 /*return*/, Promise.reject(err.message)];
+                }
+                return [2 /*return*/, this.media.mintWithSig(creator, mediaData, bidShares, sig)];
             });
         });
     };
@@ -415,7 +507,11 @@ var ZapMedia = /** @class */ (function () {
      */
     ZapMedia.prototype.removeAsk = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
+<<<<<<< HEAD
             var ask, err_4;
+=======
+            var ask, err_5;
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.market.currentAskForToken(this.media.address, mediaId)];
@@ -429,7 +525,11 @@ var ZapMedia = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 5];
                     case 4:
+<<<<<<< HEAD
                         err_4 = _a.sent();
+=======
+                        err_5 = _a.sent();
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
                         (0, tiny_invariant_1.default)(false, 'ZapMedia (removeAsk): TokenId does not exist.');
                         return [3 /*break*/, 5];
                     case 5:
@@ -466,6 +566,26 @@ var ZapMedia = /** @class */ (function () {
                         gasEstimate = _a.sent();
                         return [2 /*return*/, this.media.updateTokenMetadataURI(mediaId, metadataURI, { gasLimit: gasEstimate })];
                 }
+            });
+        });
+    };
+    /**
+     * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+     * @param sender
+     * @param mediaId
+     * @param sig
+     */
+    ZapMedia.prototype.permit = function (spender, tokenId, sig) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                // try {
+                //   this.ensureNotReadOnly()
+                // } catch (err) {
+                //   if (err instanceof Error) {
+                //     return Promise.reject(err.message)
+                //   }
+                // }
+                return [2 /*return*/, this.media.permit(spender, tokenId, sig)];
             });
         });
     };
@@ -514,6 +634,24 @@ var ZapMedia = /** @class */ (function () {
                 }
             });
         });
+    };
+    /****************
+   * Miscellaneous
+   * **************
+   */
+    /**
+     * Returns the EIP-712 Domain for an instance of the Zora Media Contract
+     */
+    ZapMedia.prototype.eip712Domain = function () {
+        // Due to a bug in ganache-core, set the chainId to 1 if its a local blockchain
+        // https://github.com/trufflesuite/ganache-core/issues/515
+        var chainId = this.networkId == 1337 ? 1 : this.networkId;
+        return {
+            name: 'TEST COLLECTION',
+            version: '1',
+            chainId: chainId,
+            verifyingContract: this.media.address,
+        };
     };
     return ZapMedia;
 }());

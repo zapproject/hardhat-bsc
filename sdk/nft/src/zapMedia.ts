@@ -8,22 +8,36 @@ import {
   Wallet,
 } from 'ethers';
 
-import { contractAddresses, Decimal, validateBidShares, validateURI } from './utils';
+import {
+  contractAddresses,
+  Decimal,
+  validateBidShares,
+  validateURI,
+  validateAndParseAddress,
+} from './utils';
 
 import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
+<<<<<<< HEAD
 import { MediaData, BidShares, Ask, Bid} from './types';
+=======
+import { MediaData, BidShares, Ask, EIP712Signature, EIP712Domain } from './types';
+>>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
 
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
 import { sign } from 'crypto';
 
 class ZapMedia {
+  getSigNonces(addess: any) {
+    throw new Error('Method not implemented.');
+  }
   networkId: number;
   mediaIndex: any;
   media: any;
   market: any;
   signer: Signer;
+  public readOnly: boolean;
 
   constructor(networkId: number, signer: Signer, mediaIndex?: number) {
     this.networkId = networkId;
@@ -45,6 +59,12 @@ class ZapMedia {
         signer,
       );
     } else {
+    }
+
+    if (Signer.isSigner(signer)) {
+      this.readOnly = false;
+    } else {
+      this.readOnly = true;
     }
   }
 
@@ -117,6 +137,15 @@ class ZapMedia {
   }
 
   /**
+   * Fetches the permit nonce on the specified media id for the owner address
+   * @param address
+   * @param mediaId
+   */
+  public async fetchPermitNonce(address: string, mediaId: BigNumberish): Promise<BigNumber> {
+    return this.media.getPermitNonce(address, mediaId);
+  }
+
+  /**
    * Fetches the creator for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
@@ -182,7 +211,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async fetchApproved(mediaId: BigNumberish): Promise<string> {
-    return this.media.getApproved(mediaId);
+    try {
+      return await this.media.getApproved(mediaId);
+    } catch (err) {
+      invariant(false, 'ZapMedia (fetchApproved): TokenId does not exist.');
+    }
   }
 
   /**
@@ -200,6 +233,21 @@ class ZapMedia {
     } catch (err) {
       invariant(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
     }
+  }
+
+  /**fetches the media specified Signature nonce. if signature nonce does not exist, function
+   * will return an error message
+   * @param address
+   * @returns sigNonce
+   */
+
+  public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
+    try {
+      validateAndParseAddress(address);
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+    return this.media.getSigNonces(address);
   }
 
   /***********************
@@ -290,6 +338,31 @@ class ZapMedia {
   }
 
   /**
+   * Mints a new piece of media on an instance of the Zap Media Contract
+   * @param creator
+   * @param mediaData
+   * @param bidShares
+   * @param sig
+   */
+  public async mintWithSig(
+    creator: string,
+    mediaData: MediaData,
+    bidShares: BidShares,
+    sig: EIP712Signature,
+  ): Promise<ContractTransaction> {
+    try {
+      // this.ensureNotReadOnly()
+      validateURI(mediaData.metadataURI);
+      validateURI(mediaData.tokenURI);
+      validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+
+    return this.media.mintWithSig(creator, mediaData, bidShares, sig);
+  }
+
+  /**
    * Sets an ask on the specified media on an instance of the Zap Media Contract
    * @param mediaId
    * @param ask
@@ -369,6 +442,27 @@ class ZapMedia {
   }
 
   /**
+   * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+   * @param sender
+   * @param mediaId
+   * @param sig
+   */
+  public async permit(
+    spender: string,
+    tokenId: BigNumberish,
+    sig: EIP712Signature,
+  ): Promise<ContractTransaction> {
+    // try {
+    //   this.ensureNotReadOnly()
+    // } catch (err) {
+    //   if (err instanceof Error) {
+    //     return Promise.reject(err.message)
+    //   }
+    // }
+    return this.media.permit(spender, tokenId, sig);
+  }
+
+  /**
    * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
@@ -400,5 +494,43 @@ class ZapMedia {
 
     return isAmountValid && isSellOnShareValid;
   }
+
+  /****************
+   * Miscellaneous
+   * **************
+   */
+
+  /**
+   * Returns the EIP-712 Domain for an instance of the Zora Media Contract
+   */
+  public eip712Domain(): EIP712Domain {
+    // Due to a bug in ganache-core, set the chainId to 1 if its a local blockchain
+    // https://github.com/trufflesuite/ganache-core/issues/515
+    const chainId = this.networkId == 1337 ? 1 : this.networkId;
+
+    return {
+      name: 'TEST COLLECTION',
+      version: '1',
+      chainId: chainId,
+      verifyingContract: this.media.address,
+    };
+  }
+
+  // /******************
+  //  * Private Methods
+  //  ******************
+  //  */
+
+  // /**
+  //  * Throws an error if called on a readOnly == true instance of Zora Sdk
+  //  * @private
+  //  */
+  // private ensureNotReadOnly() {
+  //   if (this.readOnly) {
+  //     throw new Error(
+  //       'ensureNotReadOnly: readOnly Zora instance cannot call contract methods that require a signer.'
+  //     )
+  //   }
+  // }
 }
 export default ZapMedia;

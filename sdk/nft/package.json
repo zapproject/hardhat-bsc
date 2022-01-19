@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "ganache": "ganache-cli --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
+    "ganache-npx": "npx ganache-cli --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
     "prepare": "npm run build",
     "build": "tsc",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register --timeout 100000 'test/**/*.ts'"
@@ -29,6 +31,8 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "assert": "^2.0.0",
+    "eth-sig-util": "^3.0.1",
     "ethers": "^5.5.2",
     "ganache-cli": "^6.12.2",
     "ganache-core": "^2.13.2",

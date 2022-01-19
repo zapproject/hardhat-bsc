@@ -1,10 +1,8 @@
 import chai, { expect, use } from 'chai';
 
-import { ethers, BigNumber, Signer, Wallet, } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 
-import { formatUnits } from 'ethers/lib/utils';
-
-import { constructAsk, constructBidShares, constructMediaData, constructBid } from '../src/utils';
+import { constructAsk, constructBidShares, constructMediaData, Decimal } from '../src/utils';
 
 import ZapMedia from '../src/zapMedia';
 
@@ -24,7 +22,8 @@ import {
   deployZapMedia,
 } from '../src/deploy';
 
-import { getSigners } from './test_utils';
+import { getSigners, signPermitMessage, signMintWithSigMessage } from './test_utils';
+import { EIP712Signature } from '../src/types';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
@@ -39,6 +38,9 @@ describe('ZapMedia', () => {
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
+  let eipSig: any;
+  let address: string;
+  let sig: any;
   let fetchMediaByIndex: any;
   let bid: any;
 
@@ -64,7 +66,7 @@ describe('ZapMedia', () => {
     it('Should throw an error if the networkId is invalid', async () => {
       expect(() => {
         new ZapMedia(300, signer);
-      }).to.throw('ZapMedia Constructor: Network Id is not supported.');
+      }).to.throw('Constructor: Network Id is not supported.');
     });
   });
 
@@ -98,9 +100,15 @@ describe('ZapMedia', () => {
           15,
           35,
         );
+        eipSig = {
+          deadline: 1000,
+          v: 0,
+          r: '0x00',
+          s: '0x00',
+        };
       });
 
-      describe('test fetchContentHash, fetchMetadataHash', () => {
+      describe('test fetchContentHash, fetchMetadataHash, fetchPermitNonce', () => {
         it('Should be able to fetch contentHash', async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
@@ -128,6 +136,82 @@ describe('ZapMedia', () => {
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
+        });
+        it('Should be able to fetch permitNonce', async () => {
+          // created wallets using privateKey because we need a wallet instance when creating a signature
+          const otherWallet: Wallet = new ethers.Wallet(
+            '0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3',
+          );
+          const account9: Wallet = new ethers.Wallet(
+            '0x915c40257f694fef7d8058fe4db4ba53f1343b592a8175ea18e7ece20d2987d7',
+          );
+
+          // connect to media contracts through ZapMedia class
+          const zap_media = new ZapMedia(1337, signer);
+          const zapMedia1 = new ZapMedia(1337, signers[1]);
+
+          // mint a token by zapMedia1 in preparation to give permit to accounts 9 and 8
+          await zapMedia1.mint(mediaData, bidShares);
+
+          // get the arguments needed for EIP712 signature standard
+          const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
+          const domain = zap_media.eip712Domain();
+          const nonce = await (await zap_media.fetchPermitNonce(otherWallet.address, 0)).toNumber();
+
+          // generate the signature
+          let eipSig: EIP712Signature = await signPermitMessage(
+            otherWallet,
+            account9.address,
+            0,
+            nonce,
+            deadline,
+            domain,
+          );
+
+          // permit account9 == give approval to account 9 for tokenId 0.
+          await zapMedia1.permit(account9.address, 0, eipSig);
+
+          // test account 9 is approved for tokenId 0
+          const firstApprovedAddr = await zapMedia1.fetchApproved(0);
+          expect(firstApprovedAddr.toLowerCase()).to.equal(account9.address.toLowerCase());
+
+          const nonce2 = await (
+            await zap_media.fetchPermitNonce(otherWallet.address, 0)
+          ).toNumber();
+
+          expect(nonce2).to.equal(nonce + 1);
+
+          // give permission to account 8 for the same tokenId
+          const account8: Wallet = new ethers.Wallet(
+            '0x81c92fdc4c4703cb0da2af8ceae63160426425935f3bb701edd53ffa5c227417',
+          );
+
+          eipSig = await signPermitMessage(
+            otherWallet,
+            account8.address,
+            0,
+            nonce2,
+            deadline,
+            domain,
+          );
+
+          await zapMedia1.permit(account8.address, 0, eipSig);
+
+          // test account 8 is approved for tokenId 0
+
+          const secondApprovedAddr = await zapMedia1.fetchApproved(0);
+          expect(secondApprovedAddr.toLowerCase()).to.equal(account8.address.toLowerCase());
+
+          const nonce3 = await (
+            await zap_media.fetchPermitNonce(otherWallet.address, 0)
+          ).toNumber();
+          expect(nonce3).to.equal(nonce2 + 1);
+
+          const tokenThatDoesntExist = 38;
+          const nonceForTokenThatDoesntExist = await (
+            await zap_media.fetchPermitNonce(otherWallet.address, tokenThatDoesntExist)
+          ).toNumber();
+          expect(nonceForTokenThatDoesntExist).to.equal(0);
         });
       });
     });
@@ -323,6 +407,137 @@ describe('ZapMedia', () => {
             parseInt(onChainBidShares.owner.value),
           );
           expect(onChainBidShares.collaborators).to.eql(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+      });
+
+      describe('#mintWithSig', () => {
+        it('throws an error if bid shares do not sum to 100', async () => {
+          let bidShareSum = 0;
+          const media = new ZapMedia(1337, signer);
+
+          bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
+
+          for (var i = 0; i < bidShares.collabShares.length; i++) {
+            bidShareSum += parseInt(bidShares.collabShares[i]);
+          }
+
+          bidShareSum += parseInt(bidShares.creator.value) + parseInt(bidShares.owner.value) + 5e18;
+
+          const otherWallet: Wallet = new ethers.Wallet(
+            '0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9',
+          );
+
+          await media
+            .mintWithSig(otherWallet.address, mediaData, bidShares, eipSig)
+
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err).to.eq(
+                `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`,
+              );
+            });
+        });
+
+        it('throws an error if the tokenURI does not begin with `https://`', async () => {
+          const otherWallet: Wallet = new ethers.Wallet(
+            '0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9',
+          );
+
+          const media = new ZapMedia(1337, signer);
+          let metadataHex = ethers.utils.formatBytes32String('Test');
+          let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+          let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+          let contentHex = ethers.utils.formatBytes32String('Test Car');
+          let contentHashRaw = ethers.utils.keccak256(contentHex);
+          let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+          // const signer1 = provider.getSigner(1);
+          const invalidMediaData = {
+            tokenURI: 'http://example.com',
+            metadataURI: 'https://metadata.com',
+            contentHash: contentHashBytes,
+            metadataHash: metadataHashBytes,
+          };
+
+          await media
+            .mintWithSig(otherWallet.address, invalidMediaData, bidShares, eipSig)
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err).to.eq('Invariant failed: http://example.com must begin with `https://`');
+            });
+        });
+
+        it('throws an error if the metadataURI does not begin with `https://`', async () => {
+          const otherWallet: Wallet = new ethers.Wallet(
+            '0x7a8c4ab64eaec15cab192c8e3bae1414de871a34c470c1c05a0f3541770686d9',
+          );
+          const media = new ZapMedia(1337, signer);
+          const invalidMediaData = {
+            tokenURI: 'https://example.com',
+            metadataURI: 'http://metadata.com',
+            contentHash: mediaData.contentHash,
+            metadataHash: mediaData.metadataHash,
+          };
+
+          await media
+            .mintWithSig(otherWallet.address, invalidMediaData, bidShares, eipSig)
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err).to.eq('Invariant failed: http://metadata.com must begin with `https://`');
+            });
+        });
+
+        it('creates a new piece of media', async () => {
+          const mainWallet: Wallet = new ethers.Wallet(
+            '0xb91c5477014656c1da52b3d4b6c03b59019c9a3b5730e61391cec269bc2e03e3',
+          );
+          const media = new ZapMedia(1337, signer);
+          const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
+          const domain = media.eip712Domain();
+          const nonce = await media.fetchMintWithSigNonce(mainWallet.address);
+          const media1ContentHash = ethers.utils.hexlify(mediaData.contentHash);
+          const media1MetadataHash = ethers.utils.hexlify(mediaData.metadataHash);
+          const eipSig = await signMintWithSigMessage(
+            mainWallet,
+            media1ContentHash,
+            media1MetadataHash,
+            Decimal.new(15).value,
+            nonce.toNumber(),
+            deadline,
+            domain,
+          );
+
+          const totalSupply = await media.fetchTotalMedia();
+          expect(totalSupply.toNumber()).to.eq(0);
+
+          await media.mintWithSig(mainWallet.address, mediaData, bidShares, eipSig);
+
+          const owner = await media.fetchOwnerOf(0);
+          const creator = await media.fetchCreator(0);
+          const onChainContentHash = await media.fetchContentHash(0);
+          const onChainMetadataHash = await media.fetchMetadataHash(0);
+          const mediaContentHash = ethers.utils.hexlify(mediaData.contentHash);
+          const mediaMetadataHash = ethers.utils.hexlify(mediaData.metadataHash);
+
+          const onChainBidShares = await media.fetchCurrentBidShares(zapMedia.address, 0);
+          const onChainContentURI = await media.fetchContentURI(0);
+          const onChainMetadataURI = await media.fetchMetadataURI(0);
+
+          expect(owner.toLowerCase()).to.eq(mainWallet.address.toLowerCase());
+          expect(creator.toLowerCase()).to.eq(mainWallet.address.toLowerCase());
+          expect(onChainContentHash).to.eq(mediaContentHash);
+          expect(onChainContentURI).to.eq(mediaData.tokenURI);
+          expect(onChainMetadataURI).to.eq(mediaData.metadataURI);
+          expect(onChainMetadataHash).to.eq(mediaMetadataHash);
+          expect(parseInt(onChainBidShares.creator.value)).to.eq(parseInt(bidShares.creator.value));
+          expect(parseInt(onChainBidShares.owner.value)).to.eq(parseInt(bidShares.owner.value));
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         });
       });
@@ -757,14 +972,54 @@ describe('ZapMedia', () => {
 
       describe('#isValidBid', () => {
         it('Should return true if the bid amount can be evenly split by current bidShares', async () => {
-          // const isValid = await zora.isValidBid(0, defaultBid)
-          // expect(isValid).toEqual(true)
-
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
+        });
+      });
+      describe('#permit', () => {
+        it('should allow a wallet to set themselves to approved with a valid signature', async () => {
+          const zap_media = new ZapMedia(1337, signer);
+          await zap_media.mint(mediaData, bidShares);
 
-          // console.log(await media.isValidBid(0,bid))
+          // created wallets using privateKey because we need a wallet instance when creating a signature
+          const mainWallet: Wallet = new ethers.Wallet(
+            '0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819',
+          );
+          const otherWallet: Wallet = new ethers.Wallet(
+            '0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3',
+          );
+
+          const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
+          const domain = zap_media.eip712Domain();
+
+          const nonce = await (await zap_media.fetchPermitNonce(mainWallet.address, 0)).toNumber();
+
+          const eipSig = await signPermitMessage(
+            mainWallet,
+            otherWallet.address,
+            0,
+            nonce,
+            deadline,
+            domain,
+          );
+
+          await zap_media.permit(otherWallet.address, 0, eipSig);
+          const approved = await zap_media.fetchApproved(0);
+
+          expect(approved.toLowerCase()).to.equal(otherWallet.address.toLowerCase());
+
+          // test to see if approved for another token. should fail.
+          await zap_media
+            .fetchApproved(1)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+              expect(err.message).to.equal(
+                'Invariant failed: ZapMedia (fetchApproved): TokenId does not exist.',
+              );
+            });
         });
       });
       describe('#fetchMedia', () => {
@@ -791,6 +1046,35 @@ describe('ZapMedia', () => {
             .catch((err) => {
               expect(err.message).to.equal(
                 'Invariant failed: ZapMedia (tokenByIndex): Index out of range.',
+              );
+            });
+        });
+      });
+
+      describe('#fetchSignature', () => {
+        it('Should fetch the signature of the newly minted nonce', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          const sigNonce = await media.fetchMintWithSigNonce(await signer.getAddress());
+
+          expect(parseInt(sigNonce._hex)).to.equal(0);
+        });
+
+        it('Should Revert if address does not exist', async () => {
+          const media = new ZapMedia(1337, signer);
+
+          await media.mint(mediaData, bidShares);
+
+          await media
+            .fetchMintWithSigNonce('0x9b713D5416884d12a5BbF13Ee08B6038E74CDe')
+            .then((res) => {
+              return res;
+            })
+            .catch((err) => {
+              expect(err).to.equal(
+                `Invariant failed: 0x9b713D5416884d12a5BbF13Ee08B6038E74CDe is not a valid address.`,
               );
             });
         });

@@ -1,5 +1,4 @@
 export const mediaFactoryAddresses = {
-
   // Localhost
   1337: '',
 
@@ -17,7 +16,6 @@ export const mediaFactoryAddresses = {
 };
 
 export const zapMarketAddresses = {
-
   // Localhost
   1337: '',
 
@@ -35,7 +33,6 @@ export const zapMarketAddresses = {
 };
 
 export const zapMediaAddresses = {
-
   // Localhost
   1337: '',
 
@@ -52,3 +49,19 @@ export const zapMediaAddresses = {
   56: '0x795Ef08D74295f773b6C6D197fC5c6eFD5610B31',
 };
 
+export const zapAuctionAddresses = {
+  // Localhost
+  1337: '',
+
+  // Rinkeby
+  4: '0x1580946938a30e1F010c64854ee77D345887A535',
+
+  // Ethereum Mainnet
+  1: '0xceED738456A64C55640bf211c659D05B108D7E93',
+
+  // BSC Testnet
+  97: '0x798a9CDd42ed45735d0704B350Ee6D86e4B1abdF',
+
+  // BSC Mainnet
+  56: '0x4efdfA627e71E2891EF05a523EE1e619E55Deea4',
+};
