@@ -6,10 +6,15 @@ import {
   ethers,
   Signer,
   Wallet,
-
 } from 'ethers';
 
-import { contractAddresses, Decimal, validateBidShares, validateURI, validateAndParseAddress } from './utils';
+import {
+  contractAddresses,
+  Decimal,
+  validateBidShares,
+  validateURI,
+  validateAndParseAddress,
+} from './utils';
 
 import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
@@ -18,7 +23,6 @@ import { MediaData, BidShares, Ask, EIP712Signature, EIP712Domain } from './type
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
 import { sign } from 'crypto';
-
 
 class ZapMedia {
   getSigNonces(addess: any) {
@@ -29,7 +33,7 @@ class ZapMedia {
   media: any;
   market: any;
   signer: Signer;
-  public readOnly: boolean
+  public readOnly: boolean;
 
   constructor(networkId: number, signer: Signer, mediaIndex?: number) {
     this.networkId = networkId;
@@ -54,9 +58,9 @@ class ZapMedia {
     }
 
     if (Signer.isSigner(signer)) {
-      this.readOnly = false
+      this.readOnly = false;
     } else {
-      this.readOnly = true
+      this.readOnly = true;
     }
   }
 
@@ -133,13 +137,9 @@ class ZapMedia {
    * @param address
    * @param mediaId
    */
-  public async fetchPermitNonce(
-    address: string,
-    mediaId: BigNumberish
-  ): Promise<BigNumber> {
-    return this.media.getPermitNonce(address, mediaId)
+  public async fetchPermitNonce(address: string, mediaId: BigNumberish): Promise<BigNumber> {
+    return this.media.getPermitNonce(address, mediaId);
   }
-
 
   /**
    * Fetches the creator for the specified media on an instance of the Zap Media Contract
@@ -218,23 +218,20 @@ class ZapMedia {
     }
   }
 
-/**fetches the media specified Signature nonce. if signature nonce does not exist, function
- * will return an error message
- * @param address
- * @returns sigNonce
- */
-
+  /**fetches the media specified Signature nonce. if signature nonce does not exist, function
+   * will return an error message
+   * @param address
+   * @returns sigNonce
+   */
 
   public async fetchMintWithSigNonce(address: string): Promise<BigNumber> {
-  try {
-    validateAndParseAddress(address);
-  } catch (err: any) {
-    return Promise.reject(err.message);
-  }
+    try {
+      validateAndParseAddress(address);
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
     return this.media.getSigNonces(address);
-
   }
-
 
   /***********************
    * ERC-721 Write Methods
@@ -323,7 +320,6 @@ class ZapMedia {
     return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
   }
 
-
   /**
    * Mints a new piece of media on an instance of the Zap Media Contract
    * @param creator
@@ -331,25 +327,23 @@ class ZapMedia {
    * @param bidShares
    * @param sig
    */
-   public async mintWithSig(
+  public async mintWithSig(
     creator: string,
     mediaData: MediaData,
     bidShares: BidShares,
-    sig: EIP712Signature
+    sig: EIP712Signature,
   ): Promise<ContractTransaction> {
-
     try {
       // this.ensureNotReadOnly()
-      validateURI(mediaData.metadataURI)
-      validateURI(mediaData.tokenURI)
+      validateURI(mediaData.metadataURI);
+      validateURI(mediaData.tokenURI);
       validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
     } catch (err: any) {
       return Promise.reject(err.message);
     }
 
-    return this.media.mintWithSig(creator, mediaData, bidShares, sig)
+    return this.media.mintWithSig(creator, mediaData, bidShares, sig);
   }
-
 
   /**
    * Sets an ask on the specified media on an instance of the Zap Media Contract
@@ -428,7 +422,7 @@ class ZapMedia {
   public async permit(
     spender: string,
     tokenId: BigNumberish,
-    sig: EIP712Signature
+    sig: EIP712Signature,
   ): Promise<ContractTransaction> {
     // try {
     //   this.ensureNotReadOnly()
@@ -437,7 +431,7 @@ class ZapMedia {
     //     return Promise.reject(err.message)
     //   }
     // }
-    return this.media.permit(spender, tokenId, sig)
+    return this.media.permit(spender, tokenId, sig);
   }
 
   /**
@@ -474,9 +468,9 @@ class ZapMedia {
   }
 
   /****************
- * Miscellaneous
- * **************
- */
+   * Miscellaneous
+   * **************
+   */
 
   /**
    * Returns the EIP-712 Domain for an instance of the Zora Media Contract
@@ -484,14 +478,14 @@ class ZapMedia {
   public eip712Domain(): EIP712Domain {
     // Due to a bug in ganache-core, set the chainId to 1 if its a local blockchain
     // https://github.com/trufflesuite/ganache-core/issues/515
-    const chainId = this.networkId == 1337 ? 1 : this.networkId
+    const chainId = this.networkId == 1337 ? 1 : this.networkId;
 
     return {
       name: 'TEST COLLECTION',
       version: '1',
       chainId: chainId,
       verifyingContract: this.media.address,
-    }
+    };
   }
 
   // /******************
