@@ -382,19 +382,37 @@ describe('AuctionHouse', () => {
       describe.only('#setAuctionReservePrice', () => {
         const duration = 60 * 60 * 24;
         const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+        // An instance of the AuctionHouse class that will be connected to signer[0]
         let auctionHouse: AuctionHouse;
+
+        // An instance of the AuctionHouse class that will be connected to signer[9]
         let curatorConnected: AuctionHouse;
+
+        // Will be set to signers[9]
         let curator: Signer;
+
+        // Will be set to signers[4]
         let bidder: Signer;
 
         beforeEach(async () => {
+          // Assign the curator to signer[9]
           curator = signers[9];
+
+          // Assign the bidder to signer[4]
           bidder = signers[4];
+
+          // The owner(signers[0]) connected to the AuctionHouse class as a signer
           auctionHouse = new AuctionHouse(1337, signer);
+
+          // The curator(signers[9]) connected to the AuctionHouse class as a signer
           curatorConnected = new AuctionHouse(1337, curator);
 
+          // The owner(signer[0]) of tokenId 0 approves the auctionHouse
           await media.approve(auctionHouse.auctionHouse.address, 0);
 
+          // The owner(signer[0]) creates the auction
+          // The curator is neither a zero address or token owner so the curator has to invoke startAuction
           await auctionHouse.createAuction(
             0,
             mediaAddress,
@@ -405,6 +423,7 @@ describe('AuctionHouse', () => {
             token.address,
           );
 
+          // Transfer 1000 tokens to the bidder
           await token.mint(await bidder.getAddress(), 1000);
         });
 
