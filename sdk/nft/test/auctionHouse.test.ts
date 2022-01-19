@@ -378,6 +378,75 @@ describe('AuctionHouse', () => {
           expect(createdAuction.auctionCurrency).to.equal(token.address);
         });
       });
+
+      describe.only('#setAuctionReservePrice', () => {
+        const duration = 60 * 60 * 24;
+        const reservePrice = BigNumber.from(10).pow(18).div(2);
+        let auctionHouse: AuctionHouse;
+        let curatorConnected: AuctionHouse;
+        let curator: Signer;
+        let bidder: Signer;
+
+        beforeEach(async () => {
+          curator = signers[9];
+          bidder = signers[4];
+          auctionHouse = new AuctionHouse(1337, signer);
+          curatorConnected = new AuctionHouse(1337, curator);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            0,
+            await curator.getAddress(),
+            0,
+            token.address,
+          );
+
+          await token.mint(await bidder.getAddress(), 1000);
+        });
+
+        it('Should set the auction reserve price when called by the curator', async () => {
+          // The curator(signer[4]) connected to the AuctionHouse class
+          // The curator invokes the setAuctionReservePrice
+          await curatorConnected.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+
+          // Fetches the details from auction id 0
+          const createdAuction = await curatorConnected.fetchAuction(0);
+
+          // The returned tokenId should equal 0
+          expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
+
+          // The returned mediaContract address should equal the address the tokenId belongs to
+          expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
+
+          // The returned auction approval status should equal true after the curator invokes startAuction
+          expect(createdAuction.approved).to.be.true;
+
+          // The returned duration should equal the duration set on createAuction
+          expect(parseInt(createdAuction.duration._hex)).to.equal(duration);
+
+          // The returned curatorFeePercentage should equal the fee set on createAuction
+          expect(createdAuction.curatorFeePercentage).to.equal(0);
+
+          // The returned reservePrice should equal the amount the curator set on setAuctionReservePrice
+          expect(parseInt(createdAuction.reservePrice._hex)).to.equal(200);
+
+          // The returned tokenId owner should equal the address who minted
+          expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
+
+          // The returned curator should equal the address set on createAuction
+          expect(createdAuction.curator).to.equal(await curator.getAddress());
+
+          // The returned currency should equal the currency set on createAuction
+          expect(createdAuction.auctionCurrency).to.equal(token.address);
+        });
+      });
     });
   });
 });
