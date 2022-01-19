@@ -1,6 +1,8 @@
 import chai, { expect, use } from 'chai';
 
-import { ethers, BigNumber, Signer, Wallet } from 'ethers';
+import { ethers, BigNumber, Signer, Wallet, } from 'ethers';
+
+import { formatUnits } from 'ethers/lib/utils';
 
 import { constructAsk, constructBidShares, constructMediaData, constructBid } from '../src/utils';
 
@@ -457,7 +459,7 @@ describe('ZapMedia', () => {
       });
 
       describe('#setbid', () => {
-        it.only('creates a new bid on chain', async () => {
+        it('creates a new bid on chain', async () => {
           
           bid = constructBid(
           token.address, 
@@ -480,18 +482,40 @@ describe('ZapMedia', () => {
             await signer1.getAddress(),
           );
 
-          await token.mint(signer1.getAddress(), 200);
-          
-          
-          // expect(nullOnChainBid.currency).to.equal(ethers.constants.AddressZero);
-          // await zap1.setBid(0, bid)
+          await token.mint(signer1.getAddress(), 300);
 
-        //   const onChainBid = await zap1.fetchCurrentBidForBidder(
-        //     zapMedia.address,
-        //     0,
-        //     await signer1.getAddress(),
-        //   );
-        // });
+          await token.connect(signer1).approve(zapMarket.address, bid.amount);
+          //console.log(await (await signer1.getBalance())._hex)
+          
+          expect(nullOnChainBid.currency).to.equal(ethers.constants.AddressZero);
+          
+          await zap1.setBid(0, bid)
+
+          const onChainBid = await zap1.fetchCurrentBidForBidder(
+            zapMedia.address,
+            0,
+            await signer1.getAddress(),
+          );
+
+          expect(parseFloat(formatUnits(onChainBid.amount, 'wei'))).to.equal(
+            parseFloat(formatUnits(onChainBid.amount, 'wei'))
+          );
+
+          expect(onChainBid.currency.toLowerCase()).to.equal(
+            bid.currency.toLowerCase()
+          );
+
+          expect(onChainBid.bidder.toLowerCase()).to.equal(
+            bid.bidder.toLowerCase()
+          );
+
+          expect(onChainBid.recipient.toLowerCase()).to.equal(
+            bid.recipient.toLowerCase()
+          );
+
+          expect(onChainBid.sellOnShare.value._hex).to.equal(
+            bid.sellOnShare.value._hex);
+          
       });
 
       describe('#removeAsk', () => {
