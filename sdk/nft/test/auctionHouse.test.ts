@@ -465,6 +465,15 @@ describe('AuctionHouse', () => {
           // The returned currency should equal the currency set on createAuction
           expect(createdAuction.auctionCurrency).to.equal(token.address);
         });
+
+        it('Should set the auction reserve price when called by the token owner', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner invokes the setAuctionReservePrice
+          await auctionHouse.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+        });
       });
     });
   });
