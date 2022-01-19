@@ -2,7 +2,7 @@ import chai, { expect, use } from 'chai';
 
 import { ethers, BigNumber, Signer, Wallet } from 'ethers';
 
-import { constructAsk, constructBidShares, constructMediaData } from '../src/utils';
+import { constructAsk, constructBidShares, constructMediaData, constructBid } from '../src/utils';
 
 import ZapMedia from '../src/zapMedia';
 
@@ -38,6 +38,7 @@ describe('ZapMedia', () => {
   let signer: any;
   let zapMedia: any;
   let fetchMediaByIndex: any;
+  let bid: any;
 
   const signers = getSigners(provider);
 
@@ -456,12 +457,41 @@ describe('ZapMedia', () => {
       });
 
       describe('#setbid', () => {
-        // it('creates a new bid on chain', async () => {
-        //   const zap = new ZapMedia(1337, signer);
-        //   await zap.mint(mediaData, bidShares);
-        //   const onChainCurrentBidForBidder = await zap.fetchCurrentBidForBidder(zapMedia.address, 0);
-        //   const nullOnChainBid = await zap.()
-        // }
+        it.only('creates a new bid on chain', async () => {
+          
+          bid = constructBid(
+          token.address, 
+          200, 
+          await signers[1].getAddress(), 
+          await signers[1].getAddress(),
+          10,
+          );
+
+          const zap = new ZapMedia(1337, signer);
+
+          await zap.mint(mediaData, bidShares);
+
+          const signer1 = provider.getSigner(1);
+          const zap1 = new ZapMedia(1337, signer1);
+
+          const nullOnChainBid = await zap1.fetchCurrentBidForBidder(
+            zapMedia.address,
+            0,
+            await signer1.getAddress(),
+          );
+
+          await token.mint(signer1.getAddress(), 200);
+          
+          
+          // expect(nullOnChainBid.currency).to.equal(ethers.constants.AddressZero);
+          // await zap1.setBid(0, bid)
+
+        //   const onChainBid = await zap1.fetchCurrentBidForBidder(
+        //     zapMedia.address,
+        //     0,
+        //     await signer1.getAddress(),
+        //   );
+        // });
       });
 
       describe('#removeAsk', () => {
@@ -744,3 +774,4 @@ describe('ZapMedia', () => {
     });
   });
 });
+})

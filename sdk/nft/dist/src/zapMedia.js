@@ -194,6 +194,18 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
+     * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
+     * @param mediaId
+     * @param bidder
+     */
+    ZapMedia.prototype.fetchCurrentBidForBidder = function (mediaContractAddress, mediaId, bidder) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder)];
+            });
+        });
+    };
+    /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
     ZapMedia.prototype.fetchTotalMedia = function () {

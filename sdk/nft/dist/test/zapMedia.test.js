@@ -59,34 +59,45 @@ describe('ZapMedia', function () {
     var signer;
     var zapMedia;
     var fetchMediaByIndex;
+    var bid;
     var signers = (0, test_utils_1.getSigners)(provider);
     beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
                     signer = signers[0];
                     return [4 /*yield*/, (0, deploy_1.deployZapToken)()];
                 case 1:
                     // signer = provider.getSigner(0);
-                    token = _a.sent();
+                    token = _c.sent();
                     return [4 /*yield*/, (0, deploy_1.deployZapVault)()];
                 case 2:
-                    zapVault = _a.sent();
+                    zapVault = _c.sent();
                     return [4 /*yield*/, (0, deploy_1.deployZapMarket)()];
                 case 3:
-                    zapMarket = _a.sent();
+                    zapMarket = _c.sent();
                     return [4 /*yield*/, (0, deploy_1.deployZapMediaImpl)()];
                 case 4:
-                    zapMediaImpl = _a.sent();
+                    zapMediaImpl = _c.sent();
                     return [4 /*yield*/, (0, deploy_1.deployMediaFactory)()];
                 case 5:
-                    mediaFactory = _a.sent();
+                    mediaFactory = _c.sent();
                     return [4 /*yield*/, (0, deploy_1.deployZapMedia)()];
                 case 6:
-                    zapMedia = _a.sent();
+                    zapMedia = _c.sent();
                     addresses_1.zapMarketAddresses['1337'] = zapMarket.address;
                     addresses_1.mediaFactoryAddresses['1337'] = mediaFactory.address;
                     addresses_1.zapMediaAddresses['1337'] = zapMedia.address;
+                    _a = utils_1.constructBid;
+                    _b = [token.address,
+                        200];
+                    return [4 /*yield*/, signer[1].getAddress()];
+                case 7:
+                    _b = _b.concat([_c.sent()]);
+                    return [4 /*yield*/, signer[1].getAddress()];
+                case 8:
+                    bid = _a.apply(void 0, _b.concat([_c.sent(), 10]));
                     return [2 /*return*/];
             }
         });
@@ -676,13 +687,30 @@ describe('ZapMedia', function () {
                     });
                 }); });
             });
-            describe('#setbid', function () {
-                // it('creates a new bid on chain', async () => {
-                //   const zap = new ZapMedia(1337, signer);
-                //   await zap.mint(mediaData, bidShares);
-                //   const onChainCurrentBidForBidder = await zap.fetchCurrentBidForBidder(zapMedia.address, 0);
-                //   const nullOnChainBid = await zap.()
-                // }
+            describe.only('#setbid', function () {
+                it.only('creates a new bid on chain', function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var zap, signer1, zap1, nullOnChainBid, _a, _b, _c;
+                    return __generator(this, function (_d) {
+                        switch (_d.label) {
+                            case 0:
+                                zap = new zapMedia_1.default(1337, signer);
+                                return [4 /*yield*/, zap.mint(mediaData, bidShares)];
+                            case 1:
+                                _d.sent();
+                                signer1 = provider.getSigner(1);
+                                zap1 = new zapMedia_1.default(1337, signer1);
+                                _b = (_a = zap1).fetchCurrentBidForBidder;
+                                _c = [zapMedia.address,
+                                    0];
+                                return [4 /*yield*/, signer1.getAddress()];
+                            case 2: return [4 /*yield*/, _b.apply(_a, _c.concat([_d.sent()]))];
+                            case 3:
+                                nullOnChainBid = _d.sent();
+                                (0, chai_1.expect)(nullOnChainBid.currency).to.equal(ethers_1.ethers.constants.AddressZero);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
             });
             describe('#removeAsk', function () {
                 it('Should throw an error if the removeAsk tokenId does not exist', function () { return __awaiter(void 0, void 0, void 0, function () {

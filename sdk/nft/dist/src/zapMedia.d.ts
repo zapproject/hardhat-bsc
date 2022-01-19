@@ -1,5 +1,5 @@
 import { ContractTransaction, BigNumber, BigNumberish, Signer } from 'ethers';
-import { MediaData, BidShares, Ask } from './types';
+import { MediaData, BidShares, Ask, Bid } from './types';
 declare class ZapMedia {
     networkId: number;
     mediaIndex: any;
@@ -58,6 +58,12 @@ declare class ZapMedia {
      * @param mediaId
      */
     fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask>;
+    /**
+     * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
+     * @param mediaId
+     * @param bidder
+     */
+    fetchCurrentBidForBidder(mediaContractAddress: string, mediaId: BigNumberish, bidder: string): Promise<Bid>;
     /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */

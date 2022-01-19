@@ -12,7 +12,7 @@ import { contractAddresses, Decimal, validateBidShares, validateURI } from './ut
 
 import { zapMediaAbi, zapMarketAbi } from './contract/abi';
 
-import { MediaData, BidShares, Ask } from './types';
+import { MediaData, BidShares, Ask, Bid} from './types';
 
 import invariant from 'tiny-invariant';
 import { timeStamp } from 'console';
@@ -146,6 +146,19 @@ class ZapMedia {
    */
   public async fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask> {
     return this.market.currentAskForToken(mediaAddress, mediaId);
+  }
+
+  /**
+   * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
+   * @param mediaId
+   * @param bidder
+   */
+   public async fetchCurrentBidForBidder(
+    mediaContractAddress: string,
+    mediaId: BigNumberish,
+    bidder: string,
+  ): Promise<Bid> {
+    return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder)
   }
 
   /**
@@ -304,6 +317,17 @@ class ZapMedia {
       return this.media.setAsk(mediaId, ask);
     }
   }
+
+  /**
+   * Sets a bid on the specified media on an instance of the Zora Media Contract
+   * @param mediaId
+   * @param bid
+   */
+   public async setBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction> {
+
+    return this.media.setBid(mediaId, bid)
+  }
+
 
   /**
    * Removes the ask on the specified media on an instance of the Zap Media Contract
