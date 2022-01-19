@@ -427,12 +427,28 @@ describe('AuctionHouse', () => {
           await token.mint(await bidder.getAddress(), 1000);
         });
 
-        it('Should revert if the auction id does not exist', async () => {
+        it('Should reject if the auction id does not exist', async () => {
           // The owner(signer[0]) connected to the AuctionHouse class
           // The owner attempts invoke the setAuctionReservePrice on a non existent auction id
           await auctionHouse.setAuctionReservePrice(1, 200).catch((err) => {
             expect(err.message).to.equal(
               'Invariant failed: AuctionHouse (setAuctionReservePrice): AuctionId does not exist.',
+            );
+          });
+        });
+
+        it('Should reject if not called by the curator or owner', async () => {
+          // Bad signer
+          const badSigner = signers[8];
+
+          // AuctionHouse class instance
+          const badSignerConnected = new AuctionHouse(1337, badSigner);
+
+          // The badSigner(signer[8]) connected to the AuctionHouse class
+          // The badSigner attempts invoke the setAuctionReservePrice when its not the curator or token owner
+          await badSignerConnected.setAuctionReservePrice(0, 200).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
             );
           });
         });

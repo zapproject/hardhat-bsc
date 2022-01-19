@@ -129,8 +129,17 @@ class AuctionHouse {
     // If the fetched media returns a zero address this means the auction does not exist and throw an error
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(false, 'AuctionHouse (setAuctionReservePrice): AuctionId does not exist.');
+    } else if (
+      (await this.signer.getAddress()) !== auctionInfo.curator &&
+      (await this.signer.getAddress()) !== auctionInfo.tokenOwner
+    ) {
+      invariant(
+        false,
+        'AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
+      );
+    } else {
+      return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
     }
-    return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
   }
 }
 
