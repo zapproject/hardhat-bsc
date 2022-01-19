@@ -364,7 +364,7 @@ describe('AuctionHouse', () => {
         });
       });
 
-      describe.only('#setAuctionReservePrice', () => {
+      describe('#setAuctionReservePrice', () => {
         const duration = 60 * 60 * 24;
         const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -434,6 +434,22 @@ describe('AuctionHouse', () => {
           await badSignerConnected.setAuctionReservePrice(0, 200).catch((err) => {
             expect(err.message).to.equal(
               'Invariant failed: AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
+            );
+          });
+        });
+
+        it('Should reject if the auction already started', async () => {
+          // The owner(signer[0]) connected to the AuctionHouse class
+          // The owner invokes the setAuctionReservePrice
+          await auctionHouse.setAuctionReservePrice(0, 200);
+
+          // The curator invokes startAuction
+          await curatorConnected.startAuction(0, true);
+
+          // The owner attempts to invoke the setAuctionReserverPrice after the auction has already started
+          await auctionHouse.setAuctionReservePrice(0, 200).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (setAuctionReservePrice): Auction has already started.',
             );
           });
         });

@@ -137,6 +137,8 @@ class AuctionHouse {
         false,
         'AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
       );
+    } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
+      invariant(false, 'AuctionHouse (setAuctionReservePrice): Auction has already started.');
     } else {
       return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
     }
