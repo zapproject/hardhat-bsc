@@ -6,7 +6,7 @@ import {
   ethers,
   Signer,
   Wallet,
-} from 'ethers';
+} from "ethers";
 
 import {
   contractAddresses,
@@ -14,23 +14,26 @@ import {
   validateBidShares,
   validateURI,
   validateAndParseAddress,
-} from './utils';
+} from "./utils";
 
-import { zapMediaAbi, zapMarketAbi } from './contract/abi';
+import { zapMediaAbi, zapMarketAbi } from "./contract/abi";
 
-<<<<<<< HEAD
-import { MediaData, BidShares, Ask, Bid} from './types';
-=======
-import { MediaData, BidShares, Ask, EIP712Signature, EIP712Domain } from './types';
->>>>>>> 5b0ad5e3deab83711c6bc86310c39a7dbd3c265f
+import {
+  MediaData,
+  BidShares,
+  Ask,
+  Bid,
+  EIP712Signature,
+  EIP712Domain,
+} from "./types";
 
-import invariant from 'tiny-invariant';
-import { timeStamp } from 'console';
-import { sign } from 'crypto';
+import invariant from "tiny-invariant";
+import { timeStamp } from "console";
+import { sign } from "crypto";
 
 class ZapMedia {
   getSigNonces(addess: any) {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
   networkId: number;
   mediaIndex: any;
@@ -49,14 +52,14 @@ class ZapMedia {
     this.market = new ethers.Contract(
       contractAddresses(networkId).zapMarketAddress,
       zapMarketAbi,
-      signer,
+      signer
     );
 
     if (mediaIndex === undefined) {
       this.media = new ethers.Contract(
         contractAddresses(networkId).zapMediaAddress,
         zapMediaAbi,
-        signer,
+        signer
       );
     } else {
     }
@@ -90,11 +93,14 @@ class ZapMedia {
    * @param owner
    * @param index
    */
-  public async fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber> {
+  public async fetchMediaOfOwnerByIndex(
+    owner: string,
+    index: BigNumberish
+  ): Promise<BigNumber> {
     if (owner === ethers.constants.AddressZero) {
       invariant(
         false,
-        'ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.',
+        "ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
       );
     }
     return this.media.tokenOfOwnerByIndex(owner, index);
@@ -108,7 +114,7 @@ class ZapMedia {
     try {
       return await this.media.tokenURI(mediaId);
     } catch {
-      invariant(false, 'ZapMedia (fetchContentURI): TokenId does not exist.');
+      invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
     }
   }
 
@@ -141,7 +147,10 @@ class ZapMedia {
    * @param address
    * @param mediaId
    */
-  public async fetchPermitNonce(address: string, mediaId: BigNumberish): Promise<BigNumber> {
+  public async fetchPermitNonce(
+    address: string,
+    mediaId: BigNumberish
+  ): Promise<BigNumber> {
     return this.media.getPermitNonce(address, mediaId);
   }
 
@@ -153,7 +162,7 @@ class ZapMedia {
     try {
       await this.media.ownerOf(mediaId);
     } catch (err: any) {
-      invariant(false, 'ZapMedia (fetchCreator): TokenId does not exist.');
+      invariant(false, "ZapMedia (fetchCreator): TokenId does not exist.");
     }
     return this.media.getTokenCreators(mediaId);
   }
@@ -164,7 +173,7 @@ class ZapMedia {
    */
   public async fetchCurrentBidShares(
     mediaAddress: string,
-    mediaId: BigNumberish,
+    mediaId: BigNumberish
   ): Promise<BidShares> {
     return this.market.bidSharesForToken(mediaAddress, mediaId);
   }
@@ -173,7 +182,10 @@ class ZapMedia {
    * Fetches the current ask for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask> {
+  public async fetchCurrentAsk(
+    mediaAddress: string,
+    mediaId: BigNumberish
+  ): Promise<Ask> {
     return this.market.currentAskForToken(mediaAddress, mediaId);
   }
 
@@ -182,12 +194,12 @@ class ZapMedia {
    * @param mediaId
    * @param bidder
    */
-   public async fetchCurrentBidForBidder(
+  public async fetchCurrentBidForBidder(
     mediaContractAddress: string,
     mediaId: BigNumberish,
-    bidder: string,
+    bidder: string
   ): Promise<Bid> {
-    return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder)
+    return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder);
   }
 
   /**
@@ -200,7 +212,7 @@ class ZapMedia {
     let totalMedia = await this.fetchTotalMedia();
 
     if (index > parseInt(totalMedia._hex) - 1) {
-      invariant(false, 'ZapMedia (tokenByIndex): Index out of range.');
+      invariant(false, "ZapMedia (tokenByIndex): Index out of range.");
     }
 
     return this.media.tokenByIndex(index);
@@ -214,7 +226,7 @@ class ZapMedia {
     try {
       return await this.media.getApproved(mediaId);
     } catch (err) {
-      invariant(false, 'ZapMedia (fetchApproved): TokenId does not exist.');
+      invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
     }
   }
 
@@ -223,15 +235,21 @@ class ZapMedia {
    * @param owner
    * @param operator
    */
-  public async fetchIsApprovedForAll(owner: string, operator: string): Promise<boolean> {
+  public async fetchIsApprovedForAll(
+    owner: string,
+    operator: string
+  ): Promise<boolean> {
     return this.media.isApprovedForAll(owner, operator);
   }
 
-  public async updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction> {
+  public async updateContentURI(
+    mediaId: number,
+    tokenURI: string
+  ): Promise<ContractTransaction> {
     try {
       return await this.media.updateTokenURI(mediaId, tokenURI);
     } catch (err) {
-      invariant(false, 'ZapMedia (updateContentURI): TokenId does not exist.');
+      invariant(false, "ZapMedia (updateContentURI): TokenId does not exist.");
     }
   }
 
@@ -260,7 +278,10 @@ class ZapMedia {
    * @param to
    * @param mediaId
    */
-  public async approve(to: string, mediaId: BigNumberish): Promise<ContractTransaction> {
+  public async approve(
+    to: string,
+    mediaId: BigNumberish
+  ): Promise<ContractTransaction> {
     return this.media.approve(to, mediaId);
   }
 
@@ -271,7 +292,7 @@ class ZapMedia {
    */
   public async setApprovalForAll(
     operator: string,
-    approved: boolean,
+    approved: boolean
   ): Promise<ContractTransaction> {
     return this.media.setApprovalForAll(operator, approved);
   }
@@ -285,7 +306,7 @@ class ZapMedia {
   public async transferFrom(
     from: string,
     to: string,
-    mediaId: BigNumberish,
+    mediaId: BigNumberish
   ): Promise<ContractTransaction> {
     return this.media.transferFrom(from, to, mediaId);
   }
@@ -299,23 +320,33 @@ class ZapMedia {
   public async safeTransferFrom(
     from: string,
     to: string,
-    mediaId: BigNumberish,
+    mediaId: BigNumberish
   ): Promise<ContractTransaction> {
     try {
       await this.media.ownerOf(mediaId);
     } catch (err: any) {
-      invariant(false, 'ZapMedia (safeTransferFrom): TokenId does not exist.');
+      invariant(false, "ZapMedia (safeTransferFrom): TokenId does not exist.");
     }
 
     if (from === ethers.constants.AddressZero) {
-      invariant(false, 'ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.');
+      invariant(
+        false,
+        "ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
+      );
     }
 
     if (to === ethers.constants.AddressZero) {
-      invariant(false, 'ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.');
+      invariant(
+        false,
+        "ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+      );
     }
 
-    return this.media['safeTransferFrom(address,address,uint256)'](from, to, mediaId);
+    return this.media["safeTransferFrom(address,address,uint256)"](
+      from,
+      to,
+      mediaId
+    );
   }
 
   /**
@@ -323,11 +354,18 @@ class ZapMedia {
    * @param mintData
    * @param bidShares
    */
-  public async mint(mediaData: MediaData, bidShares: BidShares): Promise<ContractTransaction> {
+  public async mint(
+    mediaData: MediaData,
+    bidShares: BidShares
+  ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
       validateURI(mediaData.metadataURI);
-      validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
+      validateBidShares(
+        bidShares.collabShares,
+        bidShares.creator,
+        bidShares.owner
+      );
     } catch (err: any) {
       return Promise.reject(err.message);
     }
@@ -348,13 +386,17 @@ class ZapMedia {
     creator: string,
     mediaData: MediaData,
     bidShares: BidShares,
-    sig: EIP712Signature,
+    sig: EIP712Signature
   ): Promise<ContractTransaction> {
     try {
       // this.ensureNotReadOnly()
       validateURI(mediaData.metadataURI);
       validateURI(mediaData.tokenURI);
-      validateBidShares(bidShares.collabShares, bidShares.creator, bidShares.owner);
+      validateBidShares(
+        bidShares.collabShares,
+        bidShares.creator,
+        bidShares.owner
+      );
     } catch (err: any) {
       return Promise.reject(err.message);
     }
@@ -367,7 +409,10 @@ class ZapMedia {
    * @param mediaId
    * @param ask
    */
-  public async setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction> {
+  public async setAsk(
+    mediaId: BigNumberish,
+    ask: Ask
+  ): Promise<ContractTransaction> {
     // Returns the address of the tokenOwner
     const tokenOwner = await this.media.ownerOf(mediaId);
 
@@ -378,8 +423,11 @@ class ZapMedia {
     const isApproved = await this.media.getApproved(mediaId);
 
     // If the signer is not the token owner and the approved address is a zerp address
-    if (tokenOwner !== signerAddress && isApproved === ethers.constants.AddressZero) {
-      invariant(false, 'ZapMedia (setAsk): Media: Only approved or owner.');
+    if (
+      tokenOwner !== signerAddress &&
+      isApproved === ethers.constants.AddressZero
+    ) {
+      invariant(false, "ZapMedia (setAsk): Media: Only approved or owner.");
 
       // If the signer is not the token owner or if the signer is the approved address
     } else if (tokenOwner !== signerAddress || isApproved === signerAddress) {
@@ -396,27 +444,31 @@ class ZapMedia {
    * @param mediaId
    * @param bid
    */
-   public async setBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction> {
-
-    return this.media.setBid(mediaId, bid)
+  public async setBid(
+    mediaId: BigNumberish,
+    bid: Bid
+  ): Promise<ContractTransaction> {
+    return this.media.setBid(mediaId, bid);
   }
-
 
   /**
    * Removes the ask on the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
   public async removeAsk(mediaId: BigNumberish): Promise<ContractTransaction> {
-    const ask = await this.market.currentAskForToken(this.media.address, mediaId);
+    const ask = await this.market.currentAskForToken(
+      this.media.address,
+      mediaId
+    );
 
     try {
       await this.media.ownerOf(mediaId);
     } catch (err: any) {
-      invariant(false, 'ZapMedia (removeAsk): TokenId does not exist.');
+      invariant(false, "ZapMedia (removeAsk): TokenId does not exist.");
     }
 
     if (ask.amount == 0) {
-      invariant(false, 'ZapMedia (removeAsk): Ask was never set.');
+      invariant(false, "ZapMedia (removeAsk): Ask was never set.");
     } else {
       return this.media.removeAsk(mediaId);
     }
@@ -429,7 +481,7 @@ class ZapMedia {
    */
   public async updateMetadataURI(
     mediaId: BigNumberish,
-    metadataURI: string,
+    metadataURI: string
   ): Promise<ContractTransaction> {
     try {
       validateURI(metadataURI);
@@ -437,8 +489,13 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(mediaId, metadataURI);
-    return this.media.updateTokenMetadataURI(mediaId, metadataURI, { gasLimit: gasEstimate });
+    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(
+      mediaId,
+      metadataURI
+    );
+    return this.media.updateTokenMetadataURI(mediaId, metadataURI, {
+      gasLimit: gasEstimate,
+    });
   }
 
   /**
@@ -450,7 +507,7 @@ class ZapMedia {
   public async permit(
     spender: string,
     tokenId: BigNumberish,
-    sig: EIP712Signature,
+    sig: EIP712Signature
   ): Promise<ContractTransaction> {
     // try {
     //   this.ensureNotReadOnly()
@@ -466,7 +523,9 @@ class ZapMedia {
    * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async revokeApproval(mediaId: BigNumberish): Promise<ContractTransaction> {
+  public async revokeApproval(
+    mediaId: BigNumberish
+  ): Promise<ContractTransaction> {
     return this.media.revokeApproval(mediaId);
   }
 
@@ -487,9 +546,12 @@ class ZapMedia {
   public async isValidBid(mediaId: BigNumberish, bid: any): Promise<boolean> {
     const isAmountValid = await this.market.isValidBid(mediaId, bid.amount);
     const decimal100 = Decimal.new(100);
-    const currentBidShares = await this.fetchCurrentBidShares(this.media.address, mediaId);
+    const currentBidShares = await this.fetchCurrentBidShares(
+      this.media.address,
+      mediaId
+    );
     const isSellOnShareValid = bid.sellOnShare.value.lte(
-      decimal100.value.sub(currentBidShares.creator.value),
+      decimal100.value.sub(currentBidShares.creator.value)
     );
 
     return isAmountValid && isSellOnShareValid;
@@ -509,8 +571,8 @@ class ZapMedia {
     const chainId = this.networkId == 1337 ? 1 : this.networkId;
 
     return {
-      name: 'TEST COLLECTION',
-      version: '1',
+      name: "TEST COLLECTION",
+      version: "1",
       chainId: chainId,
       verifyingContract: this.media.address,
     };
