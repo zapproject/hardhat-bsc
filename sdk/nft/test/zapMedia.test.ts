@@ -794,6 +794,19 @@ describe("ZapMedia", () => {
             });
         });
 
+        it.only("Should reject if the bid currency is a zero address", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid currency to a zero address
+          bid.currency = ethers.constants.AddressZero;
+
+          // The bidder attempts to set a bid with the currenc as a zero address
+          await bidderConnected.setBid(0, bid).catch((err) => {
+            "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address.";
+          });
+        });
+
         it("creates a new bid on chain", async () => {
           // Checks the balance of the bidder before setting the bid
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());

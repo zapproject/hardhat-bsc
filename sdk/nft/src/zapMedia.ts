@@ -455,6 +455,11 @@ class ZapMedia {
     } catch (err: any) {
       invariant(false, "ZapMedia (setBid): TokenId does not exist.");
     }
+
+    if (bid.currency == ethers.constants.AddressZero) {
+      invariant(false, "ZapMedia (setBid): Currency cannot be a zero address.");
+    }
+
     return this.media.setBid(mediaId, bid);
   }
 
