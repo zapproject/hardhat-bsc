@@ -285,7 +285,7 @@ describe('AuctionHouse', () => {
         it('Should reject if the auctionId does not exist', async () => {
           await curatorConnected.startAuction(0, true).catch((err) => {
             expect(err.message).to.equal(
-              'Invariant failed: AuctionHouse (startAuction): AuctionId does not exist.',
+              'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
             );
           });
         });
@@ -417,7 +417,7 @@ describe('AuctionHouse', () => {
           // The owner attempts invoke the setAuctionReservePrice on a non existent auction id
           await auctionHouse.setAuctionReservePrice(1, 200).catch((err) => {
             expect(err.message).to.equal(
-              'Invariant failed: AuctionHouse (setAuctionReservePrice): AuctionId does not exist.',
+              'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
             );
           });
         });
@@ -500,6 +500,58 @@ describe('AuctionHouse', () => {
 
           // The returned currency should equal the currency set on createAuction
           expect(createdAuction.auctionCurrency).to.equal(token.address);
+        });
+      });
+    });
+    describe('View Functions', () => {
+      let media: any;
+      let mediaAddress: any;
+      let mediaData: any;
+      let bidShares: any;
+
+      let tokenURI =
+        'https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/';
+      let metadataURI =
+        'https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/';
+
+      beforeEach(async () => {
+        let metadataHex = ethers.utils.formatBytes32String('Test');
+        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+        let contentHex = ethers.utils.formatBytes32String('Test Car');
+        let contentHashRaw = ethers.utils.keccak256(contentHex);
+        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+        let contentHash = contentHashBytes;
+        let metadataHash = metadataHashBytes;
+
+        media = new ZapMedia(1337, signer);
+        mediaAddress = zapMediaAddresses['1337'];
+
+        bidShares = constructBidShares(
+          [
+            await provider.getSigner(1).getAddress(),
+            await provider.getSigner(2).getAddress(),
+            await provider.getSigner(3).getAddress(),
+          ],
+          [15, 15, 15],
+          15,
+          35,
+        );
+
+        mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
+
+        await media.mint(mediaData, bidShares);
+      });
+      describe('Fetch Functions', () => {
+        it('Should reject if the auction id does not exist', async () => {
+          let auctionHouse = new AuctionHouse(1337, signer);
+          await auctionHouse.fetchAuction(3).catch((err) => {
+            expect(err.message).to.equal(
+              'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
+            );
+          });
         });
       });
     });
