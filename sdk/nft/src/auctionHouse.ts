@@ -42,8 +42,14 @@ class AuctionHouse {
     this.media = new ZapMedia(chainId, signer);
   }
 
-  public async fetchAuction(auctionId: BigNumberish): Promise<Auction> {
-    return this.auctionHouse.auctions(auctionId);
+  public async fetchAuction(auctionId: BigNumberish): Promise<any> {
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(false, 'AuctionHouse (fetchAuction): AuctionId does not exist.');
+    }
+    else {
+      return auctionInfo;
+    }
   }
 
   public async createAuction(
