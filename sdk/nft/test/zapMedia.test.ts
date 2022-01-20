@@ -36,6 +36,7 @@ import {
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
 import exp from "constants";
+import { typedSignatureHash } from "eth-sig-util";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -838,7 +839,7 @@ describe("ZapMedia", () => {
           });
         });
 
-        it("creates a new bid on chain", async () => {
+        it.only("Should set a bid", async () => {
           // Checks the balance of the bidder before setting the bid
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());
 
@@ -906,6 +907,42 @@ describe("ZapMedia", () => {
           expect(onChainBid.sellOnShare.value._hex).to.equal(
             bid.sellOnShare.value._hex
           );
+        });
+
+        it.only("Should refund the original bid if the bidder bids again", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, 1000);
+
+          const bidderPreBal = await token.balanceOf(await bidder.getAddress());
+          expect(parseInt(bidderPreBal)).to.equal(1000);
+
+          const marketPretBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketPretBal)).to.equal(0);
+
+          // The bidders first bid
+          await bidderConnected.setBid(0, bid);
+
+          // ZapMarket balance after the bidder places their first bid
+          const marketPostBal1 = await token.balanceOf(zapMarket.address);
+
+          // The ZapMarket balance should equal the first bid amount after the bidder places a bid
+          expect(parseInt(marketPostBal1._hex)).to.equal(200);
+
+          // Set the bid amount to 200
+          bid.amount = 400;
+
+          // The bidders second bid
+          await bidderConnected.setBid(0, bid);
+
+          // ZapMarket balance after the bidder places their second bid
+          const marketPostBal2 = await token.balanceOf(zapMarket.address);
+
+          // The ZapMarket balance should equal the second bid amount after the bidder places their second bid
+          expect(parseInt(marketPostBal2._hex)).to.equal(400);
+
+          // const bidderPostBal = await token.balanceOf(
+          //   await bidder.getAddress()
+          // );
         });
 
         describe("#removeAsk", () => {
