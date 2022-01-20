@@ -823,6 +823,21 @@ describe("ZapMedia", () => {
           });
         });
 
+        it.only("Should reject if the bid amount is zero", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid amount to zero
+          bid.amount = 0;
+
+          // The bidder attempts to set a bid with zero tokens
+          await bidderConnected.setBid(0, bid).catch((err) => {
+            expect(
+              "Invariant failed: ZapMedia (setBid): Amount cannot be zero."
+            );
+          });
+        });
+
         it("creates a new bid on chain", async () => {
           // Checks the balance of the bidder before setting the bid
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());

@@ -463,6 +463,8 @@ class ZapMedia {
         false,
         "ZapMedia (setBid): Recipient cannot be a zero address."
       );
+    } else if (bid.amount == 0) {
+      invariant(false, "ZapMedia (setBid): Amount cannot be zero.");
     }
 
     return this.media.setBid(mediaId, bid);
