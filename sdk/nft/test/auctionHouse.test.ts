@@ -269,7 +269,7 @@ describe('AuctionHouse', () => {
         });
       });
 
-      describe.only('#startAuction', () => {
+      describe('#startAuction', () => {
         let auctionHouse: AuctionHouse;
         let curatorConnected: AuctionHouse;
         let curator: Signer;
@@ -282,7 +282,7 @@ describe('AuctionHouse', () => {
           await media.approve(auctionHouse.auctionHouse.address, 0);
         });
 
-        it.only('Should reject if the auctionId does not exist', async () => {
+        it('Should reject if the auctionId does not exist', async () => {
           await curatorConnected.startAuction(0, true).catch((err) => {
             expect(err.message).to.equal(
               'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
@@ -364,7 +364,7 @@ describe('AuctionHouse', () => {
         });
       });
 
-      describe.only('#setAuctionReservePrice', () => {
+      describe('#setAuctionReservePrice', () => {
         const duration = 60 * 60 * 24;
         const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -545,7 +545,7 @@ describe('AuctionHouse', () => {
         await media.mint(mediaData, bidShares);
       });
       describe('Fetch Functions', () => {
-        it('Should reject fetch function because of nonexistent auction', async () => {
+        it('Should reject if the auction id does not exist', async () => {
           let auctionHouse = new AuctionHouse(1337, signer);
           await auctionHouse.fetchAuction(3).catch((err) => {
             expect(err.message).to.equal(
