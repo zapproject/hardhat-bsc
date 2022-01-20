@@ -922,6 +922,14 @@ describe("ZapMedia", () => {
           // The bidders first bid
           await bidderConnected.setBid(0, bid);
 
+          // The bidder balance after placing the first bid
+          const bidderPostBal1 = await token.balanceOf(
+            await bidder.getAddress()
+          );
+
+          // The bidder balance after placing should be 200 less
+          expect(parseInt(bidderPostBal1._hex)).to.equal(800);
+
           // ZapMarket balance after the bidder places their first bid
           const marketPostBal1 = await token.balanceOf(zapMarket.address);
 
