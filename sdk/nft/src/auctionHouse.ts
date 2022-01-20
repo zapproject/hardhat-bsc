@@ -42,8 +42,13 @@ class AuctionHouse {
     this.media = new ZapMedia(chainId, signer);
   }
 
-  public async fetchAuction(auctionId: BigNumberish): Promise<Auction> {
-    return this.auctionHouse.auctions(auctionId);
+  public async fetchAuction(auctionId: BigNumberish): Promise<any> {
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(false, 'AuctionHouse (fetchAuction): AuctionId does not exist.');
+    } else {
+      return auctionInfo;
+    }
   }
 
   public async createAuction(
@@ -105,12 +110,8 @@ class AuctionHouse {
     // Fetches the auction details
     const auctionInfo = await this.fetchAuction(auctionId);
 
-    // If the fetched media returns a zero address this means the auction does not exist and throw an error
-    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
-
-      // If the fetched firstBidTime is not 0 throw an error
-    } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
+    // If the fetched firstBidTime is not 0 throw an error
+    if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
       invariant(false, 'AuctionHouse (startAuction): Auction has already started.');
 
       // If the fetched curator address does not equal the caller address throw an error
@@ -126,12 +127,8 @@ class AuctionHouse {
     // Fetches the auction details
     const auctionInfo = await this.fetchAuction(auctionId);
 
-    // If the fetched media returns a zero address this means the auction does not exist and throw an error
-    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (setAuctionReservePrice): AuctionId does not exist.');
-
-      // If the caller does not equal the curator address and does not equal the token owner address throw an error
-    } else if (
+    // If the caller does not equal the curator address and does not equal the token owner address throw an error
+    if (
       (await this.signer.getAddress()) !== auctionInfo.curator &&
       (await this.signer.getAddress()) !== auctionInfo.tokenOwner
     ) {
@@ -139,7 +136,6 @@ class AuctionHouse {
         false,
         'AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
       );
-
       // If the fetched firstBidTime is not 0 throw an error
     } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
       invariant(false, 'AuctionHouse (setAuctionReservePrice): Auction has already started.');
