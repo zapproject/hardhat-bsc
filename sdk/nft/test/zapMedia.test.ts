@@ -1,6 +1,6 @@
 import chai, { expect, use } from "chai";
 
-import { ethers, Wallet } from "ethers";
+import { ethers, Wallet, Signer } from "ethers";
 
 import { formatUnits } from "ethers/lib/utils";
 
@@ -34,7 +34,7 @@ import {
   signPermitMessage,
   signMintWithSigMessage,
 } from "./test_utils";
-import { EIP712Signature } from "../src/types";
+import { EIP712Signature, Bid } from "../src/types";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -753,8 +753,14 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#setbid", () => {
-        it("creates a new bid on chain", async () => {
+      describe.only("#setbid", () => {
+        let bidder: Signer;
+        let bid: Bid;
+        let ownerConnected: ZapMedia;
+        let bidderConnected: ZapMedia;
+
+        beforeEach(async () => {
+          bidder = signers[1];
           bid = constructBid(
             token.address,
             200,
@@ -763,52 +769,80 @@ describe("ZapMedia", () => {
             10
           );
 
-          const zap = new ZapMedia(1337, signer);
+          ownerConnected = new ZapMedia(1337, signer);
 
-          await zap.mint(mediaData, bidShares);
+          bidderConnected = new ZapMedia(1337, bidder);
 
-          const signer1 = provider.getSigner(1);
-          const zap1 = new ZapMedia(1337, signer1);
+          await ownerConnected.mint(mediaData, bidShares);
 
-          const nullOnChainBid = await zap1.fetchCurrentBidForBidder(
+          await token.mint(await bidder.getAddress(), 1000);
+        });
+
+        it("creates a new bid on chain", async () => {
+          // Checks the balance of the bidder before setting the bid
+          const bidderPreBal = await token.balanceOf(await bidder.getAddress());
+
+          // Fetches the bidders bid details before setting the bid
+          const nullOnChainBid = await ownerConnected.fetchCurrentBidForBidder(
             zapMedia.address,
             0,
-            await signer1.getAddress()
+            await bidder.getAddress()
           );
 
-          await token.mint(signer1.getAddress(), 300);
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
-          await token.connect(signer1).approve(zapMarket.address, bid.amount);
-          //console.log(await (await signer1.getBalance())._hex)
+          // The bidder balance should equal the 1000 before setting the bid
+          expect(parseInt(bidderPreBal._hex)).to.equal(1000);
 
+          // The returned currency should equal a zero address before setting the bed
           expect(nullOnChainBid.currency).to.equal(
             ethers.constants.AddressZero
           );
 
-          await zap1.setBid(0, bid);
+          // The bidder(signers[1]) sets their bid
+          // The bid amount is then transferred to the ZapMarket balance
+          // The bid amount is then withdrawn from the their balance
+          await bidderConnected.setBid(0, bid);
 
-          const onChainBid = await zap1.fetchCurrentBidForBidder(
+          // The bidder balance after setting the bidx
+          const bidderPostBal = await token.balanceOf(
+            await bidder.getAddress()
+          );
+
+          // The bidder balance after setting a bid should be 200 less than the start balance
+          expect(parseInt(bidderPostBal._hex)).equal(
+            parseInt(bidderPreBal._hex) - 200
+          );
+
+          // Fetches the bidders bid details after setting the bid
+          const onChainBid = await ownerConnected.fetchCurrentBidForBidder(
             zapMedia.address,
             0,
-            await signer1.getAddress()
+            await bidder.getAddress()
           );
 
+          // The returned bid amount should equal the bid amount confifured in the setBid function
           expect(parseFloat(formatUnits(onChainBid.amount, "wei"))).to.equal(
-            parseFloat(formatUnits(onChainBid.amount, "wei"))
+            parseFloat(formatUnits(bid.amount, "wei"))
           );
 
+          // The returned bid currency should equal the bid currency configured on setBid
           expect(onChainBid.currency.toLowerCase()).to.equal(
             bid.currency.toLowerCase()
           );
 
+          // The returned bidder should equal the bidder configured on setBid
           expect(onChainBid.bidder.toLowerCase()).to.equal(
             bid.bidder.toLowerCase()
           );
 
+          // The returned recipient should equal the recipient configured on setBid
           expect(onChainBid.recipient.toLowerCase()).to.equal(
             bid.recipient.toLowerCase()
           );
 
+          // The returned sellOnShare should equal the sellOnShare configured on setBid
           expect(onChainBid.sellOnShare.value._hex).to.equal(
             bid.sellOnShare.value._hex
           );

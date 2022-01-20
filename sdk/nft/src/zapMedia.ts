@@ -190,7 +190,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the current bid for the specified bidder for the specified media on an instance of the Zora Media Contract
+   * Fetches the current bid for the specified bidder for the specified media on an instance of the Zap Media Contract
+   * @param mediaContractAddress
    * @param mediaId
    * @param bidder
    */
@@ -440,7 +441,7 @@ class ZapMedia {
   }
 
   /**
-   * Sets a bid on the specified media on an instance of the Zora Media Contract
+   * Sets a bid on the specified media on an instance of the Zap Media Contract
    * @param mediaId
    * @param bid
    */
@@ -448,7 +449,6 @@ class ZapMedia {
     mediaId: BigNumberish,
     bid: Bid
   ): Promise<ContractTransaction> {
-    
     //If the tokenId does not exist
     try {
       await this.media.ownerOf(mediaId);
@@ -456,7 +456,6 @@ class ZapMedia {
       invariant(false, "ZapMedia (setBid): TokenId does not exist.");
     }
     return this.media.setBid(mediaId, bid);
-  
   }
 
   /**
@@ -571,7 +570,7 @@ class ZapMedia {
    */
 
   /**
-   * Returns the EIP-712 Domain for an instance of the Zora Media Contract
+   * Returns the EIP-712 Domain for an instance of the Zap Media Contract
    */
   public eip712Domain(): EIP712Domain {
     // Due to a bug in ganache-core, set the chainId to 1 if its a local blockchain
@@ -592,13 +591,13 @@ class ZapMedia {
   //  */
 
   // /**
-  //  * Throws an error if called on a readOnly == true instance of Zora Sdk
+  //  * Throws an error if called on a readOnly == true instance of Zap Sdk
   //  * @private
   //  */
   // private ensureNotReadOnly() {
   //   if (this.readOnly) {
   //     throw new Error(
-  //       'ensureNotReadOnly: readOnly Zora instance cannot call contract methods that require a signer.'
+  //       'ensureNotReadOnly: readOnly Zap instance cannot call contract methods that require a signer.'
   //     )
   //   }
   // }
