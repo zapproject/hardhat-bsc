@@ -269,7 +269,7 @@ describe('AuctionHouse', () => {
         });
       });
 
-      describe('#startAuction', () => {
+      describe.only('#startAuction', () => {
         let auctionHouse: AuctionHouse;
         let curatorConnected: AuctionHouse;
         let curator: Signer;
@@ -282,10 +282,10 @@ describe('AuctionHouse', () => {
           await media.approve(auctionHouse.auctionHouse.address, 0);
         });
 
-        it('Should reject if the auctionId does not exist', async () => {
+        it.only('Should reject if the auctionId does not exist', async () => {
           await curatorConnected.startAuction(0, true).catch((err) => {
             expect(err.message).to.equal(
-              'Invariant failed: AuctionHouse (startAuction): AuctionId does not exist.',
+              'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
             );
           });
         });
@@ -364,7 +364,7 @@ describe('AuctionHouse', () => {
         });
       });
 
-      describe('#setAuctionReservePrice', () => {
+      describe.only('#setAuctionReservePrice', () => {
         const duration = 60 * 60 * 24;
         const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -503,7 +503,7 @@ describe('AuctionHouse', () => {
         });
       });
     });
-    describe('View Functions', () =>{
+    describe('View Functions', () => {
       let media: any;
       let mediaAddress: any;
       let mediaData: any;
@@ -543,18 +543,14 @@ describe('AuctionHouse', () => {
         mediaData = constructMediaData(tokenURI, metadataURI, contentHash, metadataHash);
 
         await media.mint(mediaData, bidShares);
-        
-
       });
-      describe('Fetch Functions', () =>{
-        it("Should reject fetch function because of nonexistent auction", async () => {
-
+      describe('Fetch Functions', () => {
+        it('Should reject fetch function because of nonexistent auction', async () => {
           let auctionHouse = new AuctionHouse(1337, signer);
-          await auctionHouse.fetchAuction(3)
-          .catch((err)=>{
+          await auctionHouse.fetchAuction(3).catch((err) => {
             expect(err.message).to.equal(
-                'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
-              );
+              'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
+            );
           });
         });
       });
