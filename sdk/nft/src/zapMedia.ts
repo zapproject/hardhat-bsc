@@ -448,7 +448,15 @@ class ZapMedia {
     mediaId: BigNumberish,
     bid: Bid
   ): Promise<ContractTransaction> {
+    
+    //If the tokenId does not exist
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, "ZapMedia (setBid): TokenId does not exist.");
+    }
     return this.media.setBid(mediaId, bid);
+  
   }
 
   /**
