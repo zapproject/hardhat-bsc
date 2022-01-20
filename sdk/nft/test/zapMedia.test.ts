@@ -707,6 +707,7 @@ describe("ZapMedia", () => {
               );
             });
         });
+
         it("Should set an ask by the owner", async () => {
           ask = constructAsk(zapMedia.address, 100);
           const media = new ZapMedia(1337, signer);
@@ -753,7 +754,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#setbid", () => {
+      describe("#setbid", () => {
         let bidder: Signer;
         let bid: Bid;
         let ownerConnected: ZapMedia;
@@ -776,6 +777,21 @@ describe("ZapMedia", () => {
           await ownerConnected.mint(mediaData, bidShares);
 
           await token.mint(await bidder.getAddress(), 1000);
+        });
+
+        it.only("Should reject if the token id does not exist", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // The bidder(signers[1]) attempts to setBid on a non existent token
+          await bidderConnected
+            .setBid(300, bid)
+
+            .catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (setBid): TokenId does not exist."
+              );
+            });
         });
 
         it("creates a new bid on chain", async () => {
