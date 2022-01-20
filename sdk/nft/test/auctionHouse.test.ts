@@ -547,7 +547,7 @@ describe('AuctionHouse', () => {
 
       });
       describe('Fetch Functions', () =>{
-        it("Should reject fetch function", async () => {
+        it("Should reject fetch function because of nonexistent auction", async () => {
 
           let auctionHouse = new AuctionHouse(1337, signer);
           await auctionHouse.fetchAuction(3)
