@@ -417,7 +417,7 @@ describe('AuctionHouse', () => {
           // The owner attempts invoke the setAuctionReservePrice on a non existent auction id
           await auctionHouse.setAuctionReservePrice(1, 200).catch((err) => {
             expect(err.message).to.equal(
-              'Invariant failed: AuctionHouse (setAuctionReservePrice): AuctionId does not exist.',
+              'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
             );
           });
         });
