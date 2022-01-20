@@ -46,8 +46,7 @@ class AuctionHouse {
     const auctionInfo = await this.auctionHouse.auctions(auctionId);
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(false, 'AuctionHouse (fetchAuction): AuctionId does not exist.');
-    }
-    else {
+    } else {
       return auctionInfo;
     }
   }
@@ -111,12 +110,8 @@ class AuctionHouse {
     // Fetches the auction details
     const auctionInfo = await this.fetchAuction(auctionId);
 
-    // If the fetched media returns a zero address this means the auction does not exist and throw an error
-    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
-
-      // If the fetched firstBidTime is not 0 throw an error
-    } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
+    // If the fetched firstBidTime is not 0 throw an error
+    if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
       invariant(false, 'AuctionHouse (startAuction): Auction has already started.');
 
       // If the fetched curator address does not equal the caller address throw an error
