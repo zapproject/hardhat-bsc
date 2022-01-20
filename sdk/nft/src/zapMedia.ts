@@ -458,6 +458,11 @@ class ZapMedia {
 
     if (bid.currency == ethers.constants.AddressZero) {
       invariant(false, "ZapMedia (setBid): Currency cannot be a zero address.");
+    } else if (bid.recipient == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (setBid): Recipient cannot be a zero address."
+      );
     }
 
     return this.media.setBid(mediaId, bid);

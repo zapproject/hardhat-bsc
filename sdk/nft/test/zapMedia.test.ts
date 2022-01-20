@@ -35,6 +35,7 @@ import {
   signMintWithSigMessage,
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
+import exp from "constants";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -804,6 +805,21 @@ describe("ZapMedia", () => {
           // The bidder attempts to set a bid with the currenc as a zero address
           await bidderConnected.setBid(0, bid).catch((err) => {
             "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address.";
+          });
+        });
+
+        it.only("Should reject if the bid recipient is a zero address", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid recipient to a zero address
+          bid.recipient = ethers.constants.AddressZero;
+
+          // The bidder attempts to set a bid with the recipient as a zero address
+          await bidderConnected.setBid(0, bid).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (setBid): Recipient cannot be a zero address."
+            );
           });
         });
 
