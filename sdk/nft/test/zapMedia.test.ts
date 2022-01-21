@@ -916,7 +916,11 @@ describe("ZapMedia", () => {
               ethers.constants.AddressZero,
               0,
               await bidder.getAddress()
-            );
+            ).catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+              )
+            });
           });
         });
       });
