@@ -907,6 +907,12 @@ describe("ZapMedia", () => {
 
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
+
+        describe("#bidForTokenBidder", () => {
+          it("Should reject if the media contract is a zero address", async () => {
+            // Make the fetchCurrentBidForBidder function fail by passing in a zero address for the media
+          });
+        });
       });
 
       describe("#removeAsk", () => {
