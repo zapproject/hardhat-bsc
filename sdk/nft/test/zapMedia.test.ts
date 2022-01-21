@@ -905,7 +905,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#removeAsk", () => {
+      describe("#removeAsk", () => {
         let media: ZapMedia;
 
         beforeEach(async () => {
@@ -1138,6 +1138,7 @@ describe("ZapMedia", () => {
           await media.mint(mediaData, bidShares);
         });
       });
+
       describe("#permit", () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           const zap_media = new ZapMedia(1337, signer);
@@ -1183,6 +1184,7 @@ describe("ZapMedia", () => {
           });
         });
       });
+
       describe("#fetchMedia", () => {
         it("Should get media instance by index in the media contract", async () => {
           const media = new ZapMedia(1337, signer);
