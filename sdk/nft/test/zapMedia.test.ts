@@ -907,6 +907,51 @@ describe("ZapMedia", () => {
 
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
+
+        describe("#bidForTokenBidder", () => {
+          it("Should reject if the media contract is a zero address", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                ethers.constants.AddressZero,
+                0,
+                await bidder.getAddress()
+              )
+              .catch((err) => {
+                expect(err.message).to.equal(
+                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+                );
+              });
+          });
+
+          it("Should reject if the token id does not exist", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                zapMedia.address,
+                10,
+                await bidder.getAddress()
+              )
+              .catch((err) => {
+                expect(err.message).to.equal(
+                  "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
+                );
+              });
+          });
+
+          it("Should reject if the bidder is a zero address", async () => {
+            // Add an assertion by expecting the function to throw the invariant with a bidder as the zero address
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                zapMedia.address,
+                0,
+                ethers.constants.AddressZero
+              )
+              .catch((err) => {
+                expect(err.message).to.equal(
+                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+                );
+              });
+          });
+        });
       });
 
       describe("#removeAsk", () => {

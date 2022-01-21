@@ -85,7 +85,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
-    return this.media.ownerOf(mediaId);
+    try {
+      return await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
+    }
   }
 
   /**
@@ -200,6 +204,19 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
+    await this.fetchOwnerOf(mediaId);
+
+    if (mediaContractAddress === ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+      );
+    } else if (bidder === ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+      );
+    }
     return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder);
   }
 
