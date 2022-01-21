@@ -211,7 +211,12 @@ class ZapMedia {
         false,
         "ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
       );
-    } // Create a an (else if) statement on this line to check if the bidder is a zero address
+    } else if (bidder === ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+      );
+    }
     return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder);
   }
 
