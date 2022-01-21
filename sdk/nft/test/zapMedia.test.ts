@@ -937,18 +937,19 @@ describe("ZapMedia", () => {
               });
           });
 
-          it.only("Should reject if the bidder is a zero address", async () => {
+          it("Should reject if the bidder is a zero address", async () => {
             // Add an assertion by expecting the function to throw the invariant with a bidder as the zero address
-            await ownerConnected.fetchCurrentBidForBidder(
-              zapMedia.address,
-              0,
-              ethers.constants.AddressZero
-            )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
-              );
-            });
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                zapMedia.address,
+                0,
+                ethers.constants.AddressZero
+              )
+              .catch((err) => {
+                expect(err.message).to.equal(
+                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+                );
+              });
           });
         });
       });
