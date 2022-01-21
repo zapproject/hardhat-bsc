@@ -200,6 +200,10 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
+    // Create an if statement checking if the media contract is a  zero address
+    if () {
+      
+    }
     return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder);
   }
 
