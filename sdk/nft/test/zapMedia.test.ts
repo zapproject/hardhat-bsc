@@ -909,18 +909,18 @@ describe("ZapMedia", () => {
         });
 
         describe("#bidForTokenBidder", () => {
-          it.only("Should reject if the media contract is a zero address", async () => {
-            // Add an assertion that will exepct the fetchCurrentBidForBidder to fail and throw the invariant
-            // message
-            await ownerConnected.fetchCurrentBidForBidder(
-              ethers.constants.AddressZero,
-              0,
-              await bidder.getAddress()
-            ).catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+          it("Should reject if the media contract is a zero address", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                ethers.constants.AddressZero,
+                0,
+                await bidder.getAddress()
               )
-            });
+              .catch((err) => {
+                expect(err.message).to.equal(
+                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+                );
+              });
           });
         });
       });
