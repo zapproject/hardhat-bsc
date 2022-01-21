@@ -922,6 +922,10 @@ describe("ZapMedia", () => {
                 );
               });
           });
+
+          it("Should reject if the token id does not exist", async () => {
+            // Allow the fetchCurrentBidForBidder function to fail if the token id does not exist
+          });
         });
       });
 
