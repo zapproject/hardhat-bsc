@@ -923,8 +923,14 @@ describe("ZapMedia", () => {
               });
           });
 
-          it("Should reject if the token id does not exist", async () => {
+          it.only("Should reject if the token id does not exist", async () => {
             // Allow the fetchCurrentBidForBidder function to fail if the token id does not exist
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                zapMedia.address,
+                10,
+                await bidder.getAddress()
+              )
           });
         });
       });
