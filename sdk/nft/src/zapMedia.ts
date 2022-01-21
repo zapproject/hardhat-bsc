@@ -86,7 +86,7 @@ class ZapMedia {
    */
   public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
     try {
-      return this.media.ownerOf(mediaId);
+      return await this.media.ownerOf(mediaId);
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
     }
@@ -204,11 +204,7 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
-    try {
-      await this.fetchOwnerOf(mediaId);
-    } catch (err: any) {
-      return Promise.reject(err.message);
-    }
+    await this.fetchOwnerOf(mediaId);
 
     if (mediaContractAddress === ethers.constants.AddressZero) {
       invariant(
