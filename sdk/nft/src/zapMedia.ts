@@ -202,7 +202,8 @@ class ZapMedia {
   ): Promise<Bid> {
     // Create an if statement checking if the media contract is a  zero address
     if (mediaContractAddress === ethers.constants.AddressZero) {
-      console.log('this works')
+      // Create an invariant that will throw if the media contract is a zero address
+      console.log("this works");
     }
     return this.market.bidForTokenBidder(mediaContractAddress, mediaId, bidder);
   }
