@@ -204,10 +204,8 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
-    // HERE
-    // Create a try/catch using the await this.ownerOf function to check if the tokenId exist
     try {
-      await this.fetchOwnerOf(mediaId)
+      await this.fetchOwnerOf(mediaId);
     } catch (err: any) {
       return Promise.reject(err.message);
     }
