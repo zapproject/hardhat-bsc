@@ -923,7 +923,7 @@ describe("ZapMedia", () => {
               });
           });
 
-          it.only("Should reject if the token id does not exist", async () => {
+          it("Should reject if the token id does not exist", async () => {
             await ownerConnected
               .fetchCurrentBidForBidder(
                 zapMedia.address,
@@ -937,8 +937,14 @@ describe("ZapMedia", () => {
               });
           });
 
-          it("Should reject if the bidder is a zero address", async () => {
+          it.only("Should reject if the bidder is a zero address", async () => {
             // Call the fetchCurrentBidForBidder function with the bidder as a zero address
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                zapMedia.address,
+                0,
+                ethers.constants.AddressZero
+              );
           });
         });
       });
