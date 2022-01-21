@@ -200,9 +200,7 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
-    // Create an if statement checking if the media contract is a  zero address
     if (mediaContractAddress === ethers.constants.AddressZero) {
-      // Create an invariant that will throw if the media contract is a zero address
       invariant(
         false,
         "ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."

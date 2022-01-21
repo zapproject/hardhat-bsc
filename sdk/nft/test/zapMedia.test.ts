@@ -910,14 +910,13 @@ describe("ZapMedia", () => {
 
         describe("#bidForTokenBidder", () => {
           it.only("Should reject if the media contract is a zero address", async () => {
-            // Make the fetchCurrentBidForBidder function fail by passing in a zero address for the media
-            const zero = await ownerConnected.fetchCurrentBidForBidder(
+            // Add an assertion that will exepct the fetchCurrentBidForBidder to fail and throw the invariant
+            // message
+            await ownerConnected.fetchCurrentBidForBidder(
               ethers.constants.AddressZero,
               0,
               await bidder.getAddress()
             );
-            console.log(zero);
-
           });
         });
       });
