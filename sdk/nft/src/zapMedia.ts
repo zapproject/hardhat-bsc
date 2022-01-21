@@ -85,7 +85,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
-    return this.media.ownerOf(mediaId);
+    try {
+      return this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
+    }
   }
 
   /**
