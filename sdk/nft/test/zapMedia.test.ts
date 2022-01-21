@@ -924,13 +924,17 @@ describe("ZapMedia", () => {
           });
 
           it.only("Should reject if the token id does not exist", async () => {
-            // Step 1 - Verify the function called with throw the invariant
-            // Step 2 - Add an assertion by expecting the invariany to throw
+        
             await ownerConnected.fetchCurrentBidForBidder(
               zapMedia.address,
               10,
               await bidder.getAddress()
-            );
+            )
+            .catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
+              );
+            });
           });
         });
       });
