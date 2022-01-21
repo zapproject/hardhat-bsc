@@ -720,17 +720,21 @@ describe("ZapMedia", () => {
           bid = constructBid(
             token.address,
             200,
-            await signers[1].getAddress(),
-            await signers[1].getAddress(),
+            await bidder.getAddress(),
+            await bidder.getAddress(),
             10
           );
 
+          // The owner(signer[0]) is connected to the ZapMedia class as a signer
           ownerConnected = new ZapMedia(1337, signer);
 
+          // The bidder(signer[1]) is connected to the ZapMedia class as a signer
           bidderConnected = new ZapMedia(1337, bidder);
 
+          // Mint a token
           await ownerConnected.mint(mediaData, bidShares);
 
+          // Transfer tokens to the bidder
           await token.mint(await bidder.getAddress(), 1000);
         });
 
