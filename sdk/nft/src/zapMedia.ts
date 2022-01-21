@@ -202,6 +202,11 @@ class ZapMedia {
   ): Promise<Bid> {
     // HERE
     // Create a try/catch using the await this.ownerOf function to check if the tokenId exist
+    try {
+      await this.fetchOwnerOf(mediaId)
+    } catch (err) {
+      invariant(false, "ZapMedia (updateContentURI): TokenId does not exist.");
+    }
 
     if (mediaContractAddress === ethers.constants.AddressZero) {
       invariant(
