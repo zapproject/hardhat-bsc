@@ -247,6 +247,7 @@ describe("ZapMedia", () => {
         });
       });
     });
+
     describe("Write Functions", () => {
       let tokenURI =
         "https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/";
@@ -290,48 +291,33 @@ describe("ZapMedia", () => {
 
           mediaData.tokenURI = "http://example.com";
 
-          await media
-            .mint(mediaData, bidShares)
-            .then((res) => {
-              return res;
-            })
-            .catch((err) => {
-              expect(err).to.equal(
-                "Invariant failed: http://example.com must begin with `https://`"
-              );
-            });
+          await media.mint(mediaData, bidShares).catch((err) => {
+            expect(err).to.equal(
+              "Invariant failed: http://example.com must begin with `https://`"
+            );
+          });
         });
 
         it("Should throw an error if the updateContentURI tokenId does not exist", async () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
-          await media
-            .updateContentURI(0, "www.newURI.com")
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
-              );
-            });
+          await media.updateContentURI(0, "www.newURI.com").catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
+            );
+          });
         });
 
         it("Should throw an error if the fetchContentURI tokenId does not exist", async () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
-          await media
-            .fetchContentURI(0)
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
-              );
-            });
+          await media.fetchContentURI(0).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
+            );
+          });
         });
 
         it("Should update the content uri", async () => {
@@ -365,16 +351,11 @@ describe("ZapMedia", () => {
 
           mediaData.metadataURI = "http://example.com";
 
-          await media
-            .mint(mediaData, bidShares)
-            .then((res) => {
-              return res;
-            })
-            .catch((err) => {
-              expect(err).to.equal(
-                "Invariant failed: http://example.com must begin with `https://`"
-              );
-            });
+          await media.mint(mediaData, bidShares).catch((err) => {
+            expect(err).to.equal(
+              "Invariant failed: http://example.com must begin with `https://`"
+            );
+          });
         });
 
         it("Should update the metadata uri", async () => {
@@ -408,16 +389,11 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value) +
             5e18;
 
-          await media
-            .mint(mediaData, bidShares)
-            .then((res) => {
-              return res;
-            })
-            .catch((err) => {
-              expect(err).to.equal(
-                `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
-              );
-            });
+          await media.mint(mediaData, bidShares).catch((err) => {
+            expect(err).to.equal(
+              `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
+            );
+          });
         });
 
         it("Should be able to mint", async () => {
@@ -478,10 +454,6 @@ describe("ZapMedia", () => {
 
           await media
             .mintWithSig(otherWallet.address, mediaData, bidShares, eipSig)
-
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err).to.eq(
                 `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
@@ -517,9 +489,6 @@ describe("ZapMedia", () => {
               bidShares,
               eipSig
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err).to.eq(
                 "Invariant failed: http://example.com must begin with `https://`"
@@ -546,9 +515,6 @@ describe("ZapMedia", () => {
               bidShares,
               eipSig
             )
-            .then((res) => {
-              return res;
-            })
             .catch((err) => {
               expect(err).to.eq(
                 "Invariant failed: http://metadata.com must begin with `https://`"
@@ -625,16 +591,11 @@ describe("ZapMedia", () => {
         it("Should throw an error if the tokenId does not exist", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media
-            .fetchCreator(0)
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (fetchCreator): TokenId does not exist."
-              );
-            });
+          await media.fetchCreator(0).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (fetchCreator): TokenId does not exist."
+            );
+          });
         });
 
         it("Should return the token creator", async () => {
@@ -656,9 +617,6 @@ describe("ZapMedia", () => {
 
           await media
             .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
-            .then((res) => {
-              console.log(res);
-            })
             .catch((err) => {
               expect(err.message).to.equal(
                 "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
@@ -698,16 +656,11 @@ describe("ZapMedia", () => {
           expect(getApproved).to.not.equal(await signer1.getAddress());
           expect(getApproved).to.equal(ethers.constants.AddressZero);
 
-          await media1
-            .setAsk(0, ask)
-            .then((res) => {
-              console.log(res);
-            })
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (setAsk): Media: Only approved or owner."
-              );
-            });
+          await media1.setAsk(0, ask).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (setAsk): Media: Only approved or owner."
+            );
+          });
         });
 
         it("Should set an ask by the owner", async () => {
@@ -781,7 +734,7 @@ describe("ZapMedia", () => {
           await token.mint(await bidder.getAddress(), 1000);
         });
 
-        it.only("Should reject if the token id does not exist", async () => {
+        it("Should reject if the token id does not exist", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -796,7 +749,7 @@ describe("ZapMedia", () => {
             });
         });
 
-        it.only("Should reject if the bid currency is a zero address", async () => {
+        it("Should reject if the bid currency is a zero address", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -809,7 +762,7 @@ describe("ZapMedia", () => {
           });
         });
 
-        it.only("Should reject if the bid recipient is a zero address", async () => {
+        it("Should reject if the bid recipient is a zero address", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -824,7 +777,7 @@ describe("ZapMedia", () => {
           });
         });
 
-        it.only("Should reject if the bid amount is zero", async () => {
+        it("Should reject if the bid amount is zero", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -839,7 +792,7 @@ describe("ZapMedia", () => {
           });
         });
 
-        it.only("Should set a bid", async () => {
+        it("Should set a bid", async () => {
           // Checks the balance of the bidder before setting the bid
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());
 
@@ -909,7 +862,7 @@ describe("ZapMedia", () => {
           );
         });
 
-        it.only("Should refund the original bid if the bidder bids again", async () => {
+        it("Should refund the original bid if the bidder bids again", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, 1000);
 
@@ -948,9 +901,11 @@ describe("ZapMedia", () => {
           // The ZapMarket balance should equal the second bid amount after the bidder places their second bid
           expect(parseInt(marketPostBal2._hex)).to.equal(400);
 
-          // const bidderPostBal = await token.balanceOf(
-          //   await bidder.getAddress()
-          // );
+          const bidderPostBal = await token.balanceOf(
+            await bidder.getAddress()
+          );
+
+          expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
 
         describe("#removeAsk", () => {
@@ -958,16 +913,11 @@ describe("ZapMedia", () => {
             ask = constructAsk(zapMedia.address, 100);
             const media = new ZapMedia(1337, signer);
 
-            await media
-              .removeAsk(0)
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
-                );
-              });
+            await media.removeAsk(0).catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
+              );
+            });
           });
 
           it("Should throw an error if the tokenId exists but an ask was not set", async () => {
@@ -975,16 +925,11 @@ describe("ZapMedia", () => {
 
             await media.mint(mediaData, bidShares);
 
-            await media
-              .removeAsk(0)
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (removeAsk): Ask was never set."
-                );
-              });
+            await media.removeAsk(0).catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (removeAsk): Ask was never set."
+              );
+            });
           });
 
           it("Should remove an ask", async () => {
@@ -1138,9 +1083,6 @@ describe("ZapMedia", () => {
 
             await media
               .safeTransferFrom(await signer.getAddress(), recipient, 0)
-              .then((res) => {
-                console.log(res);
-              })
               .catch((err) => {
                 expect(err.message).to.equal(
                   "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist."
@@ -1157,9 +1099,6 @@ describe("ZapMedia", () => {
 
             await media
               .safeTransferFrom(ethers.constants.AddressZero, recipient, 0)
-              .then((res) => {
-                console.log(res);
-              })
               .catch((err) => {
                 expect(err.message).to.equal(
                   "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
@@ -1178,9 +1117,6 @@ describe("ZapMedia", () => {
                 ethers.constants.AddressZero,
                 0
               )
-              .then((res) => {
-                console.log(res);
-              })
               .catch((err) => {
                 expect(err.message).to.equal(
                   "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
@@ -1248,16 +1184,11 @@ describe("ZapMedia", () => {
             );
 
             // test to see if approved for another token. should fail.
-            await zap_media
-              .fetchApproved(1)
-              .then((res) => {
-                console.log(res);
-              })
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (fetchApproved): TokenId does not exist."
-                );
-              });
+            await zap_media.fetchApproved(1).catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (fetchApproved): TokenId does not exist."
+              );
+            });
           });
         });
         describe("#fetchMedia", () => {
@@ -1276,16 +1207,11 @@ describe("ZapMedia", () => {
 
             await media.mint(mediaData, bidShares);
 
-            await media
-              .fetchMediaByIndex(1)
-              .then((res) => {
-                return res;
-              })
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (tokenByIndex): Index out of range."
-                );
-              });
+            await media.fetchMediaByIndex(1).catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (tokenByIndex): Index out of range."
+              );
+            });
           });
         });
 
@@ -1309,9 +1235,6 @@ describe("ZapMedia", () => {
 
             await media
               .fetchMintWithSigNonce("0x9b713D5416884d12a5BbF13Ee08B6038E74CDe")
-              .then((res) => {
-                return res;
-              })
               .catch((err) => {
                 expect(err).to.equal(
                   `Invariant failed: 0x9b713D5416884d12a5BbF13Ee08B6038E74CDe is not a valid address.`
