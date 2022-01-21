@@ -936,6 +936,10 @@ describe("ZapMedia", () => {
                 );
               });
           });
+
+          it("Should reject if the bidder is a zero address", async () => {
+            // Call the fetchCurrentBidForBidder function with the bidder as a zero address
+          });
         });
       });
 
