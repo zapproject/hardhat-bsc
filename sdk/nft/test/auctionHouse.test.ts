@@ -517,27 +517,17 @@ describe("AuctionHouse", () => {
       describe.only("#createBid", () => {
         const duration = 60 * 60 * 24;
         const reservePrice = BigNumber.from(10).pow(18).div(2);
-        // let ownerConnected: AuctionHouse = new AuctionHouse(1337, signer);
 
-        // let bidderConnected: AuctionHouse = new AuctionHouse(1337,signer)
+        const bidder: Signer = signers[1];
 
-        // // Will be set to signers[9]
-        // let curator: Signer;
+        let ownerConnected: AuctionHouse = new AuctionHouse(1337, signer);
 
-        // // Will be set to signers[4]
-        // let bidder: Signer;
+        console.log(signer);
+
+        // let bidderConnected: AuctionHouse = new AuctionHouse(1337, bidder);
 
         beforeEach(async () => {
-          //   // Assign the curator to signer[9]
-          //   curator = signers[9];
-          //   // Assign the bidder to signer[4]
-          //   bidder = signers[4];
-          //   // The owner(signers[0]) connected to the AuctionHouse class as a signer
-          //   auctionHouse = new AuctionHouse(1337, signer);
-          //   // The curator(signers[9]) connected to the AuctionHouse class as a signer
-          //   biConnected = new AuctionHouse(1337, curator);
-          //   // The owner(signer[0]) of tokenId 0 approves the auctionHouse
-          //   await media.approve(auctionHouse.auctionHouse.address, 0);
+          // await media.approve(auctionHouse.auctionHouse.address, 0);
           //   await auctionHouse.createAuction(
           //     0,
           //     mediaAddress,
