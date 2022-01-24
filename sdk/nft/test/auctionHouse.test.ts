@@ -588,16 +588,11 @@ describe("AuctionHouse", () => {
             token.address
           );
           let receipt = await tx.wait();
-          const receiptfetch =
-            await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
-          const manualfetch = await auctionHouse.fetchAuction(0);
-          console.log(receiptfetch);
-          console.log(manualfetch);
+          const receiptfetch = await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+          
 
           expect(parseInt(receiptfetch?.token.tokenId.toString()!)).to.equal(0);
-
           expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
-
           expect(receiptfetch?.approved).to.be.true;
           expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
           expect(receiptfetch?.curatorFeePercentage).to.equal(0);
