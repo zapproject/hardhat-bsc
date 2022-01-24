@@ -580,12 +580,13 @@ describe("AuctionHouse", () => {
 
         it("Should create a bid", async () => {
           await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
-
           const firstBid = await ownerConnected.fetchAuction(0);
+          expect(firstBid.bidder).to.equal(await bidderOne.getAddress());
           expect(parseInt(firstBid.amount._hex)).to.equal(bidAmtOne);
 
           await bidderTwoConnected.createBid(0, bidAmtTwo, mediaAddress);
           const secondBid = await ownerConnected.fetchAuction(0);
+          expect(secondBid.bidder).to.equal(await bidderTwo.getAddress());
           expect(parseInt(secondBid.amount._hex)).to.equal(bidAmtTwo);
         });
       });
