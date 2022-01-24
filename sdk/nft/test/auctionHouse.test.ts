@@ -28,7 +28,7 @@ import { getSigners } from "./test_utils";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
-describe("AuctionHouse", () => {
+describe.only("AuctionHouse", () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -560,7 +560,7 @@ describe("AuctionHouse", () => {
 
         await media.mint(mediaData, bidShares);
       });
-      describe("#fetchAuction, #fetchAuctionFromTransactionReceipt", () => {
+      describe.only("#fetchAuction, #fetchAuctionFromTransactionReceipt", () => {
         it("Should reject if the auction id does not exist", async () => {
           let auctionHouse = new AuctionHouse(1337, signer);
           await auctionHouse.fetchAuction(3).catch((err) => {
@@ -570,7 +570,7 @@ describe("AuctionHouse", () => {
           });
         });
 
-        it("Should fetch an auction from the transaction receipt", async () => {
+        it("Should fetch an auction from the create auction transaction receipt", async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
@@ -601,6 +601,41 @@ describe("AuctionHouse", () => {
           );
           expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
           expect(receiptfetch?.curator).to.equal(ethers.constants.AddressZero);
+          expect(receiptfetch?.auctionCurrency).to.equal(token.address);
+        });
+        it("Should fetch an auction from the start auction transaction receipt", async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          let curator = signers[9];
+          let auctionHouse = new AuctionHouse(1337, signer);
+          let curatorConnected = new AuctionHouse(1337, curator);
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            await curator.getAddress(),
+            0,
+            token.address
+          );
+          let tx = await curatorConnected.startAuction(0,true)
+          let receipt = await tx.wait();
+          const receiptfetch = await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+          
+
+          expect(parseInt(receiptfetch?.token.tokenId.toString()!)).to.equal(0);
+          expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
+          expect(receiptfetch?.approved).to.be.true;
+          expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
+          expect(receiptfetch?.curatorFeePercentage).to.equal(0);
+          expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
+            parseInt(reservePrice._hex)
+          );
+          expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
+          expect(receiptfetch?.curator).to.equal(await curator.getAddress());
           expect(receiptfetch?.auctionCurrency).to.equal(token.address);
         });
       });
