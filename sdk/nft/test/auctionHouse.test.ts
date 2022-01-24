@@ -558,6 +558,16 @@ describe("AuctionHouse", () => {
             .approve(ownerConnected.auctionHouse.address, 1000);
         });
 
+        it("Should reject if the auction id does not exist", async () => {
+          await bidderOneConnected
+            .createBid(12, bidAmtOne, mediaAddress)
+            .catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+              );
+            });
+        });
+
         it("Should create a bid", async () => {
           await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
 
