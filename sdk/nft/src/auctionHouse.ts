@@ -58,25 +58,16 @@ class AuctionHouse {
   public async fetchAuctionFromTransactionReceipt(
     receipt: any
   ): Promise<Auction | null> {
-    const test = receipt.events;
-    // console.log(receipt);
-    // console.log(test);
-
-    // const description = this.auctionHouse.interface.parseLog(log);
-    console.log(this.auctionHouse.address);
-
+    
     for (const log of receipt.logs) {
       console.log(log.address);
+      if(log.address === this.auctionHouse.address){  
+        let description = this.auctionHouse.interface.parseLog(log);
+        if (description.args.auctionId) {
+          return this.fetchAuction(description.args.auctionId);
+        }
+      }
 
-      // const description = this.auctionHouse.interface.parseLog(log);
-
-      // console.log(de)
-      // if (
-      //   description.args.auctionId &&
-      //   log.address === this.auctionHouse.address
-      // ) {
-      //   return this.fetchAuction(description.args.auctionId);
-      // }
     }
 
     return null;
