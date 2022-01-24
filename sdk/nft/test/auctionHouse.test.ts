@@ -568,6 +568,16 @@ describe("AuctionHouse", () => {
             });
         });
 
+        it("Should reject if the media contract is a zero address", async () => {
+          await bidderOneConnected
+            .createBid(0, bidAmtOne, ethers.constants.AddressZero)
+            .catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: AuctionHouse (createBid): Media cannot be a zero address."
+              );
+            });
+        });
+
         it("Should create a bid", async () => {
           await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
 

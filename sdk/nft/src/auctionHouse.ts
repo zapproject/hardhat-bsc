@@ -207,10 +207,17 @@ class AuctionHouse {
     amount: BigNumberish,
     mediaContract: string
   ) {
-    const { auctionCurrency } = await this.fetchAuction(auctionId);
+    const auctionInfo = await this.fetchAuction(auctionId);
+
+    if (mediaContract == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "AuctionHouse (createBid): Media cannot be a zero address."
+      );
+    }
 
     // If ETH auction, include the ETH in this transaction
-    if (auctionCurrency === ethers.constants.AddressZero) {
+    if (auctionInfo.currency === ethers.constants.AddressZero) {
       return this.auctionHouse.createBid(auctionId, amount, mediaContract, {
         value: amount,
       });
