@@ -1,10 +1,11 @@
-import { BigNumber, BigNumberish, Contract, ethers, Signer } from 'ethers';
-import { Provider, TransactionReceipt } from '@ethersproject/providers';
+import { BigNumber, BigNumberish, Contract, ethers, Signer } from "ethers";
+import { Provider, TransactionReceipt } from "@ethersproject/providers";
 
-import { contractAddresses } from './utils';
-import { zapAuctionAbi, zapMediaAbi } from './contract/abi';
-import ZapMedia from './zapMedia';
-import invariant from 'tiny-invariant';
+import { contractAddresses } from "./utils";
+import { zapAuctionAbi, zapMediaAbi } from "./contract/abi";
+import ZapMedia from "./zapMedia";
+import invariant from "tiny-invariant";
+import { FormatTypes } from "ethers/lib/utils";
 
 export interface Auction {
   token: {
@@ -36,7 +37,7 @@ class AuctionHouse {
     this.auctionHouse = new ethers.Contract(
       contractAddresses(chainId).zapAuctionAddress,
       zapAuctionAbi,
-      signer,
+      signer
     );
 
     this.media = new ZapMedia(chainId, signer);
@@ -45,24 +46,42 @@ class AuctionHouse {
   public async fetchAuction(auctionId: BigNumberish): Promise<any> {
     const auctionInfo = await this.auctionHouse.auctions(auctionId);
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (fetchAuction): AuctionId does not exist.');
-    }
-    else {
+      invariant(
+        false,
+        "AuctionHouse (fetchAuction): AuctionId does not exist."
+      );
+    } else {
       return auctionInfo;
     }
   }
 
-  public async fetchAuctionFromTransactionReceipt(receipt: TransactionReceipt): Promise<Auction | null> {
+  public async fetchAuctionFromTransactionReceipt(
+    receipt: any
+  ): Promise<Auction | null> {
+    const test = receipt.events;
+    // console.log(receipt);
+    // console.log(test);
+
+    // const description = this.auctionHouse.interface.parseLog(log);
+    console.log(this.auctionHouse.address);
+
     for (const log of receipt.logs) {
-      console.log(log)
-      // const description = this.auctionHouse.interface.parseLog(log)
-      // if (description.args.auctionId && log.address === this.auctionHouse.address) {
-        // return this.fetchAuction(description.args.auctionId)
+      console.log(log.address);
+
+      // const description = this.auctionHouse.interface.parseLog(log);
+
+      // console.log(de)
+      // if (
+      //   description.args.auctionId &&
+      //   log.address === this.auctionHouse.address
+      // ) {
+      //   return this.fetchAuction(description.args.auctionId);
       // }
     }
 
-    return null
+    return null;
   }
+
   public async createAuction(
     tokenId: BigNumberish,
     tokenAddress: string,
@@ -70,13 +89,13 @@ class AuctionHouse {
     reservePrice: BigNumberish,
     curator: string,
     curatorFeePercentages: number,
-    auctionCurrency: string,
+    auctionCurrency: string
   ) {
     // Checks if the tokenId exists if not throw an error
     try {
       await this.media.fetchOwnerOf(tokenId);
     } catch {
-      invariant(false, 'AuctionHouse (createAuction): TokenId does not exist.');
+      invariant(false, "AuctionHouse (createAuction): TokenId does not exist.");
     }
 
     // Fetches the address who owns the tokenId
@@ -90,19 +109,31 @@ class AuctionHouse {
 
     // If the curator fee is not less than 100 thrown an error
     if (curatorFeePercentages == 100) {
-      invariant(false, 'AuctionHouse (createAuction): CuratorFeePercentage must be less than 100.');
+      invariant(
+        false,
+        "AuctionHouse (createAuction): CuratorFeePercentage must be less than 100."
+      );
     }
     // If the caller is the tokenId owner and the auctionHouse address is not approved throw an error
     else if (signerAddress == owner && this.auctionHouse.address !== approved) {
-      invariant(false, 'AuctionHouse (createAuction): Transfer caller is not owner nor approved.');
+      invariant(
+        false,
+        "AuctionHouse (createAuction): Transfer caller is not owner nor approved."
+      );
     }
     // If the caller is not the tokenId owner and the auctionHouse is approved throw an error
     else if (signerAddress !== owner && this.auctionHouse.address == approved) {
-      invariant(false, 'AuctionHouse (createAuction): Caller is not approved or token owner.');
+      invariant(
+        false,
+        "AuctionHouse (createAuction): Caller is not approved or token owner."
+      );
     }
     // If the media adddress is a zero address throw an error
     else if (tokenAddress == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (createAuction): Media cannot be a zero address.');
+      invariant(
+        false,
+        "AuctionHouse (createAuction): Media cannot be a zero address."
+      );
     }
     // If the caller is the tokenId owner and the auctionHouse is approved invoke createAuction
     else {
@@ -113,7 +144,7 @@ class AuctionHouse {
         reservePrice,
         curator,
         curatorFeePercentages,
-        auctionCurrency,
+        auctionCurrency
       );
     }
   }
@@ -124,28 +155,43 @@ class AuctionHouse {
 
     // If the fetched media returns a zero address this means the auction does not exist and throw an error
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (startAuction): AuctionId does not exist.');
+      invariant(
+        false,
+        "AuctionHouse (startAuction): AuctionId does not exist."
+      );
 
       // If the fetched firstBidTime is not 0 throw an error
     } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
-      invariant(false, 'AuctionHouse (startAuction): Auction has already started.');
+      invariant(
+        false,
+        "AuctionHouse (startAuction): Auction has already started."
+      );
 
       // If the fetched curator address does not equal the caller address throw an error
     } else if (auctionInfo.curator !== (await this.signer.getAddress())) {
-      invariant(false, 'AuctionHouse (startAuction): Only the curator can start this auction.');
+      invariant(
+        false,
+        "AuctionHouse (startAuction): Only the curator can start this auction."
+      );
     }
 
     // If the auctionId exists and the curator is the caller invoke startCreation
     return this.auctionHouse.startAuction(auctionId, approved);
   }
 
-  public async setAuctionReservePrice(auctionId: BigNumberish, reservePrice: BigNumberish) {
+  public async setAuctionReservePrice(
+    auctionId: BigNumberish,
+    reservePrice: BigNumberish
+  ) {
     // Fetches the auction details
     const auctionInfo = await this.fetchAuction(auctionId);
 
     // If the fetched media returns a zero address this means the auction does not exist and throw an error
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, 'AuctionHouse (setAuctionReservePrice): AuctionId does not exist.');
+      invariant(
+        false,
+        "AuctionHouse (setAuctionReservePrice): AuctionId does not exist."
+      );
 
       // If the caller does not equal the curator address and does not equal the token owner address throw an error
     } else if (
@@ -154,12 +200,15 @@ class AuctionHouse {
     ) {
       invariant(
         false,
-        'AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner',
+        "AuctionHouse (setAuctionReservePrice): Caller must be the curator or token owner"
       );
 
       // If the fetched firstBidTime is not 0 throw an error
     } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
-      invariant(false, 'AuctionHouse (setAuctionReservePrice): Auction has already started.');
+      invariant(
+        false,
+        "AuctionHouse (setAuctionReservePrice): Auction has already started."
+      );
     } else {
       return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
     }
