@@ -588,11 +588,13 @@ describe("AuctionHouse", () => {
             token.address
           );
           let receipt = await tx.wait();
-          const receiptfetch =await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+          const receiptfetch =
+            await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
           const manualfetch = await auctionHouse.fetchAuction(0);
-          console.log(receiptfetch)
-          console.log(manualfetch)
-          // expect(receiptfetch.token.tokenId.toString())
+          console.log(receiptfetch);
+          console.log(manualfetch);
+
+          expect(receiptfetch?.token.tokenId.toString());
         });
       });
     });

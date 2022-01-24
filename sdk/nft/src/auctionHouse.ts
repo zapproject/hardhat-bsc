@@ -56,18 +56,15 @@ class AuctionHouse {
   }
 
   public async fetchAuctionFromTransactionReceipt(
-    receipt: any
+    receipt: TransactionReceipt
   ): Promise<Auction | null> {
-    
     for (const log of receipt.logs) {
-      console.log(log.address);
-      if(log.address === this.auctionHouse.address){  
+      if (log.address === this.auctionHouse.address) {
         let description = this.auctionHouse.interface.parseLog(log);
         if (description.args.auctionId) {
           return this.fetchAuction(description.args.auctionId);
         }
       }
-
     }
 
     return null;
