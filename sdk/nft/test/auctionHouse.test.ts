@@ -28,7 +28,7 @@ import { getSigners } from "./test_utils";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
-describe("AuctionHouse", () => {
+describe.only("AuctionHouse", () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -514,8 +514,47 @@ describe("AuctionHouse", () => {
         });
       });
 
-      describe("#createBid", () => {});
+      describe.only("#createBid", () => {
+        const duration = 60 * 60 * 24;
+        const reservePrice = BigNumber.from(10).pow(18).div(2);
+        // let ownerConnected: AuctionHouse = new AuctionHouse(1337, signer);
+
+        // let bidderConnected: AuctionHouse = new AuctionHouse(1337,signer)
+
+        // // Will be set to signers[9]
+        // let curator: Signer;
+
+        // // Will be set to signers[4]
+        // let bidder: Signer;
+
+        beforeEach(async () => {
+          //   // Assign the curator to signer[9]
+          //   curator = signers[9];
+          //   // Assign the bidder to signer[4]
+          //   bidder = signers[4];
+          //   // The owner(signers[0]) connected to the AuctionHouse class as a signer
+          //   auctionHouse = new AuctionHouse(1337, signer);
+          //   // The curator(signers[9]) connected to the AuctionHouse class as a signer
+          //   biConnected = new AuctionHouse(1337, curator);
+          //   // The owner(signer[0]) of tokenId 0 approves the auctionHouse
+          //   await media.approve(auctionHouse.auctionHouse.address, 0);
+          //   await auctionHouse.createAuction(
+          //     0,
+          //     mediaAddress,
+          //     duration,
+          //     reservePrice,
+          //     ethers.constants.AddressZero,
+          //     0,
+          //     token.address
+          //   );
+          //   // Transfer 1000 tokens to the bidder
+          //   await token.mint(await bidder.getAddress(), 1000);
+        });
+
+        it("Should create a bid", async () => {});
+      });
     });
+
     describe("View Functions", () => {
       let media: any;
       let mediaAddress: any;
@@ -559,8 +598,6 @@ describe("AuctionHouse", () => {
           contentHash,
           metadataHash
         );
-
-        await media.mint(mediaData, bidShares);
       });
 
       describe("Fetch Functions", () => {
