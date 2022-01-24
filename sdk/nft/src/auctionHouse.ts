@@ -207,7 +207,8 @@ class AuctionHouse {
     amount: BigNumberish,
     mediaContract: string
   ) {
-    const { auctionCurrency } = await this.auctionHouse.auctions(auctionId);
+    const { auctionCurrency } = await this.fetchAuction(auctionId);
+
     // If ETH auction, include the ETH in this transaction
     if (auctionCurrency === ethers.constants.AddressZero) {
       return this.auctionHouse.createBid(auctionId, amount, mediaContract, {

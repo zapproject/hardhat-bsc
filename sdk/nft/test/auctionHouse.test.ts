@@ -516,32 +516,58 @@ describe("AuctionHouse", () => {
 
       describe.only("#createBid", () => {
         const duration = 60 * 60 * 24;
-        const reservePrice = BigNumber.from(10).pow(18).div(2);
+        const reservePrice = 200;
+        const bidAmtOne = 300;
+        const bidAmtTwo = 400;
 
-        const bidder: Signer = signers[1];
-
-        let ownerConnected: AuctionHouse = new AuctionHouse(1337, signer);
-
-        console.log(signer);
-
-        // let bidderConnected: AuctionHouse = new AuctionHouse(1337, bidder);
+        let bidderOne: Signer;
+        let bidderTwo: Signer;
+        let ownerConnected: AuctionHouse;
+        let bidderOneConnected: AuctionHouse;
+        let bidderTwoConnected: AuctionHouse;
 
         beforeEach(async () => {
-          // await media.approve(auctionHouse.auctionHouse.address, 0);
-          //   await auctionHouse.createAuction(
-          //     0,
-          //     mediaAddress,
-          //     duration,
-          //     reservePrice,
-          //     ethers.constants.AddressZero,
-          //     0,
-          //     token.address
-          //   );
-          //   // Transfer 1000 tokens to the bidder
-          //   await token.mint(await bidder.getAddress(), 1000);
+          bidderOne = signers[1];
+          bidderTwo = signers[2];
+          ownerConnected = new AuctionHouse(1337, signer);
+          bidderOneConnected = new AuctionHouse(1337, bidderOne);
+          bidderTwoConnected = new AuctionHouse(1337, bidderTwo);
+
+          await media.approve(ownerConnected.auctionHouse.address, 0);
+
+          await ownerConnected.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            ethers.constants.AddressZero,
+            0,
+            token.address
+          );
+
+          await token.mint(await bidderOne.getAddress(), 1000);
+
+          await token.mint(await bidderTwo.getAddress(), 1000);
+
+          await token
+            .connect(bidderOne)
+            .approve(ownerConnected.auctionHouse.address, 1000);
+
+          await token
+            .connect(bidderTwo)
+            .approve(ownerConnected.auctionHouse.address, 1000);
         });
 
-        it("Should create a bid", async () => {});
+        it("Should create a bid", async () => {
+          await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
+
+          const firstBid = await ownerConnected.fetchAuction(0);
+          expect(parseInt(firstBid.amount._hex)).to.equal(bidAmtOne);
+
+          await bidderTwoConnected.createBid(0, bidAmtTwo, mediaAddress);
+          const secondBid = await ownerConnected.fetchAuction(0);
+          expect(parseInt(secondBid.amount._hex)).to.equal(bidAmtTwo);
+        });
       });
     });
 
