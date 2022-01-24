@@ -28,7 +28,7 @@ import { getSigners } from './test_utils';
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
 
-describe('AuctionHouse', () => {
+describe.only('AuctionHouse', () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -503,7 +503,7 @@ describe('AuctionHouse', () => {
         });
       });
     });
-    describe('View Functions', () => {
+    describe.only('View Functions', () => {
       let media: any;
       let mediaAddress: any;
       let mediaData: any;
@@ -552,6 +552,31 @@ describe('AuctionHouse', () => {
               'Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist.',
             );
           });
+        });
+        it('Should reject if the auction id does not exist', async () => {
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          let auctionHouse = new AuctionHouse(1337, signer);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          const tx = await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            '0x0000000000000000000000000000000000000000',
+            0,
+            token.address,
+          );
+          let receipt = await tx.wait();
+          // console.log(JSON.stringify(receipt,null,4),typeof(receipt))
+          // receipt = await receipt.getTransactionReceipt;
+          // console.log(receipt.events[0].getTransactionReceipt());
+          const receiptfetch = await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+          // console.log(receiptfetch)
+          // const manualfetch = await auctionHouse.fetchAuction(0);
         });
       });
     });
