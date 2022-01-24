@@ -9,6 +9,7 @@ import invariant from 'tiny-invariant';
 import warning from 'tiny-warning';
 
 import { BigNumber, BigNumberish, BytesLike, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 
 let mediaFactoryAddress: string;
 
