@@ -594,16 +594,19 @@ describe("AuctionHouse", () => {
           console.log(receiptfetch);
           console.log(manualfetch);
 
-          // expect(parseInt(receiptfetch?.token.tokenId.toString())).to.equal(0);
+          expect(parseInt(receiptfetch?.token.tokenId.toString()!)).to.equal(0);
+
           expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
+
           expect(receiptfetch?.approved).to.be.true;
-          // expect(parseInt(receiptfetch?.duration._hex)).to.equal(60 * 60 * 24);
+          expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
           expect(receiptfetch?.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(receiptfetch?.reservePrice._hex)).to.equal(parseInt(reservePrice._hex));
+          expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
+            parseInt(reservePrice._hex)
+          );
           expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
           expect(receiptfetch?.curator).to.equal(ethers.constants.AddressZero);
           expect(receiptfetch?.auctionCurrency).to.equal(token.address);
-
         });
       });
     });
