@@ -560,7 +560,7 @@ describe("AuctionHouse", () => {
 
         await media.mint(mediaData, bidShares);
       });
-      describe("Fetch Functions", () => {
+      describe("#fetchAuction, #fetchAuctionFromTransactionReceipt", () => {
         it("Should reject if the auction id does not exist", async () => {
           let auctionHouse = new AuctionHouse(1337, signer);
           await auctionHouse.fetchAuction(3).catch((err) => {
@@ -570,7 +570,7 @@ describe("AuctionHouse", () => {
           });
         });
 
-        it.only("Should fetch an auction from the transaction receipt", async () => {
+        it("Should fetch an auction from the transaction receipt", async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
