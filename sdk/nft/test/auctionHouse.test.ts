@@ -28,7 +28,7 @@ import { getSigners } from "./test_utils";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
-describe.only("AuctionHouse", () => {
+describe("AuctionHouse", () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -560,7 +560,7 @@ describe.only("AuctionHouse", () => {
 
         await media.mint(mediaData, bidShares);
       });
-      describe.only("#fetchAuction, #fetchAuctionFromTransactionReceipt", () => {
+      describe("#fetchAuction, #fetchAuctionFromTransactionReceipt", () => {
         it("Should reject if the auction id does not exist", async () => {
           let auctionHouse = new AuctionHouse(1337, signer);
           await auctionHouse.fetchAuction(3).catch((err) => {
@@ -638,6 +638,7 @@ describe.only("AuctionHouse", () => {
           expect(receiptfetch?.curator).to.equal(await curator.getAddress());
           expect(receiptfetch?.auctionCurrency).to.equal(token.address);
         });
+
       });
     });
   });
