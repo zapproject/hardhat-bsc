@@ -599,6 +599,19 @@ describe("AuctionHouse", () => {
           expect(secondBid.bidder).to.equal(await bidderTwo.getAddress());
           expect(parseInt(secondBid.amount._hex)).to.equal(bidAmtTwo);
         });
+
+        it.only("Should not update the auctions duration", async () => {
+          const beforeDuration = (await ownerConnected.fetchAuction(0))
+            .duration;
+
+          await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
+
+          const afterDuration = (await ownerConnected.fetchAuction(0)).duration;
+
+          expect(parseInt(beforeDuration._hex)).to.equal(
+            parseInt(afterDuration._hex)
+          );
+        });
       });
     });
 
