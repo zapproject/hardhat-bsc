@@ -216,6 +216,13 @@ class AuctionHouse {
       );
     }
 
+    if (amount < parseInt(auctionInfo.reservePrice._hex)) {
+      invariant(
+        false,
+        "AuctionHouse (createBid): Must send at least reserve price."
+      );
+    }
+
     // If ETH auction, include the ETH in this transaction
     if (auctionInfo.currency === ethers.constants.AddressZero) {
       return this.auctionHouse.createBid(auctionId, amount, mediaContract, {

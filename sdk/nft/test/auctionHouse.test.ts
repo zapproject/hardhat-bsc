@@ -578,6 +578,16 @@ describe("AuctionHouse", () => {
             });
         });
 
+        it("Should reject if the bid does not meet the reserve price", async () => {
+          await bidderOneConnected
+            .createBid(0, reservePrice - 1, mediaAddress)
+            .catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: AuctionHouse (createBid): Must send at least reserve price."
+              );
+            });
+        });
+
         it("Should create a bid", async () => {
           await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
           const firstBid = await ownerConnected.fetchAuction(0);
