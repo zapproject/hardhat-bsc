@@ -42,12 +42,10 @@ class ZapMedia {
   signer: Signer;
   public readOnly: boolean;
 
-  constructor(networkId: number, signer: Signer, mediaIndex?: number) {
+  constructor(networkId: number, signer: Signer) {
     this.networkId = networkId;
 
     this.signer = signer;
-
-    this.mediaIndex = mediaIndex;
 
     this.market = new ethers.Contract(
       contractAddresses(networkId).zapMarketAddress,
@@ -55,14 +53,11 @@ class ZapMedia {
       signer
     );
 
-    if (mediaIndex === undefined) {
-      this.media = new ethers.Contract(
-        contractAddresses(networkId).zapMediaAddress,
-        zapMediaAbi,
-        signer
-      );
-    } else {
-    }
+    this.media = new ethers.Contract(
+      contractAddresses(networkId).zapMediaAddress,
+      zapMediaAbi,
+      signer
+    );
 
     if (Signer.isSigner(signer)) {
       this.readOnly = false;
