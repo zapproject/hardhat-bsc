@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    
+    "strictNullChecks": true,
+    "noImplicitUseStrict": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedParameters": false,
+    "noErrorTruncation": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": false,
+    "checkJs": false,
+
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+  "include": ["tests", "src/gen/typechain"],
+  "files": ["hardhat.config.ts"]
+}
