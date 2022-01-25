@@ -201,6 +201,37 @@ class AuctionHouse {
       return this.auctionHouse.setAuctionReservePrice(auctionId, reservePrice);
     }
   }
+
+  public async createBid(
+    auctionId: BigNumberish,
+    amount: BigNumberish,
+    mediaContract: string
+  ) {
+    const auctionInfo = await this.fetchAuction(auctionId);
+
+    if (mediaContract == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "AuctionHouse (createBid): Media cannot be a zero address."
+      );
+    }
+
+    if (amount < parseInt(auctionInfo.reservePrice._hex)) {
+      invariant(
+        false,
+        "AuctionHouse (createBid): Must send at least reserve price."
+      );
+    }
+
+    // If ETH auction, include the ETH in this transaction
+    if (auctionInfo.currency === ethers.constants.AddressZero) {
+      return this.auctionHouse.createBid(auctionId, amount, mediaContract, {
+        value: amount,
+      });
+    } else {
+      return this.auctionHouse.createBid(auctionId, amount, mediaContract);
+    }
+  }
 }
 
 export default AuctionHouse;
