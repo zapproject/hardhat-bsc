@@ -588,7 +588,7 @@ describe("AuctionHouse", () => {
             });
         });
 
-        it.only("Should create a bid", async () => {
+        it("Should create a bid", async () => {
           const aHousePreBal = await token.balanceOf(auctionHouse.address);
           expect(parseInt(aHousePreBal._hex)).to.equal(0);
 
