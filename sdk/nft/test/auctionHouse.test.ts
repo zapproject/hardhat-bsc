@@ -736,6 +736,16 @@ describe("AuctionHouse", () => {
           expect(receiptfetch?.curator).to.equal(ethers.constants.AddressZero);
           expect(receiptfetch?.auctionCurrency).to.equal(token.address);
         });
+
+        it.only("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
+          let auctionHouse = new AuctionHouse(1337, signer);
+          await auctionHouse.fetchAuction(3).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+            );
+          });
+        });
+
       });
     });
   });
