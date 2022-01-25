@@ -514,7 +514,7 @@ describe("AuctionHouse", () => {
         });
       });
 
-      describe.only("#createBid", () => {
+      describe("#createBid", () => {
         const duration = 60 * 60 * 24;
         const reservePrice = 200;
         const bidAmtOne = 300;
@@ -588,19 +588,50 @@ describe("AuctionHouse", () => {
             });
         });
 
-        it("Should create a bid", async () => {
+        it.only("Should create a bid", async () => {
+          const aHousePreBal = await token.balanceOf(auctionHouse.address);
+          expect(parseInt(aHousePreBal._hex)).to.equal(0);
+
+          const bidderOnePreBal = await token.balanceOf(
+            await bidderOne.getAddress()
+          );
+          expect(parseInt(bidderOnePreBal._hex)).to.equal(1000);
+
           await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
+
+          const bidderOnePostBal = await token.balanceOf(
+            await bidderOne.getAddress()
+          );
+          expect(parseInt(bidderOnePostBal._hex)).to.equal(1000 - bidAmtOne);
+
+          const aHousePostBalOne = await token.balanceOf(auctionHouse.address);
+          expect(parseInt(aHousePostBalOne._hex)).to.equal(bidAmtOne);
+
           const firstBid = await ownerConnected.fetchAuction(0);
           expect(firstBid.bidder).to.equal(await bidderOne.getAddress());
           expect(parseInt(firstBid.amount._hex)).to.equal(bidAmtOne);
 
+          const bidderTwoPreBal = await token.balanceOf(
+            await bidderTwo.getAddress()
+          );
+          expect(parseInt(bidderTwoPreBal._hex)).to.equal(1000);
+
           await bidderTwoConnected.createBid(0, bidAmtTwo, mediaAddress);
+
+          const bidderTwoPostBal = await token.balanceOf(
+            await bidderTwo.getAddress()
+          );
+          expect(parseInt(bidderTwoPostBal._hex)).to.equal(1000 - bidAmtTwo);
+
+          const aHousePostBalTwo = await token.balanceOf(auctionHouse.address);
+          expect(parseInt(aHousePostBalTwo._hex)).to.equal(bidAmtTwo);
+
           const secondBid = await ownerConnected.fetchAuction(0);
           expect(secondBid.bidder).to.equal(await bidderTwo.getAddress());
           expect(parseInt(secondBid.amount._hex)).to.equal(bidAmtTwo);
         });
 
-        it.only("Should not update the auctions duration", async () => {
+        it("Should not update the auctions duration", async () => {
           const beforeDuration = (await ownerConnected.fetchAuction(0))
             .duration;
 
