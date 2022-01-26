@@ -797,8 +797,43 @@ describe("AuctionHouse", () => {
         });
 
         it.only("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
-          let auctionHouse = new AuctionHouse(1337, signer);
           
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+          
+          let curator = signers[9];
+          
+          let auctionHouse = new AuctionHouse(1337, signer);
+          let curatorConnected = new AuctionHouse(1337, curator);
+          
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+          
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            await curator.getAddress(),
+            0,
+            token.address
+          );
+
+          let transactionReceipt = await curatorConnected.setAuctionReservePrice(0, 200);
+          let receipt = await transactionReceipt.wait();
+          const fetchReceipt = await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+
+          // expect(parseInt(fetchReceipt?.token.tokenId.toString()!)).to.equal(0);
+          // expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
+          // expect(receiptfetch?.approved).to.be.true;
+          // expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
+          // expect(receiptfetch?.curatorFeePercentage).to.equal(0);
+          // expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
+          //   parseInt(reservePrice._hex)
+          // );
+          // expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
+          // expect(receiptfetch?.curator).to.equal(ethers.constants.AddressZero);
+          // expect(receiptfetch?.auctionCurrency).to.equal(token.address);
+
         });
 
       });
