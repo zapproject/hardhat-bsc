@@ -796,14 +796,16 @@ describe("AuctionHouse", () => {
           
         });
 
-        it.only("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
+        it("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
           
           const duration = 60 * 60 * 24;
+          
           const reservePrice = BigNumber.from(10).pow(18).div(2);
           
           let curator = signers[9];
           
           let auctionHouse = new AuctionHouse(1337, signer);
+          
           let curatorConnected = new AuctionHouse(1337, curator);
           
           await media.approve(auctionHouse.auctionHouse.address, 0);
@@ -819,22 +821,24 @@ describe("AuctionHouse", () => {
           );
 
           let tx = await curatorConnected.setAuctionReservePrice(0, 200);
+          
           let transactionReceipt = await tx.wait();
+          
           const fetchReceipt = await auctionHouse.fetchAuctionFromTransactionReceipt(transactionReceipt);
-          //console.log(fetchReceipt)
 
           expect(parseInt(fetchReceipt?.token.tokenId.toString()!)).to.equal(0);
+          
           expect(fetchReceipt?.token.mediaContract).to.equal(mediaAddress);
+          
           expect(fetchReceipt?.approved).to.be.false;
+          
           expect(parseInt(fetchReceipt?.duration._hex!)).to.equal(duration);
+          
           expect(fetchReceipt?.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(fetchReceipt?.reservePrice._hex!)).to.equal(
-          //   parseInt(reservePrice._hex)
-          // );
-          // expect(fetchReceipt?.tokenOwner).to.equal(await signer.getAddress());
-          // expect(fetchReceipt?.curator).to.equal(ethers.constants.AddressZero);
-          // expect(fetchReceipt?.auctionCurrency).to.equal(token.address);
-
+         
+          expect(fetchReceipt?.tokenOwner).to.equal(await signer.getAddress());
+          
+          expect(fetchReceipt?.auctionCurrency).to.equal(token.address);
         });
 
       });
