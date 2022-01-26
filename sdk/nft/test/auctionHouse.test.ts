@@ -826,7 +826,7 @@ describe("AuctionHouse", () => {
           expect(parseInt(fetchReceipt?.token.tokenId.toString()!)).to.equal(0);
           expect(fetchReceipt?.token.mediaContract).to.equal(mediaAddress);
           expect(fetchReceipt?.approved).to.be.false;
-          expect(parseInt(fetchReceipt?.duration._hex!)).to.equal(60 * 60 * 24);
+          expect(parseInt(fetchReceipt?.duration._hex!)).to.equal(duration);
           expect(fetchReceipt?.curatorFeePercentage).to.equal(0);
           // expect(parseInt(fetchReceipt?.reservePrice._hex!)).to.equal(
           //   parseInt(reservePrice._hex)
