@@ -821,18 +821,19 @@ describe("AuctionHouse", () => {
           let tx = await curatorConnected.setAuctionReservePrice(0, 200);
           let transactionReceipt = await tx.wait();
           const fetchReceipt = await auctionHouse.fetchAuctionFromTransactionReceipt(transactionReceipt);
+          //console.log(fetchReceipt)
 
-          // expect(parseInt(fetchReceipt?.token.tokenId.toString()!)).to.equal(0);
-          // expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
-          // expect(receiptfetch?.approved).to.be.true;
-          // expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
-          // expect(receiptfetch?.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
+          expect(parseInt(fetchReceipt?.token.tokenId.toString()!)).to.equal(0);
+          expect(fetchReceipt?.token.mediaContract).to.equal(mediaAddress);
+          expect(fetchReceipt?.approved).to.be.false;
+          expect(parseInt(fetchReceipt?.duration._hex!)).to.equal(60 * 60 * 24);
+          expect(fetchReceipt?.curatorFeePercentage).to.equal(0);
+          // expect(parseInt(fetchReceipt?.reservePrice._hex!)).to.equal(
           //   parseInt(reservePrice._hex)
           // );
-          // expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
-          // expect(receiptfetch?.curator).to.equal(ethers.constants.AddressZero);
-          // expect(receiptfetch?.auctionCurrency).to.equal(token.address);
+          // expect(fetchReceipt?.tokenOwner).to.equal(await signer.getAddress());
+          // expect(fetchReceipt?.curator).to.equal(ethers.constants.AddressZero);
+          // expect(fetchReceipt?.auctionCurrency).to.equal(token.address);
 
         });
 
