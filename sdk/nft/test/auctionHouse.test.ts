@@ -818,9 +818,9 @@ describe("AuctionHouse", () => {
             token.address
           );
 
-          let transactionReceipt = await curatorConnected.setAuctionReservePrice(0, 200);
-          let receipt = await transactionReceipt.wait();
-          const fetchReceipt = await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+          let tx = await curatorConnected.setAuctionReservePrice(0, 200);
+          let transactionReceipt = await tx.wait();
+          const fetchReceipt = await auctionHouse.fetchAuctionFromTransactionReceipt(transactionReceipt);
 
           // expect(parseInt(fetchReceipt?.token.tokenId.toString()!)).to.equal(0);
           // expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
