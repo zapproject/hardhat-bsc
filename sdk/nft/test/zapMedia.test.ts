@@ -134,7 +134,7 @@ describe("ZapMedia", () => {
         };
       });
 
-      describe.only("#fetchBalanceOf", () => {
+      describe("#fetchBalanceOf", () => {
         const signerOne = signers[1];
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;

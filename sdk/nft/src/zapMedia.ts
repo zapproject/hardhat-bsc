@@ -71,6 +71,11 @@ class ZapMedia {
    *********************
    */
 
+  /**
+   * Fetches the amount of tokens an address owns on a media contract
+   * @param owner The address to fetch the token balance for
+   * @param mediaIndex The index to access media contracts as an optional argument
+   */
   public async fetchBalanceOf(
     owner: string,
     mediaIndex?: BigNumberish
