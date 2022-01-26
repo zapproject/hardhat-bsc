@@ -333,13 +333,3 @@ export function validateAndParseAddress(address: string): string {
     invariant(false, `${address} is not a valid address.`);
   }
 }
-
-export async function testing(mediaIndex?: BigNumberish) {
-  try {
-    if (mediaIndex !== undefined) {
-      console.log(mediaIndex);
-    } else {
-      console.log("The index was not declared");
-    }
-  } catch {}
-}

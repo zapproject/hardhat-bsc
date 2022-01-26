@@ -13,6 +13,7 @@ import {
 } from "../src/utils";
 
 import ZapMedia from "../src/zapMedia";
+import MediaFactory from "../src/mediaFactory";
 
 import {
   mediaFactoryAddresses,
@@ -37,6 +38,7 @@ import {
 import { EIP712Signature, Bid } from "../src/types";
 import exp from "constants";
 import { typedSignatureHash } from "eth-sig-util";
+import { sign } from "crypto";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -76,13 +78,10 @@ describe("ZapMedia", () => {
   });
 
   describe("#constructor", () => {
-    it.only("Should throw an error if the networkId is invalid", async () => {
-      const test = new ZapMedia(1337, signer);
-
-      const tx = await test.fetchBalanceOf(await signer.getAddress(), 0);
-      // expect(() => {
-      //   new ZapMedia(300, signer);
-      // }).to.throw("Constructor: Network Id is not supported.");
+    it("Should throw an error if the networkId is invalid", async () => {
+      expect(() => {
+        new ZapMedia(300, signer);
+      }).to.throw("Constructor: Network Id is not supported.");
     });
   });
 
@@ -127,6 +126,32 @@ describe("ZapMedia", () => {
           r: "0x00",
           s: "0x00",
         };
+      });
+
+      describe.only("#fetchBalanceOf", () => {
+        it("Should fetch the balance through a custom collection", async () => {
+          // The signer creating a class instance of the MediaFactory
+          const mediaFactory = new MediaFactory(1337, signer);
+
+          // The signer is deploying a custom collection that is not the Zap collection
+          const deploy = await mediaFactory.deployMedia(
+            "Testing",
+            "Test",
+            true,
+            "www.example.com"
+          );
+
+          // The signer is creating a class instance of the Zap Collection
+          const zapCollection = new ZapMedia(1337, signer);
+
+          // Testing fetchBalanceOf with a mediaIndex
+          const tx = await zapCollection.fetchBalanceOf(
+            await signer.getAddress(),
+            0
+          );
+
+          console.log(tx);
+        });
       });
 
       describe("test fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {

@@ -14,7 +14,6 @@ import {
   validateBidShares,
   validateURI,
   validateAndParseAddress,
-  testing,
 } from "./utils";
 
 import { zapMediaAbi, zapMarketAbi } from "./contract/abi";
@@ -76,7 +75,21 @@ class ZapMedia {
     owner: string,
     mediaIndex?: BigNumberish
   ): Promise<BigNumber> {
-    testing(mediaIndex);
+    try {
+      if (mediaIndex !== undefined) {
+        const address = await this.market.mediaContracts(
+          await this.signer.getAddress(),
+          BigNumber.from(mediaIndex)
+        );
+
+        const customCollection = this.media.attach(address);
+
+        return customCollection.balanceOf(owner);
+      }
+    } catch {
+      invariant(false, "ZapMedia (fetchBalanceOf): Media does not exist");
+    }
+
     return this.media.balanceOf(owner);
   }
 
