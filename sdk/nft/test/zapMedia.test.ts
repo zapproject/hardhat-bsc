@@ -138,6 +138,7 @@ describe("ZapMedia", () => {
         const signerOne = signers[1];
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
+        let ownerConnected: ZapMedia;
 
         beforeEach(async () => {
           mediaFactory = new MediaFactory(1337, signerOne);
@@ -150,6 +151,7 @@ describe("ZapMedia", () => {
           );
 
           signerOneConnected = new ZapMedia(1337, signerOne);
+          ownerConnected = new ZapMedia(1337, signer);
         });
 
         it("Should reject if the owner is a zero address", async () => {
@@ -168,7 +170,15 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should fetch the balance through a custom collection", async () => {
+        it("Should fetch the owner balance", async () => {
+          const balance = await ownerConnected.fetchBalanceOf(
+            await signer.getAddress()
+          );
+
+          expect(parseInt(balance._hex)).to.equal(0);
+        });
+
+        it("Should fetch the owner balance through a custom collection", async () => {
           const balance = await signerOneConnected.fetchBalanceOf(
             await signer.getAddress(),
             0
