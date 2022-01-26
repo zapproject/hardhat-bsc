@@ -3,13 +3,13 @@ import {
   zapMarketAddresses,
   zapMediaAddresses,
   zapAuctionAddresses,
-} from './contract/addresses';
-import { DecimalValue, BidShares, MediaData, Ask, Bid } from './types';
-import invariant from 'tiny-invariant';
-import warning from 'tiny-warning';
+} from "./contract/addresses";
+import { DecimalValue, BidShares, MediaData, Ask, Bid } from "./types";
+import invariant from "tiny-invariant";
+import warning from "tiny-warning";
 
-import { BigNumber, BigNumberish, BytesLike, ethers } from 'ethers';
-import { formatUnits } from 'ethers/lib/utils';
+import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 
 let mediaFactoryAddress: string;
 
@@ -25,10 +25,10 @@ let zapAuctionAddress: string;
  */
 export const contractAddresses = (networkId: number): any => {
   if (networkId === 1337) {
-    mediaFactoryAddress = mediaFactoryAddresses['1337'];
-    zapMarketAddress = zapMarketAddresses['1337'];
-    zapMediaAddress = zapMediaAddresses['1337'];
-    zapAuctionAddress = zapAuctionAddresses['1337'];
+    mediaFactoryAddress = mediaFactoryAddresses["1337"];
+    zapMarketAddress = zapMarketAddresses["1337"];
+    zapMediaAddress = zapMediaAddresses["1337"];
+    zapAuctionAddress = zapAuctionAddresses["1337"];
 
     return {
       mediaFactoryAddress,
@@ -37,10 +37,10 @@ export const contractAddresses = (networkId: number): any => {
       zapAuctionAddress,
     };
   } else if (networkId === 4) {
-    mediaFactoryAddress = mediaFactoryAddresses['4'];
-    zapMarketAddress = zapMarketAddresses['4'];
-    zapMediaAddress = zapMediaAddresses['4'];
-    zapAuctionAddress = zapAuctionAddresses['4'];
+    mediaFactoryAddress = mediaFactoryAddresses["4"];
+    zapMarketAddress = zapMarketAddresses["4"];
+    zapMediaAddress = zapMediaAddresses["4"];
+    zapAuctionAddress = zapAuctionAddresses["4"];
 
     return {
       mediaFactoryAddress,
@@ -49,10 +49,10 @@ export const contractAddresses = (networkId: number): any => {
       zapAuctionAddress,
     };
   } else if (networkId === 97) {
-    mediaFactoryAddress = mediaFactoryAddresses['97'];
-    zapMarketAddress = zapMarketAddresses['97'];
-    zapMediaAddress = zapMediaAddresses['97'];
-    zapAuctionAddress = zapAuctionAddresses['97'];
+    mediaFactoryAddress = mediaFactoryAddresses["97"];
+    zapMarketAddress = zapMarketAddresses["97"];
+    zapMediaAddress = zapMediaAddresses["97"];
+    zapAuctionAddress = zapAuctionAddresses["97"];
 
     return {
       mediaFactoryAddress,
@@ -61,10 +61,10 @@ export const contractAddresses = (networkId: number): any => {
       zapAuctionAddress,
     };
   } else if (networkId === 1) {
-    mediaFactoryAddress = mediaFactoryAddresses['1'];
-    zapMarketAddress = zapMarketAddresses['1'];
-    zapMediaAddress = zapMediaAddresses['1'];
-    zapAuctionAddress = zapAuctionAddresses['1'];
+    mediaFactoryAddress = mediaFactoryAddresses["1"];
+    zapMarketAddress = zapMarketAddresses["1"];
+    zapMediaAddress = zapMediaAddresses["1"];
+    zapAuctionAddress = zapAuctionAddresses["1"];
 
     return {
       mediaFactoryAddress,
@@ -73,10 +73,10 @@ export const contractAddresses = (networkId: number): any => {
       zapAuctionAddress,
     };
   } else if (networkId === 56) {
-    mediaFactoryAddress = mediaFactoryAddresses['56'];
-    zapMarketAddress = zapMarketAddresses['56'];
-    zapMediaAddress = zapMediaAddresses['56'];
-    zapAuctionAddress = zapAuctionAddresses['56'];
+    mediaFactoryAddress = mediaFactoryAddresses["56"];
+    zapMarketAddress = zapMarketAddresses["56"];
+    zapMediaAddress = zapMediaAddresses["56"];
+    zapAuctionAddress = zapAuctionAddresses["56"];
 
     return {
       mediaFactoryAddress,
@@ -85,14 +85,14 @@ export const contractAddresses = (networkId: number): any => {
       zapAuctionAddress,
     };
   } else {
-    invariant(false, 'Constructor: Network Id is not supported.');
+    invariant(false, "Constructor: Network Id is not supported.");
   }
 };
 
 export const validateBidShares = (
   collabShares: Array<DecimalValue>,
   creator: DecimalValue,
-  owner: DecimalValue,
+  owner: DecimalValue
 ) => {
   // Counter for collabShares sum
   let collabShareSum = BigNumber.from(0);
@@ -108,15 +108,20 @@ export const validateBidShares = (
   const decimalMarketFee = Decimal.new(5);
 
   for (var i = 0; i < collabShares.length; i++) {
-    collabShareSum = collabShareSum.add(BigInt(parseInt(collabShares[i].toString())));
+    collabShareSum = collabShareSum.add(
+      BigInt(parseInt(collabShares[i].toString()))
+    );
   }
 
-  const sum = collabShareSum.add(creator.value).add(owner.value).add(decimalMarketFee.value);
+  const sum = collabShareSum
+    .add(creator.value)
+    .add(owner.value)
+    .add(decimalMarketFee.value);
 
   if (sum.toString() != decimal100.value.toString()) {
     invariant(
       false,
-      `The BidShares sum to ${sum.toString()}, but they must sum to ${decimal100.value.toString()}`,
+      `The BidShares sum to ${sum.toString()}, but they must sum to ${decimal100.value.toString()}`
     );
   }
 };
@@ -148,7 +153,7 @@ export function constructBid(
   amount: BigNumberish,
   bidder: string,
   recipient: string,
-  sellOnShare: number,
+  sellOnShare: number
 ): Bid {
   let parsedCurrency: string;
   let parsedBidder: string;
@@ -196,14 +201,14 @@ export class Decimal {
   static new(value: number | string, precision: number = 18): any {
     invariant(
       precision % 1 == 0 && precision <= 18 && precision > -1,
-      `${precision.toString()} must be a non-negative integer less than or equal to 18`,
+      `${precision.toString()} must be a non-negative integer less than or equal to 18`
     );
 
     // if type of string, ensure it represents a floating point number or integer
-    if (typeof value == 'string') {
+    if (typeof value == "string") {
       invariant(
         value.match(/^[-+]?[0-9]*\.?[0-9]+$/),
-        'value must represent a floating point number or integer',
+        "value must represent a floating point number or integer"
       );
     } else {
       value = value.toString();
@@ -214,12 +219,12 @@ export class Decimal {
     // require that the specified precision is at least as large as the number of decimal places of value
     invariant(
       precision >= decimalPlaces,
-      `Precision: ${precision} must be greater than or equal the number of decimal places: ${decimalPlaces} in value: ${value}`,
+      `Precision: ${precision} must be greater than or equal the number of decimal places: ${decimalPlaces} in value: ${value}`
     );
 
     const difference = precision - decimalPlaces;
     const zeros = BigNumber.from(10).pow(difference);
-    const abs = BigNumber.from(`${value.replace('.', '')}`);
+    const abs = BigNumber.from(`${value.replace(".", "")}`);
     return { value: abs.mul(zeros) };
   }
 
@@ -228,7 +233,7 @@ export class Decimal {
    * @param value
    */
   private static countDecimals(value: string) {
-    if (value.includes('.')) return value.split('.')[1].length || 0;
+    if (value.includes(".")) return value.split(".")[1].length || 0;
     return 0;
   }
 }
@@ -245,7 +250,7 @@ export function constructMediaData(
   tokenURI: string,
   metadataURI: string,
   contentHash: BytesLike,
-  metadataHash: BytesLike,
+  metadataHash: BytesLike
 ): MediaData {
   // validate the hash to ensure it fits in bytes32
   //   validateBytes32(contentHash);
@@ -273,7 +278,7 @@ export function constructBidShares(
   collaborators: Array<string>,
   collabShares: Array<number>,
   creator: number,
-  owner: number,
+  owner: number
 ): any {
   // Store the collabShares Decimal values
   let decimalCollabShares = [];
@@ -281,7 +286,9 @@ export function constructBidShares(
   for (var i = 0; i < collabShares.length; i++) {
     // Converts the collabShare integers to a Decimal hexString value
     // The hexString value represents a collabShare integer to the 18th
-    decimalCollabShares.push(Decimal.new(parseFloat(collabShares[i].toFixed(4))).value);
+    decimalCollabShares.push(
+      Decimal.new(parseFloat(collabShares[i].toFixed(4))).value
+    );
   }
 
   // Converts the creator integer to a Decimal hexString value
@@ -325,4 +332,14 @@ export function validateAndParseAddress(address: string): string {
   } catch (error) {
     invariant(false, `${address} is not a valid address.`);
   }
+}
+
+export async function testing(mediaIndex?: BigNumberish) {
+  try {
+    if (mediaIndex !== undefined) {
+      console.log(mediaIndex);
+    } else {
+      console.log("The index was not declared");
+    }
+  } catch {}
 }

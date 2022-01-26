@@ -14,6 +14,7 @@ import {
   validateBidShares,
   validateURI,
   validateAndParseAddress,
+  testing,
 } from "./utils";
 
 import { zapMediaAbi, zapMarketAbi } from "./contract/abi";
@@ -71,7 +72,11 @@ class ZapMedia {
    *********************
    */
 
-  public async fetchBalanceOf(owner: string): Promise<BigNumber> {
+  public async fetchBalanceOf(
+    owner: string,
+    mediaIndex?: BigNumberish
+  ): Promise<BigNumber> {
+    testing(mediaIndex);
     return this.media.balanceOf(owner);
   }
 
