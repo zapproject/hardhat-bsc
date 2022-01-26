@@ -160,6 +160,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should reject if the owner is a zero address through a custom collection", async () => {
+          await signerOneConnected
+            .fetchBalanceOf(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
+            );
+        });
+
         it("Should fetch the balance through a custom collection", async () => {
           const balance = await signerOneConnected.fetchBalanceOf(
             await signer.getAddress(),
