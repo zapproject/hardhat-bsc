@@ -75,16 +75,23 @@ class ZapMedia {
     owner: string,
     mediaIndex?: BigNumberish
   ): Promise<BigNumber> {
+    if (owner == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
+      );
+    }
+
     try {
       if (mediaIndex !== undefined) {
-        const address = await this.market.mediaContracts(
+        const customMediaAddress = await this.market.mediaContracts(
           await this.signer.getAddress(),
           BigNumber.from(mediaIndex)
         );
 
-        const customCollection = this.media.attach(address);
+        const customMedia = this.media.attach(customMediaAddress);
 
-        return customCollection.balanceOf(owner);
+        return customMedia.balanceOf(owner);
       }
     } catch {
       invariant(false, "ZapMedia (fetchBalanceOf): Media does not exist");
