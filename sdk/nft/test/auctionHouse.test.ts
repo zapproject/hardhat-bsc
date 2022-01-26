@@ -739,14 +739,17 @@ describe("AuctionHouse", () => {
 
         it.only("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
           let auctionHouse = new AuctionHouse(1337, signer);
-          await auctionHouse.fetchAuction(3).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
-            );
+
+          let fetchReceipt = await auctionHouse.setAuctionReservePrice(0, 200);
+          // .catch((err) => {
+          //   expect(err.message).to.equal(
+          //     "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+          //   );
+
           });
         });
 
       });
     });
   });
-});
+
