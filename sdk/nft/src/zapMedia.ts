@@ -42,12 +42,10 @@ class ZapMedia {
   signer: Signer;
   public readOnly: boolean;
 
-  constructor(networkId: number, signer: Signer, mediaIndex?: number) {
+  constructor(networkId: number, signer: Signer) {
     this.networkId = networkId;
 
     this.signer = signer;
-
-    this.mediaIndex = mediaIndex;
 
     this.market = new ethers.Contract(
       contractAddresses(networkId).zapMarketAddress,
@@ -55,14 +53,11 @@ class ZapMedia {
       signer
     );
 
-    if (mediaIndex === undefined) {
-      this.media = new ethers.Contract(
-        contractAddresses(networkId).zapMediaAddress,
-        zapMediaAbi,
-        signer
-      );
-    } else {
-    }
+    this.media = new ethers.Contract(
+      contractAddresses(networkId).zapMediaAddress,
+      zapMediaAbi,
+      signer
+    );
 
     if (Signer.isSigner(signer)) {
       this.readOnly = false;
@@ -76,7 +71,37 @@ class ZapMedia {
    *********************
    */
 
-  public async fetchBalanceOf(owner: string): Promise<BigNumber> {
+  /**
+   * Fetches the amount of tokens an address owns on a media contract
+   * @param owner The address to fetch the token balance for
+   * @param mediaIndex The index to access media contracts as an optional argument
+   */
+  public async fetchBalanceOf(
+    owner: string,
+    mediaIndex?: BigNumberish
+  ): Promise<BigNumber> {
+    if (owner == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
+      );
+    }
+
+    try {
+      if (mediaIndex !== undefined) {
+        const customMediaAddress = await this.market.mediaContracts(
+          await this.signer.getAddress(),
+          BigNumber.from(mediaIndex)
+        );
+
+        const customMedia = this.media.attach(customMediaAddress);
+
+        return customMedia.balanceOf(owner);
+      }
+    } catch {
+      invariant(false, "ZapMedia (fetchBalanceOf): Media does not exist");
+    }
+
     return this.media.balanceOf(owner);
   }
 
