@@ -795,6 +795,12 @@ describe("AuctionHouse", () => {
           expect(receiptfetch).to.be.null
           
         });
+
+        it.only("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
+          let auctionHouse = new AuctionHouse(1337, signer);
+          
+        });
+
       });
     });
   });
