@@ -63,27 +63,37 @@ var ZapMedia = /** @class */ (function () {
      * Zap View Methods
      *********************
      */
+    /**
+     * Fetches the amount of tokens an address owns on a media contract
+     * @param owner The address to fetch the token balance for
+     * @param mediaIndex The index to access media contracts as an optional argument
+     */
     ZapMedia.prototype.fetchBalanceOf = function (owner, mediaIndex) {
         return __awaiter(this, void 0, void 0, function () {
-            var address, _a, _b, customCollection, _c;
+            var customMediaAddress, _a, _b, customMedia, _c;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
-                        _d.trys.push([0, 4, , 5]);
-                        if (!(mediaIndex !== undefined)) return [3 /*break*/, 3];
+                        if (owner == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address.");
+                        }
+                        _d.label = 1;
+                    case 1:
+                        _d.trys.push([1, 5, , 6]);
+                        if (!(mediaIndex !== undefined)) return [3 /*break*/, 4];
                         _b = (_a = this.market).mediaContracts;
                         return [4 /*yield*/, this.signer.getAddress()];
-                    case 1: return [4 /*yield*/, _b.apply(_a, [_d.sent(), ethers_1.BigNumber.from(mediaIndex)])];
-                    case 2:
-                        address = _d.sent();
-                        customCollection = this.media.attach(address);
-                        return [2 /*return*/, customCollection.balanceOf(owner)];
-                    case 3: return [3 /*break*/, 5];
-                    case 4:
+                    case 2: return [4 /*yield*/, _b.apply(_a, [_d.sent(), ethers_1.BigNumber.from(mediaIndex)])];
+                    case 3:
+                        customMediaAddress = _d.sent();
+                        customMedia = this.media.attach(customMediaAddress);
+                        return [2 /*return*/, customMedia.balanceOf(owner)];
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
                         _c = _d.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchBalanceOf): Media does not exist");
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/, this.media.balanceOf(owner)];
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/, this.media.balanceOf(owner)];
                 }
             });
         });

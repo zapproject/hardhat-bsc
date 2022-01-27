@@ -1,4 +1,6 @@
-import chai, { expect, use } from "chai";
+import chai, { expect } from "chai";
+
+import chaiAsPromised from "chai-as-promised";
 
 import { ethers, Wallet, Signer } from "ethers";
 
@@ -41,6 +43,10 @@ import { typedSignatureHash } from "eth-sig-util";
 import { sign } from "crypto";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+
+chai.use(chaiAsPromised);
+
+chai.should();
 
 describe("ZapMedia", () => {
   let bidShares: any;
@@ -129,53 +135,90 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchBalanceOf", () => {
-        it("Should fetch the balance through a custom collection", async () => {
-          // The signer creating a class instance of the MediaFactory
-          const mediaFactory = new MediaFactory(1337, signer);
 
-          // The signer is deploying a custom collection that is not the Zap collection
-          const deploy = await mediaFactory.deployMedia(
-            "Testing",
-            "Test",
+        const signerOne = signers[1];
+        let mediaFactory: MediaFactory;
+        let signerOneConnected: ZapMedia;
+        let ownerConnected: ZapMedia;
+
+        beforeEach(async () => {
+          mediaFactory = new MediaFactory(1337, signerOne);
+
+          await mediaFactory.deployMedia(
+            "TEST COLLECTION 2",
+            "TC2",
             true,
             "www.example.com"
           );
 
-          // The signer is creating a class instance of the Zap Collection
-          const zapCollection = new ZapMedia(1337, signer);
+          signerOneConnected = new ZapMedia(1337, signerOne);
+          ownerConnected = new ZapMedia(1337, signer);
+        });
 
-          // Testing fetchBalanceOf with a mediaIndex
-          const tx = await zapCollection.fetchBalanceOf(
+        it("Should reject if the owner is a zero address", async () => {
+          await signerOneConnected
+            .fetchBalanceOf(ethers.constants.AddressZero)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the owner is a zero address through a custom collection", async () => {
+          await signerOneConnected
+            .fetchBalanceOf(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
+            );
+        });
+
+        it("Should fetch the owner balance", async () => {
+          const balance = await ownerConnected.fetchBalanceOf(
+            await signer.getAddress()
+          );
+
+          expect(parseInt(balance._hex)).to.equal(0);
+        });
+
+        it("Should fetch the owner balance through a custom collection", async () => {
+          const balance = await signerOneConnected.fetchBalanceOf(
             await signer.getAddress(),
             0
           );
 
-          console.log(tx);
+          expect(parseInt(balance._hex)).to.equal(0);
         });
       });
-      describe.only("#fetchOwnerOf", () => {
-        it("Should fetch the owner through a custom collection", async () => {
-          // The signer creating a class instance of the MediaFactory
-          const mediaFactory = new MediaFactory(1337, signer);
+      describe("#fetchOwnerOf", () => {
+        const signerOne = signers[1];
+        let mediaFactory: MediaFactory;
+        let signerOneConnected: ZapMedia;
+        let ownerConnected: ZapMedia;
+        beforeEach(async () => {
+          mediaFactory = new MediaFactory(1337, signerOne);
 
-          // The signer is deploying a custom collection that is not the Zap collection
-          const deploy = await mediaFactory.deployMedia(
-            "Testing",
-            "Test",
+          await mediaFactory.deployMedia(
+            "TEST COLLECTION 2",
+            "TC2",
             true,
             "www.example.com"
           );
 
-          // The signer is creating a class instance of the Zap Collection
-          const zapCollection = new ZapMedia(1337, signer);
+          signerOneConnected = new ZapMedia(1337, signerOne);
+          ownerConnected = new ZapMedia(1337, signer);
+        });
+        it("Should reject if no media is minted", async () => {
+          await ownerConnected
+            .fetchOwnerOf(0)
+            .should.be.rejectedWith(
+              "ZapMedia (fetchOwnerOf): The token id does not exist."
+            );
           
-          await zapCollection.mint(mediaData, bidShares);
-
-          // const owner = await media.fetchOwnerOf(0);
-          // Testing fetchBalanceOf with a mediaIndex
-          const owner = await zapCollection.fetchOwnerOf(0);
+        });
+        it("Should fetch the owner through a custom collection", async () => {
+          await ownerConnected.mint(mediaData, bidShares);
+          const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
-          console.log(owner);
+          
         });
       });
 
@@ -188,6 +231,7 @@ describe("ZapMedia", () => {
             ethers.utils.hexlify(mediaData.contentHash)
           );
         });
+
         it("fetchContentHash should get 0x0 if tokenId doesn't exist", async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
@@ -196,6 +240,7 @@ describe("ZapMedia", () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainContentHash).eq(ethers.constants.HashZero);
         });
+
         it("Should be able to fetch metadataHash", async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
@@ -204,6 +249,7 @@ describe("ZapMedia", () => {
             ethers.utils.hexlify(mediaData.metadataHash)
           );
         });
+
         it("fetchMetadataHash should get 0x0 if tokenId doesn't exist", async () => {
           const media = new ZapMedia(1337, signer);
           await media.mint(mediaData, bidShares);
@@ -212,6 +258,7 @@ describe("ZapMedia", () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
+
         it("Should be able to fetch permitNonce", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const otherWallet: Wallet = new ethers.Wallet(

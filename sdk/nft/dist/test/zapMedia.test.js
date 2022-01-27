@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,7 +58,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai_1 = require("chai");
+var chai_1 = __importStar(require("chai"));
+var chai_as_promised_1 = __importDefault(require("chai-as-promised"));
 var ethers_1 = require("ethers");
 var utils_1 = require("ethers/lib/utils");
 var utils_2 = require("../src/utils");
@@ -49,6 +69,8 @@ var addresses_1 = require("../src/contract/addresses");
 var deploy_1 = require("../src/deploy");
 var test_utils_1 = require("./test_utils");
 var provider = new ethers_1.ethers.providers.JsonRpcProvider("http://localhost:8545");
+chai_1.default.use(chai_as_promised_1.default);
+chai_1.default.should();
 describe("ZapMedia", function () {
     var bidShares;
     var ask;
@@ -153,9 +175,83 @@ describe("ZapMedia", function () {
                     }
                 });
             }); });
-            describe.only("#fetchBalanceOf", function () {
-                it("Should fetch the balance through a custom collection", function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var mediaFactory, deploy, zapCollection, tx, _a, _b;
+            describe("#fetchBalanceOf", function () {
+                var signerOne = signers[1];
+                var mediaFactory;
+                var signerOneConnected;
+                var ownerConnected;
+                beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                mediaFactory = new mediaFactory_1.default(1337, signerOne);
+                                return [4 /*yield*/, mediaFactory.deployMedia("TEST COLLECTION 2", "TC2", true, "www.example.com")];
+                            case 1:
+                                _a.sent();
+                                signerOneConnected = new zapMedia_1.default(1337, signerOne);
+                                ownerConnected = new zapMedia_1.default(1337, signer);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it("Should reject if the owner is a zero address", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, signerOneConnected
+                                    .fetchBalanceOf(ethers_1.ethers.constants.AddressZero)
+                                    .should.be.rejectedWith("Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address.")];
+                            case 1:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it("Should reject if the owner is a zero address through a custom collection", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, signerOneConnected
+                                    .fetchBalanceOf(ethers_1.ethers.constants.AddressZero, 0)
+                                    .should.be.rejectedWith("Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address.")];
+                            case 1:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it("Should fetch the owner balance", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var balance, _a, _b;
+                    return __generator(this, function (_c) {
+                        switch (_c.label) {
+                            case 0:
+                                _b = (_a = ownerConnected).fetchBalanceOf;
+                                return [4 /*yield*/, signer.getAddress()];
+                            case 1: return [4 /*yield*/, _b.apply(_a, [_c.sent()])];
+                            case 2:
+                                balance = _c.sent();
+                                (0, chai_1.expect)(parseInt(balance._hex)).to.equal(0);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+                it("Should fetch the owner balance through a custom collection", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var balance, _a, _b;
+                    return __generator(this, function (_c) {
+                        switch (_c.label) {
+                            case 0:
+                                _b = (_a = signerOneConnected).fetchBalanceOf;
+                                return [4 /*yield*/, signer.getAddress()];
+                            case 1: return [4 /*yield*/, _b.apply(_a, [_c.sent(), 0])];
+                            case 2:
+                                balance = _c.sent();
+                                (0, chai_1.expect)(parseInt(balance._hex)).to.equal(0);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
+            });
+            describe.only("#fetchOwnerOf", function () {
+                it("Should fetch the owner through a custom collection", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var mediaFactory, deploy, zapCollection, owner, _a, _b;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0:
@@ -164,12 +260,17 @@ describe("ZapMedia", function () {
                             case 1:
                                 deploy = _c.sent();
                                 zapCollection = new zapMedia_1.default(1337, signer);
-                                _b = (_a = zapCollection).fetchBalanceOf;
-                                return [4 /*yield*/, signer.getAddress()];
-                            case 2: return [4 /*yield*/, _b.apply(_a, [_c.sent(), 0])];
+                                return [4 /*yield*/, zapCollection.mint(mediaData, bidShares)];
+                            case 2:
+                                _c.sent();
+                                return [4 /*yield*/, zapCollection.fetchOwnerOf(0)];
                             case 3:
-                                tx = _c.sent();
-                                console.log(tx);
+                                owner = _c.sent();
+                                _b = (_a = (0, chai_1.expect)(owner).to).equal;
+                                return [4 /*yield*/, signer.getAddress()];
+                            case 4:
+                                _b.apply(_a, [_c.sent()]);
+                                console.log(owner);
                                 return [2 /*return*/];
                         }
                     });

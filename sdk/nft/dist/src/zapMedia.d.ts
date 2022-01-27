@@ -13,6 +13,11 @@ declare class ZapMedia {
      * Zap View Methods
      *********************
      */
+    /**
+     * Fetches the amount of tokens an address owns on a media contract
+     * @param owner The address to fetch the token balance for
+     * @param mediaIndex The index to access media contracts as an optional argument
+     */
     fetchBalanceOf(owner: string, mediaIndex?: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the owner of the specified media on an instance of the Zap Media Contract
