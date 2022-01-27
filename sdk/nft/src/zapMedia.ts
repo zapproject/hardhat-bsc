@@ -87,22 +87,17 @@ class ZapMedia {
       );
     }
 
-    try {
-      if (mediaIndex !== undefined) {
-        const customMediaAddress = await this.market.mediaContracts(
-          await this.signer.getAddress(),
-          BigNumber.from(mediaIndex)
-        );
+    // If the mediaIndex is not undefined return the custom media address and
+    // attach the address to this.media and invoke balanceOf on the custom media
+    if (mediaIndex !== undefined) {
+      return this.media
+        .attach(await this.customMedia(mediaIndex))
+        .balanceOf(owner);
 
-        const customMedia = this.media.attach(customMediaAddress);
-
-        return customMedia.balanceOf(owner);
-      }
-    } catch {
-      invariant(false, "ZapMedia (fetchBalanceOf): Media does not exist");
+      // If the mediaIndex is undefined invoke balanceOf on the main media
+    } else {
+      return this.media.balanceOf(owner);
     }
-
-    return this.media.balanceOf(owner);
   }
 
   /**
@@ -117,18 +112,6 @@ class ZapMedia {
     }
   }
 
-  private async customMedia(mediaIndex?: BigNumberish) {
-    try {
-      const fetchMediaAddress: string = await this.market.mediaContracts(
-        await this.signer.getAddress(),
-        BigNumber.from(mediaIndex)
-      );
-      return fetchMediaAddress;
-    } catch {
-      invariant(false, "Media Index out of range");
-    }
-  }
-
   /**
    * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
    * @param owner
@@ -139,6 +122,7 @@ class ZapMedia {
     index: BigNumberish,
     mediaIndex?: BigNumberish
   ): Promise<BigNumber> {
+    // If the owner is a zero address thrown an error
     if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -146,10 +130,14 @@ class ZapMedia {
       );
     }
 
+    // If the mediaIndex is not undefined return the custom media address
+    // attach the address to this.media and invoke tokenOfOwnerByIndex on the custom media
     if (mediaIndex !== undefined) {
       return this.media
         .attach(await this.customMedia(mediaIndex))
         .tokenOfOwnerByIndex(owner, index);
+
+      // If the mediaIndex is undefined invoke tokenOfOwnerByIndex on the main media
     } else {
       return this.media.tokenOfOwnerByIndex(owner, index);
     }
@@ -659,10 +647,22 @@ class ZapMedia {
     };
   }
 
-  // /******************
-  //  * Private Methods
-  //  ******************
-  //  */
+  /******************
+   * Private Methods
+   ******************
+   */
+
+  private async customMedia(mediaIndex?: BigNumberish) {
+    try {
+      const fetchMediaAddress: string = await this.market.mediaContracts(
+        await this.signer.getAddress(),
+        BigNumber.from(mediaIndex)
+      );
+      return fetchMediaAddress;
+    } catch {
+      invariant(false, "Media Index out of range");
+    }
+  }
 
   // /**
   //  * Throws an error if called on a readOnly == true instance of Zap Sdk

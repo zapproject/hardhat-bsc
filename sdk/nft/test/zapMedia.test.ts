@@ -675,7 +675,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#tokenOfOwnerByIndex", () => {
+      describe("#tokenOfOwnerByIndex", () => {
         it("Should throw an error if the (owner) is a zero address", async () => {
           const media = new ZapMedia(1337, signer);
 
@@ -688,7 +688,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should return the token of the owner by index", async () => {
+        it("Should return the token of the owner by index", async () => {
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
