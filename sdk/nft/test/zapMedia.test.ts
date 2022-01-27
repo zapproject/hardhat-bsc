@@ -334,6 +334,42 @@ describe("ZapMedia", () => {
           expect(nonceForTokenThatDoesntExist).to.equal(0);
         });
       });
+
+      describe.only("#tokenOfOwnerByIndex", () => {
+        let signerOne: Signer;
+        let ownerConnected: ZapMedia;
+        let signerOneConnected: ZapMedia;
+
+        beforeEach(async () => {
+          signerOne = signers[1];
+
+          ownerConnected = new ZapMedia(1337, signer);
+          signerOneConnected = new ZapMedia(1337, signerOne);
+          await ownerConnected.mint(mediaDataOne, bidShares);
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+        });
+
+        it("Should throw an error if the (owner) is a zero address", async () => {
+          // await ownerConnected
+          //   .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
+          //   .should.be.rejectedWith(
+          //     "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
+          //   );
+        });
+
+        // it("Should return the token of the owner by index", async () => {
+        //   const media = new ZapMedia(1337, signer);
+
+        //   await media.mint(mediaData, bidShares);
+
+        //   const tokenId = await media.fetchMediaOfOwnerByIndex(
+        //     await signer.getAddress(),
+        //     0
+        //   );
+
+        //   expect(parseInt(tokenId._hex)).to.equal(0);
+        // });
+      });
     });
 
     describe("Write Functions", () => {
