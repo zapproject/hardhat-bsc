@@ -693,17 +693,6 @@ describe("ZapMedia", () => {
 
           await media.mint(mediaData, bidShares);
 
-          const signerOne = signers[1];
-
-          const mediaFactory = new MediaFactory(1337, signerOne);
-
-          await mediaFactory.deployMedia(
-            "Signer One Collection",
-            "SOC",
-            true,
-            "www.example.com"
-          );
-
           const tokenId = await media.fetchMediaOfOwnerByIndex(
             await signer.getAddress(),
             0,

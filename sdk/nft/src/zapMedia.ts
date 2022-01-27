@@ -118,11 +118,15 @@ class ZapMedia {
   }
 
   private async customMedia(mediaIndex?: BigNumberish) {
-    const customMediaAddress = await this.market.mediaContracts(
-      await this.signer.getAddress(),
-      BigNumber.from(mediaIndex)
-    );
-    return customMediaAddress;
+    try {
+      const fetchMediaAddress: string = await this.market.mediaContracts(
+        await this.signer.getAddress(),
+        BigNumber.from(mediaIndex)
+      );
+      return fetchMediaAddress;
+    } catch {
+      invariant(false, "Media Index out of range");
+    }
   }
 
   /**
@@ -134,7 +138,7 @@ class ZapMedia {
     owner: string,
     index: BigNumberish,
     mediaIndex?: BigNumberish
-  ): Promise<any> {
+  ): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -143,7 +147,9 @@ class ZapMedia {
     }
 
     if (mediaIndex !== undefined) {
-      return await this.customMedia(mediaIndex);
+      return this.media
+        .attach(await this.customMedia(mediaIndex))
+        .tokenOfOwnerByIndex(owner, index);
     } else {
       return this.media.tokenOfOwnerByIndex(owner, index);
     }
