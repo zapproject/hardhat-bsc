@@ -688,17 +688,31 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should return the token of the owner by index", async () => {
+        it.only("Should return the token of the owner by index", async () => {
           const media = new ZapMedia(1337, signer);
 
           await media.mint(mediaData, bidShares);
 
+          const signerOne = signers[1];
+
+          const mediaFactory = new MediaFactory(1337, signerOne);
+
+          await mediaFactory.deployMedia(
+            "Signer One Collection",
+            "SOC",
+            true,
+            "www.example.com"
+          );
+
           const tokenId = await media.fetchMediaOfOwnerByIndex(
             await signer.getAddress(),
+            0,
             0
           );
 
-          expect(parseInt(tokenId._hex)).to.equal(0);
+          console.log(tokenId);
+
+          // expect(parseInt(tokenId._hex)).to.equal(0);
         });
       });
 

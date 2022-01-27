@@ -117,6 +117,14 @@ class ZapMedia {
     }
   }
 
+  private async customMedia(mediaIndex?: BigNumberish) {
+    const customMediaAddress = await this.market.mediaContracts(
+      await this.signer.getAddress(),
+      BigNumber.from(mediaIndex)
+    );
+    return customMediaAddress;
+  }
+
   /**
    * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
    * @param owner
@@ -124,8 +132,9 @@ class ZapMedia {
    */
   public async fetchMediaOfOwnerByIndex(
     owner: string,
-    index: BigNumberish
-  ): Promise<BigNumber> {
+    index: BigNumberish,
+    mediaIndex?: BigNumberish
+  ): Promise<any> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -133,7 +142,11 @@ class ZapMedia {
       );
     }
 
-    return this.media.tokenOfOwnerByIndex(owner, index);
+    if (mediaIndex !== undefined) {
+      return await this.customMedia(mediaIndex);
+    } else {
+      return this.media.tokenOfOwnerByIndex(owner, index);
+    }
   }
 
   /**
