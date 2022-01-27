@@ -126,12 +126,13 @@ class ZapMedia {
     owner: string,
     index: BigNumberish
   ): Promise<BigNumber> {
-    if (owner === ethers.constants.AddressZero) {
+    if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
       );
     }
+
     return this.media.tokenOfOwnerByIndex(owner, index);
   }
 

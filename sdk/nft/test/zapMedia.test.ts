@@ -675,7 +675,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#tokenOfOwnerByIndex", () => {
+      describe.only("#tokenOfOwnerByIndex", () => {
         it("Should throw an error if the (owner) is a zero address", async () => {
           const media = new ZapMedia(1337, signer);
 
@@ -683,11 +683,9 @@ describe("ZapMedia", () => {
 
           await media
             .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
+            );
         });
 
         it("Should return the token of the owner by index", async () => {
