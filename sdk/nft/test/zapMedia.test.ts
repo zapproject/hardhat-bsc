@@ -128,7 +128,7 @@ describe("ZapMedia", () => {
         };
       });
 
-      describe.only("#fetchBalanceOf", () => {
+      describe("#fetchBalanceOf", () => {
         it("Should fetch the balance through a custom collection", async () => {
           // The signer creating a class instance of the MediaFactory
           const mediaFactory = new MediaFactory(1337, signer);
@@ -151,6 +151,31 @@ describe("ZapMedia", () => {
           );
 
           console.log(tx);
+        });
+      });
+      describe.only("#fetchOwnerOf", () => {
+        it("Should fetch the owner through a custom collection", async () => {
+          // The signer creating a class instance of the MediaFactory
+          const mediaFactory = new MediaFactory(1337, signer);
+
+          // The signer is deploying a custom collection that is not the Zap collection
+          const deploy = await mediaFactory.deployMedia(
+            "Testing",
+            "Test",
+            true,
+            "www.example.com"
+          );
+
+          // The signer is creating a class instance of the Zap Collection
+          const zapCollection = new ZapMedia(1337, signer);
+          
+          await zapCollection.mint(mediaData, bidShares);
+
+          // const owner = await media.fetchOwnerOf(0);
+          // Testing fetchBalanceOf with a mediaIndex
+          const owner = await zapCollection.fetchOwnerOf(0);
+          expect(owner).to.equal(await signer.getAddress());
+          console.log(owner);
         });
       });
 

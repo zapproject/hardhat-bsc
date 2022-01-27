@@ -11,63 +11,74 @@ var ethers_1 = require("ethers");
 var mediaFactoryAddress;
 var zapMarketAddress;
 var zapMediaAddress;
+var zapAuctionAddress;
 /**
  * Returns the MediaFactory, ZapMarket, and ZapMedia contract addresses depending on the networkId.
  * @param {string} networkId- The numeric value that routes to a blockchain network.
  */
 var contractAddresses = function (networkId) {
     if (networkId === 1337) {
-        mediaFactoryAddress = addresses_1.mediaFactoryAddresses['1337'];
-        zapMarketAddress = addresses_1.zapMarketAddresses['1337'];
-        zapMediaAddress = addresses_1.zapMediaAddresses['1337'];
+        mediaFactoryAddress = addresses_1.mediaFactoryAddresses["1337"];
+        zapMarketAddress = addresses_1.zapMarketAddresses["1337"];
+        zapMediaAddress = addresses_1.zapMediaAddresses["1337"];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses["1337"];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 4) {
-        mediaFactoryAddress = addresses_1.mediaFactoryAddresses['4'];
-        zapMarketAddress = addresses_1.zapMarketAddresses['4'];
-        zapMediaAddress = addresses_1.zapMediaAddresses['4'];
+        mediaFactoryAddress = addresses_1.mediaFactoryAddresses["4"];
+        zapMarketAddress = addresses_1.zapMarketAddresses["4"];
+        zapMediaAddress = addresses_1.zapMediaAddresses["4"];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses["4"];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 97) {
-        mediaFactoryAddress = addresses_1.mediaFactoryAddresses['97'];
-        zapMarketAddress = addresses_1.zapMarketAddresses['97'];
-        zapMediaAddress = addresses_1.zapMediaAddresses['97'];
+        mediaFactoryAddress = addresses_1.mediaFactoryAddresses["97"];
+        zapMarketAddress = addresses_1.zapMarketAddresses["97"];
+        zapMediaAddress = addresses_1.zapMediaAddresses["97"];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses["97"];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 1) {
-        mediaFactoryAddress = addresses_1.mediaFactoryAddresses['1'];
-        zapMarketAddress = addresses_1.zapMarketAddresses['1'];
-        zapMediaAddress = addresses_1.zapMediaAddresses['1'];
+        mediaFactoryAddress = addresses_1.mediaFactoryAddresses["1"];
+        zapMarketAddress = addresses_1.zapMarketAddresses["1"];
+        zapMediaAddress = addresses_1.zapMediaAddresses["1"];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses["1"];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else if (networkId === 56) {
-        mediaFactoryAddress = addresses_1.mediaFactoryAddresses['56'];
-        zapMarketAddress = addresses_1.zapMarketAddresses['56'];
-        zapMediaAddress = addresses_1.zapMediaAddresses['56'];
+        mediaFactoryAddress = addresses_1.mediaFactoryAddresses["56"];
+        zapMarketAddress = addresses_1.zapMarketAddresses["56"];
+        zapMediaAddress = addresses_1.zapMediaAddresses["56"];
+        zapAuctionAddress = addresses_1.zapAuctionAddresses["56"];
         return {
             mediaFactoryAddress: mediaFactoryAddress,
             zapMarketAddress: zapMarketAddress,
             zapMediaAddress: zapMediaAddress,
+            zapAuctionAddress: zapAuctionAddress,
         };
     }
     else {
-        (0, tiny_invariant_1.default)(false, 'ZapMedia Constructor: Network Id is not supported.');
+        (0, tiny_invariant_1.default)(false, "Constructor: Network Id is not supported.");
     }
 };
 exports.contractAddresses = contractAddresses;
@@ -85,7 +96,10 @@ var validateBidShares = function (collabShares, creator, owner) {
     for (var i = 0; i < collabShares.length; i++) {
         collabShareSum = collabShareSum.add(BigInt(parseInt(collabShares[i].toString())));
     }
-    var sum = collabShareSum.add(creator.value).add(owner.value).add(decimalMarketFee.value);
+    var sum = collabShareSum
+        .add(creator.value)
+        .add(owner.value)
+        .add(decimalMarketFee.value);
     if (sum.toString() != decimal100.value.toString()) {
         (0, tiny_invariant_1.default)(false, "The BidShares sum to ".concat(sum.toString(), ", but they must sum to ").concat(decimal100.value.toString()));
     }
@@ -161,8 +175,8 @@ var Decimal = /** @class */ (function () {
         if (precision === void 0) { precision = 18; }
         (0, tiny_invariant_1.default)(precision % 1 == 0 && precision <= 18 && precision > -1, "".concat(precision.toString(), " must be a non-negative integer less than or equal to 18"));
         // if type of string, ensure it represents a floating point number or integer
-        if (typeof value == 'string') {
-            (0, tiny_invariant_1.default)(value.match(/^[-+]?[0-9]*\.?[0-9]+$/), 'value must represent a floating point number or integer');
+        if (typeof value == "string") {
+            (0, tiny_invariant_1.default)(value.match(/^[-+]?[0-9]*\.?[0-9]+$/), "value must represent a floating point number or integer");
         }
         else {
             value = value.toString();
@@ -172,7 +186,7 @@ var Decimal = /** @class */ (function () {
         (0, tiny_invariant_1.default)(precision >= decimalPlaces, "Precision: ".concat(precision, " must be greater than or equal the number of decimal places: ").concat(decimalPlaces, " in value: ").concat(value));
         var difference = precision - decimalPlaces;
         var zeros = ethers_1.BigNumber.from(10).pow(difference);
-        var abs = ethers_1.BigNumber.from("".concat(value.replace('.', '')));
+        var abs = ethers_1.BigNumber.from("".concat(value.replace(".", "")));
         return { value: abs.mul(zeros) };
     };
     /**
@@ -180,8 +194,8 @@ var Decimal = /** @class */ (function () {
      * @param value
      */
     Decimal.countDecimals = function (value) {
-        if (value.includes('.'))
-            return value.split('.')[1].length || 0;
+        if (value.includes("."))
+            return value.split(".")[1].length || 0;
         return 0;
     };
     return Decimal;

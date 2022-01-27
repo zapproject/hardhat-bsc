@@ -1,22 +1,30 @@
-import { ContractTransaction, BigNumber, BigNumberish, Signer } from 'ethers';
-import { MediaData, BidShares, Ask } from './types';
+import { ContractTransaction, BigNumber, BigNumberish, Signer } from "ethers";
+import { MediaData, BidShares, Ask, Bid, EIP712Signature, EIP712Domain } from "./types";
 declare class ZapMedia {
+    getSigNonces(addess: any): void;
     networkId: number;
     mediaIndex: any;
     media: any;
     market: any;
     signer: Signer;
-    constructor(networkId: number, signer: Signer, mediaIndex?: number);
+    readOnly: boolean;
+    constructor(networkId: number, signer: Signer);
     /*********************
      * Zap View Methods
      *********************
      */
-    fetchBalanceOf(owner: string): Promise<BigNumber>;
+    fetchBalanceOf(owner: string, mediaIndex?: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the owner of the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
     fetchOwnerOf(mediaId: BigNumberish): Promise<string>;
+    /**
+     * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
+     * @param owner
+     * @param index
+     */
+    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -28,6 +36,27 @@ declare class ZapMedia {
      */
     fetchMetadataURI(mediaId: BigNumberish): Promise<string>;
     /**
+     * Fetches the content hash for the specified media on the ZapMedia Contract
+     * @param mediaId
+     */
+    fetchContentHash(mediaId: BigNumberish): Promise<string>;
+    /**
+     * Fetches the metadata hash for the specified media on the ZapMedia Contract
+     * @param mediaId
+     */
+    fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
+    /**
+     * Fetches the permit nonce on the specified media id for the owner address
+     * @param address
+     * @param mediaId
+     */
+    fetchPermitNonce(address: string, mediaId: BigNumberish): Promise<BigNumber>;
+    /**
+     * Fetches the creator for the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    fetchCreator(mediaId: BigNumberish): Promise<string>;
+    /**
      * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      */
@@ -38,9 +67,17 @@ declare class ZapMedia {
      */
     fetchCurrentAsk(mediaAddress: string, mediaId: BigNumberish): Promise<Ask>;
     /**
+     * Fetches the current bid for the specified bidder for the specified media on an instance of the Zap Media Contract
+     * @param mediaContractAddress
+     * @param mediaId
+     * @param bidder
+     */
+    fetchCurrentBidForBidder(mediaContractAddress: string, mediaId: BigNumberish, bidder: string): Promise<Bid>;
+    /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
     fetchTotalMedia(): Promise<BigNumber>;
+    fetchMediaByIndex(index: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the approved account for the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -53,6 +90,12 @@ declare class ZapMedia {
      */
     fetchIsApprovedForAll(owner: string, operator: string): Promise<boolean>;
     updateContentURI(mediaId: number, tokenURI: string): Promise<ContractTransaction>;
+    /**fetches the media specified Signature nonce. if signature nonce does not exist, function
+     * will return an error message
+     * @param address
+     * @returns sigNonce
+     */
+    fetchMintWithSigNonce(address: string): Promise<BigNumber>;
     /***********************
      * ERC-721 Write Methods
      ***********************
@@ -77,17 +120,38 @@ declare class ZapMedia {
      */
     transferFrom(from: string, to: string, mediaId: BigNumberish): Promise<ContractTransaction>;
     /**
+     * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
+     * @param from
+     * @param to
+     * @param mediaId
+     */
+    safeTransferFrom(from: string, to: string, mediaId: BigNumberish): Promise<ContractTransaction>;
+    /**
      * Mints a new piece of media on an instance of the Zap Media Contract
      * @param mintData
      * @param bidShares
      */
     mint(mediaData: MediaData, bidShares: BidShares): Promise<ContractTransaction>;
     /**
+     * Mints a new piece of media on an instance of the Zap Media Contract
+     * @param creator
+     * @param mediaData
+     * @param bidShares
+     * @param sig
+     */
+    mintWithSig(creator: string, mediaData: MediaData, bidShares: BidShares, sig: EIP712Signature): Promise<ContractTransaction>;
+    /**
      * Sets an ask on the specified media on an instance of the Zap Media Contract
      * @param mediaId
      * @param ask
      */
     setAsk(mediaId: BigNumberish, ask: Ask): Promise<ContractTransaction>;
+    /**
+     * Sets a bid on the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     * @param bid
+     */
+    setBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction>;
     /**
      * Removes the ask on the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -99,6 +163,13 @@ declare class ZapMedia {
      * @param metadataURI
      */
     updateMetadataURI(mediaId: BigNumberish, metadataURI: string): Promise<ContractTransaction>;
+    /**
+     * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+     * @param sender
+     * @param mediaId
+     * @param sig
+     */
+    permit(spender: string, tokenId: BigNumberish, sig: EIP712Signature): Promise<ContractTransaction>;
     /**
      * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -116,5 +187,13 @@ declare class ZapMedia {
      * @param bid
      */
     isValidBid(mediaId: BigNumberish, bid: any): Promise<boolean>;
+    /****************
+     * Miscellaneous
+     * **************
+     */
+    /**
+     * Returns the EIP-712 Domain for an instance of the Zap Media Contract
+     */
+    eip712Domain(): EIP712Domain;
 }
 export default ZapMedia;

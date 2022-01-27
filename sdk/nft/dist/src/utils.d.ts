@@ -1,5 +1,5 @@
-import { DecimalValue, MediaData, Ask, Bid } from './types';
-import { BigNumberish, BytesLike } from 'ethers';
+import { DecimalValue, MediaData, Ask, Bid } from "./types";
+import { BigNumberish, BytesLike } from "ethers";
 /**
  * Returns the MediaFactory, ZapMarket, and ZapMedia contract addresses depending on the networkId.
  * @param {string} networkId- The numeric value that routes to a blockchain network.
