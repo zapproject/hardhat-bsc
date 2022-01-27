@@ -38,9 +38,6 @@ import {
   signMintWithSigMessage,
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
-import exp from "constants";
-import { typedSignatureHash } from "eth-sig-util";
-import { sign } from "crypto";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -60,16 +57,11 @@ describe("ZapMedia", () => {
   let signer: any;
   let zapMedia: any;
   let eipSig: any;
-  let address: string;
-  let sig: any;
-  let fetchMediaByIndex: any;
-  let bid: any;
 
   const signers = getSigners(provider);
 
   beforeEach(async () => {
     signer = signers[0];
-    // signer = provider.getSigner(0);
 
     token = await deployZapToken();
     zapVault = await deployZapVault();
@@ -95,8 +87,10 @@ describe("ZapMedia", () => {
     describe("View Functions", () => {
       let tokenURI =
         "https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/";
+
       let metadataURI =
         "https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/";
+
       beforeEach(async () => {
         let metadataHex = ethers.utils.formatBytes32String("Test");
         let metadataHashRaw = ethers.utils.keccak256(metadataHex);
@@ -677,14 +671,20 @@ describe("ZapMedia", () => {
 
       describe.only("#tokenOfOwnerByIndex", () => {
         let ownerConnected: ZapMedia;
+        let signerOneConnected: ZapMedia;
+        let signerOne = signers[1];
 
         beforeEach(async () => {
           ownerConnected = new ZapMedia(1337, signer);
 
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
           await ownerConnected.mint(mediaData, bidShares);
+
+          await signerOneConnected.mint(mediaData, bidShares);
         });
 
-        it("Should throw an error if the (owner) is a zero address", async () => {
+        it("Should reject if the (owner) is a zero address", async () => {
           await ownerConnected
             .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
             .should.be.rejectedWith(
