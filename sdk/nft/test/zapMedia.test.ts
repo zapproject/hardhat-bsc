@@ -675,13 +675,17 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#tokenOfOwnerByIndex", () => {
+      describe.only("#tokenOfOwnerByIndex", () => {
+        let ownerConnected: ZapMedia;
+
+        beforeEach(async () => {
+          ownerConnected = new ZapMedia(1337, signer);
+
+          await ownerConnected.mint(mediaData, bidShares);
+        });
+
         it("Should throw an error if the (owner) is a zero address", async () => {
-          const media = new ZapMedia(1337, signer);
-
-          await media.mint(mediaData, bidShares);
-
-          await media
+          await ownerConnected
             .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
@@ -689,19 +693,12 @@ describe("ZapMedia", () => {
         });
 
         it("Should return the token of the owner by index", async () => {
-          const media = new ZapMedia(1337, signer);
-
-          await media.mint(mediaData, bidShares);
-
-          const tokenId = await media.fetchMediaOfOwnerByIndex(
+          const tokenId = await ownerConnected.fetchMediaOfOwnerByIndex(
             await signer.getAddress(),
-            0,
             0
           );
 
-          console.log(tokenId);
-
-          // expect(parseInt(tokenId._hex)).to.equal(0);
+          expect(parseInt(tokenId._hex)).to.equal(0);
         });
       });
 
