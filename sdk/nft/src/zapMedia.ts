@@ -147,12 +147,23 @@ class ZapMedia {
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
+  public async fetchContentURI(
+    mediaId: BigNumberish,
+    mediaIndex?: BigNumberish
+    ): Promise<string> {
     try {
+      if (mediaIndex !== undefined) {
+        return this.media
+          .attach(await this.customMedia(mediaIndex))
+          .fetchContentURI(mediaId, mediaIndex);
+  
+        // If the mediaIndex is undefined invoke tokenOfOwnerByIndex on the main media
+      }
       return await this.media.tokenURI(mediaId);
     } catch {
       invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
     }
+
   }
 
   /**
