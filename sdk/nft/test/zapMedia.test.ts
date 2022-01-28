@@ -411,8 +411,11 @@ describe("ZapMedia", () => {
         it("Should return the token of an owner by index from a custom media", async () => {
           const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
-            0
+            0,
+            customMediaAddress
           );
+
+          console.log(fetchToken);
         });
       });
     });
