@@ -98,9 +98,16 @@ class ZapMedia {
    * Fetches the owner of the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
+  public async fetchOwnerOf(
+    mediaId: BigNumberish,
+    customMediaAddress?: string
+  ): Promise<string> {
     try {
-      return await this.media.ownerOf(mediaId);
+      if (customMediaAddress !== undefined) {
+        return this.media.attach(customMediaAddress).fetchOwnerOf(mediaId);
+      } else {
+        return this.media.fetchOwnerOf(mediaId);
+      }
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
     }
