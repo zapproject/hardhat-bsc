@@ -409,13 +409,15 @@ describe("ZapMedia", () => {
         });
 
         it("Should return the token of an owner by index from a custom media", async () => {
+          // Returns the tokenId signerOne (signers[1]) minted on their media contract
           const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
             0,
             customMediaAddress
           );
 
-          console.log(fetchToken);
+          // Expect signerOne (signers[1]) to own tokenId 0 on their own media contract
+          expect(parseInt(fetchToken._hex)).to.equal(0);
         });
       });
     });
