@@ -156,6 +156,20 @@ describe("ZapMedia", () => {
         };
       });
 
+      describe("#fetchContentURI", () => {
+        it.only("Should throw an error if the mediaIndex is undefined", async () => {
+          //   Instantiates the ZapMedia class
+          const media = new ZapMedia(1337, signer);
+
+          await media.fetchContentURI(0).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (fetchContentURI): mediaIndex is undefined."
+            );
+          });
+        });
+        
+      });
+
       describe("#fetchBalanceOf", () => {
         let signerOne: Signer;
         let mediaFactory: MediaFactory;
