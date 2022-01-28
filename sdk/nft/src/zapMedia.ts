@@ -111,7 +111,7 @@ class ZapMedia {
    */
   public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
     try {
-      // if (mediaId !== undefined) {
+      
         const customMediaAddress = await this.market.mediaContracts(
           await this.signer.getAddress(),
           BigNumber.from(mediaId)
@@ -120,8 +120,7 @@ class ZapMedia {
         const customMedia = this.media.attach(customMediaAddress);
 
         return await customMedia.ownerOf(mediaId);
-      // }
-      // return await this.media.ownerOf(mediaId);
+      
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
     }
