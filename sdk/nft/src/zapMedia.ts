@@ -120,7 +120,7 @@ class ZapMedia {
   public async fetchMediaOfOwnerByIndex(
     owner: string,
     index: BigNumberish,
-    mediaIndex?: BigNumberish
+    customMediaAddress?: string
   ): Promise<BigNumber> {
     // If the owner is a zero address thrown an error
     if (owner == ethers.constants.AddressZero) {
