@@ -369,7 +369,7 @@ describe("ZapMedia", () => {
           await signerOneConnected.mint(mediaDataTwo, bidShares);
 
           // The signerOne (signers[1]) mints on their own media contract by passing in the
-          // address of their media address as optional argument
+          // their media address as optional argument
           await signerOneConnected.mint(
             mediaDataOne,
             bidShares,
@@ -386,26 +386,31 @@ describe("ZapMedia", () => {
         });
 
         it("Should return the token of the owner by index", async () => {
+          // Returns the tokenId owner (signers[0]) minted on the main media contract
           const fetchToken = await ownerConnected.fetchMediaOfOwnerByIndex(
             await signer.getAddress(),
             0
           );
 
+          // Returns the tokenId signerOne (signers[1]) minted on the main media contract
           const fetchTokenOne = await ownerConnected.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
             0
           );
 
+          // Expect owner (signers[0]) to own tokenId 0 on the main media contract
           expect(parseInt(fetchToken._hex)).to.equal(0);
+
+          // Expect signerOne (signers[1]) to own tokenId 1 on the main media contract
           expect(parseInt(fetchTokenOne._hex)).to.equal(1);
         });
 
         it("Should return the token of an owner by index from a custom media", async () => {
-          // const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
-          //   await signerOne.getAddress(),
-          //   0,
-          //   0
-          // );
+          const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
+            await signerOne.getAddress(),
+            0,
+            0
+          );
         });
       });
     });
