@@ -422,9 +422,18 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.mint(mediaData, bidShares);
+    if (mediaIndex !== undefined) {
+      return this.media
+        .attach(await this.customMedia(mediaIndex))
+        .mint(mediaData, bidShares);
+    } else {
+      const gasEstimate = await this.media.estimateGas.mint(
+        mediaData,
+        bidShares
+      );
 
-    return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+      return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+    }
   }
 
   /**
