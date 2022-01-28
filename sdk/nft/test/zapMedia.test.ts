@@ -262,13 +262,19 @@ describe("ZapMedia", () => {
 
         it("Should reject if no media is minted", async () => {
           await ownerConnected
-            .fetchOwnerOf(0)
+            .fetchOwnerOf(12)
             .should.be.rejectedWith(
               "ZapMedia (fetchOwnerOf): The token id does not exist."
             );
         });
 
-        it.only("Should fetch the owner", async () => {});
+        it("Should fetch the owner", async () => {
+          const tokenOwner = await ownerConnected.fetchOwnerOf(0);
+          expect(tokenOwner).to.equal(await signer.getAddress());
+
+          const tokenOwnerOne = await ownerConnected.fetchOwnerOf(1);
+          expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
+        });
 
         it("Should fetch the owner through a custom media", async () => {});
       });
