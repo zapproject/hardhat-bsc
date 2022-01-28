@@ -38,9 +38,6 @@ import {
   signMintWithSigMessage,
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
-import exp from "constants";
-import { typedSignatureHash } from "eth-sig-util";
-import { sign } from "crypto";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -51,30 +48,25 @@ chai.should();
 describe("ZapMedia", () => {
   let bidShares: any;
   let ask: any;
-  let mediaData: any;
+  let mediaDataOne: any;
+  let mediaDataTwo: any;
   let token: any;
   let zapVault: any;
   let zapMarket: any;
-  let zapMediaImpl: any;
   let mediaFactory: any;
   let signer: any;
   let zapMedia: any;
   let eipSig: any;
-  let address: string;
-  let sig: any;
-  let fetchMediaByIndex: any;
-  let bid: any;
 
   const signers = getSigners(provider);
 
   beforeEach(async () => {
     signer = signers[0];
-    // signer = provider.getSigner(0);
 
     token = await deployZapToken();
     zapVault = await deployZapVault();
     zapMarket = await deployZapMarket();
-    zapMediaImpl = await deployZapMediaImpl();
+    await deployZapMediaImpl();
     mediaFactory = await deployMediaFactory();
     zapMedia = await deployZapMedia();
 
@@ -95,25 +87,54 @@ describe("ZapMedia", () => {
     describe("View Functions", () => {
       let tokenURI =
         "https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/";
+
       let metadataURI =
         "https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/";
+
       beforeEach(async () => {
-        let metadataHex = ethers.utils.formatBytes32String("Test");
-        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
-        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+        // MetadataHex
+        let metadataHexOne = ethers.utils.formatBytes32String("Test1");
+        let metadataHexTwo = ethers.utils.formatBytes32String("Test2");
 
-        let contentHex = ethers.utils.formatBytes32String("Test Car");
-        let contentHashRaw = ethers.utils.keccak256(contentHex);
-        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+        // MetadataHashRaw
+        let metadataHashRawOne = ethers.utils.keccak256(metadataHexOne);
+        let metadataHashRawTwo = ethers.utils.keccak256(metadataHexTwo);
 
-        let contentHash = contentHashBytes;
-        let metadataHash = metadataHashBytes;
+        // MetadataHashBytes
+        let metadataHashBytesOne = ethers.utils.arrayify(metadataHashRawOne);
+        let metadataHashBytesTwo = ethers.utils.arrayify(metadataHashRawTwo);
 
-        mediaData = constructMediaData(
+        // ContextHex
+        let contentHexOne = ethers.utils.formatBytes32String("Testing1");
+        let contentHexTwo = ethers.utils.formatBytes32String("Testing2");
+
+        // ContentHashRaw
+        let contentHashRawOne = ethers.utils.keccak256(contentHexOne);
+        let contentHashRawTwo = ethers.utils.keccak256(contentHexTwo);
+
+        // ContentHashBytes
+        let contentHashBytesOne = ethers.utils.arrayify(contentHashRawOne);
+        let contentHashBytesTwo = ethers.utils.arrayify(contentHashRawTwo);
+
+        // ContentHash
+        let contentHashOne = contentHashBytesOne;
+        let contentHashTwo = contentHashBytesTwo;
+
+        let metadataHashOne = metadataHashBytesOne;
+        let metadataHashTwo = metadataHashBytesTwo;
+
+        mediaDataOne = constructMediaData(
           tokenURI,
           metadataURI,
-          contentHash,
-          metadataHash
+          contentHashOne,
+          metadataHashOne
+        );
+
+        mediaDataTwo = constructMediaData(
+          tokenURI,
+          metadataURI,
+          contentHashTwo,
+          metadataHashTwo
         );
 
         bidShares = constructBidShares(
@@ -126,6 +147,7 @@ describe("ZapMedia", () => {
           15,
           35
         );
+
         eipSig = {
           deadline: 1000,
           v: 0,
@@ -135,24 +157,46 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchBalanceOf", () => {
-
-        const signerOne = signers[1];
+        let signerOne: Signer;
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
+        let customMediaAddress: string;
 
         beforeEach(async () => {
+          // Set signerOne to equal signers[1]
+          signerOne = signers[1];
+
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
 
-          await mediaFactory.deployMedia(
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
             true,
             "www.example.com"
           );
 
-          signerOneConnected = new ZapMedia(1337, signerOne);
+          customMediaAddress = args.mediaContract;
+
           ownerConnected = new ZapMedia(1337, signer);
+
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          // The owner (signers[0]) mints on their own media contract
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
         });
 
         it("Should reject if the owner is a zero address", async () => {
@@ -163,9 +207,9 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject if the owner is a zero address through a custom collection", async () => {
+        it("Should reject if the owner is a zero address through a custom media", async () => {
           await signerOneConnected
-            .fetchBalanceOf(ethers.constants.AddressZero, 0)
+            .fetchBalanceOf(ethers.constants.AddressZero, customMediaAddress)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
             );
@@ -176,16 +220,21 @@ describe("ZapMedia", () => {
             await signer.getAddress()
           );
 
-          expect(parseInt(balance._hex)).to.equal(0);
+          const balanceOne = await ownerConnected.fetchBalanceOf(
+            await signerOne.getAddress()
+          );
+
+          expect(parseInt(balance._hex)).to.equal(1);
+          expect(parseInt(balanceOne._hex)).to.equal(1);
         });
 
         it("Should fetch the owner balance through a custom collection", async () => {
-          const balance = await signerOneConnected.fetchBalanceOf(
-            await signer.getAddress(),
-            0
+          const balance = await ownerConnected.fetchBalanceOf(
+            await signerOne.getAddress(),
+            customMediaAddress
           );
 
-          expect(parseInt(balance._hex)).to.equal(0);
+          expect(parseInt(balance._hex)).to.equal(1);
         });
       });
       describe("#fetchOwnerOf", () => {
@@ -212,29 +261,27 @@ describe("ZapMedia", () => {
             .should.be.rejectedWith(
               "ZapMedia (fetchOwnerOf): The token id does not exist."
             );
-          
         });
         it("Should fetch the owner through a custom collection", async () => {
-          await ownerConnected.mint(mediaData, bidShares);
+          await ownerConnected.mint(mediaDataOne, bidShares);
           const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
-          
         });
       });
 
-      describe("test fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {
+      describe("#fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {
         it("Should be able to fetch contentHash", async () => {
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
           const onChainContentHash = await media.fetchContentHash(0);
           expect(onChainContentHash).eq(
-            ethers.utils.hexlify(mediaData.contentHash)
+            ethers.utils.hexlify(mediaDataOne.contentHash)
           );
         });
 
         it("fetchContentHash should get 0x0 if tokenId doesn't exist", async () => {
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
           const onChainContentHash = await media.fetchContentHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
@@ -243,16 +290,16 @@ describe("ZapMedia", () => {
 
         it("Should be able to fetch metadataHash", async () => {
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
           const onChainMetadataHash = await media.fetchMetadataHash(0);
           expect(onChainMetadataHash).eq(
-            ethers.utils.hexlify(mediaData.metadataHash)
+            ethers.utils.hexlify(mediaDataOne.metadataHash)
           );
         });
 
         it("fetchMetadataHash should get 0x0 if tokenId doesn't exist", async () => {
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
           const onChainMetadataHash = await media.fetchMetadataHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
@@ -273,7 +320,7 @@ describe("ZapMedia", () => {
           const zapMedia1 = new ZapMedia(1337, signers[1]);
 
           // mint a token by zapMedia1 in preparation to give permit to accounts 9 and 8
-          await zapMedia1.mint(mediaData, bidShares);
+          await zapMedia1.mint(mediaDataOne, bidShares);
 
           // get the arguments needed for EIP712 signature standard
           const deadline =
@@ -346,6 +393,94 @@ describe("ZapMedia", () => {
           expect(nonceForTokenThatDoesntExist).to.equal(0);
         });
       });
+
+      describe("#tokenOfOwnerByIndex", () => {
+        let signerOne: Signer;
+        let ownerConnected: ZapMedia;
+        let signerOneConnected: ZapMedia;
+        let mediaFactory: MediaFactory;
+        let customMediaAddress: string;
+
+        beforeEach(async () => {
+          // Set signerOne to equal signers[1]
+          signerOne = signers[1];
+
+          // owner (signers[0]) creates an instance of the main ZapMedia class
+          ownerConnected = new ZapMedia(1337, signer);
+
+          // signerOne (signers[1]) creates an instance of the main ZapMedia class
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
+          mediaFactory = new MediaFactory(1337, signerOne);
+
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
+            "TEST COLLECTION 2",
+            "TC2",
+            true,
+            "www.example.com"
+          );
+
+          // The custom media address
+          customMediaAddress = args.mediaContract;
+
+          // The owner (signers[0]) mints on their own media contract
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
+        });
+
+        it("Should throw an error if the (owner) is a zero address", async () => {
+          // fetchMediaOfOwnerByIndex will fail due to a zero address passed in as the owner
+          await ownerConnected
+            .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
+            );
+        });
+
+        it("Should return the token of the owner by index", async () => {
+          // Returns the tokenId owner (signers[0]) minted on the main media contract
+          const fetchToken = await ownerConnected.fetchMediaOfOwnerByIndex(
+            await signer.getAddress(),
+            0
+          );
+
+          // Returns the tokenId signerOne (signers[1]) minted on the main media contract
+          const fetchTokenOne = await ownerConnected.fetchMediaOfOwnerByIndex(
+            await signerOne.getAddress(),
+            0
+          );
+
+          // Expect owner (signers[0]) to own tokenId 0 on the main media contract
+          expect(parseInt(fetchToken._hex)).to.equal(0);
+
+          // Expect signerOne (signers[1]) to own tokenId 1 on the main media contract
+          expect(parseInt(fetchTokenOne._hex)).to.equal(1);
+        });
+
+        it("Should return the token of an owner by index from a custom media", async () => {
+          // Returns the tokenId signerOne (signers[1]) minted on their media contract
+          const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
+            await signerOne.getAddress(),
+            0,
+            customMediaAddress
+          );
+
+          // Expect signerOne (signers[1]) to own tokenId 0 on their own media contract
+          expect(parseInt(fetchToken._hex)).to.equal(0);
+        });
+      });
     });
 
     describe("Write Functions", () => {
@@ -365,7 +500,14 @@ describe("ZapMedia", () => {
         let contentHash = contentHashBytes;
         let metadataHash = metadataHashBytes;
 
-        mediaData = constructMediaData(
+        mediaDataOne = constructMediaData(
+          tokenURI,
+          metadataURI,
+          contentHash,
+          metadataHash
+        );
+
+        mediaDataTwo = constructMediaData(
           tokenURI,
           metadataURI,
           contentHash,
@@ -389,9 +531,9 @@ describe("ZapMedia", () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
-          mediaData.tokenURI = "http://example.com";
+          mediaDataOne.tokenURI = "http://example.com";
 
-          await media.mint(mediaData, bidShares).catch((err) => {
+          await media.mint(mediaDataOne, bidShares).catch((err) => {
             expect(err).to.equal(
               "Invariant failed: http://example.com must begin with `https://`"
             );
@@ -425,13 +567,13 @@ describe("ZapMedia", () => {
           const media = new ZapMedia(1337, signer);
 
           // Mints tokenId 0
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           // Returns tokenId 0's tokenURI
           const fetchTokenURI = await media.fetchContentURI(0);
 
-          // The returned tokenURI should equal the tokenURI configured in the mediaData
-          expect(fetchTokenURI).to.equal(mediaData.tokenURI);
+          // The returned tokenURI should equal the tokenURI configured in the mediaDataOne
+          expect(fetchTokenURI).to.equal(mediaDataOne.tokenURI);
 
           // Updates tokenId 0's tokenURI
           await media.updateContentURI(0, "https://newURI.com");
@@ -449,9 +591,9 @@ describe("ZapMedia", () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
-          mediaData.metadataURI = "http://example.com";
+          mediaDataOne.metadataURI = "http://example.com";
 
-          await media.mint(mediaData, bidShares).catch((err) => {
+          await media.mint(mediaDataOne, bidShares).catch((err) => {
             expect(err).to.equal(
               "Invariant failed: http://example.com must begin with `https://`"
             );
@@ -461,10 +603,10 @@ describe("ZapMedia", () => {
         it("Should update the metadata uri", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const fetchMetadataURI = await media.fetchMetadataURI(0);
-          expect(fetchMetadataURI).to.equal(mediaData.metadataURI);
+          expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
 
           await media.updateMetadataURI(0, "https://newMetadataURI.com");
 
@@ -489,7 +631,7 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value) +
             5e18;
 
-          await media.mint(mediaData, bidShares).catch((err) => {
+          await media.mint(mediaDataOne, bidShares).catch((err) => {
             expect(err).to.equal(
               `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
             );
@@ -503,7 +645,7 @@ describe("ZapMedia", () => {
 
           expect(preTotalSupply).to.equal(0);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
           const creator = await media.fetchCreator(0);
@@ -517,8 +659,8 @@ describe("ZapMedia", () => {
 
           expect(owner).to.equal(await signer.getAddress());
           expect(creator).to.equal(await signer.getAddress());
-          expect(onChainContentURI).to.equal(mediaData.tokenURI);
-          expect(onChainMetadataURI).to.equal(mediaData.metadataURI);
+          expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
+          expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
             parseInt(bidShares.creator.value)
           );
@@ -553,7 +695,7 @@ describe("ZapMedia", () => {
           );
 
           await media
-            .mintWithSig(otherWallet.address, mediaData, bidShares, eipSig)
+            .mintWithSig(otherWallet.address, mediaDataOne, bidShares, eipSig)
             .catch((err) => {
               expect(err).to.eq(
                 `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
@@ -604,8 +746,8 @@ describe("ZapMedia", () => {
           const invalidMediaData = {
             tokenURI: "https://example.com",
             metadataURI: "http://metadata.com",
-            contentHash: mediaData.contentHash,
-            metadataHash: mediaData.metadataHash,
+            contentHash: mediaDataOne.contentHash,
+            metadataHash: mediaDataOne.metadataHash,
           };
 
           await media
@@ -631,9 +773,11 @@ describe("ZapMedia", () => {
             Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
           const domain = media.eip712Domain();
           const nonce = await media.fetchMintWithSigNonce(mainWallet.address);
-          const media1ContentHash = ethers.utils.hexlify(mediaData.contentHash);
+          const media1ContentHash = ethers.utils.hexlify(
+            mediaDataOne.contentHash
+          );
           const media1MetadataHash = ethers.utils.hexlify(
-            mediaData.metadataHash
+            mediaDataOne.metadataHash
           );
           const eipSig = await signMintWithSigMessage(
             mainWallet,
@@ -650,7 +794,7 @@ describe("ZapMedia", () => {
 
           await media.mintWithSig(
             mainWallet.address,
-            mediaData,
+            mediaDataOne,
             bidShares,
             eipSig
           );
@@ -659,9 +803,11 @@ describe("ZapMedia", () => {
           const creator = await media.fetchCreator(0);
           const onChainContentHash = await media.fetchContentHash(0);
           const onChainMetadataHash = await media.fetchMetadataHash(0);
-          const mediaContentHash = ethers.utils.hexlify(mediaData.contentHash);
+          const mediaContentHash = ethers.utils.hexlify(
+            mediaDataOne.contentHash
+          );
           const mediaMetadataHash = ethers.utils.hexlify(
-            mediaData.metadataHash
+            mediaDataOne.metadataHash
           );
 
           const onChainBidShares = await media.fetchCurrentBidShares(
@@ -674,8 +820,8 @@ describe("ZapMedia", () => {
           expect(owner.toLowerCase()).to.eq(mainWallet.address.toLowerCase());
           expect(creator.toLowerCase()).to.eq(mainWallet.address.toLowerCase());
           expect(onChainContentHash).to.eq(mediaContentHash);
-          expect(onChainContentURI).to.eq(mediaData.tokenURI);
-          expect(onChainMetadataURI).to.eq(mediaData.metadataURI);
+          expect(onChainContentURI).to.eq(mediaDataOne.tokenURI);
+          expect(onChainMetadataURI).to.eq(mediaDataOne.metadataURI);
           expect(onChainMetadataHash).to.eq(mediaMetadataHash);
           expect(parseInt(onChainBidShares.creator.value)).to.eq(
             parseInt(bidShares.creator.value)
@@ -701,40 +847,11 @@ describe("ZapMedia", () => {
         it("Should return the token creator", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const creator = await media.fetchCreator(0);
 
           expect(creator).to.equal(await signer.getAddress());
-        });
-      });
-
-      describe("#tokenOfOwnerByIndex", () => {
-        it("Should throw an error if the (owner) is a zero address", async () => {
-          const media = new ZapMedia(1337, signer);
-
-          await media.mint(mediaData, bidShares);
-
-          await media
-            .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
-              );
-            });
-        });
-
-        it("Should return the token of the owner by index", async () => {
-          const media = new ZapMedia(1337, signer);
-
-          await media.mint(mediaData, bidShares);
-
-          const tokenId = await media.fetchMediaOfOwnerByIndex(
-            await signer.getAddress(),
-            0
-          );
-
-          expect(parseInt(tokenId._hex)).to.equal(0);
         });
       });
 
@@ -746,7 +863,7 @@ describe("ZapMedia", () => {
           const media = new ZapMedia(1337, signer);
           const media1 = new ZapMedia(1337, signer1);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
           const getApproved = await media.fetchApproved(0);
@@ -767,7 +884,7 @@ describe("ZapMedia", () => {
           ask = constructAsk(zapMedia.address, 100);
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
@@ -790,7 +907,7 @@ describe("ZapMedia", () => {
           const media = new ZapMedia(1337, signer);
           const media1 = new ZapMedia(1337, signer1);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media.approve(await signer1.getAddress(), 0);
 
@@ -832,7 +949,7 @@ describe("ZapMedia", () => {
           bidderConnected = new ZapMedia(1337, bidder);
 
           // Mint a token
-          await ownerConnected.mint(mediaData, bidShares);
+          await ownerConnected.mint(mediaDataOne, bidShares);
 
           // Transfer tokens to the bidder
           await token.mint(await bidder.getAddress(), 1000);
@@ -1060,7 +1177,7 @@ describe("ZapMedia", () => {
         beforeEach(async () => {
           media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
         });
 
         it("Should throw an error if the removeAsk tokenId does not exist", async () => {
@@ -1116,7 +1233,7 @@ describe("ZapMedia", () => {
 
           // expect(nullApproved).toBe(AddressZero)
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media.approve(await signer1.getAddress(), 0);
 
@@ -1135,7 +1252,7 @@ describe("ZapMedia", () => {
       describe("#burn", () => {
         it("Should burn a token", async () => {
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
           const owner = await media.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
@@ -1155,7 +1272,7 @@ describe("ZapMedia", () => {
 
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const preApprovedStatus = await media.fetchApproved(0);
           expect(preApprovedStatus).to.equal(ethers.constants.AddressZero);
@@ -1173,7 +1290,7 @@ describe("ZapMedia", () => {
 
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const preApprovalStatus = await media.fetchIsApprovedForAll(
             await signer.getAddress(),
@@ -1206,7 +1323,7 @@ describe("ZapMedia", () => {
         it("Should transfer token to another address", async () => {
           const recipient = await signers[1].getAddress();
           const media = new ZapMedia(1337, signer);
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const owner = await media.fetchOwnerOf(0);
 
@@ -1240,7 +1357,7 @@ describe("ZapMedia", () => {
 
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media
             .safeTransferFrom(ethers.constants.AddressZero, recipient, 0)
@@ -1254,7 +1371,7 @@ describe("ZapMedia", () => {
         it("Should revert if the (to) is a zero address", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media
             .safeTransferFrom(
@@ -1274,7 +1391,7 @@ describe("ZapMedia", () => {
 
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media.safeTransferFrom(await signer.getAddress(), recipient, 0);
         });
@@ -1284,14 +1401,14 @@ describe("ZapMedia", () => {
         it("Should return true if the bid amount can be evenly split by current bidShares", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
         });
       });
 
       describe("#permit", () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           const zap_media = new ZapMedia(1337, signer);
-          await zap_media.mint(mediaData, bidShares);
+          await zap_media.mint(mediaDataOne, bidShares);
 
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const mainWallet: Wallet = new ethers.Wallet(
@@ -1338,7 +1455,7 @@ describe("ZapMedia", () => {
         it("Should get media instance by index in the media contract", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const tokenId = await media.fetchMediaByIndex(0);
 
@@ -1348,7 +1465,7 @@ describe("ZapMedia", () => {
         it("Should throw an error index out of range", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media.fetchMediaByIndex(1).catch((err) => {
             expect(err.message).to.equal(
@@ -1362,7 +1479,7 @@ describe("ZapMedia", () => {
         it("Should fetch the signature of the newly minted nonce", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           const sigNonce = await media.fetchMintWithSigNonce(
             await signer.getAddress()
@@ -1374,7 +1491,7 @@ describe("ZapMedia", () => {
         it("Should Revert if address does not exist", async () => {
           const media = new ZapMedia(1337, signer);
 
-          await media.mint(mediaData, bidShares);
+          await media.mint(mediaDataOne, bidShares);
 
           await media
             .fetchMintWithSigNonce("0x9b713D5416884d12a5BbF13Ee08B6038E74CDe")
