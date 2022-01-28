@@ -243,24 +243,34 @@ describe("ZapMedia", () => {
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
+        let customMediaAddress: string;
 
         beforeEach(async () => {
           mediaFactory = new MediaFactory(1337, signerOne);
 
-          await mediaFactory.deployMedia(
+          const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
             true,
             "www.example.com"
           );
+
+          customMediaAddress = args.mediaContract;
+
           ownerConnected = new ZapMedia(1337, signer);
           signerOneConnected = new ZapMedia(1337, signerOne);
 
           await ownerConnected.mint(mediaDataOne, bidShares);
           await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
         });
 
-        it("Should reject if no media is minted", async () => {
+        it("Should reject if the token id does not exist", async () => {
           await ownerConnected
             .fetchOwnerOf(12)
             .should.be.rejectedWith(
@@ -268,7 +278,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should fetch the owner", async () => {
+        it("Should fetch an owner of a token id", async () => {
           const tokenOwner = await ownerConnected.fetchOwnerOf(0);
           expect(tokenOwner).to.equal(await signer.getAddress());
 
@@ -276,7 +286,7 @@ describe("ZapMedia", () => {
           expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
         });
 
-        it("Should fetch the owner through a custom media", async () => {});
+        it("Should fetch an owner of a token id through a custom media", async () => {});
       });
 
       describe("#fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {
