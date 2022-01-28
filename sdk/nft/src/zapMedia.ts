@@ -407,7 +407,8 @@ class ZapMedia {
    */
   public async mint(
     mediaData: MediaData,
-    bidShares: BidShares
+    bidShares: BidShares,
+    mediaIndex?: BigNumberish
   ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
