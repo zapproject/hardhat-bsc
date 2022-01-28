@@ -108,15 +108,16 @@ class ZapMedia {
 
   /**
    * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
-   * @param owner
-   * @param index
+   * @param owner Address of who the tokenId belongs to.
+   * @param index The position of a tokenId that an address owns.
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchMediaOfOwnerByIndex(
     owner: string,
     index: BigNumberish,
     customMediaAddress?: string
   ): Promise<BigNumber> {
-    // If the owner is a zero address thrown an error
+    // If the owner is a zero address throw an error
     if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -124,6 +125,8 @@ class ZapMedia {
       );
     }
 
+    // If customMediaAddress is not undefined attach the address to the main media contract
+    // create a custom media contract instance and invoke tokenOfOwnerByIndex
     if (customMediaAddress !== undefined) {
       return this.media
         .attach(customMediaAddress)
