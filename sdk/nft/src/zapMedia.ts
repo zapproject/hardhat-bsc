@@ -143,22 +143,8 @@ class ZapMedia {
    */
   public async fetchContentURI(
     mediaId: BigNumberish,
-    mediaIndex?: BigNumberish,
-    customMediaAddress?: string
     ): Promise<string> {
-    try {
-      if (customMediaAddress !== undefined) {
-        return this.media
-          .attach(customMediaAddress)
-          .fetchContentURI(mediaId, mediaIndex);
-  
-        // If the mediaIndex is undefined invoke tokenOfOwnerByIndex on the main media
-      }
-      return await this.media.tokenURI(mediaId);
-    } catch {
-      invariant(false, "ZapMedia (fetchContentURI): customMediaAddress is undefined.");
-    }
-
+        return await this.media.tokenURI(mediaId);
   }
 
   /**

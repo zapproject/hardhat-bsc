@@ -38,6 +38,7 @@ import {
   signMintWithSigMessage,
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
+import { it } from "mocha";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -156,17 +157,55 @@ describe("ZapMedia", () => {
         };
       });
 
-      describe("#fetchContentURI", () => {
-        it.only("Should throw an error if the customMediaAddress is undefined", async () => {
-          //   Instantiates the ZapMedia class
-          const media = new ZapMedia(1337, signer);
+      describe.only("#fetchContentURI", () => {
+        
+        let signerOne: Signer;
+        let mediaFactory: MediaFactory;
+        let signerOneConnected: ZapMedia;
+        let ownerConnected: ZapMedia;
+        let customMediaAddress: string;
+      
+        beforeEach(async () => {
+           // Set signerOne to equal signers[1]
+          signerOne = signers[1]; 
 
-          await media.fetchContentURI(0).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchContentURI): customMediaAddress is undefined."
-            );
-          });
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
+          mediaFactory = new MediaFactory(1337, signerOne);
+
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
+            "TEST COLLECTION 2",
+            "TC2",
+            true,
+            "www.example.com"
+          );
+
+          customMediaAddress = args.mediaContract;
+
+          ownerConnected = new ZapMedia(1337, signer);
+
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          // The owner (signers[0]) mints on their own media contract
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
+
         });
+        
+        it('Should reject if the token id does not exist', async => {
+          
+          
+        })
         
       });
 
