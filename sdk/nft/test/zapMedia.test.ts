@@ -237,11 +237,13 @@ describe("ZapMedia", () => {
           expect(parseInt(balance._hex)).to.equal(1);
         });
       });
-      describe("#fetchOwnerOf", () => {
+
+      describe.only("#fetchOwnerOf", () => {
         const signerOne = signers[1];
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
+
         beforeEach(async () => {
           mediaFactory = new MediaFactory(1337, signerOne);
 
@@ -251,10 +253,13 @@ describe("ZapMedia", () => {
             true,
             "www.example.com"
           );
-
-          signerOneConnected = new ZapMedia(1337, signerOne);
           ownerConnected = new ZapMedia(1337, signer);
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          await ownerConnected.mint(mediaDataOne, bidShares);
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
         });
+
         it("Should reject if no media is minted", async () => {
           await ownerConnected
             .fetchOwnerOf(0)
@@ -262,11 +267,10 @@ describe("ZapMedia", () => {
               "ZapMedia (fetchOwnerOf): The token id does not exist."
             );
         });
-        it("Should fetch the owner through a custom collection", async () => {
-          await ownerConnected.mint(mediaDataOne, bidShares);
-          const owner = await ownerConnected.fetchOwnerOf(0);
-          expect(owner).to.equal(await signer.getAddress());
-        });
+
+        it.only("Should fetch the owner", async () => {});
+
+        it("Should fetch the owner through a custom media", async () => {});
       });
 
       describe("#fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {
