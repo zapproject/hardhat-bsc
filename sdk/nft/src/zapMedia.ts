@@ -147,7 +147,7 @@ class ZapMedia {
     customMediaAddress?: string
     ): Promise<string> {
     try {
-      if (mediaIndex !== undefined) {
+      if (customMediaAddress !== undefined) {
         return this.media
           .attach(customMediaAddress)
           .fetchContentURI(mediaId, mediaIndex);
@@ -156,7 +156,7 @@ class ZapMedia {
       }
       return await this.media.tokenURI(mediaId);
     } catch {
-      invariant(false, "ZapMedia (fetchContentURI): mediaIndex is undefined.");
+      invariant(false, "ZapMedia (fetchContentURI): customMediaAddress is undefined.");
     }
 
   }

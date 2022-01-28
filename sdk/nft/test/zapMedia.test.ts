@@ -157,13 +157,13 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchContentURI", () => {
-        it.only("Should throw an error if the mediaIndex is undefined", async () => {
+        it.only("Should throw an error if the customMediaAddress is undefined", async () => {
           //   Instantiates the ZapMedia class
           const media = new ZapMedia(1337, signer);
 
           await media.fetchContentURI(0).catch((err) => {
             expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchContentURI): mediaIndex is undefined."
+              "Invariant failed: ZapMedia (fetchContentURI): customMediaAddress is undefined."
             );
           });
         });
