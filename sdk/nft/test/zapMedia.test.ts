@@ -340,6 +340,7 @@ describe("ZapMedia", () => {
         let ownerConnected: ZapMedia;
         let signerOneConnected: ZapMedia;
         let mediaFactory: MediaFactory;
+        let customMediaAddress: string;
 
         beforeEach(async () => {
           // Set signerOne to equal signers[1]
@@ -362,6 +363,8 @@ describe("ZapMedia", () => {
             "www.example.com"
           );
 
+          customMediaAddress = args.mediaContract;
+
           // The owner (signers[0]) mints on their own media contract
           await ownerConnected.mint(mediaDataOne, bidShares);
 
@@ -373,7 +376,7 @@ describe("ZapMedia", () => {
           await signerOneConnected.mint(
             mediaDataOne,
             bidShares,
-            args.mediaContract
+            customMediaAddress
           );
         });
 
@@ -408,7 +411,6 @@ describe("ZapMedia", () => {
         it("Should return the token of an owner by index from a custom media", async () => {
           const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
-            0,
             0
           );
         });

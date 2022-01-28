@@ -130,14 +130,11 @@ class ZapMedia {
       );
     }
 
-    // If the mediaIndex is not undefined return the custom media address
-    // attach the address to this.media and invoke tokenOfOwnerByIndex on the custom media
-    if (mediaIndex !== undefined) {
+    if (customMediaAddress !== undefined) {
       return this.media
-        .attach(await this.customMedia(mediaIndex))
+        .attach(customMediaAddress)
         .tokenOfOwnerByIndex(owner, index);
-
-      // If the mediaIndex is undefined invoke tokenOfOwnerByIndex on the main media
+      // If the customMediaAddress is undefined invoke tokenOfOwnerByIndex on the main media
     } else {
       return this.media.tokenOfOwnerByIndex(owner, index);
     }
