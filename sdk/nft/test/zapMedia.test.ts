@@ -348,8 +348,6 @@ describe("ZapMedia", () => {
           signerOneConnected = new ZapMedia(1337, signerOne);
 
           mediaFactory = new MediaFactory(1337, signerOne);
-          await ownerConnected.mint(mediaDataOne, bidShares);
-          await signerOneConnected.mint(mediaDataTwo, bidShares);
 
           await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
@@ -357,6 +355,10 @@ describe("ZapMedia", () => {
             true,
             "www.example.com"
           );
+
+          await ownerConnected.mint(mediaDataOne, bidShares);
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+          await signerOneConnected.mint(mediaDataOne, bidShares, 0);
         });
 
         it("Should throw an error if the (owner) is a zero address", async () => {
@@ -382,13 +384,7 @@ describe("ZapMedia", () => {
           expect(parseInt(fetchTokenOne._hex)).to.equal(1);
         });
 
-        it("Should return the token of an owner by index from a custom media", async () => {
-          const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
-            await signerOne.getAddress(),
-            0,
-            0
-          );
-        });
+        it("Should return the token of an owner by index from a custom media", async () => {});
       });
     });
 
