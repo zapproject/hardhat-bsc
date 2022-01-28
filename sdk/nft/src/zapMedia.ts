@@ -78,7 +78,7 @@ class ZapMedia {
    */
   public async fetchBalanceOf(
     owner: string,
-    mediaIndex?: BigNumberish
+    customMediaAddress?: BigNumberish
   ): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
@@ -87,14 +87,8 @@ class ZapMedia {
       );
     }
 
-    // If the mediaIndex is not undefined return the custom media address and
-    // attach the address to this.media and invoke balanceOf on the custom media
-    if (mediaIndex !== undefined) {
-      return this.media
-        .attach(await this.customMedia(mediaIndex))
-        .balanceOf(owner);
-
-      // If the mediaIndex is undefined invoke balanceOf on the main media
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).balanceOf(owner);
     } else {
       return this.media.balanceOf(owner);
     }
@@ -120,7 +114,7 @@ class ZapMedia {
   public async fetchMediaOfOwnerByIndex(
     owner: string,
     index: BigNumberish,
-    mediaIndex?: BigNumberish
+    customMediaAddress?: string
   ): Promise<BigNumber> {
     // If the owner is a zero address thrown an error
     if (owner == ethers.constants.AddressZero) {
@@ -130,14 +124,11 @@ class ZapMedia {
       );
     }
 
-    // If the mediaIndex is not undefined return the custom media address
-    // attach the address to this.media and invoke tokenOfOwnerByIndex on the custom media
-    if (mediaIndex !== undefined) {
+    if (customMediaAddress !== undefined) {
       return this.media
-        .attach(await this.customMedia(mediaIndex))
+        .attach(customMediaAddress)
         .tokenOfOwnerByIndex(owner, index);
-
-      // If the mediaIndex is undefined invoke tokenOfOwnerByIndex on the main media
+      // If the customMediaAddress is undefined invoke tokenOfOwnerByIndex on the main media
     } else {
       return this.media.tokenOfOwnerByIndex(owner, index);
     }
@@ -418,7 +409,8 @@ class ZapMedia {
    */
   public async mint(
     mediaData: MediaData,
-    bidShares: BidShares
+    bidShares: BidShares,
+    customMediaAddress?: string
   ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
@@ -432,9 +424,16 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.mint(mediaData, bidShares);
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).mint(mediaData, bidShares);
+    } else {
+      const gasEstimate = await this.media.estimateGas.mint(
+        mediaData,
+        bidShares
+      );
 
-    return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+      return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+    }
   }
 
   /**
@@ -662,18 +661,6 @@ class ZapMedia {
    * Private Methods
    ******************
    */
-
-  private async customMedia(mediaIndex?: BigNumberish) {
-    try {
-      const fetchMediaAddress: string = await this.market.mediaContracts(
-        await this.signer.getAddress(),
-        BigNumber.from(mediaIndex)
-      );
-      return fetchMediaAddress;
-    } catch {
-      invariant(false, "Media Index out of range");
-    }
-  }
 
   // /**
   //  * Throws an error if called on a readOnly == true instance of Zap Sdk

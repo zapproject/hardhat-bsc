@@ -157,23 +157,46 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchBalanceOf", () => {
-        const signerOne = signers[1];
+        let signerOne: Signer;
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
+        let customMediaAddress: string;
 
         beforeEach(async () => {
+          // Set signerOne to equal signers[1]
+          signerOne = signers[1];
+
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
 
-          await mediaFactory.deployMedia(
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
             true,
             "www.example.com"
           );
 
-          signerOneConnected = new ZapMedia(1337, signerOne);
+          customMediaAddress = args.mediaContract;
+
           ownerConnected = new ZapMedia(1337, signer);
+
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          // The owner (signers[0]) mints on their own media contract
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
         });
 
         it("Should reject if the owner is a zero address", async () => {
@@ -184,9 +207,9 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject if the owner is a zero address through a custom collection", async () => {
+        it("Should reject if the owner is a zero address through a custom media", async () => {
           await signerOneConnected
-            .fetchBalanceOf(ethers.constants.AddressZero, 0)
+            .fetchBalanceOf(ethers.constants.AddressZero, customMediaAddress)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
             );
@@ -197,16 +220,21 @@ describe("ZapMedia", () => {
             await signer.getAddress()
           );
 
-          expect(parseInt(balance._hex)).to.equal(0);
+          const balanceOne = await ownerConnected.fetchBalanceOf(
+            await signerOne.getAddress()
+          );
+
+          expect(parseInt(balance._hex)).to.equal(1);
+          expect(parseInt(balanceOne._hex)).to.equal(1);
         });
 
         it("Should fetch the owner balance through a custom collection", async () => {
-          const balance = await signerOneConnected.fetchBalanceOf(
-            await signer.getAddress(),
-            0
+          const balance = await ownerConnected.fetchBalanceOf(
+            await signerOne.getAddress(),
+            customMediaAddress
           );
 
-          expect(parseInt(balance._hex)).to.equal(0);
+          expect(parseInt(balance._hex)).to.equal(1);
         });
       });
 
@@ -335,27 +363,48 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#tokenOfOwnerByIndex", () => {
+      describe("#tokenOfOwnerByIndex", () => {
         let signerOne: Signer;
         let ownerConnected: ZapMedia;
         let signerOneConnected: ZapMedia;
         let mediaFactory: MediaFactory;
+        let customMediaAddress: string;
 
         beforeEach(async () => {
+          // Set signerOne to equal signers[1]
           signerOne = signers[1];
 
+          // owner (signers[0]) creates an instance of the main ZapMedia class
           ownerConnected = new ZapMedia(1337, signer);
+
+          // signerOne (signers[1]) creates an instance of the main ZapMedia class
           signerOneConnected = new ZapMedia(1337, signerOne);
 
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
-          await ownerConnected.mint(mediaDataOne, bidShares);
-          await signerOneConnected.mint(mediaDataTwo, bidShares);
 
-          await mediaFactory.deployMedia(
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
             true,
             "www.example.com"
+          );
+
+          customMediaAddress = args.mediaContract;
+
+          // The owner (signers[0]) mints on their own media contract
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
           );
         });
 
@@ -368,26 +417,35 @@ describe("ZapMedia", () => {
         });
 
         it("Should return the token of the owner by index", async () => {
+          // Returns the tokenId owner (signers[0]) minted on the main media contract
           const fetchToken = await ownerConnected.fetchMediaOfOwnerByIndex(
             await signer.getAddress(),
             0
           );
 
+          // Returns the tokenId signerOne (signers[1]) minted on the main media contract
           const fetchTokenOne = await ownerConnected.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
             0
           );
 
+          // Expect owner (signers[0]) to own tokenId 0 on the main media contract
           expect(parseInt(fetchToken._hex)).to.equal(0);
+
+          // Expect signerOne (signers[1]) to own tokenId 1 on the main media contract
           expect(parseInt(fetchTokenOne._hex)).to.equal(1);
         });
 
         it("Should return the token of an owner by index from a custom media", async () => {
+          // Returns the tokenId signerOne (signers[1]) minted on their media contract
           const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
             0,
-            0
+            customMediaAddress
           );
+
+          // Expect signerOne (signers[1]) to own tokenId 0 on their own media contract
+          expect(parseInt(fetchToken._hex)).to.equal(0);
         });
       });
     });
