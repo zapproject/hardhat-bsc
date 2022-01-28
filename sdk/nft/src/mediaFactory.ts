@@ -1,10 +1,10 @@
-import { Contract, ethers, Signer } from 'ethers';
+import { Contract, ethers, Signer } from "ethers";
 
-import { contractAddresses } from './utils';
+import { contractAddresses } from "./utils";
 
-import { mediaFactoryAbi, zapMediaAbi } from './contract/abi';
+import { mediaFactoryAbi, zapMediaAbi } from "./contract/abi";
 
-import { Address } from 'cluster';
+import { Address } from "cluster";
 
 class MediaFactory {
   contract: Contract;
@@ -17,7 +17,7 @@ class MediaFactory {
     this.contract = new ethers.Contract(
       contractAddresses(networkId).mediaFactoryAddress,
       mediaFactoryAbi,
-      signer,
+      signer
     );
   }
 
@@ -32,14 +32,14 @@ class MediaFactory {
     collectionName: string,
     collectionSymbol: string,
     permissive: boolean,
-    collectionMetadta: string,
-  ): Promise<void> {
+    collectionMetadta: string
+  ): Promise<any> {
     const tx = await this.contract.deployMedia(
       collectionName,
       collectionSymbol,
       contractAddresses(this.networkId).zapMarketAddress,
       permissive,
-      collectionMetadta,
+      collectionMetadta
     );
 
     const receipt = await tx.wait();

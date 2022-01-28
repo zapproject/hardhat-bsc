@@ -408,7 +408,7 @@ class ZapMedia {
   public async mint(
     mediaData: MediaData,
     bidShares: BidShares,
-    mediaIndex?: BigNumberish
+    customMediaAddress?: string
   ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
@@ -422,10 +422,8 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    if (mediaIndex !== undefined) {
-      return this.media
-        .attach(await this.customMedia(mediaIndex))
-        .mint(mediaData, bidShares);
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).mint(mediaData, bidShares);
     } else {
       const gasEstimate = await this.media.estimateGas.mint(
         mediaData,

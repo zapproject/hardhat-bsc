@@ -342,23 +342,39 @@ describe("ZapMedia", () => {
         let mediaFactory: MediaFactory;
 
         beforeEach(async () => {
+          // Set signerOne to equal signers[1]
           signerOne = signers[1];
 
+          // owner (signers[0]) creates an instance of the main ZapMedia class
           ownerConnected = new ZapMedia(1337, signer);
+
+          // signerOne (signers[1]) creates an instance of the main ZapMedia class
           signerOneConnected = new ZapMedia(1337, signerOne);
 
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
 
-          await mediaFactory.deployMedia(
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
             true,
             "www.example.com"
           );
 
+          // The owner (signers[0]) mints on their own media contract
           await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
           await signerOneConnected.mint(mediaDataTwo, bidShares);
-          await signerOneConnected.mint(mediaDataOne, bidShares, 0);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // address of their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            args.mediaContract
+          );
         });
 
         it("Should throw an error if the (owner) is a zero address", async () => {
@@ -384,7 +400,13 @@ describe("ZapMedia", () => {
           expect(parseInt(fetchTokenOne._hex)).to.equal(1);
         });
 
-        it("Should return the token of an owner by index from a custom media", async () => {});
+        it("Should return the token of an owner by index from a custom media", async () => {
+          // const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
+          //   await signerOne.getAddress(),
+          //   0,
+          //   0
+          // );
+        });
       });
     });
 
