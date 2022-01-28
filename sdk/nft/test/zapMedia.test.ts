@@ -158,20 +158,17 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#fetchContentURI", () => {
-        
         let signerOne: Signer;
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
         let customMediaAddress: string;
-      
-        beforeEach(async () => {
-           // Set signerOne to equal signers[1]
-          signerOne = signers[1]; 
 
+        beforeEach(async () => {
+          // Set signerOne to equal signers[1]
+          signerOne = signers[1];
           // signerOne (signers[1]) creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
-
           // signerOne (signers[1]) deploys their own media contract
           const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
@@ -179,19 +176,13 @@ describe("ZapMedia", () => {
             true,
             "www.example.com"
           );
-
           customMediaAddress = args.mediaContract;
-
           ownerConnected = new ZapMedia(1337, signer);
-
           signerOneConnected = new ZapMedia(1337, signerOne);
-
           // The owner (signers[0]) mints on their own media contract
           await ownerConnected.mint(mediaDataOne, bidShares);
-
           // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
           await signerOneConnected.mint(mediaDataTwo, bidShares);
-
           // The signerOne (signers[1]) mints on their own media contract by passing in the
           // their media address as optional argument
           await signerOneConnected.mint(
@@ -199,14 +190,9 @@ describe("ZapMedia", () => {
             bidShares,
             customMediaAddress
           );
-
         });
-        
-        it('Should reject if the token id does not exist', async => {
-          
-          
-        })
-        
+
+        it("Should reject if the token id does not exist", async () => {});
       });
 
       describe("#fetchBalanceOf", () => {
