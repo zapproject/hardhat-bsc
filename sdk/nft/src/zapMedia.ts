@@ -78,7 +78,7 @@ class ZapMedia {
    */
   public async fetchBalanceOf(
     owner: string,
-    mediaIndex?: BigNumberish
+    customMediaAddress?: BigNumberish
   ): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
@@ -87,22 +87,11 @@ class ZapMedia {
       );
     }
 
-    try {
-      if (mediaIndex !== undefined) {
-        const customMediaAddress = await this.market.mediaContracts(
-          await this.signer.getAddress(),
-          BigNumber.from(mediaIndex)
-        );
-
-        const customMedia = this.media.attach(customMediaAddress);
-
-        return customMedia.balanceOf(owner);
-      }
-    } catch {
-      invariant(false, "ZapMedia (fetchBalanceOf): Media does not exist");
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).balanceOf(owner);
+    } else {
+      return this.media.balanceOf(owner);
     }
-
-    return this.media.balanceOf(owner);
   }
 
   /**
@@ -119,20 +108,33 @@ class ZapMedia {
 
   /**
    * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
-   * @param owner
-   * @param index
+   * @param owner Address of who the tokenId belongs to.
+   * @param index The position of a tokenId that an address owns.
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchMediaOfOwnerByIndex(
     owner: string,
-    index: BigNumberish
+    index: BigNumberish,
+    customMediaAddress?: string
   ): Promise<BigNumber> {
-    if (owner === ethers.constants.AddressZero) {
+    // If the owner is a zero address throw an error
+    if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
       );
     }
-    return this.media.tokenOfOwnerByIndex(owner, index);
+
+    // If customMediaAddress is not undefined attach the address to the main media contract
+    // create a custom media contract instance and invoke tokenOfOwnerByIndex
+    if (customMediaAddress !== undefined) {
+      return this.media
+        .attach(customMediaAddress)
+        .tokenOfOwnerByIndex(owner, index);
+      // If the customMediaAddress is undefined invoke tokenOfOwnerByIndex on the main media
+    } else {
+      return this.media.tokenOfOwnerByIndex(owner, index);
+    }
   }
 
   /**
@@ -399,7 +401,8 @@ class ZapMedia {
    */
   public async mint(
     mediaData: MediaData,
-    bidShares: BidShares
+    bidShares: BidShares,
+    customMediaAddress?: string
   ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
@@ -413,9 +416,16 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.mint(mediaData, bidShares);
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).mint(mediaData, bidShares);
+    } else {
+      const gasEstimate = await this.media.estimateGas.mint(
+        mediaData,
+        bidShares
+      );
 
-    return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+      return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
+    }
   }
 
   /**
@@ -639,10 +649,10 @@ class ZapMedia {
     };
   }
 
-  // /******************
-  //  * Private Methods
-  //  ******************
-  //  */
+  /******************
+   * Private Methods
+   ******************
+   */
 
   // /**
   //  * Throws an error if called on a readOnly == true instance of Zap Sdk
