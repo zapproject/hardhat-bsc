@@ -157,23 +157,46 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchBalanceOf", () => {
-        const signerOne = signers[1];
+        let signerOne: Signer;
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
+        let customMediaAddress: string;
 
         beforeEach(async () => {
+          // Set signerOne to equal signers[1]
+          signerOne = signers[1];
+
+          // signerOne (signers[1]) creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
 
-          await mediaFactory.deployMedia(
+          // signerOne (signers[1]) deploys their own media contract
+          const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
             true,
             "www.example.com"
           );
 
-          signerOneConnected = new ZapMedia(1337, signerOne);
+          customMediaAddress = args.mediaContract;
+
           ownerConnected = new ZapMedia(1337, signer);
+
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          // The owner (signers[0]) mints on their own media contract
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // The signerOne (signers[1]) mints on the owners (signers[0]) media contract
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
         });
 
         it("Should reject if the owner is a zero address", async () => {
@@ -184,9 +207,9 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject if the owner is a zero address through a custom collection", async () => {
+        it("Should reject if the owner is a zero address through a custom media", async () => {
           await signerOneConnected
-            .fetchBalanceOf(ethers.constants.AddressZero, 0)
+            .fetchBalanceOf(ethers.constants.AddressZero, customMediaAddress)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
             );
@@ -197,16 +220,21 @@ describe("ZapMedia", () => {
             await signer.getAddress()
           );
 
-          expect(parseInt(balance._hex)).to.equal(0);
+          const balanceOne = await ownerConnected.fetchBalanceOf(
+            await signerOne.getAddress()
+          );
+
+          expect(parseInt(balance._hex)).to.equal(1);
+          expect(parseInt(balanceOne._hex)).to.equal(1);
         });
 
         it("Should fetch the owner balance through a custom collection", async () => {
-          const balance = await signerOneConnected.fetchBalanceOf(
-            await signer.getAddress(),
-            0
+          const balance = await ownerConnected.fetchBalanceOf(
+            await signerOne.getAddress(),
+            customMediaAddress
           );
 
-          expect(parseInt(balance._hex)).to.equal(0);
+          expect(parseInt(balance._hex)).to.equal(1);
         });
       });
 
@@ -335,7 +363,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#tokenOfOwnerByIndex", () => {
+      describe("#tokenOfOwnerByIndex", () => {
         let signerOne: Signer;
         let ownerConnected: ZapMedia;
         let signerOneConnected: ZapMedia;

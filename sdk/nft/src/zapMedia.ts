@@ -78,7 +78,7 @@ class ZapMedia {
    */
   public async fetchBalanceOf(
     owner: string,
-    mediaIndex?: BigNumberish
+    customMediaAddress?: BigNumberish
   ): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
@@ -87,14 +87,8 @@ class ZapMedia {
       );
     }
 
-    // If the mediaIndex is not undefined return the custom media address and
-    // attach the address to this.media and invoke balanceOf on the custom media
-    if (mediaIndex !== undefined) {
-      return this.media
-        .attach(await this.customMedia(mediaIndex))
-        .balanceOf(owner);
-
-      // If the mediaIndex is undefined invoke balanceOf on the main media
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).balanceOf(owner);
     } else {
       return this.media.balanceOf(owner);
     }
@@ -656,18 +650,6 @@ class ZapMedia {
    * Private Methods
    ******************
    */
-
-  private async customMedia(mediaIndex?: BigNumberish) {
-    try {
-      const fetchMediaAddress: string = await this.market.mediaContracts(
-        await this.signer.getAddress(),
-        BigNumber.from(mediaIndex)
-      );
-      return fetchMediaAddress;
-    } catch {
-      invariant(false, "Media Index out of range");
-    }
-  }
 
   // /**
   //  * Throws an error if called on a readOnly == true instance of Zap Sdk
