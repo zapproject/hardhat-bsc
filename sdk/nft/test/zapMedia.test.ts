@@ -405,6 +405,7 @@ describe("ZapMedia", () => {
             "www.example.com"
           );
 
+          // The custom media address
           customMediaAddress = args.mediaContract;
 
           // The owner (signers[0]) mints on their own media contract
@@ -423,6 +424,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should throw an error if the (owner) is a zero address", async () => {
+          // fetchMediaOfOwnerByIndex will fail due to a zero address passed in as the owner
           await ownerConnected
             .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
             .should.be.rejectedWith(
