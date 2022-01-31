@@ -238,6 +238,89 @@ describe("ZapMedia", () => {
         });
       });
 
+      describe("#fetchOwnerOf", () => {
+        const signerOne: Signer = signers[1];
+        let mediaFactory: MediaFactory;
+        let signerOneConnected: ZapMedia;
+        let ownerConnected: ZapMedia;
+        let customMediaAddress: string;
+
+        beforeEach(async () => {
+          // signerOne creates an instance of the MediaFactory class
+          mediaFactory = new MediaFactory(1337, signerOne);
+
+          // signerOne deploys a custom media
+          const { args } = await mediaFactory.deployMedia(
+            "TEST COLLECTION 2",
+            "TC2",
+            true,
+            "www.example.com"
+          );
+
+          // Sets the custom media address
+          customMediaAddress = args.mediaContract;
+
+          // The owner (signers[0]) creates an instance of the ZapMedia class
+          ownerConnected = new ZapMedia(1337, signer);
+
+          // signerOne (signers[1]) creates an instance of the ZapMedia class
+          signerOneConnected = new ZapMedia(1337, signerOne);
+
+          // The owner (signers[0]) mints on the main media
+          await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // signerOne (signers[1]) mints on the main media
+          await signerOneConnected.mint(mediaDataTwo, bidShares);
+
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
+          await signerOneConnected.mint(
+            mediaDataOne,
+            bidShares,
+            customMediaAddress
+          );
+        });
+
+        it("Should reject if the token id does not exist", async () => {
+          // Should throw an error due to the token id not existing on the mainmedia
+          await ownerConnected
+            .fetchOwnerOf(12)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          // Should throw an error due to the token id not existing on the custom media
+          await ownerConnected
+            .fetchOwnerOf(7, customMediaAddress)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
+            );
+        });
+
+        it("Should fetch an owner of a token id", async () => {
+          // Returns the owner address of tokenId 0 on the main media contract
+          const tokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+
+          // Expect the returned address to equal the address of owner (signers[0])
+          expect(tokenOwner).to.equal(await signer.getAddress());
+
+          // Returns the owner address of tokenId 1 on the main media contract
+          const tokenOwnerOne: string = await ownerConnected.fetchOwnerOf(1);
+
+          // Expect the returned address to equal the address of signerOne
+          expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should fetch an owner of a token id on a custom media", async () => {
+          // The owner of tokenId 0 on the custom media should equal the address of signerOne
+          await ownerConnected
+            .fetchOwnerOf(0, customMediaAddress)
+            .should.eventually.equal(await signerOne.getAddress());
+        });
+      });
+
       describe("#fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {
         it("Should be able to fetch contentHash", async () => {
           const media = new ZapMedia(1337, signer);
