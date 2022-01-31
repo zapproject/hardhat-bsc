@@ -239,7 +239,7 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchOwnerOf", () => {
-        const signerOne = signers[1];
+        const signerOne: Signer = signers[1];
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
         let ownerConnected: ZapMedia;
