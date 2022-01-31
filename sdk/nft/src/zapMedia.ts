@@ -104,10 +104,9 @@ class ZapMedia {
   ): Promise<string> {
     try {
       if (customMediaAddress !== undefined) {
-        return this.media.attach(customMediaAddress).ownerOf(mediaId);
-      } else {
-        return this.media.ownerOf(mediaId);
+        return await this.media.attach(customMediaAddress).ownerOf(mediaId);
       }
+      return await this.media.ownerOf(mediaId);
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
     }
@@ -260,6 +259,7 @@ class ZapMedia {
   public async fetchTotalMedia(): Promise<BigNumber> {
     return this.media.totalSupply();
   }
+
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
     let totalMedia = await this.fetchTotalMedia();
 

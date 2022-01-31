@@ -260,9 +260,12 @@ describe("ZapMedia", () => {
           ownerConnected = new ZapMedia(1337, signer);
           signerOneConnected = new ZapMedia(1337, signerOne);
 
+          //
           await ownerConnected.mint(mediaDataOne, bidShares);
           await signerOneConnected.mint(mediaDataTwo, bidShares);
 
+          // The signerOne (signers[1]) mints on their own media contract by passing in the
+          // their media address as optional argument
           await signerOneConnected.mint(
             mediaDataOne,
             bidShares,
@@ -274,22 +277,29 @@ describe("ZapMedia", () => {
           await ownerConnected
             .fetchOwnerOf(12)
             .should.be.rejectedWith(
-              "ZapMedia (fetchOwnerOf): The token id does not exist."
+              "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
             );
         });
 
-        it.only("Should fetch an owner of a token id", async () => {
-          const tokenOwner = await ownerConnected.fetchOwnerOf(0);
-
-          // expect(tokenOwner).to.equal(await signer.getAddress());
-          // const tokenOwnerOne = await ownerConnected.fetchOwnerOf(1);
-          // expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await ownerConnected
+            .fetchOwnerOf(7, customMediaAddress)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
+            );
         });
 
-        it("Should fetch an owner of a token id through a custom media", async () => {
-          // signerOneConnected
-          //   .fetchOwnerOf(0, customMediaAddress)
-          //   .should.equal(await signerOne.getAddress());
+        it("Should fetch an owner of a token id", async () => {
+          const tokenOwner = await ownerConnected.fetchOwnerOf(0);
+          expect(tokenOwner).to.equal(await signer.getAddress());
+          const tokenOwnerOne = await ownerConnected.fetchOwnerOf(1);
+          expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should fetch an owner of a token id on a custom media", async () => {
+          await ownerConnected
+            .fetchOwnerOf(0, customMediaAddress)
+            .should.eventually.equal(await signerOne.getAddress());
         });
       });
 
