@@ -103,11 +103,11 @@ class ZapMedia {
     customMediaAddress?: string
   ): Promise<string> {
     try {
-      // if (customMediaAddress !== undefined) {
-      //   return this.media.attach(customMediaAddress).fetchOwnerOf(mediaId);
-      // } else {
-      return this.media.fetchOwnerOf(mediaId);
-      // }
+      if (customMediaAddress !== undefined) {
+        return this.media.attach(customMediaAddress).ownerOf(mediaId);
+      } else {
+        return this.media.ownerOf(mediaId);
+      }
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
     }
