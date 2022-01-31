@@ -1115,11 +1115,19 @@ describe.only("ZapMedia", () => {
       });
 
       describe.only("#approve", () => {
-        it.only("Should reject if the token id does not exist", async () => {
+        it("Should reject if the token id does not exist", async () => {
           await ownerConnected
             .approve(await signerOne.getAddress(), 400)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the caller is not the owner nor approved for all", async () => {
+          await signerOneConnected
+            .approve(await signerOne.getAddress(), 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
         });
 

@@ -335,10 +335,24 @@ class ZapMedia {
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
     try {
-      await this.media.ownerOf(mediaId);
+      // Sets the owner if the tokenId exists
+      owner = await this.media.ownerOf(mediaId);
     } catch (err: any) {
       invariant(false, "ZapMedia (approve): TokenId does not exist.");
+    }
+
+    const approvalStatus = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    if ((await this.signer.getAddress()) !== owner && approvalStatus == false) {
+      invariant(
+        false,
+        "ZapMedia (approve): Caller is not the owner nor approved for all."
+      );
     }
 
     return this.media.approve(to, mediaId);
