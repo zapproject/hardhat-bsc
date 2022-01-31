@@ -290,9 +290,16 @@ describe("ZapMedia", () => {
         });
 
         it("Should fetch an owner of a token id", async () => {
+          // Returns the owner address of tokenId 0 on the main media contract
           const tokenOwner = await ownerConnected.fetchOwnerOf(0);
+
+          // Expect the returned address to equal the address of owner (signers[0])
           expect(tokenOwner).to.equal(await signer.getAddress());
+
+          // Returns the owner address of tokenId 1 on the main media contract
           const tokenOwnerOne = await ownerConnected.fetchOwnerOf(1);
+
+          // Expect the returned address to equal the address of signerOne
           expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
         });
 
