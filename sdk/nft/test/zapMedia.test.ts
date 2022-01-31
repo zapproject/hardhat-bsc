@@ -304,6 +304,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should fetch an owner of a token id on a custom media", async () => {
+          // The owner of tokenId 0 on the custom media should equal the address of signerOne
           await ownerConnected
             .fetchOwnerOf(0, customMediaAddress)
             .should.eventually.equal(await signerOne.getAddress());
