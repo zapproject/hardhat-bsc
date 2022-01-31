@@ -238,7 +238,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchOwnerOf", () => {
+      describe("#fetchOwnerOf", () => {
         const signerOne = signers[1];
         let mediaFactory: MediaFactory;
         let signerOneConnected: ZapMedia;
@@ -246,8 +246,10 @@ describe("ZapMedia", () => {
         let customMediaAddress: string;
 
         beforeEach(async () => {
+          // signerOne creates an instance of the MediaFactory class
           mediaFactory = new MediaFactory(1337, signerOne);
 
+          // signerOne deploys a custom media
           const { args } = await mediaFactory.deployMedia(
             "TEST COLLECTION 2",
             "TC2",
@@ -255,13 +257,19 @@ describe("ZapMedia", () => {
             "www.example.com"
           );
 
+          // Sets the custom media address
           customMediaAddress = args.mediaContract;
 
+          // The owner (signers[0]) creates an instance of the ZapMedia class
           ownerConnected = new ZapMedia(1337, signer);
+
+          // signerOne (signers[1]) creates an instance of the ZapMedia class
           signerOneConnected = new ZapMedia(1337, signerOne);
 
-          //
+          // The owner (signers[0]) mints on the main media
           await ownerConnected.mint(mediaDataOne, bidShares);
+
+          // signerOne (signers[1]) mints on the main media
           await signerOneConnected.mint(mediaDataTwo, bidShares);
 
           // The signerOne (signers[1]) mints on their own media contract by passing in the
@@ -274,6 +282,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist", async () => {
+          // Should throw an error due to the token id not existing on the mainmedia
           await ownerConnected
             .fetchOwnerOf(12)
             .should.be.rejectedWith(
@@ -292,13 +301,13 @@ describe("ZapMedia", () => {
 
         it("Should fetch an owner of a token id", async () => {
           // Returns the owner address of tokenId 0 on the main media contract
-          const tokenOwner = await ownerConnected.fetchOwnerOf(0);
+          const tokenOwner: string = await ownerConnected.fetchOwnerOf(0);
 
           // Expect the returned address to equal the address of owner (signers[0])
           expect(tokenOwner).to.equal(await signer.getAddress());
 
           // Returns the owner address of tokenId 1 on the main media contract
-          const tokenOwnerOne = await ownerConnected.fetchOwnerOf(1);
+          const tokenOwnerOne: string = await ownerConnected.fetchOwnerOf(1);
 
           // Expect the returned address to equal the address of signerOne
           expect(tokenOwnerOne).to.equal(await signerOne.getAddress());
