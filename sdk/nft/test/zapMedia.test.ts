@@ -282,6 +282,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
+          // Should throw an error due to the token id not existing on the custom media
           await ownerConnected
             .fetchOwnerOf(7, customMediaAddress)
             .should.be.rejectedWith(
