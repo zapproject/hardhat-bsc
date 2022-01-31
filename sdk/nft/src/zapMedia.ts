@@ -335,6 +335,12 @@ class ZapMedia {
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch (err: any) {
+      invariant(false, "ZapMedia (approve): TokenId does not exist.");
+    }
+
     return this.media.approve(to, mediaId);
   }
 

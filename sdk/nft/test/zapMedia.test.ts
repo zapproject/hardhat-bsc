@@ -1114,7 +1114,15 @@ describe.only("ZapMedia", () => {
         });
       });
 
-      describe("#approve", () => {
+      describe.only("#approve", () => {
+        it.only("Should reject if the token id does not exist", async () => {
+          await ownerConnected
+            .approve(await signerOne.getAddress(), 400)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (approve): TokenId does not exist."
+            );
+        });
+
         it("Should approve another address for a token", async () => {
           const preApprovedStatus = await ownerConnected.fetchApproved(0);
           expect(preApprovedStatus).to.equal(ethers.constants.AddressZero);
