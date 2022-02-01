@@ -437,6 +437,13 @@ describe("ZapMedia", () => {
 
           expect(parseInt(totalSupply._hex)).to.equal(2);
         });
+
+        it("Should fetch the total media minted on custom media", async () => {
+          const totalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia(customMediaAddress);
+
+          expect(parseInt(totalSupply._hex)).to.equal(1);
+        });
       });
     });
 
