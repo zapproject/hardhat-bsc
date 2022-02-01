@@ -239,6 +239,13 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
+    if (mediaContractAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+      );
+    }
+
     try {
       await this.media.attach(mediaContractAddress).ownerOf(mediaId);
     } catch {
@@ -248,12 +255,7 @@ class ZapMedia {
       );
     }
 
-    if (mediaContractAddress == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
-      );
-    } else if (bidder == ethers.constants.AddressZero) {
+    if (bidder == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."

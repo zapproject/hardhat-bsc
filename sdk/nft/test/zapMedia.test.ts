@@ -1022,7 +1022,7 @@ describe("ZapMedia", () => {
               );
           });
 
-          it("Should reject if the token id does not exist", async () => {
+          it("Should reject if the token id does not exist on the main media", async () => {
             await ownerConnected
               .fetchCurrentBidForBidder(
                 zapMedia.address,
@@ -1034,7 +1034,7 @@ describe("ZapMedia", () => {
               );
           });
 
-          it("Should reject if the bidder is a zero address", async () => {
+          it("Should reject if the bidder is a zero address on the main media", async () => {
             // Add an assertion by expecting the function to throw the invariant with a bidder as the zero address
             await ownerConnected
               .fetchCurrentBidForBidder(
