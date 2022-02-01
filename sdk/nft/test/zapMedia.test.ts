@@ -229,6 +229,14 @@ describe("ZapMedia", () => {
 
           expect(parseInt(balance._hex)).to.equal(1);
         });
+
+        describe.only("#fetchContentURI", () => {
+          // it("Should throw an error if the networkId is invalid", async () => {
+          //   expect(() => {
+          //     new ZapMedia(300, signer);
+          //   }).to.throw("Constructor: Network Id is not supported.");
+          // });
+        });
       });
 
       describe("#fetchOwnerOf", () => {
