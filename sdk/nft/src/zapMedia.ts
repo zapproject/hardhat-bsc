@@ -275,7 +275,18 @@ class ZapMedia {
    * Fetches the approved account for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async fetchApproved(mediaId: BigNumberish): Promise<string> {
+  public async fetchApproved(
+    mediaId: BigNumberish,
+    customMediaAddress?: string
+  ): Promise<string> {
+    if (customMediaAddress !== undefined) {
+      try {
+        return await this.media.attach(customMediaAddress).getApproved(mediaId);
+      } catch (err) {
+        invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
+      }
+    }
+
     try {
       return await this.media.getApproved(mediaId);
     } catch (err) {
