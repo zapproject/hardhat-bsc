@@ -151,7 +151,11 @@ class ZapMedia {
   public async fetchContentURI(
     mediaId: BigNumberish,
     ): Promise<string> {
-        return await this.media.tokenURI(mediaId);
+      try {
+        return await this.media.fetchContentURI(mediaId);
+      } catch (err: any) {
+        invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+      }
   }
 
   /**
