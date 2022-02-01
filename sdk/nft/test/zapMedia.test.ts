@@ -1042,11 +1042,9 @@ describe("ZapMedia", () => {
                 0,
                 ethers.constants.AddressZero
               )
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
-                );
-              });
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+              );
           });
         });
       });
