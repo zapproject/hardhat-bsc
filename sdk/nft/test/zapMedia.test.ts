@@ -1030,7 +1030,7 @@ describe("ZapMedia", () => {
                 await bidder.getAddress()
               )
               .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The token id does not exist."
               );
           });
 

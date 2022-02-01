@@ -239,7 +239,14 @@ class ZapMedia {
     mediaId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
-    await this.media.ownerOf(mediaId);
+    try {
+      await this.media.attach(mediaContractAddress).ownerOf(mediaId);
+    } catch {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidForBidder): The token id does not exist."
+      );
+    }
 
     if (mediaContractAddress == ethers.constants.AddressZero) {
       invariant(
