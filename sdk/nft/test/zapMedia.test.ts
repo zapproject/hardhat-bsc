@@ -2,7 +2,7 @@ import chai, { expect } from "chai";
 
 import chaiAsPromised from "chai-as-promised";
 
-import { ethers, Wallet, Signer, Contract } from "ethers";
+import { ethers, Wallet, Signer, Contract, BigNumberish } from "ethers";
 
 import { formatUnits } from "ethers/lib/utils";
 
@@ -430,7 +430,14 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchTotalMedia", () => {});
+      describe.only("#fetchTotalMedia", () => {
+        it("Should fetch the total media minted", async () => {
+          const totalSupply: BigNumberish =
+            await signerOneConnected.fetchTotalMedia();
+
+          expect(parseInt(totalSupply._hex)).to.equal(2);
+        });
+      });
     });
 
     describe("Write Functions", () => {
