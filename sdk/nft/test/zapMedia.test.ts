@@ -232,7 +232,7 @@ describe("ZapMedia", () => {
 
         describe("#fetchContentURI", () => {
           it.only('should fetch the content uri', async () => {
-            await ownerConnected.fetchContentURI(0);
+            const contentURI = await ownerConnected.fetchContentURI(0);
           });
         });
       });
