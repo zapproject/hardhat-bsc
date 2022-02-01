@@ -1241,6 +1241,43 @@ describe("ZapMedia", () => {
         });
       });
 
+      describe("#fetchApproved", () => {
+        it("Should reject if the token id does not exist", async () => {
+          await ownerConnected
+            .fetchApproved(200)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchApproved): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await ownerConnected
+            .fetchApproved(200, customMediaAddress)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchApproved): TokenId does not exist."
+            );
+        });
+
+        it("Should fetch the approved address", async () => {
+          // Returns the address approved on the main media
+          const approvedAddr: string = await ownerConnected.fetchApproved(0);
+
+          // Expect the address to equal a zero address
+          expect(approvedAddr).to.equal(ethers.constants.AddressZero);
+        });
+
+        it("Should fetch the approved address on a custom media", async () => {
+          // Returns the address approved on the custom media
+          const approvedAddr: string = await ownerConnected.fetchApproved(
+            0,
+            customMediaAddress
+          );
+
+          // Expect the address to equal a zero address
+          expect(approvedAddr).to.equal(ethers.constants.AddressZero);
+        });
+      });
+
       describe("#setApprovalForAll", () => {
         it("Should set approval for another address for all tokens owned by owner", async () => {
           const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(

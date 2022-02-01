@@ -273,7 +273,8 @@ class ZapMedia {
 
   /**
    * Fetches the approved account for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchApproved(
     mediaId: BigNumberish,
@@ -339,8 +340,9 @@ class ZapMedia {
 
   /**
    * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
-   * @param to
-   * @param mediaId
+   * @param to The address to be approved
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async approve(
     to: string,
@@ -375,6 +377,7 @@ class ZapMedia {
         );
       }
 
+      // Appr
       return this.media.attach(customMediaAddress).approve(to, mediaId);
     }
 
