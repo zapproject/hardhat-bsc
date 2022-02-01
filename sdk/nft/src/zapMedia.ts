@@ -161,6 +161,12 @@ class ZapMedia {
           invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
         }
       }
+
+      try {
+        return await this.media.fetchContentURI(mediaId);
+      } catch {
+        invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+      }
   }
 
   /**
