@@ -1046,6 +1046,30 @@ describe("ZapMedia", () => {
                 "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
               );
           });
+
+          it("Should reject if the token id does not exist on a custom media", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                customMediaAddress,
+                10,
+                await bidder.getAddress()
+              )
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The token id does not exist."
+              );
+          });
+
+          it("Should reject if the bidder is a zero address on a custom media", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                customMediaAddress,
+                0,
+                ethers.constants.AddressZero
+              )
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+              );
+          });
         });
       });
 
