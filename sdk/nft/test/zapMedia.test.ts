@@ -235,6 +235,11 @@ describe("ZapMedia", () => {
             const contentURI = await ownerConnected.fetchContentURI(0);
 
             const secondMint =  await ownerConnected.fetchContentURI(1);
+
+            expect(contentURI).to.equal(tokenURI);
+
+            expect(secondMint).to.equal(tokenURI);
+
           });
         });
       });
