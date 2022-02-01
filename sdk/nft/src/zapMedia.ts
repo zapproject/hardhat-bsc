@@ -156,7 +156,7 @@ class ZapMedia {
 
       if (customMediaAddress !== undefined) {
         try {
-          return await this.media.fetchContentURI(mediaId);
+          return await this.media.customMediaAddress.fetchContentURI(mediaId);
         } catch {
           invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
         }
