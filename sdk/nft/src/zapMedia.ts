@@ -155,13 +155,11 @@ class ZapMedia {
     ): Promise<string> {
 
       if (customMediaAddress !== undefined) {
-
-      }
-
-      try {
-        return await this.media.fetchContentURI(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+        try {
+          return await this.media.fetchContentURI(mediaId);
+        } catch {
+          invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+        }
       }
   }
 
