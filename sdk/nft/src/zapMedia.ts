@@ -152,21 +152,22 @@ class ZapMedia {
   public async fetchContentURI(
     mediaId: BigNumberish,
     customMediaAddress?: string
-    ): Promise<string> {
-
-      if (customMediaAddress !== undefined) {
-        try {
-          return await this.media.customMediaAddress.fetchContentURI(mediaId);
-        } catch {
-          invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
-        }
-      }
-
+  ): Promise<string> {
+    if (customMediaAddress !== undefined) {
       try {
-        return await this.media.fetchContentURI(mediaId);
+        return await this.media
+          .attach(customMediaAddress)
+          .fetchContentURI(mediaId);
       } catch {
         invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
       }
+    }
+
+    try {
+      return await this.media.fetchContentURI(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+    }
   }
 
   /**
