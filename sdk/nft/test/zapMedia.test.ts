@@ -231,7 +231,16 @@ describe("ZapMedia", () => {
         });
 
         describe("#fetchContentURI", () => {
-          it.only('should fetch the content uri', async () => {
+          it.only('should reject if the token ID DNE', async () => {
+            await ownerConnected.fetchContentURI(0).catch((err) => {
+              expect(err.message).to.equal(
+                "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
+              );
+            });
+              
+          });
+          
+          it('should fetch the content uri', async () => {
             const contentURI = await ownerConnected.fetchContentURI(0);
 
             const secondMint =  await ownerConnected.fetchContentURI(1);
@@ -239,7 +248,6 @@ describe("ZapMedia", () => {
             expect(contentURI).to.equal(tokenURI);
 
             expect(secondMint).to.equal(tokenURI);
-
           });
         });
       });
