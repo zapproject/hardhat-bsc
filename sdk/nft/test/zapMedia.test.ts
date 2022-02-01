@@ -230,8 +230,10 @@ describe("ZapMedia", () => {
           expect(parseInt(balance._hex)).to.equal(1);
         });
 
-        describe.only("#fetchContentURI", () => {
-          
+        describe("#fetchContentURI", () => {
+          it.only('should fetch the content uri',async => {
+            
+          });
         });
       });
 
