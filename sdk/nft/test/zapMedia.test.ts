@@ -38,6 +38,7 @@ import {
   signMintWithSigMessage,
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
+import { BlobOptions } from "buffer";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -45,7 +46,7 @@ chai.use(chaiAsPromised);
 
 chai.should();
 
-describe.only("ZapMedia", () => {
+describe("ZapMedia", () => {
   let bidShares: any;
   let ask: any;
   let mediaDataOne: any;
@@ -1139,6 +1140,51 @@ describe.only("ZapMedia", () => {
 
           const postApprovedStatus = await ownerConnected.fetchApproved(0);
           expect(postApprovedStatus).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should approve another address for a token by a caller who is approved for all", async () => {
+          // Returns the approval for all status before approval for all is set
+          const preApprovedStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+
+          // Expect the approval for all status to equal false
+          expect(preApprovedStatus).to.equal(false);
+
+          // The owner (signers[0]) sets the approval for all for token id 0
+          await ownerConnected.setApprovalForAll(
+            await signerOne.getAddress(),
+            true
+          );
+
+          // Returns the approval for all status after approval for all is set
+          const postApprovedStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+
+          // Expect the approval for all status to equal true
+          expect(postApprovedStatus).to.equal(true);
+
+          // Returns the approved address for token id 0 before approval
+          const preApprovedAddr: string =
+            await signerOneConnected.fetchApproved(0);
+
+          // Expect the approved address for token id 0 to equal a zero address
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
+          // signerOne (signers[2]) is approved for all for token id 0 and is able to approve (signers[2])
+          await signerOneConnected.approve(await signers[2].getAddress(), 0);
+
+          // Returns the address approved for token id 0
+          const postApprovedAddr: string =
+            await signerOneConnected.fetchApproved(0);
+
+          // Expect the approved address for token id 0 to equal the address of signers[2]
+          expect(postApprovedAddr).to.equal(await signers[2].getAddress());
         });
       });
 

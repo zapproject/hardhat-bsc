@@ -343,7 +343,7 @@ class ZapMedia {
       invariant(false, "ZapMedia (approve): TokenId does not exist.");
     }
 
-    const approvalStatus = await this.media.isApprovedForAll(
+    const approvalStatus: boolean = await this.media.isApprovedForAll(
       owner,
       await this.signer.getAddress()
     );
