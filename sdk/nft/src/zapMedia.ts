@@ -151,10 +151,11 @@ class ZapMedia {
    */
   public async fetchContentURI(
     mediaId: BigNumberish,
+    customMediaAddress?: string
     ): Promise<string> {
 
       if () {
-        
+
       }
 
       try {
