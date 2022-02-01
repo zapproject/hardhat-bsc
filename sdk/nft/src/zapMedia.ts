@@ -153,7 +153,7 @@ class ZapMedia {
     ): Promise<string> {
       try {
         return await this.media.fetchContentURI(mediaId);
-      } catch (err: any) {
+      } catch {
         invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
       }
   }
