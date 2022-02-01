@@ -1009,7 +1009,7 @@ describe("ZapMedia", () => {
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
 
-        describe("#bidForTokenBidder", () => {
+        describe.only("#bidForTokenBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
             await ownerConnected
               .fetchCurrentBidForBidder(
