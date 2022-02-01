@@ -1124,9 +1124,25 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await signerOneConnected
+            .approve(await signer.getAddress(), 400, customMediaAddress)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (approve): TokenId does not exist."
+            );
+        });
+
         it("Should reject if the caller is not the owner nor approved for all", async () => {
           await signerOneConnected
             .approve(await signerOne.getAddress(), 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
+            );
+        });
+
+        it("Should reject if the caller is not the owner nor approved for all on a custom media", async () => {
+          await ownerConnected
+            .approve(await signers[2].getAddress(), 0, customMediaAddress)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
@@ -1140,6 +1156,14 @@ describe("ZapMedia", () => {
 
           const postApprovedStatus = await ownerConnected.fetchApproved(0);
           expect(postApprovedStatus).to.equal(await signerOne.getAddress());
+        });
+
+        it.only("Should approve another address for a token on a custom media", async () => {
+          await signerOneConnected.approve(
+            await signer.getAddress(),
+            0,
+            customMediaAddress
+          );
         });
 
         it("Should approve another address for a token by a caller who is approved for all", async () => {
