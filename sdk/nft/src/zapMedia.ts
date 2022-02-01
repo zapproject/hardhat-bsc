@@ -149,10 +149,7 @@ class ZapMedia {
    * @param mediaId
    * @param customMediaAddress
    */
-  public async fetchContentURI(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
+  public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
     try {
       return await this.media.tokenURI(mediaId);
     } catch {
