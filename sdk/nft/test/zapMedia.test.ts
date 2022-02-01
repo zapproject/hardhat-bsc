@@ -231,7 +231,7 @@ describe("ZapMedia", () => {
         });
 
         describe("#fetchContentURI", () => {
-          it.only('should fetch the content uri',async => {
+          it.only('should fetch the content uri', async () => {
             
           });
         });
