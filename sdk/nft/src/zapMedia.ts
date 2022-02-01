@@ -147,6 +147,7 @@ class ZapMedia {
   /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
+   * @param customMediaAddress
    */
   public async fetchContentURI(
     mediaId: BigNumberish,
@@ -259,7 +260,12 @@ class ZapMedia {
   /**
    * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
    */
-  public async fetchTotalMedia(): Promise<BigNumber> {
+  public async fetchTotalMedia(
+    customMediaAddress?: string
+  ): Promise<BigNumber> {
+    if (customMediaAddress !== undefined) {
+      return this.media.attach(customMediaAddress).totalSupply();
+    }
     return this.media.totalSupply();
   }
 
