@@ -154,7 +154,7 @@ class ZapMedia {
     customMediaAddress?: string
     ): Promise<string> {
 
-      if () {
+      if (customMediaAddress !== undefined) {
 
       }
 
