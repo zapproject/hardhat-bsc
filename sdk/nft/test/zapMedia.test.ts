@@ -430,18 +430,22 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchTotalMedia", () => {
+      describe("#fetchTotalMedia", () => {
         it("Should fetch the total media minted", async () => {
+          // Returns the total amount tokens minted on the main media
           const totalSupply: BigNumberish =
             await signerOneConnected.fetchTotalMedia();
 
+          // Expect the totalSupply to equal 2
           expect(parseInt(totalSupply._hex)).to.equal(2);
         });
 
-        it("Should fetch the total media minted on custom media", async () => {
+        it("Should fetch the total media minted on a custom media", async () => {
+          // Returns the total amount tokens minted on the custom media
           const totalSupply: BigNumberish =
             await ownerConnected.fetchTotalMedia(customMediaAddress);
 
+          // Expect the totalSupply to equal 1
           expect(parseInt(totalSupply._hex)).to.equal(1);
         });
       });
