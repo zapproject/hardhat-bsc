@@ -152,6 +152,11 @@ class ZapMedia {
   public async fetchContentURI(
     mediaId: BigNumberish,
     ): Promise<string> {
+
+      if () {
+        
+      }
+
       try {
         return await this.media.fetchContentURI(mediaId);
       } catch {

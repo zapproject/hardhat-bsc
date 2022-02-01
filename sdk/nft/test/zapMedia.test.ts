@@ -231,11 +231,8 @@ describe("ZapMedia", () => {
         });
 
         describe("#fetchContentURI", () => {
-          it.only("", async () => {
-
-          });
-          
-          it("should reject if the token ID DNE", async () => {
+         
+          it.only("should reject if the token ID DNE", async () => {
             await ownerConnected
               .fetchContentURI(5)
               .should.be.rejectedWith(
