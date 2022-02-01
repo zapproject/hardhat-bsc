@@ -2,7 +2,7 @@ import chai, { expect } from "chai";
 
 import chaiAsPromised from "chai-as-promised";
 
-import { ethers, Wallet, Signer, Contract } from "ethers";
+import { ethers, Wallet, Signer, Contract, BigNumberish } from "ethers";
 
 import { formatUnits } from "ethers/lib/utils";
 
@@ -427,6 +427,26 @@ describe("ZapMedia", () => {
 
           // Expect signerOne (signers[1]) to own tokenId 0 on their own media contract
           expect(parseInt(fetchToken._hex)).to.equal(0);
+        });
+      });
+
+      describe("#fetchTotalMedia", () => {
+        it("Should fetch the total media minted", async () => {
+          // Returns the total amount tokens minted on the main media
+          const totalSupply: BigNumberish =
+            await signerOneConnected.fetchTotalMedia();
+
+          // Expect the totalSupply to equal 2
+          expect(parseInt(totalSupply._hex)).to.equal(2);
+        });
+
+        it("Should fetch the total media minted on a custom media", async () => {
+          // Returns the total amount tokens minted on the custom media
+          const totalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia(customMediaAddress);
+
+          // Expect the totalSupply to equal 1
+          expect(parseInt(totalSupply._hex)).to.equal(1);
         });
       });
     });
