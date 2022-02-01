@@ -333,7 +333,8 @@ class ZapMedia {
    */
   public async approve(
     to: string,
-    mediaId: BigNumberish
+    mediaId: BigNumberish,
+    customMediaAddress?: string
   ): Promise<ContractTransaction> {
     let owner: string;
     try {
