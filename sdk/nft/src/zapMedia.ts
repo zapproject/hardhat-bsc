@@ -96,10 +96,17 @@ class ZapMedia {
 
   /**
    * Fetches the owner of the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
-  public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
+  public async fetchOwnerOf(
+    mediaId: BigNumberish,
+    customMediaAddress?: string
+  ): Promise<string> {
     try {
+      if (customMediaAddress !== undefined) {
+        return await this.media.attach(customMediaAddress).ownerOf(mediaId);
+      }
       return await this.media.ownerOf(mediaId);
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
@@ -251,6 +258,7 @@ class ZapMedia {
   public async fetchTotalMedia(): Promise<BigNumber> {
     return this.media.totalSupply();
   }
+
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
     let totalMedia = await this.fetchTotalMedia();
 
@@ -263,12 +271,24 @@ class ZapMedia {
 
   /**
    * Fetches the approved account for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
-  public async fetchApproved(mediaId: BigNumberish): Promise<string> {
+  public async fetchApproved(
+    mediaId: BigNumberish,
+    customMediaAddress?: string
+  ): Promise<string> {
+    if (customMediaAddress !== undefined) {
+      try {
+        return await this.media.attach(customMediaAddress).getApproved(mediaId);
+      } catch {
+        invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
+      }
+    }
+
     try {
       return await this.media.getApproved(mediaId);
-    } catch (err) {
+    } catch {
       invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
     }
   }
@@ -318,13 +338,65 @@ class ZapMedia {
 
   /**
    * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
-   * @param to
-   * @param mediaId
+   * @param to The address to be approved
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async approve(
     to: string,
-    mediaId: BigNumberish
+    mediaId: BigNumberish,
+    customMediaAddress?: string
   ): Promise<ContractTransaction> {
+    // Will be assigned the address of the token owner
+    let owner: string;
+
+    // Checks if the customMediaAddress argument is not undefined
+    if (customMediaAddress !== undefined) {
+      // Checks if the tokenId exists
+      try {
+        owner = await this.media.attach(customMediaAddress).ownerOf(mediaId);
+      } catch {
+        invariant(false, "ZapMedia (approve): TokenId does not exist.");
+      }
+
+      // Returns the approval for all status
+      const approvalStatus: boolean = await this.media
+        .attach(customMediaAddress)
+        .isApprovedForAll(owner, await this.signer.getAddress());
+
+      // If the signer is not the owner nor approved for all they cannot invoke this function
+      if (
+        (await this.signer.getAddress()) !== owner &&
+        approvalStatus == false
+      ) {
+        invariant(
+          false,
+          "ZapMedia (approve): Caller is not the owner nor approved for all."
+        );
+      }
+
+      // Appr
+      return this.media.attach(customMediaAddress).approve(to, mediaId);
+    }
+
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (approve): TokenId does not exist.");
+    }
+
+    const approvalStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    if ((await this.signer.getAddress()) !== owner && approvalStatus == false) {
+      invariant(
+        false,
+        "ZapMedia (approve): Caller is not the owner nor approved for all."
+      );
+    }
+
     return this.media.approve(to, mediaId);
   }
 

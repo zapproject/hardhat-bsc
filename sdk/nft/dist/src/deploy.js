@@ -55,7 +55,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deployZapMedia = exports.deployMediaFactory = exports.deployZapMediaImpl = exports.deployZapMarket = exports.deployZapVault = exports.deployZapToken = void 0;
+exports.deployZapMedia = exports.deployMediaFactory = exports.deployZapMediaImpl = exports.deployAuctionHouse = exports.deployZapMarket = exports.deployZapVault = exports.deployZapToken = void 0;
 var ethers_1 = require("ethers");
 var abis = __importStar(require("./contract/abi"));
 var bytecodes = __importStar(require("./contract/bytecode"));
@@ -132,6 +132,24 @@ var deployZapMarket = function () { return __awaiter(void 0, void 0, void 0, fun
     });
 }); };
 exports.deployZapMarket = deployZapMarket;
+var deployAuctionHouse = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var auctionHouseFactory, auctionHouse;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                auctionHouseFactory = new ethers_1.ethers.ContractFactory(abis.zapAuctionAbi, bytecodes.auctionHouseBytecode, signer);
+                return [4 /*yield*/, auctionHouseFactory.deploy()];
+            case 1:
+                auctionHouse = _a.sent();
+                auctionHouse.deployed();
+                return [4 /*yield*/, auctionHouse.initialize(zapTokenAddress, zapMarketAddress)];
+            case 2:
+                _a.sent();
+                return [2 /*return*/, auctionHouse];
+        }
+    });
+}); };
+exports.deployAuctionHouse = deployAuctionHouse;
 var deployZapMediaImpl = function () { return __awaiter(void 0, void 0, void 0, function () {
     var mediaFactory, zapMedia;
     return __generator(this, function (_a) {
