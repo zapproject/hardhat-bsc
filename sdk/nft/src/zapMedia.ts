@@ -153,6 +153,14 @@ class ZapMedia {
     mediaId: BigNumberish,
     customMediaAddress?: string
   ): Promise<string> {
+    if (customMediaAddress !== undefined) {
+      try {
+        return await this.media.attach(customMediaAddress).tokenURI(mediaId);
+      } catch {
+        invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+      }
+    }
+
     try {
       return await this.media.tokenURI(mediaId);
     } catch {
