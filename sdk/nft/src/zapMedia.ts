@@ -282,14 +282,14 @@ class ZapMedia {
     if (customMediaAddress !== undefined) {
       try {
         return await this.media.attach(customMediaAddress).getApproved(mediaId);
-      } catch (err) {
+      } catch {
         invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
       }
     }
 
     try {
       return await this.media.getApproved(mediaId);
-    } catch (err) {
+    } catch {
       invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
     }
   }

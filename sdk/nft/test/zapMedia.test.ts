@@ -1159,11 +1159,23 @@ describe("ZapMedia", () => {
         });
 
         it.only("Should approve another address for a token on a custom media", async () => {
+          const preApprovedAddr = await signerOneConnected.fetchApproved(
+            0,
+            customMediaAddress
+          );
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
           await signerOneConnected.approve(
             await signer.getAddress(),
             0,
             customMediaAddress
           );
+
+          const postApprovedAddr = await signerOneConnected.fetchApproved(
+            0,
+            customMediaAddress
+          );
+          expect(postApprovedAddr).to.equal(await signer.getAddress());
         });
 
         it("Should approve another address for a token by a caller who is approved for all", async () => {
