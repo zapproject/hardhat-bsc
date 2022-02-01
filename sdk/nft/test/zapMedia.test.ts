@@ -1115,8 +1115,9 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#approve", () => {
+      describe("#approve", () => {
         it("Should reject if the token id does not exist", async () => {
+          // Will throw an error due to the token id not existing
           await ownerConnected
             .approve(await signerOne.getAddress(), 400)
             .should.be.rejectedWith(
@@ -1125,6 +1126,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
+          // Will throw an error due to the token id not existing on the custom media
           await signerOneConnected
             .approve(await signer.getAddress(), 400, customMediaAddress)
             .should.be.rejectedWith(
@@ -1133,6 +1135,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the caller is not the owner nor approved for all", async () => {
+          // Will throw an error if the caller is not approved or the owner
           await signerOneConnected
             .approve(await signerOne.getAddress(), 0)
             .should.be.rejectedWith(
@@ -1141,6 +1144,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the caller is not the owner nor approved for all on a custom media", async () => {
+          // Will throw an error if the caller is not approved or the owner on a custom media
           await ownerConnected
             .approve(await signers[2].getAddress(), 0, customMediaAddress)
             .should.be.rejectedWith(
@@ -1149,32 +1153,45 @@ describe("ZapMedia", () => {
         });
 
         it("Should approve another address for a token", async () => {
-          const preApprovedStatus = await ownerConnected.fetchApproved(0);
-          expect(preApprovedStatus).to.equal(ethers.constants.AddressZero);
+          // Return the address approved for token id 0 before approval
+          const preApprovedAddr = await ownerConnected.fetchApproved(0);
 
+          // Expect the address to equal a zero address
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
+          // The owner (signers[0]) approves signerOne for token id 0
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
+          // Returns the address approved for token id  0 after approval
           const postApprovedStatus = await ownerConnected.fetchApproved(0);
+
+          // Expect the address to equal the address of signerOne
           expect(postApprovedStatus).to.equal(await signerOne.getAddress());
         });
 
-        it.only("Should approve another address for a token on a custom media", async () => {
+        it("Should approve another address for a token on a custom media", async () => {
+          // Returns the approved address on a custom media before the approval
           const preApprovedAddr = await signerOneConnected.fetchApproved(
             0,
             customMediaAddress
           );
+          // Expect the address to equal a zero address
           expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
 
+          // signerOne (signers[1]) approves signers[0] for token id 0 on a custom media
           await signerOneConnected.approve(
             await signer.getAddress(),
             0,
             customMediaAddress
           );
 
+          // Returns the approved address after the approval
           const postApprovedAddr = await signerOneConnected.fetchApproved(
             0,
             customMediaAddress
           );
+
+          // Expect the address to equal the address of signer (signers[0])
           expect(postApprovedAddr).to.equal(await signer.getAddress());
         });
 
