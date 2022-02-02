@@ -230,8 +230,8 @@ describe("ZapMedia", () => {
           expect(parseInt(balance._hex)).to.equal(1);
         });
 
-        describe.only("#fetchContentURI", () => {
-          it("should reject if the token ID DNE", async () => {
+        describe("#fetchContentURI", () => {
+          it("should reject if the token id does not exist", async () => {
             await ownerConnected
               .fetchContentURI(5)
               .should.be.rejectedWith(
@@ -256,8 +256,11 @@ describe("ZapMedia", () => {
           });
 
           it("Should fetch the content uri on a custom media", async () => {
-            const firstContentURI = await ownerConnected.fetchContentURI(0, customMediaAddress);
-            
+            const firstContentURI = await ownerConnected.fetchContentURI(
+              0,
+              customMediaAddress
+            );
+
             expect(firstContentURI).to.equal(tokenURI);
           });
 
