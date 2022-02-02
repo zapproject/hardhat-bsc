@@ -218,7 +218,7 @@ class ZapMedia {
   public async fetchCreator(
     mediaId: BigNumberish,
     customMediaAddress?: string
-  ): Promise<any> {
+  ): Promise<string> {
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
