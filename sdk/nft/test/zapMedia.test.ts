@@ -452,7 +452,7 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#fetchCreator", () => {
-        it.only("Should reject if the tokenId does not exist", async () => {
+        it("Should reject if the tokenId does not exist on the main media", async () => {
           await ownerConnected
             .fetchCreator(300)
             .should.be.rejectedWith(
@@ -461,9 +461,13 @@ describe("ZapMedia", () => {
         });
 
         it("Should return the token creator on the main media", async () => {
-          const creator: string = await ownerConnected.fetchCreator(0);
+          const creatorOne: string = await ownerConnected.fetchCreator(0);
 
-          expect(creator).to.equal(await signer.getAddress());
+          const creatorTwo: string = await ownerConnected.fetchCreator(1);
+
+          expect(creatorOne).to.equal(await signer.getAddress());
+
+          expect(creatorTwo).to.equal(await signerOne.getAddress());
         });
       });
     });
