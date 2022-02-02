@@ -153,6 +153,14 @@ class ZapMedia {
     mediaId: BigNumberish,
     customMediaAddress?: string
   ): Promise<string> {
+    
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
+      );
+    }
+    
     if (customMediaAddress !== undefined) {
       try {
         return await this.media.attach(customMediaAddress).tokenURI(mediaId);
