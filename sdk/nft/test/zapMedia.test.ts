@@ -529,6 +529,15 @@ describe("ZapMedia", () => {
 
           expect(creatorTwo).to.equal(await signerOne.getAddress());
         });
+
+        it("Should return the token creator on a custom media", async () => {
+          const creator: string = await ownerConnected.fetchCreator(
+            0,
+            customMediaAddress
+          );
+
+          expect(creator).to.equal(await signerOne.getAddress());
+        });
       });
     });
 
