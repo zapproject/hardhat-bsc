@@ -247,6 +247,14 @@ describe("ZapMedia", () => {
               );
           });
 
+          it("Should reject if the customMediaAddress is a zero address", async () => {
+            await ownerConnected
+              .fetchContentURI(0, ethers.constants.AddressZero)
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
+              );
+          });
+
           it("should fetch the content uri", async () => {
             const firstTokenURI = await ownerConnected.fetchContentURI(0);
 
