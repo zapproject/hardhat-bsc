@@ -241,7 +241,7 @@ describe("ZapMedia", () => {
 
           it("Should reject if the token id does not exist on a custom media", async () => {
             await ownerConnected
-              .fetchContentURI(0, customMediaAddress)
+              .fetchContentURI(1, customMediaAddress)
               .should.be.rejectedWith(
                 "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
               );
