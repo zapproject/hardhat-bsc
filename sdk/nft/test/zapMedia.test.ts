@@ -450,7 +450,21 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchCreator", () => {});
+      describe.only("#fetchCreator", () => {
+        it("Should throw an error if the tokenId does not exist", async () => {
+          await ownerConnected.fetchCreator(0).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (fetchCreator): TokenId does not exist."
+            );
+          });
+        });
+
+        it("Should return the token creator", async () => {
+          const creator = await ownerConnected.fetchCreator(0);
+
+          expect(creator).to.equal(await signer.getAddress());
+        });
+      });
     });
 
     describe("Write Functions", () => {
@@ -738,22 +752,6 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value)
           );
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
-        });
-      });
-
-      describe("#getTokenCreators", () => {
-        it("Should throw an error if the tokenId does not exist", async () => {
-          await ownerConnected.fetchCreator(0).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchCreator): TokenId does not exist."
-            );
-          });
-        });
-
-        it("Should return the token creator", async () => {
-          const creator = await ownerConnected.fetchCreator(0);
-
-          expect(creator).to.equal(await signer.getAddress());
         });
       });
 
