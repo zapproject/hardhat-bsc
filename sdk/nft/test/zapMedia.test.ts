@@ -1055,7 +1055,9 @@ describe("ZapMedia", () => {
         });
 
         describe.only("#fetchCurrentAsk", () => {
+          it("Should reject if the media address is a zero address", async () => {
 
+          })
         })
 
         describe("#fetchCurrentBidForBidder", () => {
