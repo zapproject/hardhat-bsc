@@ -1055,10 +1055,17 @@ describe("ZapMedia", () => {
         });
 
         describe.only("#fetchCurrentAsk", () => {
-          it("Should reject if the media address is a zero address", async () => {
+          it("Should return null values if the media is a zero address with a valid token id", async () => {
+            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+              ethers.constants.AddressZero,
+              0
+            );
+  
+            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
 
-          })
-        })
+            //expect(fetchAddress.amount).to.equal(ethers.constants.AddressZero);
+          });
+        });
 
         describe("#fetchCurrentBidForBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
