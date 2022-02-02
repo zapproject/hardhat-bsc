@@ -255,6 +255,12 @@ describe("ZapMedia", () => {
               );
           });
 
+          it("Should fetch the content uri on a custom media", async () => {
+            const firstContentURI = await ownerConnected.fetchContentURI(0, customMediaAddress);
+            
+            expect(firstContentURI).to.equal(tokenURI);
+          });
+
           it("should fetch the content uri", async () => {
             const firstTokenURI = await ownerConnected.fetchContentURI(0);
 
