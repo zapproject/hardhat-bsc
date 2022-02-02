@@ -449,6 +449,8 @@ describe("ZapMedia", () => {
           expect(parseInt(totalSupply._hex)).to.equal(1);
         });
       });
+
+      describe("#fetchCreator", () => {});
     });
 
     describe("Write Functions", () => {
