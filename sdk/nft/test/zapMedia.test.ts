@@ -497,12 +497,27 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#fetchCreator", () => {
-        it("Should reject if the tokenId does not exist on the main media", async () => {
-          await ownerConnected
-            .fetchCreator(300)
+        it("Should reject if the custom media is a zero address", async () => {
+          await signerOneConnected
+            .fetchCreator(0, ethers.constants.AddressZero)
             .should.be.rejectedWith(
-              "Invariant failed: ZapMedia (fetchCreator): TokenId does not exist."
+              "Invariant failed: ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address."
             );
+        });
+
+        it("Should return a zero address if the token id does not exist on the main media", async () => {
+          const ownerAddr: string = await ownerConnected.fetchCreator(300);
+
+          expect(ownerAddr).to.equal(ethers.constants.AddressZero);
+        });
+
+        it("Should return a zero address if the token id does not exist on a custom media", async () => {
+          const ownerAddr: string = await ownerConnected.fetchCreator(
+            12,
+            customMediaAddress
+          );
+
+          expect(ownerAddr).to.equal(ethers.constants.AddressZero);
         });
 
         it("Should return the token creator on the main media", async () => {

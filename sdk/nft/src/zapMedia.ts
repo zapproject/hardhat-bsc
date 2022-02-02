@@ -218,21 +218,25 @@ class ZapMedia {
   public async fetchCreator(
     mediaId: BigNumberish,
     customMediaAddress?: string
-  ): Promise<string> {
+  ): Promise<any> {
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address."
+      );
+    }
+
     if (customMediaAddress !== undefined) {
       try {
-        await this.media.attach(customMediaAddress).ownerOf(mediaId);
+        return await this.media
+          .attach(customMediaAddress)
+          .getTokenCreators(mediaId);
       } catch {
         invariant(false, "ZapMedia (fetchCreator): TokenId does not exist.");
       }
     }
 
-    try {
-      await this.media.ownerOf(mediaId);
-    } catch {
-      invariant(false, "ZapMedia (fetchCreator): TokenId does not exist.");
-    }
-    return this.media.getTokenCreators(mediaId);
+    return await this.media.getTokenCreators(mediaId);
   }
 
   /**
