@@ -219,9 +219,17 @@ class ZapMedia {
     mediaId: BigNumberish,
     customMediaAddress?: string
   ): Promise<string> {
+    if (customMediaAddress !== undefined) {
+      try {
+        await this.media.attach(customMediaAddress).ownerOf(mediaId);
+      } catch {
+        invariant(false, "ZapMedia (fetchCreator): TokenId does not exist.");
+      }
+    }
+
     try {
       await this.media.ownerOf(mediaId);
-    } catch (err: any) {
+    } catch {
       invariant(false, "ZapMedia (fetchCreator): TokenId does not exist.");
     }
     return this.media.getTokenCreators(mediaId);
