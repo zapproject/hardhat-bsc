@@ -1038,7 +1038,7 @@ describe("ZapMedia", () => {
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
 
-        describe("#bidForTokenBidder", () => {
+        describe("#fetchCurrentBidForBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
             await ownerConnected
               .fetchCurrentBidForBidder(
@@ -1046,40 +1046,57 @@ describe("ZapMedia", () => {
                 0,
                 await bidder.getAddress()
               )
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
-                );
-              });
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
+              );
           });
 
-          it("Should reject if the token id does not exist", async () => {
+          it("Should reject if the token id does not exist on the main media", async () => {
             await ownerConnected
               .fetchCurrentBidForBidder(
                 zapMedia.address,
                 10,
                 await bidder.getAddress()
               )
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
-                );
-              });
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The token id does not exist."
+              );
           });
 
-          it("Should reject if the bidder is a zero address", async () => {
-            // Add an assertion by expecting the function to throw the invariant with a bidder as the zero address
+          it("Should reject if the bidder is a zero address on the main media", async () => {
             await ownerConnected
               .fetchCurrentBidForBidder(
                 zapMedia.address,
                 0,
                 ethers.constants.AddressZero
               )
-              .catch((err) => {
-                expect(err.message).to.equal(
-                  "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
-                );
-              });
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+              );
+          });
+
+          it("Should reject if the token id does not exist on a custom media", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                customMediaAddress,
+                10,
+                await bidder.getAddress()
+              )
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The token id does not exist."
+              );
+          });
+
+          it("Should reject if the bidder is a zero address on a custom media", async () => {
+            await ownerConnected
+              .fetchCurrentBidForBidder(
+                customMediaAddress,
+                0,
+                ethers.constants.AddressZero
+              )
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidForBidder): The (bidder) address cannot be a zero address."
+              );
           });
         });
       });
