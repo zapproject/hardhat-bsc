@@ -1140,6 +1140,32 @@ describe("ZapMedia", () => {
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
 
+        describe("#fetchCurrentAsk", () => {
+          it("Should return null values if the media is a zero address with a valid token id", async () => {
+            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+              ethers.constants.AddressZero,
+              0
+            );
+  
+            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+
+          });
+
+          it("Should return null values if the token id does not exist", async () => {
+            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+              zapMedia.address,
+              10
+            );
+
+            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
+            
+            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            
+          });
+        });
+
         describe("#fetchCurrentBidForBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
             await ownerConnected
