@@ -195,9 +195,16 @@ class ZapMedia {
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
-        "ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address."
+        "ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address."
       );
     }
+
+    if (customMediaAddress !== undefined) {
+      return await this.media
+        .attach(customMediaAddress)
+        .getTokenContentHashes(mediaId);
+    }
+
     return this.media.getTokenContentHashes(mediaId);
   }
 
