@@ -496,7 +496,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchCreator", () => {
+      describe("#fetchCreator", () => {
         it("Should reject if the custom media is a zero address", async () => {
           // Attempt to fetch a tokenId creator with a zero address as the media
           await signerOneConnected
