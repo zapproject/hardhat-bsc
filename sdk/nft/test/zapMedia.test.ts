@@ -395,10 +395,9 @@ describe("ZapMedia", () => {
           );
         });
 
-        it("fetchMetadataHash should get 0x0 if tokenId doesn't exist", async () => {
-          const onChainMetadataHash = await ownerConnected.fetchMetadataHash(
-            56
-          );
+        it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
+          const onChainMetadataHash: string =
+            await ownerConnected.fetchMetadataHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
