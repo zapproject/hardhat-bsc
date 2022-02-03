@@ -404,7 +404,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
-          // Return 0x0 due to a non existent tokenId on a custom media
+          // Returns 0x0 due to a non existent tokenId on a custom media
           const onChainContentHash: string =
             await ownerConnected.fetchContentHash(56, customMediaAddress);
 
@@ -424,23 +424,58 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("fetchMetadataHash, fetchPermitNonce", () => {
-        it("Should be able to fetch metadataHash", async () => {
-          const onChainMetadataHash = await ownerConnected.fetchMetadataHash(0);
-          expect(onChainMetadataHash).eq(
-            ethers.utils.hexlify(mediaDataOne.metadataHash)
-          );
-        });
-
-        it("fetchMetadataHash should get 0x0 if tokenId doesn't exist", async () => {
-          const onChainMetadataHash = await ownerConnected.fetchMetadataHash(
-            56
-          );
+      describe("#fetchMetadataHash", async () => {
+        it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
+          // Returns 0x0 due to a non existent tokenId on the main media
+          const onChainMetadataHash: string =
+            await ownerConnected.fetchMetadataHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
 
+        it("Should be able to fetch metadataHash on the main media", async () => {
+          // Returns the metadataHash of tokenId 0 on the main media
+          const onChainMetadataHashOne: string =
+            await ownerConnected.fetchMetadataHash(0);
+
+          // Returns the metadataHash of tokenId 1 on the main media
+          const onChainMetadataHashTwo: string =
+            await ownerConnected.fetchMetadataHash(1);
+
+          // Expect the returned metadata hash for tokenId 0 to equal the one set on mint
+          expect(onChainMetadataHashOne).eq(
+            ethers.utils.hexlify(mediaDataOne.metadataHash)
+          );
+
+          // Expect the returned metadata hash for tokenId 1 to equal the one set on mint
+          expect(onChainMetadataHashTwo).eq(
+            ethers.utils.hexlify(mediaDataTwo.metadataHash)
+          );
+        });
+
+        it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
+          // Returns 0x0 due to a non existent tokenId on a custom media
+          const onChainMetadataHash: string =
+            await ownerConnected.fetchMetadataHash(1001, customMediaAddress);
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainMetadataHash).eq(ethers.constants.HashZero);
+        });
+
+        it("Should be able to fetch metadataHash on a custom media", async () => {
+          // Returns the metadata hash of tokenId 0 on a custom media
+          const onChainMetadataHash: string =
+            await ownerConnected.fetchMetadataHash(0, customMediaAddress);
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainMetadataHash).eq(
+            ethers.utils.hexlify(mediaDataOne.metadataHash)
+          );
+        });
+      });
+
+      describe("#fetchPermitNonce", () => {
         it("Should be able to fetch permitNonce", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const otherWallet: Wallet = new ethers.Wallet(
@@ -1192,11 +1227,12 @@ describe("ZapMedia", () => {
               ethers.constants.AddressZero,
               0
             );
-  
-            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(fetchAddress.currency).to.equal(
+              ethers.constants.AddressZero
+            );
 
             expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
-
           });
 
           it("Should return null values if the token id does not exist", async () => {
@@ -1205,10 +1241,11 @@ describe("ZapMedia", () => {
               10
             );
 
-            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
-            
+            expect(fetchAddress.currency).to.equal(
+              ethers.constants.AddressZero
+            );
+
             expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
-            
           });
         });
 
