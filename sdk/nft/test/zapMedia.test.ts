@@ -277,9 +277,23 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchMetadataURI", () => {
+      describe("#fetchMetadataURI", () => {
         it("Should reject if the tokenID does not exist", async () => {
+          // await ownerConnected
+          //     .fetchMetadataURI(5)
+          //     .should.be.rejectedWith(
+          //       "Invariant failed: ZapMedia (fetchMetadataURI): TokenId does not exist."
+          //     );
+        });
 
+        it.only("should fetch the metadata URI", async () => {
+          const firstMetadataURI = await ownerConnected.fetchMetadataURI(0);
+
+          const secondMetadataURI = await ownerConnected.fetchMetadataURI(1);
+
+          expect(firstMetadataURI).to.equal(metadataURI);
+
+          expect(secondMetadataURI).to.equal(metadataURI);
         });
       });
 
