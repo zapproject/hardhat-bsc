@@ -329,14 +329,15 @@ describe("ZapMedia", () => {
         });
 
         it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
-          const onChainContentHash = await ownerConnected.fetchContentHash(56);
+          const onChainContentHash: string =
+            await ownerConnected.fetchContentHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainContentHash).eq(ethers.constants.HashZero);
         });
       });
 
-      describe("#fetchContentHash, fetchMetadataHash, fetchPermitNonce", () => {
+      describe("fetchMetadataHash, fetchPermitNonce", () => {
         it("Should be able to fetch metadataHash", async () => {
           const onChainMetadataHash = await ownerConnected.fetchMetadataHash(0);
           expect(onChainMetadataHash).eq(
