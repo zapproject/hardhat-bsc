@@ -344,6 +344,14 @@ describe("ZapMedia", () => {
             ethers.utils.hexlify(mediaDataOne.contentHash)
           );
         });
+
+        it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
+          const onChainContentHash: string =
+            await ownerConnected.fetchContentHash(56, customMediaAddress);
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainContentHash).eq(ethers.constants.HashZero);
+        });
       });
 
       describe("fetchMetadataHash, fetchPermitNonce", () => {
