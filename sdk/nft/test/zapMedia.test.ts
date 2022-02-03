@@ -498,6 +498,7 @@ describe("ZapMedia", () => {
 
       describe.only("#fetchCreator", () => {
         it("Should reject if the custom media is a zero address", async () => {
+          // Attempt to fetch a tokenId creator with a zero address as the media
           await signerOneConnected
             .fetchCreator(0, ethers.constants.AddressZero)
             .should.be.rejectedWith(
@@ -506,36 +507,46 @@ describe("ZapMedia", () => {
         });
 
         it("Should return a zero address if the token id does not exist on the main media", async () => {
+          // Returns a zero address due to the nonexistent tokenId on the custom media
           const ownerAddr: string = await ownerConnected.fetchCreator(300);
 
+          // Expect the address to equal a zero address
           expect(ownerAddr).to.equal(ethers.constants.AddressZero);
         });
 
         it("Should return a zero address if the token id does not exist on a custom media", async () => {
+          // Returns a zero address due to the nonexistent tokenId on a custom media
           const ownerAddr: string = await ownerConnected.fetchCreator(
             12,
             customMediaAddress
           );
 
+          // Expect the address to equal a zero address
           expect(ownerAddr).to.equal(ethers.constants.AddressZero);
         });
 
         it("Should return the token creator on the main media", async () => {
+          // Returns the creator address of tokenId 0 on the main media
           const creatorOne: string = await ownerConnected.fetchCreator(0);
 
+          // Returns the creator address of tokenId 1 on the main media
           const creatorTwo: string = await ownerConnected.fetchCreator(1);
 
+          // Expect creator of tokenId 0 to equal the owner (signers[0]) address
           expect(creatorOne).to.equal(await signer.getAddress());
 
+          // Expect the creator of tokenId 1 to equal the signerOne (signers[1]) address
           expect(creatorTwo).to.equal(await signerOne.getAddress());
         });
 
         it("Should return the token creator on a custom media", async () => {
+          // Returns the creator address of tokenId 0 on a custom media
           const creator: string = await ownerConnected.fetchCreator(
             0,
             customMediaAddress
           );
 
+          // Expect the creator of tokenId 0 on the custom media to equal the signerOne (signers[1]) address
           expect(creator).to.equal(await signerOne.getAddress());
         });
       });

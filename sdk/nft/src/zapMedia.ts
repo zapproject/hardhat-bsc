@@ -213,12 +213,14 @@ class ZapMedia {
 
   /**
    * Fetches the creator for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchCreator(
     mediaId: BigNumberish,
     customMediaAddress?: string
   ): Promise<string> {
+    // If the customMediaAddress is a zero address throw an error
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -226,16 +228,15 @@ class ZapMedia {
       );
     }
 
+    // If the customMediaAddress does not equal undefined create a custom media instance and
+    // invoke the getTokenCreators function on that custom media
     if (customMediaAddress !== undefined) {
-      try {
-        return await this.media
-          .attach(customMediaAddress)
-          .getTokenCreators(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (fetchCreator): TokenId does not exist.");
-      }
+      return await this.media
+        .attach(customMediaAddress)
+        .getTokenCreators(mediaId);
     }
 
+    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenCreators function
     return await this.media.getTokenCreators(mediaId);
   }
 
