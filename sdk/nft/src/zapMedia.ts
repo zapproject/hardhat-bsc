@@ -179,7 +179,10 @@ class ZapMedia {
    * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
    * @param mediaId
    */
-  public async fetchMetadataURI(mediaId: BigNumberish): Promise<string> {
+  public async fetchMetadataURI(
+    mediaId: BigNumberish,
+    customMediaAddress?: string
+    ): Promise<string> {
     return this.media.tokenMetadataURI(mediaId);
   }
 
@@ -257,7 +260,7 @@ class ZapMedia {
    */
   public async fetchCurrentAsk(
     mediaAddress: string,
-    mediaId: BigNumberish,
+    mediaId: BigNumberish
   ): Promise<Ask> {
     return this.market.currentAskForToken(mediaAddress, mediaId);
   }
