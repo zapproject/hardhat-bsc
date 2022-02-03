@@ -220,6 +220,14 @@ class ZapMedia {
     mediaId: BigNumberish,
     customMediaAddress?: string
   ): Promise<string> {
+    // If the customMediaAddress is a zero address throw an error
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchMetadataHash): The (customMediaAddress) cannot be a zero address."
+      );
+    }
+
     return this.media.getTokenMetadataHashes(mediaId);
   }
 
