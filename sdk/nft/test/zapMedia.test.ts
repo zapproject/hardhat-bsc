@@ -39,6 +39,7 @@ import {
 } from "./test_utils";
 import { EIP712Signature, Bid } from "../src/types";
 import { BlobOptions } from "buffer";
+import { SrvRecord } from "dns";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -494,6 +495,61 @@ describe("ZapMedia", () => {
           expect(parseInt(totalSupply._hex)).to.equal(1);
         });
       });
+
+      describe("#fetchCreator", () => {
+        it("Should reject if the custom media is a zero address", async () => {
+          // Attempt to fetch a tokenId creator with a zero address as the media
+          await signerOneConnected
+            .fetchCreator(0, ethers.constants.AddressZero)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should return a zero address if the token id does not exist on the main media", async () => {
+          // Returns a zero address due to the nonexistent tokenId on the custom media
+          const ownerAddr: string = await ownerConnected.fetchCreator(300);
+
+          // Expect the address to equal a zero address
+          expect(ownerAddr).to.equal(ethers.constants.AddressZero);
+        });
+
+        it("Should return a zero address if the token id does not exist on a custom media", async () => {
+          // Returns a zero address due to the nonexistent tokenId on a custom media
+          const ownerAddr: string = await ownerConnected.fetchCreator(
+            12,
+            customMediaAddress
+          );
+
+          // Expect the address to equal a zero address
+          expect(ownerAddr).to.equal(ethers.constants.AddressZero);
+        });
+
+        it("Should return the token creator on the main media", async () => {
+          // Returns the creator address of tokenId 0 on the main media
+          const creatorOne: string = await ownerConnected.fetchCreator(0);
+
+          // Returns the creator address of tokenId 1 on the main media
+          const creatorTwo: string = await ownerConnected.fetchCreator(1);
+
+          // Expect creator of tokenId 0 to equal the owner (signers[0]) address
+          expect(creatorOne).to.equal(await signer.getAddress());
+
+          // Expect the creator of tokenId 1 to equal the signerOne (signers[1]) address
+          expect(creatorTwo).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should return the token creator on a custom media", async () => {
+          // Returns the creator address of tokenId 0 on a custom media
+          const creator: string = await ownerConnected.fetchCreator(
+            0,
+            customMediaAddress
+          );
+
+          // Expect the creator of tokenId 0 on the custom media to equal the signerOne (signers[1]) address
+          expect(creator).to.equal(await signerOne.getAddress());
+        });
+      });
     });
 
     describe("Write Functions", () => {
@@ -781,22 +837,6 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value)
           );
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
-        });
-      });
-
-      describe("#getTokenCreators", () => {
-        it("Should throw an error if the tokenId does not exist", async () => {
-          await ownerConnected.fetchCreator(0).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchCreator): TokenId does not exist."
-            );
-          });
-        });
-
-        it("Should return the token creator", async () => {
-          const creator = await ownerConnected.fetchCreator(0);
-
-          expect(creator).to.equal(await signer.getAddress());
         });
       });
 
