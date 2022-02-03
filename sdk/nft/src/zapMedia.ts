@@ -257,7 +257,7 @@ class ZapMedia {
    */
   public async fetchCurrentAsk(
     mediaAddress: string,
-    mediaId: BigNumberish
+    mediaId: BigNumberish,
   ): Promise<Ask> {
     return this.market.currentAskForToken(mediaAddress, mediaId);
   }
