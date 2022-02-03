@@ -339,12 +339,21 @@ describe("ZapMedia", () => {
 
         it("Should be able to fetch contentHash on the main media", async () => {
           // Returns the content hash of tokenId 0 on the main media
-          const onChainContentHash: string =
+          const onChainContentHashOne: string =
             await ownerConnected.fetchContentHash(0);
 
+          // Returns the content hash of tokenId 1 on the main media
+          const onChainContentHashTwo: string =
+            await ownerConnected.fetchContentHash(1);
+
           // Expect the returned content hash to equal the content hash set on mint
-          expect(onChainContentHash).eq(
+          expect(onChainContentHashOne).eq(
             ethers.utils.hexlify(mediaDataOne.contentHash)
+          );
+
+          // Expect the returned content hash to equal the content hash set on mint
+          expect(onChainContentHashTwo).eq(
+            ethers.utils.hexlify(mediaDataTwo.contentHash)
           );
         });
 
