@@ -318,7 +318,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchContentHash", () => {
+      describe("#fetchContentHash", () => {
         it("Should reject if the custom media is a zero address", async () => {
           // If the custom media is a zero address it will throw an error
           await ownerConnected
