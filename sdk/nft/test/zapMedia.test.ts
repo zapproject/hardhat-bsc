@@ -319,7 +319,7 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#fetchContentHash", () => {
-        it("Should be able to fetch contentHash", async () => {
+        it("Should be able to fetch contentHash on the main media", async () => {
           const onChainContentHash: string =
             await ownerConnected.fetchContentHash(0);
 
@@ -328,7 +328,7 @@ describe("ZapMedia", () => {
           );
         });
 
-        it("Should return 0x0 if tokenId doesn't exist", async () => {
+        it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
           const onChainContentHash = await ownerConnected.fetchContentHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
