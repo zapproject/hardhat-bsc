@@ -286,7 +286,16 @@ describe("ZapMedia", () => {
           //     );
         });
 
-        it.only("should fetch the metadata URI", async () => {
+        it.only("Should fetch the metadata uri on a custom media", async () => {
+          const firstMetadataURI = await ownerConnected.fetchMetadataURI(
+            0,
+            customMediaAddress
+          );
+
+          expect(firstMetadataURI).to.equal(metadataURI);
+        });
+        
+        it("should fetch the metadata URI", async () => {
           const firstMetadataURI = await ownerConnected.fetchMetadataURI(0);
 
           const secondMetadataURI = await ownerConnected.fetchMetadataURI(1);
