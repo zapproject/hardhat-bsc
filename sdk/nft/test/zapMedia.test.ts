@@ -277,7 +277,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchMetadataURI", () => {
+      describe("#fetchMetadataURI", () => {
         it("should reject if the token id does not exist", async () => {
           await ownerConnected
             .fetchMetadataURI(5)
