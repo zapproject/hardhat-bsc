@@ -214,7 +214,8 @@ class ZapMedia {
 
   /**
    * Fetches the metadata hash for the specified media on the ZapMedia Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchMetadataHash(
     mediaId: BigNumberish,
@@ -235,7 +236,7 @@ class ZapMedia {
         .attach(customMediaAddress)
         .getTokenMetadataHashes(mediaId);
     }
-
+    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenMetadataHashes function
     return this.media.getTokenMetadataHashes(mediaId);
   }
 
