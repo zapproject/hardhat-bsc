@@ -320,13 +320,15 @@ describe("ZapMedia", () => {
 
       describe.only("#fetchContentHash", () => {
         it("Should be able to fetch contentHash", async () => {
-          const onChainContentHash = await ownerConnected.fetchContentHash(0);
+          const onChainContentHash: string =
+            await ownerConnected.fetchContentHash(0);
+
           expect(onChainContentHash).eq(
             ethers.utils.hexlify(mediaDataOne.contentHash)
           );
         });
 
-        it("fetchContentHash should get 0x0 if tokenId doesn't exist", async () => {
+        it("Should return 0x0 if tokenId doesn't exist", async () => {
           const onChainContentHash = await ownerConnected.fetchContentHash(56);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
