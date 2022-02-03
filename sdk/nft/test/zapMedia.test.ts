@@ -410,6 +410,16 @@ describe("ZapMedia", () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
+
+        it("Should be able to fetch metadataHash on a custom media", async () => {
+          const onChainMetadataHash: string =
+            await ownerConnected.fetchMetadataHash(0, customMediaAddress);
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainMetadataHash).eq(
+            ethers.utils.hexlify(mediaDataOne.metadataHash)
+          );
+        });
       });
 
       describe("#fetchPermitNonce", () => {
