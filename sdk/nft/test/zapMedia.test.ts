@@ -278,10 +278,20 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#fetchMetadataURI", () => {
-        
+        it("should reject if the token id does not exist", async () => {
+          await ownerConnected
+            .fetchMetadataURI(5)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMetadataURI): TokenId does not exist."
+            );
+        });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
-          
+          // await ownerConnected
+          //   .fetchMetadataURI(10, customMediaAddress)
+          //   .should.be.rejectedWith(
+          //     "Invariant failed: ZapMedia (fetchMetadataURI): TokenId does not exist."
+          //   );
         });
 
         it("Should reject if the customMediaAddress is a zero address", async () => {
@@ -291,7 +301,7 @@ describe("ZapMedia", () => {
               "Invariant failed: ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address."
             );
         });
-
+        
         it("Should fetch the metadata uri on a custom media", async () => {
           const firstMetadataURI = await ownerConnected.fetchMetadataURI(
             0,
@@ -300,7 +310,7 @@ describe("ZapMedia", () => {
 
           expect(firstMetadataURI).to.equal(metadataURI);
         });
-        
+
         it("should fetch the metadata URI", async () => {
           const firstMetadataURI = await ownerConnected.fetchMetadataURI(0);
 
@@ -310,6 +320,7 @@ describe("ZapMedia", () => {
 
           expect(secondMetadataURI).to.equal(metadataURI);
         });
+
       });
 
       describe("#fetchOwnerOf", () => {

@@ -191,8 +191,16 @@ class ZapMedia {
       );
     }
 
+    if (customMediaAddress !== undefined) {
+      try {
+        return await this.media.attach(customMediaAddress).tokenMetadataURI(mediaId);
+      } catch {
+        invariant(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
+      }
+    }
+
     try {
-      return this.media.tokenMetadataURI(mediaId);
+      return await this.media.tokenMetadataURI(mediaId);
     } catch {
       invariant(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
     }
