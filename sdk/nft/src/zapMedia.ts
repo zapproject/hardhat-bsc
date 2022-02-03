@@ -187,7 +187,10 @@ class ZapMedia {
    * Fetches the content hash for the specified media on the ZapMedia Contract
    * @param mediaId
    */
-  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
+  public async fetchContentHash(
+    mediaId: BigNumberish,
+    customMediaAddress?: string
+  ): Promise<string> {
     return this.media.getTokenContentHashes(mediaId);
   }
 
