@@ -185,7 +185,8 @@ class ZapMedia {
 
   /**
    * Fetches the content hash for the specified media on the ZapMedia Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
+   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchContentHash(
     mediaId: BigNumberish,
@@ -199,12 +200,15 @@ class ZapMedia {
       );
     }
 
+    // If the customMediaAddress does not equal undefined create a custom media instance and
+    // invoke the getTokenHashes function on that custom media
     if (customMediaAddress !== undefined) {
       return await this.media
         .attach(customMediaAddress)
         .getTokenContentHashes(mediaId);
     }
 
+    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenContentHashes function
     return this.media.getTokenContentHashes(mediaId);
   }
 
