@@ -320,6 +320,7 @@ describe("ZapMedia", () => {
 
       describe.only("#fetchContentHash", () => {
         it("Should reject if the custom media is a zero address", async () => {
+          // If the custom media is a zero address it will throw an error
           await ownerConnected
             .fetchContentHash(0, ethers.constants.AddressZero)
             .should.be.rejectedWith(
@@ -327,30 +328,44 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
+          // Return 0x0 due to a non existent tokenId on the main media
+          const onChainContentHash: string =
+            await ownerConnected.fetchContentHash(56);
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainContentHash).eq(ethers.constants.HashZero);
+        });
+
         it("Should be able to fetch contentHash on the main media", async () => {
+          // Returns the content hash of tokenId 0 on the main media
           const onChainContentHash: string =
             await ownerConnected.fetchContentHash(0);
 
-          expect(onChainContentHash).eq(
-            ethers.utils.hexlify(mediaDataOne.contentHash)
-          );
-        });
-
-        it("Should be able to fetch contentHash on a custom media", async () => {
-          const onChainContentHash: string =
-            await ownerConnected.fetchContentHash(0, customMediaAddress);
-
+          // Expect the returned content hash to equal the content hash set on mint
           expect(onChainContentHash).eq(
             ethers.utils.hexlify(mediaDataOne.contentHash)
           );
         });
 
         it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
+          // Return 0x0 due to a non existent tokenId on a custom media
           const onChainContentHash: string =
             await ownerConnected.fetchContentHash(56, customMediaAddress);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainContentHash).eq(ethers.constants.HashZero);
+        });
+
+        it("Should be able to fetch contentHash on a custom media", async () => {
+          // Returns the content hash of tokenId 0 on a custom media
+          const onChainContentHash: string =
+            await ownerConnected.fetchContentHash(0, customMediaAddress);
+
+          // Expect the returned content hash to equal the content hash set on mint
+          expect(onChainContentHash).eq(
+            ethers.utils.hexlify(mediaDataOne.contentHash)
+          );
         });
       });
 
