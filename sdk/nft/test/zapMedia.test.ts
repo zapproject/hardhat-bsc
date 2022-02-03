@@ -277,6 +277,12 @@ describe("ZapMedia", () => {
         });
       });
 
+      describe.only("#fetchMetadataURI", () => {
+        it("Should reject if the tokenID does not exist", async () => {
+
+        });
+      });
+
       describe("#fetchOwnerOf", () => {
         it("Should reject if the token id does not exist", async () => {
           // Should throw an error due to the token id not existing on the mainmedia
