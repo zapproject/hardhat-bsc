@@ -228,6 +228,14 @@ class ZapMedia {
       );
     }
 
+    // If the customMediaAddress does not equal undefined create a custom media instance and
+    // invoke the getTokenCreators function on that custom media
+    if (customMediaAddress !== undefined) {
+      return await this.media
+        .attach(customMediaAddress)
+        .getTokenMetadataHashes(mediaId);
+    }
+
     return this.media.getTokenMetadataHashes(mediaId);
   }
 
