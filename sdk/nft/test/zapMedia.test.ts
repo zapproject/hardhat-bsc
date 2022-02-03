@@ -378,7 +378,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("fetchMetadataHash, fetchPermitNonce", () => {
+      describe("#fetchMetadataHash", async () => {
         it("Should be able to fetch metadataHash", async () => {
           const onChainMetadataHash = await ownerConnected.fetchMetadataHash(0);
           expect(onChainMetadataHash).eq(
@@ -394,7 +394,9 @@ describe("ZapMedia", () => {
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
+      });
 
+      describe("#fetchPermitNonce", () => {
         it("Should be able to fetch permitNonce", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const otherWallet: Wallet = new ethers.Wallet(
@@ -1146,11 +1148,12 @@ describe("ZapMedia", () => {
               ethers.constants.AddressZero,
               0
             );
-  
-            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(fetchAddress.currency).to.equal(
+              ethers.constants.AddressZero
+            );
 
             expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
-
           });
 
           it("Should return null values if the token id does not exist", async () => {
@@ -1159,10 +1162,11 @@ describe("ZapMedia", () => {
               10
             );
 
-            expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
-            
+            expect(fetchAddress.currency).to.equal(
+              ethers.constants.AddressZero
+            );
+
             expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
-            
           });
         });
 
