@@ -378,11 +378,20 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchMetadataHash", async () => {
-        it("Should be able to fetch metadataHash", async () => {
-          const onChainMetadataHash = await ownerConnected.fetchMetadataHash(0);
-          expect(onChainMetadataHash).eq(
+      describe.only("#fetchMetadataHash", async () => {
+        it("Should be able to fetch metadataHash on the main media", async () => {
+          const onChainMetadataHashOne: string =
+            await ownerConnected.fetchMetadataHash(0);
+
+          const onChainMetadataHashTwo: string =
+            await ownerConnected.fetchMetadataHash(1);
+
+          expect(onChainMetadataHashOne).eq(
             ethers.utils.hexlify(mediaDataOne.metadataHash)
+          );
+
+          expect(onChainMetadataHashTwo).eq(
+            ethers.utils.hexlify(mediaDataTwo.metadataHash)
           );
         });
 
