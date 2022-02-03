@@ -378,7 +378,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchMetadataHash", async () => {
+      describe("#fetchMetadataHash", async () => {
         it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
           // Returns 0x0 due to a non existent tokenId on the main media
           const onChainMetadataHash: string =
