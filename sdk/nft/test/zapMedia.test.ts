@@ -286,7 +286,15 @@ describe("ZapMedia", () => {
           //     );
         });
 
-        it.only("Should fetch the metadata uri on a custom media", async () => {
+        it.only("Should reject if the customMediaAddress is a zero address", async () => {
+          await ownerConnected
+            .fetchMetadataURI(0, ethers.constants.AddressZero)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address."
+            );
+        });
+
+        it("Should fetch the metadata uri on a custom media", async () => {
           const firstMetadataURI = await ownerConnected.fetchMetadataURI(
             0,
             customMediaAddress
