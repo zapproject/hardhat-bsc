@@ -1064,6 +1064,7 @@ describe("ZapMedia", () => {
             expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
 
             expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+
           });
 
           it("Should return null values if the token id does not exist", async () => {
@@ -1075,6 +1076,7 @@ describe("ZapMedia", () => {
             expect(fetchAddress.currency).to.equal(ethers.constants.AddressZero);
             
             expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            
           });
         });
 
