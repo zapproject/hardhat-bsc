@@ -47,7 +47,7 @@ chai.use(chaiAsPromised);
 
 chai.should();
 
-describe.only("ZapMedia", () => {
+describe("ZapMedia", () => {
   let bidShares: any;
   let ask: any;
   let mediaDataOne: any;
