@@ -474,11 +474,12 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchPermitNonce", () => {
+      describe.skip("#fetchPermitNonce", () => {
         it("Should be able to fetch permitNonce", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const otherWallet: Wallet = new ethers.Wallet(
-            "0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3"
+            // "0x043192f7a8fb472d04ef7bb0ba1fbb3667198253cc8046e9e56626b804966cb3"
+            "0x89e2d8a81beffed50f4d29f642127f18b5c8c1212c54b18ef66a784d0a172819"
           );
           const account9: Wallet = new ethers.Wallet(
             "0x915c40257f694fef7d8058fe4db4ba53f1343b592a8175ea18e7ece20d2987d7"
@@ -489,7 +490,7 @@ describe("ZapMedia", () => {
 
           const domain = ownerConnected.eip712Domain();
 
-          const nonce = await (
+          const nonce = (
             await ownerConnected.fetchPermitNonce(otherWallet.address, 1)
           ).toNumber();
 
@@ -506,47 +507,49 @@ describe("ZapMedia", () => {
           // permit account9 == give approval to account 9 for tokenId 0.
           await signerOneConnected.permit(account9.address, 1, eipSig);
 
-          // // test account 9 is approved for tokenId 0
-          // const firstApprovedAddr = await signerOneConnected.fetchApproved(1);
+          // test account 9 is approved for tokenId 0
+          const firstApprovedAddr = await signerOneConnected.fetchApproved(1);
 
-          // expect(firstApprovedAddr.toLowerCase()).to.equal(
-          //   account9.address.toLowerCase()
-          // );
+          expect(firstApprovedAddr.toLowerCase()).to.equal(
+            account9.address.toLowerCase()
+          );
 
-          //   const nonce2 = await (
-          //     await ownerConnected.fetchPermitNonce(otherWallet.address, 1)
-          //   ).toNumber();
-          //   expect(nonce2).to.equal(nonce + 1);
-          //   // give permission to account 8 for the same tokenId
-          //   const account8: Wallet = new ethers.Wallet(
-          //     "0x81c92fdc4c4703cb0da2af8ceae63160426425935f3bb701edd53ffa5c227417"
-          //   );
-          //   eipSig = await signPermitMessage(
-          //     otherWallet,
-          //     account8.address,
-          //     1,
-          //     nonce2,
-          //     deadline,
-          //     domain
-          //   );
-          //   await signerOneConnected.permit(account8.address, 1, eipSig);
-          //   // test account 8 is approved for tokenId 1
-          //   const secondApprovedAddr = await signerOneConnected.fetchApproved(1);
-          //   expect(secondApprovedAddr.toLowerCase()).to.equal(
-          //     account8.address.toLowerCase()
-          //   );
-          //   const nonce3 = await (
-          //     await ownerConnected.fetchPermitNonce(otherWallet.address, 1)
-          //   ).toNumber();
-          //   expect(nonce3).to.equal(nonce2 + 1);
-          //   const tokenThatDoesntExist = 38;
-          //   const nonceForTokenThatDoesntExist = await (
-          //     await ownerConnected.fetchPermitNonce(
-          //       otherWallet.address,
-          //       tokenThatDoesntExist
-          //     )
-          //   ).toNumber();
-          //   expect(nonceForTokenThatDoesntExist).to.equal(0);
+          const nonce2 = await (
+            await ownerConnected.fetchPermitNonce(otherWallet.address, 1)
+          ).toNumber();
+          expect(nonce2).to.equal(nonce + 1);
+          // give permission to account 8 for the same tokenId
+          const account8: Wallet = new ethers.Wallet(
+            "0x81c92fdc4c4703cb0da2af8ceae63160426425935f3bb701edd53ffa5c227417"
+          );
+
+          eipSig = await signPermitMessage(
+            otherWallet,
+            account8.address,
+            1,
+            nonce2,
+            deadline,
+            domain
+          );
+
+          await signerOneConnected.permit(account8.address, 1, eipSig);
+          // test account 8 is approved for tokenId 1
+          const secondApprovedAddr = await signerOneConnected.fetchApproved(1);
+          expect(secondApprovedAddr.toLowerCase()).to.equal(
+            account8.address.toLowerCase()
+          );
+          const nonce3 = await (
+            await ownerConnected.fetchPermitNonce(otherWallet.address, 1)
+          ).toNumber();
+          expect(nonce3).to.equal(nonce2 + 1);
+          const tokenThatDoesntExist = 38;
+          const nonceForTokenThatDoesntExist = await (
+            await ownerConnected.fetchPermitNonce(
+              otherWallet.address,
+              tokenThatDoesntExist
+            )
+          ).toNumber();
+          expect(nonceForTokenThatDoesntExist).to.equal(0);
         });
       });
 
@@ -1646,9 +1649,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#isValidBid", () => {});
-
-      describe("#permit", () => {
+      describe.skip("#permit", () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const mainWallet: Wallet = new ethers.Wallet(
