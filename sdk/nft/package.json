@@ -35,7 +35,6 @@
     "chai-as-promised": "^7.1.1",
     "eth-sig-util": "^3.0.1",
     "ethers": "^5.5.2",
-    "hardhat": "^2.8.0",
     "tiny-invariant": "^1.2.0",
     "tiny-warning": "^1.0.3"
   }
