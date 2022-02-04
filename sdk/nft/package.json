@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "ganache": "ganache --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
+    "ganache": "ganache -l 8000000 --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
     "ganache-npx": "npx ganache-cli --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
     "prepare": "npm run build",
     "build": "tsc",

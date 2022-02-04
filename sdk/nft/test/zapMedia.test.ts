@@ -47,7 +47,7 @@ chai.use(chaiAsPromised);
 
 chai.should();
 
-describe("ZapMedia", () => {
+describe.only("ZapMedia", () => {
   let bidShares: any;
   let ask: any;
   let mediaDataOne: any;
@@ -301,7 +301,7 @@ describe("ZapMedia", () => {
               "Invariant failed: ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address."
             );
         });
-        
+
         it("Should fetch the metadata uri on a custom media", async () => {
           const firstMetadataURI = await ownerConnected.fetchMetadataURI(
             0,
@@ -320,7 +320,6 @@ describe("ZapMedia", () => {
 
           expect(secondMetadataURI).to.equal(metadataURI);
         });
-
       });
 
       describe("#fetchOwnerOf", () => {
