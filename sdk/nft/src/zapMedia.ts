@@ -55,7 +55,7 @@ class ZapMedia {
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
-        "ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address."
+        "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address."
       );
     }
 

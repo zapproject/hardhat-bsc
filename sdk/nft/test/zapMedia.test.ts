@@ -195,6 +195,14 @@ describe("ZapMedia", () => {
           new ZapMedia(300, signer);
         }).to.throw("Constructor: Network Id is not supported.");
       });
+
+      it("Should throw an error if the custom media is a zero address", async () => {
+        expect(() => {
+          new ZapMedia(1337, signer, ethers.constants.AddressZero);
+        }).to.throw(
+          "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address."
+        );
+      });
     });
 
     describe("View Functions", () => {
