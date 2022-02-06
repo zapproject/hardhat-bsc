@@ -206,7 +206,7 @@ describe("ZapMedia", () => {
     });
 
     describe("View Functions", () => {
-      describe.only("#fetchBalanceOf", () => {
+      describe("#fetchBalanceOf", () => {
         it("Should reject if the owner is a zero address on the main media", async () => {
           await signerOneConnected
             .fetchBalanceOf(ethers.constants.AddressZero)
