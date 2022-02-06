@@ -1332,7 +1332,15 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#burn", () => {
-        it("Should burn a token on a custom media", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .burn(3)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): TokenId does not exist."
+            );
+        });
+
+        it("Should burn a token on the main media", async () => {
           const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 

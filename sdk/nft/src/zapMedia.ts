@@ -772,7 +772,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
-    return this.media.burn(mediaId);
+    try {
+      return await this.media.burn(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (burn): TokenId does not exist.");
+    }
   }
 
   /**
