@@ -40,9 +40,8 @@ class ZapMedia {
   media: any;
   market: any;
   signer: Signer;
-  public readOnly: boolean;
 
-  constructor(networkId: number, signer: Signer) {
+  constructor(networkId: number, signer: Signer, customMediaAddress?: string) {
     this.networkId = networkId;
 
     this.signer = signer;
@@ -53,16 +52,21 @@ class ZapMedia {
       signer
     );
 
-    this.media = new ethers.Contract(
-      contractAddresses(networkId).zapMediaAddress,
-      zapMediaAbi,
-      signer
-    );
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address."
+      );
+    }
 
-    if (Signer.isSigner(signer)) {
-      this.readOnly = false;
+    if (customMediaAddress !== undefined) {
+      this.media = new ethers.Contract(customMediaAddress, zapMediaAbi, signer);
     } else {
-      this.readOnly = true;
+      this.media = new ethers.Contract(
+        contractAddresses(networkId).zapMediaAddress,
+        zapMediaAbi,
+        signer
+      );
     }
   }
 
@@ -737,7 +741,7 @@ class ZapMedia {
   }
 
   /**
-   * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+   * Grants the spender approval for the specificxed media using meta transactions as outlined in EIP-712
    * @param sender
    * @param mediaId
    * @param sig
@@ -769,10 +773,44 @@ class ZapMedia {
 
   /**
    * Burns the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
-    return this.media.burn(mediaId);
+    // Will store the address of the token owner if the tokenId exists
+    let owner: string;
+
+    // Checks if the tokenId exists. If the tokenId exists store the owner
+    // address in the variable and if it doesnt throw an error
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (burn): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (burn): Caller is not approved nor the owner."
+      );
+    }
+
+    // Invoke the burn function if the caller is approved, approved for all, or the owner
+    return await this.media.burn(mediaId);
   }
 
   /**

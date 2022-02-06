@@ -64,6 +64,8 @@ describe("ZapMedia", () => {
   let mediaFactory: MediaFactory;
   let signerOneConnected: ZapMedia;
   let ownerConnected: ZapMedia;
+  let customMediaSigner0: ZapMedia;
+  let customMediaSigner1: ZapMedia;
   let customMediaAddress: string;
 
   let eipSig: any;
@@ -171,6 +173,10 @@ describe("ZapMedia", () => {
 
     signerOneConnected = new ZapMedia(1337, signerOne);
 
+    customMediaSigner1 = new ZapMedia(1337, signerOne, customMediaAddress);
+
+    customMediaSigner0 = new ZapMedia(1337, signer, customMediaAddress);
+
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
 
@@ -188,6 +194,14 @@ describe("ZapMedia", () => {
         expect(() => {
           new ZapMedia(300, signer);
         }).to.throw("Constructor: Network Id is not supported.");
+      });
+
+      it("Should throw an error if the custom media is a zero address", async () => {
+        expect(() => {
+          new ZapMedia(1337, signer, ethers.constants.AddressZero);
+        }).to.throw(
+          "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address."
+        );
       });
     });
 
@@ -1332,17 +1346,173 @@ describe("ZapMedia", () => {
       });
 
       describe("#burn", () => {
-        it("Should burn a token", async () => {
-          const owner = await ownerConnected.fetchOwnerOf(0);
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .burn(3)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .burn(3)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .burn(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
+            .burn(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should burn a token if the caller is approved on the main media", async () => {
+          const preTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(2);
+
+          const preApprovedAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApprovedAddr: string = await ownerConnected.fetchApproved(
+            0
+          );
+
+          expect(postApprovedAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it("Should burn a token if the caller is approved on a custom media", async () => {
+          const preTotalSupply: BigNumberish =
+            await customMediaSigner1.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          const preApprovedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApprovedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+
+          expect(postApprovedAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await customMediaSigner0.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
+        });
+
+        it("Should burn the token if the caller is approved for all on the main media", async () => {
+          const preTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(2);
+
+          const preApprovedStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(preApprovedStatus).to.equal(false);
+
+          await ownerConnected.setApprovalForAll(
+            await signerOne.getAddress(),
+            true
+          );
+
+          const postApprovedStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+
+          expect(postApprovedStatus).to.equal(true);
+
+          await signerOneConnected.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it("Should burn the token if the caller is approved for all on a custom media", async () => {
+          const preTotalSupply: BigNumberish =
+            await customMediaSigner1.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          const preApprovedStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(preApprovedStatus).to.equal(false);
+
+          await customMediaSigner1.setApprovalForAll(
+            await signer.getAddress(),
+            true
+          );
+
+          const postApprovedStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+
+          expect(postApprovedStatus).to.equal(true);
+
+          await customMediaSigner0.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await customMediaSigner0.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
+        });
+
+        it("Should burn a token if the caller is the owner on the main media", async () => {
+          const owner: string = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
-          const preTotalSupply = await ownerConnected.fetchTotalMedia();
+          const preTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
           expect(preTotalSupply.toNumber()).to.equal(2);
 
           await ownerConnected.burn(0);
 
-          const postTotalSupply = await ownerConnected.fetchTotalMedia();
+          const postTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
           expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it("Should burn a token if the caller is the owner on a custom media", async () => {
+          const preTotalSupply: BigNumberish =
+            await customMediaSigner0.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          await customMediaSigner1.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await customMediaSigner1.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
         });
       });
 
