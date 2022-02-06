@@ -64,7 +64,8 @@ describe("ZapMedia", () => {
   let mediaFactory: MediaFactory;
   let signerOneConnected: ZapMedia;
   let ownerConnected: ZapMedia;
-  let customMedia: ZapMedia;
+  let customMediaSigner0: ZapMedia;
+  let customMediaSigner1: ZapMedia;
   let customMediaAddress: string;
 
   let eipSig: any;
@@ -172,7 +173,9 @@ describe("ZapMedia", () => {
 
     signerOneConnected = new ZapMedia(1337, signerOne);
 
-    customMedia = new ZapMedia(1337, signerOne, customMediaAddress);
+    customMediaSigner1 = new ZapMedia(1337, signerOne, customMediaAddress);
+
+    customMediaSigner0 = new ZapMedia(1337, signer, customMediaAddress);
 
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
@@ -1344,7 +1347,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
-          await customMedia
+          await customMediaSigner1
             .burn(3)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (burn): TokenId does not exist."
@@ -1353,6 +1356,14 @@ describe("ZapMedia", () => {
 
         it("Should reject if the caller is not approved nor the owner on the main media", async () => {
           await signerOneConnected
+            .burn(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
             .burn(0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (burn): Caller is not approved nor the owner."
@@ -1380,6 +1391,29 @@ describe("ZapMedia", () => {
           const postTotalSupply: BigNumberish =
             await ownerConnected.fetchTotalMedia();
           expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it.only("Should burn a token if the caller is approved on a custom media", async () => {
+          const preTotalSupply: BigNumberish =
+            await customMediaSigner1.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          const preApprovedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApprovedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+
+          expect(postApprovedAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await customMediaSigner0.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
         });
 
         it("Should burn the token if the caller is approved for all on the main media", async () => {
