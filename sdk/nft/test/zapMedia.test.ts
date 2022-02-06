@@ -1340,7 +1340,23 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should burn a token on the main media", async () => {
+        it("Should reject ", async () => {
+          await ownerConnected.setApprovalForAll(
+            await signerOne.getAddress(),
+            true
+          );
+
+          console.log(await ownerConnected.fetchApproved(0));
+          console.log(
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            )
+          );
+          // await signerOneConnected.burn(0);
+        });
+
+        it.skip("Should burn a token on the main media", async () => {
           const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
