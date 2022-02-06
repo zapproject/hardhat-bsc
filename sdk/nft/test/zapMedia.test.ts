@@ -206,7 +206,7 @@ describe("ZapMedia", () => {
     });
 
     describe("View Functions", () => {
-      describe("#fetchBalanceOf", () => {
+      describe.only("#fetchBalanceOf", () => {
         it("Should reject if the owner is a zero address", async () => {
           await signerOneConnected
             .fetchBalanceOf(ethers.constants.AddressZero)
@@ -216,8 +216,8 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the owner is a zero address through a custom media", async () => {
-          await signerOneConnected
-            .fetchBalanceOf(ethers.constants.AddressZero, customMediaAddress)
+          await customMediaSigner1
+            .fetchBalanceOf(ethers.constants.AddressZero)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address."
             );
@@ -237,57 +237,56 @@ describe("ZapMedia", () => {
         });
 
         it("Should fetch the owner balance through a custom collection", async () => {
-          const balance = await ownerConnected.fetchBalanceOf(
-            await signerOne.getAddress(),
-            customMediaAddress
+          const balance = await customMediaSigner1.fetchBalanceOf(
+            await signerOne.getAddress()
           );
 
           expect(parseInt(balance._hex)).to.equal(1);
         });
+      });
 
-        describe("#fetchContentURI", () => {
-          it("should reject if the token id does not exist", async () => {
-            await ownerConnected
-              .fetchContentURI(5)
-              .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
-              );
-          });
-
-          it("Should reject if the token id does not exist on a custom media", async () => {
-            await ownerConnected
-              .fetchContentURI(1, customMediaAddress)
-              .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
-              );
-          });
-
-          it("Should reject if the customMediaAddress is a zero address", async () => {
-            await ownerConnected
-              .fetchContentURI(0, ethers.constants.AddressZero)
-              .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
-              );
-          });
-
-          it("Should fetch the content uri on a custom media", async () => {
-            const firstContentURI = await ownerConnected.fetchContentURI(
-              0,
-              customMediaAddress
+      describe("#fetchContentURI", () => {
+        it("should reject if the token id does not exist", async () => {
+          await ownerConnected
+            .fetchContentURI(5)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
             );
+        });
 
-            expect(firstContentURI).to.equal(tokenURI);
-          });
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await ownerConnected
+            .fetchContentURI(1, customMediaAddress)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
+            );
+        });
 
-          it("should fetch the content uri", async () => {
-            const firstTokenURI = await ownerConnected.fetchContentURI(0);
+        it("Should reject if the customMediaAddress is a zero address", async () => {
+          await ownerConnected
+            .fetchContentURI(0, ethers.constants.AddressZero)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
+            );
+        });
 
-            const secondTokenURI = await ownerConnected.fetchContentURI(1);
+        it("Should fetch the content uri on a custom media", async () => {
+          const firstContentURI = await ownerConnected.fetchContentURI(
+            0,
+            customMediaAddress
+          );
 
-            expect(firstTokenURI).to.equal(tokenURI);
+          expect(firstContentURI).to.equal(tokenURI);
+        });
 
-            expect(secondTokenURI).to.equal(tokenURI);
-          });
+        it("should fetch the content uri", async () => {
+          const firstTokenURI = await ownerConnected.fetchContentURI(0);
+
+          const secondTokenURI = await ownerConnected.fetchContentURI(1);
+
+          expect(firstTokenURI).to.equal(tokenURI);
+
+          expect(secondTokenURI).to.equal(tokenURI);
         });
       });
 

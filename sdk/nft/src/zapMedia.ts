@@ -78,12 +78,8 @@ class ZapMedia {
   /**
    * Fetches the amount of tokens an address owns on a media contract
    * @param owner The address to fetch the token balance for
-   * @param mediaIndex The index to access media contracts as an optional argument
    */
-  public async fetchBalanceOf(
-    owner: string,
-    customMediaAddress?: BigNumberish
-  ): Promise<BigNumber> {
+  public async fetchBalanceOf(owner: string): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -91,11 +87,7 @@ class ZapMedia {
       );
     }
 
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).balanceOf(owner);
-    } else {
-      return this.media.balanceOf(owner);
-    }
+    return this.media.balanceOf(owner);
   }
 
   /**
