@@ -40,9 +40,8 @@ class ZapMedia {
   media: any;
   market: any;
   signer: Signer;
-  public readOnly: boolean;
 
-  constructor(networkId: number, signer: Signer) {
+  constructor(networkId: number, signer: Signer, customMediaAddress?: string) {
     this.networkId = networkId;
 
     this.signer = signer;
@@ -58,12 +57,6 @@ class ZapMedia {
       zapMediaAbi,
       signer
     );
-
-    if (Signer.isSigner(signer)) {
-      this.readOnly = false;
-    } else {
-      this.readOnly = true;
-    }
   }
 
   /*********************
