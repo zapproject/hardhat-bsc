@@ -766,13 +766,15 @@ class ZapMedia {
 
   /**
    * Burns the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
+    // Will store the address of the token owner if the tokenId exists
     let owner: string;
 
+    // Checks if the tokenId exists. If the tokenId exists store the owner
+    // address in the variable and if it doesnt throw an error
     try {
-      // If the tokenId exists return the owner address and store it in the owner variable
       owner = await this.media.ownerOf(mediaId);
     } catch {
       invariant(false, "ZapMedia (burn): TokenId does not exist.");
@@ -787,6 +789,8 @@ class ZapMedia {
       await this.signer.getAddress()
     );
 
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
     if (
       approveAddr == ethers.constants.AddressZero &&
       approveForAllStatus == false &&
@@ -798,6 +802,7 @@ class ZapMedia {
       );
     }
 
+    // Invoke the burn function if the caller is approved, approved for all, or the owner
     return await this.media.burn(mediaId);
   }
 

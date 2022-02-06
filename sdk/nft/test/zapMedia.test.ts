@@ -1337,7 +1337,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#burn", () => {
+      describe("#burn", () => {
         it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .burn(3)
@@ -1448,7 +1448,7 @@ describe("ZapMedia", () => {
           expect(postTotalSupply.toNumber()).to.equal(1);
         });
 
-        it("Should burn the token if the caller is approved for all on the main media", async () => {
+        it("Should burn the token if the caller is approved for all on a custom media", async () => {
           const preTotalSupply: BigNumberish =
             await customMediaSigner1.fetchTotalMedia();
           expect(preTotalSupply.toNumber()).to.equal(1);
@@ -1481,16 +1481,30 @@ describe("ZapMedia", () => {
         });
 
         it("Should burn a token if the caller is the owner on the main media", async () => {
-          const owner = await ownerConnected.fetchOwnerOf(0);
+          const owner: string = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
-          const preTotalSupply = await ownerConnected.fetchTotalMedia();
+          const preTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
           expect(preTotalSupply.toNumber()).to.equal(2);
 
           await ownerConnected.burn(0);
 
-          const postTotalSupply = await ownerConnected.fetchTotalMedia();
+          const postTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
           expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it("Should burn a token if the caller is the owner on a custom media", async () => {
+          const preTotalSupply: BigNumberish =
+            await customMediaSigner0.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          await customMediaSigner1.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await customMediaSigner1.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
         });
       });
 
