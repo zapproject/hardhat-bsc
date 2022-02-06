@@ -1371,7 +1371,39 @@ describe("ZapMedia", () => {
           expect(postTotalSupply.toNumber()).to.equal(1);
         });
 
-        it("Should burn a token on the main media", async () => {
+        it("Should burn the token if the caller is approved for all on the main media", async () => {
+          const preTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(2);
+
+          const preApprovedStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(preApprovedStatus).to.equal(false);
+
+          await ownerConnected.setApprovalForAll(
+            await signerOne.getAddress(),
+            true
+          );
+
+          const postApprovedStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+
+          expect(postApprovedStatus).to.equal(true);
+
+          await signerOneConnected.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it("Should burn a token if the caller is the owner on the main media", async () => {
           const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
