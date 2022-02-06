@@ -223,12 +223,12 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should fetch the owner balance on a custom media", async () => {
-          const balance = await ownerConnected.fetchBalanceOf(
+        it("Should fetch the owner balance on the main media", async () => {
+          const balance: BigNumberish = await ownerConnected.fetchBalanceOf(
             await signer.getAddress()
           );
 
-          const balanceOne = await ownerConnected.fetchBalanceOf(
+          const balanceOne: BigNumberish = await ownerConnected.fetchBalanceOf(
             await signerOne.getAddress()
           );
 
@@ -236,12 +236,17 @@ describe("ZapMedia", () => {
           expect(parseInt(balanceOne._hex)).to.equal(1);
         });
 
-        it("Should fetch the owner balance through a custom collection", async () => {
-          const balance = await customMediaSigner1.fetchBalanceOf(
-            await signerOne.getAddress()
-          );
+        it("Should fetch the owner balance through a custom media", async () => {
+          const balance0: BigNumberish =
+            await customMediaSigner1.fetchBalanceOf(await signer.getAddress());
 
-          expect(parseInt(balance._hex)).to.equal(1);
+          const balance1: BigNumberish =
+            await customMediaSigner1.fetchBalanceOf(
+              await signerOne.getAddress()
+            );
+
+          expect(parseInt(balance0._hex)).to.equal(0);
+          expect(parseInt(balance1._hex)).to.equal(1);
         });
       });
 
