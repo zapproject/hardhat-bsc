@@ -52,6 +52,13 @@ class ZapMedia {
       signer
     );
 
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address."
+      );
+    }
+
     if (customMediaAddress !== undefined) {
       this.media = new ethers.Contract(customMediaAddress, zapMediaAbi, signer);
     } else {
@@ -734,7 +741,7 @@ class ZapMedia {
   }
 
   /**
-   * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+   * Grants the spender approval for the specificxed media using meta transactions as outlined in EIP-712
    * @param sender
    * @param mediaId
    * @param sig
