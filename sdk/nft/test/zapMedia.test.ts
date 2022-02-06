@@ -1393,7 +1393,7 @@ describe("ZapMedia", () => {
           expect(postTotalSupply.toNumber()).to.equal(1);
         });
 
-        it.only("Should burn a token if the caller is approved on a custom media", async () => {
+        it("Should burn a token if the caller is approved on a custom media", async () => {
           const preTotalSupply: BigNumberish =
             await customMediaSigner1.fetchTotalMedia();
           expect(preTotalSupply.toNumber()).to.equal(1);
@@ -1446,6 +1446,38 @@ describe("ZapMedia", () => {
           const postTotalSupply: BigNumberish =
             await ownerConnected.fetchTotalMedia();
           expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
+        it("Should burn the token if the caller is approved for all on the main media", async () => {
+          const preTotalSupply: BigNumberish =
+            await customMediaSigner1.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(1);
+
+          const preApprovedStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(preApprovedStatus).to.equal(false);
+
+          await customMediaSigner1.setApprovalForAll(
+            await signer.getAddress(),
+            true
+          );
+
+          const postApprovedStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+
+          expect(postApprovedStatus).to.equal(true);
+
+          await customMediaSigner0.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await customMediaSigner0.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(0);
         });
 
         it("Should burn a token if the caller is the owner on the main media", async () => {
