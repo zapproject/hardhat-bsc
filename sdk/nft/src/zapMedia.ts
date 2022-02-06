@@ -790,14 +790,15 @@ class ZapMedia {
       await this.signer.getAddress()
     );
 
-    console.log(approveAddr);
-    console.log(approveForAllStatus);
-
     if (
       approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
       owner !== (await this.signer.getAddress())
     ) {
-      invariant(false, "ZapMedia (burn): Caller is not approved nor the owner");
+      invariant(
+        false,
+        "ZapMedia (burn): Caller is not approved nor the owner."
+      );
     }
 
     return await this.media.burn(mediaId);
