@@ -1348,6 +1348,29 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should burn a token if the caller is approved on the main media", async () => {
+          const preTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(preTotalSupply.toNumber()).to.equal(2);
+
+          const preApprovedAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApprovedAddr: string = await ownerConnected.fetchApproved(
+            0
+          );
+
+          expect(postApprovedAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.burn(0);
+
+          const postTotalSupply: BigNumberish =
+            await ownerConnected.fetchTotalMedia();
+          expect(postTotalSupply.toNumber()).to.equal(1);
+        });
+
         it("Should burn a token on the main media", async () => {
           const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());

@@ -52,11 +52,15 @@ class ZapMedia {
       signer
     );
 
-    this.media = new ethers.Contract(
-      contractAddresses(networkId).zapMediaAddress,
-      zapMediaAbi,
-      signer
-    );
+    if (customMediaAddress !== undefined) {
+      this.media = new ethers.Contract(customMediaAddress, zapMediaAbi, signer);
+    } else {
+      this.media = new ethers.Contract(
+        contractAddresses(networkId).zapMediaAddress,
+        zapMediaAbi,
+        signer
+      );
+    }
   }
 
   /*********************
