@@ -223,7 +223,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should fetch the owner balance", async () => {
+        it("Should fetch the owner balance on a custom media", async () => {
           const balance = await ownerConnected.fetchBalanceOf(
             await signer.getAddress()
           );
