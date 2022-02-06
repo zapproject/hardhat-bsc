@@ -296,8 +296,8 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchOwnerOf", () => {
-        it("Should reject if the token id does not exist", async () => {
-          // Should throw an error due to the token id not existing on the mainmedia
+        it("Should reject if the token id does not exist on the main media", async () => {
+          // Should throw an error due to the token id not existing on the main media
           await ownerConnected
             .fetchOwnerOf(12)
             .should.be.rejectedWith(
@@ -307,14 +307,14 @@ describe("ZapMedia", () => {
 
         it("Should reject if the token id does not exist on a custom media", async () => {
           // Should throw an error due to the token id not existing on the custom media
-          await ownerConnected
-            .fetchOwnerOf(7, customMediaAddress)
+          await customMediaSigner1
+            .fetchOwnerOf(7)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchOwnerOf): The token id does not exist."
             );
         });
 
-        it("Should fetch an owner of a token id", async () => {
+        it("Should fetch an owner of a token id on the main media", async () => {
           // Returns the owner address of tokenId 0 on the main media contract
           const tokenOwner: string = await ownerConnected.fetchOwnerOf(0);
 
@@ -330,9 +330,11 @@ describe("ZapMedia", () => {
 
         it("Should fetch an owner of a token id on a custom media", async () => {
           // The owner of tokenId 0 on the custom media should equal the address of signerOne
-          await ownerConnected
-            .fetchOwnerOf(0, customMediaAddress)
+          const tokenOwner: string = await customMediaSigner1
+            .fetchOwnerOf(0)
             .should.eventually.equal(await signerOne.getAddress());
+
+          expect(tokenOwner).to.equal(await signerOne.getAddress());
         });
       });
 
