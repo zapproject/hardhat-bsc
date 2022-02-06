@@ -1331,8 +1331,8 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#burn", () => {
-        it("Should burn a token", async () => {
+      describe.only("#burn", () => {
+        it("Should burn a token on a custom media", async () => {
           const owner = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
