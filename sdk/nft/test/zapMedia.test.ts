@@ -1340,20 +1340,12 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject ", async () => {
-          await ownerConnected.setApprovalForAll(
-            await signerOne.getAddress(),
-            true
-          );
-
-          console.log(await ownerConnected.fetchApproved(0));
-          console.log(
-            await ownerConnected.fetchIsApprovedForAll(
-              await signer.getAddress(),
-              await signerOne.getAddress()
-            )
-          );
-          // await signerOneConnected.burn(0);
+        it.only("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .burn(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (burn): Caller is not approved nor the owner"
+            );
         });
 
         it.skip("Should burn a token on the main media", async () => {

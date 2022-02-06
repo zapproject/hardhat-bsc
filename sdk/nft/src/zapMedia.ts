@@ -772,10 +772,32 @@ class ZapMedia {
    * @param mediaId
    */
   public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
+    let owner: string;
+
     try {
-      await this.media.ownerOf(mediaId);
+      // If the tokenId exists return the owner address and store it in the owner variable
+      owner = await this.media.ownerOf(mediaId);
     } catch {
       invariant(false, "ZapMedia (burn): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    console.log(approveAddr);
+    console.log(approveForAllStatus);
+
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(false, "ZapMedia (burn): Caller is not approved nor the owner");
     }
 
     return await this.media.burn(mediaId);
