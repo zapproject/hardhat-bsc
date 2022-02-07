@@ -330,8 +330,8 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchContentHash", () => {
-        it.only("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
+      describe("#fetchContentHash", () => {
+        it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
           // Return 0x0 due to a non existent tokenId on the main media
           const onChainContentHash: string =
             await ownerConnected.fetchContentHash(56);
@@ -340,7 +340,7 @@ describe("ZapMedia", () => {
           expect(onChainContentHash).eq(ethers.constants.HashZero);
         });
 
-        it.only("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
+        it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
           // Returns 0x0 due to a non existent tokenId on a custom media
           const onChainContentHash: string =
             await customMediaSigner1.fetchContentHash(56);
