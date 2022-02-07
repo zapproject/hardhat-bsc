@@ -568,8 +568,8 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchTotalMedia", () => {
-        it("Should fetch the total media minted", async () => {
+      describe.only("#fetchTotalMedia", () => {
+        it("Should fetch the total media minted on the main media", async () => {
           // Returns the total amount tokens minted on the main media
           const totalSupply: BigNumberish =
             await signerOneConnected.fetchTotalMedia();
@@ -581,7 +581,7 @@ describe("ZapMedia", () => {
         it("Should fetch the total media minted on a custom media", async () => {
           // Returns the total amount tokens minted on the custom media
           const totalSupply: BigNumberish =
-            await ownerConnected.fetchTotalMedia(customMediaAddress);
+            await customMediaSigner1.fetchTotalMedia();
 
           // Expect the totalSupply to equal 1
           expect(parseInt(totalSupply._hex)).to.equal(1);
