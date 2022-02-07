@@ -391,6 +391,15 @@ describe("ZapMedia", () => {
           expect(onChainMetadataHash).eq(ethers.constants.HashZero);
         });
 
+        it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
+          // Returns 0x0 due to a non existent tokenId on a custom media
+          const onChainMetadataHash: string =
+            await customMediaSigner1.fetchMetadataHash(1001);
+
+          // tokenId doesn't exists, so we expect a default return value of 0x0000...
+          expect(onChainMetadataHash).eq(ethers.constants.HashZero);
+        });
+
         it("Should be able to fetch metadataHash on the main media", async () => {
           // Returns the metadataHash of tokenId 0 on the main media
           const onChainMetadataHashOne: string =
@@ -411,19 +420,10 @@ describe("ZapMedia", () => {
           );
         });
 
-        it("Should return 0x0 if tokenId doesn't exist on a custom media", async () => {
-          // Returns 0x0 due to a non existent tokenId on a custom media
-          const onChainMetadataHash: string =
-            await ownerConnected.fetchMetadataHash(1001, customMediaAddress);
-
-          // tokenId doesn't exists, so we expect a default return value of 0x0000...
-          expect(onChainMetadataHash).eq(ethers.constants.HashZero);
-        });
-
         it("Should be able to fetch metadataHash on a custom media", async () => {
           // Returns the metadata hash of tokenId 0 on a custom media
           const onChainMetadataHash: string =
-            await ownerConnected.fetchMetadataHash(0, customMediaAddress);
+            await customMediaSigner1.fetchMetadataHash(0);
 
           // tokenId doesn't exists, so we expect a default return value of 0x0000...
           expect(onChainMetadataHash).eq(
