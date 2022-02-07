@@ -1001,6 +1001,14 @@ describe("ZapMedia", () => {
           await token.mint(await bidder.getAddress(), 1000);
         });
 
+        it.only("Should reject if the tokenID does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .setBid(30, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): TokenId does not exist."
+            );
+        });
+
         it("Should reject if the token id does not exist", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
