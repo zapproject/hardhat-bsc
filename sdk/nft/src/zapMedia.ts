@@ -124,7 +124,7 @@ class ZapMedia {
 
   /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
     try {
