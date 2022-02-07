@@ -266,10 +266,7 @@ class ZapMedia {
    * Fetches the approved account for the specified media on an instance of the Zap Media Contract
    * @param mediaId Numerical identifier for a minted token
    */
-  public async fetchApproved(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
+  public async fetchApproved(mediaId: BigNumberish): Promise<string> {
     try {
       return await this.media.getApproved(mediaId);
     } catch {
