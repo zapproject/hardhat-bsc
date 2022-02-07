@@ -145,7 +145,6 @@ class ZapMedia {
   /**
    * Fetches the content hash for the specified media on the ZapMedia Contract
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
     // If the customMediaAddress is undefined use the main media instance to invoke the getTokenContentHashes function
