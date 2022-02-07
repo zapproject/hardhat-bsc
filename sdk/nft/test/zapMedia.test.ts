@@ -568,7 +568,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchTotalMedia", () => {
+      describe("#fetchTotalMedia", () => {
         it("Should fetch the total media minted on the main media", async () => {
           // Returns the total amount tokens minted on the main media
           const totalSupply: BigNumberish =
