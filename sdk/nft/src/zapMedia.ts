@@ -138,8 +138,16 @@ class ZapMedia {
    * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
    * @param mediaId
    */
-  public async fetchMetadataURI(mediaId: BigNumberish): Promise<string> {
-    return this.media.tokenMetadataURI(mediaId);
+  public async fetchMetadataURI(
+    mediaId: BigNumberish,
+    ): Promise<string> {
+
+    try {
+      return await this.media.tokenMetadataURI(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
+    }
+
   }
 
   /**
