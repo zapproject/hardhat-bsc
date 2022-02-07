@@ -1,4 +1,4 @@
-import { Contract, Signer } from 'ethers';
+import { Contract, Signer } from "ethers";
 declare class MediaFactory {
     contract: Contract;
     networkId: number;
@@ -11,6 +11,6 @@ declare class MediaFactory {
      * @param {boolean} permissive - Determines if minting can be performed other than the collection owner.
      * @param {string} collectionMetadta - Contract level metadata.
      */
-    deployMedia(collectionName: string, collectionSymbol: string, permissive: boolean, collectionMetadta: string): Promise<void>;
+    deployMedia(collectionName: string, collectionSymbol: string, permissive: boolean, collectionMetadta: string): Promise<any>;
 }
 export default MediaFactory;

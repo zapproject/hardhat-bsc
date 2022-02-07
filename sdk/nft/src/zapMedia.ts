@@ -138,8 +138,16 @@ class ZapMedia {
    * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
    * @param mediaId
    */
-  public async fetchMetadataURI(mediaId: BigNumberish): Promise<string> {
-    return this.media.tokenMetadataURI(mediaId);
+  public async fetchMetadataURI(
+    mediaId: BigNumberish,
+    ): Promise<string> {
+
+    try {
+      return await this.media.tokenMetadataURI(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
+    }
+
   }
 
   /**
@@ -244,13 +252,8 @@ class ZapMedia {
   /**
    * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
    */
-  public async fetchTotalMedia(
-    customMediaAddress?: string
-  ): Promise<BigNumber> {
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).totalSupply();
-    }
-    return this.media.totalSupply();
+  public async fetchTotalMedia(): Promise<BigNumber> {
+    return await this.media.totalSupply();
   }
 
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
