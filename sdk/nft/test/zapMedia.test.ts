@@ -288,7 +288,7 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchMetadataURI", () => {
-        it("should reject if the token id does not exist", async () => {
+        it("should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .fetchMetadataURI(5)
             .should.be.rejectedWith(
@@ -297,31 +297,22 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
-          await ownerConnected
-            .fetchMetadataURI(10, customMediaAddress)
+          await customMediaSigner1
+            .fetchMetadataURI(10)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchMetadataURI): TokenId does not exist."
             );
         });
 
-        it("Should reject if the customMediaAddress is a zero address", async () => {
-          await ownerConnected
-            .fetchMetadataURI(0, ethers.constants.AddressZero)
-            .should.be.rejectedWith(
-              "Invariant failed: ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address."
-            );
-        });
-
         it("Should fetch the metadata uri on a custom media", async () => {
-          const firstMetadataURI = await ownerConnected.fetchMetadataURI(
-            0,
-            customMediaAddress
+          const firstMetadataURI = await customMediaSigner1.fetchMetadataURI(
+            0
           );
 
           expect(firstMetadataURI).to.equal(metadataURI);
         });
 
-        it("should fetch the metadata URI", async () => {
+        it("should fetch the metadata URI on the main media", async () => {
           const firstMetadataURI = await ownerConnected.fetchMetadataURI(0);
 
           const secondMetadataURI = await ownerConnected.fetchMetadataURI(1);

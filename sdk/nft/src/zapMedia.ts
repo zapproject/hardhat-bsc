@@ -140,23 +140,7 @@ class ZapMedia {
    */
   public async fetchMetadataURI(
     mediaId: BigNumberish,
-    customMediaAddress?: string
     ): Promise<string> {
-    
-    if (customMediaAddress == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address."
-      );
-    }
-
-    if (customMediaAddress !== undefined) {
-      try {
-        return await this.media.attach(customMediaAddress).tokenMetadataURI(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
-      }
-    }
 
     try {
       return await this.media.tokenMetadataURI(mediaId);
