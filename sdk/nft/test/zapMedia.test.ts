@@ -261,7 +261,7 @@ describe("ZapMedia", () => {
 
         it("Should reject if the token id does not exist on a custom media", async () => {
           await ownerConnected
-            .fetchContentURI(1, customMediaAddress)
+            .fetchContentURI(1)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
             );
@@ -269,17 +269,14 @@ describe("ZapMedia", () => {
 
         it("Should reject if the customMediaAddress is a zero address", async () => {
           await ownerConnected
-            .fetchContentURI(0, ethers.constants.AddressZero)
+            .fetchContentURI(0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
             );
         });
 
         it("Should fetch the content uri on a custom media", async () => {
-          const firstContentURI = await ownerConnected.fetchContentURI(
-            0,
-            customMediaAddress
-          );
+          const firstContentURI = await ownerConnected.fetchContentURI(0);
 
           expect(firstContentURI).to.equal(tokenURI);
         });
