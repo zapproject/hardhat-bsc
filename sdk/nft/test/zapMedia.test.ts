@@ -330,16 +330,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchContentHash", () => {
-        it("Should reject if the custom media is a zero address", async () => {
-          // If the custom media is a zero address it will throw an error
-          await ownerConnected
-            .fetchContentHash(0, ethers.constants.AddressZero)
-            .should.be.rejectedWith(
-              "Invariant failed: ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address."
-            );
-        });
-
+      describe.only("#fetchContentHash", () => {
         it("Should return 0x0 if tokenId doesn't exist on the main media", async () => {
           // Return 0x0 due to a non existent tokenId on the main media
           const onChainContentHash: string =
