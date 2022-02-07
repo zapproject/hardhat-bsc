@@ -619,15 +619,6 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchCreator", () => {
-        it("Should reject if the custom media is a zero address", async () => {
-          // Attempt to fetch a tokenId creator with a zero address as the media
-          await signerOneConnected
-            .fetchCreator(0, ethers.constants.AddressZero)
-            .should.be.rejectedWith(
-              "Invariant failed: ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address."
-            );
-        });
-
         it("Should return a zero address if the token id does not exist on the main media", async () => {
           // Returns a zero address due to the nonexistent tokenId on the custom media
           const ownerAddr: string = await ownerConnected.fetchCreator(300);
@@ -638,10 +629,7 @@ describe("ZapMedia", () => {
 
         it("Should return a zero address if the token id does not exist on a custom media", async () => {
           // Returns a zero address due to the nonexistent tokenId on a custom media
-          const ownerAddr: string = await ownerConnected.fetchCreator(
-            12,
-            customMediaAddress
-          );
+          const ownerAddr: string = await customMediaSigner1.fetchCreator(12);
 
           // Expect the address to equal a zero address
           expect(ownerAddr).to.equal(ethers.constants.AddressZero);
@@ -663,10 +651,7 @@ describe("ZapMedia", () => {
 
         it("Should return the token creator on a custom media", async () => {
           // Returns the creator address of tokenId 0 on a custom media
-          const creator: string = await ownerConnected.fetchCreator(
-            0,
-            customMediaAddress
-          );
+          const creator: string = await customMediaSigner1.fetchCreator(0);
 
           // Expect the creator of tokenId 0 on the custom media to equal the signerOne (signers[1]) address
           expect(creator).to.equal(await signerOne.getAddress());
