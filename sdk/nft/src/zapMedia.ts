@@ -244,13 +244,8 @@ class ZapMedia {
   /**
    * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
    */
-  public async fetchTotalMedia(
-    customMediaAddress?: string
-  ): Promise<BigNumber> {
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).totalSupply();
-    }
-    return this.media.totalSupply();
+  public async fetchTotalMedia(): Promise<BigNumber> {
+    return await this.media.totalSupply();
   }
 
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
