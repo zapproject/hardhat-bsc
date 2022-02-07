@@ -588,7 +588,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchCreator", () => {
+      describe("#fetchCreator", () => {
         it("Should return a zero address if the token id does not exist on the main media", async () => {
           // Returns a zero address due to the nonexistent tokenId on the custom media
           const ownerAddr: string = await ownerConnected.fetchCreator(300);
