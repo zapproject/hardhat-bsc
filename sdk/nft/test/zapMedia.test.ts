@@ -251,7 +251,7 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchContentURI", () => {
-        it("should reject if the token id does not exist", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .fetchContentURI(5)
             .should.be.rejectedWith(
@@ -260,35 +260,30 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
-          await ownerConnected
+          await customMediaSigner1
             .fetchContentURI(1)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
             );
         });
 
-        it("Should reject if the customMediaAddress is a zero address", async () => {
-          await ownerConnected
-            .fetchContentURI(0)
-            .should.be.rejectedWith(
-              "Invariant failed: ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
-            );
-        });
+        it("Should fetch the content uri on the main media", async () => {
+          const firstTokenURI: string = await ownerConnected.fetchContentURI(0);
 
-        it("Should fetch the content uri on a custom media", async () => {
-          const firstContentURI = await ownerConnected.fetchContentURI(0);
-
-          expect(firstContentURI).to.equal(tokenURI);
-        });
-
-        it("should fetch the content uri", async () => {
-          const firstTokenURI = await ownerConnected.fetchContentURI(0);
-
-          const secondTokenURI = await ownerConnected.fetchContentURI(1);
+          const secondTokenURI: string = await ownerConnected.fetchContentURI(
+            1
+          );
 
           expect(firstTokenURI).to.equal(tokenURI);
 
           expect(secondTokenURI).to.equal(tokenURI);
+        });
+
+        it("Should fetch the content uri on a custom media", async () => {
+          const firstContentURI: string =
+            await customMediaSigner1.fetchContentURI(0);
+
+          expect(firstContentURI).to.equal(tokenURI);
         });
       });
 
