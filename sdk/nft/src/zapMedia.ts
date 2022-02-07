@@ -145,29 +145,8 @@ class ZapMedia {
   /**
    * Fetches the content hash for the specified media on the ZapMedia Contract
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
-  public async fetchContentHash(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
-    // If the customMediaAddress is a zero address throw an error
-    if (customMediaAddress == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address."
-      );
-    }
-
-    // If the customMediaAddress does not equal undefined create a custom media instance and
-    // invoke the getTokenHashes function on that custom media
-    if (customMediaAddress !== undefined) {
-      return await this.media
-        .attach(customMediaAddress)
-        .getTokenContentHashes(mediaId);
-    }
-
-    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenContentHashes function
+  public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
     return this.media.getTokenContentHashes(mediaId);
   }
 
