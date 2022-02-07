@@ -40,9 +40,8 @@ class ZapMedia {
   media: any;
   market: any;
   signer: Signer;
-  public readOnly: boolean;
 
-  constructor(networkId: number, signer: Signer) {
+  constructor(networkId: number, signer: Signer, customMediaAddress?: string) {
     this.networkId = networkId;
 
     this.signer = signer;
@@ -53,16 +52,21 @@ class ZapMedia {
       signer
     );
 
-    this.media = new ethers.Contract(
-      contractAddresses(networkId).zapMediaAddress,
-      zapMediaAbi,
-      signer
-    );
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address."
+      );
+    }
 
-    if (Signer.isSigner(signer)) {
-      this.readOnly = false;
+    if (customMediaAddress !== undefined) {
+      this.media = new ethers.Contract(customMediaAddress, zapMediaAbi, signer);
     } else {
-      this.readOnly = true;
+      this.media = new ethers.Contract(
+        contractAddresses(networkId).zapMediaAddress,
+        zapMediaAbi,
+        signer
+      );
     }
   }
 
@@ -74,12 +78,8 @@ class ZapMedia {
   /**
    * Fetches the amount of tokens an address owns on a media contract
    * @param owner The address to fetch the token balance for
-   * @param mediaIndex The index to access media contracts as an optional argument
    */
-  public async fetchBalanceOf(
-    owner: string,
-    customMediaAddress?: BigNumberish
-  ): Promise<BigNumber> {
+  public async fetchBalanceOf(owner: string): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -87,26 +87,15 @@ class ZapMedia {
       );
     }
 
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).balanceOf(owner);
-    } else {
-      return this.media.balanceOf(owner);
-    }
+    return this.media.balanceOf(owner);
   }
 
   /**
    * Fetches the owner of the specified media on an instance of the Zap Media Contract
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
-  public async fetchOwnerOf(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
+  public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
     try {
-      if (customMediaAddress !== undefined) {
-        return await this.media.attach(customMediaAddress).ownerOf(mediaId);
-      }
       return await this.media.ownerOf(mediaId);
     } catch {
       invariant(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
@@ -117,12 +106,10 @@ class ZapMedia {
    * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
    * @param owner Address of who the tokenId belongs to.
    * @param index The position of a tokenId that an address owns.
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async fetchMediaOfOwnerByIndex(
     owner: string,
-    index: BigNumberish,
-    customMediaAddress?: string
+    index: BigNumberish
   ): Promise<BigNumber> {
     // If the owner is a zero address throw an error
     if (owner == ethers.constants.AddressZero) {
@@ -132,42 +119,14 @@ class ZapMedia {
       );
     }
 
-    // If customMediaAddress is not undefined attach the address to the main media contract
-    // create a custom media contract instance and invoke tokenOfOwnerByIndex
-    if (customMediaAddress !== undefined) {
-      return this.media
-        .attach(customMediaAddress)
-        .tokenOfOwnerByIndex(owner, index);
-      // If the customMediaAddress is undefined invoke tokenOfOwnerByIndex on the main media
-    } else {
-      return this.media.tokenOfOwnerByIndex(owner, index);
-    }
+    return this.media.tokenOfOwnerByIndex(owner, index);
   }
 
   /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
-   * @param customMediaAddress
+   * @param mediaId Numerical identifier for a minted token
    */
-  public async fetchContentURI(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
-    if (customMediaAddress == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
-      );
-    }
-
-    if (customMediaAddress !== undefined) {
-      try {
-        return await this.media.attach(customMediaAddress).tokenURI(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
-      }
-    }
-
+  public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
     try {
       return await this.media.tokenURI(mediaId);
     } catch {
@@ -185,7 +144,7 @@ class ZapMedia {
 
   /**
    * Fetches the content hash for the specified media on the ZapMedia Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
     return this.media.getTokenContentHashes(mediaId);
@@ -193,7 +152,7 @@ class ZapMedia {
 
   /**
    * Fetches the metadata hash for the specified media on the ZapMedia Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async fetchMetadataHash(mediaId: BigNumberish): Promise<string> {
     return this.media.getTokenMetadataHashes(mediaId);
@@ -214,29 +173,8 @@ class ZapMedia {
   /**
    * Fetches the creator for the specified media on an instance of the Zap Media Contract
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
-  public async fetchCreator(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
-    // If the customMediaAddress is a zero address throw an error
-    if (customMediaAddress == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address."
-      );
-    }
-
-    // If the customMediaAddress does not equal undefined create a custom media instance and
-    // invoke the getTokenCreators function on that custom media
-    if (customMediaAddress !== undefined) {
-      return await this.media
-        .attach(customMediaAddress)
-        .getTokenCreators(mediaId);
-    }
-
-    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenCreators function
+  public async fetchCreator(mediaId: BigNumberish): Promise<string> {
     return await this.media.getTokenCreators(mediaId);
   }
 
@@ -257,7 +195,7 @@ class ZapMedia {
    */
   public async fetchCurrentAsk(
     mediaAddress: string,
-    mediaId: BigNumberish,
+    mediaId: BigNumberish
   ): Promise<Ask> {
     return this.market.currentAskForToken(mediaAddress, mediaId);
   }
@@ -696,7 +634,7 @@ class ZapMedia {
   }
 
   /**
-   * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+   * Grants the spender approval for the specificxed media using meta transactions as outlined in EIP-712
    * @param sender
    * @param mediaId
    * @param sig
@@ -728,10 +666,44 @@ class ZapMedia {
 
   /**
    * Burns the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async burn(mediaId: BigNumberish): Promise<ContractTransaction> {
-    return this.media.burn(mediaId);
+    // Will store the address of the token owner if the tokenId exists
+    let owner: string;
+
+    // Checks if the tokenId exists. If the tokenId exists store the owner
+    // address in the variable and if it doesnt throw an error
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (burn): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (burn): Caller is not approved nor the owner."
+      );
+    }
+
+    // Invoke the burn function if the caller is approved, approved for all, or the owner
+    return await this.media.burn(mediaId);
   }
 
   /**
