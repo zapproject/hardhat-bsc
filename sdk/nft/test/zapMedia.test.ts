@@ -1646,7 +1646,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchApproved", () => {
+      describe("#fetchApproved", () => {
         it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .fetchApproved(200)
