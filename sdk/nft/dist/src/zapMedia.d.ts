@@ -7,8 +7,7 @@ declare class ZapMedia {
     media: any;
     market: any;
     signer: Signer;
-    readOnly: boolean;
-    constructor(networkId: number, signer: Signer);
+    constructor(networkId: number, signer: Signer, customMediaAddress?: string);
     /*********************
      * Zap View Methods
      *********************
@@ -16,45 +15,39 @@ declare class ZapMedia {
     /**
      * Fetches the amount of tokens an address owns on a media contract
      * @param owner The address to fetch the token balance for
-     * @param mediaIndex The index to access media contracts as an optional argument
      */
-    fetchBalanceOf(owner: string, customMediaAddress?: BigNumberish): Promise<BigNumber>;
+    fetchBalanceOf(owner: string): Promise<BigNumber>;
     /**
      * Fetches the owner of the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchOwnerOf(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
+    fetchOwnerOf(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
      * @param owner Address of who the tokenId belongs to.
      * @param index The position of a tokenId that an address owns.
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish, customMediaAddress?: string): Promise<BigNumber>;
+    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-     * @param mediaId
-     * @param customMediaAddress
+     * @param mediaId Numerical identifier for a minted token
      */
-    fetchContentURI(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
+    fetchContentURI(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
      * @param mediaId
      */
-    fetchMetadataURI(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
+    fetchMetadataURI(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the content hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchContentHash(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
+    fetchContentHash(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the metadata hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchMetadataHash(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
+    fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the permit nonce on the specified media id for the owner address
      * @param address
@@ -64,9 +57,8 @@ declare class ZapMedia {
     /**
      * Fetches the creator for the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchCreator(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
+    fetchCreator(mediaId: BigNumberish): Promise<string>;
     /**
      * Fetches the current bid shares for the specified media on an instance of the Zap Media Contract
      * @param mediaId
@@ -87,7 +79,7 @@ declare class ZapMedia {
     /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
-    fetchTotalMedia(customMediaAddress?: string): Promise<BigNumber>;
+    fetchTotalMedia(): Promise<BigNumber>;
     fetchMediaByIndex(index: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the approved account for the specified media on an instance of the Zap Media Contract
@@ -177,7 +169,7 @@ declare class ZapMedia {
      */
     updateMetadataURI(mediaId: BigNumberish, metadataURI: string): Promise<ContractTransaction>;
     /**
-     * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+     * Grants the spender approval for the specificxed media using meta transactions as outlined in EIP-712
      * @param sender
      * @param mediaId
      * @param sig
@@ -190,7 +182,7 @@ declare class ZapMedia {
     revokeApproval(mediaId: BigNumberish): Promise<ContractTransaction>;
     /**
      * Burns the specified media on an instance of the Zap Media Contract
-     * @param mediaId
+     * @param mediaId Numerical identifier for a minted token
      */
     burn(mediaId: BigNumberish): Promise<ContractTransaction>;
     /**

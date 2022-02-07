@@ -232,6 +232,67 @@ class AuctionHouse {
       return this.auctionHouse.createBid(auctionId, amount, mediaContract);
     }
   }
+
+  public async endAuction(auctionId: BigNumberish) {
+    // * Only end auction if 1) at least one bid exists, 2) it is still listed auction and 3) firstBidTime to set duration is equal or greater than firstBidTime to Date.now() and 4) signer is curator
+    // 1  check if auctionid exists (#2)
+    // 2  reject if bidder exists 
+    // 3 reject if dureation not fulfulled
+    // 4 check if signer is curator of the auction (#4)
+    // =============
+    // Checks if the auctionId exists if not throw an error
+    try {
+      await this.fetchAuction(auctionId);
+    } catch {
+      invariant(false, 'AuctionHouse (endAuction): AuctionId does not exist.');
+    }
+
+    const auctionInfo = await this.fetchAuction(auctionId);
+    // Reject if auction doesn't exist
+    if (!auctionInfo) {
+      invariant(false, 'AuctionHouse (endAuction): AuctionId does not exist.');
+    } else {
+      const auctionStarted = parseInt(auctionInfo.firstBidTime._hex) === 0;
+      const hasBidder = auctionStarted && auctionInfo.bidder !== ethers.constants.AddressZero;
+      // update this to get bidder's timestamp
+      const timeover = Date.now() < parseInt(auctionInfo.duration._hex); 
+
+        // Reject end auction no bids exist (only cancel auction allowed)
+        if (auctionInfo.bidder === ethers.constants.AddressZero) {
+          invariant(false, 'AuctionHouse (endAuction): Auction has not started yet.');
+        } 
+        // Reject end auction if a bidder exists AND if duration not fulfilled
+        // * first bid time === 0 means auction has started.
+        else if (hasBidder && !timeover) {
+          // (parseInt(auctionInfo.firstBidTime._hex + auctionInfo.duration._hex)) < Date.now()) {
+          invariant(false, 'AuctionHouse (endAuction): Auction has not ended yet.');
+        }
+        // Check if the signer is the curator, if not throw an error
+        else if (hasBidder && timeover && auctionInfo.curator !== (await this.signer.getAddress())) {
+          invariant(false, 'AuctionHouse (endAuction): Only the curator can end this auction.');
+        }
+        
+        return this.auctionHouse.endAuction(auctionId);
+      }
+  }
+
+  public async cancelAuction(auctionId: BigNumberish) {
+    const auctionInfo = await this.fetchAuction(auctionId);
+
+    // If the auctionId does not exist throw an error
+    if (auctionInfo.token.mediaContract === ethers.constants.AddressZero) {
+      invariant(false, 'AuctionHouse (cancelAuction): Auction does not exist.');
+    }
+    // If the auction firstBidTime is not 0 throw an error
+    else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
+      invariant(false, 'AuctionHouse (cancelAuction): Auction has already started.');
+    }
+    // If the fetched curator address does not equal the caller address throw an error
+    else if (auctionInfo.curator !== (await this.signer.getAddress())) {
+      invariant(false, 'AuctionHouse (cancelAuction): Only the curator can cancel this auction.');
+    }
+    return this.auctionHouse.cancelAuction(auctionId);
+  }
 }
 
 export default AuctionHouse;
