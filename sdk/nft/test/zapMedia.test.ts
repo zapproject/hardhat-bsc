@@ -932,8 +932,8 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#setAsk", () => {
-        it("Should throw an error if the signer is not approved nor the owner", async () => {
+      describe.only("#setAsk", () => {
+        it("Should throw an error if the signer is not approved nor the owner of the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
 
           const owner = await ownerConnected.fetchOwnerOf(0);
@@ -951,7 +951,7 @@ describe("ZapMedia", () => {
           });
         });
 
-        it("Should set an ask by the owner", async () => {
+        it("Should set an ask by the owner on the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
 
           const owner = await ownerConnected.fetchOwnerOf(0);
@@ -971,7 +971,7 @@ describe("ZapMedia", () => {
           expect(onChainAsk.currency).to.equal(zapMedia.address);
         });
 
-        it("Should set an ask by the approved", async () => {
+        it("Should set an ask by the approved on the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
 
           await ownerConnected.approve(await signerOne.getAddress(), 0);
@@ -986,6 +986,63 @@ describe("ZapMedia", () => {
 
           const onChainAsk = await ownerConnected.fetchCurrentAsk(
             zapMedia.address,
+            0
+          );
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
+        });
+        it("Should throw an error if the signer is not approved nor the owner of a custom media", async () => {
+          ask = constructAsk(zapMedia.address, 100);
+
+          const owner = await customMediaSigner1.fetchOwnerOf(0);
+          const getApproved = await customMediaSigner1.fetchApproved(0);
+
+          expect(owner).to.not.equal(await signer.getAddress());
+          expect(owner).to.equal(await signerOne.getAddress());
+          expect(getApproved).to.not.equal(await signer.getAddress());
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner0.setAsk(0, ask).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: ZapMedia (setAsk): Media: Only approved or owner."
+            );
+          });
+        });
+        it("Should set an ask by the owner of a custom media", async () => {
+          ask = constructAsk(zapMedia.address, 100);
+
+          const owner = await customMediaSigner1.fetchOwnerOf(0);
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          const getApproved = await customMediaSigner1.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.setAsk(0, ask);
+
+          const onChainAsk = await customMediaSigner1.fetchCurrentAsk(
+            zapMedia.address,
+            0
+          );
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(zapMedia.address);
+        });
+      it("Should set an ask by the approved on the custom media", async () => {
+          ask = constructAsk(zapMedia.address, 100);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const owner = await customMediaSigner1.fetchOwnerOf(0);
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          const getApproved = await customMediaSigner1.fetchApproved(0);
+          expect(getApproved).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.setAsk(0, ask);
+
+          const onChainAsk = await customMediaSigner1.fetchCurrentAsk(
+            customMediaAddress,
             0
           );
 
