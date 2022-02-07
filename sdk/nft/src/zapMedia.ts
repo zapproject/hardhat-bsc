@@ -124,28 +124,9 @@ class ZapMedia {
 
   /**
    * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
-   * @param customMediaAddress
+   * @param mediaId Numerical identifier for a minted token
    */
-  public async fetchContentURI(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
-    if (customMediaAddress == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address."
-      );
-    }
-
-    if (customMediaAddress !== undefined) {
-      try {
-        return await this.media.attach(customMediaAddress).tokenURI(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
-      }
-    }
-
+  public async fetchContentURI(mediaId: BigNumberish): Promise<string> {
     try {
       return await this.media.tokenURI(mediaId);
     } catch {
