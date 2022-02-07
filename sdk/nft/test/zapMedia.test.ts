@@ -534,7 +534,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchMediaOfOwnerByIndex", () => {
+      describe("#fetchMediaOfOwnerByIndex", () => {
         it("Should throw an error if the (owner) is a zero address on the main media", async () => {
           // fetchMediaOfOwnerByIndex will fail due to a zero address passed in as the owner
           await ownerConnected
