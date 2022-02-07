@@ -544,6 +544,15 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should throw an error if the (owner) is a zero address on a custom media", async () => {
+          // fetchMediaOfOwnerByIndex will fail due to a zero address passed in as the owner
+          await customMediaSigner1
+            .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
+            );
+        });
+
         it("Should return the token of the owner by index on the main media", async () => {
           // Returns the tokenId owner (signers[0]) minted on the main media contract
           const fetchToken = await ownerConnected.fetchMediaOfOwnerByIndex(
