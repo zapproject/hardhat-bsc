@@ -288,6 +288,7 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchMetadataURI", () => {
+        
         it("should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .fetchMetadataURI(5)
