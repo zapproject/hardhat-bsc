@@ -534,8 +534,8 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#tokenOfOwnerByIndex", () => {
-        it("Should throw an error if the (owner) is a zero address", async () => {
+      describe("#fetchMediaOfOwnerByIndex", () => {
+        it("Should throw an error if the (owner) is a zero address on the main media", async () => {
           // fetchMediaOfOwnerByIndex will fail due to a zero address passed in as the owner
           await ownerConnected
             .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
@@ -544,7 +544,16 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should return the token of the owner by index", async () => {
+        it("Should throw an error if the (owner) is a zero address on a custom media", async () => {
+          // fetchMediaOfOwnerByIndex will fail due to a zero address passed in as the owner
+          await customMediaSigner1
+            .fetchMediaOfOwnerByIndex(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address."
+            );
+        });
+
+        it("Should return the token of the owner by index on the main media", async () => {
           // Returns the tokenId owner (signers[0]) minted on the main media contract
           const fetchToken = await ownerConnected.fetchMediaOfOwnerByIndex(
             await signer.getAddress(),
@@ -566,10 +575,9 @@ describe("ZapMedia", () => {
 
         it("Should return the token of an owner by index from a custom media", async () => {
           // Returns the tokenId signerOne (signers[1]) minted on their media contract
-          const fetchToken = await signerOneConnected.fetchMediaOfOwnerByIndex(
+          const fetchToken = await customMediaSigner1.fetchMediaOfOwnerByIndex(
             await signerOne.getAddress(),
-            0,
-            customMediaAddress
+            0
           );
 
           // Expect signerOne (signers[1]) to own tokenId 0 on their own media contract
