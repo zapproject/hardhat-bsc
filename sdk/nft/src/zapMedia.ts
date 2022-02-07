@@ -147,7 +147,6 @@ class ZapMedia {
    * @param mediaId Numerical identifier for a minted token
    */
   public async fetchContentHash(mediaId: BigNumberish): Promise<string> {
-    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenContentHashes function
     return this.media.getTokenContentHashes(mediaId);
   }
 
