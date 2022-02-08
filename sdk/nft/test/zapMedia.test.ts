@@ -752,14 +752,15 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should be able to mint", async () => {
-          const preTotalSupply = (
+        it("Should be able to mint on the main media", async () => {
+          // Retuens the total tokens minted on the main media
+          const preTotalSupply: BigNumberish = (
             await ownerConnected.fetchTotalMedia()
           ).toNumber();
 
           expect(preTotalSupply).to.equal(2);
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
+          const owner: string = await ownerConnected.fetchOwnerOf(0);
           const creator = await ownerConnected.fetchCreator(0);
 
           const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
