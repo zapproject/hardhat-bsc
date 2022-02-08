@@ -69,34 +69,44 @@ var ZapMedia = /** @class */ (function () {
      * Fetches the amount of tokens an address owns on a media contract
      * @param owner The address to fetch the token balance for
      */
-    ZapMedia.prototype.fetchBalanceOf = function (owner) {
+    ZapMedia.prototype.fetchBalanceOf = function (owner, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 if (owner == ethers_1.ethers.constants.AddressZero) {
                     (0, tiny_invariant_1.default)(false, "ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address.");
                 }
-                return [2 /*return*/, this.media.balanceOf(owner)];
+                if (customMediaAddress !== undefined) {
+                    return [2 /*return*/, this.media.attach(customMediaAddress).balanceOf(owner)];
+                }
+                else {
+                    return [2 /*return*/, this.media.balanceOf(owner)];
+                }
+                return [2 /*return*/];
             });
         });
     };
     /**
      * Fetches the owner of the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchOwnerOf = function (mediaId) {
+    ZapMedia.prototype.fetchOwnerOf = function (mediaId, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                        _b.trys.push([0, 4, , 5]);
+                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.media.attach(customMediaAddress).ownerOf(mediaId)];
                     case 1: return [2 /*return*/, _b.sent()];
-                    case 2:
+                    case 2: return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 3: return [2 /*return*/, _b.sent()];
+                    case 4:
                         _a = _b.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -105,36 +115,63 @@ var ZapMedia = /** @class */ (function () {
      * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
      * @param owner Address of who the tokenId belongs to.
      * @param index The position of a tokenId that an address owns.
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchMediaOfOwnerByIndex = function (owner, index) {
+    ZapMedia.prototype.fetchMediaOfOwnerByIndex = function (owner, index, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 // If the owner is a zero address throw an error
                 if (owner == ethers_1.ethers.constants.AddressZero) {
                     (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.");
                 }
-                return [2 /*return*/, this.media.tokenOfOwnerByIndex(owner, index)];
+                // If customMediaAddress is not undefined attach the address to the main media contract
+                // create a custom media contract instance and invoke tokenOfOwnerByIndex
+                if (customMediaAddress !== undefined) {
+                    return [2 /*return*/, this.media
+                            .attach(customMediaAddress)
+                            .tokenOfOwnerByIndex(owner, index)];
+                    // If the customMediaAddress is undefined invoke tokenOfOwnerByIndex on the main media
+                }
+                else {
+                    return [2 /*return*/, this.media.tokenOfOwnerByIndex(owner, index)];
+                }
+                return [2 /*return*/];
             });
         });
     };
     /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-     * @param mediaId Numerical identifier for a minted token
+     * @param mediaId
+     * @param customMediaAddress
      */
-    ZapMedia.prototype.fetchContentURI = function (mediaId) {
+    ZapMedia.prototype.fetchContentURI = function (mediaId, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        _b.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.media.tokenURI(mediaId)];
-                    case 1: return [2 /*return*/, _b.sent()];
-                    case 2:
-                        _a = _b.sent();
+                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address.");
+                        }
+                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 4];
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.media.attach(customMediaAddress).tokenURI(mediaId)];
+                    case 2: return [2 /*return*/, _c.sent()];
+                    case 3:
+                        _a = _c.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4:
+                        _c.trys.push([4, 6, , 7]);
+                        return [4 /*yield*/, this.media.tokenURI(mediaId)];
+                    case 5: return [2 /*return*/, _c.sent()];
+                    case 6:
+                        _b = _c.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
+                        return [3 /*break*/, 7];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
@@ -143,32 +180,87 @@ var ZapMedia = /** @class */ (function () {
      * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
      * @param mediaId
      */
-    ZapMedia.prototype.fetchMetadataURI = function (mediaId) {
+    ZapMedia.prototype.fetchMetadataURI = function (mediaId, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.tokenMetadataURI(mediaId)];
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address.");
+                        }
+                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 4];
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.media.attach(customMediaAddress).tokenMetadataURI(mediaId)];
+                    case 2: return [2 /*return*/, _c.sent()];
+                    case 3:
+                        _a = _c.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
+                        return [3 /*break*/, 4];
+                    case 4:
+                        _c.trys.push([4, 6, , 7]);
+                        return [4 /*yield*/, this.media.tokenMetadataURI(mediaId)];
+                    case 5: return [2 /*return*/, _c.sent()];
+                    case 6:
+                        _b = _c.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
+                        return [3 /*break*/, 7];
+                    case 7: return [2 /*return*/];
+                }
             });
         });
     };
     /**
      * Fetches the content hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchContentHash = function (mediaId) {
+    ZapMedia.prototype.fetchContentHash = function (mediaId, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.getTokenContentHashes(mediaId)];
+                switch (_a.label) {
+                    case 0:
+                        // If the customMediaAddress is a zero address throw an error
+                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address.");
+                        }
+                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.media
+                                .attach(customMediaAddress)
+                                .getTokenContentHashes(mediaId)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2: 
+                    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenContentHashes function
+                    return [2 /*return*/, this.media.getTokenContentHashes(mediaId)];
+                }
             });
         });
     };
     /**
      * Fetches the metadata hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchMetadataHash = function (mediaId) {
+    ZapMedia.prototype.fetchMetadataHash = function (mediaId, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.getTokenMetadataHashes(mediaId)];
+                switch (_a.label) {
+                    case 0:
+                        // If the customMediaAddress is a zero address throw an error
+                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataHash): The (customMediaAddress) cannot be a zero address.");
+                        }
+                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.media
+                                .attach(customMediaAddress)
+                                .getTokenMetadataHashes(mediaId)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2: 
+                    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenMetadataHashes function
+                    return [2 /*return*/, this.media.getTokenMetadataHashes(mediaId)];
+                }
             });
         });
     };

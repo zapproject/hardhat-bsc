@@ -16,38 +16,43 @@ declare class ZapMedia {
      * Fetches the amount of tokens an address owns on a media contract
      * @param owner The address to fetch the token balance for
      */
-    fetchBalanceOf(owner: string): Promise<BigNumber>;
+    fetchBalanceOf(owner: string, customMediaAddress?: BigNumberish): Promise<BigNumber>;
     /**
      * Fetches the owner of the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchOwnerOf(mediaId: BigNumberish): Promise<string>;
+    fetchOwnerOf(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
     /**
      * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
      * @param owner Address of who the tokenId belongs to.
      * @param index The position of a tokenId that an address owns.
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish): Promise<BigNumber>;
+    fetchMediaOfOwnerByIndex(owner: string, index: BigNumberish, customMediaAddress?: string): Promise<BigNumber>;
     /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-     * @param mediaId Numerical identifier for a minted token
+     * @param mediaId
+     * @param customMediaAddress
      */
-    fetchContentURI(mediaId: BigNumberish): Promise<string>;
+    fetchContentURI(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
     /**
      * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
      * @param mediaId
      */
-    fetchMetadataURI(mediaId: BigNumberish): Promise<string>;
+    fetchMetadataURI(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
     /**
      * Fetches the content hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchContentHash(mediaId: BigNumberish): Promise<string>;
+    fetchContentHash(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
     /**
      * Fetches the metadata hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
+     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    fetchMetadataHash(mediaId: BigNumberish): Promise<string>;
+    fetchMetadataHash(mediaId: BigNumberish, customMediaAddress?: string): Promise<string>;
     /**
      * Fetches the permit nonce on the specified media id for the owner address
      * @param address
