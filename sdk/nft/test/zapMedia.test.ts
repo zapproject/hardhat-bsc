@@ -1130,7 +1130,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should set a bid", async () => {
+        it("Should set a bid on the main media", async () => {
           // Checks the balance of the bidder before setting the bid
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());
 
