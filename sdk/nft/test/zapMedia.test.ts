@@ -932,7 +932,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#setAsk", () => {
+      describe("#setAsk", () => {
         it("Should throw an error if the signer is not approved nor the owner of the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
 
