@@ -1055,7 +1055,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the bid currency is a zero address on the main media", async () => {
+        it("Should reject if the bid currency is a zero address on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -1130,7 +1130,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject if the bid amount is zero on a custom media", async () => {
+        it.only("Should reject if the bid amount is zero on a custom media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
