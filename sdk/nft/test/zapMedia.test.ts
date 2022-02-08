@@ -1007,7 +1007,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#setbid", () => {
+      describe.only("#setbid", () => {
         let bidder: Signer;
         let bid: Bid;
         let bidderConnected: ZapMedia;
@@ -1027,15 +1027,6 @@ describe("ZapMedia", () => {
 
           // Transfer tokens to the bidder
           await token.mint(await bidder.getAddress(), 1000);
-        });
-
-        it.only("Should reject if the custom Media Address is a zero address", async () => {
-          await customMediaSigner1
-            .setBid(
-              ethers.constants.AddressZero,
-              bid
-            );
-
         });
 
         it("Should reject if the tokenID does not exist on a custom media", async () => {
