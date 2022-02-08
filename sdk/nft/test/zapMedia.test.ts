@@ -1010,7 +1010,8 @@ describe("ZapMedia", () => {
       describe.only("#setbid", () => {
         let bidder: Signer;
         let bid: Bid;
-        let bidderConnected: ZapMedia;
+        let bidderMainConnected: ZapMedia;
+        let bidderCustomConnected: ZapMedia;
 
         beforeEach(async () => {
           bidder = signers[2];
@@ -1023,45 +1024,68 @@ describe("ZapMedia", () => {
           );
 
           // The bidder(signer[2]) is connected to the ZapMedia class as a signer
-          bidderConnected = new ZapMedia(1337, bidder);
+          bidderMainConnected = new ZapMedia(1337, bidder);
+
+          // The bidder(signer[2]) is connected to a custom media class as a signer
+          bidderCustomConnected = new ZapMedia(
+            1337,
+            bidder,
+            customMediaAddress
+          );
 
           // Transfer tokens to the bidder
           await token.mint(await bidder.getAddress(), 1000);
         });
 
+        it("Should reject if the token id does not exist on the main media", async () => {
+          // The bidder(signers[2]) attempts to setBid on a non existent token
+          await bidderMainConnected
+            .setBid(300, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): TokenId does not exist."
+            );
+        });
+
         it("Should reject if the tokenID does not exist on a custom media", async () => {
-          await customMediaSigner1
+          // The bidder(signers[2]) attempts to setBid on a non existent token
+          await bidderCustomConnected
             .setBid(30, bid)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setBid): TokenId does not exist."
             );
         });
 
-        it("Should reject if the token id does not exist", async () => {
-          // The bidder approves zapMarket to receive the bid amount before setting the bid
-          await token.connect(bidder).approve(zapMarket.address, bid.amount);
-          // The bidder(signers[1]) attempts to setBid on a non existent token
-          await bidderConnected.setBid(300, bid).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (setBid): TokenId does not exist."
-            );
-          });
-        });
-
-        it("Should reject if the bid currency is a zero address", async () => {
+        it("Should reject if the bid currency is a zero address on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
           // Sets the bid currency to a zero address
           bid.currency = ethers.constants.AddressZero;
 
-          // The bidder attempts to set a bid with the currenc as a zero address
-          await bidderConnected.setBid(0, bid).catch((err) => {
-            "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address.";
-          });
+          // The bidder attempts to set a bid with the currency as a zero address
+          await bidderMainConnected
+            .setBid(0, bid)
+            .should.be.rejected(
+              "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address."
+            );
         });
 
-        it("Should reject if the bid recipient is a zero address", async () => {
+        it("Should reject if the bid currency is a zero address on a custom media", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid currency to a zero address
+          bid.currency = ethers.constants.AddressZero;
+
+          // The bidder attempts to set a bid with the currency as a zero address
+          await bidderCustomConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the bid recipient is a zero address on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -1069,14 +1093,29 @@ describe("ZapMedia", () => {
           bid.recipient = ethers.constants.AddressZero;
 
           // The bidder attempts to set a bid with the recipient as a zero address
-          await bidderConnected.setBid(0, bid).catch((err) => {
-            expect(err.message).to.equal(
+          await bidderMainConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setBid): Recipient cannot be a zero address."
             );
-          });
         });
 
-        it("Should reject if the bid amount is zero", async () => {
+        it("Should reject if the bid recipient is a zero address on a custom media", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid recipient to a zero address
+          bid.recipient = ethers.constants.AddressZero;
+
+          // The bidder attempts to set a bid with the recipient as a zero address
+          await bidderCustomConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): Recipient cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the bid amount is zero on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -1084,11 +1123,11 @@ describe("ZapMedia", () => {
           bid.amount = 0;
 
           // The bidder attempts to set a bid with zero tokens
-          await bidderConnected.setBid(0, bid).catch((err) => {
-            expect(
+          await bidderMainConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setBid): Amount cannot be zero."
             );
-          });
         });
 
         it("Should set a bid", async () => {
@@ -1116,7 +1155,7 @@ describe("ZapMedia", () => {
           // The bidder(signers[1]) sets their bid
           // The bid amount is then transferred to the ZapMarket balance
           // The bid amount is then withdrawn from the their balance
-          await bidderConnected.setBid(0, bid);
+          await bidderMainConnected.setBid(0, bid);
 
           // The bidder balance after setting the bidx
           const bidderPostBal = await token.balanceOf(
@@ -1172,7 +1211,7 @@ describe("ZapMedia", () => {
           expect(parseInt(marketPretBal)).to.equal(0);
 
           // The bidders first bid
-          await bidderConnected.setBid(0, bid);
+          await bidderMainConnected.setBid(0, bid);
 
           // The bidder balance after placing the first bid
           const bidderPostBal1 = await token.balanceOf(
@@ -1192,7 +1231,7 @@ describe("ZapMedia", () => {
           bid.amount = 400;
 
           // The bidders second bid
-          await bidderConnected.setBid(0, bid);
+          await bidderMainConnected.setBid(0, bid);
 
           // ZapMarket balance after the bidder places their second bid
           const marketPostBal2 = await token.balanceOf(zapMarket.address);
