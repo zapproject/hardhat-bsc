@@ -1790,7 +1790,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.skip("#permit", () => {
+      describe("#permit", () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const mainWallet: Wallet = new ethers.Wallet(
