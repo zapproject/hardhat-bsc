@@ -7,8 +7,7 @@ declare class ZapMedia {
     media: any;
     market: any;
     signer: Signer;
-    readOnly: boolean;
-    constructor(networkId: number, signer: Signer);
+    constructor(networkId: number, signer: Signer, customMediaAddress?: string);
     /*********************
      * Zap View Methods
      *********************
@@ -16,7 +15,6 @@ declare class ZapMedia {
     /**
      * Fetches the amount of tokens an address owns on a media contract
      * @param owner The address to fetch the token balance for
-     * @param mediaIndex The index to access media contracts as an optional argument
      */
     fetchBalanceOf(owner: string, customMediaAddress?: BigNumberish): Promise<BigNumber>;
     /**
@@ -177,7 +175,7 @@ declare class ZapMedia {
      */
     updateMetadataURI(mediaId: BigNumberish, metadataURI: string): Promise<ContractTransaction>;
     /**
-     * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+     * Grants the spender approval for the specificxed media using meta transactions as outlined in EIP-712
      * @param sender
      * @param mediaId
      * @param sig
@@ -190,7 +188,7 @@ declare class ZapMedia {
     revokeApproval(mediaId: BigNumberish): Promise<ContractTransaction>;
     /**
      * Burns the specified media on an instance of the Zap Media Contract
-     * @param mediaId
+     * @param mediaId Numerical identifier for a minted token
      */
     burn(mediaId: BigNumberish): Promise<ContractTransaction>;
     /**

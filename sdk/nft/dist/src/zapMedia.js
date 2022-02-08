@@ -44,16 +44,18 @@ var utils_1 = require("./utils");
 var abi_1 = require("./contract/abi");
 var tiny_invariant_1 = __importDefault(require("tiny-invariant"));
 var ZapMedia = /** @class */ (function () {
-    function ZapMedia(networkId, signer) {
+    function ZapMedia(networkId, signer, customMediaAddress) {
         this.networkId = networkId;
         this.signer = signer;
         this.market = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMarketAddress, abi_1.zapMarketAbi, signer);
-        this.media = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMediaAddress, abi_1.zapMediaAbi, signer);
-        if (ethers_1.Signer.isSigner(signer)) {
-            this.readOnly = false;
+        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
+            (0, tiny_invariant_1.default)(false, "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address.");
+        }
+        if (customMediaAddress !== undefined) {
+            this.media = new ethers_1.ethers.Contract(customMediaAddress, abi_1.zapMediaAbi, signer);
         }
         else {
-            this.readOnly = true;
+            this.media = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMediaAddress, abi_1.zapMediaAbi, signer);
         }
     }
     ZapMedia.prototype.getSigNonces = function (addess) {
@@ -66,7 +68,6 @@ var ZapMedia = /** @class */ (function () {
     /**
      * Fetches the amount of tokens an address owns on a media contract
      * @param owner The address to fetch the token balance for
-     * @param mediaIndex The index to access media contracts as an optional argument
      */
     ZapMedia.prototype.fetchBalanceOf = function (owner, customMediaAddress) {
         return __awaiter(this, void 0, void 0, function () {
@@ -791,7 +792,7 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
-     * Grants the spender approval for the specified media using meta transactions as outlined in EIP-712
+     * Grants the spender approval for the specificxed media using meta transactions as outlined in EIP-712
      * @param sender
      * @param mediaId
      * @param sig
@@ -823,12 +824,51 @@ var ZapMedia = /** @class */ (function () {
     };
     /**
      * Burns the specified media on an instance of the Zap Media Contract
-     * @param mediaId
+     * @param mediaId Numerical identifier for a minted token
      */
     ZapMedia.prototype.burn = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.burn(mediaId)];
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0:
+                        _g.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 1:
+                        owner = _g.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        _a = _g.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (burn): TokenId does not exist.");
+                        return [3 /*break*/, 3];
+                    case 3: return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 4:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 5: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 6:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 8];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 7:
+                        _e = _f !== (_g.sent());
+                        _g.label = 8;
+                    case 8:
+                        // Checks if the caller is not approved, not approved for all, and not the owner.
+                        // If the caller meets the three conditions throw an error
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (burn): Caller is not approved nor the owner.");
+                        }
+                        return [4 /*yield*/, this.media.burn(mediaId)];
+                    case 9: 
+                    // Invoke the burn function if the caller is approved, approved for all, or the owner
+                    return [2 /*return*/, _g.sent()];
+                }
             });
         });
     };

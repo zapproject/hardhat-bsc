@@ -248,10 +248,10 @@ describe("ZapMedia", function () {
                         }
                     });
                 }); });
-                it("Should fetch the owner balance through a custom collection", function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var balance, _a, _b;
-                    return __generator(this, function (_c) {
-                        switch (_c.label) {
+                it("Should fetch the owner balance through a custom media", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var balance0, _a, _b, balance1, _c, _d;
+                    return __generator(this, function (_e) {
+                        switch (_e.label) {
                             case 0:
                                 _b = (_a = ownerConnected).fetchBalanceOf;
                                 return [4 /*yield*/, signerOne.getAddress()];
@@ -1248,6 +1248,35 @@ describe("ZapMedia", function () {
                         }
                     });
                 }); });
+                it("Should set an ask by the owner of a custom media", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var owner, _a, _b, getApproved, onChainAsk;
+                    return __generator(this, function (_c) {
+                        switch (_c.label) {
+                            case 0:
+                                ask = (0, utils_2.constructAsk)(zapMedia.address, 100);
+                                return [4 /*yield*/, ownerConnected.fetchOwnerOf(0)];
+                            case 1:
+                                owner = _c.sent();
+                                _b = (_a = (0, chai_1.expect)(owner).to).equal;
+                                return [4 /*yield*/, signer.getAddress()];
+                            case 2:
+                                _b.apply(_a, [_c.sent()]);
+                                return [4 /*yield*/, ownerConnected.fetchApproved(0)];
+                            case 3:
+                                getApproved = _c.sent();
+                                (0, chai_1.expect)(getApproved).to.equal(ethers_1.ethers.constants.AddressZero);
+                                return [4 /*yield*/, ownerConnected.setAsk(0, ask)];
+                            case 4:
+                                _c.sent();
+                                return [4 /*yield*/, ownerConnected.fetchCurrentAsk(zapMedia.address, 0)];
+                            case 5:
+                                onChainAsk = _c.sent();
+                                (0, chai_1.expect)(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+                                (0, chai_1.expect)(onChainAsk.currency).to.equal(zapMedia.address);
+                                return [2 /*return*/];
+                        }
+                    });
+                }); });
             });
             describe("#setbid", function () {
                 var bidder;
@@ -1609,25 +1638,51 @@ describe("ZapMedia", function () {
                                         (0, chai_1.expect)(err.message).to.equal("Invariant failed: ZapMedia (removeAsk): TokenId does not exist.");
                                     })];
                             case 1:
-                                _a.sent();
+                                owner = _c.sent();
+                                _b = (_a = (0, chai_1.expect)(owner).to).equal;
+                                return [4 /*yield*/, signer.getAddress()];
+                            case 2:
+                                _b.apply(_a, [_c.sent()]);
+                                return [4 /*yield*/, ownerConnected.fetchTotalMedia()];
+                            case 3:
+                                preTotalSupply = _c.sent();
+                                (0, chai_1.expect)(preTotalSupply.toNumber()).to.equal(2);
+                                return [4 /*yield*/, ownerConnected.burn(0)];
+                            case 4:
+                                _c.sent();
+                                return [4 /*yield*/, ownerConnected.fetchTotalMedia()];
+                            case 5:
+                                postTotalSupply = _c.sent();
+                                (0, chai_1.expect)(postTotalSupply.toNumber()).to.equal(1);
                                 return [2 /*return*/];
                         }
                     });
                 }); });
-                it("Should throw an error if the tokenId exists but an ask was not set", function () { return __awaiter(void 0, void 0, void 0, function () {
+                it("Should burn a token if the caller is the owner on a custom media", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var preTotalSupply, postTotalSupply;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0: return [4 /*yield*/, ownerConnected.removeAsk(0).catch(function (err) {
                                     (0, chai_1.expect)(err.message).to.equal("Invariant failed: ZapMedia (removeAsk): Ask was never set.");
                                 })];
                             case 1:
+                                preTotalSupply = _a.sent();
+                                (0, chai_1.expect)(preTotalSupply.toNumber()).to.equal(1);
+                                return [4 /*yield*/, customMediaSigner1.burn(0)];
+                            case 2:
                                 _a.sent();
+                                return [4 /*yield*/, customMediaSigner1.fetchTotalMedia()];
+                            case 3:
+                                postTotalSupply = _a.sent();
+                                (0, chai_1.expect)(postTotalSupply.toNumber()).to.equal(0);
                                 return [2 /*return*/];
                         }
                     });
                 }); });
-                it("Should remove an ask", function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var owner, _a, _b, getApproved, onChainAsk, onChainAskRemoved;
+            });
+            describe("#approve", function () {
+                it("Should reject if the token id does not exist", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    var _a, _b;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0:
@@ -1637,6 +1692,10 @@ describe("ZapMedia", function () {
                                 owner = _c.sent();
                                 _b = (_a = (0, chai_1.expect)(owner).to).equal;
                                 return [4 /*yield*/, signer.getAddress()];
+                            case 1: 
+                            // Will throw an error due to the token id not existing on the custom media
+                            return [4 /*yield*/, _b.apply(_a, [_c.sent(), 400, customMediaAddress])
+                                    .should.be.rejectedWith("Invariant failed: ZapMedia (approve): TokenId does not exist.")];
                             case 2:
                                 _b.apply(_a, [_c.sent()]);
                                 return [4 /*yield*/, ownerConnected.fetchApproved(0)];
