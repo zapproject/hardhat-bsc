@@ -1526,7 +1526,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#approve", () => {
+      describe.only("#approve", () => {
         it("Should reject if the token id does not exist on the main media", async () => {
           // Will throw an error due to the token id not existing
           await ownerConnected
@@ -1539,7 +1539,7 @@ describe("ZapMedia", () => {
         it("Should reject if the token id does not exist on a custom media", async () => {
           // Will throw an error due to the token id not existing on the custom media
           await signerOneConnected
-            .approve(await signer.getAddress(), 400, customMediaAddress)
+            .approve(await signer.getAddress(), 400)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): TokenId does not exist."
             );
@@ -1557,7 +1557,7 @@ describe("ZapMedia", () => {
         it("Should reject if the caller is not the owner nor approved for all on a custom media", async () => {
           // Will throw an error if the caller is not approved or the owner on a custom media
           await ownerConnected
-            .approve(await signers[2].getAddress(), 0, customMediaAddress)
+            .approve(await signers[2].getAddress(), 0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
@@ -1587,11 +1587,7 @@ describe("ZapMedia", () => {
           expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
 
           // signerOne (signers[1]) approves signers[0] for token id 0 on a custom media
-          await signerOneConnected.approve(
-            await signer.getAddress(),
-            0,
-            customMediaAddress
-          );
+          await signerOneConnected.approve(await signer.getAddress(), 0);
 
           // Returns the approved address after the approval
           const postApprovedAddr = await signerOneConnected.fetchApproved(0);
