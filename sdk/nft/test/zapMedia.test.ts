@@ -288,7 +288,6 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchMetadataURI", () => {
-        
         it("should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .fetchMetadataURI(5)
@@ -306,9 +305,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should fetch the metadata uri on a custom media", async () => {
-          const firstMetadataURI = await customMediaSigner1.fetchMetadataURI(
-            0
-          );
+          const firstMetadataURI = await customMediaSigner1.fetchMetadataURI(0);
 
           expect(firstMetadataURI).to.equal(metadataURI);
         });
@@ -1530,7 +1527,7 @@ describe("ZapMedia", () => {
       });
 
       describe("#approve", () => {
-        it("Should reject if the token id does not exist", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           // Will throw an error due to the token id not existing
           await ownerConnected
             .approve(await signerOne.getAddress(), 400)
@@ -1541,17 +1538,17 @@ describe("ZapMedia", () => {
 
         it("Should reject if the token id does not exist on a custom media", async () => {
           // Will throw an error due to the token id not existing on the custom media
-          await signerOneConnected
-            .approve(await signer.getAddress(), 400, customMediaAddress)
+          await customMediaSigner1
+            .approve(await signer.getAddress(), 400)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): TokenId does not exist."
             );
         });
 
-        it("Should reject if the caller is not the owner nor approved for all", async () => {
+        it("Should reject if the caller is not the owner nor approved for all on the main media", async () => {
           // Will throw an error if the caller is not approved or the owner
           await signerOneConnected
-            .approve(await signerOne.getAddress(), 0)
+            .approve(await signers[2].getAddress(), 0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
@@ -1559,16 +1556,16 @@ describe("ZapMedia", () => {
 
         it("Should reject if the caller is not the owner nor approved for all on a custom media", async () => {
           // Will throw an error if the caller is not approved or the owner on a custom media
-          await ownerConnected
-            .approve(await signers[2].getAddress(), 0, customMediaAddress)
+          await customMediaSigner0
+            .approve(await signers[2].getAddress(), 0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
         });
 
-        it("Should approve another address for a token", async () => {
+        it("Should approve another address for a token on the main media", async () => {
           // Return the address approved for token id 0 before approval
-          const preApprovedAddr = await ownerConnected.fetchApproved(0);
+          const preApprovedAddr: string = await ownerConnected.fetchApproved(0);
 
           // Expect the address to equal a zero address
           expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
@@ -1577,33 +1574,28 @@ describe("ZapMedia", () => {
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
           // Returns the address approved for token id  0 after approval
-          const postApprovedStatus = await ownerConnected.fetchApproved(0);
+          const postApprovedAddr: string = await ownerConnected.fetchApproved(
+            0
+          );
 
           // Expect the address to equal the address of signerOne
-          expect(postApprovedStatus).to.equal(await signerOne.getAddress());
+          expect(postApprovedAddr).to.equal(await signerOne.getAddress());
         });
 
         it("Should approve another address for a token on a custom media", async () => {
           // Returns the approved address on a custom media before the approval
-          const preApprovedAddr = await signerOneConnected.fetchApproved(
-            0,
-            customMediaAddress
-          );
+          const preApprovedAddr: string =
+            await customMediaSigner1.fetchApproved(0);
+
           // Expect the address to equal a zero address
           expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
 
           // signerOne (signers[1]) approves signers[0] for token id 0 on a custom media
-          await signerOneConnected.approve(
-            await signer.getAddress(),
-            0,
-            customMediaAddress
-          );
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
 
           // Returns the approved address after the approval
-          const postApprovedAddr = await signerOneConnected.fetchApproved(
-            0,
-            customMediaAddress
-          );
+          const postApprovedAddr: string =
+            await customMediaSigner1.fetchApproved(0);
 
           // Expect the address to equal the address of signer (signers[0])
           expect(postApprovedAddr).to.equal(await signer.getAddress());
@@ -1656,7 +1648,7 @@ describe("ZapMedia", () => {
       });
 
       describe("#fetchApproved", () => {
-        it("Should reject if the token id does not exist", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .fetchApproved(200)
             .should.be.rejectedWith(
@@ -1665,30 +1657,35 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
-          await ownerConnected
-            .fetchApproved(200, customMediaAddress)
+          await customMediaSigner1
+            .fetchApproved(200)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchApproved): TokenId does not exist."
             );
         });
 
-        it("Should fetch the approved address", async () => {
+        it("Should fetch the approved address on the main media", async () => {
+          // The owner (signer[0]) approves signerOne (signers[1]) for token id 0 on the main media
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
           // Returns the address approved on the main media
           const approvedAddr: string = await ownerConnected.fetchApproved(0);
 
-          // Expect the address to equal a zero address
-          expect(approvedAddr).to.equal(ethers.constants.AddressZero);
+          // Expect the address to equal signerOne address
+          expect(approvedAddr).to.equal(await signerOne.getAddress());
         });
 
         it("Should fetch the approved address on a custom media", async () => {
+          // signerOne (signer[1]) approves signer (signers[0]) for token id 0 on a custom media
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
           // Returns the address approved on the custom media
-          const approvedAddr: string = await ownerConnected.fetchApproved(
-            0,
-            customMediaAddress
+          const approvedAddr: string = await customMediaSigner1.fetchApproved(
+            0
           );
 
-          // Expect the address to equal a zero address
-          expect(approvedAddr).to.equal(ethers.constants.AddressZero);
+          // Expect the address to equal signer (signers[0]) address
+          expect(approvedAddr).to.equal(await signer.getAddress());
         });
       });
 
@@ -1793,7 +1790,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.skip("#permit", () => {
+      describe("#permit", () => {
         it("should allow a wallet to set themselves to approved with a valid signature", async () => {
           // created wallets using privateKey because we need a wallet instance when creating a signature
           const mainWallet: Wallet = new ethers.Wallet(
