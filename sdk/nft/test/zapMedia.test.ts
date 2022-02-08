@@ -1029,7 +1029,16 @@ describe("ZapMedia", () => {
           await token.mint(await bidder.getAddress(), 1000);
         });
 
-        it.only("Should reject if the tokenID does not exist on a custom media", async () => {
+        it.only("Should reject if the custom Media Address is a zero address", async () => {
+          await customMediaSigner1
+            .setBid(
+              ethers.constants.AddressZero,
+              bid
+            );
+
+        });
+
+        it("Should reject if the tokenID does not exist on a custom media", async () => {
           await customMediaSigner1
             .setBid(30, bid)
             .should.be.rejectedWith(
