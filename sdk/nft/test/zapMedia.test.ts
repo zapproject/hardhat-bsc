@@ -1200,7 +1200,7 @@ describe("ZapMedia", () => {
           );
         });
 
-        it("Should refund the original bid if the bidder bids again", async () => {
+        it("Should refund the original bid if the bidder bids again on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, 1000);
 
