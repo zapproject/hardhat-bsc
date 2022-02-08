@@ -185,7 +185,7 @@ describe("ZapMedia", () => {
 
     // The signerOne (signers[1]) mints on their own media contract by passing in the
     // their media address as optional argument
-    await signerOneConnected.mint(mediaDataOne, bidShares, customMediaAddress);
+    await customMediaSigner1.mint(mediaDataOne, bidShares);
   });
 
   describe("Contract Functions", () => {
@@ -730,9 +730,9 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#mint", () => {
+      describe.only("#mint", () => {
         it("throws an error if bid shares do not sum to 100", async () => {
-          let bidShareSum = 0;
+          let bidShareSum: number = 0;
 
           bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
 
@@ -745,11 +745,11 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value) +
             5e18;
 
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
+          await ownerConnected
+            .mint(mediaDataOne, bidShares)
+            .should.be.rejectedWith(
               `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
             );
-          });
         });
 
         it("Should be able to mint", async () => {
