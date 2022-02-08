@@ -1526,7 +1526,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#approve", () => {
+      describe("#approve", () => {
         it("Should reject if the token id does not exist on the main media", async () => {
           // Will throw an error due to the token id not existing
           await ownerConnected
@@ -1538,17 +1538,17 @@ describe("ZapMedia", () => {
 
         it("Should reject if the token id does not exist on a custom media", async () => {
           // Will throw an error due to the token id not existing on the custom media
-          await signerOneConnected
+          await customMediaSigner1
             .approve(await signer.getAddress(), 400)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): TokenId does not exist."
             );
         });
 
-        it("Should reject if the caller is not the owner nor approved for all", async () => {
+        it("Should reject if the caller is not the owner nor approved for all on the main media", async () => {
           // Will throw an error if the caller is not approved or the owner
           await signerOneConnected
-            .approve(await signerOne.getAddress(), 0)
+            .approve(await signers[2].getAddress(), 0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
@@ -1556,16 +1556,16 @@ describe("ZapMedia", () => {
 
         it("Should reject if the caller is not the owner nor approved for all on a custom media", async () => {
           // Will throw an error if the caller is not approved or the owner on a custom media
-          await ownerConnected
+          await customMediaSigner0
             .approve(await signers[2].getAddress(), 0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (approve): Caller is not the owner nor approved for all."
             );
         });
 
-        it("Should approve another address for a token", async () => {
+        it("Should approve another address for a token on the main media", async () => {
           // Return the address approved for token id 0 before approval
-          const preApprovedAddr = await ownerConnected.fetchApproved(0);
+          const preApprovedAddr: string = await ownerConnected.fetchApproved(0);
 
           // Expect the address to equal a zero address
           expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
@@ -1574,23 +1574,28 @@ describe("ZapMedia", () => {
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
           // Returns the address approved for token id  0 after approval
-          const postApprovedStatus = await ownerConnected.fetchApproved(0);
+          const postApprovedAddr: string = await ownerConnected.fetchApproved(
+            0
+          );
 
           // Expect the address to equal the address of signerOne
-          expect(postApprovedStatus).to.equal(await signerOne.getAddress());
+          expect(postApprovedAddr).to.equal(await signerOne.getAddress());
         });
 
         it("Should approve another address for a token on a custom media", async () => {
           // Returns the approved address on a custom media before the approval
-          const preApprovedAddr = await signerOneConnected.fetchApproved(0);
+          const preApprovedAddr: string =
+            await customMediaSigner1.fetchApproved(0);
+
           // Expect the address to equal a zero address
           expect(preApprovedAddr).to.equal(ethers.constants.AddressZero);
 
           // signerOne (signers[1]) approves signers[0] for token id 0 on a custom media
-          await signerOneConnected.approve(await signer.getAddress(), 0);
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
 
           // Returns the approved address after the approval
-          const postApprovedAddr = await signerOneConnected.fetchApproved(0);
+          const postApprovedAddr: string =
+            await customMediaSigner1.fetchApproved(0);
 
           // Expect the address to equal the address of signer (signers[0])
           expect(postApprovedAddr).to.equal(await signer.getAddress());

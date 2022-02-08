@@ -321,7 +321,6 @@ class ZapMedia {
    * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
    * @param to The address to be approved
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async approve(
     to: string,
