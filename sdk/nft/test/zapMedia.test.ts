@@ -1281,7 +1281,16 @@ describe("ZapMedia", () => {
           });
         });
 
-        describe.only("#fetchCurrentBidShares", () => {});
+        describe.only("#fetchCurrentBidShares", () => {
+          it("Should throw an error if the mediaaddress is a zero address", async () => {
+            await ownerConnected
+              .fetchCurrentBidShares(ethers.constants.AddressZero)
+              .should.be.rejectedWith(
+                "Invraiant failed: ZapMedia (fetchCurrentBidShares): The (owner) address cannot be a zero address."
+              )
+        
+          }
+        });
 
         describe("#fetchCurrentBidForBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
