@@ -1061,7 +1061,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#setbid", () => {
+      describe.only("#setbid", () => {
         let bidder: Signer;
         let bid: Bid;
         let bidderMainConnected: ZapMedia;
@@ -1386,7 +1386,7 @@ describe("ZapMedia", () => {
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
 
-        it.only("Should refund the original bid if the bidder bids again on a custom media", async () => {
+        it("Should refund the original bid if the bidder bids again on a custom media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, 1000);
 
