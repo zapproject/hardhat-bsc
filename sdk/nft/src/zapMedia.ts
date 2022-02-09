@@ -566,6 +566,16 @@ class ZapMedia {
   }
 
   /**
+  * Accepts the specified bid on the specified media on an instance of the Zap Media Contract
+  * @param mediaId
+  * @param bid
+  */
+ public async acceptBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction> {
+ 
+  return this.media.acceptBid(mediaId, bid)
+}
+
+  /**
    * Updates the metadata uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    * @param metadataURI
