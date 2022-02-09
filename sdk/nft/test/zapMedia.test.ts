@@ -1289,6 +1289,14 @@ describe("ZapMedia", () => {
                 "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
               );
           });
+          
+          it("Should reject if the MediaAddress is a zero address on a custom media", async () => {
+            await customMediaSigner1
+              .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+              .should.be.rejectedWith(
+                "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+              );
+          });
         });
 
         describe("#fetchCurrentBidForBidder", () => {
