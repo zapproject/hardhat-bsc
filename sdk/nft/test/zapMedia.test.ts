@@ -1061,7 +1061,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#setbid", () => {
+      describe("#setbid", () => {
         let bidder: Signer;
         let bid: Bid;
         let bidderMainConnected: ZapMedia;
