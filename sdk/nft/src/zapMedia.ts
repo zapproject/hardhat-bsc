@@ -193,7 +193,7 @@ class ZapMedia {
     if (mediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
-        "ZapMedia (fetchCurrentBidShares): The (mediaAdress) cannot be a zero address."
+        "ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
       )
     }
     return this.market.bidSharesForToken(mediaAddress, mediaId);

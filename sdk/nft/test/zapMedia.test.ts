@@ -1282,14 +1282,13 @@ describe("ZapMedia", () => {
         });
 
         describe.only("#fetchCurrentBidShares", () => {
-          it("Should throw an error if the mediaaddress is a zero address", async () => {
+          it("Should throw an error if the mediaaddress is a zero address on the main media", async () => {
             await ownerConnected
-              .fetchCurrentBidShares(ethers.constants.AddressZero)
+              .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
               .should.be.rejectedWith(
-                "Invraiant failed: ZapMedia (fetchCurrentBidShares): The (owner) address cannot be a zero address."
-              )
-        
-          }
+                "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+              );
+          });
         });
 
         describe("#fetchCurrentBidForBidder", () => {
