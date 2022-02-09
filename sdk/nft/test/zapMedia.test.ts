@@ -1281,6 +1281,8 @@ describe("ZapMedia", () => {
           });
         });
 
+        describe.only("#fetchCurrentBidShares", () => {});
+
         describe("#fetchCurrentBidForBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
             await ownerConnected
