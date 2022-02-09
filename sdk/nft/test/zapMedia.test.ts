@@ -675,8 +675,10 @@ describe("ZapMedia", () => {
 
         it("Should return null values if the token id does not exist on the main media", async () => {
           const bidShares = await ownerConnected.fetchCurrentBidShares(
-            zapMedia.address
+            zapMedia.address, 400
+          
           );
+          console.log(bidShares)
         });
       });
     });
