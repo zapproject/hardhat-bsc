@@ -494,6 +494,7 @@ describe("ZapMedia", () => {
           expect(parseInt(totalSupply._hex)).to.equal(1);
         });
       });
+      describe("#fetchCurrentBidShares", () => {});
     });
 
     describe("Write Functions", () => {
