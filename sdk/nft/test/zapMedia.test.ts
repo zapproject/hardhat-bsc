@@ -681,6 +681,9 @@ describe("ZapMedia", () => {
           console.log(bidShares);
 
           expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
+          expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
+          expect(bidShares.collaborators).to.have.lengthOf(0);
+          expect(bidShares.collabShares).to.have.lengthOf(0);
         });
       });
     });
