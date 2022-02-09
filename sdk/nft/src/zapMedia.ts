@@ -139,7 +139,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async fetchMetadataURI(mediaId: BigNumberish): Promise<string> {
-    return this.media.tokenMetadataURI(mediaId);
+    try {
+      return await this.media.tokenMetadataURI(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
+    }
   }
 
   /**
@@ -244,13 +248,8 @@ class ZapMedia {
   /**
    * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
    */
-  public async fetchTotalMedia(
-    customMediaAddress?: string
-  ): Promise<BigNumber> {
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).totalSupply();
-    }
-    return this.media.totalSupply();
+  public async fetchTotalMedia(): Promise<BigNumber> {
+    return await this.media.totalSupply();
   }
 
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
@@ -266,20 +265,8 @@ class ZapMedia {
   /**
    * Fetches the approved account for the specified media on an instance of the Zap Media Contract
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
-  public async fetchApproved(
-    mediaId: BigNumberish,
-    customMediaAddress?: string
-  ): Promise<string> {
-    if (customMediaAddress !== undefined) {
-      try {
-        return await this.media.attach(customMediaAddress).getApproved(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (fetchApproved): TokenId does not exist.");
-      }
-    }
-
+  public async fetchApproved(mediaId: BigNumberish): Promise<string> {
     try {
       return await this.media.getApproved(mediaId);
     } catch {
@@ -334,44 +321,13 @@ class ZapMedia {
    * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
    * @param to The address to be approved
    * @param mediaId Numerical identifier for a minted token
-   * @param customMediaAddress An optional argument that designates which media contract to connect to.
    */
   public async approve(
     to: string,
-    mediaId: BigNumberish,
-    customMediaAddress?: string
+    mediaId: BigNumberish
   ): Promise<ContractTransaction> {
     // Will be assigned the address of the token owner
     let owner: string;
-
-    // Checks if the customMediaAddress argument is not undefined
-    if (customMediaAddress !== undefined) {
-      // Checks if the tokenId exists
-      try {
-        owner = await this.media.attach(customMediaAddress).ownerOf(mediaId);
-      } catch {
-        invariant(false, "ZapMedia (approve): TokenId does not exist.");
-      }
-
-      // Returns the approval for all status
-      const approvalStatus: boolean = await this.media
-        .attach(customMediaAddress)
-        .isApprovedForAll(owner, await this.signer.getAddress());
-
-      // If the signer is not the owner nor approved for all they cannot invoke this function
-      if (
-        (await this.signer.getAddress()) !== owner &&
-        approvalStatus == false
-      ) {
-        invariant(
-          false,
-          "ZapMedia (approve): Caller is not the owner nor approved for all."
-        );
-      }
-
-      // Appr
-      return this.media.attach(customMediaAddress).approve(to, mediaId);
-    }
 
     try {
       owner = await this.media.ownerOf(mediaId);

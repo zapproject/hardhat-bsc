@@ -5,7 +5,7 @@
   "scripts": {
     "ganache": "ganache-cli --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
     "ganache-npx": "npx ganache-cli --mnemonic 'ostrich mixture embrace quote comic until exchange rubber butter royal august stay'",
-    "prepare": "npm run build",
+    "prepare": "npm run build", 
     "build": "tsc",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register --timeout 100000 'test/**/*.ts'"
   },
@@ -25,7 +25,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^4.0.0",
-    "ethereum-waffle": "^3.4.0",
+    "ethereum-waffle": "^2.2.0",
     "mocha": "^9.1.3",
     "prettier": "^2.5.1",
     "ts-node": "^10.4.0",
@@ -35,10 +35,8 @@
     "assert": "^2.0.0",
     "chai-as-promised": "^7.1.1",
     "eth-sig-util": "^3.0.1",
+    "ethereumjs-util": "^7.1.4",
     "ethers": "^5.5.2",
-    "ganache-cli": "^6.12.2",
-    "ganache-core": "^2.13.2",
-    "hardhat": "^2.8.0",
     "tiny-invariant": "^1.2.0",
     "tiny-warning": "^1.0.3"
   }
