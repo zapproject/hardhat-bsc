@@ -673,12 +673,23 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should return null values if the token id does not exist on the main media", async () => {
+        it("Should return null values if the token id does not exist on the main media", async () => {
           const bidShares = await ownerConnected.fetchCurrentBidShares(
             zapMedia.address,
             400
           );
-          console.log(bidShares);
+
+          expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
+          expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
+          expect(bidShares.collaborators).to.have.lengthOf(0);
+          expect(bidShares.collabShares).to.have.lengthOf(0);
+        });
+
+        it.only("Should return null values if the token id does not exist on the customMedia", async () => {
+          const bidShares = await customMediaSigner1.fetchCurrentBidShares(
+            customMediaAddress,
+            300
+          );
 
           expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
           expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
