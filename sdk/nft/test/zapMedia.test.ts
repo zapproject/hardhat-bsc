@@ -1575,7 +1575,9 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#acceptBid", () => {
-
+        it("should accept a bid on the main media", () => {
+          
+        });
       });
 
       describe("#revokeApproval", () => {

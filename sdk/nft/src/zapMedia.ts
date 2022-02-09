@@ -570,9 +570,12 @@ class ZapMedia {
   * @param mediaId
   * @param bid
   */
- public async acceptBid(mediaId: BigNumberish, bid: Bid): Promise<ContractTransaction> {
+ public async acceptBid(
+   mediaId: BigNumberish, 
+   bid: Bid
+   ): Promise<ContractTransaction> {
  
-  return this.media.acceptBid(mediaId, bid)
+  return this.media.acceptBid(mediaId, bid);
 }
 
   /**
