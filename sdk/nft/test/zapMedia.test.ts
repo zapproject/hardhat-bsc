@@ -655,6 +655,30 @@ describe("ZapMedia", () => {
           expect(creator).to.equal(await signerOne.getAddress());
         });
       });
+
+      describe.only("#fetchCurrentBidShares", () => {
+        it("Should throw an error if the media address is a zero address on the main media", async () => {
+          await ownerConnected
+            .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the MediaAddress is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should return null values if the token id does not exist on the main media", async () => {
+          const bidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address
+          );
+        });
+      });
     });
 
     describe("Write Functions", () => {
@@ -1281,32 +1305,6 @@ describe("ZapMedia", () => {
           });
         });
 
-        describe.only("#fetchCurrentBidShares", () => {
-          it("Should throw an error if the mediaaddress is a zero address on the main media", async () => {
-            await ownerConnected
-              .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
-              .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
-              );
-          });
-
-          it("Should reject if the MediaAddress is a zero address on a custom media", async () => {
-            await customMediaSigner1
-              .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
-              .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
-              );
-           });
-
-              it("Should reject if the token Id does not exist on the main media "), async () => {
-                await ownerConnected
-                  .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
-                  .should.be.rejectedWith(
-                    "Invariant failed: ZapMedia (fetchCurrentBidShares): The token Id does not exhist."
-                  );
-                };
-              });
-            
         describe("#fetchCurrentBidForBidder", () => {
           it("Should reject if the media contract is a zero address", async () => {
             await ownerConnected
