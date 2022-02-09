@@ -1274,11 +1274,12 @@ describe("ZapMedia", () => {
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());
 
           // Fetches the bidders bid details before setting the bid
-          const nullOnChainBid = await customMediaSigner1.fetchCurrentBidForBidder(
-            zapMedia.address,
-            0,
-            await bidder.getAddress()
-          );
+          const nullOnChainBid =
+            await customMediaSigner1.fetchCurrentBidForBidder(
+              zapMedia.address,
+              0,
+              await bidder.getAddress()
+            );
 
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
@@ -1308,38 +1309,35 @@ describe("ZapMedia", () => {
 
           // Fetches the bidders bid details after setting the bid
           const onChainBid = await customMediaSigner0.fetchCurrentBidForBidder(
-            zapMedia.address,
+            customMediaAddress,
             0,
             await bidder.getAddress()
           );
-
-          console.log(parseFloat(formatUnits(onChainBid.amount)))
-          console.log(parseFloat(formatUnits(bid.amount)))
 
           // The returned bid amount should equal the bid amount configured in the setBid function
           expect(parseFloat(formatUnits(onChainBid.amount, "wei"))).to.equal(
             parseFloat(formatUnits(bid.amount, "wei"))
           );
 
-          // // The returned bid currency should equal the bid currency configured on setBid
-          // expect(onChainBid.currency.toLowerCase()).to.equal(
-          //   bid.currency.toLowerCase()
-          // );
+          // The returned bid currency should equal the bid currency configured on setBid
+          expect(onChainBid.currency.toLowerCase()).to.equal(
+            bid.currency.toLowerCase()
+          );
 
-          // // The returned bidder should equal the bidder configured on setBid
-          // expect(onChainBid.bidder.toLowerCase()).to.equal(
-          //   bid.bidder.toLowerCase()
-          // );
+          // The returned bidder should equal the bidder configured on setBid
+          expect(onChainBid.bidder.toLowerCase()).to.equal(
+            bid.bidder.toLowerCase()
+          );
 
-          // // The returned recipient should equal the recipient configured on setBid
-          // expect(onChainBid.recipient.toLowerCase()).to.equal(
-          //   bid.recipient.toLowerCase()
-          // );
+          // The returned recipient should equal the recipient configured on setBid
+          expect(onChainBid.recipient.toLowerCase()).to.equal(
+            bid.recipient.toLowerCase()
+          );
 
-          // // The returned sellOnShare should equal the sellOnShare configured on setBid
-          // expect(onChainBid.sellOnShare.value._hex).to.equal(
-          //   bid.sellOnShare.value._hex
-          // );
+          // The returned sellOnShare should equal the sellOnShare configured on setBid
+          expect(onChainBid.sellOnShare.value._hex).to.equal(
+            bid.sellOnShare.value._hex
+          );
         });
 
         it("Should refund the original bid if the bidder bids again on the main media", async () => {
