@@ -5,24 +5,14 @@ import {IMarket} from './IMarket.sol';
 
 
 interface IMedia1155 {
-    event TokenURIUpdated(address owner, string _uri);
-    event TokenMetadataURIUpdated(address owner, string _uri);
+    event URIUpdated(address owner, string _uri);
 
     function initialize(
-        string memory name,
-        string memory symbol,
+        string calldata _uri,
         address marketContractAddr,
         bool permissive,
-        string memory collectionMetadata
+        string calldata collectionMetadata
     ) external;
-
-    /**
-     * @notice Return the metadata URI for a piece of media given the token URI
-     */
-    function tokenMetadataURI(uint256 tokenId)
-        external
-        view
-        returns (string memory);
 
     /**
      * @notice Mint new media for msg.sender.
@@ -33,7 +23,7 @@ interface IMedia1155 {
     /**
      * @notice Batch mint medias with given IDs and amounts for msg.sender
      */
-    function batchMint(uint256[] calldata tokenId, uint256[] calldata amount, IMarket.BidShares[] calldata bidShares) external;
+    function batchMint(address to, uint256[] calldata tokenId, uint256[] calldata amount, IMarket.BidShares[] calldata bidShares) external;
 
     /**
      * @notice Transfer the token with the given ID to a given address.

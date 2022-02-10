@@ -169,7 +169,7 @@ contract ZapMedia is
      * ****************
      */
 
-     function batchMint(address _to, uint256[] calldata _ids, uint256 calldata _amounts, IMarket.BidShares calldata bidShares)
+     function batchMint(address _to, uint256[] calldata _ids, uint256[] calldata _amounts, IMarket.BidShares calldata bidShares)
         external
         override
         nonReentrant
