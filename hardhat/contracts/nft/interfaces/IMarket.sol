@@ -80,8 +80,24 @@ interface IMarket {
         bytes32 name,
         bytes32 symbol
     );
-    event Minted(uint256 indexed token, address indexed mediaContract);
-    event Burned(uint256 indexed token, address indexed mediaContract);
+    event Minted(
+        uint256 indexed token, 
+        address indexed mediaContract
+    );
+    event Burned(
+        uint256 indexed token, 
+        address indexed mediaContract
+    );
+    event MintedBatch(
+        uint256[] indexed token, 
+        uint256[] amount,
+        address indexed mediaContract
+    );
+    event BurnedBatch(
+        uint256[] indexed token, 
+        uint256[] amount,
+        address indexed mediaContract
+    );
 
     function bidForTokenBidder(
         address mediaContractAddress,

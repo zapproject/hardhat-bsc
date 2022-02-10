@@ -11,13 +11,9 @@ import "@openzeppelin-contracts/contracts/utils/Context.sol";
 import "@openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 
-import {SafeMath} from '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
-import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {IMarket} from './interfaces/IMarket.sol';
-import {IMedia11551155} from './interfaces/IMedia11551155.sol';
+import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
-import {MediaGetter} from './MediaGetter.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
 
@@ -27,35 +23,15 @@ import './libraries/Constants.sol';
  * owned by the creator.
  */
 contract ZapMedia is
-    IMedia11551155,
+    IMedia1155,
     ERC1155Upgradeable,
     ReentrancyGuardUpgradeable,
     Ownable,
-    MediaGetter,
     IERC1155MetadataURI,
     ERC165StorageUpgradeable
 {
-    /*
-     *     bytes4(keccak256('name()')) == 0x06fdde03
-     *     bytes4(keccak256('symbol()')) == 0x95d89b41
-     *     bytes4(keccak256('tokenURI(uint256)')) == 0xc87b56dd
-     *     DEBUG(need to find the remaining methods that result to the new interfaceId )
-     *
-     *     => 0x06fdde03 ^ 0x95d89b41 ^ 0xc87b56dd == 0x5b5e139f
-     */
-
-    mapping(bytes4 => bool) private _supportedInterfaces;
-
     bytes internal _contractURI;
 
-    bytes32 private constant kecEIP712Domain =
-        keccak256(
-            'EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'
-        );
-
-    bytes32 private constant kecOne = keccak256(bytes('1'));
-
-    bytes32 private kecName;
 
     /* *********
      * Modifiers
@@ -70,30 +46,6 @@ contract ZapMedia is
             _exists(tokenId),
             // remove revert string before deployment to mainnet
             'Media: nonexistent token'
-        );
-        _;
-    }
-
-    /**
-     * @notice Require that the token has had a content hash set
-     */
-    modifier onlyTokenWithContentHash(uint256 tokenId) {
-        require(
-            getTokenContentHashes(tokenId) != 0,
-            // remove revert string before deployment to mainnet
-            'Media: token does not have hash of created content'
-        );
-        _;
-    }
-
-    /**
-     * @notice Require that the token has had a metadata hash set
-     */
-    modifier onlyTokenWithMetadataHash(uint256 tokenId) {
-        require(
-            tokens.tokenMetadataHashes[tokenId] != 0,
-            // remove revert string before deployment to mainnet
-            'Media: token does not have hash of its metadata'
         );
         _;
     }
@@ -135,40 +87,25 @@ contract ZapMedia is
         _;
     }
 
-    //geting the contractURI value
-    function contractURI() public view returns (bytes memory) {
-        return _contractURI;
-    }
-
     /**
      * @notice On deployment, set the market contract address and register the
-     * ERC721 metadata interface
+     * ERC1155 metadata interface
      */
 
     function initialize(
-        string calldata name,
-        string calldata symbol,
+        string calldata _uri,
         address marketContractAddr,
         bool permissive,
         string calldata collectionURI
     ) external override initializer {
-        __ERC1155_init(name, symbol);
+        __ERC1155_init(_uri);
         initialize_ownable();
 
         access.marketContract = marketContractAddr;
 
-        bytes memory name_b = bytes(name);
-
-        bytes32 name_b32;
-
-        assembly {
-            name_b32 := mload(add(name_b, 32))
-        }
-
-        kecName = keccak256(name_b);
-        _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
-        _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
-        _registerInterface(type(IMedia11551155).interfaceId);
+        // _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
+        // _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
+        _registerInterface(type(IMedia1155).interfaceId);
 
         access.isPermissive = permissive;
         _contractURI = bytes(collectionURI);
@@ -226,33 +163,14 @@ contract ZapMedia is
         _supportedInterfaces[interfaceId] = true;
     }
 
-    /* *************
-     * View Functions
-     * **************
-     */
-
-    /**
-     * @notice Return the metadata URI for a piece of media given the token URI
-     * @param tokenId the token whose metadata will be attached
-     * @return the metadata URI for the token
-     */
-    function tokenMetadataURI(uint256 tokenId)
-        external
-        view
-        override
-        onlyTokenCreated(tokenId)
-        returns (string memory)
-    {
-        return access._tokenMetadataURIs[tokenId];
-    }
 
     /* ****************
      * Public Functions
      * ****************
      */
 
-     function batchMint(MediaData memory data, IMarket.BidShares memory bidShares, address to, uint256[] memory ids, uint256 memory amounts)
-        public
+     function batchMint(address _to, uint256[] calldata _ids, uint256 calldata _amounts, IMarket.BidShares calldata bidShares)
+        external
         override
         nonReentrant
     {
@@ -281,8 +199,8 @@ contract ZapMedia is
      * @dev mints an NFT and sets the bidshares for collaborators
      * @param data The media's metadata and content data, includes content and metadata hash, and token's URI
      */
-    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
-        public
+    function mint(address _to, uint256 _id, uint256 _amount, IMarket.BidShares calldata bidShares)
+        external
         override
         nonReentrant
     {
@@ -303,14 +221,15 @@ contract ZapMedia is
             );
         }
 
-        _mintForCreator(msg.sender, data, bidShares);
+        IMarket(access.marketContract).mintOrBurn(true, tokenId, _amount, address(this));
+        _mint(_to, _id, _amount, "");
     }
 
 
     /**
      * @notice see IMedia1155
      */
-    function auctionTransfer(uint256 tokenId, address recipient)
+    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient)
         external
         override
     {
@@ -326,8 +245,8 @@ contract ZapMedia is
     /**
      * @notice see IMedia1155
      */
-    function setAsk(uint256 tokenId, IMarket.Ask memory ask)
-        public
+    function setAsk(uint256 tokenId, IMarket.Ask calldata ask)
+        external
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
@@ -352,8 +271,8 @@ contract ZapMedia is
     /**
      * @notice see IMedia1155
      */
-    function setBid(uint256 tokenId, IMarket.Bid memory bid)
-        public
+    function setBid(uint256 tokenId, IMarket.Bid calldata bid)
+        external
         override
         nonReentrant
         onlyExistingToken(tokenId)
@@ -439,98 +358,6 @@ contract ZapMedia is
     {
         _setTokenURI(tokenId, tokenURILocal);
         emit TokenURIUpdated(tokenId, msg.sender, tokenURILocal);
-    }
-
-    /**
-     * @notice see IMedia1155
-     * @dev only callable by approved or owner
-     */
-    function updateTokenMetadataURI(
-        uint256 tokenId,
-        string calldata metadataURI
-    )
-        external
-        override
-        nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
-        onlyTokenWithMetadataHash(tokenId)
-        onlyValidURI(metadataURI)
-    {
-        _setTokenMetadataURI(tokenId, metadataURI);
-        emit TokenMetadataURIUpdated(tokenId, msg.sender, metadataURI);
-    }
-
-    /* *****************
-     * Private Functions
-     * *****************
-     */
-
-    /// @notice Returns a bool depicting whether or not the i'th collaborator has shares
-    /// @dev Explain to a developer any extra details
-    /// @param index the "i'th collaborator"
-    /// @param bidShares the bidshares defined for the Collection's NFTs
-    /// @return Boolean that is true if the i'th collaborator has shares for this collection's NFTs
-    function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
-        internal
-        pure
-        returns (bool)
-    {
-        return (bidShares.collabShares[index] != 0);
-    }
-
-    /**
-     * @notice Creates a new token for `creator`. Its token ID will be automatically
-     * assigned (and available on the emitted {IERC721-Transfer} event), and the token
-     * URI autogenerated based on the base URI passed at construction.
-     *
-     * See {ERC721-_safeMint}.
-     *
-     * On mint, also set the keccak256 hashes of the content and its metadata for integrity
-     * checks, along with the initial URIs to point to the content and metadata. Attribute
-     * the token ID to the creator, mark the content hash as used, and set the bid shares for
-     * the media's market.
-     *
-     * Note that although the content hash must be unique for future mints to prevent duplicate media,
-     * metadata has no such requirement.
-     */
-    function _mintForCreator(
-        address creator,
-        MediaData memory data,
-        IMarket.BidShares memory bidShares
-    ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
-        require(data.contentHash != 0, 'Media: content hash must be non-zero');
-
-        require(
-            !access._contentHashes[data.contentHash],
-            'Media: a token has already been created with this content hash'
-        );
-
-        require(
-            data.metadataHash != 0,
-            'Media: metadata hash must be non-zero'
-        );
-
-        uint256 tokenId = access._tokenIdTracker.current();
-
-        access._tokenIdTracker.increment();
-        _safeMint(creator, tokenId);
-        _setTokenContentHash(tokenId, data.contentHash);
-        _setTokenMetadataHash(tokenId, data.metadataHash);
-        _setTokenMetadataURI(tokenId, data.metadataURI);
-        _setTokenURI(tokenId, data.tokenURI);
-        access._creatorTokens[creator].add(tokenId);
-        access._contentHashes[data.contentHash] = true;
-
-        tokens.tokenCreators[tokenId] = creator;
-        tokens.previousTokenOwners[tokenId] = creator;
-
-        IMarket(access.marketContract).setBidShares(
-            // address(this),
-            tokenId,
-            bidShares
-        );
-
-        IMarket(access.marketContract).mintOrBurn(true, tokenId, address(this));
     }
 
     function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)

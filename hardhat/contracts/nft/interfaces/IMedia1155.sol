@@ -27,13 +27,13 @@ interface IMedia1155 {
     /**
      * @notice Mint new media for msg.sender.
      */
-    function mint(IMarket.BidShares calldata bidShares)
+    function mint(address to, uint256 tokenId, uint256 amount, IMarket.BidShares calldata bidShares)
         external;
 
     /**
      * @notice Batch mint medias with given IDs and amounts for msg.sender
      */
-    function batchMint(IMarket.BidShares calldata bidShares, uint256[] tokenId, uint256[] amount) external;
+    function batchMint(uint256[] calldata tokenId, uint256[] calldata amount, IMarket.BidShares[] calldata bidShares) external;
 
     /**
      * @notice Transfer the token with the given ID to a given address.
@@ -46,7 +46,7 @@ interface IMedia1155 {
      * @notice Transfer the tokens with the given IDs and amount to a given address.
      * Save the previous owners before the transfer, in case there is a sell-on fee.
      */
-    function batchAuctionTrasnfer(uint256[] tokenId, uint256[] amount, address recipient) external;
+    function batchAuctionTrasnfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) external;
 
     /**
      * @notice Set the ask on a piece of media
@@ -56,7 +56,7 @@ interface IMedia1155 {
     /**
      * @notice Set the ask on the medias of given IDs
      */
-    function batchSetAsk(uint256[] tokenId, IMarket.Ask[] calldata ask) external;
+    function batchSetAsk(uint256[] calldata tokenId, IMarket.Ask[] calldata ask) external;
 
     /**
      * @notice Remove the ask on a piece of media
@@ -66,7 +66,7 @@ interface IMedia1155 {
     /**
      * @notice Remove the ask on medias of given IDs
      */
-    function batchRemoveAsk(uint256[] tokenId) external;
+    function batchRemoveAsk(uint256[] calldata tokenId) external;
 
     /**
      * @notice Set the bid on a piece of media

@@ -272,6 +272,21 @@ contract ZapMarket is IMarket, Ownable {
         }
     }
 
+    function mintOrBurnBatch(
+        bool isMint,
+        uint256[] tokenId, 
+        uint256[] amount,
+        address mediaContract
+    ) external override {
+        require(msg.sender == mediaContract, 'Market: Media only function');
+
+        if (isMint == true) {
+            emit MintedBatch(tokenId, amount, mediaContract);
+        } else {
+            emit BurnedBatch(tokenId, amount, mediaContract);
+        }
+    }
+
     function registerMedia(address mediaContract)
         external
         override
