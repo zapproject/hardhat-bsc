@@ -1723,12 +1723,29 @@ describe("ZapMedia", () => {
             signerOne.getAddress()
           );
 
+          //get token balance of creator's(signer) bidshares
+          const preOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preOwnerBal)).to.equal(520000000e18);
+
+          //expecting that signer one's post balance is zero
           expect(parseInt(postBidBal)).to.equal(
             parseInt(preBidBal) - parseInt(bid.amount.toString())
           );
 
           //owner on main media has to accept the bid
           await ownerConnected.acceptBid(0, bid);
+
+          //owner balance after bid was accepted
+          const postOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          
+          //post owner's balance increase by 35% bidshares
+          expect(parseInt(postOwnerBal)).to.equal(parseInt(preOwnerBal) + 
+            parseInt(bid.amount.toString()) * 0.35
+          );
 
           //checking the new owner of the bid
           const newOwner: string = await ownerConnected.fetchOwnerOf(0);
@@ -1745,7 +1762,16 @@ describe("ZapMedia", () => {
             bidShares.collaborators[2]
           );
 
+          //collab one receive a payout of 15% of bidshares
           expect(parseInt(postCollabOne)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+          //collab two receive a payout of 15% of bidshares
+          expect(parseInt(postCollabTwo)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+          //collab three receive a payout of 15% of bidshares
+          expect(parseInt(postCollabThree)).to.equal(
             parseInt(bid.amount.toString()) * 0.15
           );
         });
