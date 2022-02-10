@@ -730,7 +730,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#mint", () => {
+      describe("#mint", () => {
         it("Should reject if the bid shares do not sum to 100 on the main media", async () => {
           let bidShareSum: number = 0;
 
