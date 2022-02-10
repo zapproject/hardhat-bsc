@@ -1723,16 +1723,34 @@ describe("ZapMedia", () => {
             signerOne.getAddress()
           );
 
+          //expecting that signer one's post balance is zero
+          expect(parseInt(postBidBal)).to.equal(
+            parseInt(preBidBal) - parseInt(bid.amount.toString())
+          );
+
           //get token balance of creator's(signer) bidshares
           const preOwnerBal: string = await token.balanceOf(
             await signer.getAddress()
           );
           expect(parseInt(preOwnerBal)).to.equal(520000000e18);
 
-          //expecting that signer one's post balance is zero
-          expect(parseInt(postBidBal)).to.equal(
-            parseInt(preBidBal) - parseInt(bid.amount.toString())
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabOne: string = await token.balanceOf(
+            await bidShares.collaborators[0]
           );
+          expect(parseInt(preCollabOne)).to.equal(0);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabTwo: string = await token.balanceOf(
+            await bidShares.collaborators[1]
+          );
+          expect(parseInt(preCollabTwo)).to.equal(0);
+
+          // The token balance of collaborator[2] before the bid is accepted
+          const preCollabThree: string = await token.balanceOf(
+            await bidShares.collaborators[2]
+          );
+          expect(parseInt(preCollabThree)).to.equal(0);
 
           //owner on main media has to accept the bid
           await ownerConnected.acceptBid(0, bid);
@@ -1741,10 +1759,10 @@ describe("ZapMedia", () => {
           const postOwnerBal: string = await token.balanceOf(
             await signer.getAddress()
           );
-          
+
           //post owner's balance increase by 35% bidshares
-          expect(parseInt(postOwnerBal)).to.equal(parseInt(preOwnerBal) + 
-            parseInt(bid.amount.toString()) * 0.35
+          expect(parseInt(postOwnerBal)).to.equal(
+            parseInt(preOwnerBal) + parseInt(bid.amount.toString()) * 0.35
           );
 
           //checking the new owner of the bid
