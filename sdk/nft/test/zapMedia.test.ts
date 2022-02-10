@@ -141,9 +141,9 @@ describe("ZapMedia", () => {
 
     bidShares = constructBidShares(
       [
-        await provider.getSigner(1).getAddress(),
         await provider.getSigner(2).getAddress(),
         await provider.getSigner(3).getAddress(),
+        await provider.getSigner(4).getAddress(),
       ],
       [15, 15, 15],
       15,
@@ -1720,6 +1720,21 @@ describe("ZapMedia", () => {
           expect(parseInt(postBidBal._hex)).to.equal(
             parseInt(preBidBal._hex) - parseInt(bid.amount.toString())
           );
+
+          //owner on main media has to accept the bid
+          await ownerConnected.acceptBid(0, bid);
+
+          //checking the new owner of the bid
+          const newOwner = await ownerConnected.fetchOwnerOf(0);
+          expect(newOwner).to.equal(await signerOne.getAddress());
+
+          //after the bid is accepted
+          const postCollabOne = await token.balanceOf(bidShares.collaborators[0]);
+          const postCollabTwo = await token.balanceOf(bidShares.collaborators[1]);
+          const postCollabThree = await token.balanceOf(bidShares.collaborators[2]);
+          
+          expect(parseInt(postCollabOne)).to.equal(bid.amount * parseInt(bidShares.collabShares[0]))
+          
         });
       });
 
