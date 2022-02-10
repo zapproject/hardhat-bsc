@@ -1683,9 +1683,8 @@ describe("ZapMedia", () => {
 
       describe.only("#acceptBid", () => {
         it("should accept a bid on the main media", () => {
-          
+          // 1. Create a varialble that gets the pre ZapMarket token balance before accepting a bid
         });
-        
       });
 
       describe("#revokeApproval", () => {
