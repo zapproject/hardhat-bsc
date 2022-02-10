@@ -1741,10 +1741,10 @@ describe("ZapMedia", () => {
           const postOwnerBal: string = await token.balanceOf(
             await signer.getAddress()
           );
-          
+
           //post owner's balance increase by 35% bidshares
-          expect(parseInt(postOwnerBal)).to.equal(parseInt(preOwnerBal) + 
-            parseInt(bid.amount.toString()) * 0.35
+          expect(parseInt(postOwnerBal)).to.equal(
+            parseInt(preOwnerBal) + parseInt(bid.amount.toString()) * 0.35
           );
 
           //checking the new owner of the bid
