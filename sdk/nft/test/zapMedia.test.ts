@@ -1703,11 +1703,14 @@ describe("ZapMedia", () => {
           await token.connect(signerOne).approve(zapMarket.address, bid.amount);
         });
 
-        it.only("should reject if the bid is not accepted by the owner on the main media", async () => {
+        it.only("Should reject if the token id does not exist on the main media", async () => {
           //set bid for signer one
           await bidderMainConnected.setBid(0, bid);
+        });
 
-          await bidderMainConnected.acceptBid(20, bid);
+        it("should reject if the bid is not accepted by the owner on the main media", async () => {
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
         });
 
         it("should accept a bid on the main media", async () => {
