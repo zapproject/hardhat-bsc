@@ -12,6 +12,7 @@ import {
   constructMediaData,
   constructBid,
   Decimal,
+  validateBidShares,
 } from "../src/utils";
 
 import ZapMedia from "../src/zapMedia";
@@ -656,7 +657,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchCurrentBidShares", () => {
+      describe("#fetchCurrentBidShares", () => {
         it("Should throw an error if the media address is a zero address on the main media", async () => {
           await ownerConnected
             .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
@@ -685,7 +686,7 @@ describe("ZapMedia", () => {
           expect(bidShares.collabShares).to.have.lengthOf(0);
         });
 
-        it.only("Should return null values if the token id does not exist on the customMedia", async () => {
+        it("Should return null values if the token id does not exist on the customMedia", async () => {
           const bidShares = await customMediaSigner1.fetchCurrentBidShares(
             customMediaAddress,
             300
@@ -696,6 +697,22 @@ describe("ZapMedia", () => {
           expect(bidShares.collaborators).to.have.lengthOf(0);
           expect(bidShares.collabShares).to.have.lengthOf(0);
         });
+
+        it.only("should return the bidShares of a token Id on the main media"),
+          async () => {
+            const bidShares = await ownerConnected.fetchCurrentBidShares(
+              zapMedia.address,
+              0
+            );
+
+            it("Should return the bidShares of a token Id on the main media"),
+              async () => {
+                const bidShares = await ownerConnected.fetchCurrentBidShares(
+                  zapMedia.address,
+                  1
+                );
+              };
+          };
       });
     });
 
