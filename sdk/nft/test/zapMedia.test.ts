@@ -752,7 +752,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject if the bid shares do not sum to 100 on the custom media", async () => {
+        it("Should reject if the bid shares do not sum to 100 on acustom media", async () => {
           let bidShareSum: number = 0;
 
           bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
