@@ -752,7 +752,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should reject if the bid shares do not sum to 100 on acustom media", async () => {
+        it("Should reject if the bid shares do not sum to 100 on a custom media", async () => {
           let bidShareSum: number = 0;
 
           bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
@@ -818,6 +818,67 @@ describe("ZapMedia", () => {
           );
 
           // Expect the returned bidShares owner to equal the signers[0] address
+          expect(parseInt(onChainBidShares.owner.value)).to.equal(
+            parseInt(onChainBidShares.owner.value)
+          );
+
+          // Expect the returned bidShares collaborators to equal the collaborators set on mint
+          expect(onChainBidShares.collaborators).to.eql(
+            bidShares.collaborators
+          );
+
+          // Expect the returned bidShares collaboShares to equal the collabShares set on mint
+          expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+
+        it("Should be able to mint on a custom media", async () => {
+          // Returns the total tokens minted on a custom media
+          const preTotalSupply: BigNumberish = (
+            await customMediaSigner0.fetchTotalMedia()
+          ).toNumber();
+
+          // Expect the total amount of tokens minted on a custom media to equal 1
+          expect(preTotalSupply).to.equal(1);
+
+          // Returns the  owner of token id 0 on a custom media
+          const owner: string = await customMediaSigner0.fetchOwnerOf(0);
+
+          // Returns the creator of token id 0 on a custom media
+          const creator: string = await customMediaSigner0.fetchCreator(0);
+
+          // Returns the bidShares on of token id 0 on a custom main media
+          const onChainBidShares: BidShares =
+            await customMediaSigner0.fetchCurrentBidShares(
+              customMediaAddress,
+              0
+            );
+
+          // Returns the contentURI of token id 0 on a custom media
+          const onChainContentURI: string =
+            await customMediaSigner0.fetchContentURI(0);
+
+          // Returns the metadataURI of token on a custom media
+          const onChainMetadataURI: string =
+            await customMediaSigner0.fetchMetadataURI(0);
+
+          // Expect the returned owner address to equal signers[1] address
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          // Expect the returned creator address to equal signers[1] address
+          expect(creator).to.equal(await signerOne.getAddress());
+
+          // Expect the returned content URI to equal the tokenURI set on mint
+          expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
+
+          // Expect the metadata URI to equal the metadataURI set on mint
+          expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
+
+          // Expect the retuned bidShares creator to equal the signers[1] address
+          expect(parseInt(onChainBidShares.creator.value)).to.equal(
+            parseInt(bidShares.creator.value)
+          );
+
+          // Expect the returned bidShares owner to equal the signers[1] address
           expect(parseInt(onChainBidShares.owner.value)).to.equal(
             parseInt(onChainBidShares.owner.value)
           );
