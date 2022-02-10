@@ -1687,9 +1687,9 @@ describe("ZapMedia", () => {
 
       describe("#acceptBid", () => {
         let bid: Bid;
-        
+
         beforeEach(async () => {
-           bid = constructBid(
+          bid = constructBid(
             token.address,
             200,
             await signerOne.getAddress(),
@@ -1707,12 +1707,10 @@ describe("ZapMedia", () => {
           //set bid for signer one
           await bidderMainConnected.setBid(0, bid);
 
-          await bidderMainConnected.acceptBid(0, bid);
-
+          await bidderMainConnected.acceptBid(20, bid);
         });
-        
+
         it("should accept a bid on the main media", async () => {
-          
           const preMarketbal: string = await token.balanceOf(zapMarket.address);
           expect(parseInt(preMarketbal)).to.equal(0);
 
