@@ -37,7 +37,7 @@ import {
   signPermitMessage,
   signMintWithSigMessage,
 } from "./test_utils";
-import { EIP712Signature, Bid } from "../src/types";
+import { EIP712Signature, Bid, BidShares } from "../src/types";
 import { BlobOptions } from "buffer";
 import { SrvRecord } from "dns";
 
@@ -731,7 +731,7 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#mint", () => {
-        it("throws an error if bid shares do not sum to 100", async () => {
+        it("Should reject if the bid shares do not sum to 100", async () => {
           let bidShareSum: number = 0;
 
           bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
@@ -753,30 +753,50 @@ describe("ZapMedia", () => {
         });
 
         it("Should be able to mint on the main media", async () => {
-          // Retuens the total tokens minted on the main media
+          // Returns the total tokens minted on the main media
           const preTotalSupply: BigNumberish = (
             await ownerConnected.fetchTotalMedia()
           ).toNumber();
 
+          // Expect the total amount of tokens minted on the main media to equal 2
           expect(preTotalSupply).to.equal(2);
 
+          // Returns the  owner of token id 0 on the main media
           const owner: string = await ownerConnected.fetchOwnerOf(0);
-          const creator = await ownerConnected.fetchCreator(0);
 
-          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
-            zapMedia.address,
-            0
-          );
-          const onChainContentURI = await ownerConnected.fetchContentURI(0);
-          const onChainMetadataURI = await ownerConnected.fetchMetadataURI(0);
+          // Returns the creator of token id 0 on the main media
+          const creator: string = await ownerConnected.fetchCreator(0);
 
+          // Returns the bidShares on of token id 0 on the main media
+          const onChainBidShares: BidShares =
+            await ownerConnected.fetchCurrentBidShares(zapMedia.address, 0);
+
+          // Returns the contentURI of token id 0 on the main media
+          const onChainContentURI: string =
+            await ownerConnected.fetchContentURI(0);
+
+          // Returns the metadataURI of token id 0 on the main media
+          const onChainMetadataURI: string =
+            await ownerConnected.fetchMetadataURI(0);
+
+          // Expect the returned owner address to equal signers[0] address
           expect(owner).to.equal(await signer.getAddress());
+
+          // Expect the returned creator address to equal signers[0] address
           expect(creator).to.equal(await signer.getAddress());
+
+          // Expect the returned content URI to equal the tokenURI set on mint
           expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
+
+          // Expect the metadata URI to equal the metadataURI set on mint
           expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
+
+          // Expect the retuned bidShares creator to equal the signers[0] address
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
             parseInt(bidShares.creator.value)
           );
+
+          // Expect the retuned bidShares owner to equal the signers[0] address
           expect(parseInt(onChainBidShares.owner.value)).to.equal(
             parseInt(onChainBidShares.owner.value)
           );
