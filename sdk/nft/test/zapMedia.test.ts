@@ -698,21 +698,29 @@ describe("ZapMedia", () => {
           expect(bidShares.collabShares).to.have.lengthOf(0);
         });
 
-        it.only("should return the bidShares of a token Id on the main media"),
-          async () => {
-            const bidShares = await ownerConnected.fetchCurrentBidShares(
-              zapMedia.address,
-              0
-            );
+        it("should return the bidShares of a token Id on the main media", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            0
+          );
+          console.log(onChainBidShares)
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
+          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
+        });
 
-            it("Should return the bidShares of a token Id on the main media"),
-              async () => {
-                const bidShares = await ownerConnected.fetchCurrentBidShares(
-                  zapMedia.address,
-                  1
-                );
-              };
-          };
+        it.only("Should return the bidShares of a token Id on the main media", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            1
+          );
+          console.log(onChainBidShares)
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
+          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
+        });
       });
     });
 
