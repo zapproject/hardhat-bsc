@@ -67,6 +67,7 @@ describe("ZapMedia", () => {
   let customMediaSigner0: ZapMedia;
   let customMediaSigner1: ZapMedia;
   let customMediaAddress: string;
+  let bidderMainConnected: ZapMedia;
 
   let eipSig: any;
 
@@ -176,6 +177,8 @@ describe("ZapMedia", () => {
     customMediaSigner1 = new ZapMedia(1337, signerOne, customMediaAddress);
 
     customMediaSigner0 = new ZapMedia(1337, signer, customMediaAddress);
+
+    bidderMainConnected = new ZapMedia(1337, signerOne);
 
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
@@ -1682,8 +1685,42 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#acceptBid", () => {
-        it("should accept a bid on the main media", () => {
+        
+        it("should accept a bid on the main media", async () => {
+          const bid = constructBid(
+            token.address,
+            200,
+            await signerOne.getAddress(),
+            await signerOne.getAddress(),
+            10
+          );
+          
           // 1. Create a varialble that gets the pre ZapMarket token balance before accepting a bid
+          const preMarketbal = await token.balanceOf(zapMarket.address); 
+          expect(parseInt(preMarketbal)).to.equal(0);
+          
+          //signer one mints tokens on their own address
+          await token.mint(await signerOne.getAddress(), 200);
+
+          await token.connect(signerOne).approve(zapMarket.address, bid.amount);
+          
+          // signer one's pre balance
+          const preBidBal = await token.balanceOf(signerOne.getAddress());
+          expect(parseInt(preBidBal)).to.equal(200);
+
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
+
+          //get post market balance
+          const postMarketbal = await token.balanceOf(zapMarket.address); 
+          expect(parseInt(postMarketbal)).to.equal(200);
+
+          // signer one's post balance
+          const postBidBal = await token.balanceOf(signerOne.getAddress());
+          expect(parseInt(preBidBal._hex)).to.equal(parseInt(preBidBal._hex) - bid.amount);
+
+          console.log(parseInt(preBidBal._hex))
+          console.log(bid.amount)
         });
       });
 
