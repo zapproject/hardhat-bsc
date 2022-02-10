@@ -40,6 +40,7 @@ import {
 import { EIP712Signature, Bid, BidShares } from "../src/types";
 import { BlobOptions } from "buffer";
 import { SrvRecord } from "dns";
+import { beforeEach } from "mocha";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -1685,12 +1686,10 @@ describe("ZapMedia", () => {
       });
 
       describe("#acceptBid", () => {
-        it.only("should reject if the bid is not accepted by the owner on the main media", async () => {
-
-        });
+        let bid: Bid;
         
-        it("should accept a bid on the main media", async () => {
-          const bid: Bid = constructBid(
+        beforeEach(async () => {
+           bid = constructBid(
             token.address,
             200,
             await signerOne.getAddress(),
@@ -1698,14 +1697,24 @@ describe("ZapMedia", () => {
             10
           );
 
-          // 1. Create a varialble that gets the pre ZapMarket token balance before accepting a bid
-          const preMarketbal: string = await token.balanceOf(zapMarket.address);
-          expect(parseInt(preMarketbal)).to.equal(0);
-
           //signer one mints tokens on their own address
           await token.mint(await signerOne.getAddress(), 200);
 
           await token.connect(signerOne).approve(zapMarket.address, bid.amount);
+        });
+
+        it.only("should reject if the bid is not accepted by the owner on the main media", async () => {
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
+
+          await bidderMainConnected.acceptBid(0, bid);
+
+        });
+        
+        it("should accept a bid on the main media", async () => {
+          
+          const preMarketbal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketbal)).to.equal(0);
 
           // signer one's pre balance
           const preBidBal: string = await token.balanceOf(
