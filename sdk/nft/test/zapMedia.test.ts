@@ -38,7 +38,7 @@ import {
   signPermitMessage,
   signMintWithSigMessage,
 } from "./test_utils";
-import { EIP712Signature, Bid } from "../src/types";
+import { EIP712Signature, Bid, BidShares } from "../src/types";
 import { BlobOptions } from "buffer";
 import { SrvRecord } from "dns";
 
@@ -186,7 +186,7 @@ describe("ZapMedia", () => {
 
     // The signerOne (signers[1]) mints on their own media contract by passing in the
     // their media address as optional argument
-    await signerOneConnected.mint(mediaDataOne, bidShares, customMediaAddress);
+    await customMediaSigner1.mint(mediaDataOne, bidShares);
   });
 
   describe("Contract Functions", () => {
@@ -807,8 +807,8 @@ describe("ZapMedia", () => {
       });
 
       describe("#mint", () => {
-        it("throws an error if bid shares do not sum to 100", async () => {
-          let bidShareSum = 0;
+        it("Should reject if the bid shares do not sum to 100 on the main media", async () => {
+          let bidShareSum: number = 0;
 
           bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
 
@@ -821,43 +821,150 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value) +
             5e18;
 
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
+          await ownerConnected
+            .mint(mediaDataOne, bidShares)
+            .should.be.rejectedWith(
               `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
             );
-          });
         });
 
-        it("Should be able to mint", async () => {
-          const preTotalSupply = (
+        it("Should reject if the bid shares do not sum to 100 on a custom media", async () => {
+          let bidShareSum: number = 0;
+
+          bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
+
+          for (var i = 0; i < bidShares.collabShares.length; i++) {
+            bidShareSum += parseInt(bidShares.collabShares[i]);
+          }
+
+          bidShareSum +=
+            parseInt(bidShares.creator.value) +
+            parseInt(bidShares.owner.value) +
+            5e18;
+
+          await customMediaSigner1
+            .mint(mediaDataOne, bidShares)
+            .should.be.rejectedWith(
+              `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
+            );
+        });
+
+        it("Should be able to mint on the main media", async () => {
+          // Returns the total tokens minted on the main media
+          const preTotalSupply: BigNumberish = (
             await ownerConnected.fetchTotalMedia()
           ).toNumber();
 
+          // Expect the total amount of tokens minted on the main media to equal 2
           expect(preTotalSupply).to.equal(2);
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
-          const creator = await ownerConnected.fetchCreator(0);
+          // Returns the  owner of token id 0 on the main media
+          const owner0: string = await ownerConnected.fetchOwnerOf(0);
 
-          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
-            zapMedia.address,
-            0
-          );
-          const onChainContentURI = await ownerConnected.fetchContentURI(0);
-          const onChainMetadataURI = await ownerConnected.fetchMetadataURI(0);
+          // Returns the creator of token id 0 on the main media
+          const creator0: string = await ownerConnected.fetchCreator(0);
 
-          expect(owner).to.equal(await signer.getAddress());
-          expect(creator).to.equal(await signer.getAddress());
-          expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
-          expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
+          // Returns the bidShares on of token id 0 on the main media
+          const onChainBidShares: BidShares =
+            await ownerConnected.fetchCurrentBidShares(zapMedia.address, 0);
+
+          // Returns the contentURI of token id 0 on the main media
+          const onChainContentURI0: string =
+            await ownerConnected.fetchContentURI(0);
+
+          // Returns the metadataURI of token id 0 on the main media
+          const onChainMetadataURI0: string =
+            await ownerConnected.fetchMetadataURI(0);
+
+          // Expect the returned owner address to equal signers[0] address
+          expect(owner0).to.equal(await signer.getAddress());
+
+          // Expect the returned creator address to equal signers[0] address
+          expect(creator0).to.equal(await signer.getAddress());
+
+          // Expect the returned content URI to equal the tokenURI set on mint
+          expect(onChainContentURI0).to.equal(mediaDataOne.tokenURI);
+
+          // Expect the metadata URI to equal the metadataURI set on mint
+          expect(onChainMetadataURI0).to.equal(mediaDataOne.metadataURI);
+
+          // Expect the retuned bidShares creator to equal the signers[0] address
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
             parseInt(bidShares.creator.value)
           );
+
+          // Expect the returned bidShares owner to equal the signers[0] address
           expect(parseInt(onChainBidShares.owner.value)).to.equal(
             parseInt(onChainBidShares.owner.value)
           );
+
+          // Expect the returned bidShares collaborators to equal the collaborators set on mint
           expect(onChainBidShares.collaborators).to.eql(
             bidShares.collaborators
           );
+
+          // Expect the returned bidShares collaboShares to equal the collabShares set on mint
+          expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+
+        it("Should be able to mint on a custom media", async () => {
+          // Returns the total tokens minted on a custom media
+          const preTotalSupply: BigNumberish = (
+            await customMediaSigner0.fetchTotalMedia()
+          ).toNumber();
+
+          // Expect the total amount of tokens minted on a custom media to equal 1
+          expect(preTotalSupply).to.equal(1);
+
+          // Returns the  owner of token id 0 on a custom media
+          const owner: string = await customMediaSigner0.fetchOwnerOf(0);
+
+          // Returns the creator of token id 0 on a custom media
+          const creator: string = await customMediaSigner0.fetchCreator(0);
+
+          // Returns the bidShares on of token id 0 on a custom main media
+          const onChainBidShares: BidShares =
+            await customMediaSigner0.fetchCurrentBidShares(
+              customMediaAddress,
+              0
+            );
+
+          // Returns the contentURI of token id 0 on a custom media
+          const onChainContentURI: string =
+            await customMediaSigner0.fetchContentURI(0);
+
+          // Returns the metadataURI of token on a custom media
+          const onChainMetadataURI: string =
+            await customMediaSigner0.fetchMetadataURI(0);
+
+          // Expect the returned owner address to equal signers[1] address
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          // Expect the returned creator address to equal signers[1] address
+          expect(creator).to.equal(await signerOne.getAddress());
+
+          // Expect the returned content URI to equal the tokenURI set on mint
+          expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
+
+          // Expect the metadata URI to equal the metadataURI set on mint
+          expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
+
+          // Expect the retuned bidShares creator to equal the signers[1] address
+          expect(parseInt(onChainBidShares.creator.value)).to.equal(
+            parseInt(bidShares.creator.value)
+          );
+
+          // Expect the returned bidShares owner to equal the signers[1] address
+          expect(parseInt(onChainBidShares.owner.value)).to.equal(
+            parseInt(onChainBidShares.owner.value)
+          );
+
+          // Expect the returned bidShares collaborators to equal the collaborators set on mint
+          expect(onChainBidShares.collaborators).to.eql(
+            bidShares.collaborators
+          );
+
+          // Expect the returned bidShares collaboShares to equal the collabShares set on mint
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         });
       });
@@ -1140,7 +1247,8 @@ describe("ZapMedia", () => {
       describe("#setbid", () => {
         let bidder: Signer;
         let bid: Bid;
-        let bidderConnected: ZapMedia;
+        let bidderMainConnected: ZapMedia;
+        let bidderCustomConnected: ZapMedia;
 
         beforeEach(async () => {
           bidder = signers[2];
@@ -1153,37 +1261,68 @@ describe("ZapMedia", () => {
           );
 
           // The bidder(signer[2]) is connected to the ZapMedia class as a signer
-          bidderConnected = new ZapMedia(1337, bidder);
+          bidderMainConnected = new ZapMedia(1337, bidder);
+
+          // The bidder(signer[2]) is connected to a custom media class as a signer
+          bidderCustomConnected = new ZapMedia(
+            1337,
+            bidder,
+            customMediaAddress
+          );
 
           // Transfer tokens to the bidder
           await token.mint(await bidder.getAddress(), 1000);
         });
 
-        it("Should reject if the token id does not exist", async () => {
-          // The bidder approves zapMarket to receive the bid amount before setting the bid
-          await token.connect(bidder).approve(zapMarket.address, bid.amount);
-          // The bidder(signers[1]) attempts to setBid on a non existent token
-          await bidderConnected.setBid(300, bid).catch((err) => {
-            expect(err.message).to.equal(
+        it("Should reject if the token id does not exist on the main media", async () => {
+          // The bidder(signers[2]) attempts to setBid on a non existent token
+          await bidderMainConnected
+            .setBid(300, bid)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setBid): TokenId does not exist."
             );
-          });
         });
 
-        it("Should reject if the bid currency is a zero address", async () => {
+        it("Should reject if the tokenID does not exist on a custom media", async () => {
+          // The bidder(signers[2]) attempts to setBid on a non existent token
+          await bidderCustomConnected
+            .setBid(30, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the bid currency is a zero address on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
           // Sets the bid currency to a zero address
           bid.currency = ethers.constants.AddressZero;
 
-          // The bidder attempts to set a bid with the currenc as a zero address
-          await bidderConnected.setBid(0, bid).catch((err) => {
-            "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address.";
-          });
+          // The bidder attempts to set a bid with the currency as a zero address
+          await bidderMainConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address."
+            );
         });
 
-        it("Should reject if the bid recipient is a zero address", async () => {
+        it("Should reject if the bid currency is a zero address on a custom media", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid currency to a zero address
+          bid.currency = ethers.constants.AddressZero;
+
+          // The bidder attempts to set a bid with the currency as a zero address
+          await bidderCustomConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): Currency cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the bid recipient is a zero address on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -1191,14 +1330,29 @@ describe("ZapMedia", () => {
           bid.recipient = ethers.constants.AddressZero;
 
           // The bidder attempts to set a bid with the recipient as a zero address
-          await bidderConnected.setBid(0, bid).catch((err) => {
-            expect(err.message).to.equal(
+          await bidderMainConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setBid): Recipient cannot be a zero address."
             );
-          });
         });
 
-        it("Should reject if the bid amount is zero", async () => {
+        it("Should reject if the bid recipient is a zero address on a custom media", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid recipient to a zero address
+          bid.recipient = ethers.constants.AddressZero;
+
+          // The bidder attempts to set a bid with the recipient as a zero address
+          await bidderCustomConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): Recipient cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the bid amount is zero on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, bid.amount);
 
@@ -1206,14 +1360,29 @@ describe("ZapMedia", () => {
           bid.amount = 0;
 
           // The bidder attempts to set a bid with zero tokens
-          await bidderConnected.setBid(0, bid).catch((err) => {
-            expect(
+          await bidderMainConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setBid): Amount cannot be zero."
             );
-          });
         });
 
-        it("Should set a bid", async () => {
+        it("Should reject if the bid amount is zero on a custom media", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // Sets the bid amount to zero
+          bid.amount = 0;
+
+          // The bidder attempts to set a bid with zero tokens
+          await bidderCustomConnected
+            .setBid(0, bid)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setBid): Amount cannot be zero."
+            );
+        });
+
+        it("Should set a bid on the main media", async () => {
           // Checks the balance of the bidder before setting the bid
           const bidderPreBal = await token.balanceOf(await bidder.getAddress());
 
@@ -1238,7 +1407,7 @@ describe("ZapMedia", () => {
           // The bidder(signers[1]) sets their bid
           // The bid amount is then transferred to the ZapMarket balance
           // The bid amount is then withdrawn from the their balance
-          await bidderConnected.setBid(0, bid);
+          await bidderMainConnected.setBid(0, bid);
 
           // The bidder balance after setting the bidx
           const bidderPostBal = await token.balanceOf(
@@ -1283,7 +1452,78 @@ describe("ZapMedia", () => {
           );
         });
 
-        it("Should refund the original bid if the bidder bids again", async () => {
+        it("Should set a bid on a custom media", async () => {
+          // Checks the balance of the bidder before setting the bid
+          const bidderPreBal = await token.balanceOf(await bidder.getAddress());
+
+          // Fetches the bidders bid details before setting the bid
+          const nullOnChainBid =
+            await customMediaSigner1.fetchCurrentBidForBidder(
+              zapMedia.address,
+              0,
+              await bidder.getAddress()
+            );
+
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, bid.amount);
+
+          // The bidder balance should equal the 1000 before setting the bid
+          expect(parseInt(bidderPreBal._hex)).to.equal(1000);
+
+          // The returned currency should equal a zero address before setting the bed
+          expect(nullOnChainBid.currency).to.equal(
+            ethers.constants.AddressZero
+          );
+
+          // The bidder(signers[1]) sets their bid
+          // The bid amount is then transferred to the ZapMarket balance
+          // The bid amount is then withdrawn from the their balance
+          await bidderCustomConnected.setBid(0, bid);
+
+          // The bidder balance after setting the bidx
+          const bidderPostBal = await token.balanceOf(
+            await bidder.getAddress()
+          );
+
+          // The bidder balance after setting a bid should be 200 less than the start balance
+          expect(parseInt(bidderPostBal._hex)).equal(
+            parseInt(bidderPreBal._hex) - 200
+          );
+
+          // Fetches the bidders bid details after setting the bid
+          const onChainBid = await customMediaSigner0.fetchCurrentBidForBidder(
+            customMediaAddress,
+            0,
+            await bidder.getAddress()
+          );
+
+          // The returned bid amount should equal the bid amount configured in the setBid function
+          expect(parseFloat(formatUnits(onChainBid.amount, "wei"))).to.equal(
+            parseFloat(formatUnits(bid.amount, "wei"))
+          );
+
+          // The returned bid currency should equal the bid currency configured on setBid
+          expect(onChainBid.currency.toLowerCase()).to.equal(
+            bid.currency.toLowerCase()
+          );
+
+          // The returned bidder should equal the bidder configured on setBid
+          expect(onChainBid.bidder.toLowerCase()).to.equal(
+            bid.bidder.toLowerCase()
+          );
+
+          // The returned recipient should equal the recipient configured on setBid
+          expect(onChainBid.recipient.toLowerCase()).to.equal(
+            bid.recipient.toLowerCase()
+          );
+
+          // The returned sellOnShare should equal the sellOnShare configured on setBid
+          expect(onChainBid.sellOnShare.value._hex).to.equal(
+            bid.sellOnShare.value._hex
+          );
+        });
+
+        it("Should refund the original bid if the bidder bids again on the main media", async () => {
           // The bidder approves zapMarket to receive the bid amount before setting the bid
           await token.connect(bidder).approve(zapMarket.address, 1000);
 
@@ -1294,7 +1534,7 @@ describe("ZapMedia", () => {
           expect(parseInt(marketPretBal)).to.equal(0);
 
           // The bidders first bid
-          await bidderConnected.setBid(0, bid);
+          await bidderMainConnected.setBid(0, bid);
 
           // The bidder balance after placing the first bid
           const bidderPostBal1 = await token.balanceOf(
@@ -1314,7 +1554,53 @@ describe("ZapMedia", () => {
           bid.amount = 400;
 
           // The bidders second bid
-          await bidderConnected.setBid(0, bid);
+          await bidderMainConnected.setBid(0, bid);
+
+          // ZapMarket balance after the bidder places their second bid
+          const marketPostBal2 = await token.balanceOf(zapMarket.address);
+
+          // The ZapMarket balance should equal the second bid amount after the bidder places their second bid
+          expect(parseInt(marketPostBal2._hex)).to.equal(400);
+
+          const bidderPostBal = await token.balanceOf(
+            await bidder.getAddress()
+          );
+
+          expect(parseInt(bidderPostBal._hex)).to.equal(600);
+        });
+
+        it("Should refund the original bid if the bidder bids again on a custom media", async () => {
+          // The bidder approves zapMarket to receive the bid amount before setting the bid
+          await token.connect(bidder).approve(zapMarket.address, 1000);
+
+          const bidderPreBal = await token.balanceOf(await bidder.getAddress());
+          expect(parseInt(bidderPreBal)).to.equal(1000);
+
+          const marketPretBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketPretBal)).to.equal(0);
+
+          // The bidders first bid
+          await bidderCustomConnected.setBid(0, bid);
+
+          // The bidder balance after placing the first bid
+          const bidderPostBal1 = await token.balanceOf(
+            await bidder.getAddress()
+          );
+
+          // The bidder balance after placing should be 200 less
+          expect(parseInt(bidderPostBal1._hex)).to.equal(800);
+
+          // ZapMarket balance after the bidder places their first bid
+          const marketPostBal1 = await token.balanceOf(zapMarket.address);
+
+          // The ZapMarket balance should equal the first bid amount after the bidder places a bid
+          expect(parseInt(marketPostBal1._hex)).to.equal(200);
+
+          // Set the bid amount to 200
+          bid.amount = 400;
+
+          // The bidders second bid
+          await bidderCustomConnected.setBid(0, bid);
 
           // ZapMarket balance after the bidder places their second bid
           const marketPostBal2 = await token.balanceOf(zapMarket.address);

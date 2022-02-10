@@ -427,8 +427,7 @@ class ZapMedia {
    */
   public async mint(
     mediaData: MediaData,
-    bidShares: BidShares,
-    customMediaAddress?: string
+    bidShares: BidShares
   ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
@@ -442,16 +441,12 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).mint(mediaData, bidShares);
-    } else {
-      const gasEstimate = await this.media.estimateGas.mint(
-        mediaData,
-        bidShares
-      );
+    const gasEstimate: BigNumber = await this.media.estimateGas.mint(
+      mediaData,
+      bidShares
+    );
 
-      return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
-    }
+    return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
   }
 
   /**
