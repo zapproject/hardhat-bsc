@@ -1684,7 +1684,11 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#acceptBid", () => {
+      describe("#acceptBid", () => {
+        it.only("should reject if the bid is not accepted by the owner on the main media", async () => {
+
+        });
+        
         it("should accept a bid on the main media", async () => {
           const bid: Bid = constructBid(
             token.address,
