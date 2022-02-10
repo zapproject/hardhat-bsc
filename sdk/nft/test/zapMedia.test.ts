@@ -1685,7 +1685,6 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#acceptBid", () => {
-        
         it("should accept a bid on the main media", async () => {
           const bid = constructBid(
             token.address,
@@ -1694,16 +1693,16 @@ describe("ZapMedia", () => {
             await signerOne.getAddress(),
             10
           );
-          
+
           // 1. Create a varialble that gets the pre ZapMarket token balance before accepting a bid
-          const preMarketbal = await token.balanceOf(zapMarket.address); 
+          const preMarketbal = await token.balanceOf(zapMarket.address);
           expect(parseInt(preMarketbal)).to.equal(0);
-          
+
           //signer one mints tokens on their own address
           await token.mint(await signerOne.getAddress(), 200);
 
           await token.connect(signerOne).approve(zapMarket.address, bid.amount);
-          
+
           // signer one's pre balance
           const preBidBal = await token.balanceOf(signerOne.getAddress());
           expect(parseInt(preBidBal)).to.equal(200);
@@ -1712,15 +1711,15 @@ describe("ZapMedia", () => {
           await bidderMainConnected.setBid(0, bid);
 
           //get post market balance
-          const postMarketbal = await token.balanceOf(zapMarket.address); 
+          const postMarketbal = await token.balanceOf(zapMarket.address);
           expect(parseInt(postMarketbal)).to.equal(200);
 
           // signer one's post balance
           const postBidBal = await token.balanceOf(signerOne.getAddress());
-          expect(parseInt(preBidBal._hex)).to.equal(parseInt(preBidBal._hex) - bid.amount);
 
-          console.log(parseInt(preBidBal._hex))
-          console.log(bid.amount)
+          expect(parseInt(postBidBal._hex)).to.equal(
+            parseInt(preBidBal._hex) - parseInt(bid.amount.toString())
+          );
         });
       });
 
