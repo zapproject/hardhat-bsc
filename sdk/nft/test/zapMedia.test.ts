@@ -759,7 +759,7 @@ describe("ZapMedia", () => {
     });
 
     describe("Write Functions", () => {
-      describe.only("#updateContentURI", () => {
+      describe("#updateContentURI", () => {
         it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .updateContentURI(4, "https://newTokenURI.com")
