@@ -703,10 +703,18 @@ describe("ZapMedia", () => {
             zapMedia.address,
             0
           );
-          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
-          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
-          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
-          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(
+            parseInt(bidShares.creator.value._hex)
+          );
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(
+            parseInt(bidShares.owner.value._hex)
+          );
+          expect(onChainBidShares.collaborators).to.deep.equal(
+            bidShares.collaborators
+          );
+          expect(onChainBidShares.collabShares).to.deep.equal(
+            bidShares.collabShares
+          );
         });
 
         it("Should return the bidShares of a token Id on the main media", async () => {
@@ -714,21 +722,38 @@ describe("ZapMedia", () => {
             zapMedia.address,
             1
           );
-          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
-          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
-          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
-          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
-        });
-        
-        it("should return the bidShares of a token Id on the custom media", async () => {
-          const onChainBidShares = await customMediaSigner1.fetchCurrentBidShares(
-            customMediaAddress,
-            0
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(
+            parseInt(bidShares.creator.value._hex)
           );
-          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
-          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
-          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
-          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(
+            parseInt(bidShares.owner.value._hex)
+          );
+          expect(onChainBidShares.collaborators).to.deep.equal(
+            bidShares.collaborators
+          );
+          expect(onChainBidShares.collabShares).to.deep.equal(
+            bidShares.collabShares
+          );
+        });
+
+        it("should return the bidShares of a token Id on the custom media", async () => {
+          const onChainBidShares =
+            await customMediaSigner1.fetchCurrentBidShares(
+              customMediaAddress,
+              0
+            );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(
+            parseInt(bidShares.creator.value._hex)
+          );
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(
+            parseInt(bidShares.owner.value._hex)
+          );
+          expect(onChainBidShares.collaborators).to.deep.equal(
+            bidShares.collaborators
+          );
+          expect(onChainBidShares.collabShares).to.deep.equal(
+            bidShares.collabShares
+          );
         });
       });
     });
@@ -1754,6 +1779,167 @@ describe("ZapMedia", () => {
           expect(onChainAskRemoved.currency).to.equal(
             ethers.constants.AddressZero
           );
+        });
+      });
+
+      describe("#removeBid", () => {
+        let mainBid: Bid;
+        let customBid: Bid;
+        let bidderCustomConnected: ZapMedia;
+        beforeEach(async () => {
+          mainBid = constructBid(
+            token.address,
+            200,
+            await signerOne.getAddress(),
+            await signerOne.getAddress(),
+            10
+          );
+
+          customBid = constructBid(
+            token.address,
+            300,
+            await signer.getAddress(),
+            await signer.getAddress(),
+            10
+          );
+
+          await token.mint(await signerOne.getAddress(), 200);
+
+          await token
+            .connect(signerOne)
+            .approve(zapMarket.address, mainBid.amount);
+
+          await token
+            .connect(signer)
+            .approve(zapMarket.address, customBid.amount);
+
+          bidderCustomConnected = new ZapMedia(
+            1337,
+            signer,
+            customMediaAddress
+          );
+        });
+
+        it("Should reject if the token id does not exist on the main media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(mainBid.amount);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await signerOneConnected.setBid(0, mainBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(0);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(mainBid.amount);
+
+          await signerOneConnected
+            .removeBid(200)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeBid): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await bidderCustomConnected.setBid(0, customBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(520000000e18 - 200);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(customBid.amount);
+
+          await bidderCustomConnected
+            .removeBid(200)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeBid): The token id does not exist."
+            );
+        });
+
+        it("Should remove a bid on the main media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(mainBid.amount);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await signerOneConnected.setBid(0, mainBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(0);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(mainBid.amount);
+
+          await signerOneConnected.removeBid(0);
+
+          const bidderRemoveBal = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+
+          expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
+
+          const marketRemoveBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
+        });
+
+        it("Should remove a bid on a custom media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await bidderCustomConnected.setBid(0, customBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(520000000e18 - 200);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(customBid.amount);
+
+          await bidderCustomConnected.removeBid(0);
+
+          const bidderRemoveBal = await token.balanceOf(
+            await signer.getAddress()
+          );
+
+          expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
+
+          const marketRemoveBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
         });
       });
 

@@ -194,7 +194,7 @@ class ZapMedia {
       invariant(
         false,
         "ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
-      )
+      );
     }
     return this.market.bidSharesForToken(mediaAddress, mediaId);
   }
@@ -564,6 +564,20 @@ class ZapMedia {
     } else {
       return this.media.removeAsk(mediaId);
     }
+  }
+
+  /**
+   * Removes the bid for the msg.sender on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async removeBid(mediaId: BigNumberish): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (removeBid): The token id does not exist.");
+    }
+
+    return this.media.removeBid(mediaId);
   }
 
   /**
