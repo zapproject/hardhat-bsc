@@ -843,25 +843,33 @@ describe("ZapMedia", () => {
             "https://newTokenURI.com"
           );
 
-          const tokenURI: string = await customMediaSigner0.fetchContentURI(0);
-          expect(tokenURI).to.equal("https://newTokenURI.com");
+          const fetchNewURI: string = await customMediaSigner0.fetchContentURI(
+            0
+          );
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
         });
 
-        it("Should update the content uri", async () => {
-          // Returns tokenId 0's tokenURI
-          const fetchTokenURI = await ownerConnected.fetchContentURI(0);
-
-          // The returned tokenURI should equal the tokenURI configured in the mediaDataOne
+        it("Should update the content uri on the main media by owner", async () => {
+          const fetchTokenURI: string = await ownerConnected.fetchContentURI(0);
           expect(fetchTokenURI).to.equal(mediaDataOne.tokenURI);
 
-          // Updates tokenId 0's tokenURI
-          await ownerConnected.updateContentURI(0, "https://newURI.com");
+          await ownerConnected.updateContentURI(0, "https://newTokenURI.com");
 
-          // Returns tokenId 0's tokenURI
-          const fetchNewURI = await ownerConnected.fetchContentURI(0);
+          const fetchNewURI: string = await ownerConnected.fetchContentURI(0);
 
-          // The new tokenURI returned should equal the updatedURI
-          expect(fetchNewURI).to.equal("https://newURI.com");
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri on a custom media by owner", async () => {
+          await customMediaSigner1.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const fetchNewURI: string = await customMediaSigner1.fetchContentURI(
+            0
+          );
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
         });
       });
 
