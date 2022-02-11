@@ -821,6 +821,9 @@ describe("ZapMedia", () => {
             0,
             "https://newTokenURI.com"
           );
+
+          const tokenURI: string = await signerOneConnected.fetchContentURI(0);
+          expect(tokenURI).to.equal("https://newTokenURI.com");
         });
 
         it("Should update the content uri", async () => {
