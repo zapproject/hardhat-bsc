@@ -759,8 +759,8 @@ describe("ZapMedia", () => {
     });
 
     describe("Write Functions", () => {
-      describe("#updateContentURI", () => {
-        it("Should thrown an error if the tokenURI does not begin with `https://`", async () => {
+      describe.only("#updateContentURI", () => {
+        it("Should thrown an error if the tokenURI does not begin with `https://` on the main media", async () => {
           mediaDataOne.tokenURI = "http://example.com";
 
           await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
