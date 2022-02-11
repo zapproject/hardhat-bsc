@@ -826,6 +826,27 @@ describe("ZapMedia", () => {
           expect(tokenURI).to.equal("https://newTokenURI.com");
         });
 
+        it("Should update the content uri if approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const tokenURI: string = await customMediaSigner0.fetchContentURI(0);
+          expect(tokenURI).to.equal("https://newTokenURI.com");
+        });
+
         it("Should update the content uri", async () => {
           // Returns tokenId 0's tokenURI
           const fetchTokenURI = await ownerConnected.fetchContentURI(0);
