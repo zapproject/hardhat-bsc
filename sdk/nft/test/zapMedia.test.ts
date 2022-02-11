@@ -792,12 +792,12 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should throw an error if the fetchContentURI tokenId does not exist", async () => {
-          await ownerConnected.fetchContentURI(0).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected
+            .updateContentURI(0, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "ZapMedia (updateContentURI): Caller is not approved nor the owner."
             );
-          });
         });
 
         it("Should update the content uri", async () => {
