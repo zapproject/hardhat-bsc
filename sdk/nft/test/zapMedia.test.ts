@@ -1808,9 +1808,10 @@ describe("ZapMedia", () => {
           await token
             .connect(signerOne)
             .approve(zapMarket.address, mainBid.amount);
+
           await token
             .connect(signer)
-            .approve(zapMarket.address, mainBid.amount);
+            .approve(zapMarket.address, customBid.amount);
 
           bidderCustomConnected = new ZapMedia(
             1337,
@@ -1873,6 +1874,39 @@ describe("ZapMedia", () => {
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeBid): The token id does not exist."
             );
+        });
+
+        it.only("Should remove a bid on the main media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(mainBid.amount);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await signerOneConnected.setBid(0, mainBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(0);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(mainBid.amount);
+
+          await signerOneConnected.removeBid(0);
+
+          const bidderRemoveBal = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+
+          expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
+
+          const marketRemoveBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
         });
       });
 
