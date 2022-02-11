@@ -808,6 +808,21 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should update the content uri if approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+        });
+
         it("Should update the content uri", async () => {
           // Returns tokenId 0's tokenURI
           const fetchTokenURI = await ownerConnected.fetchContentURI(0);
