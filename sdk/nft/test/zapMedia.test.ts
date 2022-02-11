@@ -12,6 +12,7 @@ import {
   constructMediaData,
   constructBid,
   Decimal,
+  validateBidShares,
 } from "../src/utils";
 
 import ZapMedia from "../src/zapMedia";
@@ -653,6 +654,81 @@ describe("ZapMedia", () => {
 
           // Expect the creator of tokenId 0 on the custom media to equal the signerOne (signers[1]) address
           expect(creator).to.equal(await signerOne.getAddress());
+        });
+      });
+
+      describe("#fetchCurrentBidShares", () => {
+        it("Should throw an error if the media address is a zero address on the main media", async () => {
+          await ownerConnected
+            .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the MediaAddress is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should return null values if the token id does not exist on the main media", async () => {
+          const bidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            400
+          );
+
+          expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
+          expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
+          expect(bidShares.collaborators).to.have.lengthOf(0);
+          expect(bidShares.collabShares).to.have.lengthOf(0);
+        });
+
+        it("Should return null values if the token id does not exist on the customMedia", async () => {
+          const bidShares = await customMediaSigner1.fetchCurrentBidShares(
+            customMediaAddress,
+            300
+          );
+
+          expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
+          expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
+          expect(bidShares.collaborators).to.have.lengthOf(0);
+          expect(bidShares.collabShares).to.have.lengthOf(0);
+        });
+
+        it("should return the bidShares of a token Id on the main media", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            0
+          );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
+          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
+        });
+
+        it("Should return the bidShares of a token Id on the main media", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            1
+          );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
+          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
+        });
+        
+        it("should return the bidShares of a token Id on the custom media", async () => {
+          const onChainBidShares = await customMediaSigner1.fetchCurrentBidShares(
+            customMediaAddress,
+            0
+          );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(parseInt(bidShares.creator.value._hex));
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(parseInt(bidShares.owner.value._hex));
+          expect(onChainBidShares.collaborators).to.deep.equal(bidShares.collaborators);
+          expect(onChainBidShares.collabShares).to.deep.equal(bidShares.collabShares);
         });
       });
     });

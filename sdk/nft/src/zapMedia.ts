@@ -190,6 +190,12 @@ class ZapMedia {
     mediaAddress: string,
     mediaId: BigNumberish
   ): Promise<BidShares> {
+    if (mediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+      )
+    }
     return this.market.bidSharesForToken(mediaAddress, mediaId);
   }
 
