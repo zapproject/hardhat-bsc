@@ -784,14 +784,12 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should throw an error if the updateContentURI tokenId does not exist", async () => {
-          await ownerConnected
-            .updateContentURI(0, "www.newURI.com")
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
-              );
-            });
+        it("Should reject if the tokenURI does not begin with `https://` on a custom media", async () => {
+          await customMediaSigner1
+            .updateContentURI(0, "http://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newTokenURI.com must begin with `https://`"
+            );
         });
 
         it("Should throw an error if the fetchContentURI tokenId does not exist", async () => {
