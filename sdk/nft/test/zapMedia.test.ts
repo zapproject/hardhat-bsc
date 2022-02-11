@@ -760,49 +760,116 @@ describe("ZapMedia", () => {
 
     describe("Write Functions", () => {
       describe("#updateContentURI", () => {
-        it("Should thrown an error if the tokenURI does not begin with `https://`", async () => {
-          mediaDataOne.tokenURI = "http://example.com";
-
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
-              "Invariant failed: http://example.com must begin with `https://`"
-            );
-          });
-        });
-
-        it("Should throw an error if the updateContentURI tokenId does not exist", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
-            .updateContentURI(0, "www.newURI.com")
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
-              );
-            });
-        });
-
-        it("Should throw an error if the fetchContentURI tokenId does not exist", async () => {
-          await ownerConnected.fetchContentURI(0).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
+            .updateContentURI(4, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
             );
-          });
         });
 
-        it("Should update the content uri", async () => {
-          // Returns tokenId 0's tokenURI
-          const fetchTokenURI = await ownerConnected.fetchContentURI(0);
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .updateContentURI(4, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
+            );
+        });
 
-          // The returned tokenURI should equal the tokenURI configured in the mediaDataOne
+        it("Should reject if the tokenURI does not begin with `https://` on the main media", async () => {
+          await ownerConnected
+            .updateContentURI(0, "http://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newTokenURI.com must begin with `https://`"
+            );
+        });
+
+        it("Should reject if the tokenURI does not begin with `https://` on a custom media", async () => {
+          await customMediaSigner1
+            .updateContentURI(0, "http://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newTokenURI.com must begin with `https://`"
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected
+            .updateContentURI(0, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .updateContentURI(0, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should update the content uri if approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const tokenURI: string = await signerOneConnected.fetchContentURI(0);
+          expect(tokenURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri if approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const fetchNewURI: string = await customMediaSigner0.fetchContentURI(
+            0
+          );
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri on the main media by owner", async () => {
+          const fetchTokenURI: string = await ownerConnected.fetchContentURI(0);
           expect(fetchTokenURI).to.equal(mediaDataOne.tokenURI);
 
-          // Updates tokenId 0's tokenURI
-          await ownerConnected.updateContentURI(0, "https://newURI.com");
+          await ownerConnected.updateContentURI(0, "https://newTokenURI.com");
 
-          // Returns tokenId 0's tokenURI
-          const fetchNewURI = await ownerConnected.fetchContentURI(0);
+          const fetchNewURI: string = await ownerConnected.fetchContentURI(0);
 
-          // The new tokenURI returned should equal the updatedURI
-          expect(fetchNewURI).to.equal("https://newURI.com");
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri on a custom media by owner", async () => {
+          await customMediaSigner1.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const fetchNewURI: string = await customMediaSigner1.fetchContentURI(
+            0
+          );
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
         });
       });
 
