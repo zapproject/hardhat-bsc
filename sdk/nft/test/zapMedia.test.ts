@@ -800,6 +800,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .updateContentURI(0, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+            );
+        });
+
         it("Should update the content uri", async () => {
           // Returns tokenId 0's tokenURI
           const fetchTokenURI = await ownerConnected.fetchContentURI(0);
