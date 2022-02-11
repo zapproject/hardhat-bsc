@@ -1782,7 +1782,50 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#removeBid", () => {});
+      describe.only("#removeBid", () => {
+        let bid: Bid;
+        beforeEach(async () => {
+          bid = constructBid(
+            token.address,
+            200,
+            await signerOne.getAddress(),
+            await signerOne.getAddress(),
+            10
+          );
+
+          await token.mint(await signerOne.getAddress(), 200);
+
+          await token.connect(signerOne).approve(zapMarket.address, bid.amount);
+        });
+
+        it("Should reject if the token id does not exist on the main media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(bid.amount);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await signerOneConnected.setBid(0, bid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(0);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(bid.amount);
+
+          await signerOneConnected
+            .removeBid(200)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeBid): The token id does not exist."
+            );
+        });
+      });
 
       describe("#revokeApproval", () => {
         it("revokes an addresses approval of another address's media", async () => {

@@ -571,6 +571,11 @@ class ZapMedia {
    * @param mediaId
    */
   public async removeBid(mediaId: BigNumberish): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (removeBid): The token id does not exist.");
+    }
     return this.media.removeBid(mediaId);
   }
 
