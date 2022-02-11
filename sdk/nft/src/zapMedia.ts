@@ -297,10 +297,11 @@ class ZapMedia {
     tokenURI: string
   ): Promise<ContractTransaction> {
     try {
-      return await this.media.updateTokenURI(mediaId, tokenURI);
-    } catch (err) {
+      await this.media.ownerOf(mediaId);
+    } catch {
       invariant(false, "ZapMedia (updateContentURI): TokenId does not exist.");
     }
+    return await this.media.updateTokenURI(mediaId, tokenURI);
   }
 
   /**fetches the media specified Signature nonce. if signature nonce does not exist, function

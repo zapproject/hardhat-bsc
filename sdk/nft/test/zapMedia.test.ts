@@ -760,6 +760,13 @@ describe("ZapMedia", () => {
 
     describe("Write Functions", () => {
       describe.only("#updateContentURI", () => {
+        it.only("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .updateContentURI(4, "https://newTokenURI/com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
+            );
+        });
         it("Should thrown an error if the tokenURI does not begin with `https://` on the main media", async () => {
           mediaDataOne.tokenURI = "http://example.com";
 
