@@ -776,14 +776,12 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should thrown an error if the tokenURI does not begin with `https://` on the main media", async () => {
-          mediaDataOne.tokenURI = "http://example.com";
-
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
-              "Invariant failed: http://example.com must begin with `https://`"
+        it("Should reject if the tokenURI does not begin with `https://` on the main media", async () => {
+          await ownerConnected
+            .updateContentURI(0, "http://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newTokenURI.com must begin with `https://`"
             );
-          });
         });
 
         it("Should throw an error if the updateContentURI tokenId does not exist", async () => {

@@ -301,6 +301,13 @@ class ZapMedia {
     } catch {
       invariant(false, "ZapMedia (updateContentURI): TokenId does not exist.");
     }
+
+    try {
+      validateURI(tokenURI);
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+
     return await this.media.updateTokenURI(mediaId, tokenURI);
   }
 
