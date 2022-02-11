@@ -576,6 +576,7 @@ class ZapMedia {
     } catch {
       invariant(false, "ZapMedia (removeBid): The token id does not exist.");
     }
+
     return this.media.removeBid(mediaId);
   }
 

@@ -1782,7 +1782,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#removeBid", () => {
+      describe("#removeBid", () => {
         let mainBid: Bid;
         let customBid: Bid;
         let bidderCustomConnected: ZapMedia;
@@ -1797,7 +1797,7 @@ describe("ZapMedia", () => {
 
           customBid = constructBid(
             token.address,
-            200,
+            300,
             await signer.getAddress(),
             await signer.getAddress(),
             10
@@ -1867,7 +1867,7 @@ describe("ZapMedia", () => {
           const postMarketBal: string = await token.balanceOf(
             zapMarket.address
           );
-          expect(parseInt(postMarketBal)).to.equal(mainBid.amount);
+          expect(parseInt(postMarketBal)).to.equal(customBid.amount);
 
           await bidderCustomConnected
             .removeBid(200)
@@ -1876,7 +1876,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should remove a bid on the main media", async () => {
+        it("Should remove a bid on the main media", async () => {
           const preBidBal: string = await token.balanceOf(
             await signerOne.getAddress()
           );
@@ -1901,6 +1901,39 @@ describe("ZapMedia", () => {
 
           const bidderRemoveBal = await token.balanceOf(
             await signerOne.getAddress()
+          );
+
+          expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
+
+          const marketRemoveBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
+        });
+
+        it("Should remove a bid on a custom media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await bidderCustomConnected.setBid(0, customBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(520000000e18 - 200);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(customBid.amount);
+
+          await bidderCustomConnected.removeBid(0);
+
+          const bidderRemoveBal = await token.balanceOf(
+            await signer.getAddress()
           );
 
           expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
