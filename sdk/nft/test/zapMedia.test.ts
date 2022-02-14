@@ -3084,52 +3084,167 @@ describe("ZapMedia", () => {
       });
 
       describe("#safeTransferFrom", () => {
-        it("Should revert if the tokenId does not exist", async () => {
-          const recipient = await signerOne.getAddress();
-
+        it("Should reject if the (from) is a zero address on the main media", async () => {
           await ownerConnected
-            .safeTransferFrom(await signer.getAddress(), recipient, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist."
-              );
-            });
+            .safeTransferFrom(
+              ethers.constants.AddressZero,
+              await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
+            );
         });
 
-        it("Should revert if the (from) is a zero address", async () => {
-          const recipient = await signerOne.getAddress();
-
-          await ownerConnected
-            .safeTransferFrom(ethers.constants.AddressZero, recipient, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
-              );
-            });
+        it("Should reject if the (from) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .safeTransferFrom(
+              ethers.constants.AddressZero,
+              await signer.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
+            );
         });
 
-        it("Should revert if the (to) is a zero address", async () => {
+        it("Should reject if the (to) is a zero address on the main media", async () => {
           await ownerConnected
             .safeTransferFrom(
               await signer.getAddress(),
               ethers.constants.AddressZero,
               0
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+            );
         });
 
-        it("Should safe transfer a token to an address", async () => {
-          const recipient = await signerOne.getAddress();
+        it("Should reject if the (to) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .safeTransferFrom(
+              await signerOne.getAddress(),
+              ethers.constants.AddressZero,
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+            );
+        });
 
-          await ownerConnected.safeTransferFrom(
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .safeTransferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              300
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist"
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .safeTransferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              1
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist"
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected
+            .safeTransferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .safeTransferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should transfer a token by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.safeTransferFrom(
             await signer.getAddress(),
-            recipient,
+            await signerOne.getAddress(),
             0
           );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.safeTransferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
+        });
+
+        it("Should transfer a token by the owner on the main media", async () => {
+          await ownerConnected.safeTransferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the owner on a custom media", async () => {
+          await customMediaSigner1.safeTransferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
         });
       });
 
