@@ -1707,7 +1707,7 @@ describe("ZapMedia", () => {
           expect(parseInt(bidderPostBal._hex)).to.equal(600);
         });
 
-        describe("#fetchCurrentAsk", () => {
+        describe.only("#fetchCurrentAsk", () => {
           it("Should return null values if the media is a zero address with a valid token id", async () => {
             const fetchAddress = await ownerConnected.fetchCurrentAsk(
               ethers.constants.AddressZero,
