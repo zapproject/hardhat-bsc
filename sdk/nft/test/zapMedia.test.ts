@@ -2800,7 +2800,7 @@ describe("ZapMedia", () => {
           expect(newTokenOwner).to.equal(await signer.getAddress());
         });
 
-        it.only("Should transfer a token by the owner on the main media", async () => {
+        it("Should transfer a token by the owner on the main media", async () => {
           await ownerConnected.transferFrom(
             await signer.getAddress(),
             await signerOne.getAddress(),
@@ -2809,6 +2809,19 @@ describe("ZapMedia", () => {
 
           const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
           expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the owner on a custom media", async () => {
+          await customMediaSigner1.transferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
         });
       });
 
