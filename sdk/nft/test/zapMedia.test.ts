@@ -922,7 +922,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should update the metadata uri by the approved on the main media", async () => {
+        it("Should update the metadata uri by the approved on the main media", async () => {
           const preApproveAddr: string = await ownerConnected.fetchApproved(0);
           expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
 
@@ -939,6 +939,30 @@ describe("ZapMedia", () => {
           const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
             0
           );
+
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner1.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner1.fetchApproved(0);
+
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string =
+            await customMediaSigner1.fetchMetadataURI(0);
 
           expect(newMetadataURI).to.equal("https://newMetadataURI.com");
         });
