@@ -1808,12 +1808,12 @@ describe("ZapMedia", () => {
             );
         });
 
-        it("Should throw an error if the tokenId exists but an ask was not set", async () => {
-          await ownerConnected.removeAsk(0).catch((err) => {
-            expect(err.message).to.equal(
+        it("Should throw an error if the tokenId exists but an ask was not set on the main media", async () => {
+          await ownerConnected
+            .removeAsk(0)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeAsk): Ask was never set."
             );
-          });
         });
 
         it("Should remove an ask", async () => {
