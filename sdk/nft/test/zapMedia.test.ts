@@ -2186,8 +2186,16 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#revokeApproval", () => {
-        it.only("Should reject if the token id does not exist on the main media", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
+            .revokeApproval(400)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
             .revokeApproval(400)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (revokeApproval): The token id does not exist."
