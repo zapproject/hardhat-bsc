@@ -1708,14 +1708,6 @@ describe("ZapMedia", () => {
         });
 
         describe.only("#fetchCurrentAsk", () => {
-          it.only("Should reject if the media is a zero address", async () => {
-            await ownerConnected
-              .fetchCurrentAsk(ethers.constants.AddressZero, 0)
-              .should.be.rejectedWith(
-                "Invariant failed: ZapMedia (fetchCurrentAsk): The (customMediaAddress) cannot be a zero address."
-              );
-          });
-
           it("Should return null values if the media is a zero address with a valid token id", async () => {
             const fetchAddress = await ownerConnected.fetchCurrentAsk(
               ethers.constants.AddressZero,
