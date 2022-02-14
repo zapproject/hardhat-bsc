@@ -1709,29 +1709,64 @@ describe("ZapMedia", () => {
 
         describe("#fetchCurrentAsk", () => {
           it("Should return null values if the media is a zero address with a valid token id", async () => {
-            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+            const fetchAsk: Ask = await ownerConnected.fetchCurrentAsk(
               ethers.constants.AddressZero,
               0
             );
 
-            expect(fetchAddress.currency).to.equal(
-              ethers.constants.AddressZero
-            );
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
 
-            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
           });
 
-          it("Should return null values if the token id does not exist", async () => {
-            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+          it("Should return null values if the token id does not exist on the main media", async () => {
+            const fetchAsk: Ask = await ownerConnected.fetchCurrentAsk(
               zapMedia.address,
               10
             );
 
-            expect(fetchAddress.currency).to.equal(
-              ethers.constants.AddressZero
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
+          });
+
+          it("Should return null values if the token id does not exist on a custom media", async () => {
+            const fetchAsk: Ask = await customMediaSigner1.fetchCurrentAsk(
+              customMediaAddress,
+              10
             );
 
-            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
+          });
+
+          it("Should fetch the current ask on the main media", async () => {
+            ask = constructAsk(token.address, 100);
+
+            await ownerConnected.setAsk(0, ask);
+
+            const fetchAsk = await ownerConnected.fetchCurrentAsk(
+              zapMedia.address,
+              0
+            );
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(ask.amount);
+            expect(fetchAsk.currency).to.equal(token.address);
+          });
+
+          it("Should fetch the current ask on a custom media", async () => {
+            ask = constructAsk(token.address, 100);
+
+            await customMediaSigner1.setAsk(0, ask);
+
+            const fetchAsk = await ownerConnected.fetchCurrentAsk(
+              customMediaAddress,
+              0
+            );
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(ask.amount);
+            expect(fetchAsk.currency).to.equal(token.address);
           });
         });
 
@@ -1800,7 +1835,7 @@ describe("ZapMedia", () => {
 
       describe("#removeAsk", () => {
         it("Should reject if the tokenId does not exist on the main media", async () => {
-          ask = constructAsk(zapMedia.address, 100);
+          ask = constructAsk(token.address, 100);
           await ownerConnected
             .removeAsk(400)
             .should.be.rejectedWith(
@@ -1834,7 +1869,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should remove an ask on the main media", async () => {
-          ask = constructAsk(zapMedia.address, 100);
+          ask = constructAsk(token.address, 100);
 
           const owner: string = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
@@ -1850,7 +1885,7 @@ describe("ZapMedia", () => {
           );
 
           expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
-          expect(onChainAsk.currency).to.equal(zapMedia.address);
+          expect(onChainAsk.currency).to.equal(token.address);
 
           await ownerConnected.removeAsk(0);
 
@@ -1866,7 +1901,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should remove an ask on a custom media", async () => {
-          ask = constructAsk(customMediaAddress, 100);
+          ask = constructAsk(token.address, 100);
 
           const owner: string = await customMediaSigner0.fetchOwnerOf(0);
           expect(owner).to.equal(await signerOne.getAddress());
@@ -1882,7 +1917,7 @@ describe("ZapMedia", () => {
           );
 
           expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
-          expect(onChainAsk.currency).to.equal(customMediaAddress);
+          expect(onChainAsk.currency).to.equal(token.address);
 
           await customMediaSigner1.removeAsk(0);
 
