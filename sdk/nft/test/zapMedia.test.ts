@@ -2660,7 +2660,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#transferFrom", () => {
+      describe.only("#transferFrom", () => {
         it("Should transfer token to another address", async () => {
           const recipient = await signerOne.getAddress();
 
