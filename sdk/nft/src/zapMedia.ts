@@ -459,9 +459,9 @@ class ZapMedia {
 
   /**
    * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
-   * @param from
-   * @param to
-   * @param mediaId
+   * @param from The address of the owner who is transferring the token
+   * @param to The receiving address
+   * @param mediaId Numerical identifier for a minted token
    */
   public async safeTransferFrom(
     from: string,
