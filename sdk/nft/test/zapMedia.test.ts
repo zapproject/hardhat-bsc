@@ -906,6 +906,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .updateMetadataURI(0, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+            );
+        });
+
         it("Should update the metadata uri", async () => {
           const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
           expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
