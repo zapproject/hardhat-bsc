@@ -979,7 +979,7 @@ describe("ZapMedia", () => {
           expect(newMetadataURI).to.equal("https://newMetadataURI.com");
         });
 
-        it.only("Should update the metadata uri by the owner on a custom media", async () => {
+        it("Should update the metadata uri by the owner on a custom media", async () => {
           await customMediaSigner1.updateMetadataURI(
             0,
             "https://newMetadataURI.com"
