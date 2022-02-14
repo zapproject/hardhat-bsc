@@ -873,7 +873,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#updateMetadataURI", () => {
+      describe("#updateMetadataURI", () => {
         it("Should reject if the metadataURI does not begin with `https://` on the main media", async () => {
           await ownerConnected
             .updateMetadataURI(0, "http://newMetadataURI.com")
