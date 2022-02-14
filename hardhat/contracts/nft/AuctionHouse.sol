@@ -179,6 +179,24 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
     }
 
     /**
+     * @notice Create an auction.
+     * @dev Store the auction details in the auctions mapping and emit an AuctionCreated event.
+     * If there is no curator, or if the curator is the auction creator, automatically approve the auction.
+     */
+    function createAuction(
+        uint256[] calldata tokenId,
+        uint256[] calldata amount,
+        address mediaContract,
+        uint256 duration,
+        uint256 reservePrice,
+        address payable curator,
+        uint8 curatorFeePercentage,
+        address auctionCurrency
+    ) external override nonReentrant returns (uint256) {
+
+    }
+
+    /**
      * @notice Approve an auction, opening up the auction for bids.
      * @dev Only callable by the curator. Cannot be called if the auction has already started.
      */

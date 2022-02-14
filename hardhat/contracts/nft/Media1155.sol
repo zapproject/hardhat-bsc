@@ -31,7 +31,7 @@ contract ZapMedia is
     ERC165StorageUpgradeable
 {
     bytes internal _contractURI;
-
+    mapping(uint256 => bool) public tokenIds;
 
     /* *********
      * Modifiers
@@ -41,12 +41,16 @@ contract ZapMedia is
     /**
      * @notice Require that the token has not been burned and has been minted
      */
-    modifier onlyExistingToken(uint256 tokenId) {
-        require(
-            _exists(tokenId),
-            // remove revert string before deployment to mainnet
-            'Media: nonexistent token'
-        );
+    modifier onlyExistingToken(uint256[] tokenId) {
+        // need to iterate through list of tokenIds to individually check if token exists
+        for (uint i = 0; i < tokenId.length; i++) {
+            require(
+                tokenIds[tokenId[i]],
+                // remove revert string before deployment to mainnet
+                'Media: nonexistent token'
+            );
+        }
+        
         _;
     }
 
@@ -229,7 +233,7 @@ contract ZapMedia is
     /**
      * @notice see IMedia1155
      */
-    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient)
+    function auctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient)
         external
         override
     {
@@ -238,8 +242,7 @@ contract ZapMedia is
             // remove revert string before deployment to mainnet
             'Media: only market contract'
         );
-        tokens.previousTokenOwners[tokenId] = ownerOf(tokenId);
-        _safeTransfer(ownerOf(tokenId), recipient, tokenId, '');
+        // tokens.previousTokenOwners[tokenId] = ownerOf(tokenId);.
     }
 
     /**
@@ -256,6 +259,19 @@ contract ZapMedia is
     }
 
     /**
+     * @notice see IMedia1155
+     */
+    function batchSetAsk(uint256[] calldata tokenId, IMarket.Ask calldata ask)
+        external
+        override
+        nonReentrant
+        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
+    {
+
+    }
+
+    /**
      * @notice see IMedia11551155
      */
     function removeAsk(uint256 tokenId)
@@ -266,6 +282,19 @@ contract ZapMedia is
         onlyExistingToken(tokenId)
     {
         IMarket(access.marketContract).removeAsk(tokenId);
+    }
+
+    /**
+     * @notice see IMedia11551155
+     */
+    function batchRemoveAsk(uint256[] calldata tokenId)
+        external
+        override
+        nonReentrant
+        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingToken(tokenId)
+    {
+        
     }
 
     /**
@@ -330,6 +359,21 @@ contract ZapMedia is
     }
 
     /**
+     * @notice Burn a batch of tokens.
+     * @dev Only callable if the media owner is also the creator.
+     * @param tokenId the list of IDs of the tokens to burn
+     */
+    function batchBurn(uint256[] calldata tokenId)
+        external
+        override
+        nonReentrant
+        onlyExistingToken(tokenId)
+        onlyApprovedOrOwner(msg.sender, tokenId)
+    {
+
+    }
+
+    /**
      * @notice Revoke the approvals for a token. The provided `approve` function is not sufficient
      * for this protocol, as it does not allow an approved address to revoke it's own approval.
      * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
@@ -342,6 +386,21 @@ contract ZapMedia is
         nonReentrant
     {
         _approve(address(0), tokenId);
+    }
+
+    /**
+     * @notice Revoke the approvals for a token. The provided `approve` function is not sufficient
+     * for this protocol, as it does not allow an approved address to revoke it's own approval.
+     * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
+     * revoke their approval once their task is complete as a best practice.
+     */
+    function batchRevokeApproval(uint256 tokenId)
+        external
+        override
+        onlyApprovedOrOwner(msg.sender, tokenId)
+        nonReentrant
+    {
+        // _approve(address(0), tokenId);
     }
 
     /**
@@ -358,30 +417,6 @@ contract ZapMedia is
     {
         _setTokenURI(tokenId, tokenURILocal);
         emit TokenURIUpdated(tokenId, msg.sender, tokenURILocal);
-    }
-
-    function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)
-        internal
-        virtual
-        onlyExistingToken(tokenId)
-    {
-        tokens.tokenContentHashes[tokenId] = contentHash;
-    }
-
-    function _setTokenMetadataHash(uint256 tokenId, bytes32 metadataHash)
-        internal
-        virtual
-        onlyExistingToken(tokenId)
-    {
-        tokens.tokenMetadataHashes[tokenId] = metadataHash;
-    }
-
-    function _setTokenMetadataURI(uint256 tokenId, string memory metadataURI)
-        internal
-        virtual
-        onlyExistingToken(tokenId)
-    {
-        access._tokenMetadataURIs[tokenId] = metadataURI;
     }
 
     /**
@@ -416,27 +451,5 @@ contract ZapMedia is
         IMarket(access.marketContract).removeAsk(tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
-    }
-
-    /**
-     * @dev Calculates EIP712 DOMAIN_SEPARATOR based on the current contract and chain ID.
-     */
-    function _calculateDomainSeparator() internal view returns (bytes32) {
-        uint256 chainID;
-        /* solium-disable-next-line */
-        assembly {
-            chainID := chainid()
-        }
-
-        return
-            keccak256(
-                abi.encode(
-                    kecEIP712Domain,
-                    kecName,
-                    kecOne,
-                    chainID,
-                    address(this)
-                )
-            );
     }
 }
