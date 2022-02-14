@@ -1901,7 +1901,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should remove an ask on a custom media", async () => {
-          ask = constructAsk(customMediaAddress, 100);
+          ask = constructAsk(token.address, 100);
 
           const owner: string = await customMediaSigner0.fetchOwnerOf(0);
           expect(owner).to.equal(await signerOne.getAddress());
@@ -1917,7 +1917,7 @@ describe("ZapMedia", () => {
           );
 
           expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
-          expect(onChainAsk.currency).to.equal(customMediaAddress);
+          expect(onChainAsk.currency).to.equal(token.address);
 
           await customMediaSigner1.removeAsk(0);
 
