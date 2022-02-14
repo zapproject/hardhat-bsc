@@ -922,6 +922,27 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should update the metadata uri by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
+            0
+          );
+
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
         it("Should update the metadata uri", async () => {
           const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
           expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
