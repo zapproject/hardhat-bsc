@@ -1799,13 +1799,13 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#removeAsk", () => {
-        it("Should throw an error if the removeAsk tokenId does not exist", async () => {
+        it("Should throw an error if the removeAsk tokenId does not exist on the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
-          await ownerConnected.removeAsk(400).catch((err) => {
-            expect(err.message).to.equal(
+          await ownerConnected
+            .removeAsk(400)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
             );
-          });
         });
 
         it("Should throw an error if the tokenId exists but an ask was not set", async () => {
