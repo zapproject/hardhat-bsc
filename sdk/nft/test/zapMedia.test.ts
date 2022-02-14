@@ -906,8 +906,16 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the caller is not approved nor the owner on the main media", async () => {
+        it("Should reject if the caller is not approved nor the owner on the main media", async () => {
           await signerOneConnected
+            .updateMetadataURI(0, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
             .updateMetadataURI(0, "https://newMetadataURI.com")
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
