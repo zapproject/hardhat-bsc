@@ -2709,12 +2709,24 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the token id does not exist on the main media", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .transferFrom(
               await signer.getAddress(),
               await signerOne.getAddress(),
               300
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): TokenId does not exist"
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .transferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              1
             )
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (transferFrom): TokenId does not exist"
