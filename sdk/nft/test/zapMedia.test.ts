@@ -1709,29 +1709,36 @@ describe("ZapMedia", () => {
 
         describe.only("#fetchCurrentAsk", () => {
           it("Should return null values if the media is a zero address with a valid token id", async () => {
-            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+            const fetchAsk: Ask = await ownerConnected.fetchCurrentAsk(
               ethers.constants.AddressZero,
               0
             );
 
-            expect(fetchAddress.currency).to.equal(
-              ethers.constants.AddressZero
-            );
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
 
-            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
           });
 
-          it("Should return null values if the token id does not exist", async () => {
-            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+          it("Should return null values if the token id does not exist on the main media", async () => {
+            const fetchAsk: Ask = await ownerConnected.fetchCurrentAsk(
               zapMedia.address,
               10
             );
 
-            expect(fetchAddress.currency).to.equal(
-              ethers.constants.AddressZero
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
+          });
+
+          it("Should return null values if the token id does not exist on a custom media", async () => {
+            const fetchAsk: Ask = await customMediaSigner1.fetchCurrentAsk(
+              customMediaAddress,
+              10
             );
 
-            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
           });
         });
 
