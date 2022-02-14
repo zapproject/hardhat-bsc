@@ -874,26 +874,119 @@ describe("ZapMedia", () => {
       });
 
       describe("#updateMetadataURI", () => {
-        it("Should thrown an error if the metadataURI does not begin with `https://`", async () => {
-          mediaDataOne.metadataURI = "http://example.com";
-
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
-              "Invariant failed: http://example.com must begin with `https://`"
+        it("Should reject if the metadataURI does not begin with `https://` on the main media", async () => {
+          await ownerConnected
+            .updateMetadataURI(0, "http://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newMetadataURI.com must begin with `https://`"
             );
-          });
         });
 
-        it("Should update the metadata uri", async () => {
-          const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
-          expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
+        it("Should reject if the metadataURI does not begin with `https://` on a custom media", async () => {
+          await customMediaSigner1
+            .updateMetadataURI(0, "http://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newMetadataURI.com must begin with `https://`"
+            );
+        });
 
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .updateMetadataURI(1001, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .updateMetadataURI(1001, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .updateMetadataURI(0, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
+            .updateMetadataURI(0, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should update the metadata uri by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
+            0
+          );
+
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner1.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner1.fetchApproved(0);
+
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string =
+            await customMediaSigner1.fetchMetadataURI(0);
+
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the owner on the main media", async () => {
           await ownerConnected.updateMetadataURI(
             0,
             "https://newMetadataURI.com"
           );
 
-          const newMetadataURI = await ownerConnected.fetchMetadataURI(0);
+          const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
+            0
+          );
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the owner on a custom media", async () => {
+          await customMediaSigner1.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string =
+            await customMediaSigner0.fetchMetadataURI(0);
           expect(newMetadataURI).to.equal("https://newMetadataURI.com");
         });
       });
