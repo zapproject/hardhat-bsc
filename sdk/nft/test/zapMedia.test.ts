@@ -2185,7 +2185,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#revokeApproval", () => {
+      describe("#revokeApproval", () => {
         it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
             .revokeApproval(400)
@@ -2252,7 +2252,7 @@ describe("ZapMedia", () => {
           expect(postRevokedAddr).to.equal(preApproveAddr);
         });
 
-        it.only("Should revoke approval by the owner on the main media", async () => {
+        it("Should revoke approval by the owner on the main media", async () => {
           const preApproveAddr: string = await ownerConnected.fetchApproved(0);
           expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
 
@@ -2266,6 +2266,26 @@ describe("ZapMedia", () => {
           await ownerConnected.revokeApproval(0);
 
           const postRevokedAddr: string = await ownerConnected.fetchApproved(0);
+
+          expect(postRevokedAddr).to.equal(preApproveAddr);
+        });
+
+        it("Should revoke approval by the owner on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApprovedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApprovedAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner1.revokeApproval(0);
+
+          const postRevokedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
 
           expect(postRevokedAddr).to.equal(preApproveAddr);
         });
