@@ -2197,7 +2197,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#acceptBid", () => {
+      describe.only("#acceptBid", () => {
         let bid: Bid;
         let customBid: Bid;
 
@@ -2345,17 +2345,18 @@ describe("ZapMedia", () => {
           );
         });
 
-        it.only("should accept a bid on a custom media", async () => {
+        it("should accept a bid on a custom media", async () => {
           const preMarketbal: string = await token.balanceOf(zapMarket.address);
           expect(parseInt(preMarketbal)).to.equal(0);
 
-          // signer one's pre balance
+          // signer's pre balance
           const preBidBal: string = await token.balanceOf(
             signer.getAddress()
           );
-          expect(parseInt(preBidBal)).to.equal(200);
-
-          //set bid for signer one
+          
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+          
+          //set bid for signer
           await customMediaSigner0.setBid(0, customBid);
 
           //get post market balance
@@ -2398,8 +2399,8 @@ describe("ZapMedia", () => {
           );
           expect(parseInt(preCollabThree)).to.equal(0);
 
-          //owner on main media has to accept the bid
-          await ownerConnected.acceptBid(0, bid);
+          //owner on custom media has to accept the bid
+          await customMediaSigner1.acceptBid(0, customBid);
 
           //owner balance after bid was accepted
           const postOwnerBal: string = await token.balanceOf(
@@ -2408,12 +2409,12 @@ describe("ZapMedia", () => {
 
           //post owner's balance increase by 35% bidshares
           expect(parseInt(postOwnerBal)).to.equal(
-            parseInt(preOwnerBal) + parseInt(bid.amount.toString()) * 0.35
+            parseInt(preOwnerBal) + parseInt(customBid.amount.toString()) * 0.35
           );
 
           //checking the new owner of the bid
-          const newOwner: string = await ownerConnected.fetchOwnerOf(0);
-          expect(newOwner).to.equal(await signerOne.getAddress());
+          const newOwner: string = await customMediaSigner0.fetchOwnerOf(0);
+          expect(newOwner).to.equal(await signer.getAddress());
 
           //after the bid is accepted
           const postCollabOne: string = await token.balanceOf(
@@ -2428,15 +2429,15 @@ describe("ZapMedia", () => {
 
           //collab one receive a payout of 15% of bidshares
           expect(parseInt(postCollabOne)).to.equal(
-            parseInt(bid.amount.toString()) * 0.15
+            parseInt(customBid.amount.toString()) * 0.15
           );
           //collab two receive a payout of 15% of bidshares
           expect(parseInt(postCollabTwo)).to.equal(
-            parseInt(bid.amount.toString()) * 0.15
+            parseInt(customBid.amount.toString()) * 0.15
           );
           //collab three receive a payout of 15% of bidshares
           expect(parseInt(postCollabThree)).to.equal(
-            parseInt(bid.amount.toString()) * 0.15
+            parseInt(customBid.amount.toString()) * 0.15
           );
         });
 
