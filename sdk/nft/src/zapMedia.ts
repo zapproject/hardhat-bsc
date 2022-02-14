@@ -450,7 +450,7 @@ class ZapMedia {
     ) {
       invariant(
         false,
-        "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+        "ZapMedia (transferFrom): Caller is not approved nor the owner."
       );
     }
 
