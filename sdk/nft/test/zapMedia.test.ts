@@ -2825,7 +2825,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#safeTransferFrom", () => {
+      describe("#safeTransferFrom", () => {
         it("Should reject if the (from) is a zero address on the main media", async () => {
           await ownerConnected
             .safeTransferFrom(
