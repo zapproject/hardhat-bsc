@@ -2709,6 +2709,18 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .transferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              300
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): TokenId does not exist"
+            );
+        });
+
         it("Should transfer token to another address", async () => {
           const recipient = await signerOne.getAddress();
 
