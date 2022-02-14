@@ -402,9 +402,9 @@ class ZapMedia {
 
   /**
    * Transfers the specified media to the specified to address on an instance of the Zap Media Contract
-   * @param from
-   * @param to
-   * @param mediaId
+   * @param from The address of the owner who is transferring the token
+   * @param to The receiving address
+   * @param mediaId Numerical identifier for a minted token
    */
   public async transferFrom(
     from: string,
