@@ -2697,6 +2697,18 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should reject if the (to) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .transferFrom(
+              await signerOne.getAddress(),
+              ethers.constants.AddressZero,
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): The (to) address cannot be a zero address."
+            );
+        });
+
         it("Should transfer token to another address", async () => {
           const recipient = await signerOne.getAddress();
 
