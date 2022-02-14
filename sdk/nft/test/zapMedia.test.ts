@@ -2218,7 +2218,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should revoke approval by the approved on the main media", async () => {
+        it("Should revoke approval by the approved on the main media", async () => {
           const preApproveAddr: string = await ownerConnected.fetchApproved(0);
           expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
 
@@ -2230,6 +2230,25 @@ describe("ZapMedia", () => {
           await signerOneConnected.revokeApproval(0);
 
           const postRevokedAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postRevokedAddr).to.equal(ethers.constants.AddressZero);
+        });
+
+        it.only("Should revoke approval by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.revokeApproval(0);
+
+          const postRevokedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
           expect(postRevokedAddr).to.equal(ethers.constants.AddressZero);
         });
 
