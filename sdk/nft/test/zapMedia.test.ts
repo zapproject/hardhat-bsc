@@ -890,8 +890,16 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the token id does not exist on the main media", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
+            .updateMetadataURI(1001, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
             .updateMetadataURI(1001, "https://newMetadataURI.com")
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
