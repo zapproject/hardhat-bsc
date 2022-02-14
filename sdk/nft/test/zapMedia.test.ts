@@ -1798,7 +1798,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#removeAsk", () => {
+      describe("#removeAsk", () => {
         it("Should reject if the tokenId does not exist on the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
           await ownerConnected
