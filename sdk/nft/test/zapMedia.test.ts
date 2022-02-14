@@ -2776,6 +2776,30 @@ describe("ZapMedia", () => {
           expect(newTokenOwner).to.equal(await signerOne.getAddress());
         });
 
+        it.only("Should transfer a token by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.transferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
+        });
+
         it("Should transfer token to another address", async () => {
           const recipient = await signerOne.getAddress();
 
