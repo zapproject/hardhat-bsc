@@ -2757,7 +2757,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should transfer a token by the approved on the main media", async () => {
+        it("Should transfer a token by the approved on the main media", async () => {
           const preApproveAddr: string = await ownerConnected.fetchApproved(0);
           expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
 
@@ -2776,7 +2776,7 @@ describe("ZapMedia", () => {
           expect(newTokenOwner).to.equal(await signerOne.getAddress());
         });
 
-        it.only("Should transfer a token by the approved on a custom media", async () => {
+        it("Should transfer a token by the approved on a custom media", async () => {
           const preApproveAddr: string = await customMediaSigner0.fetchApproved(
             0
           );
@@ -2800,18 +2800,15 @@ describe("ZapMedia", () => {
           expect(newTokenOwner).to.equal(await signer.getAddress());
         });
 
-        it("Should transfer token to another address", async () => {
-          const recipient = await signerOne.getAddress();
+        it.only("Should transfer a token by the owner on the main media", async () => {
+          await ownerConnected.transferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
-
-          expect(owner).to.equal(await signer.getAddress());
-
-          await ownerConnected.transferFrom(owner, recipient, 0);
-
-          const newOwner = await ownerConnected.fetchOwnerOf(0);
-
-          expect(newOwner).to.equal(recipient);
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
         });
       });
 
