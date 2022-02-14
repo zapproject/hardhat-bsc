@@ -686,7 +686,7 @@ class ZapMedia {
 
   /**
    * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async revokeApproval(
     mediaId: BigNumberish
