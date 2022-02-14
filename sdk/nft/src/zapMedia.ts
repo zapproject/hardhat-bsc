@@ -635,10 +635,14 @@ class ZapMedia {
     }
 
     return this.media.acceptBid(mediaId, bid);
+  }
+  /**
    * Removes the bid for the msg.sender on the specified media on an instance of the Zap Media Contract
    * @param mediaId
    */
-  public async removeBid(mediaId: BigNumberish): Promise<ContractTransaction> {
+  public async removeBid(
+    mediaId: BigNumberish
+    ): Promise<ContractTransaction> {
     try {
       await this.media.ownerOf(mediaId);
     } catch {
