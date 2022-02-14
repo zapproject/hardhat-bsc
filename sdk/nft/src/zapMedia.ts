@@ -630,13 +630,13 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    // // Checks if the tokenId exists. If the tokenId exists store the owner
-    // // address in the variable and if it doesnt throw an error
-    // try {
-    //   owner = await this.media.ownerOf(mediaId);
-    // } catch {
-    //   invariant(false, "ZapMedia (updateMetadataURI): TokenId does not exist.");
-    // }
+    // Checks if the tokenId exists. If the tokenId exists store the owner
+    // address in the variable and if it doesnt throw an error
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (updateMetadataURI): TokenId does not exist.");
+    }
 
     // // Returns the address approved for the tokenId by the owner
     // const approveAddr: string = await this.media.getApproved(mediaId);

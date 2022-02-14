@@ -890,6 +890,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .updateMetadataURI(1001, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
+            );
+        });
+
         it("Should update the metadata uri", async () => {
           const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
           expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
