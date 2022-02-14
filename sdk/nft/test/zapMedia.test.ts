@@ -882,6 +882,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it("Should reject if the metadataURI does not begin with `https://` on a custom media", async () => {
+          await customMediaSigner1
+            .updateMetadataURI(0, "http://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newMetadataURI.com must begin with `https://`"
+            );
+        });
+
         it("Should update the metadata uri", async () => {
           const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
           expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
