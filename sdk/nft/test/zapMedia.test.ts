@@ -2825,19 +2825,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#safeTransferFrom", () => {
-        it("Should revert if the tokenId does not exist", async () => {
-          const recipient = await signerOne.getAddress();
-
-          await ownerConnected
-            .safeTransferFrom(await signer.getAddress(), recipient, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist."
-              );
-            });
-        });
-
+      describe.only("#safeTransferFrom", () => {
         it("Should revert if the (from) is a zero address", async () => {
           const recipient = await signerOne.getAddress();
 
