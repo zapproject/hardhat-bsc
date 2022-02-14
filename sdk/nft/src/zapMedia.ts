@@ -411,6 +411,12 @@ class ZapMedia {
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    if (from == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): The (from) address cannot be a zero address."
+      );
+    }
     return this.media.transferFrom(from, to, mediaId);
   }
 
