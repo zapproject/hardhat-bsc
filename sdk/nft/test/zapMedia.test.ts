@@ -2202,8 +2202,16 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the caller is not approved nor the owner on the main media", async () => {
+        it("Should reject if the caller is not approved nor the owner on the main media", async () => {
           await signerOneConnected
+            .revokeApproval(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
             .revokeApproval(0)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (revokeApproval): Caller is not approved nor the owner."
