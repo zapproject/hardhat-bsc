@@ -2733,6 +2733,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected.transferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
+        });
+
         it("Should transfer token to another address", async () => {
           const recipient = await signerOne.getAddress();
 
