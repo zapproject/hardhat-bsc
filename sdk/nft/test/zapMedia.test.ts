@@ -873,7 +873,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#updateMetadataURI", () => {
+      describe.only("#updateMetadataURI", () => {
         it("Should thrown an error if the metadataURI does not begin with `https://`", async () => {
           mediaDataOne.metadataURI = "http://example.com";
 
