@@ -967,16 +967,15 @@ describe("ZapMedia", () => {
           expect(newMetadataURI).to.equal("https://newMetadataURI.com");
         });
 
-        it("Should update the metadata uri", async () => {
-          const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
-          expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
-
+        it.only("Should update the metadata uri by the owner on the main media", async () => {
           await ownerConnected.updateMetadataURI(
             0,
             "https://newMetadataURI.com"
           );
 
-          const newMetadataURI = await ownerConnected.fetchMetadataURI(0);
+          const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
+            0
+          );
           expect(newMetadataURI).to.equal("https://newMetadataURI.com");
         });
       });
