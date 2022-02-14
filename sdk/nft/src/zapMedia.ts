@@ -686,11 +686,42 @@ class ZapMedia {
 
   /**
    * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async revokeApproval(
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): The token id does not exist."
+      );
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): Caller is not approved nor the owner."
+      );
+    }
     return this.media.revokeApproval(mediaId);
   }
 
