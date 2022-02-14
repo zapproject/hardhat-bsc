@@ -468,23 +468,46 @@ class ZapMedia {
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
     try {
-      await this.media.ownerOf(mediaId);
-    } catch (err: any) {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
       invariant(false, "ZapMedia (safeTransferFrom): TokenId does not exist.");
     }
 
-    if (from === ethers.constants.AddressZero) {
+    if (from == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
       );
     }
 
-    if (to === ethers.constants.AddressZero) {
+    if (to == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+      );
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (safeTransferFrom): Caller is not approved nor the owner."
       );
     }
 
