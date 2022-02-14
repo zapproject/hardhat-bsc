@@ -2230,10 +2230,10 @@ describe("ZapMedia", () => {
           await signerOneConnected.revokeApproval(0);
 
           const postRevokedAddr: string = await ownerConnected.fetchApproved(0);
-          expect(postRevokedAddr).to.equal(ethers.constants.AddressZero);
+          expect(postRevokedAddr).to.equal(preApproveAddr);
         });
 
-        it.only("Should revoke approval by the approved on a custom media", async () => {
+        it("Should revoke approval by the approved on a custom media", async () => {
           const preApproveAddr: string = await customMediaSigner0.fetchApproved(
             0
           );
@@ -2249,19 +2249,25 @@ describe("ZapMedia", () => {
 
           const postRevokedAddr: string =
             await customMediaSigner0.fetchApproved(0);
-          expect(postRevokedAddr).to.equal(ethers.constants.AddressZero);
+          expect(postRevokedAddr).to.equal(preApproveAddr);
         });
 
-        it("revokes an addresses approval of another address's media", async () => {
+        it.only("Should revoke approval by the owner on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
-          const approved = await ownerConnected.fetchApproved(0);
-          expect(approved).to.equal(await signerOne.getAddress());
+          const postApprovedAddr: string = await ownerConnected.fetchApproved(
+            0
+          );
+          expect(postApprovedAddr).to.equal(await signerOne.getAddress());
 
-          await signerOneConnected.revokeApproval(0);
+          await ownerConnected.revokeApproval(0);
 
-          const revokedStatus = await ownerConnected.fetchApproved(0);
-          expect(revokedStatus).to.equal(ethers.constants.AddressZero);
+          const postRevokedAddr: string = await ownerConnected.fetchApproved(0);
+
+          expect(postRevokedAddr).to.equal(preApproveAddr);
         });
       });
 
