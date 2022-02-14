@@ -402,15 +402,58 @@ class ZapMedia {
 
   /**
    * Transfers the specified media to the specified to address on an instance of the Zap Media Contract
-   * @param from
-   * @param to
-   * @param mediaId
+   * @param from The address of the owner who is transferring the token
+   * @param to The receiving address
+   * @param mediaId Numerical identifier for a minted token
    */
   public async transferFrom(
     from: string,
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
+    if (from == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): The (from) address cannot be a zero address."
+      );
+    }
+
+    if (to == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): The (to) address cannot be a zero address."
+      );
+    }
+
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (transferFrom): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): Caller is not approved nor the owner."
+      );
+    }
+
     return this.media.transferFrom(from, to, mediaId);
   }
 
