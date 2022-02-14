@@ -2202,6 +2202,14 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .revokeApproval(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): Caller is not approved nor the owner."
+            );
+        });
+
         it("revokes an addresses approval of another address's media", async () => {
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
