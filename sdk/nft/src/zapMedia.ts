@@ -621,19 +621,46 @@ class ZapMedia {
     mediaId: BigNumberish,
     metadataURI: string
   ): Promise<ContractTransaction> {
+    // Will store the address of the token owner if the tokenId exists
+    let owner: string;
+
     try {
       validateURI(metadataURI);
     } catch (err: any) {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(
-      mediaId,
-      metadataURI
-    );
-    return this.media.updateTokenMetadataURI(mediaId, metadataURI, {
-      gasLimit: gasEstimate,
-    });
+    // // Checks if the tokenId exists. If the tokenId exists store the owner
+    // // address in the variable and if it doesnt throw an error
+    // try {
+    //   owner = await this.media.ownerOf(mediaId);
+    // } catch {
+    //   invariant(false, "ZapMedia (updateMetadataURI): TokenId does not exist.");
+    // }
+
+    // // Returns the address approved for the tokenId by the owner
+    // const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // // Returns true/false if the operator was approved for all by the owner
+    // const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+    //   owner,
+    //   await this.signer.getAddress()
+    // );
+
+    // // Checks if the caller is not approved, not approved for all, and not the owner.
+    // // If the caller meets the three conditions throw an error
+    // if (
+    //   approveAddr == ethers.constants.AddressZero &&
+    //   approveForAllStatus == false &&
+    //   owner !== (await this.signer.getAddress())
+    // ) {
+    //   invariant(
+    //     false,
+    //     "ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+    //   );
+    // }
+
+    return this.media.updateTokenMetadataURI(mediaId, metadataURI);
   }
 
   /**

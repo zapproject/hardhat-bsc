@@ -874,14 +874,12 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#updateMetadataURI", () => {
-        it("Should thrown an error if the metadataURI does not begin with `https://`", async () => {
-          mediaDataOne.metadataURI = "http://example.com";
-
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
-              "Invariant failed: http://example.com must begin with `https://`"
+        it("Should reject if the metadataURI does not begin with `https://` on the main media", async () => {
+          await ownerConnected
+            .updateMetadataURI(0, "http://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newMetadataURI.com must begin with `https://`"
             );
-          });
         });
 
         it("Should update the metadata uri", async () => {
