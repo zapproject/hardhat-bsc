@@ -194,14 +194,14 @@ class ZapMedia {
       invariant(
         false,
         "ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
-      )
+      );
     }
     return this.market.bidSharesForToken(mediaAddress, mediaId);
   }
 
   /**
    * Fetches the current ask for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async fetchCurrentAsk(
     mediaAddress: string,
@@ -296,11 +296,43 @@ class ZapMedia {
     mediaId: number,
     tokenURI: string
   ): Promise<ContractTransaction> {
+    let owner: string;
+
     try {
-      return await this.media.updateTokenURI(mediaId, tokenURI);
-    } catch (err) {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
       invariant(false, "ZapMedia (updateContentURI): TokenId does not exist.");
     }
+
+    try {
+      validateURI(tokenURI);
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+      );
+    }
+
+    return await this.media.updateTokenURI(mediaId, tokenURI);
   }
 
   /**fetches the media specified Signature nonce. if signature nonce does not exist, function
@@ -545,7 +577,7 @@ class ZapMedia {
 
   /**
    * Removes the ask on the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async removeAsk(mediaId: BigNumberish): Promise<ContractTransaction> {
     const ask = await this.market.currentAskForToken(
@@ -603,6 +635,17 @@ class ZapMedia {
     }
 
     return this.media.acceptBid(mediaId, bid);
+   * Removes the bid for the msg.sender on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async removeBid(mediaId: BigNumberish): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (removeBid): The token id does not exist.");
+    }
+
+    return this.media.removeBid(mediaId);
   }
 
   /**
@@ -614,19 +657,46 @@ class ZapMedia {
     mediaId: BigNumberish,
     metadataURI: string
   ): Promise<ContractTransaction> {
+    // Will store the address of the token owner if the tokenId exists
+    let owner: string;
+
     try {
       validateURI(metadataURI);
     } catch (err: any) {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(
-      mediaId,
-      metadataURI
+    // Checks if the tokenId exists. If the tokenId exists store the owner
+    // address in the variable and if it doesnt throw an error
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (updateMetadataURI): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
     );
-    return this.media.updateTokenMetadataURI(mediaId, metadataURI, {
-      gasLimit: gasEstimate,
-    });
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+      );
+    }
+
+    return this.media.updateTokenMetadataURI(mediaId, metadataURI);
   }
 
   /**
@@ -652,11 +722,42 @@ class ZapMedia {
 
   /**
    * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async revokeApproval(
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): The token id does not exist."
+      );
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): Caller is not approved nor the owner."
+      );
+    }
     return this.media.revokeApproval(mediaId);
   }
 
