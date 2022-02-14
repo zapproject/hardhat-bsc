@@ -1740,6 +1740,34 @@ describe("ZapMedia", () => {
 
             expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
           });
+
+          it("Should fetch the current ask on the main media", async () => {
+            ask = constructAsk(token.address, 100);
+
+            await ownerConnected.setAsk(0, ask);
+
+            const fetchAsk = await ownerConnected.fetchCurrentAsk(
+              zapMedia.address,
+              0
+            );
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(ask.amount);
+            expect(fetchAsk.currency).to.equal(token.address);
+          });
+
+          it("Should fetch the current ask on a custom media", async () => {
+            ask = constructAsk(token.address, 100);
+
+            await customMediaSigner1.setAsk(0, ask);
+
+            const fetchAsk = await ownerConnected.fetchCurrentAsk(
+              customMediaAddress,
+              0
+            );
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(ask.amount);
+            expect(fetchAsk.currency).to.equal(token.address);
+          });
         });
 
         describe("#fetchCurrentBidForBidder", () => {
@@ -1807,7 +1835,7 @@ describe("ZapMedia", () => {
 
       describe("#removeAsk", () => {
         it("Should reject if the tokenId does not exist on the main media", async () => {
-          ask = constructAsk(zapMedia.address, 100);
+          ask = constructAsk(token.address, 100);
           await ownerConnected
             .removeAsk(400)
             .should.be.rejectedWith(
@@ -1841,7 +1869,7 @@ describe("ZapMedia", () => {
         });
 
         it("Should remove an ask on the main media", async () => {
-          ask = constructAsk(zapMedia.address, 100);
+          ask = constructAsk(token.address, 100);
 
           const owner: string = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
@@ -1857,7 +1885,7 @@ describe("ZapMedia", () => {
           );
 
           expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
-          expect(onChainAsk.currency).to.equal(zapMedia.address);
+          expect(onChainAsk.currency).to.equal(token.address);
 
           await ownerConnected.removeAsk(0);
 
