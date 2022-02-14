@@ -62,6 +62,7 @@ describe("ZapMedia", () => {
 
   let signer: Signer;
   let signerOne: Signer;
+  let bidder: Signer;
 
   let mediaFactory: MediaFactory;
   let signerOneConnected: ZapMedia;
@@ -70,6 +71,7 @@ describe("ZapMedia", () => {
   let customMediaSigner1: ZapMedia;
   let customMediaAddress: string;
   let bidderMainConnected: ZapMedia;
+  let bidderCustomConnected: ZapMedia;
 
   let eipSig: any;
 
@@ -181,6 +183,12 @@ describe("ZapMedia", () => {
     customMediaSigner0 = new ZapMedia(1337, signer, customMediaAddress);
 
     bidderMainConnected = new ZapMedia(1337, signerOne);
+
+    bidderCustomConnected = new ZapMedia(
+      1337,
+      bidder,
+      customMediaAddress
+    );
 
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
@@ -2220,15 +2228,13 @@ describe("ZapMedia", () => {
         });
 
         it.only("Should reject if the token id does not exist on a custom media", async () => {
-          //set bid for signer one
-          await bidderMainConnected.setBid(0, bid);
-
+      
           //attempting to accept the bid with invalid tokenID
-          // await bidderMainConnected
-          //   .acceptBid(10, bid)
-          //   .should.rejectedWith(
-          //     "Invariant failed: ZapMedia (acceptBid): The token id does not exist."
-          //   );
+          await customMediaSigner1
+            .acceptBid(10, bid)
+            .should.rejectedWith(
+              "Invariant failed: ZapMedia (acceptBid): The token id does not exist."
+            );
         });
 
         it("should accept a bid on the main media", async () => {
