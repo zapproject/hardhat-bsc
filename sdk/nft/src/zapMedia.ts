@@ -691,6 +691,14 @@ class ZapMedia {
   public async revokeApproval(
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    try {
+      return await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): The token id does not exist."
+      );
+    }
     return this.media.revokeApproval(mediaId);
   }
 

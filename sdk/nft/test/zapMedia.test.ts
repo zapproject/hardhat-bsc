@@ -2186,6 +2186,9 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#revokeApproval", () => {
+        it.only("Should reject if the token id does not exist", async () => {
+          await ownerConnected.revokeApproval(400);
+        });
         it("revokes an addresses approval of another address's media", async () => {
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
