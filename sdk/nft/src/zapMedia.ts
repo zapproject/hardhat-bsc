@@ -207,6 +207,12 @@ class ZapMedia {
     mediaAddress: string,
     mediaId: BigNumberish
   ): Promise<Ask> {
+    if (mediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentAsk): The (customMediaAddress) cannot be a zero address."
+      );
+    }
     return this.market.currentAskForToken(mediaAddress, mediaId);
   }
 
