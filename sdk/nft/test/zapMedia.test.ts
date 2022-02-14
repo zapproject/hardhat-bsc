@@ -2197,7 +2197,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#acceptBid", () => {
+      describe("#acceptBid", () => {
         let bid: Bid;
         let customBid: Bid;
 
