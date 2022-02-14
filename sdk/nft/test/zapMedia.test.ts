@@ -2185,7 +2185,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#revokeApproval", () => {
+      describe.only("#revokeApproval", () => {
         it("revokes an addresses approval of another address's media", async () => {
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
