@@ -38,7 +38,7 @@ import {
   signPermitMessage,
   signMintWithSigMessage,
 } from "./test_utils";
-import { EIP712Signature, Bid, BidShares } from "../src/types";
+import { EIP712Signature, Bid, BidShares, Ask } from "../src/types";
 import { BlobOptions } from "buffer";
 import { SrvRecord } from "dns";
 
@@ -1799,35 +1799,52 @@ describe("ZapMedia", () => {
       });
 
       describe("#removeAsk", () => {
-        it("Should throw an error if the removeAsk tokenId does not exist", async () => {
+        it("Should reject if the tokenId does not exist on the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
-          await ownerConnected.removeAsk(400).catch((err) => {
-            expect(err.message).to.equal(
+          await ownerConnected
+            .removeAsk(400)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
             );
-          });
         });
 
-        it("Should throw an error if the tokenId exists but an ask was not set", async () => {
-          await ownerConnected.removeAsk(0).catch((err) => {
-            expect(err.message).to.equal(
+        it("Should reject if the tokenId does not exist on a custom media", async () => {
+          ask = constructAsk(customMediaAddress, 100);
+          await customMediaSigner1
+            .removeAsk(400)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the ask was never set on the main media", async () => {
+          await ownerConnected
+            .removeAsk(0)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeAsk): Ask was never set."
             );
-          });
         });
 
-        it("Should remove an ask", async () => {
+        it("Should reject if the ask was never set on a custom media", async () => {
+          await customMediaSigner1
+            .removeAsk(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeAsk): Ask was never set."
+            );
+        });
+
+        it("Should remove an ask on the main media", async () => {
           ask = constructAsk(zapMedia.address, 100);
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
+          const owner: string = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
-          const getApproved = await ownerConnected.fetchApproved(0);
+          const getApproved: string = await ownerConnected.fetchApproved(0);
           expect(getApproved).to.equal(ethers.constants.AddressZero);
 
           await ownerConnected.setAsk(0, ask);
 
-          const onChainAsk = await ownerConnected.fetchCurrentAsk(
+          const onChainAsk: Ask = await ownerConnected.fetchCurrentAsk(
             zapMedia.address,
             0
           );
@@ -1837,10 +1854,40 @@ describe("ZapMedia", () => {
 
           await ownerConnected.removeAsk(0);
 
-          const onChainAskRemoved = await ownerConnected.fetchCurrentAsk(
+          const onChainAskRemoved: Ask = await ownerConnected.fetchCurrentAsk(
             zapMedia.address,
             0
           );
+
+          expect(parseInt(onChainAskRemoved.amount.toString())).to.equal(0);
+          expect(onChainAskRemoved.currency).to.equal(
+            ethers.constants.AddressZero
+          );
+        });
+
+        it("Should remove an ask on a custom media", async () => {
+          ask = constructAsk(customMediaAddress, 100);
+
+          const owner: string = await customMediaSigner0.fetchOwnerOf(0);
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          const getApproved: string = await customMediaSigner0.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.setAsk(0, ask);
+
+          const onChainAsk: Ask = await customMediaSigner0.fetchCurrentAsk(
+            customMediaAddress,
+            0
+          );
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(customMediaAddress);
+
+          await customMediaSigner1.removeAsk(0);
+
+          const onChainAskRemoved: Ask =
+            await customMediaSigner0.fetchCurrentAsk(customMediaAddress, 0);
 
           expect(parseInt(onChainAskRemoved.amount.toString())).to.equal(0);
           expect(onChainAskRemoved.currency).to.equal(
