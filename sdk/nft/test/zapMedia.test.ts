@@ -2733,11 +2733,23 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the caller is not the owner or approved on the main media", async () => {
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
           await signerOneConnected
             .transferFrom(
               await signer.getAddress(),
               await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it.only("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .transferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
               0
             )
             .should.be.rejectedWith(
