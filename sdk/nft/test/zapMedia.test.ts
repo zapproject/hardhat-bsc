@@ -2745,7 +2745,7 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should reject if the caller is not the owner or approved on a custom media", async () => {
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
           await customMediaSigner0
             .transferFrom(
               await signerOne.getAddress(),
@@ -2755,6 +2755,25 @@ describe("ZapMedia", () => {
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (transferFrom): Caller is not approved nor the owner."
             );
+        });
+
+        it.only("Should transfer a token by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.transferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
         });
 
         it("Should transfer token to another address", async () => {
