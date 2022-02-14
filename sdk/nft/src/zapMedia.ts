@@ -424,6 +424,13 @@ class ZapMedia {
         "ZapMedia (transferFrom): The (to) address cannot be a zero address."
       );
     }
+
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (transferFrom): TokenId does not exist.");
+    }
+
     return this.media.transferFrom(from, to, mediaId);
   }
 
