@@ -41,6 +41,7 @@ import {
 import { EIP712Signature, Bid, BidShares, Ask } from "../src/types";
 import { BlobOptions } from "buffer";
 import { SrvRecord } from "dns";
+import { beforeEach } from "mocha";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -61,6 +62,7 @@ describe("ZapMedia", () => {
 
   let signer: Signer;
   let signerOne: Signer;
+  let bidder: Signer;
 
   let mediaFactory: MediaFactory;
   let signerOneConnected: ZapMedia;
@@ -68,6 +70,8 @@ describe("ZapMedia", () => {
   let customMediaSigner0: ZapMedia;
   let customMediaSigner1: ZapMedia;
   let customMediaAddress: string;
+  let bidderMainConnected: ZapMedia;
+  let bidderCustomConnected: ZapMedia;
 
   let eipSig: any;
 
@@ -141,9 +145,9 @@ describe("ZapMedia", () => {
 
     bidShares = constructBidShares(
       [
-        await provider.getSigner(1).getAddress(),
         await provider.getSigner(2).getAddress(),
         await provider.getSigner(3).getAddress(),
+        await provider.getSigner(4).getAddress(),
       ],
       [15, 15, 15],
       15,
@@ -177,6 +181,14 @@ describe("ZapMedia", () => {
     customMediaSigner1 = new ZapMedia(1337, signerOne, customMediaAddress);
 
     customMediaSigner0 = new ZapMedia(1337, signer, customMediaAddress);
+
+    bidderMainConnected = new ZapMedia(1337, signerOne);
+
+    bidderCustomConnected = new ZapMedia(
+      1337,
+      bidder,
+      customMediaAddress
+    );
 
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
@@ -2183,6 +2195,252 @@ describe("ZapMedia", () => {
           const marketRemoveBal = await token.balanceOf(zapMarket.address);
           expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
         });
+      });
+
+      describe("#acceptBid", () => {
+        let bid: Bid;
+        let customBid: Bid;
+
+        beforeEach(async () => {
+          customBid = constructBid(
+            token.address,
+            200,
+            await signer.getAddress(),
+            await signer.getAddress(),
+            10
+          );
+
+          bid = constructBid(
+            token.address,
+            200,
+            await signerOne.getAddress(),
+            await signerOne.getAddress(),
+            10
+          );
+
+          //signer one mints tokens on their own address
+          await token.mint(await signerOne.getAddress(), 200);
+
+          await token.connect(signerOne).approve(zapMarket.address, bid.amount);
+
+          await token.connect(signer).approve(zapMarket.address, customBid.amount);
+        });
+
+        it("Should reject if the token id does not exist on the main media", async () => {
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
+
+          //attempting to accept the bid with invalid tokenID
+          await ownerConnected
+            .acceptBid(10, bid)
+            .should.rejectedWith(
+              "Invariant failed: ZapMedia (acceptBid): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+      
+          await customMediaSigner0.setBid(0, customBid); 
+          
+          //attempting to accept the bid with invalid tokenID
+          await customMediaSigner1
+            .acceptBid(10, customBid)
+            .should.rejectedWith(
+              "Invariant failed: ZapMedia (acceptBid): The token id does not exist."
+            );
+        });
+
+        it("should accept a bid on the main media", async () => {
+          const preMarketbal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketbal)).to.equal(0);
+
+          // signer one's pre balance
+          const preBidBal: string = await token.balanceOf(
+            signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(200);
+
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
+
+          //get post market balance
+          const postMarketbal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketbal)).to.equal(200);
+
+          // signer one's post balance
+          const postBidBal: string = await token.balanceOf(
+            signerOne.getAddress()
+          );
+
+          //expecting that signer one's post balance is zero
+          expect(parseInt(postBidBal)).to.equal(
+            parseInt(preBidBal) - parseInt(bid.amount.toString())
+          );
+
+          //get token balance of creator's(signer) bidshares
+          const preOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preOwnerBal)).to.equal(520000000e18);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabOne: string = await token.balanceOf(
+            await bidShares.collaborators[0]
+          );
+          expect(parseInt(preCollabOne)).to.equal(0);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabTwo: string = await token.balanceOf(
+            await bidShares.collaborators[1]
+          );
+          expect(parseInt(preCollabTwo)).to.equal(0);
+
+          // The token balance of collaborator[2] before the bid is accepted
+          const preCollabThree: string = await token.balanceOf(
+            await bidShares.collaborators[2]
+          );
+          expect(parseInt(preCollabThree)).to.equal(0);
+
+          //owner on main media has to accept the bid
+          await ownerConnected.acceptBid(0, bid);
+
+          //owner balance after bid was accepted
+          const postOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+
+          //post owner's balance increase by 35% bidshares
+          expect(parseInt(postOwnerBal)).to.equal(
+            parseInt(preOwnerBal) + parseInt(bid.amount.toString()) * 0.35
+          );
+
+          //checking the new owner of the bid
+          const newOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newOwner).to.equal(await signerOne.getAddress());
+
+          //after the bid is accepted
+          const postCollabOne: string = await token.balanceOf(
+            bidShares.collaborators[0]
+          );
+          const postCollabTwo: string = await token.balanceOf(
+            bidShares.collaborators[1]
+          );
+          const postCollabThree: string = await token.balanceOf(
+            bidShares.collaborators[2]
+          );
+
+          //collab one receive a payout of 15% of bidshares
+          expect(parseInt(postCollabOne)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+          //collab two receive a payout of 15% of bidshares
+          expect(parseInt(postCollabTwo)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+          //collab three receive a payout of 15% of bidshares
+          expect(parseInt(postCollabThree)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+        });
+
+        it("should accept a bid on a custom media", async () => {
+          const preMarketbal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketbal)).to.equal(0);
+
+          // signer's pre balance
+          const preBidBal: string = await token.balanceOf(
+            signer.getAddress()
+          );
+          
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+          
+          //set bid for signer
+          await customMediaSigner0.setBid(0, customBid);
+
+          //get post market balance
+          const postMarketbal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketbal)).to.equal(200);
+
+          // signer's post balance
+          const postBidBal: string = await token.balanceOf(
+            signer.getAddress()
+          );
+
+          //expecting that signer's post balance is zero
+          expect(parseInt(postBidBal)).to.equal(
+            parseInt(preBidBal) - parseInt(bid.amount.toString())
+          );
+
+          //get token balance of creator's(signer) bidshares
+          const preOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preOwnerBal)).to.equal(520000000e18);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabOne: string = await token.balanceOf(
+            await bidShares.collaborators[0]
+          );
+          expect(parseInt(preCollabOne)).to.equal(0);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabTwo: string = await token.balanceOf(
+            await bidShares.collaborators[1]
+          );
+          expect(parseInt(preCollabTwo)).to.equal(0);
+
+          // The token balance of collaborator[2] before the bid is accepted
+          const preCollabThree: string = await token.balanceOf(
+            await bidShares.collaborators[2]
+          );
+          expect(parseInt(preCollabThree)).to.equal(0);
+
+          //owner on custom media has to accept the bid
+          await customMediaSigner1.acceptBid(0, customBid);
+
+          //owner balance after bid was accepted
+          const postOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+
+          //post owner's balance increase by 35% bidshares
+          expect(parseInt(postOwnerBal)).to.equal(
+            parseInt(preOwnerBal) + parseInt(customBid.amount.toString()) * 0.35
+          );
+
+          //checking the new owner of the bid
+          const newOwner: string = await customMediaSigner0.fetchOwnerOf(0);
+          expect(newOwner).to.equal(await signer.getAddress());
+
+          //after the bid is accepted
+          const postCollabOne: string = await token.balanceOf(
+            bidShares.collaborators[0]
+          );
+          const postCollabTwo: string = await token.balanceOf(
+            bidShares.collaborators[1]
+          );
+          const postCollabThree: string = await token.balanceOf(
+            bidShares.collaborators[2]
+          );
+
+          //collab one receive a payout of 15% of bidshares
+          expect(parseInt(postCollabOne)).to.equal(
+            parseInt(customBid.amount.toString()) * 0.15
+          );
+          //collab two receive a payout of 15% of bidshares
+          expect(parseInt(postCollabTwo)).to.equal(
+            parseInt(customBid.amount.toString()) * 0.15
+          );
+          //collab three receive a payout of 15% of bidshares
+          expect(parseInt(postCollabThree)).to.equal(
+            parseInt(customBid.amount.toString()) * 0.15
+          );
+        });
+
       });
 
       describe("#revokeApproval", () => {
