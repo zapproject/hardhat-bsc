@@ -646,7 +646,9 @@ describe("AuctionHouse", () => {
     });
 
     describe.only("#endAuction", () => {
+      it("Should reject if the auctionId does not exist on the main media", async () => {
 
+      });
     });
 
     describe("View Functions", () => {
