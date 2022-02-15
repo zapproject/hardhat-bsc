@@ -667,7 +667,7 @@ describe("AuctionHouse", () => {
           );
           it("should throw an error if auctionId does not exist", async () => {
             new AuctionHouse(300, signer);
-          }).to.throw("AuctionHouse (Constructor): the (mainmediaaddress) auctionId is not supported.");
+          }).should.be.rejectedWith("AuctionHouse (Constructor): the (mainmediaaddress) auctionId is not supported.");
           //Step 1 create an auction
           //step 2 allow the cancelAuction to throw an error if the auctionId does not exist
           //Step 3 add in assertion that it should throw error
