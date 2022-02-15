@@ -48,6 +48,8 @@ describe("AuctionHouse", () => {
   let ownerAuctionConnected: AuctionHouse;
   let mediaAddress: string;
   let bidShares: BidShares;
+  let curator: Signer;
+  let curatorMainConnected: AuctionHouse;
 
   const signers = getSigners(provider);
 
@@ -62,6 +64,7 @@ describe("AuctionHouse", () => {
 
   beforeEach(async () => {
     signer = signers[0];
+    curator = signers[9];
 
     token = await deployZapToken();
     zapVault = await deployZapVault();
@@ -109,6 +112,7 @@ describe("AuctionHouse", () => {
 
     ownerMediaConnected = new ZapMedia(1337, signer);
     ownerAuctionConnected = new AuctionHouse(1337, signer);
+    curatorMainConnected = new AuctionHouse(1337, curator);
 
     await ownerMediaConnected.mint(mediaData, bidShares);
   });
@@ -124,7 +128,7 @@ describe("AuctionHouse", () => {
 
     describe("Write Functions", () => {
       describe("#createAuction", () => {
-        it.only("Should reject if the auctionHouse is not approved", async () => {
+        it("Should reject if the auctionHouse is not approved on the main media", async () => {
           await ownerAuctionConnected
             .createAuction(
               0,
@@ -140,16 +144,15 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it("Should reject if the caller is not approved", async () => {
-          const duration = 60 * 60 * 24;
-
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
-
+        it("Should reject if the caller is not approved nor token owner on the main media", async () => {
           const unapprovedSigner = signers[1];
 
           const auctionHouse = new AuctionHouse(1337, unapprovedSigner);
 
-          // await media.approve(auctionHouse.auctionHouse.address, 0);
+          await ownerMediaConnected.approve(
+            auctionHouse.auctionHouse.address,
+            0
+          );
 
           await auctionHouse
             .createAuction(
@@ -161,107 +164,92 @@ describe("AuctionHouse", () => {
               0,
               token.address
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createAuction): Caller is not approved or token owner."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createAuction): Caller is not approved or token owner."
+            );
         });
 
-        it("Should reject if the curator fee is 100", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
+        it("Should reject if the curator fee is 100 on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          // await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse
+          await ownerAuctionConnected
             .createAuction(
               0,
               mediaAddress,
               duration,
               reservePrice,
-              await signers[1].getAddress(),
+              ethers.constants.AddressZero,
               100,
               token.address
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createAuction): CuratorFeePercentage must be less than 100."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createAuction): CuratorFeePercentage must be less than 100."
+            );
         });
 
-        it("Should reject if the tokenId does not exist", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
+        it("Should reject if the tokenId does not exist on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse
+          await ownerAuctionConnected
             .createAuction(
               300,
               mediaAddress,
               duration,
               reservePrice,
-              "0x0000000000000000000000000000000000000000",
+              ethers.constants.AddressZero,
               0,
               token.address
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createAuction): TokenId does not exist."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createAuction): TokenId does not exist."
+            );
         });
 
-        it("Should reject if the mediaContract is a zero address", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
+        it("Should reject if the media is a zero address on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse
+          await ownerAuctionConnected
             .createAuction(
               0,
               ethers.constants.AddressZero,
               duration,
               reservePrice,
-              "0x0000000000000000000000000000000000000000",
+              ethers.constants.AddressZero,
               0,
               token.address
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createAuction): Media cannot be a zero address."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createAuction): Media cannot be a zero address."
+            );
         });
 
-        it("Should create an auction", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
+        it("Should create an auction on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse.createAuction(
+          await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
             reservePrice,
-            "0x0000000000000000000000000000000000000000",
+            ethers.constants.AddressZero,
             0,
             token.address
           );
 
-          const createdAuction = await auctionHouse.fetchAuction(0);
+          const createdAuction: Auction =
+            await ownerAuctionConnected.fetchAuction(0);
 
           expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
 
@@ -279,31 +267,36 @@ describe("AuctionHouse", () => {
       });
 
       describe("#startAuction", () => {
-        let auctionHouse: AuctionHouse;
-        let curatorConnected: AuctionHouse;
-        let curator: Signer;
+        it("Should reject if the auctionId does not exist on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-        beforeEach(async () => {
-          curator = signers[9];
-          auctionHouse = new AuctionHouse(1337, signer);
-          curatorConnected = new AuctionHouse(1337, curator);
+          await ownerAuctionConnected.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            await curator.getAddress(),
+            0,
+            token.address
+          );
 
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-        });
-
-        it("Should reject if the auctionId does not exist", async () => {
-          await curatorConnected.startAuction(0, true).catch((err) => {
-            expect(err.message).to.equal(
+          await curatorMainConnected
+            .startAuction(21, true)
+            .should.be.rejectedWith(
               "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
             );
-          });
         });
 
-        it("Should reject if the auction has already started", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
+        it("Should reject if the auction has already started on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          await auctionHouse.createAuction(
+          await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
@@ -313,20 +306,26 @@ describe("AuctionHouse", () => {
             token.address
           );
 
-          await curatorConnected.startAuction(0, true);
+          await curatorMainConnected.startAuction(0, true);
 
-          await curatorConnected.startAuction(0, true).catch((err) => {
-            expect(err.message).to.equal(
+          await curatorMainConnected
+            .startAuction(0, true)
+            .should.be.rejectedWith(
               "Invariant failed: AuctionHouse (startAuction): Auction has already started."
             );
-          });
         });
 
-        it("Should reject if a valid curator does not start the auction", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
+        it("Should reject if an invalid curator tries to start the auction on the main media", async () => {
+          const invalidCurator: AuctionHouse = new AuctionHouse(
+            1337,
+            signers[8]
+          );
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          await auctionHouse.createAuction(
+          await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
@@ -336,11 +335,11 @@ describe("AuctionHouse", () => {
             token.address
           );
 
-          await auctionHouse.startAuction(0, true).catch((err) => {
-            expect(err.message).to.equal(
+          await invalidCurator
+            .startAuction(0, true)
+            .should.be.rejectedWith(
               "Invariant failed: AuctionHouse (startAuction): Only the curator can start this auction."
             );
-          });
         });
 
         it("Should start auction if the curator is not a zero address or token owner", async () => {
@@ -357,7 +356,7 @@ describe("AuctionHouse", () => {
             token.address
           );
 
-          await curatorConnected.startAuction(0, true);
+          // await curatorConnected.startAuction(0, true);
 
           const createdAuction = await auctionHouse.fetchAuction(0);
 
