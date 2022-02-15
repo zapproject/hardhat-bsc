@@ -3309,18 +3309,20 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#fetchMediaByIndex", () => {
-        it("Should get media instance by index in the media contract", async () => {
-          const tokenId = await ownerConnected.fetchMediaByIndex(0);
-
-          expect(parseInt(tokenId._hex)).to.equal(0);
+        it("Should reject if the index is out of range on the main media", async () => {
+          await ownerConnected
+            .fetchMediaByIndex(2)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaByIndex): Index out of range."
+            );
         });
 
-        it("Should throw an error index out of range", async () => {
-          await ownerConnected.fetchMediaByIndex(1).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (tokenByIndex): Index out of range."
+        it("Should reject if the index is out of range on a custom media", async () => {
+          await customMediaSigner0
+            .fetchMediaByIndex(1)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaByIndex): Index out of range."
             );
-          });
         });
       });
 
