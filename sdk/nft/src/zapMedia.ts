@@ -259,10 +259,10 @@ class ZapMedia {
   }
 
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
-    let totalMedia = await this.fetchTotalMedia();
+    let totalMedia: BigNumberish = await this.fetchTotalMedia();
 
     if (index > parseInt(totalMedia._hex) - 1) {
-      invariant(false, "ZapMedia (tokenByIndex): Index out of range.");
+      invariant(false, "ZapMedia (fetchMediaByIndex): Index out of range.");
     }
 
     return this.media.tokenByIndex(index);
