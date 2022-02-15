@@ -2892,6 +2892,15 @@ describe("ZapMedia", () => {
             );
         });
 
+        it.only("Should set approval for all on the main media", async () => {
+          const preApprovalStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(preApprovalStatus).to.equal(false);
+        });
+
         it("Should set approval for another address for all tokens owned by owner", async () => {
           const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
             await signer.getAddress(),
