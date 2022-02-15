@@ -232,6 +232,11 @@ class AuctionHouse {
       return this.auctionHouse.createBid(auctionId, amount, mediaContract);
     }
   }
+
+  public async endAuction(auctionId: BigNumberish) {
+    return this.auctionHouse.endAuction(auctionId)
+  }
+
 }
 
 export default AuctionHouse;

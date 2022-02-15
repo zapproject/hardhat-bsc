@@ -372,10 +372,6 @@ describe("AuctionHouse", () => {
         });
       });
 
-      describe.only("#endAuction", () => {
-
-      });
-
       describe("#setAuctionReservePrice", () => {
         const duration = 60 * 60 * 24;
         const reservePrice = BigNumber.from(10).pow(18).div(2);
@@ -647,6 +643,10 @@ describe("AuctionHouse", () => {
           );
         });
       });
+    });
+
+    describe.only("#endAuction", () => {
+
     });
 
     describe("View Functions", () => {
