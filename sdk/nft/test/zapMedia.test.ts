@@ -2875,7 +2875,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#setApprovalForAll", () => {
+      describe("#setApprovalForAll", () => {
         it("Should reject if the (operator) is the caller on the main media", async () => {
           await ownerConnected
             .setApprovalForAll(await signer.getAddress(), true)
