@@ -231,10 +231,11 @@ class AuctionHouse {
     } else {
       return this.auctionHouse.createBid(auctionId, amount, mediaContract);
     }
-
-    public async cancelAuction(auctionId: BigNumberish) {
-      return this.auctionHouse.cancelAuction(auctionId)
-    }
   }
+
+  public async cancelAuction(auctionId: BigNumberish) {
+    return this.auctionHouse.cancelAuction(auctionId);
+  }
+}
 
 export default AuctionHouse;
