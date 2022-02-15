@@ -538,26 +538,29 @@ describe("AuctionHouse", () => {
       });
 
       describe.only("#cancelAuction", () => {
+        beforeEach(async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
+        });
+
         it("Should reject if the auctionId does not exist on the main media", async () => {
-          const duration = 60 * 60 * 24;
-          const reservePrice = BigNumber.from(10).pow(18).div(2);
-
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse.createAuction(
+          await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
             reservePrice,
-            "0x0000000000000000000000000000000000000000",
+            ethers.constants.AddressZero,
             0,
             token.address
           );
-          //Step 1 create an auction
-          //step 2 allow the cancelAuction to throw an error if the auctionId does not exist
-          //Step 3 add in assertion that it should throw error
+
+          await ownerAuctionConnected
+            .cancelAuction(53)
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+            );
         });
       });
     });

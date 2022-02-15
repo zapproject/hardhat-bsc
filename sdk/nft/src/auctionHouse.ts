@@ -234,12 +234,15 @@ class AuctionHouse {
   }
 
   public async cancelAuction(auctionId: BigNumberish) {
-    const auctionInfo = await this.fetchAuction(auctionId);
+    const auctionInfo: Auction = await this.fetchAuction(auctionId);
 
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, "AuctionHouse (fetchAuction): AuctionId does not exist.");
-    } 
-      return this.auctionHouse.cancelAuction(auctionId);
+      invariant(
+        false,
+        "AuctionHouse (fetchAuction): AuctionId does not exist."
+      );
+    }
+    return this.auctionHouse.cancelAuction(auctionId);
   }
 }
 
