@@ -2876,6 +2876,12 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#setApprovalForAll", () => {
+        it.only("testing", async () => {
+          await ownerConnected.setApprovalForAll(
+            await signer.getAddress(),
+            true
+          );
+        });
         it("Should set approval for another address for all tokens owned by owner", async () => {
           const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
             await signer.getAddress(),
