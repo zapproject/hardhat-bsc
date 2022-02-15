@@ -128,14 +128,23 @@ describe("AuctionHouse", () => {
 
     describe("Write Functions", () => {
       describe("#createAuction", () => {
+        beforeEach(async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
+        });
+
         it("Should reject if the auctionHouse is not approved on the main media", async () => {
+          await ownerMediaConnected.revokeApproval(0);
+
           await ownerAuctionConnected
             .createAuction(
               0,
               mediaAddress,
               duration,
               reservePrice,
-              "0x0000000000000000000000000000000000000000",
+              ethers.constants.AddressZero,
               0,
               token.address
             )
@@ -145,22 +154,20 @@ describe("AuctionHouse", () => {
         });
 
         it("Should reject if the caller is not approved nor token owner on the main media", async () => {
-          const unapprovedSigner = signers[1];
+          const invalidSigner: Signer = signers[1];
 
-          const auctionHouse = new AuctionHouse(1337, unapprovedSigner);
-
-          await ownerMediaConnected.approve(
-            auctionHouse.auctionHouse.address,
-            0
+          const invalidMainConnected: AuctionHouse = new AuctionHouse(
+            1337,
+            invalidSigner
           );
 
-          await auctionHouse
+          await invalidMainConnected
             .createAuction(
               0,
               mediaAddress,
               duration,
               reservePrice,
-              "0x0000000000000000000000000000000000000000",
+              ethers.constants.AddressZero,
               0,
               token.address
             )
@@ -170,11 +177,6 @@ describe("AuctionHouse", () => {
         });
 
         it("Should reject if the curator fee is 100 on the main media", async () => {
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
           await ownerAuctionConnected
             .createAuction(
               0,
@@ -191,11 +193,6 @@ describe("AuctionHouse", () => {
         });
 
         it("Should reject if the tokenId does not exist on the main media", async () => {
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
           await ownerAuctionConnected
             .createAuction(
               300,
@@ -212,11 +209,6 @@ describe("AuctionHouse", () => {
         });
 
         it("Should reject if the media is a zero address on the main media", async () => {
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
           await ownerAuctionConnected
             .createAuction(
               0,
@@ -233,11 +225,6 @@ describe("AuctionHouse", () => {
         });
 
         it("Should create an auction on the main media", async () => {
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
           await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
@@ -267,7 +254,7 @@ describe("AuctionHouse", () => {
       });
 
       describe("#startAuction", () => {
-        it("Should reject if the auctionId does not exist on the main media", async () => {
+        beforeEach(async () => {
           await ownerMediaConnected.approve(
             ownerAuctionConnected.auctionHouse.address,
             0
@@ -282,7 +269,9 @@ describe("AuctionHouse", () => {
             0,
             token.address
           );
+        });
 
+        it("Should reject if the auctionId does not exist on the main media", async () => {
           await curatorMainConnected
             .startAuction(21, true)
             .should.be.rejectedWith(
@@ -291,21 +280,6 @@ describe("AuctionHouse", () => {
         });
 
         it("Should reject if the auction has already started on the main media", async () => {
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
-          await ownerAuctionConnected.createAuction(
-            0,
-            mediaAddress,
-            duration,
-            reservePrice,
-            await curator.getAddress(),
-            0,
-            token.address
-          );
-
           await curatorMainConnected.startAuction(0, true);
 
           await curatorMainConnected
@@ -321,21 +295,6 @@ describe("AuctionHouse", () => {
             signers[8]
           );
 
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
-          await ownerAuctionConnected.createAuction(
-            0,
-            mediaAddress,
-            duration,
-            reservePrice,
-            await curator.getAddress(),
-            0,
-            token.address
-          );
-
           await invalidCurator
             .startAuction(0, true)
             .should.be.rejectedWith(
@@ -344,21 +303,6 @@ describe("AuctionHouse", () => {
         });
 
         it("Should start auction if the curator is not a zero address or token owner on the main media", async () => {
-          await ownerMediaConnected.approve(
-            ownerAuctionConnected.auctionHouse.address,
-            0
-          );
-
-          await ownerAuctionConnected.createAuction(
-            0,
-            mediaAddress,
-            duration,
-            reservePrice,
-            await curator.getAddress(),
-            0,
-            token.address
-          );
-
           await curatorMainConnected.startAuction(0, true);
 
           const createdAuction: Auction =
@@ -527,7 +471,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it.only("Should reject if the bid does not meet the reserve price on the main media", async () => {
+        it("Should reject if the bid does not meet the reserve price on the main media", async () => {
           await bidderOneMainConnected
             .createBid(0, reservePrice - 1, mediaAddress)
             .should.be.rejectedWith(
@@ -535,7 +479,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it("Should create a bid", async () => {
+        it("Should create a bid on the main media", async () => {
           const aHousePreBal = await token.balanceOf(auctionHouse.address);
           expect(parseInt(aHousePreBal._hex)).to.equal(0);
 
@@ -578,7 +522,7 @@ describe("AuctionHouse", () => {
           expect(parseInt(secondBid.amount._hex)).to.equal(bidAmtTwo);
         });
 
-        it("Should not update the auctions duration", async () => {
+        it("Should not update the auctions duration on the main media", async () => {
           const beforeDuration = (await ownerAuctionConnected.fetchAuction(0))
             .duration;
 
