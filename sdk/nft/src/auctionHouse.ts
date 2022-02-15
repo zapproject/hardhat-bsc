@@ -234,6 +234,8 @@ class AuctionHouse {
   }
 
   public async cancelAuction(auctionId: BigNumberish) {
+    // Step 1 - Figure out a way to check if an auction id exists or not. If it doesnt exist
+    // throw an error
     return this.auctionHouse.cancelAuction(auctionId);
   }
 }
