@@ -644,7 +644,7 @@ describe("AuctionHouse", () => {
         });
       });
 
-      describe("#cancelAuction", () => {
+      describe.only("#cancelAuction", () => {
         it("Should reject if the auction id does not exist", async () => {});
       });
     });
