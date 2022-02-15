@@ -537,7 +537,7 @@ describe("AuctionHouse", () => {
         });
       });
 
-      describe("#cancelAuction", () => {
+      describe.only("#cancelAuction", () => {
         it("Should reject if the auctionId does not exist on the main media", async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
