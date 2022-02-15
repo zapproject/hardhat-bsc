@@ -1,4 +1,6 @@
-import { expect } from "chai";
+import chai, { expect } from "chai";
+
+import chaiAsPromised from "chai-as-promised";
 
 import { BigNumber, Contract, ethers, Signer } from "ethers";
 
@@ -29,7 +31,9 @@ import ZapMedia from "../src/zapMedia";
 import { getSigners } from "./test_utils";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+chai.use(chaiAsPromised);
 
+chai.should();
 describe("AuctionHouse", () => {
   let token: Contract;
   let zapVault: Contract;
@@ -40,7 +44,8 @@ describe("AuctionHouse", () => {
   let auctionHouse: Contract;
   let signer: Signer;
   let mediaData: MediaData;
-  let ownerConnected: ZapMedia;
+  let ownerMediaConnected: ZapMedia;
+  let ownerAuctionConnected: AuctionHouse;
   let mediaAddress: string;
   let bidShares: BidShares;
 
@@ -102,9 +107,10 @@ describe("AuctionHouse", () => {
       35
     );
 
-    ownerConnected = new ZapMedia(1337, signer);
+    ownerMediaConnected = new ZapMedia(1337, signer);
+    ownerAuctionConnected = new AuctionHouse(1337, signer);
 
-    await ownerConnected.mint(mediaData, bidShares);
+    await ownerMediaConnected.mint(mediaData, bidShares);
   });
 
   describe("Contract Functions", () => {
@@ -118,10 +124,8 @@ describe("AuctionHouse", () => {
 
     describe("Write Functions", () => {
       describe("#createAuction", () => {
-        it("Should reject if the auctionHouse is not approved", async () => {
-          const auctionHouse = new AuctionHouse(1337, signer);
-
-          await auctionHouse
+        it.only("Should reject if the auctionHouse is not approved", async () => {
+          await ownerAuctionConnected
             .createAuction(
               0,
               mediaAddress,
@@ -131,11 +135,9 @@ describe("AuctionHouse", () => {
               0,
               token.address
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createAuction): Transfer caller is not owner nor approved."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createAuction): Transfer caller is not owner nor approved."
+            );
         });
 
         it("Should reject if the caller is not approved", async () => {
@@ -147,7 +149,7 @@ describe("AuctionHouse", () => {
 
           const auctionHouse = new AuctionHouse(1337, unapprovedSigner);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          // await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse
             .createAuction(
@@ -172,7 +174,7 @@ describe("AuctionHouse", () => {
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          // await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse
             .createAuction(
@@ -197,7 +199,7 @@ describe("AuctionHouse", () => {
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse
             .createAuction(
@@ -222,7 +224,7 @@ describe("AuctionHouse", () => {
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse
             .createAuction(
@@ -247,7 +249,7 @@ describe("AuctionHouse", () => {
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse.createAuction(
             0,
@@ -286,7 +288,7 @@ describe("AuctionHouse", () => {
           auctionHouse = new AuctionHouse(1337, signer);
           curatorConnected = new AuctionHouse(1337, curator);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
         });
 
         it("Should reject if the auctionId does not exist", async () => {
@@ -403,7 +405,7 @@ describe("AuctionHouse", () => {
           curatorConnected = new AuctionHouse(1337, curator);
 
           // The owner(signer[0]) of tokenId 0 approves the auctionHouse
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           // The owner(signer[0]) creates the auction
           // The curator is neither a zero address or token owner so the curator has to invoke startAuction
@@ -533,7 +535,7 @@ describe("AuctionHouse", () => {
           bidderOneConnected = new AuctionHouse(1337, bidderOne);
           bidderTwoConnected = new AuctionHouse(1337, bidderTwo);
 
-          await media.approve(ownerConnected.auctionHouse.address, 0);
+          //await media.approve(ownerConnected.auctionHouse.address, 0);
 
           await ownerConnected.createAuction(
             0,
@@ -645,14 +647,14 @@ describe("AuctionHouse", () => {
         });
       });
 
-      describe.only("#cancelAuction", () => {
+      describe("#cancelAuction", () => {
         it("Should reject if the auctionId does not exist on the main media", async () => {
           const duration = 60 * 60 * 24;
           const reservePrice = BigNumber.from(10).pow(18).div(2);
 
           const auctionHouse = new AuctionHouse(1337, signer);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse.createAuction(
             0,
@@ -733,7 +735,7 @@ describe("AuctionHouse", () => {
 
           let auctionHouse = new AuctionHouse(1337, signer);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           const tx = await auctionHouse.createAuction(
             0,
@@ -767,7 +769,7 @@ describe("AuctionHouse", () => {
           let curator = signers[9];
           let auctionHouse = new AuctionHouse(1337, signer);
           let curatorConnected = new AuctionHouse(1337, curator);
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse.createAuction(
             0,
@@ -801,9 +803,8 @@ describe("AuctionHouse", () => {
 
           let auctionHouse = new AuctionHouse(1337, signer);
 
-          const tx = await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse.createAuction(
+          const tx = await auctionHouse.createAuction(
+            //await media.approve(auctionHouse.auctionHouse.address, 0);
             0,
             mediaAddress,
             duration,
@@ -830,7 +831,7 @@ describe("AuctionHouse", () => {
 
           let curatorConnected = new AuctionHouse(1337, curator);
 
-          await media.approve(auctionHouse.auctionHouse.address, 0);
+          //await media.approve(auctionHouse.auctionHouse.address, 0);
 
           await auctionHouse.createAuction(
             0,
