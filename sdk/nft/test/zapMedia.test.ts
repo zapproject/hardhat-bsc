@@ -2892,46 +2892,46 @@ describe("ZapMedia", () => {
             );
         });
 
-        it.only("Should set approval for all on the main media", async () => {
+        it("Should set approval for all on the main media", async () => {
           const preApprovalStatus: boolean =
             await ownerConnected.fetchIsApprovedForAll(
               await signer.getAddress(),
               await signerOne.getAddress()
             );
           expect(preApprovalStatus).to.equal(false);
-        });
-
-        it("Should set approval for another address for all tokens owned by owner", async () => {
-          const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signerOne.getAddress()
-          );
-
-          expect(preApprovalStatus).to.be.false;
 
           await ownerConnected.setApprovalForAll(
             await signerOne.getAddress(),
             true
           );
 
-          const postApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
+          const postApprovalStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(postApprovalStatus).to.equal(true);
+        });
+
+        it("Should set approval for all on a custom media", async () => {
+          const preApprovalStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(preApprovalStatus).to.equal(false);
+
+          await customMediaSigner1.setApprovalForAll(
             await signer.getAddress(),
-            await signerOne.getAddress()
+            true
           );
 
-          expect(postApprovalStatus).to.be.true;
-
-          await ownerConnected.setApprovalForAll(
-            await signerOne.getAddress(),
-            false
-          );
-
-          const revoked = await ownerConnected.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signerOne.getAddress()
-          );
-
-          expect(revoked).to.be.false;
+          const postApprovalStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(postApprovalStatus).to.equal(true);
         });
       });
 
