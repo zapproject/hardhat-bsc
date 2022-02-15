@@ -237,12 +237,9 @@ class AuctionHouse {
     const auctionInfo = await this.fetchAuction(auctionId);
 
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(false, "If auction Id does not exist");
-    } else {
-      // Step 1 - Figure out a way to check if an auction id exists or not. If it doesnt exist
-      // throw an error
+      invariant(false, "AuctionHouse (fetchAuction): AuctionId does not exist.");
+    } 
       return this.auctionHouse.cancelAuction(auctionId);
-    }
   }
 }
 

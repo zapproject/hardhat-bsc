@@ -645,7 +645,33 @@ describe("AuctionHouse", () => {
       });
 
       describe.only("#cancelAuction", () => {
-        it("Should reject if the auction id does not exist", async () => {});
+        it("Should reject if the auctionId does not exist on the main media", async () => {
+          expect(() => {
+            new AuctionHouse(300, signer);
+          }).to.throw("Constructor: auctionId does not exist on main media.");
+          const duration = 60 * 60 * 24;
+          const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+          const auctionHouse = new AuctionHouse(1337, signer);
+
+          await media.approve(auctionHouse.auctionHouse.address, 0);
+
+          await auctionHouse.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            "0x0000000000000000000000000000000000000000",
+            0,
+            token.address
+          );
+          it("should throw an error if auctionId does not exist", async () => {
+            new AuctionHouse(300, signer);
+          }).to.throw("AuctionHouse (Constructor): the (mainmediaaddress) auctionId is not supported.");
+          //Step 1 create an auction
+          //step 2 allow the cancelAuction to throw an error if the auctionId does not exist
+          //Step 3 add in assertion that it should throw error
+        });
       });
     });
 
