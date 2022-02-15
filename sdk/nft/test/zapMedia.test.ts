@@ -3308,7 +3308,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchMedia", () => {
+      describe.only("#fetchMediaByIndex", () => {
         it("Should get media instance by index in the media contract", async () => {
           const tokenId = await ownerConnected.fetchMediaByIndex(0);
 
