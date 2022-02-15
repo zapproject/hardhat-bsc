@@ -519,7 +519,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it.only("Should reject if the media contract is a zero address on the main media", async () => {
+        it("Should reject if the media contract is a zero address on the main media", async () => {
           await bidderOneMainConnected
             .createBid(0, bidAmtOne, ethers.constants.AddressZero)
             .should.be.rejectedWith(
@@ -527,14 +527,12 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it("Should reject if the bid does not meet the reserve price", async () => {
+        it.only("Should reject if the bid does not meet the reserve price on the main media", async () => {
           await bidderOneMainConnected
             .createBid(0, reservePrice - 1, mediaAddress)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createBid): Must send at least reserve price."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createBid): Must send at least reserve price."
+            );
         });
 
         it("Should create a bid", async () => {
