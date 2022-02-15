@@ -468,27 +468,27 @@ describe("AuctionHouse", () => {
       });
 
       describe("#createBid", () => {
-        const duration = 60 * 60 * 24;
         const reservePrice = 200;
         const bidAmtOne = 300;
         const bidAmtTwo = 400;
 
         let bidderOne: Signer;
         let bidderTwo: Signer;
-        let ownerConnected: AuctionHouse;
-        let bidderOneConnected: AuctionHouse;
-        let bidderTwoConnected: AuctionHouse;
+        let bidderOneMainConnected: AuctionHouse;
+        let bidderTwoMainConnected: AuctionHouse;
 
         beforeEach(async () => {
-          bidderOne = signers[1];
-          bidderTwo = signers[2];
-          ownerConnected = new AuctionHouse(1337, signer);
-          bidderOneConnected = new AuctionHouse(1337, bidderOne);
-          bidderTwoConnected = new AuctionHouse(1337, bidderTwo);
+          bidderOne = signers[3];
+          bidderTwo = signers[4];
+          bidderOneMainConnected = new AuctionHouse(1337, bidderOne);
+          bidderTwoMainConnected = new AuctionHouse(1337, bidderTwo);
 
-          //await media.approve(ownerConnected.auctionHouse.address, 0);
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          await ownerConnected.createAuction(
+          await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
@@ -504,25 +504,23 @@ describe("AuctionHouse", () => {
 
           await token
             .connect(bidderOne)
-            .approve(ownerConnected.auctionHouse.address, 1000);
+            .approve(ownerAuctionConnected.auctionHouse.address, 1000);
 
           await token
             .connect(bidderTwo)
-            .approve(ownerConnected.auctionHouse.address, 1000);
+            .approve(ownerAuctionConnected.auctionHouse.address, 1000);
         });
 
-        it("Should reject if the auction id does not exist", async () => {
-          await bidderOneConnected
+        it.only("Should reject if the auction id does not exist on the main media", async () => {
+          await bidderOneMainConnected
             .createBid(12, bidAmtOne, mediaAddress)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+            );
         });
 
         it("Should reject if the media contract is a zero address", async () => {
-          await bidderOneConnected
+          await bidderOneMainConnected
             .createBid(0, bidAmtOne, ethers.constants.AddressZero)
             .catch((err) => {
               expect(err.message).to.equal(
@@ -532,7 +530,7 @@ describe("AuctionHouse", () => {
         });
 
         it("Should reject if the bid does not meet the reserve price", async () => {
-          await bidderOneConnected
+          await bidderOneMainConnected
             .createBid(0, reservePrice - 1, mediaAddress)
             .catch((err) => {
               expect(err.message).to.equal(
@@ -550,7 +548,7 @@ describe("AuctionHouse", () => {
           );
           expect(parseInt(bidderOnePreBal._hex)).to.equal(1000);
 
-          await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
+          await bidderOneMainConnected.createBid(0, bidAmtOne, mediaAddress);
 
           const bidderOnePostBal = await token.balanceOf(
             await bidderOne.getAddress()
@@ -560,7 +558,7 @@ describe("AuctionHouse", () => {
           const aHousePostBalOne = await token.balanceOf(auctionHouse.address);
           expect(parseInt(aHousePostBalOne._hex)).to.equal(bidAmtOne);
 
-          const firstBid = await ownerConnected.fetchAuction(0);
+          const firstBid = await ownerAuctionConnected.fetchAuction(0);
           expect(firstBid.bidder).to.equal(await bidderOne.getAddress());
           expect(parseInt(firstBid.amount._hex)).to.equal(bidAmtOne);
 
@@ -569,7 +567,7 @@ describe("AuctionHouse", () => {
           );
           expect(parseInt(bidderTwoPreBal._hex)).to.equal(1000);
 
-          await bidderTwoConnected.createBid(0, bidAmtTwo, mediaAddress);
+          await bidderTwoMainConnected.createBid(0, bidAmtTwo, mediaAddress);
 
           const bidderTwoPostBal = await token.balanceOf(
             await bidderTwo.getAddress()
@@ -579,18 +577,19 @@ describe("AuctionHouse", () => {
           const aHousePostBalTwo = await token.balanceOf(auctionHouse.address);
           expect(parseInt(aHousePostBalTwo._hex)).to.equal(bidAmtTwo);
 
-          const secondBid = await ownerConnected.fetchAuction(0);
+          const secondBid = await ownerAuctionConnected.fetchAuction(0);
           expect(secondBid.bidder).to.equal(await bidderTwo.getAddress());
           expect(parseInt(secondBid.amount._hex)).to.equal(bidAmtTwo);
         });
 
         it("Should not update the auctions duration", async () => {
-          const beforeDuration = (await ownerConnected.fetchAuction(0))
+          const beforeDuration = (await ownerAuctionConnected.fetchAuction(0))
             .duration;
 
-          await bidderOneConnected.createBid(0, bidAmtOne, mediaAddress);
+          await bidderOneMainConnected.createBid(0, bidAmtOne, mediaAddress);
 
-          const afterDuration = (await ownerConnected.fetchAuction(0)).duration;
+          const afterDuration = (await ownerAuctionConnected.fetchAuction(0))
+            .duration;
 
           expect(parseInt(beforeDuration._hex)).to.equal(
             parseInt(afterDuration._hex)
