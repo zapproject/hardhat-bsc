@@ -184,11 +184,7 @@ describe("ZapMedia", () => {
 
     bidderMainConnected = new ZapMedia(1337, signerOne);
 
-    bidderCustomConnected = new ZapMedia(
-      1337,
-      bidder,
-      customMediaAddress
-    );
+    bidderCustomConnected = new ZapMedia(1337, bidder, customMediaAddress);
 
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
@@ -2223,7 +2219,9 @@ describe("ZapMedia", () => {
 
           await token.connect(signerOne).approve(zapMarket.address, bid.amount);
 
-          await token.connect(signer).approve(zapMarket.address, customBid.amount);
+          await token
+            .connect(signer)
+            .approve(zapMarket.address, customBid.amount);
         });
 
         it("Should reject if the token id does not exist on the main media", async () => {
@@ -2239,9 +2237,8 @@ describe("ZapMedia", () => {
         });
 
         it("Should reject if the token id does not exist on a custom media", async () => {
-      
-          await customMediaSigner0.setBid(0, customBid); 
-          
+          await customMediaSigner0.setBid(0, customBid);
+
           //attempting to accept the bid with invalid tokenID
           await customMediaSigner1
             .acceptBid(10, customBid)
@@ -2350,12 +2347,10 @@ describe("ZapMedia", () => {
           expect(parseInt(preMarketbal)).to.equal(0);
 
           // signer's pre balance
-          const preBidBal: string = await token.balanceOf(
-            signer.getAddress()
-          );
-          
+          const preBidBal: string = await token.balanceOf(signer.getAddress());
+
           expect(parseInt(preBidBal)).to.equal(520000000e18);
-          
+
           //set bid for signer
           await customMediaSigner0.setBid(0, customBid);
 
@@ -2366,9 +2361,7 @@ describe("ZapMedia", () => {
           expect(parseInt(postMarketbal)).to.equal(200);
 
           // signer's post balance
-          const postBidBal: string = await token.balanceOf(
-            signer.getAddress()
-          );
+          const postBidBal: string = await token.balanceOf(signer.getAddress());
 
           //expecting that signer's post balance is zero
           expect(parseInt(postBidBal)).to.equal(
@@ -2440,7 +2433,6 @@ describe("ZapMedia", () => {
             parseInt(customBid.amount.toString()) * 0.15
           );
         });
-
       });
 
       describe("#revokeApproval", () => {
@@ -2884,37 +2876,62 @@ describe("ZapMedia", () => {
       });
 
       describe("#setApprovalForAll", () => {
-        it("Should set approval for another address for all tokens owned by owner", async () => {
-          const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signerOne.getAddress()
-          );
+        it("Should reject if the (operator) is the caller on the main media", async () => {
+          await ownerConnected
+            .setApprovalForAll(await signer.getAddress(), true)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setApprovalForAll): The caller cannot be the operator."
+            );
+        });
 
-          expect(preApprovalStatus).to.be.false;
+        it("Should reject if the (operator) is the caller on a custom media", async () => {
+          await customMediaSigner1
+            .setApprovalForAll(await signerOne.getAddress(), true)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setApprovalForAll): The caller cannot be the operator."
+            );
+        });
+
+        it("Should set approval for all on the main media", async () => {
+          const preApprovalStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(preApprovalStatus).to.equal(false);
 
           await ownerConnected.setApprovalForAll(
             await signerOne.getAddress(),
             true
           );
 
-          const postApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
+          const postApprovalStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(postApprovalStatus).to.equal(true);
+        });
+
+        it("Should set approval for all on a custom media", async () => {
+          const preApprovalStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(preApprovalStatus).to.equal(false);
+
+          await customMediaSigner1.setApprovalForAll(
             await signer.getAddress(),
-            await signerOne.getAddress()
+            true
           );
 
-          expect(postApprovalStatus).to.be.true;
-
-          await ownerConnected.setApprovalForAll(
-            await signerOne.getAddress(),
-            false
-          );
-
-          const revoked = await ownerConnected.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signerOne.getAddress()
-          );
-
-          expect(revoked).to.be.false;
+          const postApprovalStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(postApprovalStatus).to.equal(true);
         });
       });
 
