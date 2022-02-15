@@ -3308,7 +3308,7 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe.only("#fetchMediaByIndex", () => {
+      describe("#fetchMediaByIndex", () => {
         it("Should reject if the index is out of range on the main media", async () => {
           await ownerConnected
             .fetchMediaByIndex(2)
@@ -3323,6 +3323,37 @@ describe("ZapMedia", () => {
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (fetchMediaByIndex): Index out of range."
             );
+        });
+
+        it("Should fetch the token by index on the main media", async () => {
+          const firstToken: BigNumberish =
+            await ownerConnected.fetchMediaByIndex(0);
+          expect(parseInt(firstToken._hex)).to.equal(0);
+
+          const firstTokenOwner: string = await ownerConnected.fetchOwnerOf(
+            parseInt(firstToken._hex)
+          );
+          expect(firstTokenOwner).to.equal(await signer.getAddress());
+
+          const secondToken: BigNumberish =
+            await ownerConnected.fetchMediaByIndex(1);
+          expect(parseInt(secondToken._hex)).to.equal(1);
+
+          const secondTokenOwner: string = await ownerConnected.fetchOwnerOf(
+            parseInt(secondToken._hex)
+          );
+          expect(secondTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should fetch the token by index on a custom media", async () => {
+          const firstToken: BigNumberish =
+            await customMediaSigner0.fetchMediaByIndex(0);
+          expect(parseInt(firstToken._hex)).to.equal(0);
+
+          const firstTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            parseInt(firstToken._hex)
+          );
+          expect(firstTokenOwner).to.equal(await signerOne.getAddress());
         });
       });
 
