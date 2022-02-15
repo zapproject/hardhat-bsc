@@ -511,7 +511,7 @@ describe("AuctionHouse", () => {
             .approve(ownerAuctionConnected.auctionHouse.address, 1000);
         });
 
-        it.only("Should reject if the auction id does not exist on the main media", async () => {
+        it("Should reject if the auction id does not exist on the main media", async () => {
           await bidderOneMainConnected
             .createBid(12, bidAmtOne, mediaAddress)
             .should.be.rejectedWith(
@@ -519,14 +519,12 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it("Should reject if the media contract is a zero address", async () => {
+        it.only("Should reject if the media contract is a zero address on the main media", async () => {
           await bidderOneMainConnected
             .createBid(0, bidAmtOne, ethers.constants.AddressZero)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: AuctionHouse (createBid): Media cannot be a zero address."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (createBid): Media cannot be a zero address."
+            );
         });
 
         it("Should reject if the bid does not meet the reserve price", async () => {
