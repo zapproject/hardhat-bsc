@@ -234,6 +234,17 @@ class AuctionHouse {
   }
 
   public async endAuction(auctionId: BigNumberish) {
+    // Fetches the auction details
+    const auctionInfo = await this.fetchAuction(auctionId);
+
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "AuctionHouse (endAuction): AuctionId does not exist."
+      );
+    }
+
+    
     return this.auctionHouse.endAuction(auctionId)
   }
 

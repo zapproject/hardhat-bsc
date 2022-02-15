@@ -646,8 +646,24 @@ describe("AuctionHouse", () => {
     });
 
     describe.only("#endAuction", () => {
-      it("Should reject if the auctionId does not exist on the main media", async () => {
+        let auctionHouse: AuctionHouse;
+        let curatorConnected: AuctionHouse;
+        let curator: Signer;
+        
 
+        beforeEach(async () => {
+          curator = signers[9];
+          auctionHouse = new AuctionHouse(1337, signer);
+          curatorConnected = new AuctionHouse(1337, curator);
+        });
+      
+      
+      it("Should reject if the auctionId does not exist on the main media", async () => {
+        await curatorConnected
+          .endAuction(10).catch((err) => {
+            expect(err.message).to.equal(
+              "Invariant failed: AuctionHouse (endAuction): AuctionId does not exist."
+            );
       });
     });
 
