@@ -2876,13 +2876,22 @@ describe("ZapMedia", () => {
       });
 
       describe.only("#setApprovalForAll", () => {
-        it.only("Should reject if the (operator) is the caller on the main media", async () => {
+        it("Should reject if the (operator) is the caller on the main media", async () => {
           await ownerConnected
             .setApprovalForAll(await signer.getAddress(), true)
             .should.be.rejectedWith(
               "Invariant failed: ZapMedia (setApprovalForAll): The caller cannot be the operator."
             );
         });
+
+        it("Should reject if the (operator) is the caller on a custom media", async () => {
+          await customMediaSigner1
+            .setApprovalForAll(await signerOne.getAddress(), true)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setApprovalForAll): The caller cannot be the operator."
+            );
+        });
+
         it("Should set approval for another address for all tokens owned by owner", async () => {
           const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
             await signer.getAddress(),
