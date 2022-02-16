@@ -235,15 +235,22 @@ class AuctionHouse {
 
   public async cancelAuction(auctionId: BigNumberish) {
     const auctionInfo: Auction = await this.fetchAuction(auctionId);
-    console.log(auctionInfo);
 
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(
         false,
-        "AuctionHouse (fetchAuction): AuctionId does not exist."
+        "AuctionHouse (cancelAuction): AuctionId does not exist."
       );
-
-      // Only the auction creator and curator can cancel the auction
+    }
+    // Only the auction creator and curator can cancel the auction
+    if (
+      (await this.signer.getAddress()) !== auctionInfo.curator &&
+      (await this.signer.getAddress()) !== auctionInfo.tokenOwner
+    ) {
+      invariant(
+        false,
+        "AuctionHouse (cancelAuction): Caller is not the auction creator or curator."
+      );
     }
 
     return this.auctionHouse.cancelAuction(auctionId);

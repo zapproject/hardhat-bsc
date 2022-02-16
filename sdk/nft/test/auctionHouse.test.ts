@@ -573,7 +573,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it.only("Should reject if the caller is not the auction creator or curator on the main media ", async () => {
+        it("Should reject if the caller is not the auction creator or curator on the main media", async () => {
           await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
@@ -583,6 +583,12 @@ describe("AuctionHouse", () => {
             0,
             token.address
           );
+
+          await invalidSignerConnected
+            .cancelAuction(0)
+            .should.be.rejectedWith(
+              "Invariant failed: AuctionHouse (cancelAuction): Caller is not the auction creator or curator."
+            );
         });
       });
     });
