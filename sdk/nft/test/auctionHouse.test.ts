@@ -602,7 +602,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it.only("Should cancel the auction by the curator on the main media", async () => {
+        it("Should cancel the auction by the curator on the main media", async () => {
           const preCancelAuction = await curatorMainConnected.fetchAuction(0);
 
           expect(parseInt(preCancelAuction.token.tokenId._hex)).to.equal(0);
@@ -650,7 +650,28 @@ describe("AuctionHouse", () => {
           );
         });
 
-        it("Should cancel the auction by the owner on the main media", async () => {});
+        it.only("Should cancel the auction by the owner on the main media", async () => {
+          const cancelAuction = await ownerAuctionConnected.fetchAuction(0);
+
+          expect(parseInt(cancelAuction.token.tokenId._hex)).to.equal(0);
+          expect(cancelAuction.token.mediaContract).to.equal(mediaAddress);
+          expect(cancelAuction.approved).to.be.true;
+          expect(parseInt(cancelAuction.amount._hex)).to.equal(0);
+          expect(parseInt(cancelAuction.duration._hex)).to.equal(duration);
+
+          expect(parseInt(cancelAuction.reservePrice._hex)).to.equal(
+            reservePrice
+          );
+          expect(curatorFeePercentage).to.equal(0);
+          expect(cancelAuction.tokenOwner).to.equal(await signer.getAddress());
+          expect(cancelAuction.bidder).to.equal(await signer.getAddress());
+          expect(cancelAuction.curator).to.equal(await curator.getAddress());
+          expect(cancelAuction.auctionCurrency).to.equal(token.address);
+
+          await ownerAuctionConnected.cancelAuction(0);
+
+          console.log(cancelAuction, 200);
+        });
       });
     });
 
