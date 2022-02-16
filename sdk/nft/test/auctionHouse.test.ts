@@ -617,9 +617,9 @@ describe("AuctionHouse", () => {
           expect(fetchAuction.tokenOwner).to.equal(await signer.getAddress());
           expect(fetchAuction.bidder).to.equal(ethers.constants.AddressZero);
           expect(fetchAuction.curator).to.equal(await curator.getAddress());
-          expect(fetchAuction.fetchCurrency).to.equal(token.address);
+          expect(fetchAuction.auctionCurrency).to.equal(token.address);
 
-          console.log(fetchAuction);
+          // Cancel the auction by the curator
         });
       });
     });
