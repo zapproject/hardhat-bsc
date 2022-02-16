@@ -54,7 +54,7 @@ class AuctionHouse {
       if (log.address === this.auctionHouse.address) {
         let description = this.auctionHouse.interface.parseLog(log);
         if (description.args.auctionId) {
-          return this.fetchAuction(description.args.auctionId);
+          return this.auctionHouse.auctions(description.args.auctionId);
         }
       }
     }
@@ -131,7 +131,7 @@ class AuctionHouse {
 
   public async startAuction(auctionId: BigNumberish, approved: boolean) {
     // Fetches the auction details
-    const auctionInfo = await this.fetchAuction(auctionId);
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
 
     // If the fetched media returns a zero address this means the auction does not exist and throw an error
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
@@ -164,7 +164,7 @@ class AuctionHouse {
     reservePrice: BigNumberish
   ) {
     // Fetches the auction details
-    const auctionInfo = await this.fetchAuction(auctionId);
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
 
     // If the fetched media returns a zero address this means the auction does not exist and throw an error
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
@@ -199,7 +199,10 @@ class AuctionHouse {
     amount: BigNumberish,
     mediaContract: string
   ) {
-    const auctionInfo = await this.fetchAuction(auctionId);
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(false, "AuctionHouse (createBid): AuctionId does not exist.");
+    }
 
     if (mediaContract == ethers.constants.AddressZero) {
       invariant(
@@ -226,9 +229,9 @@ class AuctionHouse {
   }
 
   public async cancelAuction(auctionId: BigNumberish) {
-    const auctionInfo = await this.fetchAuction(auctionId);
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
 
-    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+    if (auctionInfo.token.meBidiaContract == ethers.constants.AddressZero) {
       invariant(
         false,
         "AuctionHouse (cancelAuction): AuctionId does not exist."

@@ -29,12 +29,14 @@ import AuctionHouse, { Auction } from "../src/auctionHouse";
 import ZapMedia from "../src/zapMedia";
 
 import { getSigners } from "./test_utils";
+import { SuiteConstants } from "mocha";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 chai.use(chaiAsPromised);
 
 chai.should();
-describe("AuctionHouse", () => {
+
+describe.only("AuctionHouse", () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
@@ -246,9 +248,9 @@ describe("AuctionHouse", () => {
           expect(createdAuction.approved).to.be.true;
           expect(parseInt(createdAuction.duration._hex)).to.equal(60 * 60 * 24);
           expect(createdAuction.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(createdAuction.reservePrice._hex)).to.equal(
-          //   parseInt(reservePrice._hex)
-          // );
+          expect(parseInt(createdAuction.reservePrice._hex)).to.equal(
+            reservePrice
+          );
           expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
           expect(createdAuction.curator).to.equal(ethers.constants.AddressZero);
           expect(createdAuction.auctionCurrency).to.equal(token.address);
@@ -277,7 +279,7 @@ describe("AuctionHouse", () => {
           await curatorMainConnected
             .startAuction(21, true)
             .should.be.rejectedWith(
-              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+              "Invariant failed: AuctionHouse (startAuction): AuctionId does not exist."
             );
         });
 
@@ -315,9 +317,10 @@ describe("AuctionHouse", () => {
           expect(createdAuction.approved).to.be.true;
           expect(parseInt(createdAuction.duration._hex)).to.equal(60 * 60 * 24);
           expect(createdAuction.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(createdAuction.reservePrice._hex)).to.equal(
-          //   parseInt(reservePrice._hex)
-          // );
+          expect(parseInt(createdAuction.reservePrice._hex)).to.equal(
+            reservePrice
+          );
+
           expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
           expect(createdAuction.curator).to.equal(await curator.getAddress());
           expect(createdAuction.auctionCurrency).to.equal(token.address);
@@ -350,7 +353,7 @@ describe("AuctionHouse", () => {
           await ownerAuctionConnected
             .setAuctionReservePrice(1, 200)
             .should.be.rejectedWith(
-              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+              "Invariant failed: AuctionHouse (setAuctionReservePrice): AuctionId does not exist."
             );
         });
 
@@ -460,7 +463,7 @@ describe("AuctionHouse", () => {
           await bidderOneMainConnected
             .createBid(12, bidAmtOne, mediaAddress)
             .should.be.rejectedWith(
-              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+              "Invariant failed: AuctionHouse (createBid): AuctionId does not exist."
             );
         });
 
@@ -580,7 +583,7 @@ describe("AuctionHouse", () => {
           await ownerAuctionConnected
             .cancelAuction(53)
             .should.be.rejectedWith(
-              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
+              "Invariant failed: AuctionHouse (cancelAuction): Caller is not the auction creator or curator."
             );
         });
 
@@ -704,101 +707,78 @@ describe("AuctionHouse", () => {
     });
 
     describe("View Functions", () => {
-      let media: any;
       let mediaAddress: any;
-      let mediaData: any;
-      let bidShares: any;
-
-      let tokenURI =
-        "https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/";
-      let metadataURI =
-        "https://bafkreihhu7xo7knc3vn42jj26gz3jkvh3uu3rwurkb4djsoo5ayqs2s25a.ipfs.dweb.link/";
+      let curatorConnected: AuctionHouse;
 
       beforeEach(async () => {
-        let metadataHex = ethers.utils.formatBytes32String("Test");
-        let metadataHashRaw = ethers.utils.keccak256(metadataHex);
-        let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+        mediaAddress = zapMedia.address;
 
-        let contentHex = ethers.utils.formatBytes32String("Test Car");
-        let contentHashRaw = ethers.utils.keccak256(contentHex);
-        let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
-
-        let contentHash = contentHashBytes;
-        let metadataHash = metadataHashBytes;
-
-        media = new ZapMedia(1337, signer);
-        mediaAddress = zapMediaAddresses["1337"];
-
-        bidShares = constructBidShares(
-          [
-            await provider.getSigner(1).getAddress(),
-            await provider.getSigner(2).getAddress(),
-            await provider.getSigner(3).getAddress(),
-          ],
-          [15, 15, 15],
-          15,
-          35
-        );
-
-        mediaData = constructMediaData(
-          tokenURI,
-          metadataURI,
-          contentHash,
-          metadataHash
-        );
-
-        await media.mint(mediaData, bidShares);
+        curatorConnected = new AuctionHouse(1337, curator);
       });
 
       describe("#fetchAuction, #fetchAuctionFromTransactionReceipt", () => {
-        it("Should reject if the auction id does not exist", async () => {
-          let auctionHouse = new AuctionHouse(1337, signer);
-          await auctionHouse.fetchAuction(3).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
-            );
-          });
+        it("Should return null values if the auctionId does not exist on the main media", async () => {
+          const nullAuction = await ownerAuctionConnected.fetchAuction(3);
+
+          expect(parseInt(nullAuction.token.tokenId._hex)).to.equal(0);
+          expect(nullAuction.token.mediaContract).to.equal(
+            ethers.constants.AddressZero
+          );
+          expect(nullAuction.approved).to.be.false;
+          expect(parseInt(nullAuction.amount._hex)).to.equal(0);
+          expect(parseInt(nullAuction.duration._hex)).to.equal(0);
+
+          expect(parseInt(nullAuction.reservePrice._hex)).to.equal(0);
+          expect(parseInt(nullAuction.curatorFeePercentage)).to.equal(0);
+          expect(nullAuction.tokenOwner).to.equal(ethers.constants.AddressZero);
+          expect(nullAuction.bidder).to.equal(ethers.constants.AddressZero);
+          expect(nullAuction.curator).to.equal(ethers.constants.AddressZero);
+          expect(nullAuction.auctionCurrency).to.equal(
+            ethers.constants.AddressZero
+          );
         });
 
-        it("Should fetch an auction from the create auction transaction receipt", async () => {
-          const duration = 60 * 60 * 24;
+        it("Should fetch an auction from the create auction transaction receipt on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          let auctionHouse = new AuctionHouse(1337, signer);
-
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          const tx = await auctionHouse.createAuction(
+          const tx = await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
             reservePrice,
-            "0x0000000000000000000000000000000000000000",
+            ethers.constants.AddressZero,
             0,
             token.address
           );
+
           let receipt = await tx.wait();
+
           const receiptfetch =
-            await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+            await ownerAuctionConnected.fetchAuctionFromTransactionReceipt(
+              receipt
+            );
 
           expect(parseInt(receiptfetch?.token.tokenId.toString()!)).to.equal(0);
           expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
           expect(receiptfetch?.approved).to.be.true;
           expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
           expect(receiptfetch?.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
-          //   parseInt(reservePrice._hex)
-          // );
+          expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
+            reservePrice
+          );
           expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
           expect(receiptfetch?.curator).to.equal(ethers.constants.AddressZero);
           expect(receiptfetch?.auctionCurrency).to.equal(token.address);
         });
-        it("Should fetch an auction from the start auction transaction receipt", async () => {
-          const duration = 60 * 60 * 24;
 
-          let curator = signers[9];
-          let auctionHouse = new AuctionHouse(1337, signer);
-          let curatorConnected = new AuctionHouse(1337, curator);
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
+        it("Should fetch an auction from the start auction transaction receipt on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
           await auctionHouse.createAuction(
             0,
@@ -809,57 +789,61 @@ describe("AuctionHouse", () => {
             0,
             token.address
           );
+
           let tx = await curatorConnected.startAuction(0, true);
+
           let receipt = await tx.wait();
+
           const receiptfetch =
-            await auctionHouse.fetchAuctionFromTransactionReceipt(receipt);
+            await ownerAuctionConnected.fetchAuctionFromTransactionReceipt(
+              receipt
+            );
 
           expect(parseInt(receiptfetch?.token.tokenId.toString()!)).to.equal(0);
           expect(receiptfetch?.token.mediaContract).to.equal(mediaAddress);
           expect(receiptfetch?.approved).to.be.true;
           expect(parseInt(receiptfetch?.duration._hex!)).to.equal(60 * 60 * 24);
           expect(receiptfetch?.curatorFeePercentage).to.equal(0);
-          // expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
-          //   parseInt(reservePrice._hex)
-          // );
+          expect(parseInt(receiptfetch?.reservePrice._hex!)).to.equal(
+            reservePrice
+          );
           expect(receiptfetch?.tokenOwner).to.equal(await signer.getAddress());
           expect(receiptfetch?.curator).to.equal(await curator.getAddress());
           expect(receiptfetch?.auctionCurrency).to.equal(token.address);
         });
-        it("Should return null if fetching transaction without auction ID event", async () => {
-          const duration = 60 * 60 * 24;
 
-          let auctionHouse = new AuctionHouse(1337, signer);
+        it.skip("Should return null if fetching transaction without auction ID event on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          const tx = await auctionHouse.createAuction(
-            //await media.approve(auctionHouse.auctionHouse.address, 0);
+          const tx = await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
             reservePrice,
-            "0x0000000000000000000000000000000000000000",
+            ethers.constants.AddressZero,
             0,
             token.address
           );
+
           let receipt = await tx.wait();
 
           const receiptfetch =
-            await auctionHouse.fetchAuctionFromTransactionReceipt(receipt); //.catch((err) => {
+            await ownerAuctionConnected.fetchAuctionFromTransactionReceipt(
+              receipt
+            );
           expect(receiptfetch).to.be.null;
         });
 
-        it("Should fetch an auction from the setAuctionReservePrice receipt", async () => {
-          const duration = 60 * 60 * 24;
+        it("Should fetch an auction from the setAuctionReservePrice receipt on the main media", async () => {
+          await ownerMediaConnected.approve(
+            ownerAuctionConnected.auctionHouse.address,
+            0
+          );
 
-          let curator = signers[9];
-
-          let auctionHouse = new AuctionHouse(1337, signer);
-
-          let curatorConnected = new AuctionHouse(1337, curator);
-
-          //await media.approve(auctionHouse.auctionHouse.address, 0);
-
-          await auctionHouse.createAuction(
+          await ownerAuctionConnected.createAuction(
             0,
             mediaAddress,
             duration,
@@ -874,7 +858,7 @@ describe("AuctionHouse", () => {
           let transactionReceipt = await tx.wait();
 
           const fetchReceipt =
-            await auctionHouse.fetchAuctionFromTransactionReceipt(
+            await ownerAuctionConnected.fetchAuctionFromTransactionReceipt(
               transactionReceipt
             );
 
