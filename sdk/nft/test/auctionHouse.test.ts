@@ -36,7 +36,7 @@ chai.use(chaiAsPromised);
 
 chai.should();
 
-describe.only("AuctionHouse", () => {
+describe("AuctionHouse", () => {
   let token: Contract;
   let zapVault: Contract;
   let zapMarket: Contract;
