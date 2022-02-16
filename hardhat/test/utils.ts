@@ -423,7 +423,7 @@ export async function signMintWithSig(
   return sig;
 }
 
-export const deploy11555Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, media1155Deploy: Media1155Factory) => {
+export const deploy1155Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, media1155Deploy: Media1155Factory) => {
   await zapMarket.setMediaFactory(media1155Deploy.address);
 
   const mediaArgs = [
