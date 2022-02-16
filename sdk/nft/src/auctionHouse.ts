@@ -235,6 +235,7 @@ class AuctionHouse {
 
   public async cancelAuction(auctionId: BigNumberish) {
     const auctionInfo: Auction = await this.fetchAuction(auctionId);
+    console.log(auctionInfo);
 
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(
@@ -242,6 +243,7 @@ class AuctionHouse {
         "AuctionHouse (fetchAuction): AuctionId does not exist."
       );
     }
+
     return this.auctionHouse.cancelAuction(auctionId);
   }
 }

@@ -538,11 +538,14 @@ describe("AuctionHouse", () => {
       });
 
       describe.only("#cancelAuction", () => {
+        let invalidSigner: AuctionHouse;
         beforeEach(async () => {
           await ownerMediaConnected.approve(
             ownerAuctionConnected.auctionHouse.address,
             0
           );
+
+          invalidSigner = new AuctionHouse(1337, signers[5]);
         });
 
         it("Should reject if the auctionId does not exist on the main media", async () => {
@@ -561,6 +564,20 @@ describe("AuctionHouse", () => {
             .should.be.rejectedWith(
               "Invariant failed: AuctionHouse (fetchAuction): AuctionId does not exist."
             );
+        });
+
+        it.only("Should reject if the caller is not the auction creator or curator on the main media ", async () => {
+          await ownerAuctionConnected.createAuction(
+            0,
+            mediaAddress,
+            duration,
+            reservePrice,
+            ethers.constants.AddressZero,
+            0,
+            token.address
+          );
+
+          await invalidSigner.cancelAuction(0);
         });
       });
     });
