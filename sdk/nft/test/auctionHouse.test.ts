@@ -650,7 +650,7 @@ describe("AuctionHouse", () => {
           );
         });
 
-        it.only("Should cancel the auction by the owner on the main media", async () => {
+        it("Should cancel the auction by the owner on the main media", async () => {
           const preCancelAuction = await ownerAuctionConnected.fetchAuction(0);
 
           expect(parseInt(preCancelAuction.token.tokenId._hex)).to.equal(0);
