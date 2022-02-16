@@ -57,6 +57,8 @@ describe("AuctionHouse", () => {
 
   const reservePrice = 200;
 
+  const curatorFeePercentage = 0;
+
   let tokenURI =
     "https://bafkreievpmtbofalpowrcbr5oaok33e6xivii62r6fxh6fontaglngme2m.ipfs.dweb.link/";
   let metadataURI =
@@ -545,6 +547,8 @@ describe("AuctionHouse", () => {
         let curatorMainConnected: AuctionHouse;
 
         beforeEach(async () => {
+          const mintAmt = 300;
+          const bidAmt = 200;
           curator = signers[4];
           invalidSigner = signers[5];
           bidder = signers[5];
@@ -568,8 +572,8 @@ describe("AuctionHouse", () => {
           invalidSignerConnected = new AuctionHouse(1337, invalidSigner);
           bidderMainConnected = new AuctionHouse(1337, bidder);
 
-          await token.mint(await bidder.getAddress(), 200);
-          await token.connect(bidder).approve(auctionHouse.address, 300);
+          await token.mint(await bidder.getAddress(), mintAmt);
+          await token.connect(bidder).approve(auctionHouse.address, bidAmt);
         });
 
         it("Should reject if the auctionId does not exist on the main media", async () => {
@@ -599,9 +603,21 @@ describe("AuctionHouse", () => {
         });
 
         it.only("Should cancel the auction by the curator on the main media", async () => {
-          await curatorMainConnected.cancelAuction(0);
-
           const fetchAuction = await curatorMainConnected.fetchAuction(0);
+
+          expect(parseInt(fetchAuction.token.tokenId._hex)).to.equal(0);
+          expect(fetchAuction.token.mediaContract).to.equal(mediaAddress);
+          expect(fetchAuction.approved).to.be.true;
+          expect(parseInt(fetchAuction.amount._hex)).to.equal(0);
+          expect(parseInt(fetchAuction.duration._hex)).to.equal(duration);
+          expect(parseInt(fetchAuction.reservePrice._hex)).to.equal(
+            reservePrice
+          );
+          expect(curatorFeePercentage).to.equal(0);
+          expect(fetchAuction.tokenOwner).to.equal(await signer.getAddress());
+          expect(fetchAuction.bidder).to.equal(ethers.constants.AddressZero);
+          expect(fetchAuction.curator).to.equal(await curator.getAddress());
+          expect(fetchAuction.fetchCurrency).to.equal(token.address);
 
           console.log(fetchAuction);
         });

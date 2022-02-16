@@ -44,7 +44,7 @@ class AuctionHouse {
   }
 
   public async fetchAuction(auctionId: BigNumberish): Promise<any> {
-    return auctionId;
+    return await this.auctionHouse.auctions(auctionId);
   }
 
   public async fetchAuctionFromTransactionReceipt(
