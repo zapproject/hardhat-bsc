@@ -44,15 +44,7 @@ class AuctionHouse {
   }
 
   public async fetchAuction(auctionId: BigNumberish): Promise<any> {
-    const auctionInfo = await this.auctionHouse.auctions(auctionId);
-    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
-      invariant(
-        false,
-        "AuctionHouse (fetchAuction): AuctionId does not exist."
-      );
-    } else {
-      return auctionInfo;
-    }
+    return auctionId;
   }
 
   public async fetchAuctionFromTransactionReceipt(
@@ -234,7 +226,7 @@ class AuctionHouse {
   }
 
   public async cancelAuction(auctionId: BigNumberish) {
-    const auctionInfo: Auction = await this.fetchAuction(auctionId);
+    const auctionInfo = await this.fetchAuction(auctionId);
 
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(
@@ -242,7 +234,7 @@ class AuctionHouse {
         "AuctionHouse (cancelAuction): AuctionId does not exist."
       );
     }
-    // Only the auction creator and curator can cancel the auction
+
     if (
       (await this.signer.getAddress()) !== auctionInfo.curator &&
       (await this.signer.getAddress()) !== auctionInfo.tokenOwner
@@ -250,6 +242,13 @@ class AuctionHouse {
       invariant(
         false,
         "AuctionHouse (cancelAuction): Caller is not the auction creator or curator."
+      );
+    }
+
+    if (parseInt(auctionInfo.amount._hex) > 0) {
+      invariant(
+        false,
+        "AuctionHouse (cancelAuction): You can't cancel an auction that has a bid."
       );
     }
 
