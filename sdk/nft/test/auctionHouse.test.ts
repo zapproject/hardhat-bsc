@@ -603,24 +603,51 @@ describe("AuctionHouse", () => {
         });
 
         it.only("Should cancel the auction by the curator on the main media", async () => {
-          const fetchAuction = await curatorMainConnected.fetchAuction(0);
+          const preCancelAuction = await curatorMainConnected.fetchAuction(0);
 
-          expect(parseInt(fetchAuction.token.tokenId._hex)).to.equal(0);
-          expect(fetchAuction.token.mediaContract).to.equal(mediaAddress);
-          expect(fetchAuction.approved).to.be.true;
-          expect(parseInt(fetchAuction.amount._hex)).to.equal(0);
-          expect(parseInt(fetchAuction.duration._hex)).to.equal(duration);
-          expect(parseInt(fetchAuction.reservePrice._hex)).to.equal(
+          expect(parseInt(preCancelAuction.token.tokenId._hex)).to.equal(0);
+          expect(preCancelAuction.token.mediaContract).to.equal(mediaAddress);
+          expect(preCancelAuction.approved).to.be.true;
+          expect(parseInt(preCancelAuction.amount._hex)).to.equal(0);
+          expect(parseInt(preCancelAuction.duration._hex)).to.equal(duration);
+          expect(parseInt(preCancelAuction.reservePrice._hex)).to.equal(
             reservePrice
           );
           expect(curatorFeePercentage).to.equal(0);
-          expect(fetchAuction.tokenOwner).to.equal(await signer.getAddress());
-          expect(fetchAuction.bidder).to.equal(ethers.constants.AddressZero);
-          expect(fetchAuction.curator).to.equal(await curator.getAddress());
-          expect(fetchAuction.auctionCurrency).to.equal(token.address);
+          expect(preCancelAuction.tokenOwner).to.equal(
+            await signer.getAddress()
+          );
+          expect(preCancelAuction.bidder).to.equal(
+            ethers.constants.AddressZero
+          );
+          expect(preCancelAuction.curator).to.equal(await curator.getAddress());
+          expect(preCancelAuction.auctionCurrency).to.equal(token.address);
 
           await curatorMainConnected.cancelAuction(0);
-          // Cancel the auction by the curator
+
+          const postCancelAuction = await curatorMainConnected.fetchAuction(0);
+
+          expect(parseInt(postCancelAuction.token.tokenId._hex)).to.equal(0);
+          expect(postCancelAuction.token.mediaContract).to.equal(
+            ethers.constants.AddressZero
+          );
+          expect(postCancelAuction.approved).to.be.false;
+          expect(parseInt(postCancelAuction.amount._hex)).to.equal(0);
+          expect(parseInt(postCancelAuction.duration._hex)).to.equal(0);
+          expect(parseInt(postCancelAuction.reservePrice._hex)).to.equal(0);
+          expect(curatorFeePercentage).to.equal(0);
+          expect(postCancelAuction.tokenOwner).to.equal(
+            ethers.constants.AddressZero
+          );
+          expect(postCancelAuction.bidder).to.equal(
+            ethers.constants.AddressZero
+          );
+          expect(postCancelAuction.curator).to.equal(
+            ethers.constants.AddressZero
+          );
+          expect(postCancelAuction.auctionCurrency).to.equal(
+            ethers.constants.AddressZero
+          );
         });
       });
     });
