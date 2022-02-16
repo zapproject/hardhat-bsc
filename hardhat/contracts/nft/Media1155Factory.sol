@@ -32,7 +32,7 @@ contract Media1155Factory is OwnableUpgradeable {
     {
         __Ownable_init();
         zapMarket = IMarket(_zapMarket);
-        beacon = address(new UpgradeableBeacon(zapMediaInterface));
+        beacon = address(new UpgradeableBeacon(media1155Interface));
         UpgradeableBeacon(beacon).transferOwnership(address(this));
     }
 
@@ -74,21 +74,10 @@ contract Media1155Factory is OwnableUpgradeable {
         address proxyAddress = address(proxy);
 
         zapMarket.registerMedia(proxyAddress);
+    
+        zapMarket.configure(msg.sender, proxyAddress, "", "");
 
-        bytes memory name_b = bytes(name);
-        bytes memory symbol_b = bytes(symbol);
-
-        bytes32 name_b32;
-        bytes32 symbol_b32;
-
-        assembly {
-            name_b32 := mload(add(name_b, 32))
-            symbol_b32 := mload(add(symbol_b, 32))
-        }
-
-        zapMarket.configure(msg.sender, proxyAddress, name_b32, symbol_b32);
-
-        emit MediaDeployed(proxyAddress);
+        emit Media1155Deployed(proxyAddress);
 
         return proxyAddress;
     }

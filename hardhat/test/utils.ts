@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ethers, upgrades } from "hardhat";
 import {
-  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, ZapMarket__factory, Media1155
+  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, Media1155
 } from "../typechain"
 import {
   BadBidder,
@@ -9,7 +9,8 @@ import {
   WETH,
   BadERC721,
   TestERC721,
-  MediaFactory
+  MediaFactory,
+  Media1155Factory
 } from "../typechain";
 import { keccak256 } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
@@ -422,27 +423,24 @@ export async function signMintWithSig(
   return sig;
 }
 
-export const deploy11555Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, mediaDeploy: MediaFactory) => {
-  await zapMarket.setMediaFactory(mediaDeploy.address);
+export const deploy11555Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, media1155Deploy: Media1155Factory) => {
+  await zapMarket.setMediaFactory(media1155Deploy.address);
 
   const mediaArgs = [
     {
-      name: "TEST MEDIA 1",
-      symbol: "TM1",
+      uri: "https://test1",
       marketContractAddr: zapMarket.address,
       permissive: true,
       collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
     },
     {
-      name: "TEST MEDIA 2",
-      symbol: "TM2",
+      uri: "https://test2",
       marketContractAddr: zapMarket.address,
       permissive: false,
       collectionURI: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
     },
     {
-      name: "TEST MEDIA 2",
-      symbol: "TM2",
+      uri: "https://test3",
       marketContractAddr: zapMarket.address,
       permissive: false,
       collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
@@ -466,12 +464,12 @@ export const deploy11555Medias = async (signers: SignerWithAddress[], zapMarket:
 
     const args = mediaArgs[i];
 
-    await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
-      args.name, args.symbol, args.marketContractAddr, args.permissive, args.collectionURI
+    await media1155Deploy.connect(mediaDeployers[i]).deployMedia(
+      args.uri, args.marketContractAddr, args.permissive, args.collectionURI
     );
 
-    filter = mediaDeploy.filters.MediaDeployed(null);
-    eventLog = (await mediaDeploy.queryFilter(filter))[i];
+    filter = media1155Deploy.filters.Media1155Deployed(null);
+    eventLog = (await media1155Deploy.queryFilter(filter))[i];
     mediaAddress = eventLog.args?.mediaContract;
 
     medias.push(
