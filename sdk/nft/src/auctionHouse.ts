@@ -103,21 +103,21 @@ class AuctionHouse {
       );
     }
     // If the caller is the tokenId owner and the auctionHouse address is not approved throw an error
-    else if (signerAddress == owner && this.auctionHouse.address !== approved) {
+    if (signerAddress == owner && this.auctionHouse.address !== approved) {
       invariant(
         false,
         "AuctionHouse (createAuction): Transfer caller is not owner nor approved."
       );
     }
     // If the caller is not the tokenId owner and the auctionHouse is approved throw an error
-    else if (signerAddress !== owner && this.auctionHouse.address == approved) {
+    if (signerAddress !== owner && this.auctionHouse.address == approved) {
       invariant(
         false,
         "AuctionHouse (createAuction): Caller is not approved or token owner."
       );
     }
     // If the media adddress is a zero address throw an error
-    else if (tokenAddress == ethers.constants.AddressZero) {
+    if (tokenAddress == ethers.constants.AddressZero) {
       invariant(
         false,
         "AuctionHouse (createAuction): Media cannot be a zero address."
@@ -242,6 +242,8 @@ class AuctionHouse {
         false,
         "AuctionHouse (fetchAuction): AuctionId does not exist."
       );
+
+      // Only the auction creator and curator can cancel the auction
     }
 
     return this.auctionHouse.cancelAuction(auctionId);

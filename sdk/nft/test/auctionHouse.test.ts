@@ -538,14 +538,21 @@ describe("AuctionHouse", () => {
       });
 
       describe.only("#cancelAuction", () => {
-        let invalidSigner: AuctionHouse;
+        let invalidSigner: Signer;
+        let curator: Signer;
+        let invalidSignerConnected: AuctionHouse;
+        let curatorMainConnected: AuctionHouse;
+
         beforeEach(async () => {
+          curator = signers[4];
+          invalidSigner = signers[5];
+
           await ownerMediaConnected.approve(
             ownerAuctionConnected.auctionHouse.address,
             0
           );
 
-          invalidSigner = new AuctionHouse(1337, signers[5]);
+          invalidSignerConnected = new AuctionHouse(1337, invalidSigner);
         });
 
         it("Should reject if the auctionId does not exist on the main media", async () => {
@@ -572,12 +579,10 @@ describe("AuctionHouse", () => {
             mediaAddress,
             duration,
             reservePrice,
-            ethers.constants.AddressZero,
+            await curator.getAddress(),
             0,
             token.address
           );
-
-          await invalidSigner.cancelAuction(0);
         });
       });
     });
