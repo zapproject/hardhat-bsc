@@ -649,6 +649,8 @@ describe("AuctionHouse", () => {
             ethers.constants.AddressZero
           );
         });
+
+        it("Should cancel the auction by the owner on the main media", async () => {});
       });
     });
 
