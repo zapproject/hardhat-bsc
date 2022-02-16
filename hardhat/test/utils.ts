@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ethers, upgrades } from "hardhat";
 import {
-  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, ZapMarket__factory
+  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, ZapMarket__factory, Media1155
 } from "../typechain"
 import {
   BadBidder,
@@ -420,4 +420,65 @@ export async function signMintWithSig(
     deadline: deadline.toString(),
   }
   return sig;
+}
+
+export const deploy11555Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, mediaDeploy: MediaFactory) => {
+  await zapMarket.setMediaFactory(mediaDeploy.address);
+
+  const mediaArgs = [
+    {
+      name: "TEST MEDIA 1",
+      symbol: "TM1",
+      marketContractAddr: zapMarket.address,
+      permissive: true,
+      collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+    },
+    {
+      name: "TEST MEDIA 2",
+      symbol: "TM2",
+      marketContractAddr: zapMarket.address,
+      permissive: false,
+      collectionURI: "https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6"
+    },
+    {
+      name: "TEST MEDIA 2",
+      symbol: "TM2",
+      marketContractAddr: zapMarket.address,
+      permissive: false,
+      collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN"
+    }
+  ]
+
+  const medias: Media1155[] = [];
+  const mediaDeployers = [
+    signers[1],
+    signers[2],
+    signers[3]
+  ];
+
+
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI = require("../artifacts/contracts/nft/Media1155.sol/Media1155.json").abi;
+
+  for (let i = 0; i < mediaArgs.length; i++) {
+
+    const args = mediaArgs[i];
+
+    await mediaDeploy.connect(mediaDeployers[i]).deployMedia(
+      args.name, args.symbol, args.marketContractAddr, args.permissive, args.collectionURI
+    );
+
+    filter = mediaDeploy.filters.MediaDeployed(null);
+    eventLog = (await mediaDeploy.queryFilter(filter))[i];
+    mediaAddress = eventLog.args?.mediaContract;
+
+    medias.push(
+      new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as Media1155
+    );
+
+  }
+
+  return medias
 }
