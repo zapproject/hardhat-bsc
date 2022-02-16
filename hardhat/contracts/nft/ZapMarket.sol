@@ -274,10 +274,10 @@ contract ZapMarket is IMarket, Ownable {
 
     function mintOrBurnBatch(
         bool isMint,
-        uint256[] tokenId, 
-        uint256[] amount,
+        uint256[] calldata tokenId, 
+        uint256[] calldata amount,
         address mediaContract
-    ) external override {
+    ) external {
         require(msg.sender == mediaContract, 'Market: Media only function');
 
         if (isMint == true) {
@@ -337,6 +337,28 @@ contract ZapMarket is IMarket, Ownable {
 
         _tokenAsks[msg.sender][tokenId] = ask;
         emit AskCreated(msg.sender, tokenId, ask);
+    }
+
+    /**
+     * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
+     * bid shares, this reverts.
+     */
+    function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask)
+        external
+        override
+        onlyMediaCaller
+    {
+        require(tokenId.length == ask.length);
+        
+        for (uint i = 0; i < tokenId.length; i++){
+            require(
+                isValidBid(msg.sender, tokenId[i], ask[i].amount),
+                'Market: Ask invalid for share splitting'
+            );
+
+            _tokenAsks[msg.sender][tokenId[i]] = ask[i];
+            emit AskCreated(msg.sender, tokenId[i], ask[i]);
+        }
     }
 
     /**

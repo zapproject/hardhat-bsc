@@ -4,12 +4,11 @@ pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol'; // exposes _registerInterface
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import "@openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol";
-import "@openzeppelin-contracts/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
-import "@openzeppelin-contracts/contracts/utils/Address.sol";
-import "@openzeppelin-contracts/contracts/utils/Context.sol";
-import "@openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import {IMarket} from './interfaces/IMarket.sol';
 import {IMedia1155} from './interfaces/IMedia1155.sol';
@@ -22,16 +21,16 @@ import './libraries/Constants.sol';
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is
+contract Media1155 is
     IMedia1155,
     ERC1155Upgradeable,
     ReentrancyGuardUpgradeable,
     Ownable,
-    IERC1155MetadataURI,
     ERC165StorageUpgradeable
 {
     bytes internal _contractURI;
     mapping(uint256 => bool) public tokenIds;
+    mapping(bytes4 => bool) private _supportedInterfaces;
 
     /* *********
      * Modifiers
@@ -41,7 +40,20 @@ contract ZapMedia is
     /**
      * @notice Require that the token has not been burned and has been minted
      */
-    modifier onlyExistingToken(uint256[] tokenId) {
+    modifier onlyExistingToken(uint256 tokenId) {
+        require(
+            tokenIds[tokenId],
+            // remove revert string before deployment to mainnet
+            'Media: nonexistent token'
+        );
+        
+        _;
+    }
+
+    /**
+     * @notice Require that the tokens have not been burned and has been minted
+     */
+    modifier onlyExistingTokenBatch(uint256[] calldata tokenId) {
         // need to iterate through list of tokenIds to individually check if token exists
         for (uint i = 0; i < tokenId.length; i++) {
             require(
@@ -59,11 +71,24 @@ contract ZapMedia is
      * the media for the specified tokenId
      */
     modifier onlyApprovedOrOwner(address spender, uint256 tokenId) {
-        require(
-            _isApprovedOrOwner(spender, tokenId),
-            // remove revert string before deployment to mainnet
-            'Media: Only approved or owner'
-        );
+        // require(
+        //     ERC1155Upgradeable.isApprovedForAll(spender, tokenId),
+        //     // remove revert string before deployment to mainnet
+        //     'Media: Only approved or owner'
+        // );
+        _;
+    }
+
+    /**
+     * @notice Ensure that the provided spender is the approved or the owner of
+     * the media for the specified tokenId
+     */
+    modifier onlyApprovedOrOwnerBatch(address spender, uint256[] calldata tokenId) {
+        // require(
+        //     ERC1155Upgradeable.isApprovedForAll(spender, tokenId),
+        //     // remove revert string before deployment to mainnet
+        //     'Media: Only approved or owner'
+        // );
         _;
     }
 
@@ -71,11 +96,11 @@ contract ZapMedia is
      * @notice Ensure the token has been created (even if it has been burned)
      */
     modifier onlyTokenCreated(uint256 tokenId) {
-        require(
-            access._tokenIdTracker.current() > tokenId,
+        // require(
+            // access._tokenIdTracker.current() > tokenId,
             // remove revert string before deployment to mainnet
-            'Media: token with that id does not exist'
-        );
+        //     'Media: token with that id does not exist'
+        // );
         _;
     }
 
@@ -134,34 +159,6 @@ contract ZapMedia is
         return super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @notice return the URI for a particular piece of media with the specified tokenId
-     * @dev This function is an override of the base OZ implementation because we
-     * will return the tokenURI even if the media has been burned. In addition, this
-     * protocol does not support a base URI, so relevant conditionals are removed.
-     * @return the URI for a token
-     */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        onlyTokenCreated(tokenId)
-        returns (string memory)
-    {
-        // replace 'id' holder in uri with tokenId
-        bytes memory strBytes = bytes(_uri);
-        bytes memory buffer = new bytes(strBytes.length-4);
-        for(uint i = 0; i < strBytes.length-3; i++) {
-            buffer[i] = strBytes[i];
-
-            if (strBytes[i] == '{' && strBytes[i+1] == 'i' && strBytes[i+2] == 'd' && strbytes[i+3] == '}'){
-                return string(abi.encode(string(buffer[i]), uint2str(tokenId)));
-            }
-        }
-
-        return _uri;
-    }
-
     function _registerInterface(bytes4 interfaceId) internal virtual override {
         require(interfaceId != 0xffffffff, 'ERC165: invalid interface id');
         _supportedInterfaces[interfaceId] = true;
@@ -173,7 +170,7 @@ contract ZapMedia is
      * ****************
      */
 
-     function batchMint(address _to, uint256[] calldata _ids, uint256[] calldata _amounts, IMarket.BidShares calldata bidShares)
+     function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarket.BidShares[] calldata bidShares)
         external
         override
         nonReentrant
@@ -184,24 +181,29 @@ contract ZapMedia is
                 access.owner == msg.sender,
             'Media: Only Approved users can mint'
         );
+
         require(
-            bidShares.collaborators.length == bidShares.collabShares.length,
-            'Media: Arrays do not have the same length'
+            _tokenId.length == _amount.length && _amount.length == bidShares.length
         );
-        for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
+        for (uint i = 0; i < bidShares.length; i++) {
             require(
-                _hasShares(i, bidShares),
-                'Media: Each collaborator must have a share of the nft'
+                bidShares[i].collaborators.length == bidShares[i].collabShares.length,
+                'Media: Arrays do not have the same length'
             );
+            for (uint256 j = 0; j < bidShares[i].collaborators.length; j++) {
+                require(
+                    _hasShares(j, bidShares[i]),
+                    'Media: Each collaborator must have a share of the nft'
+                );
+            }
         }
 
-        _mintBatch(to, ids, amounts);
+        _mintBatch(_to, _tokenId, _amount, "");
     }
 
     /**
      * @notice see IMedia1155
      * @dev mints an NFT and sets the bidshares for collaborators
-     * @param data The media's metadata and content data, includes content and metadata hash, and token's URI
      */
     function mint(address _to, uint256 _id, uint256 _amount, IMarket.BidShares calldata bidShares)
         external
@@ -225,7 +227,7 @@ contract ZapMedia is
             );
         }
 
-        IMarket(access.marketContract).mintOrBurn(true, tokenId, _amount, address(this));
+        // IMarket(access.marketContract).mintOrBurn(true, _id, _amount, address(this));
         _mint(_to, _id, _amount, "");
     }
 
@@ -233,7 +235,7 @@ contract ZapMedia is
     /**
      * @notice see IMedia1155
      */
-    function auctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient)
+    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient)
         external
         override
     {
@@ -243,6 +245,16 @@ contract ZapMedia is
             'Media: only market contract'
         );
         // tokens.previousTokenOwners[tokenId] = ownerOf(tokenId);.
+    }
+
+    /**
+     * @notice see IMedia1155
+     */
+    function batchAuctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) 
+        external
+        override
+    {
+
     }
 
     /**
@@ -261,14 +273,14 @@ contract ZapMedia is
     /**
      * @notice see IMedia1155
      */
-    function batchSetAsk(uint256[] calldata tokenId, IMarket.Ask calldata ask)
+    function setAskBatch(uint256[] calldata tokenId, IMarket.Ask[] calldata ask)
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
-        onlyExistingToken(tokenId)
+        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
+        onlyExistingTokenBatch(tokenId)
     {
-
+        IMarket(access.marketContract).setAskBatch(tokenId, ask);
     }
 
     /**
@@ -287,12 +299,12 @@ contract ZapMedia is
     /**
      * @notice see IMedia11551155
      */
-    function batchRemoveAsk(uint256[] calldata tokenId)
+    function removeAskBatch(uint256[] calldata tokenId)
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
-        onlyExistingToken(tokenId)
+        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
+        onlyExistingTokenBatch(tokenId)
     {
         
     }
@@ -340,22 +352,14 @@ contract ZapMedia is
      * @dev Only callable if the media owner is also the creator.
      * @param tokenId the ID of the token to burn
      */
-    function burn(uint256 tokenId)
+    function burn(uint256 tokenId, uint256 amount)
         public
         override
         nonReentrant
         onlyExistingToken(tokenId)
         onlyApprovedOrOwner(msg.sender, tokenId)
     {
-        address owner = ownerOf(tokenId);
-
-        require(
-            tokens.tokenCreators[tokenId] == owner,
-            // remove revert string before deployment to mainnet
-            'Media: owner is not creator of media'
-        );
-
-        _burn(tokenId);
+        _burn(msg.sender, tokenId, amount);
     }
 
     /**
@@ -363,14 +367,14 @@ contract ZapMedia is
      * @dev Only callable if the media owner is also the creator.
      * @param tokenId the list of IDs of the tokens to burn
      */
-    function batchBurn(uint256[] calldata tokenId)
+    function burnBatch(uint256[] calldata tokenId, uint256[] calldata amount)
         external
         override
         nonReentrant
-        onlyExistingToken(tokenId)
-        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyExistingTokenBatch(tokenId)
+        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
     {
-
+    
     }
 
     /**
@@ -385,7 +389,7 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         nonReentrant
     {
-        _approve(address(0), tokenId);
+        // _approve(address(0), tokenId);
     }
 
     /**
@@ -394,62 +398,59 @@ contract ZapMedia is
      * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
      * revoke their approval once their task is complete as a best practice.
      */
-    function batchRevokeApproval(uint256 tokenId)
+    function revokeBatchApproval(uint256[] calldata tokenId)
         external
         override
-        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
         nonReentrant
     {
         // _approve(address(0), tokenId);
     }
 
-    /**
-     * @notice see IMedia1155
-     * @dev only callable by approved or owner
-     */
-    function updateTokenURI(uint256 tokenId, string calldata tokenURILocal)
-        external
-        override
-        nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
-        onlyTokenWithContentHash(tokenId)
-        onlyValidURI(tokenURILocal)
-    {
-        _setTokenURI(tokenId, tokenURILocal);
-        emit TokenURIUpdated(tokenId, msg.sender, tokenURILocal);
-    }
-
-    /**
-     * @notice Destroys `tokenId`.
-     * @dev We modify the OZ _burn implementation to
-     * maintain metadata and to remove the
-     * previous token owner from the piece
-     */
-    function _burn(uint256 tokenId)
+    /// @notice Returns a bool depicting whether or not the i'th collaborator has shares
+    /// @dev Explain to a developer any extra details
+    /// @param index the "i'th collaborator"
+    /// @param bidShares the bidshares defined for the Collection's NFTs
+    /// @return Boolean that is true if the i'th collaborator has shares for this collection's NFTs
+    function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
         internal
-        override(ERC721URIStorageUpgradeable, ERC721Upgradeable)
+        pure
+        returns (bool)
     {
-        ERC721URIStorageUpgradeable._burn(tokenId);
-
-        delete tokens.previousTokenOwners[tokenId];
-
-        IMarket(access.marketContract).mintOrBurn(
-            false,
-            tokenId,
-            address(this)
-        );
+        return (bidShares.collabShares[index] != 0);
     }
 
-    /**
-     * @notice transfer a token and remove the ask for it.
-     */
-    function _transfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal override {
-        IMarket(access.marketContract).removeAsk(tokenId);
+    // /**
+    //  * @notice Destroys `tokenId`.
+    //  * @dev We modify the OZ _burn implementation to
+    //  * maintain metadata and to remove the
+    //  * previous token owner from the piece
+    //  */
+    // function _burn(uint256 tokenId)
+    //     internal
+    //     override(ERC1155Upgradeable)
+    // {
+    //     ERC1155Upgradeable._burn(tokenId);
 
-        ERC721Upgradeable._transfer(from, to, tokenId);
-    }
+    //     delete tokens.previousTokenOwners[tokenId];
+
+    //     IMarket(access.marketContract).mintOrBurn(
+    //         false,
+    //         tokenId,
+    //         address(this)
+    //     );
+    // }
+
+    // /**
+    //  * @notice transfer a token and remove the ask for it.
+    //  */
+    // function _transfer(
+    //     address from,
+    //     address to,
+    //     uint256 tokenId
+    // ) internal override {
+    //     IMarket(access.marketContract).removeAsk(tokenId);
+
+    //     ERC721Upgradeable._transfer(from, to, tokenId);
+    // }
 }

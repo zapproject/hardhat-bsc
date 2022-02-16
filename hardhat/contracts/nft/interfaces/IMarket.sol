@@ -160,6 +160,8 @@ interface IMarket {
 
     function setAsk(uint256 tokenId, Ask calldata ask) external;
 
+    function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask) external;
+
     function removeAsk(uint256 tokenId) external;
 
     function setBid(

@@ -23,20 +23,20 @@ interface IMedia1155 {
     /**
      * @notice Batch mint medias with given IDs and amounts for msg.sender
      */
-    function batchMint(address to, uint256[] calldata tokenId, uint256[] calldata amount, IMarket.BidShares[] calldata bidShares) external;
+    function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarket.BidShares[] calldata bidShares) external;
 
     /**
      * @notice Transfer the token with the given ID to a given address.
      * Save the previous owner before the transfer, in case there is a sell-on fee.
      * @dev This can only be called by the auction contract specified at deployment
      */
-    function auctionTransfer(uint256 tokenId, address recipient) external;
+    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient) external;
 
     /**
      * @notice Transfer the tokens with the given IDs and amount to a given address.
      * Save the previous owners before the transfer, in case there is a sell-on fee.
      */
-    function batchAuctionTrasnfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) external;
+    function batchAuctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) external;
 
     /**
      * @notice Set the ask on a piece of media
@@ -46,7 +46,7 @@ interface IMedia1155 {
     /**
      * @notice Set the ask on the medias of given IDs
      */
-    function batchSetAsk(uint256[] calldata tokenId, IMarket.Ask[] calldata ask) external;
+    function setAskBatch(uint256[] calldata tokenId, IMarket.Ask[] calldata ask) external;
 
     /**
      * @notice Remove the ask on a piece of media
@@ -56,7 +56,7 @@ interface IMedia1155 {
     /**
      * @notice Remove the ask on medias of given IDs
      */
-    function batchRemoveAsk(uint256[] calldata tokenId) external;
+    function removeAskBatch(uint256[] calldata tokenId) external;
 
     /**
      * @notice Set the bid on a piece of media
@@ -74,4 +74,19 @@ interface IMedia1155 {
      * @notice Revoke approval for a piece of media
      */
     function revokeApproval(uint256 tokenId) external;
+
+    /**
+     * @notice Revoke approval for a batch of media
+     */
+    function revokeBatchApproval(uint256[] calldata tokenId) external;
+
+    /**
+     * @notice Burn a piece of media
+     */
+    function burn(uint256 tokenId, uint256 amount) external;
+
+    /**
+     * @notice Burn a batch of media
+     */
+    function burnBatch(uint256[] calldata tokenId, uint256[] calldata amount) external;
 }

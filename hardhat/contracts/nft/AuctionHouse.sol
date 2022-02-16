@@ -192,7 +192,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         address payable curator,
         uint8 curatorFeePercentage,
         address auctionCurrency
-    ) external override nonReentrant returns (uint256) {
+    ) external nonReentrant returns (uint256) {
 
     }
 
