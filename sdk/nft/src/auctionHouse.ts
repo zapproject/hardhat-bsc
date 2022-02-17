@@ -268,6 +268,20 @@ class AuctionHouse {
 
     return this.auctionHouse.cancelAuction(auctionId);
   }
+
+  public async endAuction(auctionId: BigNumberish) {
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
+
+    if (auctionInfo.token.meBidiaContract == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "AuctionHouse (endAuction): AuctionId does not exist."
+      );
+    }
+
+    return this.auctionHouse.endAuction(auctionId)
+  }
+
 }
 
 export default AuctionHouse;
