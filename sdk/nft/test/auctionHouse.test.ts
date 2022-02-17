@@ -742,9 +742,6 @@ describe("AuctionHouse", () => {
         );
 
         curatorMainConnected = new AuctionHouse(1337, curator);
-
-        await curatorMainConnected.startAuction(0, true);
-
         invalidSignerConnected = new AuctionHouse(1337, invalidSigner);
         bidderMainConnected = new AuctionHouse(1337, bidder);
 
@@ -763,10 +760,7 @@ describe("AuctionHouse", () => {
 
       it.only("Should reject if the auction hasn't begun on the main media", async () => {
         await curatorMainConnected.endAuction(0, mediaAddress);
-
-      
       });
-
     });
 
     describe("View Functions", () => {
