@@ -4,7 +4,7 @@
 
 ### Configuration
 
-- In the current terminal verify the path is `sdk/nft` and run `npm i` to install all dependencies.
+- In the current terminal verify the path is `sdk/nft` and run `npm i` to install all dependencies
 
 ### To Run All Test Files
 
