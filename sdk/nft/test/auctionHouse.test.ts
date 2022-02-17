@@ -761,7 +761,7 @@ describe("AuctionHouse", () => {
           );
       });
 
-      it.only("Should reject if the auction has already started on the main media", async () => {
+      it.only("Should reject if the auction hasn't begun on the main media", async () => {
         
       });
 
