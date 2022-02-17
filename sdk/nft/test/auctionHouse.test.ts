@@ -752,7 +752,7 @@ describe("AuctionHouse", () => {
         await token.connect(bidder).approve(auctionHouse.address, bidAmt);
       });
 
-      it.only("Should reject if the auctionId does not exist on the main media", async () => {
+      it("Should reject if the auctionId does not exist on the main media", async () => {
         await bidderMainConnected.createBid(0, 200, mediaAddress);
         await ownerAuctionConnected
           .endAuction(30, mediaAddress)
@@ -760,6 +760,11 @@ describe("AuctionHouse", () => {
             "Invariant failed: AuctionHouse (endAuction): AuctionId does not exist."
           );
       });
+
+      it.only("Should reject if the auction has already started on the main media", async () => {
+        
+      });
+
     });
 
     describe("View Functions", () => {
