@@ -754,7 +754,11 @@ describe("AuctionHouse", () => {
 
       it.only("Should reject if the auctionId does not exist on the main media", async () => {
         await bidderMainConnected.createBid(0, 200, mediaAddress);
-        await ownerAuctionConnected.endAuction(53, mediaAddress);
+        await ownerAuctionConnected
+          .endAuction(30, mediaAddress)
+          .should.be.rejectedWith(
+            "Invariant failed: AuctionHouse (endAuction): AuctionId does not exist."
+          );
       });
     });
 
