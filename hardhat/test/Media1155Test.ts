@@ -282,5 +282,16 @@ describe("ZapMedia Test", async () => {
 
         });
 
+        it('should not be able to mint a token if token exists and call is not creator', async () => {
+            await media1.connect(signers[5]).mint(signers[5].address, 1, 1, bidShares);
+
+            const balance = await media2.balanceOf(signers[3].address, 1);
+            expect(balance.eq(1));
+
+            await expect(media1.connect(signers[4]).mint(signers[6].address, 1, 10, bidShares)).
+            to.be.revertedWith("Media: Cannot mint an existing token as non creator");
+
+
+        });
     });
 })

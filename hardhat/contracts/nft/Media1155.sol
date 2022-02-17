@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
@@ -28,6 +29,8 @@ contract Media1155 is
     Ownable,
     ERC165StorageUpgradeable
 {
+    using EnumerableSet for EnumerableSet.UintSet;
+
     bytes internal _contractURI;
     mapping(uint256 => bool) public tokenIds;
     mapping(bytes4 => bool) private _supportedInterfaces;
@@ -447,9 +450,12 @@ contract Media1155 is
         IMarket.BidShares memory bidShares
     ) internal {
         _mint(creator, id, amount, "");
-        // access._creatorTokens[creator].add(tokenId);
-        // tokens.tokenCreators[tokenId] = creator;
-        // tokens.previousTokenOwners[tokenId] = creator;
+
+        if (tokenIds[id]) {
+            require(access._creatorTokens[msg.sender].contains(id), "Media: Cannot mint an existing token as non creator");
+        } else{
+            access._creatorTokens[creator].add(id);
+        }
 
         IMarket(access.marketContract).setBidShares(
             id,
