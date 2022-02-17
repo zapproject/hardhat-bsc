@@ -10,8 +10,10 @@ import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ER
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import {Decimal} from './Decimal.sol';
 import {ZapMedia} from './ZapMedia.sol';
+import {IMedia} from './interfaces/IMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
+import "hardhat/console.sol";
 
 /**
  * @title A Market for pieces of media
@@ -375,6 +377,7 @@ contract ZapMarket is IMarket, Ownable {
      * If another bid already exists for the bidder, it is refunded.
      */
     function setBid(
+        address mediaAddress,
         uint256 tokenId,
         Bid memory bid,
         address spender
@@ -440,7 +443,11 @@ contract ZapMarket is IMarket, Ownable {
             bid.amount >= _tokenAsks[msg.sender][tokenId].amount
         ) {
             // Finalize exchange
-            _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
+            if (IMedia(mediaAddress).supportsInterface(0xd9b67a26)) {
+                _finalizeNFTTransfer1155(msg.sender, tokenId, bid.bidder, bid.recipient);
+            } else {
+                _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
+            }
         }
     }
 
@@ -520,6 +527,76 @@ contract ZapMarket is IMarket, Ownable {
         // Transfer bid share to owner of media
         token.safeTransfer(
             IERC721Upgradeable(mediaContractAddress).ownerOf(tokenId),
+            splitShare(bidShares.owner, bid.amount)
+        );
+
+        // Transfer bid share to creator of media
+        token.safeTransfer(
+            ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
+            splitShare(bidShares.creator, bid.amount)
+        );
+
+        uint256 collaboratorShares = 0;
+
+        Decimal.D256 memory thisCollabsShare;
+        thisCollabsShare.value = 0;
+        // Transfer bid share to the remaining media collaborators
+        for (uint256 i = 0; i < bidShares.collaborators.length; i++) {
+            collaboratorShares =
+                collaboratorShares +
+                (bidShares.collabShares[i]);
+
+            thisCollabsShare.value = bidShares.collabShares[i];
+
+            token.safeTransfer(
+                bidShares.collaborators[i],
+                splitShare(thisCollabsShare, bid.amount)
+            );
+        }
+        console.log("before safe transfer");
+        // Transfer bid share to previous owner of media (if applicable)
+        token.safeTransfer(
+            // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
+            platformAddress,
+            splitShare(platformFee.fee, bid.amount)
+        );
+        console.log("After safe transfer");
+        // Transfer media to bid recipient
+        ZapMedia(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
+
+        // Calculate the bid share for the new owner,
+        // equal to 100 - creatorShare - sellOnShare
+        bidShares.owner = Decimal.D256(
+            uint256(100) *
+                (Decimal.BASE) -
+                (collaboratorShares) -
+                (_bidShares[mediaContractAddress][tokenId].creator.value) -
+                (platformFee.fee.value)
+        );
+        // Set the previous owner share to the accepted bid's sell-on fee
+        // platformFee.fee = bid.sellOnShare;
+
+        // Remove the accepted bid
+        delete _tokenBidders[mediaContractAddress][tokenId][bidder];
+
+        emit BidShareUpdated(tokenId, bidShares, mediaContractAddress);
+        emit BidFinalized(tokenId, bid, mediaContractAddress);
+    }
+
+    function _finalizeNFTTransfer1155(
+        address mediaContractAddress,
+        uint256 tokenId,
+        address bidder,
+        address owner
+    ) private {
+        Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][bidder];
+        BidShares storage bidShares = _bidShares[mediaContractAddress][tokenId];
+
+        IERC20Upgradeable token = IERC20Upgradeable(bid.currency);
+
+        // Transfer bid share to owner of media
+        token.safeTransfer(
+            owner,
             splitShare(bidShares.owner, bid.amount)
         );
 

@@ -192,7 +192,8 @@ contract ZapMedia is
         override(
             ERC721EnumerableUpgradeable,
             ERC721Upgradeable,
-            ERC165StorageUpgradeable
+            ERC165StorageUpgradeable,
+            IMedia
         )
         returns (bool)
     {
@@ -401,7 +402,7 @@ contract ZapMedia is
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
+        IMarket(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
     }
 
     /**

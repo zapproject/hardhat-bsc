@@ -10,11 +10,13 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
+import "hardhat/console.sol";
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -28,9 +30,13 @@ contract Media1155 is
     Ownable,
     ERC165StorageUpgradeable
 {
+    using EnumerableSet for EnumerableSet.UintSet;
+
     bytes internal _contractURI;
     mapping(uint256 => bool) public tokenIds;
     mapping(bytes4 => bool) private _supportedInterfaces;
+    MediaStorage.Tokens internal tokens;
+
 
     /* *********
      * Modifiers
@@ -158,6 +164,14 @@ contract Media1155 is
     {
         return super.supportsInterface(interfaceId);
     }
+    
+    function getTokenCreators(uint256 _tokenId)
+        public
+        view
+        returns (address creator)
+    {
+        creator = tokens.tokenCreators[_tokenId];
+    }
 
     function _registerInterface(bytes4 interfaceId) internal virtual override {
         require(interfaceId != 0xffffffff, 'ERC165: invalid interface id');
@@ -179,7 +193,7 @@ contract Media1155 is
             access.isPermissive ||
                 access.approvedToMint[msg.sender] ||
                 access.owner == msg.sender,
-            'Media: Only Approved users can mint'
+            'Media: Only Approved users can mint batch'
         );
 
         require(
@@ -198,7 +212,7 @@ contract Media1155 is
             }
         }
         
-        _mintForCreatorBatch(_to, id, amount, bidShares);
+        _mintForCreatorBatch(_to, _tokenId, _amount, bidShares);
 
     }
 
@@ -319,7 +333,11 @@ contract Media1155 is
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
+        IMarket(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
+    }
+
+    function getInterfaceId() public view returns (bytes4) {
+        return type(IERC1155Upgradeable).interfaceId;
     }
 
     /**
@@ -442,7 +460,14 @@ contract Media1155 is
         IMarket.BidShares memory bidShares
     ) internal {
         _mint(creator, id, amount, "");
-        // access._creatorTokens[creator].add(tokenId);
+
+        if (tokenIds[id]) {
+            require(access._creatorTokens[msg.sender].contains(id), "Media: Cannot mint an existing token as non creator");
+        } else{
+            access._creatorTokens[msg.sender].add(id);
+            tokens.tokenCreators[id] = creator;
+        }
+
         IMarket(access.marketContract).setBidShares(
             id,
             bidShares
@@ -481,6 +506,7 @@ contract Media1155 is
                 require(access._creatorTokens[msg.sender].contains(id[i]), "Media: Cannot mint an existing token as non creator");
             } else{
                 access._creatorTokens[msg.sender].add(id[i]);
+                tokens.tokenCreators[id[i]] = creator;
             }
 
             IMarket(access.marketContract).setBidShares(
@@ -489,9 +515,9 @@ contract Media1155 is
             );
             
             tokenIds[id[i]] = true;
+            IMarket(access.marketContract).mintOrBurn(true, id[i], address(this));
         }
 
-        IMarket(access.marketContract).mintOrBurn(true, id[i], address(this));
 
     }
 

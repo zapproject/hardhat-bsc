@@ -121,4 +121,6 @@ interface IMedia {
         uint256 tokenId,
         EIP712Signature calldata sig
     ) external;
+
+    function supportsInterface(bytes4 interfaceId) external returns (bool);
 }
