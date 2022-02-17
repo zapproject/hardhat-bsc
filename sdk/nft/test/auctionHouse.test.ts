@@ -751,14 +751,15 @@ describe("AuctionHouse", () => {
         await token.mint(await bidder.getAddress(), mintAmt);
         await token.connect(bidder).approve(auctionHouse.address, bidAmt);
       });
-      
-      
+
       it.only("Should reject if the auctionId does not exist on the main media", async () => {
-        await curatorConnected
-          .endAuction(10).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: AuctionHouse (endAuction): AuctionId does not exist."
-            );
+        await bidderMainConnected.createBid(0, 200, mediaAddress);
+
+        await ownerAuctionConnected
+          .endAuction(53)
+          .should.be.rejectedWith(
+            "Invariant failed: AuctionHouse (endAuction): AuctionId does not exist."
+          );
       });
     });
 
@@ -936,5 +937,3 @@ describe("AuctionHouse", () => {
     });
   });
 });
-});
-
