@@ -70,15 +70,15 @@ const config = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY
   },
   networks: {
-    mainnet: {
-      url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
-      accounts: { mnemonic: process.env.MNEMONIC },
-      gasPrice: 160463534099,
-      gas: 2000000,
-      gasMultiplier: 2,
-      blockGasLimit: 30000000,
-      timeout: 900000,
-    },
+    // mainnet: {
+    //   url: 'https://mainnet.infura.io/v3/bc0266c92ce34146865122a0b095f44c',
+    //   accounts: { mnemonic: process.env.MNEMONIC },
+    //   gasPrice: 160463534099,
+    //   gas: 2000000,
+    //   gasMultiplier: 2,
+    //   blockGasLimit: 30000000,
+    //   timeout: 900000,
+    // },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
       accounts: [RINKEBY_PRIVATE_KEY],
@@ -91,21 +91,21 @@ const config = {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/kovan',
       accounts: [KOVAN_PRIVATE_KEY]
     },
-    binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
-      chainId: 56,
-      gas: 2000000,
-      gasPrice: "auto",
-      accounts: { mnemonic: process.env.MNEMONIC },
-      timeout: 300000
-    },
-    testnet: {
-      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
-      chainId: 97,
-      gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.MNEMONIC },
-      timeout: 300000
-    },
+    // binanceMainnet: {
+    //   url: 'https://bsc-dataseed.binance.org/',
+    //   chainId: 56,
+    //   gas: 2000000,
+    //   gasPrice: "auto",
+    //   accounts: { mnemonic: process.env.MNEMONIC },
+    //   timeout: 300000
+    // },
+    // testnet: {
+    //   url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
+    //   chainId: 97,
+    //   gasPrice: 20000000000,
+    //   accounts: { mnemonic: process.env.MNEMONIC },
+    //   timeout: 300000
+    // },
     hardhat: {
       gas: 12000000,
       gasPrice: 10000000000,
@@ -123,7 +123,7 @@ const config = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: BSC_API_KEY
+    // apiKey: BSC_API_KEY
   },
   mocha: {
     timeout: 1000000

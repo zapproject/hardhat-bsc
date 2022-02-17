@@ -21,6 +21,7 @@ import {
     formatBytes32String,
     arrayify
 } from 'ethers/lib/utils';
+import { intToBuffer } from "ethjs-util";
 
 const { BigNumber } = ethers;
 
@@ -281,6 +282,39 @@ describe("ZapMedia Test", async () => {
             })).to.be.revertedWith("Market: Invalid bid shares, must sum to 100");
 
         });
-
     });
+    describe("#mintBatch", () => {
+
+        beforeEach(async () => {
+            tokenURI = Array('');
+
+            const mediaDeployerFactory = await ethers.getContractFactory("Media1155", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
+                initializer: 'initialize'
+            })) as Media1155Factory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deploy1155Medias(signers, zapMarket, mediaDeployer);
+
+            media1 = medias[0];
+            media2 = medias[1];
+            media3 = medias[2];
+
+            await media1.claimTransferOwnership();
+            await media2.claimTransferOwnership();
+            await media3.claimTransferOwnership();
+        });
+
+        it("Should not mint batch if caller is unapproved", async () => {
+
+            await expect(
+                media2.connect(signers[4]).mintBatch(signers[4].address, [1], [1], [bidShares])
+            ).to.be.revertedWith("Media: Only Approved users can mint batch");
+        }) // I pushed my addition for mint, pull whenever ###############################################################################
+        // also can you give me write/terminal access
+    })
 })
