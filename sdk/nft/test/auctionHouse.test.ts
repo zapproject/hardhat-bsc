@@ -766,6 +766,11 @@ describe("AuctionHouse", () => {
             "Invariant failed: AuctionHouse (endAuction): Auction has already started."
           );
       });
+
+      it("should reject if the caller is not the curator on the main media", async () => {
+
+      });
+
     });
 
     describe("View Functions", () => {
