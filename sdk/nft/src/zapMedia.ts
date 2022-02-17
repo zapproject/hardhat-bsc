@@ -917,22 +917,5 @@ class ZapMedia {
       verifyingContract: this.media.address,
     };
   }
-
-  /******************
-   * Private Methods
-   ******************
-   */
-
-  // /**
-  //  * Throws an error if called on a readOnly == true instance of Zap Sdk
-  //  * @private
-  //  */
-  // private ensureNotReadOnly() {
-  //   if (this.readOnly) {
-  //     throw new Error(
-  //       'ensureNotReadOnly: readOnly Zap instance cannot call contract methods that require a signer.'
-  //     )
-  //   }
-  // }
 }
 export default ZapMedia;
