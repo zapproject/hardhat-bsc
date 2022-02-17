@@ -66,9 +66,6 @@ describe("ZapMedia Test", async () => {
     };
 
     let tokenURI: any;
-    let metadataURI: any;
-    let mediaData: any;
-    let randomString: any;
     let collaborators: any
 
     before(async () => {
@@ -123,10 +120,6 @@ describe("ZapMedia Test", async () => {
         beforeEach(async () => {
 
             tokenURI = String("media contract 1 - token 1 uri");
-            metadataURI = String("media contract 1 - metadata 1 uri");
-
-            tokenURI = String('media contract 1 - token 1 uri');
-            metadataURI = String('media contract 1 - metadata 1 uri');
 
             const mediaDeployerFactory = await ethers.getContractFactory("Media1155Factory", signers[0]);
 
@@ -153,19 +146,19 @@ describe("ZapMedia Test", async () => {
 
         it("Should get media owner", async () => {
 
-            const zapMedia1Address = await zapMarket.mediaContracts(
+            const media1Address = await zapMarket.mediaContracts(
                 signers[1].address,
                 BigNumber.from("0")
             );
 
-            const zapMedia2Address = await zapMarket.mediaContracts(
+            const media2Address = await zapMarket.mediaContracts(
                 signers[2].address,
                 BigNumber.from("0")
             );
 
-            expect(await zapMedia1Address).to.equal(media1.address);
+            expect(await media1Address).to.equal(media1.address);
 
-            expect(await zapMedia2Address).to.equal(media2.address);
+            expect(await media2Address).to.equal(media2.address);
         });
 
         it("Should reject if called twice", async () => {
@@ -197,5 +190,97 @@ describe("ZapMedia Test", async () => {
             expect(await zapMarket.isConfigured(media2.address)).to.be.true;
 
         });
+    });
+
+    describe("#mint", () => {
+
+        beforeEach(async () => {
+            tokenURI = String('media contract 1 - token 1 uri');
+
+            const mediaDeployerFactory = await ethers.getContractFactory("Media1155Factory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
+                initializer: 'initialize'
+            })) as Media1155Factory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deploy1155Medias(signers, zapMarket, mediaDeployer);
+
+            media1 = medias[0];
+            media2 = medias[1];
+            media3 = medias[2];
+
+            await media1.claimTransferOwnership();
+            await media2.claimTransferOwnership();
+            await media3.claimTransferOwnership();
+        });
+
+        it("should not mint token if caller is not approved", async () => {
+
+            await expect(
+                media2.connect(signers[4]).mint(signers[4].address, 1, 1, bidShares)
+            ).revertedWith("Media: Only Approved users can mint");
+        });
+
+        it("should not mint if a collaborator's share has not been defined", async () => {
+            let testBidShares = bidShares;
+            testBidShares = {
+                ...testBidShares, collabShares:
+                    [
+                        BigNumber.from('15000000000000000000'),
+                        BigNumber.from('15000000000000000000'),
+                        BigNumber.from('0')
+                    ]
+            }
+
+            await expect(
+                media2.mint(signers[0].address, 1, 1, testBidShares)
+            ).to.be.revertedWith("Media: Each collaborator must have a share of the nft")
+
+        });
+
+        it("should mint token if caller is approved", async () => {
+
+            expect(await media2.approveToMint(signers[3].address)).to.be.ok;
+
+            expect(
+                await media2.connect(signers[3]).mint(signers[3].address, 1, 1, bidShares)
+            ).to.be.ok;
+
+            const balance = await media2.balanceOf(signers[3].address, 1);
+            expect(balance.eq(1));
+        });
+
+        it('should mint a permissive token without approval', async () => {
+
+            expect(
+                await media1.connect(signers[4]).mint(signers[4].address, 1, 1, bidShares)
+            ).to.be.ok;
+
+            const balance = await media2.balanceOf(signers[3].address, 1);
+            expect(balance.eq(1));
+        });
+
+        it("should mint token", async () => {
+
+            await media1.connect(signers[5]).mint(signers[5].address, 1, 1, bidShares);
+
+            const balance = await media2.balanceOf(signers[3].address, 1);
+            expect(balance.eq(1));
+        });
+
+        it('should not be able to mint a token with bid shares summing to less than 100', async () => {
+
+            await expect(media1.mint(signers[1].address, 1, 1, {
+                ...bidShares, creator: {
+                    value: BigInt(50000000000000000000)
+                }
+            })).to.be.revertedWith("Market: Invalid bid shares, must sum to 100");
+
+        });
+
     });
 })
