@@ -762,7 +762,9 @@ describe("AuctionHouse", () => {
       });
 
       it.only("Should reject if the auction hasn't begun on the main media", async () => {
-        
+        await curatorMainConnected.endAuction(0, mediaAddress);
+
+      
       });
 
     });

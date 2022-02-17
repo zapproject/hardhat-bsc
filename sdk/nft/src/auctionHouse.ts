@@ -275,13 +275,15 @@ class AuctionHouse {
     if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
       invariant(false, "AuctionHouse (endAuction): AuctionId does not exist.");
       
-      // If the fetched firstBidTime is not 0 throw an error
-    } else if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
+    }  
+    // If the fetched firstBidTime is not 0 throw an error
+    if (parseInt(auctionInfo.firstBidTime._hex) !== 0) {
       invariant(
         false,
         "AuctionHouse (endAuction): Auction has already started."
       );
-    } else return this.auctionHouse.endAuction(auctionId, mediaAddress);
+    }
+    return this.auctionHouse.endAuction(auctionId, mediaAddress);
   }
 }
 
