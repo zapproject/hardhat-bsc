@@ -1,4 +1,8 @@
-# Zap NFT SDK
+# Zap NFT Markeplace Software Development Kit
+
+## NFT SDK Exports
+
+- ZapMedia
 
 ## Local Testing
 
