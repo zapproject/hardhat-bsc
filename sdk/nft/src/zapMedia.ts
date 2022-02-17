@@ -36,7 +36,6 @@ class ZapMedia {
     throw new Error("Method not implemented.");
   }
   networkId: number;
-  mediaIndex: any;
   media: any;
   market: any;
   signer: Signer;
