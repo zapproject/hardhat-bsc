@@ -454,7 +454,7 @@ contract Media1155 is
         if (tokenIds[id]) {
             require(access._creatorTokens[msg.sender].contains(id), "Media: Cannot mint an existing token as non creator");
         } else{
-            access._creatorTokens[creator].add(id);
+            access._creatorTokens[msg.sender].add(id);
         }
 
         IMarket(access.marketContract).setBidShares(
