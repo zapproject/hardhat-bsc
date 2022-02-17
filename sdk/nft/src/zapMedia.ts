@@ -40,7 +40,7 @@ class ZapMedia {
   public market: Contract;
   public signer: Signer;
   public mediaAddress: string;
-  public marketAddress: string;  
+  public marketAddress: string;
 
   constructor(networkId: number, signer: Signer, customMediaAddress?: string) {
     this.networkId = networkId;
@@ -52,7 +52,9 @@ class ZapMedia {
       zapMarketAbi,
       signer
     );
+
     this.marketAddress = contractAddresses(networkId).zapMarketAddress;
+
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,

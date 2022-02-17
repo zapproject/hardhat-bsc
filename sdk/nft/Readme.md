@@ -2,7 +2,7 @@
 
 ## NFT SDK Exports
 
-- ZapMedia
+- [ZapMedia](docs/zapMedia.md)
 
 ## Local Testing
 
