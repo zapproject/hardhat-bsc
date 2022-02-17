@@ -750,6 +750,7 @@ describe("AuctionHouse", () => {
       });
 
       it("Should reject if the auctionId does not exist on the main media", async () => {
+        await curatorMainConnected.startAuction(0, true);
         await bidderMainConnected.createBid(0, 200, mediaAddress);
         await ownerAuctionConnected
           .endAuction(30, mediaAddress)
