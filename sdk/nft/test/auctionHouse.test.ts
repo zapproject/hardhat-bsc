@@ -128,6 +128,14 @@ describe("AuctionHouse", () => {
           new AuctionHouse(300, signer);
         }).to.throw("Constructor: Network Id is not supported.");
       });
+
+      it("Should reject if the customMediaAddress is a zero address", async () => {
+        expect(() => {
+          new AuctionHouse(1337, signer, ethers.constants.AddressZero);
+        }).to.throw(
+          "Invariant failed: AuctionHouse (constructor): The (customMediaAddress) cannot be a zero address."
+        );
+      });
     });
 
     describe("Write Functions", () => {

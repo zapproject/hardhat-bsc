@@ -35,11 +35,12 @@ class ZapMedia {
   getSigNonces(addess: any) {
     throw new Error("Method not implemented.");
   }
-  networkId: number;
-  mediaIndex: any;
-  media: any;
-  market: any;
-  signer: Signer;
+  public networkId: number;
+  public media: Contract;
+  public market: Contract;
+  public signer: Signer;
+  public mediaAddress: string;
+  public marketAddress: string;  
 
   constructor(networkId: number, signer: Signer, customMediaAddress?: string) {
     this.networkId = networkId;
@@ -51,7 +52,7 @@ class ZapMedia {
       zapMarketAbi,
       signer
     );
-
+    this.marketAddress = contractAddresses(networkId).zapMarketAddress;
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -61,12 +62,14 @@ class ZapMedia {
 
     if (customMediaAddress !== undefined) {
       this.media = new ethers.Contract(customMediaAddress, zapMediaAbi, signer);
+      this.mediaAddress = customMediaAddress;
     } else {
       this.media = new ethers.Contract(
         contractAddresses(networkId).zapMediaAddress,
         zapMediaAbi,
         signer
       );
+      this.mediaAddress = contractAddresses(networkId).zapMediaAddress;
     }
   }
 
@@ -917,22 +920,5 @@ class ZapMedia {
       verifyingContract: this.media.address,
     };
   }
-
-  /******************
-   * Private Methods
-   ******************
-   */
-
-  // /**
-  //  * Throws an error if called on a readOnly == true instance of Zap Sdk
-  //  * @private
-  //  */
-  // private ensureNotReadOnly() {
-  //   if (this.readOnly) {
-  //     throw new Error(
-  //       'ensureNotReadOnly: readOnly Zap instance cannot call contract methods that require a signer.'
-  //     )
-  //   }
-  // }
 }
 export default ZapMedia;

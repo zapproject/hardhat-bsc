@@ -48,14 +48,17 @@ var ZapMedia = /** @class */ (function () {
         this.networkId = networkId;
         this.signer = signer;
         this.market = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMarketAddress, abi_1.zapMarketAbi, signer);
+        this.marketAddress = (0, utils_1.contractAddresses)(networkId).zapMarketAddress;
         if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
             (0, tiny_invariant_1.default)(false, "ZapMedia (constructor): The (customMediaAddress) cannot be a zero address.");
         }
         if (customMediaAddress !== undefined) {
             this.media = new ethers_1.ethers.Contract(customMediaAddress, abi_1.zapMediaAbi, signer);
+            this.mediaAddress = customMediaAddress;
         }
         else {
             this.media = new ethers_1.ethers.Contract((0, utils_1.contractAddresses)(networkId).zapMediaAddress, abi_1.zapMediaAbi, signer);
+            this.mediaAddress = (0, utils_1.contractAddresses)(networkId).zapMediaAddress;
         }
     }
     ZapMedia.prototype.getSigNonces = function (addess) {
@@ -69,44 +72,34 @@ var ZapMedia = /** @class */ (function () {
      * Fetches the amount of tokens an address owns on a media contract
      * @param owner The address to fetch the token balance for
      */
-    ZapMedia.prototype.fetchBalanceOf = function (owner, customMediaAddress) {
+    ZapMedia.prototype.fetchBalanceOf = function (owner) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 if (owner == ethers_1.ethers.constants.AddressZero) {
                     (0, tiny_invariant_1.default)(false, "ZapMedia (fetchBalanceOf): The (owner) address cannot be a zero address.");
                 }
-                if (customMediaAddress !== undefined) {
-                    return [2 /*return*/, this.media.attach(customMediaAddress).balanceOf(owner)];
-                }
-                else {
-                    return [2 /*return*/, this.media.balanceOf(owner)];
-                }
-                return [2 /*return*/];
+                return [2 /*return*/, this.media.balanceOf(owner)];
             });
         });
     };
     /**
      * Fetches the owner of the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchOwnerOf = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchOwnerOf = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 4, , 5]);
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.media.attach(customMediaAddress).ownerOf(mediaId)];
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
                     case 1: return [2 /*return*/, _b.sent()];
-                    case 2: return [4 /*yield*/, this.media.ownerOf(mediaId)];
-                    case 3: return [2 /*return*/, _b.sent()];
-                    case 4:
+                    case 2:
                         _a = _b.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchOwnerOf): The token id does not exist.");
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -115,63 +108,36 @@ var ZapMedia = /** @class */ (function () {
      * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
      * @param owner Address of who the tokenId belongs to.
      * @param index The position of a tokenId that an address owns.
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchMediaOfOwnerByIndex = function (owner, index, customMediaAddress) {
+    ZapMedia.prototype.fetchMediaOfOwnerByIndex = function (owner, index) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 // If the owner is a zero address throw an error
                 if (owner == ethers_1.ethers.constants.AddressZero) {
                     (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMediaOfOwnerByIndex): The (owner) address cannot be a zero address.");
                 }
-                // If customMediaAddress is not undefined attach the address to the main media contract
-                // create a custom media contract instance and invoke tokenOfOwnerByIndex
-                if (customMediaAddress !== undefined) {
-                    return [2 /*return*/, this.media
-                            .attach(customMediaAddress)
-                            .tokenOfOwnerByIndex(owner, index)];
-                    // If the customMediaAddress is undefined invoke tokenOfOwnerByIndex on the main media
-                }
-                else {
-                    return [2 /*return*/, this.media.tokenOfOwnerByIndex(owner, index)];
-                }
-                return [2 /*return*/];
+                return [2 /*return*/, this.media.tokenOfOwnerByIndex(owner, index)];
             });
         });
     };
     /**
      * Fetches the content uri for the specified media on an instance of the Zap Media Contract
-     * @param mediaId
-     * @param customMediaAddress
+     * @param mediaId Numerical identifier for a minted token
      */
-    ZapMedia.prototype.fetchContentURI = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchContentURI = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentURI): The (customMediaAddress) address cannot be a zero address.");
-                        }
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 4];
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, this.media.attach(customMediaAddress).tokenURI(mediaId)];
-                    case 2: return [2 /*return*/, _c.sent()];
-                    case 3:
-                        _a = _c.sent();
-                        (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
-                        return [3 /*break*/, 4];
-                    case 4:
-                        _c.trys.push([4, 6, , 7]);
+                        _b.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.media.tokenURI(mediaId)];
-                    case 5: return [2 /*return*/, _c.sent()];
-                    case 6:
-                        _b = _c.sent();
+                    case 1: return [2 /*return*/, _b.sent()];
+                    case 2:
+                        _a = _b.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentURI): TokenId does not exist.");
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -180,34 +146,20 @@ var ZapMedia = /** @class */ (function () {
      * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
      * @param mediaId
      */
-    ZapMedia.prototype.fetchMetadataURI = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchMetadataURI = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataURI): The (customMediaAddress) address cannot be a zero address.");
-                        }
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 4];
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, this.media.attach(customMediaAddress).tokenMetadataURI(mediaId)];
-                    case 2: return [2 /*return*/, _c.sent()];
-                    case 3:
-                        _a = _c.sent();
-                        (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
-                        return [3 /*break*/, 4];
-                    case 4:
-                        _c.trys.push([4, 6, , 7]);
+                        _b.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.media.tokenMetadataURI(mediaId)];
-                    case 5: return [2 /*return*/, _c.sent()];
-                    case 6:
-                        _b = _c.sent();
+                    case 1: return [2 /*return*/, _b.sent()];
+                    case 2:
+                        _a = _b.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataURI): TokenId does not exist.");
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -215,52 +167,22 @@ var ZapMedia = /** @class */ (function () {
     /**
      * Fetches the content hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchContentHash = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchContentHash = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        // If the customMediaAddress is a zero address throw an error
-                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchContentHash): The (customMediaAddress) cannot be a zero address.");
-                        }
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.media
-                                .attach(customMediaAddress)
-                                .getTokenContentHashes(mediaId)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                    case 2: 
-                    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenContentHashes function
-                    return [2 /*return*/, this.media.getTokenContentHashes(mediaId)];
-                }
+                return [2 /*return*/, this.media.getTokenContentHashes(mediaId)];
             });
         });
     };
     /**
      * Fetches the metadata hash for the specified media on the ZapMedia Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchMetadataHash = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchMetadataHash = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        // If the customMediaAddress is a zero address throw an error
-                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMetadataHash): The (customMediaAddress) cannot be a zero address.");
-                        }
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.media
-                                .attach(customMediaAddress)
-                                .getTokenMetadataHashes(mediaId)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                    case 2: 
-                    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenMetadataHashes function
-                    return [2 /*return*/, this.media.getTokenMetadataHashes(mediaId)];
-                }
+                return [2 /*return*/, this.media.getTokenMetadataHashes(mediaId)];
             });
         });
     };
@@ -279,26 +201,13 @@ var ZapMedia = /** @class */ (function () {
     /**
      * Fetches the creator for the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchCreator = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchCreator = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        // If the customMediaAddress is a zero address throw an error
-                        if (customMediaAddress == ethers_1.ethers.constants.AddressZero) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchCreator): The (customMediaAddress) cannot be a zero address.");
-                        }
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.media
-                                .attach(customMediaAddress)
-                                .getTokenCreators(mediaId)];
+                    case 0: return [4 /*yield*/, this.media.getTokenCreators(mediaId)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: return [4 /*yield*/, this.media.getTokenCreators(mediaId)];
-                    case 3: 
-                    // If the customMediaAddress is undefined use the main media instance to invoke the getTokenCreators function
-                    return [2 /*return*/, _a.sent()];
                 }
             });
         });
@@ -310,13 +219,16 @@ var ZapMedia = /** @class */ (function () {
     ZapMedia.prototype.fetchCurrentBidShares = function (mediaAddress, mediaId) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
+                if (mediaAddress == ethers_1.ethers.constants.AddressZero) {
+                    (0, tiny_invariant_1.default)(false, "ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address.");
+                }
                 return [2 /*return*/, this.market.bidSharesForToken(mediaAddress, mediaId)];
             });
         });
     };
     /**
      * Fetches the current ask for the specified media on an instance of the Zap Media Contract
-     * @param mediaId
+     * @param mediaId Numerical identifier for a minted token
      */
     ZapMedia.prototype.fetchCurrentAsk = function (mediaAddress, mediaId) {
         return __awaiter(this, void 0, void 0, function () {
@@ -366,13 +278,13 @@ var ZapMedia = /** @class */ (function () {
     /**
      * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
      */
-    ZapMedia.prototype.fetchTotalMedia = function (customMediaAddress) {
+    ZapMedia.prototype.fetchTotalMedia = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                if (customMediaAddress !== undefined) {
-                    return [2 /*return*/, this.media.attach(customMediaAddress).totalSupply()];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.media.totalSupply()];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
-                return [2 /*return*/, this.media.totalSupply()];
             });
         });
     };
@@ -385,7 +297,7 @@ var ZapMedia = /** @class */ (function () {
                     case 1:
                         totalMedia = _a.sent();
                         if (index > parseInt(totalMedia._hex) - 1) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (tokenByIndex): Index out of range.");
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (fetchMediaByIndex): Index out of range.");
                         }
                         return [2 /*return*/, this.media.tokenByIndex(index)];
                 }
@@ -395,33 +307,21 @@ var ZapMedia = /** @class */ (function () {
     /**
      * Fetches the approved account for the specified media on an instance of the Zap Media Contract
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.fetchApproved = function (mediaId, customMediaAddress) {
+    ZapMedia.prototype.fetchApproved = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 4];
-                        _c.label = 1;
-                    case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, this.media.attach(customMediaAddress).getApproved(mediaId)];
-                    case 2: return [2 /*return*/, _c.sent()];
-                    case 3:
-                        _a = _c.sent();
-                        (0, tiny_invariant_1.default)(false, "ZapMedia (fetchApproved): TokenId does not exist.");
-                        return [3 /*break*/, 4];
-                    case 4:
-                        _c.trys.push([4, 6, , 7]);
+                        _b.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.media.getApproved(mediaId)];
-                    case 5: return [2 /*return*/, _c.sent()];
-                    case 6:
-                        _b = _c.sent();
+                    case 1: return [2 /*return*/, _b.sent()];
+                    case 2:
+                        _a = _b.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (fetchApproved): TokenId does not exist.");
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -440,18 +340,51 @@ var ZapMedia = /** @class */ (function () {
     };
     ZapMedia.prototype.updateContentURI = function (mediaId, tokenURI) {
         return __awaiter(this, void 0, void 0, function () {
-            var err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.media.updateTokenURI(mediaId, tokenURI)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                        _g.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 1:
+                        owner = _g.sent();
+                        return [3 /*break*/, 3];
                     case 2:
-                        err_1 = _a.sent();
+                        _a = _g.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (updateContentURI): TokenId does not exist.");
                         return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                    case 3:
+                        try {
+                            (0, utils_1.validateURI)(tokenURI);
+                        }
+                        catch (err) {
+                            return [2 /*return*/, Promise.reject(err.message)];
+                        }
+                        return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 4:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 5: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 6:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 8];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 7:
+                        _e = _f !== (_g.sent());
+                        _g.label = 8;
+                    case 8:
+                        // Checks if the caller is not approved, not approved for all, and not the owner.
+                        // If the caller meets the three conditions throw an error
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (updateContentURI): Caller is not approved nor the owner.");
+                        }
+                        return [4 /*yield*/, this.media.updateTokenURI(mediaId, tokenURI)];
+                    case 9: return [2 /*return*/, _g.sent()];
                 }
             });
         });
@@ -482,64 +415,32 @@ var ZapMedia = /** @class */ (function () {
      * Grants approval to the specified address for the specified media on an instance of the Zap Media Contract
      * @param to The address to be approved
      * @param mediaId Numerical identifier for a minted token
-     * @param customMediaAddress An optional argument that designates which media contract to connect to.
      */
-    ZapMedia.prototype.approve = function (to, mediaId, customMediaAddress) {
+    ZapMedia.prototype.approve = function (to, mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var owner, _a, approvalStatus_1, _b, _c, _d, _e, approvalStatus, _f, _g, _h;
-            return __generator(this, function (_j) {
-                switch (_j.label) {
+            var owner, _a, approvalStatus, _b, _c, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
                     case 0:
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 8];
-                        _j.label = 1;
+                        _e.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
                     case 1:
-                        _j.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, this.media.attach(customMediaAddress).ownerOf(mediaId)];
+                        owner = _e.sent();
+                        return [3 /*break*/, 3];
                     case 2:
-                        owner = _j.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        _a = _j.sent();
+                        _a = _e.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (approve): TokenId does not exist.");
-                        return [3 /*break*/, 4];
-                    case 4:
-                        _c = (_b = this.media
-                            .attach(customMediaAddress))
-                            .isApprovedForAll;
+                        return [3 /*break*/, 3];
+                    case 3:
+                        _c = (_b = this.media).isApprovedForAll;
                         _d = [owner];
                         return [4 /*yield*/, this.signer.getAddress()];
-                    case 5: return [4 /*yield*/, _c.apply(_b, _d.concat([_j.sent()]))];
+                    case 4: return [4 /*yield*/, _c.apply(_b, _d.concat([_e.sent()]))];
+                    case 5:
+                        approvalStatus = _e.sent();
+                        return [4 /*yield*/, this.signer.getAddress()];
                     case 6:
-                        approvalStatus_1 = _j.sent();
-                        return [4 /*yield*/, this.signer.getAddress()];
-                    case 7:
-                        // If the signer is not the owner nor approved for all they cannot invoke this function
-                        if ((_j.sent()) !== owner &&
-                            approvalStatus_1 == false) {
-                            (0, tiny_invariant_1.default)(false, "ZapMedia (approve): Caller is not the owner nor approved for all.");
-                        }
-                        // Appr
-                        return [2 /*return*/, this.media.attach(customMediaAddress).approve(to, mediaId)];
-                    case 8:
-                        _j.trys.push([8, 10, , 11]);
-                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
-                    case 9:
-                        owner = _j.sent();
-                        return [3 /*break*/, 11];
-                    case 10:
-                        _e = _j.sent();
-                        (0, tiny_invariant_1.default)(false, "ZapMedia (approve): TokenId does not exist.");
-                        return [3 /*break*/, 11];
-                    case 11:
-                        _g = (_f = this.media).isApprovedForAll;
-                        _h = [owner];
-                        return [4 /*yield*/, this.signer.getAddress()];
-                    case 12: return [4 /*yield*/, _g.apply(_f, _h.concat([_j.sent()]))];
-                    case 13:
-                        approvalStatus = _j.sent();
-                        return [4 /*yield*/, this.signer.getAddress()];
-                    case 14:
-                        if ((_j.sent()) !== owner && approvalStatus == false) {
+                        if ((_e.sent()) !== owner && approvalStatus == false) {
                             (0, tiny_invariant_1.default)(false, "ZapMedia (approve): Caller is not the owner nor approved for all.");
                         }
                         return [2 /*return*/, this.media.approve(to, mediaId)];
@@ -554,51 +455,128 @@ var ZapMedia = /** @class */ (function () {
      */
     ZapMedia.prototype.setApprovalForAll = function (operator, approved) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.setApprovalForAll(operator, approved)];
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = operator;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 1:
+                        if (_a == (_b.sent())) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (setApprovalForAll): The caller cannot be the operator.");
+                        }
+                        return [2 /*return*/, this.media.setApprovalForAll(operator, approved)];
+                }
             });
         });
     };
     /**
      * Transfers the specified media to the specified to address on an instance of the Zap Media Contract
-     * @param from
-     * @param to
-     * @param mediaId
+     * @param from The address of the owner who is transferring the token
+     * @param to The receiving address
+     * @param mediaId Numerical identifier for a minted token
      */
     ZapMedia.prototype.transferFrom = function (from, to, mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.transferFrom(from, to, mediaId)];
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0:
+                        if (from == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (transferFrom): The (from) address cannot be a zero address.");
+                        }
+                        if (to == ethers_1.ethers.constants.AddressZero) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (transferFrom): The (to) address cannot be a zero address.");
+                        }
+                        _g.label = 1;
+                    case 1:
+                        _g.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 2:
+                        owner = _g.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _a = _g.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (transferFrom): TokenId does not exist.");
+                        return [3 /*break*/, 4];
+                    case 4: return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 5:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 6: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 7:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 9];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 8:
+                        _e = _f !== (_g.sent());
+                        _g.label = 9;
+                    case 9:
+                        // Checks if the caller is not approved, not approved for all, and not the owner.
+                        // If the caller meets the three conditions throw an error
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (transferFrom): Caller is not approved nor the owner.");
+                        }
+                        return [2 /*return*/, this.media.transferFrom(from, to, mediaId)];
+                }
             });
         });
     };
     /**
      * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
-     * @param from
-     * @param to
-     * @param mediaId
+     * @param from The address of the owner who is transferring the token
+     * @param to The receiving address
+     * @param mediaId Numerical identifier for a minted token
      */
     ZapMedia.prototype.safeTransferFrom = function (from, to, mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _g.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.media.ownerOf(mediaId)];
                     case 1:
-                        _a.sent();
+                        owner = _g.sent();
                         return [3 /*break*/, 3];
                     case 2:
-                        err_2 = _a.sent();
+                        _a = _g.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (safeTransferFrom): TokenId does not exist.");
                         return [3 /*break*/, 3];
                     case 3:
-                        if (from === ethers_1.ethers.constants.AddressZero) {
+                        if (from == ethers_1.ethers.constants.AddressZero) {
                             (0, tiny_invariant_1.default)(false, "ZapMedia (safeTransferFrom): The (from) address cannot be a zero address.");
                         }
-                        if (to === ethers_1.ethers.constants.AddressZero) {
+                        if (to == ethers_1.ethers.constants.AddressZero) {
                             (0, tiny_invariant_1.default)(false, "ZapMedia (safeTransferFrom): The (to) address cannot be a zero address.");
+                        }
+                        return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 4:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 5: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 6:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 8];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 7:
+                        _e = _f !== (_g.sent());
+                        _g.label = 8;
+                    case 8:
+                        // Checks if the caller is not approved, not approved for all, and not the owner.
+                        // If the caller meets the three conditions throw an error
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (safeTransferFrom): Caller is not approved nor the owner.");
                         }
                         return [2 /*return*/, this.media["safeTransferFrom(address,address,uint256)"](from, to, mediaId)];
                 }
@@ -610,7 +588,7 @@ var ZapMedia = /** @class */ (function () {
      * @param mintData
      * @param bidShares
      */
-    ZapMedia.prototype.mint = function (mediaData, bidShares, customMediaAddress) {
+    ZapMedia.prototype.mint = function (mediaData, bidShares) {
         return __awaiter(this, void 0, void 0, function () {
             var gasEstimate;
             return __generator(this, function (_a) {
@@ -624,10 +602,8 @@ var ZapMedia = /** @class */ (function () {
                         catch (err) {
                             return [2 /*return*/, Promise.reject(err.message)];
                         }
-                        if (!(customMediaAddress !== undefined)) return [3 /*break*/, 1];
-                        return [2 /*return*/, this.media.attach(customMediaAddress).mint(mediaData, bidShares)];
-                    case 1: return [4 /*yield*/, this.media.estimateGas.mint(mediaData, bidShares)];
-                    case 2:
+                        return [4 /*yield*/, this.media.estimateGas.mint(mediaData, bidShares)];
+                    case 1:
                         gasEstimate = _a.sent();
                         return [2 /*return*/, this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate })];
                 }
@@ -701,7 +677,7 @@ var ZapMedia = /** @class */ (function () {
      */
     ZapMedia.prototype.setBid = function (mediaId, bid) {
         return __awaiter(this, void 0, void 0, function () {
-            var err_3;
+            var err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -711,7 +687,7 @@ var ZapMedia = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 3];
                     case 2:
-                        err_3 = _a.sent();
+                        err_1 = _a.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (setBid): TokenId does not exist.");
                         return [3 /*break*/, 3];
                     case 3:
@@ -731,11 +707,11 @@ var ZapMedia = /** @class */ (function () {
     };
     /**
      * Removes the ask on the specified media on an instance of the Zap Media Contract
-     * @param mediaId
+     * @param mediaId Numerical identifier for a minted token
      */
     ZapMedia.prototype.removeAsk = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            var ask, err_4;
+            var ask, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.market.currentAskForToken(this.media.address, mediaId)];
@@ -749,7 +725,7 @@ var ZapMedia = /** @class */ (function () {
                         _a.sent();
                         return [3 /*break*/, 5];
                     case 4:
-                        err_4 = _a.sent();
+                        err_2 = _a.sent();
                         (0, tiny_invariant_1.default)(false, "ZapMedia (removeAsk): TokenId does not exist.");
                         return [3 /*break*/, 5];
                     case 5:
@@ -765,15 +741,85 @@ var ZapMedia = /** @class */ (function () {
         });
     };
     /**
+     * Accepts the specified bid on the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     * @param bid
+     */
+    ZapMedia.prototype.acceptBid = function (mediaId, bid) {
+        return __awaiter(this, void 0, void 0, function () {
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0:
+                        _g.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 1:
+                        owner = _g.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        _a = _g.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (acceptBid): The token id does not exist.");
+                        return [3 /*break*/, 3];
+                    case 3: return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 4:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 5: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 6:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 8];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 7:
+                        _e = _f !== (_g.sent());
+                        _g.label = 8;
+                    case 8:
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (acceptBid): Caller is not approved nor the owner.");
+                        }
+                        return [2 /*return*/, this.media.acceptBid(mediaId, bid)];
+                }
+            });
+        });
+    };
+    /**
+     * Removes the bid for the msg.sender on the specified media on an instance of the Zap Media Contract
+     * @param mediaId
+     */
+    ZapMedia.prototype.removeBid = function (mediaId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 1:
+                        _b.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        _a = _b.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (removeBid): The token id does not exist.");
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/, this.media.removeBid(mediaId)];
+                }
+            });
+        });
+    };
+    /**
      * Updates the metadata uri for the specified media on an instance of the Zap Media Contract
      * @param mediaId
      * @param metadataURI
      */
     ZapMedia.prototype.updateMetadataURI = function (mediaId, metadataURI) {
         return __awaiter(this, void 0, void 0, function () {
-            var gasEstimate;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
                     case 0:
                         try {
                             (0, utils_1.validateURI)(metadataURI);
@@ -781,12 +827,41 @@ var ZapMedia = /** @class */ (function () {
                         catch (err) {
                             return [2 /*return*/, Promise.reject(err.message)];
                         }
-                        return [4 /*yield*/, this.media.estimateGas.updateTokenMetadataURI(mediaId, metadataURI)];
+                        _g.label = 1;
                     case 1:
-                        gasEstimate = _a.sent();
-                        return [2 /*return*/, this.media.updateTokenMetadataURI(mediaId, metadataURI, {
-                                gasLimit: gasEstimate,
-                            })];
+                        _g.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 2:
+                        owner = _g.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _a = _g.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (updateMetadataURI): TokenId does not exist.");
+                        return [3 /*break*/, 4];
+                    case 4: return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 5:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 6: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 7:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 9];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 8:
+                        _e = _f !== (_g.sent());
+                        _g.label = 9;
+                    case 9:
+                        // Checks if the caller is not approved, not approved for all, and not the owner.
+                        // If the caller meets the three conditions throw an error
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (updateMetadataURI): Caller is not approved nor the owner.");
+                        }
+                        return [2 /*return*/, this.media.updateTokenMetadataURI(mediaId, metadataURI)];
                 }
             });
         });
@@ -813,12 +888,48 @@ var ZapMedia = /** @class */ (function () {
     };
     /**
      * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
-     * @param mediaId
+     * @param mediaId Numerical identifier for a minted token
      */
     ZapMedia.prototype.revokeApproval = function (mediaId) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.media.revokeApproval(mediaId)];
+            var owner, _a, approveAddr, approveForAllStatus, _b, _c, _d, _e, _f;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0:
+                        _g.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.media.ownerOf(mediaId)];
+                    case 1:
+                        owner = _g.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        _a = _g.sent();
+                        (0, tiny_invariant_1.default)(false, "ZapMedia (revokeApproval): The token id does not exist.");
+                        return [3 /*break*/, 3];
+                    case 3: return [4 /*yield*/, this.media.getApproved(mediaId)];
+                    case 4:
+                        approveAddr = _g.sent();
+                        _c = (_b = this.media).isApprovedForAll;
+                        _d = [owner];
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 5: return [4 /*yield*/, _c.apply(_b, _d.concat([_g.sent()]))];
+                    case 6:
+                        approveForAllStatus = _g.sent();
+                        _e = approveAddr == ethers_1.ethers.constants.AddressZero &&
+                            approveForAllStatus == false;
+                        if (!_e) return [3 /*break*/, 8];
+                        _f = owner;
+                        return [4 /*yield*/, this.signer.getAddress()];
+                    case 7:
+                        _e = _f !== (_g.sent());
+                        _g.label = 8;
+                    case 8:
+                        // Checks if the caller is not approved, not approved for all, and not the owner.
+                        // If the caller meets the three conditions throw an error
+                        if (_e) {
+                            (0, tiny_invariant_1.default)(false, "ZapMedia (revokeApproval): Caller is not approved nor the owner.");
+                        }
+                        return [2 /*return*/, this.media.revokeApproval(mediaId)];
+                }
             });
         });
     };

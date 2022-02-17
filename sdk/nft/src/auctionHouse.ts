@@ -30,7 +30,7 @@ class AuctionHouse {
   public readonly signer: Signer;
   media: ZapMedia;
 
-  constructor(chainId: number, signer: Signer) {
+  constructor(chainId: number, signer: Signer, customMediaAddress?: string) {
     this.chainId = chainId;
     this.signer = signer;
 
@@ -40,7 +40,18 @@ class AuctionHouse {
       signer
     );
 
-    this.media = new ZapMedia(chainId, signer);
+    if (customMediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "AuctionHouse (constructor): The (customMediaAddress) cannot be a zero address."
+      );
+    }
+
+    if (customMediaAddress !== undefined) {
+      this.media = new ZapMedia(chainId, signer, customMediaAddress);
+    } else {
+      this.media = new ZapMedia(chainId, signer);
+    }
   }
 
   public async fetchAuction(auctionId: BigNumberish): Promise<any> {
