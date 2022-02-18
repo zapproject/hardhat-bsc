@@ -128,3 +128,12 @@ Fetch the current bidShares of a tokenId on an instance of a ZapMedia contract.
 | ------------ | ------------ | ---------------------------------------------------------------------------- |
 | mediaAddress | string       | The address of a ZapMedia contract                                           |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose bidShares are being fetched |
+
+### fetchCurrentAsk
+
+Fetch the current ask of a tokenId on an instance of a ZapMedia contract.
+
+| **Argument** | **Type**     | **Description**                                                       |
+| ------------ | ------------ | --------------------------------------------------------------------- |
+| mediaAddress | string       | The address of a ZapMedia contract                                    |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose ask is being fetched |

@@ -206,8 +206,9 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the current ask for the specified media on an instance of the Zap Media Contract
-   * @param tokenId Numerical identifier for a minted token
+   * Fetch the current ask of a tokenId on an instance of a ZapMedia contract
+   * @param mediaAddress The address of a ZapMedia contract
+   * @param tokenId The Numerical identifier of a minted token whose ask is being fetched
    */
   public async fetchCurrentAsk(
     mediaAddress: string,
