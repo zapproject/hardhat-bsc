@@ -517,10 +517,9 @@ describe("ZapMedia Test", async () => {
         });
 
         it("should set a bid", async () => {
-
-            let id = await media3.getInterfaceId();
-            console.log(id);
             await zapTokenBsc.mint(signers[1].address, 100000);
+
+            const prevBalance = await zapTokenBsc.balanceOf(signers[1].address);
 
             await zapTokenBsc
                 .connect(signers[1])
@@ -528,10 +527,11 @@ describe("ZapMedia Test", async () => {
             await zapTokenBsc
             .connect(signers[1])
             .approve(media3.address, 100000);
+            
             expect(await media3.connect(signers[1]).setBid(1, bid1));
 
             const balance = await zapTokenBsc.balanceOf(signers[1].address);
-            expect(balance.toNumber()).eq(100000 - 100);
+            expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
         });
     });
 

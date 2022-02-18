@@ -11,6 +11,7 @@ import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.s
 import {Decimal} from './Decimal.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMedia} from './interfaces/IMedia.sol';
+import {Media1155} from './Media1155.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
 import "hardhat/console.sol";
@@ -602,9 +603,11 @@ contract ZapMarket is IMarket, Ownable {
 
         // Transfer bid share to creator of media
         token.safeTransfer(
-            ZapMedia(mediaContractAddress).getTokenCreators(tokenId),
+            Media1155(mediaContractAddress).getTokenCreators(tokenId),
             splitShare(bidShares.creator, bid.amount)
         );
+
+        console.log("after owner & creator transfers");
 
         uint256 collaboratorShares = 0;
 
@@ -631,9 +634,12 @@ contract ZapMarket is IMarket, Ownable {
             splitShare(platformFee.fee, bid.amount)
         );
 
-        // Transfer media to bid recipient
-        ZapMedia(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
+        console.log("Before auction transfer");
 
+        // Transfer media to bid recipient
+        Media1155(mediaContractAddress).auctionTransfer(tokenId, 1, bid.recipient);
+
+        console.log("after auction transfer");
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
         bidShares.owner = Decimal.D256(

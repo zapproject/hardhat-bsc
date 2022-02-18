@@ -335,11 +335,7 @@ contract Media1155 is
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
         IMarket(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
     }
-
-    function getInterfaceId() public view returns (bytes4) {
-        return type(IERC1155Upgradeable).interfaceId;
-    }
-
+    
     /**
      * @notice see IMedia1155
      */
