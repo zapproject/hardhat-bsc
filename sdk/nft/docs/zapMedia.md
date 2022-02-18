@@ -52,3 +52,13 @@ The constructor takes in `networkId` and uses it to route to either the Ethereum
 The constructor takes in `signer` the abstraction of a Blockchain Account, which can be used to sign messages and transactions and send signed transactions to the Blockchain to execute state changing operations. The `signer` will be used to connect to the `ZapMedia` and `ZapMarket` contracts in order to invoke these state changing transactions.
 
 The constructor takes in `customMediaAddress` and represents the address of a `ZapMedia` contract deployed and owned by an individual user and is not the default Zap NFT collection. When this argument is not passed to the constructor it defaults to the Zap NFT collection, but when a valid address is passed to the constructor that address attaches itself to the default `ZapMedia` contract instance and creates the custom instance deployed by an individual user.
+
+## Read Functions
+
+### fetchBalanceOf
+
+Fetch the balance of an address on an instance of a ZapMedia contract
+
+| **Argument** | **Type** | **Description**                                           |
+| ------------ | -------- | --------------------------------------------------------- |
+| owner        | string   | The address of the account whose balance is being fetched |

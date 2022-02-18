@@ -81,8 +81,8 @@ class ZapMedia {
    */
 
   /**
-   * Fetches the amount of tokens an address owns on a media contract
-   * @param owner The address to fetch the token balance for
+   * Fetch the balance of an address on an instance of a ZapMedia contract
+   * @param owner The address of the account whose balance is being fetched
    */
   public async fetchBalanceOf(owner: string): Promise<BigNumber> {
     if (owner == ethers.constants.AddressZero) {
