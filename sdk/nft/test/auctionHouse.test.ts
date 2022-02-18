@@ -721,12 +721,13 @@ describe("AuctionHouse", () => {
       let invalidSignerConnected: AuctionHouse;
       let bidderMainConnected: AuctionHouse;
       let curatorMainConnected: AuctionHouse;
-
+      let mintAmt: any;
+      let bidAmt: any;
       beforeEach(async () => {
-        const mintAmt = 300;
-        const bidAmt = 200;
+        mintAmt = 300;
+        bidAmt = 200;
         curator = signers[4];
-        invalidSigner = signers[5];
+        invalidSigner = signers[9];
         bidder = signers[5];
 
         await ownerMediaConnected.approve(auctionHouse.address, 0);
@@ -767,16 +768,13 @@ describe("AuctionHouse", () => {
           );
       });
 
-      it.only("should reject if the caller is not the curator nor owner on the main media", async () => {
+      it.only("Should reject if the auction hasn't completed on the main media", async () => {
         await curatorMainConnected.startAuction(0, true);
-        
-        await ownerAuctionConnected
-            .endAuction(0, mediaAddress);
-            // .should.be.rejectedWith(
-            //   "Invariant failed: AuctionHouse (endAuction): Caller is not the auction creator nor curator."
-            // );
-      });
 
+        await bidderMainConnected.createBid(0, bidAmt, mediaAddress);
+
+        await invalidSignerConnected.endAuction(0, mediaAddress);
+      });
     });
 
     describe("View Functions", () => {
