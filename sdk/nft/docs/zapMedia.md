@@ -69,7 +69,7 @@ Fetch the owner of a tokenId on an instance of a ZapMedia contract
 
 | **Argument** | **Type**     | **Description**                                                         |
 | ------------ | ------------ | ----------------------------------------------------------------------- |
-| mediaId      | BigNumberish | The Numerical identifier of a minted token whose owner is being fetched |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose owner is being fetched |
 
 ### fetchMediaOfOwnerByIndex
 
@@ -79,3 +79,11 @@ Fetch the tokenId of the specified owner by index on an instance of a ZapMedia C
 | ------------ | ------------ | ------------------------------------- |
 | owner        | string       | The owner address of the tokenId      |
 | index        | BigNumberish | The ERC-721 enumerbale index of owner |
+
+### fetchContentURI
+
+Fetch the content uri for the specified tokenId on an instance of a ZapMedia Contract
+
+| **Argument** | **Type**     | **Description**                                                               |
+| ------------ | ------------ | ----------------------------------------------------------------------------- |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose content uri is being fetched |
