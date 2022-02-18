@@ -219,17 +219,17 @@ class ZapMedia {
 
   /**
    * Fetches the current bid for the specified bidder for the specified media on an instance of the Zap Media Contract
-   * @param mediaContractAddress Designates which media contract to connect to.
+   * @param mediaAddress Designates which media contract to connect to.
    * @param tokenId Numerical identifier for a minted token
    * @param bidder The public address that set the bid
    */
   public async fetchCurrentBidForBidder(
-    mediaContractAddress: string,
+    mediaAddress: string,
     tokenId: BigNumberish,
     bidder: string
   ): Promise<Bid> {
-    // Checks if the mediaContractAddress is a zero address
-    if (mediaContractAddress == ethers.constants.AddressZero) {
+    // Checks if the mediaAddress is a zero address
+    if (mediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (fetchCurrentBidForBidder): The (media contract) address cannot be a zero address."
@@ -238,7 +238,7 @@ class ZapMedia {
 
     // Checks if the tokenId exists
     try {
-      await this.media.attach(mediaContractAddress).ownerOf(tokenId);
+      await this.media.attach(mediaAddress).ownerOf(tokenId);
     } catch {
       invariant(
         false,
@@ -255,7 +255,7 @@ class ZapMedia {
     }
 
     // Invokes the bidForTokenBidder function on the ZapMarket contract and returns the bidders bid details
-    return this.market.bidForTokenBidder(mediaContractAddress, tokenId, bidder);
+    return this.market.bidForTokenBidder(mediaAddress, tokenId, bidder);
   }
 
   /**
