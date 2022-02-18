@@ -152,8 +152,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the content hash for the specified media on the ZapMedia Contract
-   * @param tokenId Numerical identifier for a minted token
+   * Fetch the contentHash of a tokenId on an instance of a ZapMedia contract.
+   * @param tokenId The Numerical identifier of a minted token whose contentHash is being fetched
    */
   public async fetchContentHash(tokenId: BigNumberish): Promise<string> {
     return this.media.getTokenContentHashes(tokenId);

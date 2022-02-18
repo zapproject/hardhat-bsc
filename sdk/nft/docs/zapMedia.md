@@ -95,3 +95,10 @@ Fetch the metadata uri for the specified tokenId on an instance of a ZapMedia Co
 | **Argument** | **Type**     | **Description**                                                                |
 | ------------ | ------------ | ------------------------------------------------------------------------------ |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose metadata uri is being fetched |
+
+### fetchContentHash
+
+Fetch the contentHash of a tokenId on an instance of a ZapMedia contract.
+| **Argument** | **Type** | **Description** |
+| ------------ | ------------ | ------------------------------------------------------------------------------ |
+| tokenId | BigNumberish | The Numerical identifier of a minted token whose contentHash is being fetched |
