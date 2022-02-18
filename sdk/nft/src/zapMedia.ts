@@ -265,6 +265,10 @@ class ZapMedia {
     return await this.media.totalSupply();
   }
 
+  /**
+   * Fetch the tokenId by index.
+   * @param index he ERC-721 enumerbale index on an instance of a ZapMedia contract
+   */
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
     let totalMedia: BigNumberish = await this.fetchTotalMedia();
 

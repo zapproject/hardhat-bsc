@@ -75,10 +75,10 @@ Fetch the owner of a tokenId on an instance of a ZapMedia contract
 
 Fetch the tokenId of the specified owner by index on an instance of a ZapMedia Contract
 
-| **Argument** | **Type**     | **Description**                       |
-| ------------ | ------------ | ------------------------------------- |
-| owner        | string       | The owner address of the tokenId      |
-| index        | BigNumberish | The ERC-721 enumerbale index of owner |
+| **Argument** | **Type**     | **Description**                           |
+| ------------ | ------------ | ----------------------------------------- |
+| owner        | string       | The owner address of the tokenId          |
+| index        | BigNumberish | The ERC-721 enumerbale index of the owner |
 
 ### fetchContentURI
 
@@ -155,3 +155,11 @@ Fetch the total amount of non-burned tokens that has been minted
 | **Argument** | **Type** | **Description** |
 | ------------ | -------- | --------------- |
 | None         | None     | None            |
+
+### fetchMediaByIndex
+
+Fetch the tokenId by index
+
+| **Argument** | **Type**     | **Description**                                                    |
+| ------------ | ------------ | ------------------------------------------------------------------ |
+| index        | BigNumberish | The ERC-721 enumerbale index on an instance of a ZapMedia contract |
