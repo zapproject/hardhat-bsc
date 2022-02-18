@@ -140,9 +140,10 @@ Fetch the current ask of a tokenId on an instance of a ZapMedia contract.
 
 ### fetchCurrentBidForBidder
 
-Fetch the current ask of a tokenId on an instance of a ZapMedia contract.
+Fetch the current bid for a bidder on an instance of a ZapMedia contract.
 
 | **Argument** | **Type**     | **Description**                                                       |
 | ------------ | ------------ | --------------------------------------------------------------------- |
 | mediaAddress | string       | The address of a ZapMedia contract                                    |
-| tokenId      | BigNumberish | The Numerical identifier of a minted token whose ask is being fetched |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose bid is being fetched |
+| bidder       | string       | The address of the bidder                                             |

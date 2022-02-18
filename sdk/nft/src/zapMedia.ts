@@ -218,10 +218,10 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the current bid for the specified bidder for the specified media on an instance of the Zap Media Contract
-   * @param mediaAddress Designates which media contract to connect to.
-   * @param tokenId Numerical identifier for a minted token
-   * @param bidder The public address that set the bid
+   * Fetch the current bid for a bidder on an instance of a ZapMedia contract.
+   * @param mediaAddress The address of a ZapMedia contract
+   * @param tokenId The Numerical identifier of a minted token whose bid is being fetched
+   * @param bidder The address of the bidder
    */
   public async fetchCurrentBidForBidder(
     mediaAddress: string,
