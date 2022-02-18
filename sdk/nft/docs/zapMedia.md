@@ -119,3 +119,12 @@ Fetch the creator of a tokenId on an instance of a ZapMedia contract.
 | **Argument** | **Type**     | **Description**                                                           |
 | ------------ | ------------ | ------------------------------------------------------------------------- |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose creator is being fetched |
+
+### fetchCurrentBidShares
+
+Fetch the current bidShares of a tokenId on an instance of a ZapMedia contract.
+
+| **Argument** | **Type**     | **Description**                                                              |
+| ------------ | ------------ | ---------------------------------------------------------------------------- |
+| mediaAddress | string       | The address of a ZapMedia contract                                           |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose bidShares are being fetched |
