@@ -108,9 +108,9 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the mediaId of the specified owner by index on an instance of the Zap Media Contract
-   * @param owner Address of who the tokenId belongs to.
-   * @param index The position of a tokenId that an address owns.
+   * Fetch the tokenId of the specified owner by index on an instance of a ZapMedia Contract
+   * @param owner The owner address of the tokenId.
+   * @param index The ERC-721 enumerbale index of owner
    */
   public async fetchMediaOfOwnerByIndex(
     owner: string,
