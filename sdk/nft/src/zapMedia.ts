@@ -292,9 +292,9 @@ class ZapMedia {
   }
 
   /**
-   * Fetches if the specified operator is approved for all media owned by the specified owner on an instance of the Zap Media Contract
-   * @param owner
-   * @param operator
+   * Fetch if the specified operator is approved for all tokenId's owned by the specified owner on an instance of a ZapMedia contract
+   * @param owner The address of the token's owner
+   * @param operator The address of the approved on behalf of the owner
    */
   public async fetchIsApprovedForAll(
     owner: string,

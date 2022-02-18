@@ -171,3 +171,12 @@ Fetch the approved account for the specified tokenId
 | **Argument** | **Type**     | **Description**                                                                    |
 | ------------ | ------------ | ---------------------------------------------------------------------------------- |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose approved address is being fetched |
+
+### fetchIsApprovedForAll
+
+Fetch if the specified operator is approved for all tokenId's owned by the specified owner on an instance of a ZapMedia contract
+
+| **Argument** | **Type** | **Description**                                    |
+| ------------ | -------- | -------------------------------------------------- |
+| owner        | string   | The address of the token's owner                   |
+| operator     | string   | The address of the approved on behalf of the owner |
