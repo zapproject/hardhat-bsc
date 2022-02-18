@@ -180,8 +180,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the creator for the specified media on an instance of the Zap Media Contract
-   * @param tokenId Numerical identifier for a minted token
+   * Fetch the creator of a tokenId on an instance of a ZapMedia contract
+   * @param tokenId he Numerical identifier of a minted token whose creator is being fetched
    */
   public async fetchCreator(tokenId: BigNumberish): Promise<string> {
     return await this.media.getTokenCreators(tokenId);

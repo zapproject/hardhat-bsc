@@ -111,3 +111,11 @@ Fetch the metadataHash of a tokenId on an instance of a ZapMedia contract.
 | **Argument** | **Type**     | **Description**                                                                |
 | ------------ | ------------ | ------------------------------------------------------------------------------ |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose metadataHash is being fetched |
+
+### fetchCreator
+
+Fetch the creator of a tokenId on an instance of a ZapMedia contract.
+
+| **Argument** | **Type**     | **Description**                                                           |
+| ------------ | ------------ | ------------------------------------------------------------------------- |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose creator is being fetched |
