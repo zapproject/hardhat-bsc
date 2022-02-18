@@ -103,3 +103,11 @@ Fetch the contentHash of a tokenId on an instance of a ZapMedia contract.
 | **Argument** | **Type**     | **Description**                                                               |
 | ------------ | ------------ | ----------------------------------------------------------------------------- |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose contentHash is being fetched |
+
+### fetchMetadataHash
+
+Fetch the metadataHash of a tokenId on an instance of a ZapMedia contract.
+
+| **Argument** | **Type**     | **Description**                                                                |
+| ------------ | ------------ | ------------------------------------------------------------------------------ |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose metadataHash is being fetched |

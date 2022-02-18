@@ -160,8 +160,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the metadata hash for the specified media on the ZapMedia Contract
-   * @param tokenId Numerical identifier for a minted token
+   * Fetch the metadataHash of a tokenId on an instance of a ZapMedia contract.
+   * @param tokenId The Numerical identifier of a minted token whose metadataHash is being fetched
    */
   public async fetchMetadataHash(tokenId: BigNumberish): Promise<string> {
     return this.media.getTokenMetadataHashes(tokenId);
