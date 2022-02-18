@@ -259,7 +259,7 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the total amount of non-burned media that has been minted on an instance of the Zap Media Contract
+   *Fetch the total amount of non-burned tokens that has been minted
    */
   public async fetchTotalMedia(): Promise<BigNumber> {
     return await this.media.totalSupply();

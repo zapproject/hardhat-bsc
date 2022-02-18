@@ -147,3 +147,11 @@ Fetch the current bid for a bidder on an instance of a ZapMedia contract.
 | mediaAddress | string       | The address of a ZapMedia contract                                    |
 | tokenId      | BigNumberish | The Numerical identifier of a minted token whose bid is being fetched |
 | bidder       | string       | The address of the bidder                                             |
+
+### fetchTotalMedia
+
+Fetch the total amount of non-burned tokens that has been minted
+
+| **Argument** | **Type** | **Description** |
+| ------------ | -------- | --------------- |
+| None         | None     | None            |
