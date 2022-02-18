@@ -259,14 +259,14 @@ class ZapMedia {
   }
 
   /**
-   *Fetch the total amount of non-burned tokens that has been minted
+   *Fetch the total amount of non-burned tokens that has been minted on an instance of a ZapMedia contract
    */
   public async fetchTotalMedia(): Promise<BigNumber> {
     return await this.media.totalSupply();
   }
 
   /**
-   * Fetch the tokenId by index.
+   * Fetch the tokenId by index on an instance of a ZapMedia contract
    * @param index he ERC-721 enumerbale index on an instance of a ZapMedia contract
    */
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
@@ -280,8 +280,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the approved account for the specified media on an instance of the Zap Media Contract
-   * @param tokenId Numerical identifier for a minted token
+   * Fetch the approved account for the specified tokenId
+   * @param tokenId The Numerical identifier of a minted token whose approved address is being fetched
    */
   public async fetchApproved(tokenId: BigNumberish): Promise<string> {
     try {

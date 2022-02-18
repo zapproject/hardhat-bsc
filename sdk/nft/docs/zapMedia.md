@@ -150,7 +150,7 @@ Fetch the current bid for a bidder on an instance of a ZapMedia contract.
 
 ### fetchTotalMedia
 
-Fetch the total amount of non-burned tokens that has been minted
+Fetch the total amount of non-burned tokens that has been minted on an instance of a ZapMedia contract
 
 | **Argument** | **Type** | **Description** |
 | ------------ | -------- | --------------- |
@@ -158,8 +158,16 @@ Fetch the total amount of non-burned tokens that has been minted
 
 ### fetchMediaByIndex
 
-Fetch the tokenId by index
+Fetch the tokenId by index on an instance of a ZapMedia contract
 
 | **Argument** | **Type**     | **Description**                                                    |
 | ------------ | ------------ | ------------------------------------------------------------------ |
 | index        | BigNumberish | The ERC-721 enumerbale index on an instance of a ZapMedia contract |
+
+### fetchApproved
+
+Fetch the approved account for the specified tokenId
+
+| **Argument** | **Type**     | **Description**                                                                    |
+| ------------ | ------------ | ---------------------------------------------------------------------------------- |
+| tokenId      | BigNumberish | The Numerical identifier of a minted token whose approved address is being fetched |
