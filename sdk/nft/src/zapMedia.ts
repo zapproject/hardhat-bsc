@@ -140,8 +140,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the metadata uri for the specified media on an instance of the ZAP Media Contract
-   * @param tokenId
+   * Fetch the metadata uri for the specified tokenId on an instance of a ZapMedia Contract
+   * @param tokenId The Numerical identifier of a minted token whose metadata uri is being fetched
    */
   public async fetchMetadataURI(tokenId: BigNumberish): Promise<string> {
     try {
