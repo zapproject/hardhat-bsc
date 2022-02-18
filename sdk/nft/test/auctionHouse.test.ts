@@ -365,7 +365,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it("Should reject if the caller is not the curator or owner on the main media", async () => {
+        it("Should reject if the caller is not the curator nor owner on the main media", async () => {
           await invalidSigner
             .setAuctionReservePrice(0, 200)
             .should.be.rejectedWith(
@@ -714,7 +714,7 @@ describe("AuctionHouse", () => {
       });
     });
 
-    describe.only("#endAuction", () => {
+    describe("#endAuction", () => {
       let invalidSigner: Signer;
       let curator: Signer;
       let bidder: Signer;
@@ -763,12 +763,18 @@ describe("AuctionHouse", () => {
         await curatorMainConnected
           .endAuction(0, mediaAddress)
           .should.be.rejectedWith(
-            "Invariant failed: AuctionHouse (endAuction): Auction has already started."
+            "Invariant failed: AuctionHouse (endAuction): Auction hasn't started."
           );
       });
 
-      it("should reject if the caller is not the curator on the main media", async () => {
-
+      it.only("should reject if the caller is not the curator nor owner on the main media", async () => {
+        await curatorMainConnected.startAuction(0, true);
+        
+        await ownerAuctionConnected
+            .endAuction(0, mediaAddress);
+            // .should.be.rejectedWith(
+            //   "Invariant failed: AuctionHouse (endAuction): Caller is not the auction creator nor curator."
+            // );
       });
 
     });

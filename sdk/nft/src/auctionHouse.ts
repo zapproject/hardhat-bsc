@@ -280,9 +280,20 @@ class AuctionHouse {
     if (parseInt(auctionInfo.firstBidTime._hex) == 0) {
       invariant(
         false,
-        "AuctionHouse (endAuction): Auction has already started."
+        "AuctionHouse (endAuction): Auction hasn't started."
       );
     }
+
+    // if (
+    //   (await this.signer.getAddress()) !== auctionInfo.curator &&
+    //   (await this.signer.getAddress()) !== auctionInfo.tokenOwner
+    // ) {
+    //   invariant(
+    //     false,
+    //     "AuctionHouse (endAuction): Caller is not the auction creator nor curator."
+    //   );
+    // }
+    
     return this.auctionHouse.endAuction(auctionId, mediaAddress);
   }
 }
