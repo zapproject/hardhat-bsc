@@ -96,8 +96,8 @@ class ZapMedia {
   }
 
   /**
-   * Fetches the owner of the specified media on an instance of the Zap Media Contract
-   * @param mediaId Numerical identifier for a minted token
+   * Fetch the owner of a tokenId on an instance of a ZapMedia contract
+   * @param mediaId The Numerical identifier of a minted token whose owner is being fetched
    */
   public async fetchOwnerOf(mediaId: BigNumberish): Promise<string> {
     try {

@@ -62,3 +62,11 @@ Fetch the balance of an address on an instance of a ZapMedia contract
 | **Argument** | **Type** | **Description**                                           |
 | ------------ | -------- | --------------------------------------------------------- |
 | owner        | string   | The address of the account whose balance is being fetched |
+
+### fetchOwnerOf
+
+Fetch the owner of a tokenId on an instance of a ZapMedia contract
+
+| **Argument** | **Type**     | **Description**                                                         |
+| ------------ | ------------ | ----------------------------------------------------------------------- |
+| mediaId      | BigNumberish | The Numerical identifier of a minted token whose owner is being fetched |
