@@ -1,0 +1,16 @@
+export declare enum ChainKey {
+    ARBITRUM = "arbitrum",
+    AVALANCHE = "avalanche",
+    CELO = "celo",
+    ETHEREUM = "ethereum",
+    FANTOM = "fantom",
+    FUSE = "fuse",
+    HARMONY = "harmony",
+    HECO = "heco",
+    KOVAN = "kovan",
+    MATIC = "matic",
+    MOONRIVER = "moonriver",
+    OKEX = "okex",
+    PALM = "palm",
+    XDAI = "xdai"
+}
