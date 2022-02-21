@@ -31,7 +31,7 @@ describe('Media1155 Test', async () => {
   let unInitMedia: Media1155;
   let mediaDeployer: Media1155Factory;
   let zapVault: ZapVault;
-  let zapTokenBsc: any;
+  let zapTokenBsc: ZapTokenBSC;
   let signers: any;
 
   let bidShares = {
@@ -67,15 +67,16 @@ describe('Media1155 Test', async () => {
   before(async () => {
     signers = await ethers.getSigners();
 
-    // Gets the deployed NFT contract fixtures from the
     await deployments.fixture();
-    const zapTokenFactory = await ethers.getContractFactory(
-      'ZapTokenBSC',
-      signers[0]
-    );
 
-    zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
-    await zapTokenBsc.deployed();
+    // Gets the ZapTokenBSC contract deployment
+    const zapTokenBscFixture = await deployments.get('ZapTokenBSC');
+
+    zapTokenBsc = (await ethers.getContractAt(
+      'ZapTokenBSC',
+      zapTokenBscFixture.address,
+      signers[0]
+    )) as ZapTokenBSC;
 
     const zapVaultFactory = await ethers.getContractFactory('ZapVault');
 
