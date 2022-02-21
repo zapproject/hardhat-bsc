@@ -14,7 +14,6 @@ import {IMedia} from './interfaces/IMedia.sol';
 import {Media1155} from './Media1155.sol';
 import {IMarket} from './interfaces/IMarket.sol';
 import {Ownable} from './access/Ownable.sol';
-import "hardhat/console.sol";
 
 /**
  * @title A Market for pieces of media
@@ -507,7 +506,11 @@ contract ZapMarket is IMarket, Ownable {
             'Market: Bid invalid for share splitting'
         );
 
-        _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
+        if (IMedia(mediaContractAddress).supportsInterface(0xd9b67a26)){
+            _finalizeNFTTransfer1155(mediaContractAddress, tokenId, bid.bidder, bid.recipient);
+        } else {
+            _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
+        }
     }
 
     /**
@@ -554,14 +557,12 @@ contract ZapMarket is IMarket, Ownable {
                 splitShare(thisCollabsShare, bid.amount)
             );
         }
-        console.log("before safe transfer");
         // Transfer bid share to previous owner of media (if applicable)
         token.safeTransfer(
             // ZapMedia(mediaContractAddress).getPreviousTokenOwners(tokenId),
             platformAddress,
             splitShare(platformFee.fee, bid.amount)
         );
-        console.log("After safe transfer");
         // Transfer media to bid recipient
         ZapMedia(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
 
@@ -607,8 +608,6 @@ contract ZapMarket is IMarket, Ownable {
             splitShare(bidShares.creator, bid.amount)
         );
 
-        console.log("after owner & creator transfers");
-
         uint256 collaboratorShares = 0;
 
         Decimal.D256 memory thisCollabsShare;
@@ -634,12 +633,9 @@ contract ZapMarket is IMarket, Ownable {
             splitShare(platformFee.fee, bid.amount)
         );
 
-        console.log("Before auction transfer");
-
         // Transfer media to bid recipient
         Media1155(mediaContractAddress).auctionTransfer(tokenId, 1, bid.recipient);
 
-        console.log("after auction transfer");
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
         bidShares.owner = Decimal.D256(

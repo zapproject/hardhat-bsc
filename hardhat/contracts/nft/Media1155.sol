@@ -335,7 +335,7 @@ contract Media1155 is
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
         IMarket(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
     }
-    
+
     /**
      * @notice see IMedia1155
      */
@@ -419,6 +419,14 @@ contract Media1155 is
         nonReentrant
     {
         // _approve(address(0), tokenId);
+    }
+
+    function transferFrom(address from, address to, uint256 id, uint256 amount)
+        external
+        onlyApprovedOrOwner(msg.sender, id)
+        nonReentrant
+    {
+        safeTransferFrom(from, to, id, amount, "");
     }
 
     /// @notice Returns a bool depicting whether or not the i'th collaborator has shares
@@ -513,8 +521,6 @@ contract Media1155 is
             tokenIds[id[i]] = true;
             IMarket(access.marketContract).mintOrBurn(true, id[i], address(this));
         }
-
-
     }
 
     // /**
