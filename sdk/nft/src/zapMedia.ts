@@ -35,11 +35,12 @@ class ZapMedia {
   getSigNonces(addess: any) {
     throw new Error("Method not implemented.");
   }
-  networkId: number;
-  mediaIndex: any;
-  media: any;
-  market: any;
-  signer: Signer;
+  public networkId: number;
+  public media: Contract;
+  public market: Contract;
+  public signer: Signer;
+  public mediaAddress: string;
+  public marketAddress: string;  
 
   constructor(networkId: number, signer: Signer, customMediaAddress?: string) {
     this.networkId = networkId;
@@ -51,7 +52,7 @@ class ZapMedia {
       zapMarketAbi,
       signer
     );
-
+    this.marketAddress = contractAddresses(networkId).zapMarketAddress;
     if (customMediaAddress == ethers.constants.AddressZero) {
       invariant(
         false,
@@ -61,12 +62,14 @@ class ZapMedia {
 
     if (customMediaAddress !== undefined) {
       this.media = new ethers.Contract(customMediaAddress, zapMediaAbi, signer);
+      this.mediaAddress = customMediaAddress;
     } else {
       this.media = new ethers.Contract(
         contractAddresses(networkId).zapMediaAddress,
         zapMediaAbi,
         signer
       );
+      this.mediaAddress = contractAddresses(networkId).zapMediaAddress;
     }
   }
 
@@ -190,12 +193,18 @@ class ZapMedia {
     mediaAddress: string,
     mediaId: BigNumberish
   ): Promise<BidShares> {
+    if (mediaAddress == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+      );
+    }
     return this.market.bidSharesForToken(mediaAddress, mediaId);
   }
 
   /**
    * Fetches the current ask for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async fetchCurrentAsk(
     mediaAddress: string,
@@ -253,10 +262,10 @@ class ZapMedia {
   }
 
   public async fetchMediaByIndex(index: BigNumberish): Promise<BigNumber> {
-    let totalMedia = await this.fetchTotalMedia();
+    let totalMedia: BigNumberish = await this.fetchTotalMedia();
 
     if (index > parseInt(totalMedia._hex) - 1) {
-      invariant(false, "ZapMedia (tokenByIndex): Index out of range.");
+      invariant(false, "ZapMedia (fetchMediaByIndex): Index out of range.");
     }
 
     return this.media.tokenByIndex(index);
@@ -290,11 +299,43 @@ class ZapMedia {
     mediaId: number,
     tokenURI: string
   ): Promise<ContractTransaction> {
+    let owner: string;
+
     try {
-      return await this.media.updateTokenURI(mediaId, tokenURI);
-    } catch (err) {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
       invariant(false, "ZapMedia (updateContentURI): TokenId does not exist.");
     }
+
+    try {
+      validateURI(tokenURI);
+    } catch (err: any) {
+      return Promise.reject(err.message);
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+      );
+    }
+
+    return await this.media.updateTokenURI(mediaId, tokenURI);
   }
 
   /**fetches the media specified Signature nonce. if signature nonce does not exist, function
@@ -359,51 +400,123 @@ class ZapMedia {
     operator: string,
     approved: boolean
   ): Promise<ContractTransaction> {
+    if (operator == (await this.signer.getAddress())) {
+      invariant(
+        false,
+        "ZapMedia (setApprovalForAll): The caller cannot be the operator."
+      );
+    }
     return this.media.setApprovalForAll(operator, approved);
   }
 
   /**
    * Transfers the specified media to the specified to address on an instance of the Zap Media Contract
-   * @param from
-   * @param to
-   * @param mediaId
+   * @param from The address of the owner who is transferring the token
+   * @param to The receiving address
+   * @param mediaId Numerical identifier for a minted token
    */
   public async transferFrom(
     from: string,
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
+    if (from == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): The (from) address cannot be a zero address."
+      );
+    }
+
+    if (to == ethers.constants.AddressZero) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): The (to) address cannot be a zero address."
+      );
+    }
+
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (transferFrom): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (transferFrom): Caller is not approved nor the owner."
+      );
+    }
+
     return this.media.transferFrom(from, to, mediaId);
   }
 
   /**
    * Executes a SafeTransfer of the specified media to the specified address if and only if it adheres to the ERC721-Receiver Interface
-   * @param from
-   * @param to
-   * @param mediaId
+   * @param from The address of the owner who is transferring the token
+   * @param to The receiving address
+   * @param mediaId Numerical identifier for a minted token
    */
   public async safeTransferFrom(
     from: string,
     to: string,
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
     try {
-      await this.media.ownerOf(mediaId);
-    } catch (err: any) {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
       invariant(false, "ZapMedia (safeTransferFrom): TokenId does not exist.");
     }
 
-    if (from === ethers.constants.AddressZero) {
+    if (from == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
       );
     }
 
-    if (to === ethers.constants.AddressZero) {
+    if (to == ethers.constants.AddressZero) {
       invariant(
         false,
         "ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+      );
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (safeTransferFrom): Caller is not approved nor the owner."
       );
     }
 
@@ -421,8 +534,7 @@ class ZapMedia {
    */
   public async mint(
     mediaData: MediaData,
-    bidShares: BidShares,
-    customMediaAddress?: string
+    bidShares: BidShares
   ): Promise<ContractTransaction> {
     try {
       validateURI(mediaData.tokenURI);
@@ -436,16 +548,12 @@ class ZapMedia {
       return Promise.reject(err.message);
     }
 
-    if (customMediaAddress !== undefined) {
-      return this.media.attach(customMediaAddress).mint(mediaData, bidShares);
-    } else {
-      const gasEstimate = await this.media.estimateGas.mint(
-        mediaData,
-        bidShares
-      );
+    const gasEstimate: BigNumber = await this.media.estimateGas.mint(
+      mediaData,
+      bidShares
+    );
 
-      return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
-    }
+    return this.media.mint(mediaData, bidShares, { gasLimit: gasEstimate });
   }
 
   /**
@@ -544,7 +652,7 @@ class ZapMedia {
 
   /**
    * Removes the ask on the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async removeAsk(mediaId: BigNumberish): Promise<ContractTransaction> {
     const ask = await this.market.currentAskForToken(
@@ -566,6 +674,58 @@ class ZapMedia {
   }
 
   /**
+   * Accepts the specified bid on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   * @param bid
+   */
+  public async acceptBid(
+    mediaId: BigNumberish,
+    bid: Bid
+  ): Promise<ContractTransaction> {
+    let owner: string;
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (acceptBid): The token id does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (acceptBid): Caller is not approved nor the owner."
+      );
+    }
+
+    return this.media.acceptBid(mediaId, bid);
+  }
+  /**
+   * Removes the bid for the msg.sender on the specified media on an instance of the Zap Media Contract
+   * @param mediaId
+   */
+  public async removeBid(mediaId: BigNumberish): Promise<ContractTransaction> {
+    try {
+      await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (removeBid): The token id does not exist.");
+    }
+
+    return this.media.removeBid(mediaId);
+  }
+
+  /**
    * Updates the metadata uri for the specified media on an instance of the Zap Media Contract
    * @param mediaId
    * @param metadataURI
@@ -574,19 +734,46 @@ class ZapMedia {
     mediaId: BigNumberish,
     metadataURI: string
   ): Promise<ContractTransaction> {
+    // Will store the address of the token owner if the tokenId exists
+    let owner: string;
+
     try {
       validateURI(metadataURI);
     } catch (err: any) {
       return Promise.reject(err.message);
     }
 
-    const gasEstimate = await this.media.estimateGas.updateTokenMetadataURI(
-      mediaId,
-      metadataURI
+    // Checks if the tokenId exists. If the tokenId exists store the owner
+    // address in the variable and if it doesnt throw an error
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(false, "ZapMedia (updateMetadataURI): TokenId does not exist.");
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
     );
-    return this.media.updateTokenMetadataURI(mediaId, metadataURI, {
-      gasLimit: gasEstimate,
-    });
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+      );
+    }
+
+    return this.media.updateTokenMetadataURI(mediaId, metadataURI);
   }
 
   /**
@@ -612,11 +799,42 @@ class ZapMedia {
 
   /**
    * Revokes the approval of an approved account for the specified media on an instance of the Zap Media Contract
-   * @param mediaId
+   * @param mediaId Numerical identifier for a minted token
    */
   public async revokeApproval(
     mediaId: BigNumberish
   ): Promise<ContractTransaction> {
+    let owner: string;
+    try {
+      owner = await this.media.ownerOf(mediaId);
+    } catch {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): The token id does not exist."
+      );
+    }
+
+    // Returns the address approved for the tokenId by the owner
+    const approveAddr: string = await this.media.getApproved(mediaId);
+
+    // Returns true/false if the operator was approved for all by the owner
+    const approveForAllStatus: boolean = await this.media.isApprovedForAll(
+      owner,
+      await this.signer.getAddress()
+    );
+
+    // Checks if the caller is not approved, not approved for all, and not the owner.
+    // If the caller meets the three conditions throw an error
+    if (
+      approveAddr == ethers.constants.AddressZero &&
+      approveForAllStatus == false &&
+      owner !== (await this.signer.getAddress())
+    ) {
+      invariant(
+        false,
+        "ZapMedia (revokeApproval): Caller is not approved nor the owner."
+      );
+    }
     return this.media.revokeApproval(mediaId);
   }
 
@@ -702,22 +920,5 @@ class ZapMedia {
       verifyingContract: this.media.address,
     };
   }
-
-  /******************
-   * Private Methods
-   ******************
-   */
-
-  // /**
-  //  * Throws an error if called on a readOnly == true instance of Zap Sdk
-  //  * @private
-  //  */
-  // private ensureNotReadOnly() {
-  //   if (this.readOnly) {
-  //     throw new Error(
-  //       'ensureNotReadOnly: readOnly Zap instance cannot call contract methods that require a signer.'
-  //     )
-  //   }
-  // }
 }
 export default ZapMedia;

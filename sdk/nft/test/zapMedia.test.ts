@@ -12,6 +12,7 @@ import {
   constructMediaData,
   constructBid,
   Decimal,
+  validateBidShares,
 } from "../src/utils";
 
 import ZapMedia from "../src/zapMedia";
@@ -37,9 +38,10 @@ import {
   signPermitMessage,
   signMintWithSigMessage,
 } from "./test_utils";
-import { EIP712Signature, Bid } from "../src/types";
+import { EIP712Signature, Bid, BidShares, Ask } from "../src/types";
 import { BlobOptions } from "buffer";
 import { SrvRecord } from "dns";
+import { beforeEach } from "mocha";
 
 const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
 
@@ -60,6 +62,7 @@ describe("ZapMedia", () => {
 
   let signer: Signer;
   let signerOne: Signer;
+  let bidder: Signer;
 
   let mediaFactory: MediaFactory;
   let signerOneConnected: ZapMedia;
@@ -67,6 +70,8 @@ describe("ZapMedia", () => {
   let customMediaSigner0: ZapMedia;
   let customMediaSigner1: ZapMedia;
   let customMediaAddress: string;
+  let bidderMainConnected: ZapMedia;
+  let bidderCustomConnected: ZapMedia;
 
   let eipSig: any;
 
@@ -140,9 +145,9 @@ describe("ZapMedia", () => {
 
     bidShares = constructBidShares(
       [
-        await provider.getSigner(1).getAddress(),
         await provider.getSigner(2).getAddress(),
         await provider.getSigner(3).getAddress(),
+        await provider.getSigner(4).getAddress(),
       ],
       [15, 15, 15],
       15,
@@ -177,6 +182,10 @@ describe("ZapMedia", () => {
 
     customMediaSigner0 = new ZapMedia(1337, signer, customMediaAddress);
 
+    bidderMainConnected = new ZapMedia(1337, signerOne);
+
+    bidderCustomConnected = new ZapMedia(1337, bidder, customMediaAddress);
+
     // The owner (signers[0]) mints on their own media contract
     await ownerConnected.mint(mediaDataOne, bidShares);
 
@@ -185,7 +194,7 @@ describe("ZapMedia", () => {
 
     // The signerOne (signers[1]) mints on their own media contract by passing in the
     // their media address as optional argument
-    await signerOneConnected.mint(mediaDataOne, bidShares, customMediaAddress);
+    await customMediaSigner1.mint(mediaDataOne, bidShares);
   });
 
   describe("Contract Functions", () => {
@@ -655,84 +664,344 @@ describe("ZapMedia", () => {
           expect(creator).to.equal(await signerOne.getAddress());
         });
       });
+
+      describe("#fetchCurrentBidShares", () => {
+        it("Should throw an error if the media address is a zero address on the main media", async () => {
+          await ownerConnected
+            .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should reject if the MediaAddress is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .fetchCurrentBidShares(ethers.constants.AddressZero, 0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchCurrentBidShares): The (mediaAddress) cannot be a zero address."
+            );
+        });
+
+        it("Should return null values if the token id does not exist on the main media", async () => {
+          const bidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            400
+          );
+
+          expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
+          expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
+          expect(bidShares.collaborators).to.have.lengthOf(0);
+          expect(bidShares.collabShares).to.have.lengthOf(0);
+        });
+
+        it("Should return null values if the token id does not exist on the customMedia", async () => {
+          const bidShares = await customMediaSigner1.fetchCurrentBidShares(
+            customMediaAddress,
+            300
+          );
+
+          expect(parseInt(bidShares.creator.value._hex)).to.equal(0);
+          expect(parseInt(bidShares.owner.value._hex)).to.equal(0);
+          expect(bidShares.collaborators).to.have.lengthOf(0);
+          expect(bidShares.collabShares).to.have.lengthOf(0);
+        });
+
+        it("should return the bidShares of a token Id on the main media", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            0
+          );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(
+            parseInt(bidShares.creator.value._hex)
+          );
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(
+            parseInt(bidShares.owner.value._hex)
+          );
+          expect(onChainBidShares.collaborators).to.deep.equal(
+            bidShares.collaborators
+          );
+          expect(onChainBidShares.collabShares).to.deep.equal(
+            bidShares.collabShares
+          );
+        });
+
+        it("Should return the bidShares of a token Id on the main media", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            1
+          );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(
+            parseInt(bidShares.creator.value._hex)
+          );
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(
+            parseInt(bidShares.owner.value._hex)
+          );
+          expect(onChainBidShares.collaborators).to.deep.equal(
+            bidShares.collaborators
+          );
+          expect(onChainBidShares.collabShares).to.deep.equal(
+            bidShares.collabShares
+          );
+        });
+
+        it("should return the bidShares of a token Id on the custom media", async () => {
+          const onChainBidShares =
+            await customMediaSigner1.fetchCurrentBidShares(
+              customMediaAddress,
+              0
+            );
+          expect(parseInt(onChainBidShares.creator.value._hex)).to.equal(
+            parseInt(bidShares.creator.value._hex)
+          );
+          expect(parseInt(onChainBidShares.owner.value._hex)).to.equal(
+            parseInt(bidShares.owner.value._hex)
+          );
+          expect(onChainBidShares.collaborators).to.deep.equal(
+            bidShares.collaborators
+          );
+          expect(onChainBidShares.collabShares).to.deep.equal(
+            bidShares.collabShares
+          );
+        });
+      });
     });
 
     describe("Write Functions", () => {
       describe("#updateContentURI", () => {
-        it("Should thrown an error if the tokenURI does not begin with `https://`", async () => {
-          mediaDataOne.tokenURI = "http://example.com";
-
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
-              "Invariant failed: http://example.com must begin with `https://`"
-            );
-          });
-        });
-
-        it("Should throw an error if the updateContentURI tokenId does not exist", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
           await ownerConnected
-            .updateContentURI(0, "www.newURI.com")
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
-              );
-            });
-        });
-
-        it("Should throw an error if the fetchContentURI tokenId does not exist", async () => {
-          await ownerConnected.fetchContentURI(0).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (fetchContentURI): TokenId does not exist."
+            .updateContentURI(4, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
             );
-          });
         });
 
-        it("Should update the content uri", async () => {
-          // Returns tokenId 0's tokenURI
-          const fetchTokenURI = await ownerConnected.fetchContentURI(0);
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .updateContentURI(4, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateContentURI): TokenId does not exist."
+            );
+        });
 
-          // The returned tokenURI should equal the tokenURI configured in the mediaDataOne
+        it("Should reject if the tokenURI does not begin with `https://` on the main media", async () => {
+          await ownerConnected
+            .updateContentURI(0, "http://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newTokenURI.com must begin with `https://`"
+            );
+        });
+
+        it("Should reject if the tokenURI does not begin with `https://` on a custom media", async () => {
+          await customMediaSigner1
+            .updateContentURI(0, "http://newTokenURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newTokenURI.com must begin with `https://`"
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected
+            .updateContentURI(0, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .updateContentURI(0, "https://newTokenURI.com")
+            .should.be.rejectedWith(
+              "ZapMedia (updateContentURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should update the content uri if approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const tokenURI: string = await signerOneConnected.fetchContentURI(0);
+          expect(tokenURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri if approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const fetchNewURI: string = await customMediaSigner0.fetchContentURI(
+            0
+          );
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri on the main media by owner", async () => {
+          const fetchTokenURI: string = await ownerConnected.fetchContentURI(0);
           expect(fetchTokenURI).to.equal(mediaDataOne.tokenURI);
 
-          // Updates tokenId 0's tokenURI
-          await ownerConnected.updateContentURI(0, "https://newURI.com");
+          await ownerConnected.updateContentURI(0, "https://newTokenURI.com");
 
-          // Returns tokenId 0's tokenURI
-          const fetchNewURI = await ownerConnected.fetchContentURI(0);
+          const fetchNewURI: string = await ownerConnected.fetchContentURI(0);
 
-          // The new tokenURI returned should equal the updatedURI
-          expect(fetchNewURI).to.equal("https://newURI.com");
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
+        });
+
+        it("Should update the content uri on a custom media by owner", async () => {
+          await customMediaSigner1.updateContentURI(
+            0,
+            "https://newTokenURI.com"
+          );
+
+          const fetchNewURI: string = await customMediaSigner1.fetchContentURI(
+            0
+          );
+          expect(fetchNewURI).to.equal("https://newTokenURI.com");
         });
       });
 
       describe("#updateMetadataURI", () => {
-        it("Should thrown an error if the metadataURI does not begin with `https://`", async () => {
-          mediaDataOne.metadataURI = "http://example.com";
-
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
-              "Invariant failed: http://example.com must begin with `https://`"
+        it("Should reject if the metadataURI does not begin with `https://` on the main media", async () => {
+          await ownerConnected
+            .updateMetadataURI(0, "http://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newMetadataURI.com must begin with `https://`"
             );
-          });
         });
 
-        it("Should update the metadata uri", async () => {
-          const fetchMetadataURI = await ownerConnected.fetchMetadataURI(0);
-          expect(fetchMetadataURI).to.equal(mediaDataOne.metadataURI);
+        it("Should reject if the metadataURI does not begin with `https://` on a custom media", async () => {
+          await customMediaSigner1
+            .updateMetadataURI(0, "http://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: http://newMetadataURI.com must begin with `https://`"
+            );
+        });
 
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .updateMetadataURI(1001, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .updateMetadataURI(1001, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .updateMetadataURI(0, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
+            .updateMetadataURI(0, "https://newMetadataURI.com")
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (updateMetadataURI): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should update the metadata uri by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
+            0
+          );
+
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner1.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner1.fetchApproved(0);
+
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string =
+            await customMediaSigner1.fetchMetadataURI(0);
+
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the owner on the main media", async () => {
           await ownerConnected.updateMetadataURI(
             0,
             "https://newMetadataURI.com"
           );
 
-          const newMetadataURI = await ownerConnected.fetchMetadataURI(0);
+          const newMetadataURI: string = await ownerConnected.fetchMetadataURI(
+            0
+          );
+          expect(newMetadataURI).to.equal("https://newMetadataURI.com");
+        });
+
+        it("Should update the metadata uri by the owner on a custom media", async () => {
+          await customMediaSigner1.updateMetadataURI(
+            0,
+            "https://newMetadataURI.com"
+          );
+
+          const newMetadataURI: string =
+            await customMediaSigner0.fetchMetadataURI(0);
           expect(newMetadataURI).to.equal("https://newMetadataURI.com");
         });
       });
 
       describe("#mint", () => {
-        it("throws an error if bid shares do not sum to 100", async () => {
-          let bidShareSum = 0;
+        it("Should reject if the bid shares do not sum to 100 on the main media", async () => {
+          let bidShareSum: number = 0;
 
           bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
 
@@ -745,43 +1014,150 @@ describe("ZapMedia", () => {
             parseInt(bidShares.owner.value) +
             5e18;
 
-          await ownerConnected.mint(mediaDataOne, bidShares).catch((err) => {
-            expect(err).to.equal(
+          await ownerConnected
+            .mint(mediaDataOne, bidShares)
+            .should.be.rejectedWith(
               `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
             );
-          });
         });
 
-        it("Should be able to mint", async () => {
-          const preTotalSupply = (
+        it("Should reject if the bid shares do not sum to 100 on a custom media", async () => {
+          let bidShareSum: number = 0;
+
+          bidShares.creator.value = bidShares.creator.value.add(BigInt(1e18));
+
+          for (var i = 0; i < bidShares.collabShares.length; i++) {
+            bidShareSum += parseInt(bidShares.collabShares[i]);
+          }
+
+          bidShareSum +=
+            parseInt(bidShares.creator.value) +
+            parseInt(bidShares.owner.value) +
+            5e18;
+
+          await customMediaSigner1
+            .mint(mediaDataOne, bidShares)
+            .should.be.rejectedWith(
+              `Invariant failed: The BidShares sum to ${bidShareSum}, but they must sum to 100000000000000000000`
+            );
+        });
+
+        it("Should be able to mint on the main media", async () => {
+          // Returns the total tokens minted on the main media
+          const preTotalSupply: BigNumberish = (
             await ownerConnected.fetchTotalMedia()
           ).toNumber();
 
+          // Expect the total amount of tokens minted on the main media to equal 2
           expect(preTotalSupply).to.equal(2);
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
-          const creator = await ownerConnected.fetchCreator(0);
+          // Returns the  owner of token id 0 on the main media
+          const owner0: string = await ownerConnected.fetchOwnerOf(0);
 
-          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
-            zapMedia.address,
-            0
-          );
-          const onChainContentURI = await ownerConnected.fetchContentURI(0);
-          const onChainMetadataURI = await ownerConnected.fetchMetadataURI(0);
+          // Returns the creator of token id 0 on the main media
+          const creator0: string = await ownerConnected.fetchCreator(0);
 
-          expect(owner).to.equal(await signer.getAddress());
-          expect(creator).to.equal(await signer.getAddress());
-          expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
-          expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
+          // Returns the bidShares on of token id 0 on the main media
+          const onChainBidShares: BidShares =
+            await ownerConnected.fetchCurrentBidShares(zapMedia.address, 0);
+
+          // Returns the contentURI of token id 0 on the main media
+          const onChainContentURI0: string =
+            await ownerConnected.fetchContentURI(0);
+
+          // Returns the metadataURI of token id 0 on the main media
+          const onChainMetadataURI0: string =
+            await ownerConnected.fetchMetadataURI(0);
+
+          // Expect the returned owner address to equal signers[0] address
+          expect(owner0).to.equal(await signer.getAddress());
+
+          // Expect the returned creator address to equal signers[0] address
+          expect(creator0).to.equal(await signer.getAddress());
+
+          // Expect the returned content URI to equal the tokenURI set on mint
+          expect(onChainContentURI0).to.equal(mediaDataOne.tokenURI);
+
+          // Expect the metadata URI to equal the metadataURI set on mint
+          expect(onChainMetadataURI0).to.equal(mediaDataOne.metadataURI);
+
+          // Expect the retuned bidShares creator to equal the signers[0] address
           expect(parseInt(onChainBidShares.creator.value)).to.equal(
             parseInt(bidShares.creator.value)
           );
+
+          // Expect the returned bidShares owner to equal the signers[0] address
           expect(parseInt(onChainBidShares.owner.value)).to.equal(
             parseInt(onChainBidShares.owner.value)
           );
+
+          // Expect the returned bidShares collaborators to equal the collaborators set on mint
           expect(onChainBidShares.collaborators).to.eql(
             bidShares.collaborators
           );
+
+          // Expect the returned bidShares collaboShares to equal the collabShares set on mint
+          expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
+        });
+
+        it("Should be able to mint on a custom media", async () => {
+          // Returns the total tokens minted on a custom media
+          const preTotalSupply: BigNumberish = (
+            await customMediaSigner0.fetchTotalMedia()
+          ).toNumber();
+
+          // Expect the total amount of tokens minted on a custom media to equal 1
+          expect(preTotalSupply).to.equal(1);
+
+          // Returns the  owner of token id 0 on a custom media
+          const owner: string = await customMediaSigner0.fetchOwnerOf(0);
+
+          // Returns the creator of token id 0 on a custom media
+          const creator: string = await customMediaSigner0.fetchCreator(0);
+
+          // Returns the bidShares on of token id 0 on a custom main media
+          const onChainBidShares: BidShares =
+            await customMediaSigner0.fetchCurrentBidShares(
+              customMediaAddress,
+              0
+            );
+
+          // Returns the contentURI of token id 0 on a custom media
+          const onChainContentURI: string =
+            await customMediaSigner0.fetchContentURI(0);
+
+          // Returns the metadataURI of token on a custom media
+          const onChainMetadataURI: string =
+            await customMediaSigner0.fetchMetadataURI(0);
+
+          // Expect the returned owner address to equal signers[1] address
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          // Expect the returned creator address to equal signers[1] address
+          expect(creator).to.equal(await signerOne.getAddress());
+
+          // Expect the returned content URI to equal the tokenURI set on mint
+          expect(onChainContentURI).to.equal(mediaDataOne.tokenURI);
+
+          // Expect the metadata URI to equal the metadataURI set on mint
+          expect(onChainMetadataURI).to.equal(mediaDataOne.metadataURI);
+
+          // Expect the retuned bidShares creator to equal the signers[1] address
+          expect(parseInt(onChainBidShares.creator.value)).to.equal(
+            parseInt(bidShares.creator.value)
+          );
+
+          // Expect the returned bidShares owner to equal the signers[1] address
+          expect(parseInt(onChainBidShares.owner.value)).to.equal(
+            parseInt(onChainBidShares.owner.value)
+          );
+
+          // Expect the returned bidShares collaborators to equal the collaborators set on mint
+          expect(onChainBidShares.collaborators).to.eql(
+            bidShares.collaborators
+          );
+
+          // Expect the returned bidShares collaboShares to equal the collabShares set on mint
           expect(onChainBidShares.collabShares).to.eql(bidShares.collabShares);
         });
       });
@@ -1434,29 +1810,64 @@ describe("ZapMedia", () => {
 
         describe("#fetchCurrentAsk", () => {
           it("Should return null values if the media is a zero address with a valid token id", async () => {
-            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+            const fetchAsk: Ask = await ownerConnected.fetchCurrentAsk(
               ethers.constants.AddressZero,
               0
             );
 
-            expect(fetchAddress.currency).to.equal(
-              ethers.constants.AddressZero
-            );
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
 
-            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
           });
 
-          it("Should return null values if the token id does not exist", async () => {
-            const fetchAddress = await ownerConnected.fetchCurrentAsk(
+          it("Should return null values if the token id does not exist on the main media", async () => {
+            const fetchAsk: Ask = await ownerConnected.fetchCurrentAsk(
               zapMedia.address,
               10
             );
 
-            expect(fetchAddress.currency).to.equal(
-              ethers.constants.AddressZero
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
+          });
+
+          it("Should return null values if the token id does not exist on a custom media", async () => {
+            const fetchAsk: Ask = await customMediaSigner1.fetchCurrentAsk(
+              customMediaAddress,
+              10
             );
 
-            expect(parseInt(fetchAddress.amount.toString())).to.equal(0);
+            expect(fetchAsk.currency).to.equal(ethers.constants.AddressZero);
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(0);
+          });
+
+          it("Should fetch the current ask on the main media", async () => {
+            ask = constructAsk(token.address, 100);
+
+            await ownerConnected.setAsk(0, ask);
+
+            const fetchAsk = await ownerConnected.fetchCurrentAsk(
+              zapMedia.address,
+              0
+            );
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(ask.amount);
+            expect(fetchAsk.currency).to.equal(token.address);
+          });
+
+          it("Should fetch the current ask on a custom media", async () => {
+            ask = constructAsk(token.address, 100);
+
+            await customMediaSigner1.setAsk(0, ask);
+
+            const fetchAsk = await ownerConnected.fetchCurrentAsk(
+              customMediaAddress,
+              0
+            );
+
+            expect(parseInt(fetchAsk.amount.toString())).to.equal(ask.amount);
+            expect(fetchAsk.currency).to.equal(token.address);
           });
         });
 
@@ -1524,45 +1935,62 @@ describe("ZapMedia", () => {
       });
 
       describe("#removeAsk", () => {
-        it("Should throw an error if the removeAsk tokenId does not exist", async () => {
-          ask = constructAsk(zapMedia.address, 100);
-          await ownerConnected.removeAsk(400).catch((err) => {
-            expect(err.message).to.equal(
+        it("Should reject if the tokenId does not exist on the main media", async () => {
+          ask = constructAsk(token.address, 100);
+          await ownerConnected
+            .removeAsk(400)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
             );
-          });
         });
 
-        it("Should throw an error if the tokenId exists but an ask was not set", async () => {
-          await ownerConnected.removeAsk(0).catch((err) => {
-            expect(err.message).to.equal(
+        it("Should reject if the tokenId does not exist on a custom media", async () => {
+          ask = constructAsk(customMediaAddress, 100);
+          await customMediaSigner1
+            .removeAsk(400)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeAsk): TokenId does not exist."
+            );
+        });
+
+        it("Should reject if the ask was never set on the main media", async () => {
+          await ownerConnected
+            .removeAsk(0)
+            .should.be.rejectedWith(
               "Invariant failed: ZapMedia (removeAsk): Ask was never set."
             );
-          });
         });
 
-        it("Should remove an ask", async () => {
-          ask = constructAsk(zapMedia.address, 100);
+        it("Should reject if the ask was never set on a custom media", async () => {
+          await customMediaSigner1
+            .removeAsk(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeAsk): Ask was never set."
+            );
+        });
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
+        it("Should remove an ask on the main media", async () => {
+          ask = constructAsk(token.address, 100);
+
+          const owner: string = await ownerConnected.fetchOwnerOf(0);
           expect(owner).to.equal(await signer.getAddress());
 
-          const getApproved = await ownerConnected.fetchApproved(0);
+          const getApproved: string = await ownerConnected.fetchApproved(0);
           expect(getApproved).to.equal(ethers.constants.AddressZero);
 
           await ownerConnected.setAsk(0, ask);
 
-          const onChainAsk = await ownerConnected.fetchCurrentAsk(
+          const onChainAsk: Ask = await ownerConnected.fetchCurrentAsk(
             zapMedia.address,
             0
           );
 
           expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
-          expect(onChainAsk.currency).to.equal(zapMedia.address);
+          expect(onChainAsk.currency).to.equal(token.address);
 
           await ownerConnected.removeAsk(0);
 
-          const onChainAskRemoved = await ownerConnected.fetchCurrentAsk(
+          const onChainAskRemoved: Ask = await ownerConnected.fetchCurrentAsk(
             zapMedia.address,
             0
           );
@@ -1572,19 +2000,544 @@ describe("ZapMedia", () => {
             ethers.constants.AddressZero
           );
         });
+
+        it("Should remove an ask on a custom media", async () => {
+          ask = constructAsk(token.address, 100);
+
+          const owner: string = await customMediaSigner0.fetchOwnerOf(0);
+          expect(owner).to.equal(await signerOne.getAddress());
+
+          const getApproved: string = await customMediaSigner0.fetchApproved(0);
+          expect(getApproved).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.setAsk(0, ask);
+
+          const onChainAsk: Ask = await customMediaSigner0.fetchCurrentAsk(
+            customMediaAddress,
+            0
+          );
+
+          expect(parseInt(onChainAsk.amount.toString())).to.equal(ask.amount);
+          expect(onChainAsk.currency).to.equal(token.address);
+
+          await customMediaSigner1.removeAsk(0);
+
+          const onChainAskRemoved: Ask =
+            await customMediaSigner0.fetchCurrentAsk(customMediaAddress, 0);
+
+          expect(parseInt(onChainAskRemoved.amount.toString())).to.equal(0);
+          expect(onChainAskRemoved.currency).to.equal(
+            ethers.constants.AddressZero
+          );
+        });
+      });
+
+      describe("#removeBid", () => {
+        let mainBid: Bid;
+        let customBid: Bid;
+        let bidderCustomConnected: ZapMedia;
+        beforeEach(async () => {
+          mainBid = constructBid(
+            token.address,
+            200,
+            await signerOne.getAddress(),
+            await signerOne.getAddress(),
+            10
+          );
+
+          customBid = constructBid(
+            token.address,
+            300,
+            await signer.getAddress(),
+            await signer.getAddress(),
+            10
+          );
+
+          await token.mint(await signerOne.getAddress(), 200);
+
+          await token
+            .connect(signerOne)
+            .approve(zapMarket.address, mainBid.amount);
+
+          await token
+            .connect(signer)
+            .approve(zapMarket.address, customBid.amount);
+
+          bidderCustomConnected = new ZapMedia(
+            1337,
+            signer,
+            customMediaAddress
+          );
+        });
+
+        it("Should reject if the token id does not exist on the main media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(mainBid.amount);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await signerOneConnected.setBid(0, mainBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(0);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(mainBid.amount);
+
+          await signerOneConnected
+            .removeBid(200)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeBid): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await bidderCustomConnected.setBid(0, customBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(520000000e18 - 200);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(customBid.amount);
+
+          await bidderCustomConnected
+            .removeBid(200)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (removeBid): The token id does not exist."
+            );
+        });
+
+        it("Should remove a bid on the main media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(mainBid.amount);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await signerOneConnected.setBid(0, mainBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(0);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(mainBid.amount);
+
+          await signerOneConnected.removeBid(0);
+
+          const bidderRemoveBal = await token.balanceOf(
+            await signerOne.getAddress()
+          );
+
+          expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
+
+          const marketRemoveBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
+        });
+
+        it("Should remove a bid on a custom media", async () => {
+          const preBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+
+          const preMarketBal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketBal)).to.equal(0);
+
+          await bidderCustomConnected.setBid(0, customBid);
+
+          const postBidBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(postBidBal)).to.equal(520000000e18 - 200);
+
+          const postMarketBal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketBal)).to.equal(customBid.amount);
+
+          await bidderCustomConnected.removeBid(0);
+
+          const bidderRemoveBal = await token.balanceOf(
+            await signer.getAddress()
+          );
+
+          expect(parseInt(bidderRemoveBal)).to.equal(parseInt(preBidBal));
+
+          const marketRemoveBal = await token.balanceOf(zapMarket.address);
+          expect(parseInt(marketRemoveBal)).to.equal(parseInt(preMarketBal));
+        });
+      });
+
+      describe("#acceptBid", () => {
+        let bid: Bid;
+        let customBid: Bid;
+
+        beforeEach(async () => {
+          customBid = constructBid(
+            token.address,
+            200,
+            await signer.getAddress(),
+            await signer.getAddress(),
+            10
+          );
+
+          bid = constructBid(
+            token.address,
+            200,
+            await signerOne.getAddress(),
+            await signerOne.getAddress(),
+            10
+          );
+
+          //signer one mints tokens on their own address
+          await token.mint(await signerOne.getAddress(), 200);
+
+          await token.connect(signerOne).approve(zapMarket.address, bid.amount);
+
+          await token
+            .connect(signer)
+            .approve(zapMarket.address, customBid.amount);
+        });
+
+        it("Should reject if the token id does not exist on the main media", async () => {
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
+
+          //attempting to accept the bid with invalid tokenID
+          await ownerConnected
+            .acceptBid(10, bid)
+            .should.rejectedWith(
+              "Invariant failed: ZapMedia (acceptBid): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner0.setBid(0, customBid);
+
+          //attempting to accept the bid with invalid tokenID
+          await customMediaSigner1
+            .acceptBid(10, customBid)
+            .should.rejectedWith(
+              "Invariant failed: ZapMedia (acceptBid): The token id does not exist."
+            );
+        });
+
+        it("should accept a bid on the main media", async () => {
+          const preMarketbal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketbal)).to.equal(0);
+
+          // signer one's pre balance
+          const preBidBal: string = await token.balanceOf(
+            signerOne.getAddress()
+          );
+          expect(parseInt(preBidBal)).to.equal(200);
+
+          //set bid for signer one
+          await bidderMainConnected.setBid(0, bid);
+
+          //get post market balance
+          const postMarketbal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketbal)).to.equal(200);
+
+          // signer one's post balance
+          const postBidBal: string = await token.balanceOf(
+            signerOne.getAddress()
+          );
+
+          //expecting that signer one's post balance is zero
+          expect(parseInt(postBidBal)).to.equal(
+            parseInt(preBidBal) - parseInt(bid.amount.toString())
+          );
+
+          //get token balance of creator's(signer) bidshares
+          const preOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preOwnerBal)).to.equal(520000000e18);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabOne: string = await token.balanceOf(
+            await bidShares.collaborators[0]
+          );
+          expect(parseInt(preCollabOne)).to.equal(0);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabTwo: string = await token.balanceOf(
+            await bidShares.collaborators[1]
+          );
+          expect(parseInt(preCollabTwo)).to.equal(0);
+
+          // The token balance of collaborator[2] before the bid is accepted
+          const preCollabThree: string = await token.balanceOf(
+            await bidShares.collaborators[2]
+          );
+          expect(parseInt(preCollabThree)).to.equal(0);
+
+          //owner on main media has to accept the bid
+          await ownerConnected.acceptBid(0, bid);
+
+          //owner balance after bid was accepted
+          const postOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+
+          //post owner's balance increase by 35% bidshares
+          expect(parseInt(postOwnerBal)).to.equal(
+            parseInt(preOwnerBal) + parseInt(bid.amount.toString()) * 0.35
+          );
+
+          //checking the new owner of the bid
+          const newOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newOwner).to.equal(await signerOne.getAddress());
+
+          //after the bid is accepted
+          const postCollabOne: string = await token.balanceOf(
+            bidShares.collaborators[0]
+          );
+          const postCollabTwo: string = await token.balanceOf(
+            bidShares.collaborators[1]
+          );
+          const postCollabThree: string = await token.balanceOf(
+            bidShares.collaborators[2]
+          );
+
+          //collab one receive a payout of 15% of bidshares
+          expect(parseInt(postCollabOne)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+          //collab two receive a payout of 15% of bidshares
+          expect(parseInt(postCollabTwo)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+          //collab three receive a payout of 15% of bidshares
+          expect(parseInt(postCollabThree)).to.equal(
+            parseInt(bid.amount.toString()) * 0.15
+          );
+        });
+
+        it("should accept a bid on a custom media", async () => {
+          const preMarketbal: string = await token.balanceOf(zapMarket.address);
+          expect(parseInt(preMarketbal)).to.equal(0);
+
+          // signer's pre balance
+          const preBidBal: string = await token.balanceOf(signer.getAddress());
+
+          expect(parseInt(preBidBal)).to.equal(520000000e18);
+
+          //set bid for signer
+          await customMediaSigner0.setBid(0, customBid);
+
+          //get post market balance
+          const postMarketbal: string = await token.balanceOf(
+            zapMarket.address
+          );
+          expect(parseInt(postMarketbal)).to.equal(200);
+
+          // signer's post balance
+          const postBidBal: string = await token.balanceOf(signer.getAddress());
+
+          //expecting that signer's post balance is zero
+          expect(parseInt(postBidBal)).to.equal(
+            parseInt(preBidBal) - parseInt(bid.amount.toString())
+          );
+
+          //get token balance of creator's(signer) bidshares
+          const preOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+          expect(parseInt(preOwnerBal)).to.equal(520000000e18);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabOne: string = await token.balanceOf(
+            await bidShares.collaborators[0]
+          );
+          expect(parseInt(preCollabOne)).to.equal(0);
+
+          // The token balance of collaborator[1] before the bid is accepted
+          const preCollabTwo: string = await token.balanceOf(
+            await bidShares.collaborators[1]
+          );
+          expect(parseInt(preCollabTwo)).to.equal(0);
+
+          // The token balance of collaborator[2] before the bid is accepted
+          const preCollabThree: string = await token.balanceOf(
+            await bidShares.collaborators[2]
+          );
+          expect(parseInt(preCollabThree)).to.equal(0);
+
+          //owner on custom media has to accept the bid
+          await customMediaSigner1.acceptBid(0, customBid);
+
+          //owner balance after bid was accepted
+          const postOwnerBal: string = await token.balanceOf(
+            await signer.getAddress()
+          );
+
+          //post owner's balance increase by 35% bidshares
+          expect(parseInt(postOwnerBal)).to.equal(
+            parseInt(preOwnerBal) + parseInt(customBid.amount.toString()) * 0.35
+          );
+
+          //checking the new owner of the bid
+          const newOwner: string = await customMediaSigner0.fetchOwnerOf(0);
+          expect(newOwner).to.equal(await signer.getAddress());
+
+          //after the bid is accepted
+          const postCollabOne: string = await token.balanceOf(
+            bidShares.collaborators[0]
+          );
+          const postCollabTwo: string = await token.balanceOf(
+            bidShares.collaborators[1]
+          );
+          const postCollabThree: string = await token.balanceOf(
+            bidShares.collaborators[2]
+          );
+
+          //collab one receive a payout of 15% of bidshares
+          expect(parseInt(postCollabOne)).to.equal(
+            parseInt(customBid.amount.toString()) * 0.15
+          );
+          //collab two receive a payout of 15% of bidshares
+          expect(parseInt(postCollabTwo)).to.equal(
+            parseInt(customBid.amount.toString()) * 0.15
+          );
+          //collab three receive a payout of 15% of bidshares
+          expect(parseInt(postCollabThree)).to.equal(
+            parseInt(customBid.amount.toString()) * 0.15
+          );
+        });
       });
 
       describe("#revokeApproval", () => {
-        it("revokes an addresses approval of another address's media", async () => {
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .revokeApproval(400)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .revokeApproval(400)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): The token id does not exist."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on the main media", async () => {
+          await signerOneConnected
+            .revokeApproval(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not approved nor the owner on a custom media", async () => {
+          await customMediaSigner0
+            .revokeApproval(0)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (revokeApproval): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should revoke approval by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
           await ownerConnected.approve(await signerOne.getAddress(), 0);
 
-          const approved = await ownerConnected.fetchApproved(0);
-          expect(approved).to.equal(await signerOne.getAddress());
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
 
           await signerOneConnected.revokeApproval(0);
 
-          const revokedStatus = await ownerConnected.fetchApproved(0);
-          expect(revokedStatus).to.equal(ethers.constants.AddressZero);
+          const postRevokedAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postRevokedAddr).to.equal(preApproveAddr);
+        });
+
+        it("Should revoke approval by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.revokeApproval(0);
+
+          const postRevokedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postRevokedAddr).to.equal(preApproveAddr);
+        });
+
+        it("Should revoke approval by the owner on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApprovedAddr: string = await ownerConnected.fetchApproved(
+            0
+          );
+          expect(postApprovedAddr).to.equal(await signerOne.getAddress());
+
+          await ownerConnected.revokeApproval(0);
+
+          const postRevokedAddr: string = await ownerConnected.fetchApproved(0);
+
+          expect(postRevokedAddr).to.equal(preApproveAddr);
+        });
+
+        it("Should revoke approval by the owner on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApprovedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApprovedAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner1.revokeApproval(0);
+
+          const postRevokedAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+
+          expect(postRevokedAddr).to.equal(preApproveAddr);
         });
       });
 
@@ -1923,103 +2876,392 @@ describe("ZapMedia", () => {
       });
 
       describe("#setApprovalForAll", () => {
-        it("Should set approval for another address for all tokens owned by owner", async () => {
-          const preApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signerOne.getAddress()
-          );
+        it("Should reject if the (operator) is the caller on the main media", async () => {
+          await ownerConnected
+            .setApprovalForAll(await signer.getAddress(), true)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setApprovalForAll): The caller cannot be the operator."
+            );
+        });
 
-          expect(preApprovalStatus).to.be.false;
+        it("Should reject if the (operator) is the caller on a custom media", async () => {
+          await customMediaSigner1
+            .setApprovalForAll(await signerOne.getAddress(), true)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (setApprovalForAll): The caller cannot be the operator."
+            );
+        });
+
+        it("Should set approval for all on the main media", async () => {
+          const preApprovalStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(preApprovalStatus).to.equal(false);
 
           await ownerConnected.setApprovalForAll(
             await signerOne.getAddress(),
             true
           );
 
-          const postApprovalStatus = await ownerConnected.fetchIsApprovedForAll(
+          const postApprovalStatus: boolean =
+            await ownerConnected.fetchIsApprovedForAll(
+              await signer.getAddress(),
+              await signerOne.getAddress()
+            );
+          expect(postApprovalStatus).to.equal(true);
+        });
+
+        it("Should set approval for all on a custom media", async () => {
+          const preApprovalStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(preApprovalStatus).to.equal(false);
+
+          await customMediaSigner1.setApprovalForAll(
             await signer.getAddress(),
-            await signerOne.getAddress()
+            true
           );
 
-          expect(postApprovalStatus).to.be.true;
-
-          await ownerConnected.setApprovalForAll(
-            await signerOne.getAddress(),
-            false
-          );
-
-          const revoked = await ownerConnected.fetchIsApprovedForAll(
-            await signer.getAddress(),
-            await signerOne.getAddress()
-          );
-
-          expect(revoked).to.be.false;
+          const postApprovalStatus: boolean =
+            await customMediaSigner1.fetchIsApprovedForAll(
+              await signerOne.getAddress(),
+              await signer.getAddress()
+            );
+          expect(postApprovalStatus).to.equal(true);
         });
       });
 
       describe("#transferFrom", () => {
-        it("Should transfer token to another address", async () => {
-          const recipient = await signerOne.getAddress();
+        it("Should reject if the (from) is a zero address on the main media", async () => {
+          await ownerConnected
+            .transferFrom(
+              ethers.constants.AddressZero,
+              await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): The (from) address cannot be a zero address."
+            );
+        });
 
-          const owner = await ownerConnected.fetchOwnerOf(0);
+        it("Should reject if the (from) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .transferFrom(
+              ethers.constants.AddressZero,
+              await signer.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): The (from) address cannot be a zero address."
+            );
+        });
 
-          expect(owner).to.equal(await signer.getAddress());
+        it("Should reject if the (to) is a zero address on the main media", async () => {
+          await ownerConnected
+            .transferFrom(
+              await signer.getAddress(),
+              ethers.constants.AddressZero,
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): The (to) address cannot be a zero address."
+            );
+        });
 
-          await ownerConnected.transferFrom(owner, recipient, 0);
+        it("Should reject if the (to) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .transferFrom(
+              await signerOne.getAddress(),
+              ethers.constants.AddressZero,
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): The (to) address cannot be a zero address."
+            );
+        });
 
-          const newOwner = await ownerConnected.fetchOwnerOf(0);
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .transferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              300
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): TokenId does not exist"
+            );
+        });
 
-          expect(newOwner).to.equal(recipient);
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .transferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              1
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): TokenId does not exist"
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected
+            .transferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .transferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (transferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should transfer a token by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.transferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.transferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
+        });
+
+        it("Should transfer a token by the owner on the main media", async () => {
+          await ownerConnected.transferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the owner on a custom media", async () => {
+          await customMediaSigner1.transferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
         });
       });
 
       describe("#safeTransferFrom", () => {
-        it("Should revert if the tokenId does not exist", async () => {
-          const recipient = await signerOne.getAddress();
-
+        it("Should reject if the (from) is a zero address on the main media", async () => {
           await ownerConnected
-            .safeTransferFrom(await signer.getAddress(), recipient, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist."
-              );
-            });
+            .safeTransferFrom(
+              ethers.constants.AddressZero,
+              await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
+            );
         });
 
-        it("Should revert if the (from) is a zero address", async () => {
-          const recipient = await signerOne.getAddress();
-
-          await ownerConnected
-            .safeTransferFrom(ethers.constants.AddressZero, recipient, 0)
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
-              );
-            });
+        it("Should reject if the (from) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .safeTransferFrom(
+              ethers.constants.AddressZero,
+              await signer.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (from) address cannot be a zero address."
+            );
         });
 
-        it("Should revert if the (to) is a zero address", async () => {
+        it("Should reject if the (to) is a zero address on the main media", async () => {
           await ownerConnected
             .safeTransferFrom(
               await signer.getAddress(),
               ethers.constants.AddressZero,
               0
             )
-            .catch((err) => {
-              expect(err.message).to.equal(
-                "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
-              );
-            });
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+            );
         });
 
-        it("Should safe transfer a token to an address", async () => {
-          const recipient = await signerOne.getAddress();
+        it("Should reject if the (to) is a zero address on a custom media", async () => {
+          await customMediaSigner1
+            .safeTransferFrom(
+              await signerOne.getAddress(),
+              ethers.constants.AddressZero,
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): The (to) address cannot be a zero address."
+            );
+        });
 
-          await ownerConnected.safeTransferFrom(
+        it("Should reject if the token id does not exist on the main media", async () => {
+          await ownerConnected
+            .safeTransferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              300
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist"
+            );
+        });
+
+        it("Should reject if the token id does not exist on a custom media", async () => {
+          await customMediaSigner1
+            .safeTransferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              1
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): TokenId does not exist"
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on the main media", async () => {
+          await signerOneConnected
+            .safeTransferFrom(
+              await signer.getAddress(),
+              await signerOne.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should reject if the caller is not the owner or approved on a custom media", async () => {
+          await customMediaSigner0
+            .safeTransferFrom(
+              await signerOne.getAddress(),
+              await signer.getAddress(),
+              0
+            )
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (safeTransferFrom): Caller is not approved nor the owner."
+            );
+        });
+
+        it("Should transfer a token by the approved on the main media", async () => {
+          const preApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await ownerConnected.approve(await signerOne.getAddress(), 0);
+
+          const postApproveAddr: string = await ownerConnected.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signerOne.getAddress());
+
+          await signerOneConnected.safeTransferFrom(
             await signer.getAddress(),
-            recipient,
+            await signerOne.getAddress(),
             0
           );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the approved on a custom media", async () => {
+          const preApproveAddr: string = await customMediaSigner0.fetchApproved(
+            0
+          );
+          expect(preApproveAddr).to.equal(ethers.constants.AddressZero);
+
+          await customMediaSigner1.approve(await signer.getAddress(), 0);
+
+          const postApproveAddr: string =
+            await customMediaSigner0.fetchApproved(0);
+          expect(postApproveAddr).to.equal(await signer.getAddress());
+
+          await customMediaSigner0.safeTransferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
+        });
+
+        it("Should transfer a token by the owner on the main media", async () => {
+          await ownerConnected.safeTransferFrom(
+            await signer.getAddress(),
+            await signerOne.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await ownerConnected.fetchOwnerOf(0);
+          expect(newTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should transfer a token by the owner on a custom media", async () => {
+          await customMediaSigner1.safeTransferFrom(
+            await signerOne.getAddress(),
+            await signer.getAddress(),
+            0
+          );
+
+          const newTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            0
+          );
+          expect(newTokenOwner).to.equal(await signer.getAddress());
         });
       });
 
@@ -2066,19 +3308,52 @@ describe("ZapMedia", () => {
         });
       });
 
-      describe("#fetchMedia", () => {
-        it("Should get media instance by index in the media contract", async () => {
-          const tokenId = await ownerConnected.fetchMediaByIndex(0);
-
-          expect(parseInt(tokenId._hex)).to.equal(0);
+      describe("#fetchMediaByIndex", () => {
+        it("Should reject if the index is out of range on the main media", async () => {
+          await ownerConnected
+            .fetchMediaByIndex(2)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaByIndex): Index out of range."
+            );
         });
 
-        it("Should throw an error index out of range", async () => {
-          await ownerConnected.fetchMediaByIndex(1).catch((err) => {
-            expect(err.message).to.equal(
-              "Invariant failed: ZapMedia (tokenByIndex): Index out of range."
+        it("Should reject if the index is out of range on a custom media", async () => {
+          await customMediaSigner0
+            .fetchMediaByIndex(1)
+            .should.be.rejectedWith(
+              "Invariant failed: ZapMedia (fetchMediaByIndex): Index out of range."
             );
-          });
+        });
+
+        it("Should fetch the token by index on the main media", async () => {
+          const firstToken: BigNumberish =
+            await ownerConnected.fetchMediaByIndex(0);
+          expect(parseInt(firstToken._hex)).to.equal(0);
+
+          const firstTokenOwner: string = await ownerConnected.fetchOwnerOf(
+            parseInt(firstToken._hex)
+          );
+          expect(firstTokenOwner).to.equal(await signer.getAddress());
+
+          const secondToken: BigNumberish =
+            await ownerConnected.fetchMediaByIndex(1);
+          expect(parseInt(secondToken._hex)).to.equal(1);
+
+          const secondTokenOwner: string = await ownerConnected.fetchOwnerOf(
+            parseInt(secondToken._hex)
+          );
+          expect(secondTokenOwner).to.equal(await signerOne.getAddress());
+        });
+
+        it("Should fetch the token by index on a custom media", async () => {
+          const firstToken: BigNumberish =
+            await customMediaSigner0.fetchMediaByIndex(0);
+          expect(parseInt(firstToken._hex)).to.equal(0);
+
+          const firstTokenOwner: string = await customMediaSigner0.fetchOwnerOf(
+            parseInt(firstToken._hex)
+          );
+          expect(firstTokenOwner).to.equal(await signerOne.getAddress());
         });
       });
 
