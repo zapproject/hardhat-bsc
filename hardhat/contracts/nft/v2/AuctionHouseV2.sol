@@ -9,10 +9,10 @@ import {ReentrancyGuardUpgradeable} from '@openzeppelin/contracts-upgradeable/se
 import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
-import {IMarket} from './interfaces/IMarket.sol';
-import {Decimal} from './Decimal.sol';
-import {IMedia} from './interfaces/IMedia.sol';
-import {IAuctionHouse} from './interfaces/IAuctionHouse.sol';
+import {IMarketV2} from './IMarketV2.sol';
+import {Decimal} from '../Decimal.sol';
+import {IMediaV2} from './IMediaV2.sol';
+import {IAuctionHouse} from '../interfaces/IAuctionHouse.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 
 interface IWETH {
@@ -23,14 +23,14 @@ interface IWETH {
     function transfer(address to, uint256 value) external returns (bool);
 }
 
-interface IMediaExtended is IMedia {
+interface IMediaExtended is IMediaV2 {
     function marketContract() external returns (address);
 }
 
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
-contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
+contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Counters for Counters.Counter;
@@ -117,7 +117,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             "This market contract is not from Zap's NFT MarketPlace"
         );
         require(
-            IMarket(marketContract).isRegistered(mediaContract),
+            IMarketV2(marketContract).isRegistered(mediaContract),
             "Media contract is not registered with the marketplace"
         );
         require(
@@ -176,6 +176,24 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         }
 
         return auctionId;
+    }
+
+    /**
+     * @notice Create an auction.
+     * @dev Store the auction details in the auctions mapping and emit an AuctionCreated event.
+     * If there is no curator, or if the curator is the auction creator, automatically approve the auction.
+     */
+    function createAuction(
+        uint256[] calldata tokenId,
+        uint256[] calldata amount,
+        address mediaContract,
+        uint256 duration,
+        uint256 reservePrice,
+        address payable curator,
+        uint8 curatorFeePercentage,
+        address auctionCurrency
+    ) external nonReentrant returns (uint256) {
+
     }
 
     /**
@@ -275,7 +293,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         // For Zap NFT Marketplace Protocol, ensure that the bid is valid for the current bidShare configuration
         if (auctions[auctionId].token.mediaContract == mediaContract) {
             require(
-                IMarket(IMediaExtended(mediaContract).marketContract())
+                IMarketV2(IMediaExtended(mediaContract).marketContract())
                     .isValidBid(
                         mediaContract,
                         auctions[auctionId].token.tokenId,
@@ -566,14 +584,14 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             "This market contract is not from Zap's NFT MarketPlace"
         );
         require(
-            IMarket(marketContract).isRegistered(mediaContract),
+            IMarketV2(marketContract).isRegistered(mediaContract),
             "This Media Contract is unauthorised to settle auctions"
         );
         address currency = auctions[auctionId].auctionCurrency == address(0)
             ? wethAddress
             : auctions[auctionId].auctionCurrency;
 
-        IMarket.Bid memory bid = IMarket.Bid({
+        IMarketV2.Bid memory bid = IMarketV2.Bid({
             amount: auctions[auctionId].amount,
             currency: currency,
             bidder: address(this),
@@ -586,7 +604,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
             bid.amount
         );
 
-        IMedia(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
+        IMediaV2(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
 
         // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
@@ -594,7 +612,7 @@ contract AuctionHouse is IAuctionHouse, ReentrancyGuardUpgradeable {
         );
 
         try
-            IMedia(mediaContract).acceptBid(
+            IMediaV2(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
                 bid
             )

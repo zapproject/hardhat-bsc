@@ -11,7 +11,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {IMarket} from './interfaces/IMarket.sol';
+import {IMarketV2} from './v2/IMarketV2.sol';
 import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
@@ -184,7 +184,7 @@ contract Media1155 is
      * ****************
      */
 
-     function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarket.BidShares[] calldata bidShares)
+     function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarketV2.BidShares[] calldata bidShares)
         external
         override
         nonReentrant
@@ -220,7 +220,7 @@ contract Media1155 is
      * @notice see IMedia1155
      * @dev mints an NFT and sets the bidshares for collaborators
      */
-    function mint(address _to, uint256 _id, uint256 _amount, IMarket.BidShares calldata bidShares)
+    function mint(address _to, uint256 _id, uint256 _amount, IMarketV2.BidShares calldata bidShares)
         external
         override
         nonReentrant
@@ -274,27 +274,27 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function setAsk(uint256 tokenId, IMarket.Ask calldata ask)
+    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask)
         external
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).setAsk(tokenId, ask);
+        IMarketV2(access.marketContract).setAsk(tokenId, ask);
     }
 
     /**
      * @notice see IMedia1155
      */
-    function setAskBatch(uint256[] calldata tokenId, IMarket.Ask[] calldata ask)
+    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask)
         external
         override
         nonReentrant
         onlyApprovedOrOwnerBatch(msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
     {
-        IMarket(access.marketContract).setAskBatch(tokenId, ask);
+        IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
     }
 
     /**
@@ -307,7 +307,7 @@ contract Media1155 is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).removeAsk(tokenId);
+        IMarketV2(access.marketContract).removeAsk(tokenId);
     }
 
     /**
@@ -326,14 +326,14 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function setBid(uint256 tokenId, IMarket.Bid calldata bid)
+    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid)
         external
         override
         nonReentrant
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarket(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
+        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
     }
 
     /**
@@ -345,20 +345,20 @@ contract Media1155 is
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        IMarket(access.marketContract).removeBid(tokenId, msg.sender);
+        IMarketV2(access.marketContract).removeBid(tokenId, msg.sender);
     }
 
     /**
      * @notice see IMedia1155
      */
-    function acceptBid(uint256 tokenId, IMarket.Bid memory bid)
+    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid)
         public
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).acceptBid(address(this), tokenId, bid);
+        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid);
     }
 
     /**
@@ -434,7 +434,7 @@ contract Media1155 is
     /// @param index the "i'th collaborator"
     /// @param bidShares the bidshares defined for the Collection's NFTs
     /// @return Boolean that is true if the i'th collaborator has shares for this collection's NFTs
-    function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
+    function _hasShares(uint256 index, IMarketV2.BidShares memory bidShares)
         internal
         pure
         returns (bool)
@@ -461,7 +461,7 @@ contract Media1155 is
         address creator,
         uint256 id,
         uint256 amount,
-        IMarket.BidShares memory bidShares
+        IMarketV2.BidShares memory bidShares
     ) internal {
         _mint(creator, id, amount, "");
 
@@ -472,12 +472,12 @@ contract Media1155 is
             tokens.tokenCreators[id] = creator;
         }
 
-        IMarket(access.marketContract).setBidShares(
+        IMarketV2(access.marketContract).setBidShares(
             id,
             bidShares
         );
 
-        IMarket(access.marketContract).mintOrBurn(true, id, address(this));
+        IMarketV2(access.marketContract).mintOrBurn(true, id, address(this));
 
         tokenIds[id] = true;
     }
@@ -501,7 +501,7 @@ contract Media1155 is
         address creator,
         uint256[] memory id,
         uint256[] memory amount,
-        IMarket.BidShares[] memory bidShares
+        IMarketV2.BidShares[] memory bidShares
     ) internal {
         _mintBatch(creator, id, amount, "");
 
@@ -513,13 +513,13 @@ contract Media1155 is
                 tokens.tokenCreators[id[i]] = creator;
             }
 
-            IMarket(access.marketContract).setBidShares(
+            IMarketV2(access.marketContract).setBidShares(
                 id[i],
                 bidShares[i]
             );
             
             tokenIds[id[i]] = true;
-            IMarket(access.marketContract).mintOrBurn(true, id[i], address(this));
+            IMarketV2(access.marketContract).mintOrBurn(true, id[i], address(this));
         }
     }
 
@@ -537,7 +537,7 @@ contract Media1155 is
 
     //     delete tokens.previousTokenOwners[tokenId];
 
-    //     IMarket(access.marketContract).mintOrBurn(
+    //     IMarketV2(access.marketContract).mintOrBurn(
     //         false,
     //         tokenId,
     //         address(this)
@@ -552,7 +552,7 @@ contract Media1155 is
     //     address to,
     //     uint256 tokenId
     // ) internal override {
-    //     IMarket(access.marketContract).removeAsk(tokenId);
+    //     IMarketV2(access.marketContract).removeAsk(tokenId);
 
     //     ERC721Upgradeable._transfer(from, to, tokenId);
     // }

@@ -3,12 +3,12 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {Decimal} from '../Decimal.sol';
+import {Decimal} from '../../Decimal.sol';
 
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Market
  */
-interface IMarket {
+interface IMarketV {
     struct Bid {
         // Amount of the currency being bid
         uint256 amount;
@@ -124,7 +124,8 @@ interface IMarket {
         address deployer,
         address mediaContract,
         bytes32 name,
-        bytes32 symbol
+        bytes32 symbol,
+        bool isInternal
     ) external;
 
     function revokeRegistration(address mediaContract) external;
@@ -139,24 +140,38 @@ interface IMarket {
         address mediaContract
     ) external;
 
-    function setBidShares(uint256 tokenId, BidShares calldata bidShares)
-        external;
+    function setBidShares(
+        address mediaContract,
+        uint256 tokenId,
+        BidShares calldata bidShares
+    ) external;
 
-    function setAsk(uint256 tokenId, Ask calldata ask) external;
+    function setAsk(
+        address mediaContract,
+        uint256 tokenId,
+        Ask calldata ask
+    ) external;
 
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(address mediaContract, uint256 tokenId) external;
 
     function setBid(
+        address mediaContract,
         uint256 tokenId,
         Bid calldata bid,
         address spender
     ) external;
 
-    function removeBid(uint256 tokenId, address bidder) external;
+    function removeBid(
+        address mediaContract,
+        uint256 tokenId,
+        address bidder
+    ) external;
 
     function acceptBid(
         address mediaContractAddress,
         uint256 tokenId,
         Bid calldata expectedBid
     ) external;
+
+    function _isConfigured(address mediaContract) external view returns (bool);
 }

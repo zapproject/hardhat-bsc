@@ -14,20 +14,20 @@ import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-import {IMarket} from './interfaces/IMarket.sol';
-import {IMedia} from './interfaces/IMedia.sol';
-import {Ownable} from './Ownable.sol';
-import {MediaGetter} from './MediaGetter.sol';
-import {MediaStorage} from './libraries/MediaStorage.sol';
-import './libraries/Constants.sol';
+import {IMarketV2} from './IMarketV2.sol';
+import {IMediaV2} from './IMediaV2.sol';
+import {Ownable} from '../Ownable.sol';
+import {MediaGetter} from '../MediaGetter.sol';
+import {MediaStorage} from '../libraries/MediaStorage.sol';
+import '../libraries/Constants.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
  * @notice This contract provides an interface to mint media with a market
  * owned by the creator.
  */
-contract ZapMedia is
-    IMedia,
+contract ZapMediaV2 is
+    IMediaV2,
     ERC721BurnableUpgradeable,
     ReentrancyGuardUpgradeable,
     Ownable,
@@ -173,7 +173,7 @@ contract ZapMedia is
         kecName = keccak256(name_b);
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
-        _registerInterface(type(IMedia).interfaceId);
+        _registerInterface(type(IMediaV2).interfaceId);
 
         access.isPermissive = permissive;
         _contractURI = bytes(collectionURI);
@@ -192,7 +192,8 @@ contract ZapMedia is
         override(
             ERC721EnumerableUpgradeable,
             ERC721Upgradeable,
-            ERC165StorageUpgradeable
+            ERC165StorageUpgradeable,
+            IMediaV2
         )
         returns (bool)
     {
@@ -265,11 +266,11 @@ contract ZapMedia is
      */
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      * @dev mints an NFT and sets the bidshares for collaborators
      * @param data The media's metadata and content data, includes content and metadata hash, and token's URI
      */
-    function mint(MediaData memory data, IMarket.BidShares memory bidShares)
+    function mint(MediaData memory data, IMarketV2.BidShares memory bidShares)
         public
         override
         nonReentrant
@@ -295,12 +296,12 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
     function mintWithSig(
         address creator,
         MediaData memory data,
-        IMarket.BidShares memory bidShares,
+        IMarketV2.BidShares memory bidShares,
         EIP712Signature memory sig
     ) public override nonReentrant {
         require(
@@ -350,7 +351,7 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
     function auctionTransfer(uint256 tokenId, address recipient)
         external
@@ -366,20 +367,20 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
-    function setAsk(uint256 tokenId, IMarket.Ask memory ask)
+    function setAsk(uint256 tokenId, IMarketV2.Ask memory ask)
         public
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).setAsk(tokenId, ask);
+        IMarketV2(access.marketContract).setAsk(tokenId, ask);
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
     function removeAsk(uint256 tokenId)
         external
@@ -388,24 +389,24 @@ contract ZapMedia is
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).removeAsk(tokenId);
+        IMarketV2(access.marketContract).removeAsk(tokenId);
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
-    function setBid(uint256 tokenId, IMarket.Bid memory bid)
+    function setBid(uint256 tokenId, IMarketV2.Bid memory bid)
         public
         override
         nonReentrant
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarket(access.marketContract).setBid(tokenId, bid, msg.sender);
+        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
     function removeBid(uint256 tokenId)
         external
@@ -413,20 +414,20 @@ contract ZapMedia is
         nonReentrant
         onlyTokenCreated(tokenId)
     {
-        IMarket(access.marketContract).removeBid(tokenId, msg.sender);
+        IMarketV2(access.marketContract).removeBid(tokenId, msg.sender);
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      */
-    function acceptBid(uint256 tokenId, IMarket.Bid memory bid)
+    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid)
         public
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarket(access.marketContract).acceptBid(address(this), tokenId, bid);
+        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid);
     }
 
     /**
@@ -468,7 +469,7 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      * @dev only callable by approved or owner
      */
     function updateTokenURI(uint256 tokenId, string calldata tokenURILocal)
@@ -484,7 +485,7 @@ contract ZapMedia is
     }
 
     /**
-     * @notice see IMedia
+     * @notice see IMediaV2
      * @dev only callable by approved or owner
      */
     function updateTokenMetadataURI(
@@ -503,7 +504,7 @@ contract ZapMedia is
     }
 
     /**
-     * @notice See IMedia
+     * @notice See IMediaV2
      * @dev This method is loosely based on the permit for ERC-20 tokens in  EIP-2612, but modified
      * for ERC-721.
      */
@@ -561,7 +562,7 @@ contract ZapMedia is
     /// @param index the "i'th collaborator"
     /// @param bidShares the bidshares defined for the Collection's NFTs
     /// @return Boolean that is true if the i'th collaborator has shares for this collection's NFTs
-    function _hasShares(uint256 index, IMarket.BidShares memory bidShares)
+    function _hasShares(uint256 index, IMarketV2.BidShares memory bidShares)
         internal
         pure
         returns (bool)
@@ -587,7 +588,7 @@ contract ZapMedia is
     function _mintForCreator(
         address creator,
         MediaData memory data,
-        IMarket.BidShares memory bidShares
+        IMarketV2.BidShares memory bidShares
     ) internal onlyValidURI(data.tokenURI) onlyValidURI(data.metadataURI) {
         require(data.contentHash != 0, 'Media: content hash must be non-zero');
 
@@ -615,13 +616,13 @@ contract ZapMedia is
         tokens.tokenCreators[tokenId] = creator;
         tokens.previousTokenOwners[tokenId] = creator;
 
-        IMarket(access.marketContract).setBidShares(
+        IMarketV2(access.marketContract).setBidShares(
             // address(this),
             tokenId,
             bidShares
         );
 
-        IMarket(access.marketContract).mintOrBurn(true, tokenId, address(this));
+        IMarketV2(access.marketContract).mintOrBurn(true, tokenId, address(this));
     }
 
     function _setTokenContentHash(uint256 tokenId, bytes32 contentHash)
@@ -662,7 +663,7 @@ contract ZapMedia is
 
         delete tokens.previousTokenOwners[tokenId];
 
-        IMarket(access.marketContract).mintOrBurn(
+        IMarketV2(access.marketContract).mintOrBurn(
             false,
             tokenId,
             address(this)
@@ -677,7 +678,7 @@ contract ZapMedia is
         address to,
         uint256 tokenId
     ) internal override {
-        IMarket(access.marketContract).removeAsk(tokenId);
+        IMarketV2(access.marketContract).removeAsk(tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
     }

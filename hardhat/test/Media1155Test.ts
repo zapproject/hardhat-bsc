@@ -11,7 +11,7 @@ import { ZapTokenBSC } from "../typechain/ZapTokenBSC";
 import { deploy1155Medias } from "./utils";
 
 import { Media1155 } from '../typechain/Media1155';
-import { ZapMarket } from "../typechain/ZapMarket";
+import { ZapMarketV2 } from "../typechain/ZapMarketV2";
 import { ZapVault } from "../typechain/ZapVault"
 import { Media1155Factory } from "../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -27,8 +27,8 @@ const { BigNumber } = ethers;
 
 chai.use(solidity);
 
-describe("ZapMedia Test", async () => {
-    let zapMarket: ZapMarket;
+describe("Media1155 Test", async () => {
+    let zapMarket: ZapMarketV2;
     let media1: Media1155;
     let media2: Media1155;
     let media3: Media1155;
@@ -86,11 +86,10 @@ describe("ZapMedia Test", async () => {
         })) as ZapVault;
         await zapVault.deployed();
 
-        const zapMarketFactory = await ethers.getContractFactory('ZapMarket');
-
+        const zapMarketFactory = await ethers.getContractFactory('ZapMarketV2');
         zapMarket = (await upgrades.deployProxy(zapMarketFactory, [zapVault.address], {
             initializer: 'initializeMarket'
-        })) as ZapMarket;
+        })) as ZapMarketV2;
 
         await zapMarket.setFee(platformFee);
 
@@ -660,6 +659,186 @@ describe("ZapMedia Test", async () => {
             const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
             expect(afterBalance.toNumber()).eq(beforeBalance.toNumber() + 100);
+
+        });
+    });
+
+
+    describe("#acceptBid", () => {
+
+        let bid1: any;
+
+        beforeEach(async () => {
+
+            bid1 = {
+                amount: 100,
+                currency: zapTokenBsc.address,
+                bidder: signers[1].address,
+                recipient: signers[8].address,
+                spender: signers[1].address,
+                sellOnShare: {
+                    value: BigInt(10000000000000000000),
+                },
+            };
+
+            const mediaDeployerFactory = await ethers.getContractFactory("Media1155Factory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
+                initializer: 'initialize'
+            })) as Media1155Factory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deploy1155Medias(signers, zapMarket, mediaDeployer);
+
+            media1 = medias[0];
+            media2 = medias[1];
+            media3 = medias[2];
+
+            await media1.claimTransferOwnership();
+            await media2.claimTransferOwnership();
+            await media3.claimTransferOwnership();
+
+            tokenURI = String('media contract 1 - token 1 uri');
+
+            await setupAuction(media2, signers[2]);
+
+        });
+
+        it('should accept a bid', async () => {
+
+            const bid = {
+                ...bid1,
+                bidder: signers[6].address,
+                recipient: signers[6].address,
+                sellOnShare: {
+                    value: BigInt(15000000000000000000),
+                },
+            };
+
+            await media2.connect(signers[6]).setBid(1, bid);
+
+            const beforeOwnerBalance = (await zapTokenBsc.balanceOf(signers[4].address)).toNumber();
+
+            const beforeCreatorBalance = (await zapTokenBsc.balanceOf(signers[2].address)).toNumber();
+
+            expect(await media2.connect(signers[4]).acceptBid(1, bid));
+
+            const newOwnerBalance = await media2.balanceOf(signers[6].address, 1);
+
+            const afterOwnerBalance = (await zapTokenBsc.balanceOf(signers[6].address)).toNumber();
+
+            const afterCreatorBalance = (await zapTokenBsc.balanceOf(signers[2].address)).toNumber();
+
+            const bidShares = await zapMarket.bidSharesForToken(media2.address, 1);
+
+            // expect(afterOwnerBalance, "Owner's balance should increase by 35").eq(beforeOwnerBalance + 35);
+
+            expect(afterCreatorBalance, "Creator's balance should increase by 15").eq(beforeCreatorBalance + 15);
+
+            expect(newOwnerBalance).eq(1);
+
+            expect(bidShares.owner.value).eq(BigInt(35000000000000000000));
+
+            expect(bidShares.creator.value).eq(BigInt(15000000000000000000));
+
+        });
+
+        it('should emit a bid finalized event if the bid is accepted', async () => {
+
+            const bid = { ...bid1, bidder: signers[3].address };
+
+            await media2.connect(signers[3]).setBid(1, bid);
+
+            await media2.connect(signers[4]).acceptBid(1, bid);
+
+            const zapMarketFilter: EventFilter = zapMarket.filters.BidFinalized(
+                null,
+                null,
+                null
+            );
+
+            const event: Event = (
+                await zapMarket.queryFilter(zapMarketFilter)
+            ).slice(-1)[0];
+
+            const logDescription = zapMarket.interface.parseLog(event);
+
+            expect(logDescription.args.tokenId.toNumber()).to.eq(1);
+
+            expect(logDescription.args.bid.amount.toNumber()).to.eq(bid.amount);
+
+            expect(logDescription.args.bid.currency).to.eq(bid.currency);
+
+            expect(logDescription.args.bid.sellOnShare.value).to.eq(
+                bid.sellOnShare.value
+            );
+
+            expect(logDescription.args.bid.bidder).to.eq(bid.bidder);
+
+        });
+
+        it('should emit a bid shares updated event if the bid is accepted', async () => {
+
+            const bid = { ...bid1, bidder: signers[5].address };
+
+            await media2.connect(signers[5]).setBid(1, bid);
+
+            await media2.connect(signers[4]).acceptBid(1, bid);
+
+            const zapMarketFilter: EventFilter =
+                zapMarket.filters.BidShareUpdated(null, null, null);
+
+            const event: Event = (
+                await zapMarket.queryFilter(zapMarketFilter)
+            ).slice(-1)[0];
+
+            const logDescription = zapMarket.interface.parseLog(event);
+
+            expect(logDescription.args.tokenId.toNumber()).to.eq(1);
+
+            expect(logDescription.args.bidShares.owner.value).to.eq(
+                BigInt(35000000000000000000)
+            );
+            expect(logDescription.args.bidShares.creator.value).to.eq(
+                BigInt(15000000000000000000)
+            );
+        });
+
+        it('should revert if not called by the owner', async () => {
+
+            await setupAuction(media1, signers[2]);
+
+            await expect(
+                media1.connect(signers[3]).acceptBid(1, { ...bid1, bidder: signers[5].address })
+
+            ).revertedWith('Media: Only approved or owner');
+
+        });
+
+        it('should revert if a non-existent bid is accepted', async () => {
+
+            await expect(
+                media2.connect(signers[4]).acceptBid(1, { ...bid1, bidder: '0x0000000000000000000000000000000000000000' })
+            ).revertedWith('Market: cannot accept bid of 0');
+
+        });
+
+        it('should revert if an invalid bid is accepted', async () => {
+
+            const bid = {
+                ...bid1,
+                bidder: signers[5].address,
+                amount: 99,
+            };
+
+            await media2.connect(signers[5]).setBid(1, bid);
+
+            await expect(media2.connect(signers[4]).acceptBid(1, bid)).revertedWith(
+                'Market: Bid invalid for share splitting'
+            );
 
         });
     });

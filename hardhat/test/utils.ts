@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ethers, upgrades } from "hardhat";
 import {
-  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, Media1155
+  ZapMarket, ZapMedia, ZapVault, ZapTokenBSC, Media1155, ZapMarketV2
 } from "../typechain"
 import {
   BadBidder,
@@ -423,7 +423,7 @@ export async function signMintWithSig(
   return sig;
 }
 
-export const deploy1155Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarket, media1155Deploy: Media1155Factory) => {
+export const deploy1155Medias = async (signers: SignerWithAddress[], zapMarket: ZapMarketV2, media1155Deploy: Media1155Factory) => {
   await zapMarket.setMediaFactory(media1155Deploy.address);
 
   const mediaArgs = [

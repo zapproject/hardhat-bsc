@@ -6,7 +6,7 @@ import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/Own
 import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol';
 import {Media1155Proxy} from './Media1155Proxy.sol';
 import {Media1155} from './Media1155.sol';
-import {IMarket} from './interfaces/IMarket.sol';
+import {IMarketV2} from './v2/IMarketV2.sol';
 import 'hardhat/console.sol';
 
 
@@ -18,7 +18,7 @@ contract Media1155Factory is OwnableUpgradeable {
     event Media1155Deployed(address indexed mediaContract);
     event ExternalTokenDeployed(address indexed extToken);
 
-    IMarket zapMarket;
+    IMarketV2 zapMarket;
     address beacon;
 
     /// @notice Contract constructor
@@ -31,7 +31,7 @@ contract Media1155Factory is OwnableUpgradeable {
         initializer
     {
         __Ownable_init();
-        zapMarket = IMarket(_zapMarket);
+        zapMarket = IMarketV2(_zapMarket);
         beacon = address(new UpgradeableBeacon(media1155Interface));
         UpgradeableBeacon(beacon).transferOwnership(address(this));
     }

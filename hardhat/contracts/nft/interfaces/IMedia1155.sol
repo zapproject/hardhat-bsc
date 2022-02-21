@@ -1,7 +1,7 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {IMarket} from './IMarket.sol';
+import {IMarketV2} from '../v2/IMarketV2.sol';
 
 
 interface IMedia1155 {
@@ -17,13 +17,13 @@ interface IMedia1155 {
     /**
      * @notice Mint new media for msg.sender.
      */
-    function mint(address to, uint256 tokenId, uint256 amount, IMarket.BidShares calldata bidShares)
+    function mint(address to, uint256 tokenId, uint256 amount, IMarketV2.BidShares calldata bidShares)
         external;
 
     /**
      * @notice Batch mint medias with given IDs and amounts for msg.sender
      */
-    function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarket.BidShares[] calldata bidShares) external;
+    function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarketV2.BidShares[] calldata bidShares) external;
 
     /**
      * @notice Transfer the token with the given ID to a given address.
@@ -41,12 +41,12 @@ interface IMedia1155 {
     /**
      * @notice Set the ask on a piece of media
      */
-    function setAsk(uint256 tokenId, IMarket.Ask calldata ask) external;
+    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask) external;
 
     /**
      * @notice Set the ask on the medias of given IDs
      */
-    function setAskBatch(uint256[] calldata tokenId, IMarket.Ask[] calldata ask) external;
+    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask) external;
 
     /**
      * @notice Remove the ask on a piece of media
@@ -61,14 +61,14 @@ interface IMedia1155 {
     /**
      * @notice Set the bid on a piece of media
      */
-    function setBid(uint256 tokenId, IMarket.Bid calldata bid) external;
+    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
 
     /**
      * @notice Remove the bid on a piece of media
      */
     function removeBid(uint256 tokenId) external;
 
-    function acceptBid(uint256 tokenId, IMarket.Bid calldata bid) external;
+    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
 
     /**
      * @notice Revoke approval for a piece of media

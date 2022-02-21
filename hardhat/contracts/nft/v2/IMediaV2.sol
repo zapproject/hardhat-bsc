@@ -3,12 +3,12 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {IMarket} from './IMarket.sol';
+import {IMarketV2} from './IMarketV2.sol';
 
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Media
  */
-interface IMedia {
+interface IMediaV2 {
     struct EIP712Signature {
         uint256 deadline;
         uint8 v;
@@ -53,7 +53,7 @@ interface IMedia {
     /**
      * @notice Mint new media for msg.sender.
      */
-    function mint(MediaData calldata data, IMarket.BidShares calldata bidShares)
+    function mint(MediaData calldata data, IMarketV2.BidShares calldata bidShares)
         external;
 
     /**
@@ -62,7 +62,7 @@ interface IMedia {
     function mintWithSig(
         address creator,
         MediaData calldata data,
-        IMarket.BidShares calldata bidShares,
+        IMarketV2.BidShares calldata bidShares,
         EIP712Signature calldata sig
     ) external;
 
@@ -76,7 +76,7 @@ interface IMedia {
     /**
      * @notice Set the ask on a piece of media
      */
-    function setAsk(uint256 tokenId, IMarket.Ask calldata ask) external;
+    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask) external;
 
     /**
      * @notice Remove the ask on a piece of media
@@ -86,14 +86,14 @@ interface IMedia {
     /**
      * @notice Set the bid on a piece of media
      */
-    function setBid(uint256 tokenId, IMarket.Bid calldata bid) external;
+    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
 
     /**
      * @notice Remove the bid on a piece of media
      */
     function removeBid(uint256 tokenId) external;
 
-    function acceptBid(uint256 tokenId, IMarket.Bid calldata bid) external;
+    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
 
     /**
      * @notice Revoke approval for a piece of media
@@ -121,4 +121,6 @@ interface IMedia {
         uint256 tokenId,
         EIP712Signature calldata sig
     ) external;
+
+    function supportsInterface(bytes4 interfaceId) external returns (bool);
 }
