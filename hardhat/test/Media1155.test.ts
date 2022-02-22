@@ -168,11 +168,26 @@ describe('Media1155 Test', async () => {
       media2 = medias1155[1];
       media3 = medias1155[2];
 
+      await media1.claimTransferOwnership();
+      await media2.claimTransferOwnership();
+      await media3.claimTransferOwnership();
+
       ask.currency = zapTokenBsc.address;
     });
 
     it('Should have the same address between ZapMarketV1 and ZapMarketV2 after upgrading', async () => {
       expect(zapMarket.address).to.equal(zapMarketV2.address);
+    });
+
+    it('Should get the owners of the 1155 media contracts', async () => {
+      const media1Owner: string = await media1.getOwner();
+      expect(media1Owner).to.equal(signers[1].address);
+
+      const media2Owner: string = await media2.getOwner();
+      expect(media2Owner).to.equal(signers[2].address);
+
+      const media3Owner: string = await media3.getOwner();
+      expect(media3Owner).to.equal(signers[3].address);
     });
 
     it('Should get the 1155 media contracts', async () => {
