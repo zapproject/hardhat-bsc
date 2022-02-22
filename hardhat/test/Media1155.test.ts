@@ -30,7 +30,6 @@ describe('Media1155 Test', async () => {
   let media1: Media1155;
   let media2: Media1155;
   let media3: Media1155;
-  let unInitMedia: Media1155;
   let media1155Factory: Media1155Factory;
   let zapVault: ZapVault;
   let zapTokenBsc: ZapTokenBSC;
@@ -48,12 +47,6 @@ describe('Media1155 Test', async () => {
     },
     owner: {
       value: BigNumber.from('35000000000000000000')
-    }
-  };
-
-  let platformFee = {
-    fee: {
-      value: BigInt(5000000000000000000)
     }
   };
 
@@ -86,13 +79,6 @@ describe('Media1155 Test', async () => {
       zapMarketFixture.address,
       signers[0]
     )) as ZapMarket;
-
-    const unInitMediaFactory: ContractFactory = await ethers.getContractFactory(
-      'Media1155',
-      signers[0]
-    );
-
-    unInitMedia = (await unInitMediaFactory.deploy()) as Media1155;
 
     collaborators = {
       collaboratorTwo: signers[10].address,
@@ -172,36 +158,41 @@ describe('Media1155 Test', async () => {
         signers[0]
       )) as Media1155Factory;
 
-      await zapMarketV2.setMediaFactory(media1155Factory.address);
+      const medias1155: Media1155[] = await deploy1155Medias(
+        signers,
+        zapMarketV2,
+        media1155Factory
+      );
 
-      // const medias = await deploy1155Medias(signers, zapMarket, mediaDeployer);
+      media1 = medias1155[0];
+      media2 = medias1155[1];
+      media3 = medias1155[2];
 
-      // media1 = medias[0];
-      // media2 = medias[1];
-      // media3 = medias[2];
-
-      // await media1.claimTransferOwnership();
-      // await media2.claimTransferOwnership();
-      // await media3.claimTransferOwnership();
-
-      // ask.currency = zapTokenBsc.address;
+      ask.currency = zapTokenBsc.address;
     });
 
     it('Should have the same address between ZapMarketV1 and ZapMarketV2 after upgrading', async () => {
       expect(zapMarket.address).to.equal(zapMarketV2.address);
     });
 
-    it('Should get media owner', async () => {
-      // const media1Address = await zapMarket.mediaContracts(
-      //   signers[1].address,
-      //   BigNumber.from('0')
-      // );
-      // const media2Address = await zapMarket.mediaContracts(
-      //   signers[2].address,
-      //   BigNumber.from('0')
-      // );
-      // expect(await media1Address).to.equal(media1.address);
-      // expect(await media2Address).to.equal(media2.address);
+    it('Should get the 1155 media contracts', async () => {
+      const media1Address: string = await zapMarketV2.mediaContracts(
+        signers[1].address,
+        BigNumber.from('0')
+      );
+      expect(media1Address).to.equal(media1.address);
+
+      const media2Address: string = await zapMarket.mediaContracts(
+        signers[2].address,
+        BigNumber.from('0')
+      );
+      expect(media2Address).to.equal(media2.address);
+
+      const media3Address: string = await zapMarketV2.mediaContracts(
+        signers[3].address,
+        BigNumber.from('0')
+      );
+      expect(media3Address).to.equal(media3.address);
     });
 
     it('Should reject if called twice', async () => {
