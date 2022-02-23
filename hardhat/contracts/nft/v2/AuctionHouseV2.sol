@@ -12,7 +12,7 @@ import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {IMarketV2} from './IMarketV2.sol';
 import {Decimal} from '../Decimal.sol';
 import {IMediaV2} from './IMediaV2.sol';
-import {IAuctionHouse} from '../interfaces/IAuctionHouse.sol';
+import {IAuctionHouseV2} from './IAuctionHouseV2.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 
 interface IWETH {
@@ -30,7 +30,7 @@ interface IMediaExtended is IMediaV2 {
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
  */
-contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
+contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Counters for Counters.Counter;
@@ -48,7 +48,7 @@ contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
     address private marketContract;
 
     // A mapping of all of the auctions currently running.
-    mapping(uint256 => IAuctionHouse.Auction) public auctions;
+    mapping(uint256 => IAuctionHouseV2.Auction) public auctions;
 
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
@@ -365,7 +365,7 @@ contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
      * @dev If for some reason the auction cannot be finalized (invalid token recipient, for example),
      * The auction is reset and the NFT is transferred back to the auction creator.
      */
-    function endAuction(uint256 auctionId, address mediaContract)
+    function endAuction(uint256 auctionId, address mediaContract, address owner)
         external
         override
         auctionExists(auctionId)
@@ -395,7 +395,7 @@ contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
             (
                 bool success,
                 uint256 remainingProfit
-            ) = _handleZapAuctionSettlement(auctionId, mediaContract);
+            ) = _handleZapAuctionSettlement(auctionId, mediaContract, owner);
 
             tokenOwnerProfit = remainingProfit;
 
@@ -577,7 +577,8 @@ contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
 
     function _handleZapAuctionSettlement(
         uint256 auctionId,
-        address mediaContract
+        address mediaContract,
+        address owner
     ) internal returns (bool, uint256) {
         require(
             IMediaExtended(mediaContract).marketContract() == marketContract,
@@ -604,7 +605,7 @@ contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
             bid.amount
         );
 
-        IMediaV2(mediaContract).setBid(auctions[auctionId].token.tokenId, bid);
+        IMediaV2(mediaContract).setBid(auctions[auctionId].token.tokenId, bid, owner);
 
         // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
@@ -614,7 +615,8 @@ contract AuctionHouseV2 is IAuctionHouse, ReentrancyGuardUpgradeable {
         try
             IMediaV2(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
-                bid
+                bid,
+                owner
             )
         {} catch {
             // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner

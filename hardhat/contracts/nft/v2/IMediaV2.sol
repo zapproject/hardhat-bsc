@@ -86,14 +86,14 @@ interface IMediaV2 {
     /**
      * @notice Set the bid on a piece of media
      */
-    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
+    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid, address owner) external;
 
     /**
      * @notice Remove the bid on a piece of media
      */
     function removeBid(uint256 tokenId) external;
 
-    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
+    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid, address owner) external;
 
     /**
      * @notice Revoke approval for a piece of media

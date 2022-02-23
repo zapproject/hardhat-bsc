@@ -30,63 +30,53 @@ interface IMedia1155 {
      * Save the previous owner before the transfer, in case there is a sell-on fee.
      * @dev This can only be called by the auction contract specified at deployment
      */
-    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient) external;
+    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient, address owner) external;
 
     /**
      * @notice Transfer the tokens with the given IDs and amount to a given address.
      * Save the previous owners before the transfer, in case there is a sell-on fee.
      */
-    function batchAuctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) external;
+    function batchAuctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient, address owner) external;
 
     /**
      * @notice Set the ask on a piece of media
      */
-    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask) external;
+    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask, address owner) external;
 
     /**
      * @notice Set the ask on the medias of given IDs
      */
-    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask) external;
+    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask, address owner) external;
 
     /**
      * @notice Remove the ask on a piece of media
      */
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(uint256 tokenId, address owner) external;
 
     /**
      * @notice Remove the ask on medias of given IDs
      */
-    function removeAskBatch(uint256[] calldata tokenId) external;
+    function removeAskBatch(uint256[] calldata tokenId, address owner) external;
 
     /**
      * @notice Set the bid on a piece of media
      */
-    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
+    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid, address owner) external;
 
     /**
      * @notice Remove the bid on a piece of media
      */
     function removeBid(uint256 tokenId) external;
 
-    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid) external;
-
-    /**
-     * @notice Revoke approval for a piece of media
-     */
-    function revokeApproval(uint256 tokenId) external;
-
-    /**
-     * @notice Revoke approval for a batch of media
-     */
-    function revokeBatchApproval(uint256[] calldata tokenId) external;
+    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid, address owner) external;
 
     /**
      * @notice Burn a piece of media
      */
-    function burn(uint256 tokenId, uint256 amount) external;
+    function burn(uint256 tokenId, uint256 amount, address owner) external;
 
     /**
      * @notice Burn a batch of media
      */
-    function burnBatch(uint256[] calldata tokenId, uint256[] calldata amount) external;
+    function burnBatch(uint256[] calldata tokenId, uint256[] calldata amount, address owner) external;
 }

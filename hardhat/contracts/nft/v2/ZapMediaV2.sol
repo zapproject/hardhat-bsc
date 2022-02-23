@@ -395,14 +395,14 @@ contract ZapMediaV2 is
     /**
      * @notice see IMediaV2
      */
-    function setBid(uint256 tokenId, IMarketV2.Bid memory bid)
+    function setBid(uint256 tokenId, IMarketV2.Bid memory bid, address owner)
         public
         override
         nonReentrant
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
+        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender, owner);
     }
 
     /**
@@ -420,14 +420,14 @@ contract ZapMediaV2 is
     /**
      * @notice see IMediaV2
      */
-    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid)
+    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid, address owner)
         public
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid);
+        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid, owner);
     }
 
     /**
