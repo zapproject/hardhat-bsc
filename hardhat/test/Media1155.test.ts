@@ -210,29 +210,17 @@ describe('Media1155 Test', async () => {
       expect(media3Address).to.equal(media3.address);
     });
 
-    it('Should reject if called twice', async () => {
-      // await expect(
-      //   zapMarket
-      //     .connect(signers[1])
-      //     .configure(
-      //       signers[1].address,
-      //       media1.address,
-      //       formatBytes32String('TEST MEDIA 1'),
-      //       formatBytes32String('TM1')
-      //     )
-      // ).to.be.reverted;
-      // await expect(
-      //   zapMarket
-      //     .connect(signers[2])
-      //     .configure(
-      //       signers[2].address,
-      //       media2.address,
-      //       formatBytes32String('TEST MEDIA 2'),
-      //       formatBytes32String('TM2')
-      //     )
-      // ).to.be.reverted;
-      // expect(await zapMarket.isConfigured(media1.address)).to.be.true;
-      // expect(await zapMarket.isConfigured(media2.address)).to.be.true;
+    it('Should reject if a registered 1155 media is configured twice', async () => {
+      await expect(
+        zapMarket
+          .connect(signers[1])
+          .configure(
+            signers[1].address,
+            media1.address,
+            formatBytes32String('TEST MEDIA 1'),
+            formatBytes32String('TM1')
+          )
+      ).to.be.revertedWith('Market: Only the media factory can do this action');
     });
   });
 
