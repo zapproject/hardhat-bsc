@@ -380,7 +380,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address mediaAddress,
         uint256 tokenId,
         Bid memory bid,
-        address spender
+        address spender,
+        address owner
     ) public override 
         onlyMediaCaller {
         BidShares memory bidShares = _bidShares[msg.sender][tokenId];
@@ -444,7 +445,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         ) {
             // Finalize exchange
             if (IMediaV2(mediaAddress).supportsInterface(0xd9b67a26)) {
-                _finalizeNFTTransfer1155(msg.sender, tokenId, bid.bidder, bid.recipient);
+                _finalizeNFTTransfer1155(msg.sender, tokenId, bid.bidder, owner);
             } else {
                 _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
             }
@@ -485,7 +486,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     function acceptBid(
         address mediaContractAddress,
         uint256 tokenId,
-        Bid calldata expectedBid
+        Bid calldata expectedBid,
+        address owner
     ) external override 
         onlyMediaCaller 
         isUnlocked(tokenId) {
@@ -507,7 +509,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         );
 
         if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)){
-            _finalizeNFTTransfer1155(mediaContractAddress, tokenId, bid.bidder, bid.recipient);
+            _finalizeNFTTransfer1155(mediaContractAddress, tokenId, bid.bidder, owner);
         } else {
             _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
         }
@@ -632,9 +634,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             platformAddress,
             splitShare(platformFee.fee, bid.amount)
         );
-
+        
         // Transfer media to bid recipient
-        Media1155(mediaContractAddress).auctionTransfer(tokenId, 1, bid.recipient);
+        Media1155(mediaContractAddress).auctionTransfer(tokenId, 1, bid.recipient, owner);
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare

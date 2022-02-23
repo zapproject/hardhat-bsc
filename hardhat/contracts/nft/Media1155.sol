@@ -76,12 +76,17 @@ contract Media1155 is
      * @notice Ensure that the provided spender is the approved or the owner of
      * the media for the specified tokenId
      */
-    modifier onlyApprovedOrOwner(address spender, uint256 tokenId) {
-        // require(
-        //     ERC1155Upgradeable.isApprovedForAll(spender, tokenId),
-        //     // remove revert string before deployment to mainnet
-        //     'Media: Only approved or owner'
-        // );
+    modifier onlyApprovedOrOwner(address owner, address spender, uint256 tokenId) {
+        require(balanceOf(owner, tokenId) > 0);
+
+        if (owner != spender){
+            require(
+                ERC1155Upgradeable.isApprovedForAll(owner, spender),
+                // remove revert string before deployment to mainnet
+                'Media: Only approved or owner'
+            );
+        }
+
         _;
     }
 
@@ -89,7 +94,7 @@ contract Media1155 is
      * @notice Ensure that the provided spender is the approved or the owner of
      * the media for the specified tokenId
      */
-    modifier onlyApprovedOrOwnerBatch(address spender, uint256[] calldata tokenId) {
+    modifier onlyApprovedOrOwnerBatch(address owner, address spender, uint256[] calldata tokenId) {
         // require(
         //     ERC1155Upgradeable.isApprovedForAll(spender, tokenId),
         //     // remove revert string before deployment to mainnet
@@ -218,7 +223,8 @@ contract Media1155 is
 
     /**
      * @notice see IMedia1155
-     * @dev mints an NFT and sets the bidshares for collaborators
+     * @dev mints an NFT and sets the bidshares for collaborators. 
+     * If the specified to address is not the caller, then the to wallet will have to setApprovalForAll() the zapMarket
      */
     function mint(address _to, uint256 _id, uint256 _amount, IMarketV2.BidShares calldata bidShares)
         external
@@ -249,7 +255,7 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient)
+    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient, address owner)
         external
         override
     {
@@ -258,13 +264,18 @@ contract Media1155 is
             // remove revert string before deployment to mainnet
             'Media: only market contract'
         );
-        // tokens.previousTokenOwners[tokenId] = ownerOf(tokenId);.
+        // tokens.previousTokenOwners[tokenId] = ownerOf(tokenId);
+        safeTransferFrom(owner, recipient, tokenId, amount, "");
     }
 
     /**
      * @notice see IMedia1155
      */
-    function batchAuctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) 
+    function batchAuctionTransfer(
+        uint256[] calldata tokenId, 
+        uint256[] calldata amount, 
+        address recipient, address owner
+    ) 
         external
         override
     {
@@ -274,11 +285,11 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask)
+    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask, address owner)
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
         IMarketV2(access.marketContract).setAsk(tokenId, ask);
@@ -287,11 +298,11 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask)
+    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask, address owner)
         external
         override
         nonReentrant
-        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
+        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
     {
         IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
@@ -300,11 +311,11 @@ contract Media1155 is
     /**
      * @notice see IMedia11551155
      */
-    function removeAsk(uint256 tokenId)
+    function removeAsk(uint256 tokenId, address owner)
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
         IMarketV2(access.marketContract).removeAsk(tokenId);
@@ -313,11 +324,11 @@ contract Media1155 is
     /**
      * @notice see IMedia11551155
      */
-    function removeAskBatch(uint256[] calldata tokenId)
+    function removeAskBatch(uint256[] calldata tokenId, address owner)
         external
         override
         nonReentrant
-        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
+        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
     {
         
@@ -326,14 +337,15 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid)
+    function setBid(uint256 tokenId, IMarketV2.Bid calldata bid, address owner)
         external
         override
         nonReentrant
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
+        setApprovalForAll(access.marketContract, true);
+        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender, owner);
     }
 
     /**
@@ -351,14 +363,15 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid)
+    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid, address owner)
         public
         override
         nonReentrant
-        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid);
+        
+        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid, owner);
     }
 
     /**
@@ -366,12 +379,12 @@ contract Media1155 is
      * @dev Only callable if the media owner is also the creator.
      * @param tokenId the ID of the token to burn
      */
-    function burn(uint256 tokenId, uint256 amount)
+    function burn(uint256 tokenId, uint256 amount, address owner)
         public
         override
         nonReentrant
         onlyExistingToken(tokenId)
-        onlyApprovedOrOwner(msg.sender, tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
         _burn(msg.sender, tokenId, amount);
     }
@@ -381,49 +394,19 @@ contract Media1155 is
      * @dev Only callable if the media owner is also the creator.
      * @param tokenId the list of IDs of the tokens to burn
      */
-    function burnBatch(uint256[] calldata tokenId, uint256[] calldata amount)
+    function burnBatch(uint256[] calldata tokenId, uint256[] calldata amount, address owner)
         external
         override
         nonReentrant
         onlyExistingTokenBatch(tokenId)
-        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
+        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
     {
     
     }
 
-    /**
-     * @notice Revoke the approvals for a token. The provided `approve` function is not sufficient
-     * for this protocol, as it does not allow an approved address to revoke it's own approval.
-     * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
-     * revoke their approval once their task is complete as a best practice.
-     */
-    function revokeApproval(uint256 tokenId)
-        external
-        override
-        onlyApprovedOrOwner(msg.sender, tokenId)
-        nonReentrant
-    {
-        // _approve(address(0), tokenId);
-    }
-
-    /**
-     * @notice Revoke the approvals for a token. The provided `approve` function is not sufficient
-     * for this protocol, as it does not allow an approved address to revoke it's own approval.
-     * In instances where a 3rd party is interacting on a user's behalf via `permit`, they should
-     * revoke their approval once their task is complete as a best practice.
-     */
-    function revokeBatchApproval(uint256[] calldata tokenId)
-        external
-        override
-        onlyApprovedOrOwnerBatch(msg.sender, tokenId)
-        nonReentrant
-    {
-        // _approve(address(0), tokenId);
-    }
-
     function transferFrom(address from, address to, uint256 id, uint256 amount)
         external
-        onlyApprovedOrOwner(msg.sender, id)
+        onlyApprovedOrOwner(from, msg.sender, id)
         nonReentrant
     {
         safeTransferFrom(from, to, id, amount, "");
@@ -463,6 +446,7 @@ contract Media1155 is
         uint256 amount,
         IMarketV2.BidShares memory bidShares
     ) internal {
+        setApprovalForAll(access.marketContract, true);
         _mint(creator, id, amount, "");
 
         if (tokenIds[id]) {
@@ -480,6 +464,7 @@ contract Media1155 is
         IMarketV2(access.marketContract).mintOrBurn(true, id, address(this));
 
         tokenIds[id] = true;
+
     }
 
     /**
@@ -503,6 +488,7 @@ contract Media1155 is
         uint256[] memory amount,
         IMarketV2.BidShares[] memory bidShares
     ) internal {
+        setApprovalForAll(access.marketContract, true);
         _mintBatch(creator, id, amount, "");
 
         for (uint i = 0; i < id.length; i++){
