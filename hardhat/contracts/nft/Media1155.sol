@@ -3,12 +3,12 @@ pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol'; // exposes _registerInterface
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
+import '@openzeppelin/contracts/utils/Address.sol';
+import '@openzeppelin/contracts/utils/Context.sol';
+import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
-import "@openzeppelin/contracts/utils/Strings.sol";
+import '@openzeppelin/contracts/utils/Strings.sol';
 
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {IMarketV2} from './v2/IMarketV2.sol';
@@ -16,7 +16,7 @@ import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
-import "hardhat/console.sol";
+import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators
@@ -37,7 +37,6 @@ contract Media1155 is
     mapping(bytes4 => bool) private _supportedInterfaces;
     MediaStorage.Tokens internal tokens;
 
-
     /* *********
      * Modifiers
      * *********
@@ -52,7 +51,7 @@ contract Media1155 is
             // remove revert string before deployment to mainnet
             'Media: nonexistent token'
         );
-        
+
         _;
     }
 
@@ -61,14 +60,14 @@ contract Media1155 is
      */
     modifier onlyExistingTokenBatch(uint256[] calldata tokenId) {
         // need to iterate through list of tokenIds to individually check if token exists
-        for (uint i = 0; i < tokenId.length; i++) {
+        for (uint256 i = 0; i < tokenId.length; i++) {
             require(
                 tokenIds[tokenId[i]],
                 // remove revert string before deployment to mainnet
                 'Media: nonexistent token'
             );
         }
-        
+
         _;
     }
 
@@ -89,7 +88,10 @@ contract Media1155 is
      * @notice Ensure that the provided spender is the approved or the owner of
      * the media for the specified tokenId
      */
-    modifier onlyApprovedOrOwnerBatch(address spender, uint256[] calldata tokenId) {
+    modifier onlyApprovedOrOwnerBatch(
+        address spender,
+        uint256[] calldata tokenId
+    ) {
         // require(
         //     ERC1155Upgradeable.isApprovedForAll(spender, tokenId),
         //     // remove revert string before deployment to mainnet
@@ -103,8 +105,8 @@ contract Media1155 is
      */
     modifier onlyTokenCreated(uint256 tokenId) {
         // require(
-            // access._tokenIdTracker.current() > tokenId,
-            // remove revert string before deployment to mainnet
+        // access._tokenIdTracker.current() > tokenId,
+        // remove revert string before deployment to mainnet
         //     'Media: token with that id does not exist'
         // );
         _;
@@ -156,15 +158,12 @@ contract Media1155 is
         public
         view
         virtual
-        override(
-            ERC1155Upgradeable,
-            ERC165StorageUpgradeable
-        )
+        override(ERC1155Upgradeable, ERC165StorageUpgradeable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
     }
-    
+
     function getTokenCreators(uint256 _tokenId)
         public
         view
@@ -178,17 +177,17 @@ contract Media1155 is
         _supportedInterfaces[interfaceId] = true;
     }
 
-
     /* ****************
      * Public Functions
      * ****************
      */
 
-     function mintBatch(address _to, uint256[] calldata _tokenId, uint256[] calldata _amount, IMarketV2.BidShares[] calldata bidShares)
-        external
-        override
-        nonReentrant
-    {
+    function mintBatch(
+        address _to,
+        uint256[] calldata _tokenId,
+        uint256[] calldata _amount,
+        IMarketV2.BidShares[] calldata bidShares
+    ) external override nonReentrant {
         require(
             access.isPermissive ||
                 access.approvedToMint[msg.sender] ||
@@ -197,11 +196,13 @@ contract Media1155 is
         );
 
         require(
-            _tokenId.length == _amount.length && _amount.length == bidShares.length
+            _tokenId.length == _amount.length &&
+                _amount.length == bidShares.length
         );
-        for (uint i = 0; i < bidShares.length; i++) {
+        for (uint256 i = 0; i < bidShares.length; i++) {
             require(
-                bidShares[i].collaborators.length == bidShares[i].collabShares.length,
+                bidShares[i].collaborators.length ==
+                    bidShares[i].collabShares.length,
                 'Media: Arrays do not have the same length'
             );
             for (uint256 j = 0; j < bidShares[i].collaborators.length; j++) {
@@ -211,24 +212,24 @@ contract Media1155 is
                 );
             }
         }
-        
-        _mintForCreatorBatch(_to, _tokenId, _amount, bidShares);
 
+        _mintForCreatorBatch(_to, _tokenId, _amount, bidShares);
     }
 
     /**
      * @notice see IMedia1155
      * @dev mints an NFT and sets the bidshares for collaborators
      */
-    function mint(address _to, uint256 _id, uint256 _amount, IMarketV2.BidShares calldata bidShares)
-        external
-        override
-        nonReentrant
-    {
+    function mint(
+        address _to,
+        uint256 _id,
+        uint256 _amount,
+        IMarketV2.BidShares calldata bidShares
+    ) external override nonReentrant {
         require(
             access.isPermissive ||
-            access.approvedToMint[msg.sender] ||
-            access.owner == msg.sender,
+                access.approvedToMint[msg.sender] ||
+                access.owner == msg.sender,
             'Media: Only Approved users can mint'
         );
         require(
@@ -245,14 +246,14 @@ contract Media1155 is
         _mintForCreator(msg.sender, _id, _amount, bidShares);
     }
 
-
     /**
      * @notice see IMedia1155
      */
-    function auctionTransfer(uint256 tokenId, uint256 amount, address recipient)
-        external
-        override
-    {
+    function auctionTransfer(
+        uint256 tokenId,
+        uint256 amount,
+        address recipient
+    ) external override {
         require(
             msg.sender == access.marketContract,
             // remove revert string before deployment to mainnet
@@ -264,12 +265,11 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function batchAuctionTransfer(uint256[] calldata tokenId, uint256[] calldata amount, address recipient) 
-        external
-        override
-    {
-
-    }
+    function batchAuctionTransfer(
+        uint256[] calldata tokenId,
+        uint256[] calldata amount,
+        address recipient
+    ) external override {}
 
     /**
      * @notice see IMedia1155
@@ -287,13 +287,17 @@ contract Media1155 is
     /**
      * @notice see IMedia1155
      */
-    function setAskBatch(uint256[] calldata tokenId, IMarketV2.Ask[] calldata ask)
+    function setAskBatch(
+        uint256[] calldata tokenId,
+        IMarketV2.Ask[] calldata ask
+    )
         external
         override
         nonReentrant
         onlyApprovedOrOwnerBatch(msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
     {
+        console.log('TESTING');
         IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
     }
 
@@ -319,9 +323,7 @@ contract Media1155 is
         nonReentrant
         onlyApprovedOrOwnerBatch(msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
-    {
-        
-    }
+    {}
 
     /**
      * @notice see IMedia1155
@@ -333,7 +335,12 @@ contract Media1155 is
         onlyExistingToken(tokenId)
     {
         require(msg.sender == bid.bidder, 'Market: Bidder must be msg sender');
-        IMarketV2(access.marketContract).setBid(address(this), tokenId, bid, msg.sender);
+        IMarketV2(access.marketContract).setBid(
+            address(this),
+            tokenId,
+            bid,
+            msg.sender
+        );
     }
 
     /**
@@ -387,9 +394,7 @@ contract Media1155 is
         nonReentrant
         onlyExistingTokenBatch(tokenId)
         onlyApprovedOrOwnerBatch(msg.sender, tokenId)
-    {
-    
-    }
+    {}
 
     /**
      * @notice Revoke the approvals for a token. The provided `approve` function is not sufficient
@@ -421,12 +426,13 @@ contract Media1155 is
         // _approve(address(0), tokenId);
     }
 
-    function transferFrom(address from, address to, uint256 id, uint256 amount)
-        external
-        onlyApprovedOrOwner(msg.sender, id)
-        nonReentrant
-    {
-        safeTransferFrom(from, to, id, amount, "");
+    function transferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount
+    ) external onlyApprovedOrOwner(msg.sender, id) nonReentrant {
+        safeTransferFrom(from, to, id, amount, '');
     }
 
     /// @notice Returns a bool depicting whether or not the i'th collaborator has shares
@@ -463,19 +469,19 @@ contract Media1155 is
         uint256 amount,
         IMarketV2.BidShares memory bidShares
     ) internal {
-        _mint(creator, id, amount, "");
+        _mint(creator, id, amount, '');
 
         if (tokenIds[id]) {
-            require(access._creatorTokens[msg.sender].contains(id), "Media: Cannot mint an existing token as non creator");
-        } else{
+            require(
+                access._creatorTokens[msg.sender].contains(id),
+                'Media: Cannot mint an existing token as non creator'
+            );
+        } else {
             access._creatorTokens[msg.sender].add(id);
             tokens.tokenCreators[id] = creator;
         }
 
-        IMarketV2(access.marketContract).setBidShares(
-            id,
-            bidShares
-        );
+        IMarketV2(access.marketContract).setBidShares(id, bidShares);
 
         IMarketV2(access.marketContract).mintOrBurn(true, id, address(this));
 
@@ -503,23 +509,27 @@ contract Media1155 is
         uint256[] memory amount,
         IMarketV2.BidShares[] memory bidShares
     ) internal {
-        _mintBatch(creator, id, amount, "");
+        _mintBatch(creator, id, amount, '');
 
-        for (uint i = 0; i < id.length; i++){
+        for (uint256 i = 0; i < id.length; i++) {
             if (tokenIds[id[i]]) {
-                require(access._creatorTokens[msg.sender].contains(id[i]), "Media: Cannot mint an existing token as non creator");
-            } else{
+                require(
+                    access._creatorTokens[msg.sender].contains(id[i]),
+                    'Media: Cannot mint an existing token as non creator'
+                );
+            } else {
                 access._creatorTokens[msg.sender].add(id[i]);
                 tokens.tokenCreators[id[i]] = creator;
             }
 
-            IMarketV2(access.marketContract).setBidShares(
-                id[i],
-                bidShares[i]
-            );
-            
+            IMarketV2(access.marketContract).setBidShares(id[i], bidShares[i]);
+
             tokenIds[id[i]] = true;
-            IMarketV2(access.marketContract).mintOrBurn(true, id[i], address(this));
+            IMarketV2(access.marketContract).mintOrBurn(
+                true,
+                id[i],
+                address(this)
+            );
         }
     }
 
