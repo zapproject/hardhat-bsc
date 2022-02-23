@@ -297,7 +297,6 @@ contract Media1155 is
         onlyApprovedOrOwnerBatch(msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
     {
-        console.log('TESTING');
         IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
     }
 

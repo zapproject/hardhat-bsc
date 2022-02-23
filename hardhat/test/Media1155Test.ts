@@ -17,7 +17,6 @@ import { Media1155Factory, ZapMarket, ZapMedia } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import { keccak256, formatBytes32String, arrayify } from 'ethers/lib/utils';
-import { intToBuffer } from 'ethjs-util';
 import { DeployResult } from 'hardhat-deploy/dist/types';
 
 const { BigNumber } = ethers;
@@ -455,17 +454,17 @@ describe.only('Media1155 Test', async () => {
         );
       });
 
-      it.only('Should set the ask of batch', async () => {
+      it('Should set the ask of batch', async () => {
         await media3.setAskBatch([1, 2, 3], [ask, ask, ask]);
-        // let currentAsk = await zapMarket.currentAskForToken(media3.address, 1);
-        // expect(currentAsk.amount.toNumber() == ask.amount);
-        // expect(currentAsk.currency == ask.currency);
-        // currentAsk = await zapMarket.currentAskForToken(media3.address, 2);
-        // expect(currentAsk.amount.toNumber() == ask.amount);
-        // expect(currentAsk.currency == ask.currency);
-        // currentAsk = await zapMarket.currentAskForToken(media3.address, 3);
-        // expect(currentAsk.amount.toNumber() == ask.amount);
-        // expect(currentAsk.currency == ask.currency);
+        let currentAsk = await zapMarket.currentAskForToken(media3.address, 1);
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
+        currentAsk = await zapMarket.currentAskForToken(media3.address, 2);
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
+        currentAsk = await zapMarket.currentAskForToken(media3.address, 3);
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
       });
 
       it('should reject if the ask batch is 0', async () => {
