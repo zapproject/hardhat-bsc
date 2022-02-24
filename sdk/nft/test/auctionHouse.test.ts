@@ -714,7 +714,7 @@ describe("AuctionHouse", () => {
       });
     });
 
-    describe("#endAuction", () => {
+    describe.only("#endAuction", () => {
       let invalidSigner: Signer;
       let curator: Signer;
       let bidder: Signer;
@@ -769,14 +769,11 @@ describe("AuctionHouse", () => {
       });
 
       it.only("Should reject if the auction hasn't completed on the main media", async () => {
-        
         await curatorMainConnected.startAuction(0, true);
 
         await bidderMainConnected.createBid(0, bidAmt, mediaAddress);
-        await provider.send("evm_increaseTime", [86400]);
+
         await invalidSignerConnected.endAuction(0, mediaAddress);
-
-
       });
     });
 
