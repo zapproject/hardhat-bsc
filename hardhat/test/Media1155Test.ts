@@ -20,7 +20,6 @@ import { keccak256, formatBytes32String, arrayify } from 'ethers/lib/utils';
 import { DeployResult } from 'hardhat-deploy/dist/types';
 
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
-const z = require('../artifacts/contracts/nft/ZapMarket.sol');
 const { BigNumber } = ethers;
 const { deploy } = deployments;
 
@@ -100,8 +99,6 @@ describe.only('Media1155 Test', async () => {
 
     tokenURI = String('media contract 1 - token 1 uri');
 
-    const x = await ethers.getContractFactory('ZapMarketV2');
-
     const marketUpgradeTx = await deployments.deploy('ZapMarket', {
       from: signers[0].address,
       contract: 'ZapMarketV2',
@@ -111,16 +108,22 @@ describe.only('Media1155 Test', async () => {
       log: true
     });
 
+    console.log(marketUpgradeTx);
+
     // Fetch the address of ZapMarketV2 from the transaction receipt
-    const marketV2Address: string | any =
+    const zapMarketV2Address: string | any =
       marketUpgradeTx.receipt?.contractAddress;
 
     // Create the ZapMarketV2 contract instance
     zapMarketV2 = (await ethers.getContractAt(
       'ZapMarketV2',
-      marketV2Address,
+      zapMarketV2Address,
       signers[0]
     )) as ZapMarketV2;
+
+    console.log(await zapMarket.viewFee());
+    console.log(await zapMarketV2.viewFee());
+
     // Deploy the Media1155 implementation through hardhat-deploy
     const deployMedia1155ImpTx: DeployResult = await deployments.deploy(
       'Media1155',
@@ -196,9 +199,9 @@ describe.only('Media1155 Test', async () => {
     await media3.setAskBatch([1, 2, 3], [ask, ask, ask], signers[0].address);
   });
 
-  describe.only('Configure', () => {
+  describe('Configure', () => {
     it('Should have the same address between ZapMarketV1 and ZapMarketV2 after upgrading', async () => {
-      // expect(zapMarket.address).to.equal(zapMarketV2.address);
+      expect(zapMarket.address).to.equal(zapMarketV2.address);
     });
 
     it('Should get the owners of the 1155 media contracts', async () => {
@@ -465,20 +468,20 @@ describe.only('Media1155 Test', async () => {
         );
       });
 
-      it('should set the ask of batch', async () => {
+      it.only('should set the ask of batch', async () => {
         await media3.setAskBatch(
           [1, 2, 3],
           [ask, ask, ask],
           signers[0].address
         );
 
-        // let currentAsk = await zapMarket.currentAskForToken(media3.address, 1);
-        // expect(currentAsk.amount.toNumber() == ask.amount);
-        // expect(currentAsk.currency == ask.currency);
+        let currentAsk = await zapMarket.currentAskForToken(media3.address, 1);
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
 
-        // currentAsk = await zapMarket.currentAskForToken(media3.address, 2);
-        // expect(currentAsk.amount.toNumber() == ask.amount);
-        // expect(currentAsk.currency == ask.currency);
+        currentAsk = await zapMarket.currentAskForToken(media3.address, 2);
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
 
         // currentAsk = await zapMarket.currentAskForToken(media3.address, 3);
         // expect(currentAsk.amount.toNumber() == ask.amount);

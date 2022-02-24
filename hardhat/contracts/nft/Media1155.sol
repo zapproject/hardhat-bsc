@@ -309,9 +309,13 @@ contract Media1155 is
         uint256[] calldata tokenId,
         IMarketV2.Ask[] calldata ask,
         address owner
-    ) external override {
-        // console.log('Testing');
-
+    )
+        external
+        override
+        nonReentrant
+        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
+        onlyExistingTokenBatch(tokenId)
+    {
         IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
     }
 

@@ -348,8 +348,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask)
         external
         override
+        onlyMediaCaller
     {
-        // require(tokenId.length == ask.length);
+        require(tokenId.length == ask.length);
 
         for (uint256 i = 0; i < tokenId.length; i++) {
             require(
