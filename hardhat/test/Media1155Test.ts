@@ -61,20 +61,26 @@ describe.only('Media1155 Test', async () => {
   let collaborators: any;
 
   beforeEach(async () => {
+    // Hardhat test accounts
     signers = await ethers.getSigners();
 
+    // Localhost deployment fixtures from the hardhat-deploy plugin
     await deployments.fixture();
 
+    // ZapTokenBSC fixture
     const zapTokenBscFixture = await deployments.get('ZapTokenBSC');
 
+    // Creates the ZapTokenBSC instance
     zapTokenBsc = (await ethers.getContractAt(
       'ZapTokenBSC',
       zapTokenBscFixture.address,
       signers[0]
     )) as ZapTokenBSC;
 
+    // ZapMarket deployment fixture
     const zapMarketFixture = await deployments.get('ZapMarket');
 
+    // Creates an instance of ZapMarket
     zapMarket = (await ethers.getContractAt(
       'ZapMarket',
       zapMarketFixture.address,
@@ -99,6 +105,7 @@ describe.only('Media1155 Test', async () => {
 
     tokenURI = String('media contract 1 - token 1 uri');
 
+    // Upgrade ZapMarket to ZapMarketV2
     const marketUpgradeTx = await deployments.deploy('ZapMarket', {
       from: signers[0].address,
       contract: 'ZapMarketV2',
@@ -107,8 +114,6 @@ describe.only('Media1155 Test', async () => {
       },
       log: true
     });
-
-    console.log(marketUpgradeTx);
 
     // Fetch the address of ZapMarketV2 from the transaction receipt
     const zapMarketV2Address: string | any =
@@ -120,9 +125,6 @@ describe.only('Media1155 Test', async () => {
       zapMarketV2Address,
       signers[0]
     )) as ZapMarketV2;
-
-    console.log(await zapMarket.viewFee());
-    console.log(await zapMarketV2.viewFee());
 
     // Deploy the Media1155 implementation through hardhat-deploy
     const deployMedia1155ImpTx: DeployResult = await deployments.deploy(
@@ -190,13 +192,12 @@ describe.only('Media1155 Test', async () => {
 
     ask.currency = zapTokenBsc.address;
 
-    await media3.mintBatch(
+    await media1.mintBatch(
       signers[0].address,
       [1, 2, 3],
       [1, 2, 3],
       [bidShares, bidShares, bidShares]
     );
-    await media3.setAskBatch([1, 2, 3], [ask, ask, ask], signers[0].address);
   });
 
   describe('Configure', () => {
@@ -459,33 +460,29 @@ describe.only('Media1155 Test', async () => {
     describe('#setAskBatch', () => {
       beforeEach(async () => {
         tokenURI = String('media contract 1 - token 1 uri');
-
-        await media3.mintBatch(
-          signers[0].address,
-          [1, 2, 3],
-          [1, 2, 3],
-          [bidShares, bidShares, bidShares]
-        );
       });
 
-      it.only('should set the ask of batch', async () => {
-        await media3.setAskBatch(
+      it.only('Should set the ask of batch', async () => {
+        await media1.setAskBatch(
           [1, 2, 3],
           [ask, ask, ask],
           signers[0].address
         );
 
-        let currentAsk = await zapMarket.currentAskForToken(media3.address, 1);
+        let currentAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
 
-        currentAsk = await zapMarket.currentAskForToken(media3.address, 2);
+        currentAsk = await zapMarketV2.currentAskForToken(media1.address, 2);
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
 
-        // currentAsk = await zapMarket.currentAskForToken(media3.address, 3);
-        // expect(currentAsk.amount.toNumber() == ask.amount);
-        // expect(currentAsk.currency == ask.currency);
+        currentAsk = await zapMarketV2.currentAskForToken(media1.address, 3);
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
       });
 
       it('should reject if the ask batch is 0', async () => {
