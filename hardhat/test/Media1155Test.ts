@@ -250,7 +250,7 @@ describe.only('Media1155 Test', async () => {
     });
   });
 
-  describe('#mint', () => {
+  describe.only('#mint', () => {
     it('Should not mint a token if the caller is not approved', async () => {
       await expect(
         media2.connect(signers[4]).mint(signers[4].address, 1, 1, bidShares)
@@ -288,14 +288,14 @@ describe.only('Media1155 Test', async () => {
       expect(balance.eq(1));
     });
 
-    it('should mint a permissive token without approval', async () => {
+    it('Should mint a permissive token without approval', async () => {
       expect(
         await media1
           .connect(signers[4])
-          .mint(signers[4].address, 1, 1, bidShares)
+          .mint(signers[4].address, 4, 1, bidShares)
       ).to.be.ok;
 
-      const balance = await media2.balanceOf(signers[3].address, 1);
+      const balance = await media1.balanceOf(signers[4].address, 1);
       expect(balance.eq(1));
     });
 
