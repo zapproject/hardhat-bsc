@@ -824,9 +824,9 @@ describe.only('Media1155 Test', async () => {
       });
 
       it('Should emit a bid finalized event if the bid is accepted', async () => {
-        await media2.connect(signers[5]).setBid(1, bid, signers[4].address);
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
-        await media2.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
 
         const zapMarketFilter: EventFilter = zapMarketV2.filters.BidFinalized(
           null,
