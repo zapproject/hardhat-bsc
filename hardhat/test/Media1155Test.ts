@@ -453,18 +453,12 @@ describe.only('Media1155 Test', async () => {
 
       it('should reject if the ask amount is invalid and cannot be split', async () => {
         await expect(
-          media1
-            .connect(signers[0])
-            .setAsk(6, { ...ask, amount: 101 }, signers[0].address)
+          media1.setAsk(1, { ...ask, amount: 101 }, signers[0].address)
         ).revertedWith('Market: Ask invalid for share splitting');
       });
     });
 
-    describe.only('#setAskBatch', () => {
-      beforeEach(async () => {
-        tokenURI = String('media contract 1 - token 1 uri');
-      });
-
+    describe('#setAskBatch', () => {
       it('Should set the ask of batch', async () => {
         await media1.setAskBatch(
           [1, 2, 3],
@@ -476,6 +470,7 @@ describe.only('Media1155 Test', async () => {
           media1.address,
           1
         );
+
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
 
@@ -494,9 +489,9 @@ describe.only('Media1155 Test', async () => {
         ).revertedWith('Market: Ask invalid for share splitting');
       });
 
-      it('should reject if the ask amount is invalid and cannot be split', async () => {
+      it('Should reject if the ask amount is invalid and cannot be split', async () => {
         await expect(
-          media3.setAskBatch([1], [{ ...ask, amount: 101 }], signers[0].address)
+          media1.setAskBatch([1], [{ ...ask, amount: 101 }], signers[0].address)
         ).revertedWith('Market: Ask invalid for share splitting');
       });
     });
