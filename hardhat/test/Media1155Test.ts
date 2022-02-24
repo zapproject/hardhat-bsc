@@ -660,8 +660,8 @@ describe("Media1155 Test", async () => {
         });
 
         it('should remove a bid, even if the token is burned', async () => {
-
-            await media1.connect(signers[4]).burn(1, 1, signers[4].address);
+            await media1.connect(signers[4]).transferFrom(signers[4].address, signers[1].address, 1, 1);
+            await media1.connect(signers[1]).burn(1, 1, signers[1].address);
 
             const beforeBalance = await zapTokenBsc.balanceOf(
                 signers[6].address
@@ -852,5 +852,75 @@ describe("Media1155 Test", async () => {
             );
 
         });
+    });
+
+    describe('#burn', () => {
+
+        beforeEach(async () => {
+
+            const mediaDeployerFactory = await ethers.getContractFactory("Media1155Factory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
+                initializer: 'initialize'
+            })) as Media1155Factory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deploy1155Medias(signers, zapMarket, mediaDeployer);
+
+            media1 = medias[0];
+            media2 = medias[1];
+            media3 = medias[2];
+
+            await media1.claimTransferOwnership();
+            await media2.claimTransferOwnership();
+            await media3.claimTransferOwnership();
+            await media3.mint(signers[3].address, 1, 1, bidShares);
+        });
+
+        it('should revert when the caller is the owner, but not creator', async () => {
+
+            await media3.connect(signers[3]).transferFrom(
+                signers[3].address,
+                signers[4].address,
+                1,
+                1
+            );
+
+            await expect(media3.connect(signers[4]).burn(1, 1, signers[4].address))
+                .revertedWith('Media: Must be creator of token to burn');
+
+        });
+
+        it("should revert when the caller is approved, but the owner is not the creator", async () => {
+
+            await media3
+                .connect(signers[3])
+                .transferFrom(signers[3].address, signers[4].address, 1, 1);
+
+            await media3.connect(signers[4]).setApprovalForAll(signers[5].address, true);
+
+            await expect(media3.connect(signers[5]).burn(1, 1, signers[4].address)).revertedWith(
+                "Media: Must be creator of token to burn"
+            );
+
+        });
+
+        it('should revert when the caller is not the owner or a creator', async () => {
+
+            await expect(media3.connect(signers[5]).burn(1, 1, signers[3].address)).revertedWith('Media: Only approved or owner');
+
+        });
+
+        it('should burn a token', async () => {
+
+            expect(await media3.connect(signers[3]).burn(1, 1, signers[3].address));
+
+            let balance = await media3.balanceOf(signers[3].address, 1);
+            expect(balance).to.eq(0);
+        });
+
     });
 })

@@ -386,6 +386,11 @@ contract Media1155 is
         onlyExistingToken(tokenId)
         onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
+        require(
+            access._creatorTokens[msg.sender].contains(tokenId) &&
+            msg.sender == owner, 
+            "Media: Must be creator of token to burn"
+        );
         _burn(msg.sender, tokenId, amount);
     }
 
