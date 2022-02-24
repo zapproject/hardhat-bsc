@@ -250,7 +250,7 @@ describe.only('Media1155 Test', async () => {
     });
   });
 
-  describe.only('#mint', () => {
+  describe('#mint', () => {
     it('Should not mint a token if the caller is not approved', async () => {
       await expect(
         media2.connect(signers[4]).mint(signers[4].address, 1, 1, bidShares)
@@ -299,16 +299,16 @@ describe.only('Media1155 Test', async () => {
       expect(balance.eq(1));
     });
 
-    it('should mint token', async () => {
+    it('Should mint token', async () => {
       await media1
         .connect(signers[5])
-        .mint(signers[5].address, 1, 1, bidShares);
+        .mint(signers[5].address, 4, 1, bidShares);
 
       const balance = await media2.balanceOf(signers[3].address, 1);
       expect(balance.eq(1));
     });
 
-    it('should not be able to mint a token with bid shares summing to less than 100', async () => {
+    it('Should not be able to mint a token with bid shares summing to less than 100', async () => {
       await expect(
         media1.mint(signers[1].address, 1, 1, {
           ...bidShares,
@@ -319,7 +319,7 @@ describe.only('Media1155 Test', async () => {
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
     });
 
-    describe('#mintBatch', () => {
+    describe.only('#mintBatch', () => {
       it('Should not mint batch if caller is unapproved', async () => {
         await expect(
           media2
@@ -328,7 +328,7 @@ describe.only('Media1155 Test', async () => {
         ).to.be.revertedWith('Media: Only Approved users can mint batch');
       });
 
-      it("should not mint batch if a collaborator's share has not been defined", async () => {
+      it("Should not mint batch if a collaborator's share has not been defined", async () => {
         let testBidShares = bidShares;
         testBidShares = {
           ...testBidShares,
@@ -346,7 +346,7 @@ describe.only('Media1155 Test', async () => {
         );
       });
 
-      it('should mint batch token if caller is approved', async () => {
+      it('Should mint batch token if caller is approved', async () => {
         expect(await media2.approveToMint(signers[3].address)).to.be.ok;
 
         expect(
@@ -359,35 +359,35 @@ describe.only('Media1155 Test', async () => {
         expect(balance.eq(1));
       });
 
-      it('should mint batch a permissive token without approval', async () => {
+      it('Should mint batch a permissive token without approval', async () => {
         expect(
           await media1
             .connect(signers[4])
-            .mintBatch(signers[4].address, [1], [1], [bidShares])
+            .mintBatch(signers[4].address, [4], [1], [bidShares])
         ).to.be.ok;
 
-        const balance = await media2.balanceOf(signers[3].address, 1);
+        const balance = await media1.balanceOf(signers[4].address, 4);
         expect(balance.eq(1));
       });
 
-      it('should mint token', async () => {
+      it('Should mint token', async () => {
         await media1
           .connect(signers[5])
           .mintBatch(
             signers[5].address,
-            [1, 2],
+            [4, 5],
             [1, 2],
             [bidShares, bidShares]
           );
 
-        const balance1 = await media2.balanceOf(signers[3].address, 1);
+        const balance1 = await media1.balanceOf(signers[5].address, 1);
         expect(balance1.eq(1));
 
-        const balance2 = await media2.balanceOf(signers[3].address, 2);
+        const balance2 = await media1.balanceOf(signers[5].address, 2);
         expect(balance2.eq(2));
       });
 
-      it('should not be able to mint a token with bid shares summing to less than 100', async () => {
+      it('Should not be able to mint a token with bid shares summing to less than 100', async () => {
         await expect(
           media1.mintBatch(
             signers[1].address,
@@ -405,18 +405,18 @@ describe.only('Media1155 Test', async () => {
         ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
       });
 
-      it('should not be able to mint a token if token exists and call is not creator', async () => {
+      it('Should not be able to mint a token if token exists and call is not creator', async () => {
         await media1
           .connect(signers[5])
-          .mintBatch(signers[5].address, [1], [1], [bidShares]);
+          .mintBatch(signers[5].address, [4], [1], [bidShares]);
 
-        const balance = await media2.balanceOf(signers[3].address, 1);
+        const balance = await media1.balanceOf(signers[5].address, 4);
         expect(balance.eq(1));
 
         await expect(
           media1
-            .connect(signers[4])
-            .mintBatch(signers[6].address, [1], [10], [bidShares])
+            .connect(signers[6])
+            .mintBatch(signers[6].address, [4], [10], [bidShares])
         ).to.be.revertedWith(
           'Media: Cannot mint an existing token as non creator'
         );
@@ -433,7 +433,7 @@ describe.only('Media1155 Test', async () => {
         );
       });
 
-      it('should set the ask', async () => {
+      it('Should set the ask', async () => {
         await media1.connect(signers[0]).setAsk(4, ask, signers[0].address);
         let currentAsk = await zapMarketV2.currentAskForToken(
           media3.address,
@@ -443,7 +443,7 @@ describe.only('Media1155 Test', async () => {
         expect(currentAsk.currency == ask.currency);
       });
 
-      it('should reject if the ask is 0', async () => {
+      it('Should reject if the ask is 0', async () => {
         await expect(
           media1
             .connect(signers[0])
@@ -451,7 +451,7 @@ describe.only('Media1155 Test', async () => {
         ).revertedWith('Market: Ask invalid for share splitting');
       });
 
-      it('should reject if the ask amount is invalid and cannot be split', async () => {
+      it('Should reject if the ask amount is invalid and cannot be split', async () => {
         await expect(
           media1.setAsk(1, { ...ask, amount: 101 }, signers[0].address)
         ).revertedWith('Market: Ask invalid for share splitting');
@@ -516,7 +516,7 @@ describe.only('Media1155 Test', async () => {
         await media1.setApprovalForAll(zapMarketV2.address, true);
       });
 
-      it('should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
+      it('Should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
         await zapTokenBsc.mint(signers[1].address, bid1.amount);
 
         await zapTokenBsc
@@ -528,7 +528,7 @@ describe.only('Media1155 Test', async () => {
         ).to.be.revertedWith('SafeERC20: low-level call failed');
       });
 
-      it('should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
+      it('Should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
         await zapTokenBsc.mint(signers[1].address, bid1.amount / 2);
 
         await zapTokenBsc
@@ -540,7 +540,7 @@ describe.only('Media1155 Test', async () => {
         ).to.be.revertedWith('SafeERC20: low-level call failed');
       });
 
-      it('should set a bid', async () => {
+      it('Should set a bid', async () => {
         await zapTokenBsc.mint(signers[1].address, 100000);
 
         const prevBalance = await zapTokenBsc.balanceOf(signers[1].address);
@@ -680,19 +680,19 @@ describe.only('Media1155 Test', async () => {
         await setupAuction(media1, signers[1]);
       });
 
-      it('should revert if the bidder has not placed a bid', async () => {
+      it('Should revert if the bidder has not placed a bid', async () => {
         await expect(media1.connect(signers[4]).removeBid(1)).revertedWith(
           'Market: cannot remove bid amount of 0'
         );
       });
 
-      it('should revert if the tokenId has not yet been created', async () => {
+      it('Should revert if the tokenId has not yet been created', async () => {
         await expect(media1.connect(signers[4]).removeBid(100)).revertedWith(
           'Market: cannot remove bid amount of 0'
         );
       });
 
-      it('should remove a bid and refund the bidder', async () => {
+      it('Should remove a bid and refund the bidder', async () => {
         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
         await media1.connect(signers[6]).removeBid(1);
@@ -703,7 +703,7 @@ describe.only('Media1155 Test', async () => {
         await media3.mint(signers[0].address, 1, 1, bidShares);
       });
 
-      it('should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
+      it('Should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
         await zapTokenBsc.mint(signers[1].address, bid1.amount);
 
         await zapTokenBsc
@@ -715,7 +715,7 @@ describe.only('Media1155 Test', async () => {
         ).to.be.revertedWith('SafeERC20: low-level call failed');
       });
 
-      it('should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
+      it('Should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
         await zapTokenBsc.mint(signers[1].address, bid1.amount / 2);
 
         await zapTokenBsc
@@ -727,7 +727,7 @@ describe.only('Media1155 Test', async () => {
         ).to.be.revertedWith('SafeERC20: low-level call failed');
       });
 
-      it('should set a bid', async () => {
+      it('Should set a bid', async () => {
         await zapTokenBsc.mint(signers[1].address, 100000);
 
         const prevBalance = await zapTokenBsc.balanceOf(signers[1].address);
@@ -751,19 +751,19 @@ describe.only('Media1155 Test', async () => {
         await setupAuction(media1, signers[1]);
       });
 
-      it('should revert if the bidder has not placed a bid', async () => {
+      it('Should revert if the bidder has not placed a bid', async () => {
         await expect(media1.connect(signers[4]).removeBid(1)).revertedWith(
           'Market: cannot remove bid amount of 0'
         );
       });
 
-      it('should revert if the tokenId has not yet been created', async () => {
+      it('Should revert if the tokenId has not yet been created', async () => {
         await expect(media1.connect(signers[4]).removeBid(100)).revertedWith(
           'Market: cannot remove bid amount of 0'
         );
       });
 
-      it('should remove a bid and refund the bidder', async () => {
+      it('Should remove a bid and refund the bidder', async () => {
         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
         await media1.connect(signers[6]).removeBid(1);
@@ -774,7 +774,7 @@ describe.only('Media1155 Test', async () => {
       });
       // const afterOwnerBalance = (await zapTokenBsc.balanceOf(signers[6].address)).toNumber();
 
-      it('should not be able to remove a bid twice', async () => {
+      it('Should not be able to remove a bid twice', async () => {
         await media1.connect(signers[6]).removeBid(1);
 
         await expect(media1.connect(signers[6]).removeBid(0)).revertedWith(
@@ -782,7 +782,7 @@ describe.only('Media1155 Test', async () => {
         );
       });
 
-      it('should remove a bid, even if the token is burned', async () => {
+      it('Should remove a bid, even if the token is burned', async () => {
         await media1.connect(signers[1]).burn(1, 1, signers[4].address);
 
         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
@@ -813,7 +813,7 @@ describe.only('Media1155 Test', async () => {
         await setupAuction(media2, signers[2]);
       });
 
-      it('should accept a bid', async () => {
+      it('Should accept a bid', async () => {
         const bid = {
           ...bid1,
           bidder: signers[6].address,
@@ -851,11 +851,11 @@ describe.only('Media1155 Test', async () => {
           1
         );
 
-        // expect(afterOwnerBalance, "Owner's balance should increase by 35").eq(beforeOwnerBalance + 35);
+        // expect(afterOwnerBalance, "Owner's balance Should increase by 35").eq(beforeOwnerBalance + 35);
 
         expect(
           afterCreatorBalance,
-          "Creator's balance should increase by 15"
+          "Creator's balance Should increase by 15"
         ).eq(beforeCreatorBalance + 15);
 
         expect(newOwnerBalance).eq(1);
@@ -865,7 +865,7 @@ describe.only('Media1155 Test', async () => {
         expect(bidShares.creator.value).eq(BigInt(15000000000000000000));
       });
 
-      it('should emit a bid finalized event if the bid is accepted', async () => {
+      it('Should emit a bid finalized event if the bid is accepted', async () => {
         const bid = { ...bid1, bidder: signers[3].address };
 
         await media2.connect(signers[5]).setBid(1, bid, signers[4].address);
@@ -897,7 +897,7 @@ describe.only('Media1155 Test', async () => {
         expect(logDescription.args.bid.bidder).to.eq(bid.bidder);
       });
 
-      it('should emit a bid shares updated event if the bid is accepted', async () => {
+      it('Should emit a bid shares updated event if the bid is accepted', async () => {
         const bid = { ...bid1, bidder: signers[5].address };
 
         await media2.connect(signers[5]).setBid(1, bid, signers[4].address);
@@ -923,7 +923,7 @@ describe.only('Media1155 Test', async () => {
         );
       });
 
-      it('should revert if not called by the owner', async () => {
+      it('Should revert if not called by the owner', async () => {
         await setupAuction(media1, signers[2]);
 
         await expect(
@@ -937,7 +937,7 @@ describe.only('Media1155 Test', async () => {
         ).revertedWith('Media: Only approved or owner');
       });
 
-      it('should revert if a non-existent bid is accepted', async () => {
+      it('Should revert if a non-existent bid is accepted', async () => {
         await expect(
           media2.connect(signers[4]).acceptBid(
             1,
@@ -950,7 +950,7 @@ describe.only('Media1155 Test', async () => {
         ).revertedWith('Market: cannot accept bid of 0');
       });
 
-      it('should revert if an invalid bid is accepted', async () => {
+      it('Should revert if an invalid bid is accepted', async () => {
         const bid = {
           ...bid1,
           bidder: signers[5].address,
