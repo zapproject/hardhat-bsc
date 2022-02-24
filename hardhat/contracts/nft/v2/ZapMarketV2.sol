@@ -276,7 +276,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
 
     function mintOrBurnBatch(
         bool isMint,
-        uint256[] calldata tokenId, 
+        uint256[] calldata tokenId,
         uint256[] calldata amount,
         address mediaContract
     ) external {
@@ -348,11 +348,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask)
         external
         override
-        onlyMediaCaller
     {
-        require(tokenId.length == ask.length);
-        
-        for (uint i = 0; i < tokenId.length; i++){
+        // require(tokenId.length == ask.length);
+
+        for (uint256 i = 0; i < tokenId.length; i++) {
             require(
                 isValidBid(msg.sender, tokenId[i], ask[i].amount),
                 'Market: Ask invalid for share splitting'
@@ -382,8 +381,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         Bid memory bid,
         address spender,
         address owner
-    ) public override 
-        onlyMediaCaller {
+    ) public override onlyMediaCaller {
         BidShares memory bidShares = _bidShares[msg.sender][tokenId];
 
         require(
@@ -445,7 +443,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         ) {
             // Finalize exchange
             if (IMediaV2(mediaAddress).supportsInterface(0xd9b67a26)) {
-                _finalizeNFTTransfer1155(msg.sender, tokenId, bid.bidder, owner);
+                _finalizeNFTTransfer1155(
+                    msg.sender,
+                    tokenId,
+                    bid.bidder,
+                    owner
+                );
             } else {
                 _finalizeNFTTransfer(msg.sender, tokenId, bid.bidder);
             }
@@ -460,7 +463,8 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         public
         override
         onlyMediaCaller
-        isUnlocked(tokenId) {
+        isUnlocked(tokenId)
+    {
         Bid storage bid = _tokenBidders[msg.sender][tokenId][bidder];
         uint256 bidAmount = bid.amount;
         address bidCurrency = bid.currency;
@@ -488,9 +492,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         uint256 tokenId,
         Bid calldata expectedBid,
         address owner
-    ) external override 
-        onlyMediaCaller 
-        isUnlocked(tokenId) {
+    ) external override onlyMediaCaller isUnlocked(tokenId) {
         Bid memory bid = _tokenBidders[mediaContractAddress][tokenId][
             expectedBid.bidder
         ];
@@ -508,8 +510,13 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Bid invalid for share splitting'
         );
 
-        if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)){
-            _finalizeNFTTransfer1155(mediaContractAddress, tokenId, bid.bidder, owner);
+        if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)) {
+            _finalizeNFTTransfer1155(
+                mediaContractAddress,
+                tokenId,
+                bid.bidder,
+                owner
+            );
         } else {
             _finalizeNFTTransfer(mediaContractAddress, tokenId, bid.bidder);
         }
@@ -566,7 +573,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             splitShare(platformFee.fee, bid.amount)
         );
         // Transfer media to bid recipient
-        ZapMediaV2(mediaContractAddress).auctionTransfer(tokenId, bid.recipient);
+        ZapMediaV2(mediaContractAddress).auctionTransfer(
+            tokenId,
+            bid.recipient
+        );
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
@@ -599,10 +609,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         IERC20Upgradeable token = IERC20Upgradeable(bid.currency);
 
         // Transfer bid share to owner of media
-        token.safeTransfer(
-            owner,
-            splitShare(bidShares.owner, bid.amount)
-        );
+        token.safeTransfer(owner, splitShare(bidShares.owner, bid.amount));
 
         // Transfer bid share to creator of media
         token.safeTransfer(
@@ -634,9 +641,14 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             platformAddress,
             splitShare(platformFee.fee, bid.amount)
         );
-        
+
         // Transfer media to bid recipient
-        Media1155(mediaContractAddress).auctionTransfer(tokenId, 1, bid.recipient, owner);
+        Media1155(mediaContractAddress).auctionTransfer(
+            tokenId,
+            1,
+            bid.recipient,
+            owner
+        );
 
         // Calculate the bid share for the new owner,
         // equal to 100 - creatorShare - sellOnShare
