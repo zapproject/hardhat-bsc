@@ -6,10 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-// UltraZap 
-//
+// Originally Zap Bar which was Sushi bar
+// xZap is the token you get for staking
 
-contract UltraZap is ERC20("UltraZap", "xZap"){
+
+contract ZapDisperse is ERC20("ZapDisperse", "xZap"){
     using SafeMath for uint256;
     IERC20 public zap;
 

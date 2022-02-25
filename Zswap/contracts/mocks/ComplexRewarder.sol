@@ -6,7 +6,7 @@ import "../interfaces/IRewarder.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
-import "../MasterChefV2.sol";
+import "../ZapMasterV2.sol";
 
 /// @author @0xKeno
 contract ComplexRewarder is IRewarder, BoringOwnable{
@@ -29,7 +29,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
     /// `allocPoint` The amount of allocation points assigned to the pool.
     /// Also known as the amount of SUSHI to distribute per block.
     struct PoolInfo {
-        uint128 accSushiPerShare;
+        uint128 accZapPerShare;
         uint64 lastRewardBlock;
         uint64 allocPoint;
     }
@@ -47,7 +47,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
     uint256 public tokenPerBlock;
     uint256 private constant ACC_TOKEN_PRECISION = 1e12;
 
-    address private immutable MASTERCHEF_V2;
+    address private immutable ZAPMASTER_V2;
 
     uint256 internal unlocked;
     modifier lock() {
@@ -71,13 +71,13 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
     }
 
 
-    function onSushiReward (uint256 pid, address _user, address to, uint256, uint256 lpToken) onlyMCV2 lock override external {
+    function onZapReward (uint256 pid, address _user, address to, uint256, uint256 lpToken) onlyMCV2 lock override external {
         PoolInfo memory pool = updatePool(pid);
         UserInfo storage user = userInfo[pid][_user];
         uint256 pending;
         if (user.amount > 0) {
             pending =
-                (user.amount.mul(pool.accSushiPerShare) / ACC_TOKEN_PRECISION).sub(
+                (user.amount.mul(pool.accZapPerShare) / ACC_TOKEN_PRECISION).sub(
                     user.rewardDebt
                 ).add(user.unpaidRewards);
             uint256 balance = rewardToken.balanceOf(address(this));
@@ -90,7 +90,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
             }
         }
         user.amount = lpToken;
-        user.rewardDebt = lpToken.mul(pool.accSushiPerShare) / ACC_TOKEN_PRECISION;
+        user.rewardDebt = lpToken.mul(pool.accZapPerShare) / ACC_TOKEN_PRECISION;
         emit LogOnReward(_user, pid, pending - user.unpaidRewards, to);
     }
 
