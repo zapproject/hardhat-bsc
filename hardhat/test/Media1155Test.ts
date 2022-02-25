@@ -425,7 +425,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe.only('#setAsk', () => {
+    describe('#setAsk', () => {
       it('Should set the ask', async () => {
         await media1.setAsk(1, ask, signers[1].address);
 
@@ -450,10 +450,10 @@ describe('Media1155 Test', async () => {
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
       });
 
-      it('Should reject if the owners tokenId balance is zero', async () => {
+      it.only('Should reject the ask if the tokenId does not exist', async () => {
         await expect(
           media1.setAsk(4, ask, signers[1].address)
-        ).to.be.revertedWith('Media: Token balance is zero');
+        ).to.be.revertedWith('Media: nonexistent token');
       });
     });
 
