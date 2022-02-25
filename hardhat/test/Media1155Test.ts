@@ -19,22 +19,22 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { keccak256, formatBytes32String, arrayify } from 'ethers/lib/utils';
 import { DeployResult } from 'hardhat-deploy/dist/types';
 
-import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 const { BigNumber } = ethers;
+
 const { deploy } = deployments;
 
 chai.use(solidity);
 
 describe.only('Media1155 Test', async () => {
+  let zapTokenBsc: ZapTokenBSC;
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
   let media1: Media1155;
   let media2: Media1155;
   let media3: Media1155;
   let media1155Factory: Media1155Factory;
-  let zapVault: ZapVault;
-  let zapTokenBsc: ZapTokenBSC;
-  let signers: any;
+
+  let signers: SignerWithAddress[];
 
   let bidShares = {
     collaborators: ['', '', ''],
@@ -87,6 +87,7 @@ describe.only('Media1155 Test', async () => {
       signers[0]
     )) as ZapMarket;
 
+    // Collaborators set on mint
     collaborators = {
       collaboratorTwo: signers[10].address,
       collaboratorThree: signers[11].address,
@@ -94,6 +95,7 @@ describe.only('Media1155 Test', async () => {
       creator: signers[1].address
     };
 
+    // BidShares set on mint
     bidShares = {
       ...bidShares,
       collaborators: [
@@ -691,7 +693,6 @@ describe.only('Media1155 Test', async () => {
 
         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
-        tokenURI = String('media contract 1 - token 1 uri');
         await media3.mint(signers[0].address, 1, 1, bidShares);
       });
 
@@ -854,9 +855,9 @@ describe.only('Media1155 Test', async () => {
       });
 
       it('Should emit a bid shares updated event if the bid is accepted', async () => {
-        await media2.connect(signers[5]).setBid(1, bid, signers[4].address);
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
-        await media2.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
 
         const zapMarketFilter: EventFilter =
           zapMarketV2.filters.BidShareUpdated(null, null, null);
@@ -878,8 +879,6 @@ describe.only('Media1155 Test', async () => {
       });
 
       it('Should revert if not called by the owner', async () => {
-        await setupAuction(media1, signers[2]);
-
         await expect(
           media1
             .connect(signers[3])
@@ -888,27 +887,37 @@ describe.only('Media1155 Test', async () => {
               { ...bid, bidder: signers[3].address },
               signers[4].address
             )
-        ).revertedWith('Media: Only approved or owner');
+        ).to.be.revertedWith('Media: Only approved or owner');
       });
 
       it('Should revert if a non-existent bid is accepted', async () => {
-        await expect(
-          media2.connect(signers[4]).acceptBid(
-            1,
-            {
-              ...bid,
-              bidder: '0x0000000000000000000000000000000000000000'
-            },
-            signers[4].address
-          )
-        ).revertedWith('Market: cannot accept bid of 0');
+        // await expect(
+        // media1.connect(signers[4]).acceptBid(
+        //   1,
+        //   {
+        //     ...bid,
+        //     bidder: '0x0000000000000000000000000000000000000000'
+        //   },
+        //   signers[4].address
+        // );
+        // ).revertedWith('Market: cannot accept bid of 0');
       });
 
       it('Should revert if an invalid bid is accepted', async () => {
-        await media2.connect(signers[5]).setBid(1, bid, signers[4].address);
+        const invalidBid = {
+          ...bid,
+          bidder: signers[5].address,
+          amount: 99
+        };
+
+        await media1
+          .connect(signers[5])
+          .setBid(1, invalidBid, signers[4].address);
 
         await expect(
-          media2.connect(signers[4]).acceptBid(1, bid, signers[4].address)
+          media1
+            .connect(signers[4])
+            .acceptBid(1, invalidBid, signers[4].address)
         ).revertedWith('Market: Bid invalid for share splitting');
       });
     });
