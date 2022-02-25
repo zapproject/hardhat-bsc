@@ -455,6 +455,28 @@ describe('Media1155 Test', async () => {
           media1.setAsk(4, ask, signers[1].address)
         ).to.be.revertedWith('Media: nonexistent token');
       });
+
+      it.only('Should reject the ask if the tokenId exists but the owner does not have a balance of that tokenId', async () => {
+        const ownerBalance = await media1.balanceOf(signers[1].address, 1);
+        expect(ownerBalance.toNumber()).to.equal(1);
+
+        await media1.transferFrom(
+          signers[1].address,
+          signers[19].address,
+          1,
+          1
+        );
+
+        const oldOwnerBalance = await media1.balanceOf(signers[1].address, 1);
+        expect(oldOwnerBalance.toNumber()).to.equal(0);
+
+        const newOwnerBalance = await media1.balanceOf(signers[19].address, 1);
+        expect(newOwnerBalance.toNumber()).to.equal(1);
+
+        await expect(
+          media1.setAsk(1, ask, signers[1].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
     });
 
     describe('#setAskBatch', () => {
