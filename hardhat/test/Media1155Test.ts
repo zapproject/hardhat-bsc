@@ -923,7 +923,7 @@ describe("Media1155 Test", async () => {
         });
     });
 
-    describe.only('#transfer', () => {
+    describe.skip('#transfer', () => {
 
         it('should remove the ask after a transfer', async () => {
 
@@ -950,6 +950,8 @@ describe("Media1155 Test", async () => {
             ask.currency = zapTokenBsc.address
 
             await setupAuction(media2, signers[2]);
+
+            await media2.connect(signers[4]).setAsk(1, ask, signers[4].address);
 
             expect(
                 await media2
