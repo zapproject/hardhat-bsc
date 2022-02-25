@@ -921,6 +921,52 @@ describe("Media1155 Test", async () => {
             let balance = await media3.balanceOf(signers[3].address, 1);
             expect(balance).to.eq(0);
         });
+    });
 
+    describe.only('#transfer', () => {
+
+        it('should remove the ask after a transfer', async () => {
+
+            const mediaDeployerFactory = await ethers.getContractFactory("Media1155Factory", signers[0]);
+
+            mediaDeployer = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, unInitMedia.address], {
+                initializer: 'initialize'
+            })) as Media1155Factory;
+
+            await mediaDeployer.deployed();
+
+            await zapMarket.setMediaFactory(mediaDeployer.address);
+
+            const medias = await deploy1155Medias(signers, zapMarket, mediaDeployer);
+
+            media1 = medias[0];
+            media2 = medias[1];
+            media3 = medias[2];
+
+            await media1.claimTransferOwnership();
+            await media2.claimTransferOwnership();
+            await media3.claimTransferOwnership();
+
+            ask.currency = zapTokenBsc.address
+
+            await setupAuction(media2, signers[2]);
+
+            expect(
+                await media2
+                    .connect(signers[4])
+                    .transferFrom(signers[4].address, signers[5].address, 1, 1)
+            );
+
+            const askB = await zapMarket.currentAskForToken(
+                media2.address,
+                1
+            );
+
+            expect(await askB.amount.toNumber()).eq(0);
+
+            expect(await askB.currency).eq(
+                "0x0000000000000000000000000000000000000000"
+            );
+        });
     });
 })
