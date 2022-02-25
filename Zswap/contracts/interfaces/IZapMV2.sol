@@ -2,7 +2,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-interface IMiniChefV2 {
+interface IZapMV2 {
     struct UserInfo {
         uint256 amount;
         uint256 rewardDebt;

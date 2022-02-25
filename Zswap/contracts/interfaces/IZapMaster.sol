@@ -3,7 +3,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 
-interface IMasterChef {
+interface IZapMaster {
     using BoringERC20 for IERC20;
     struct UserInfo {
         uint256 amount;     // How many LP tokens the user has provided.
