@@ -492,7 +492,6 @@ describe.only('Media1155 Test', async () => {
 
     describe('#setBid-without-setupAuction', () => {
       let bid1: any;
-      let bid2: any;
 
       beforeEach(async () => {
         bid1 = {
