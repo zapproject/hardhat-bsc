@@ -489,7 +489,11 @@ describe.only('Media1155 Test', async () => {
       });
 
       it.only('Should reject if the tokenId and ask arrays do not have the same length', async () => {
-        media1.setAskBatch([1], [ask, ask], signers[1].address);
+        await expect(
+          media1.setAskBatch([1, 2], [ask, ask, ask], signers[1].address)
+        ).to.be.revertedWith(
+          'Market: TokenId and Ask arrays do not have the same length'
+        );
       });
     });
 

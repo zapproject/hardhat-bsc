@@ -14,6 +14,7 @@ import {IMediaV2} from './IMediaV2.sol';
 import {Media1155} from '../Media1155.sol';
 import {IMarketV2} from './IMarketV2.sol';
 import {Ownable} from '../access/Ownable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media
