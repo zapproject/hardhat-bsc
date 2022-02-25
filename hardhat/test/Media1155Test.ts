@@ -450,8 +450,10 @@ describe('Media1155 Test', async () => {
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
       });
 
-      it.only('Should reject ', async () => {
-        await media1.setAsk(4, ask, signers[1].address);
+      it.only('Should reject if the owners tokenId balance is zero', async () => {
+        await expect(
+          media1.setAsk(4, ask, signers[1].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
       });
     });
 
