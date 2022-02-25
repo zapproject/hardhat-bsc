@@ -425,7 +425,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe('#setAsk', () => {
+    describe.only('#setAsk', () => {
       it('Should set the ask', async () => {
         await media1.setAsk(1, ask, signers[1].address);
 
@@ -448,6 +448,10 @@ describe('Media1155 Test', async () => {
         await expect(
           media1.setAsk(1, { ...ask, amount: 7 }, signers[1].address)
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
+      });
+
+      it.only('Should reject ', async () => {
+        await media1.setAsk(4, ask, signers[1].address);
       });
     });
 
@@ -725,7 +729,6 @@ describe('Media1155 Test', async () => {
         const balance = await zapTokenBsc.balanceOf(signers[4].address);
         expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
       });
-    
 
       it('Should not be able to remove a bid twice', async () => {
         await media1.connect(signers[6]).removeBid(1);

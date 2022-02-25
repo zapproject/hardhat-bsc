@@ -80,7 +80,7 @@ contract Media1155 is
         address spender,
         uint256 tokenId
     ) {
-        require(balanceOf(owner, tokenId) > 0);
+        require(balanceOf(owner, tokenId) > 0, 'Media: Token balance is zero');
 
         if (owner != spender) {
             require(
@@ -414,8 +414,8 @@ contract Media1155 is
     {
         require(
             access._creatorTokens[msg.sender].contains(tokenId) &&
-            msg.sender == owner, 
-            "Media: Must be creator of token to burn"
+                msg.sender == owner,
+            'Media: Must be creator of token to burn'
         );
         _burn(msg.sender, tokenId, amount);
     }
