@@ -24,7 +24,7 @@ const { deploy } = deployments;
 
 chai.use(solidity);
 
-describe.only('Media1155 Test', async () => {
+describe('Media1155 Test', async () => {
   let zapTokenBsc: ZapTokenBSC;
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
@@ -451,7 +451,7 @@ describe.only('Media1155 Test', async () => {
       });
     });
 
-    describe.only('#setAskBatch', () => {
+    describe('#setAskBatch', () => {
       it('Should set the ask of batch', async () => {
         await media1.setAskBatch(
           [1, 2, 3],
