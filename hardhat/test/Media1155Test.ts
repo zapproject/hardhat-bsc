@@ -450,13 +450,13 @@ describe('Media1155 Test', async () => {
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
       });
 
-      it.only('Should reject the ask if the tokenId does not exist', async () => {
+      it('Should reject the ask if the tokenId does not exist', async () => {
         await expect(
           media1.setAsk(4, ask, signers[1].address)
         ).to.be.revertedWith('Media: nonexistent token');
       });
 
-      it.only('Should reject the ask if the tokenId exists but the owner does not have a balance of that tokenId', async () => {
+      it('Should reject the ask if the tokenId exists but the owner does not have a balance of that tokenId', async () => {
         const ownerBalance = await media1.balanceOf(signers[1].address, 1);
         expect(ownerBalance.toNumber()).to.equal(1);
 
