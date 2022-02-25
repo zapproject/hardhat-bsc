@@ -488,7 +488,7 @@ describe.only('Media1155 Test', async () => {
         ).revertedWith('Market: Ask invalid for share splitting');
       });
 
-      it.only('Should reject if the tokenId and ask arrays do not have the same length', async () => {
+      it('Should reject if the tokenId and ask arrays do not have the same length', async () => {
         await expect(
           media1.setAskBatch([1, 2], [ask, ask, ask], signers[1].address)
         ).to.be.revertedWith(
