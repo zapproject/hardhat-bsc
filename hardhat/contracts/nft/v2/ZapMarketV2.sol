@@ -350,7 +350,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         override
         onlyMediaCaller
     {
-        require(tokenId.length == ask.length);
+        require(
+            tokenId.length == ask.length,
+            'Market: TokenId and Ask arrays do not have the same length'
+        );
 
         for (uint256 i = 0; i < tokenId.length; i++) {
             require(
