@@ -1,6 +1,6 @@
-import { ethers, upgrades, deployments, getNamedAccounts } from 'hardhat';
+import { ethers, upgrades, deployments } from 'hardhat';
 
-import { EventFilter, Event, ContractFactory } from 'ethers';
+import { EventFilter, Event } from 'ethers';
 
 import { solidity } from 'ethereum-waffle';
 
@@ -12,11 +12,10 @@ import { deploy1155Medias } from './utils';
 
 import { Media1155 } from '../typechain/Media1155';
 import { ZapMarketV2 } from '../typechain/ZapMarketV2';
-import { ZapVault } from '../typechain/ZapVault';
 import { Media1155Factory, ZapMarket, ZapMedia } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
-import { keccak256, formatBytes32String, arrayify } from 'ethers/lib/utils';
+import { formatBytes32String } from 'ethers/lib/utils';
 import { DeployResult } from 'hardhat-deploy/dist/types';
 
 const { BigNumber } = ethers;
@@ -560,7 +559,7 @@ describe.only('Media1155 Test', async () => {
         amount: 100,
         currency: zapTokenBsc.address,
         bidder: ownerWallet.address,
-        recipient: signers[8].address,
+        recipient: ownerWallet.address,
         spender: ownerWallet.address,
         sellOnShare: {
           value: BigInt(0)
@@ -687,12 +686,21 @@ describe.only('Media1155 Test', async () => {
 
       it('Should remove a bid and refund the bidder', async () => {
         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
+        const { amount } = await zapMarketV2.bidForTokenBidder(
+          media1.address,
+          1,
+          signers[6].address
+        );
+
+        expect(beforeBalance.toNumber()).to.equal(10000 - amount.toNumber());
 
         await media1.connect(signers[6]).removeBid(1);
 
         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
-        await media3.mint(signers[0].address, 1, 1, bidShares);
+        expect(afterBalance.toNumber()).to.equal(
+          beforeBalance.toNumber() + amount.toNumber()
+        );
       });
 
       it('Should set a bid', async () => {
@@ -780,47 +788,17 @@ describe.only('Media1155 Test', async () => {
       it('Should accept a bid', async () => {
         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
-        const beforeOwnerBalance = (
-          await zapTokenBsc.balanceOf(signers[5].address)
-        ).toNumber();
+        const postBidderBal = await zapTokenBsc.balanceOf(signers[5].address);
+        expect(postBidderBal.toNumber()).to.equal(9900);
 
-        const beforeCreatorBalance = (
-          await zapTokenBsc.balanceOf(signers[5].address)
-        ).toNumber();
-
-        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+        const creatorPreAcceptBal = await zapTokenBsc.balanceOf(
+          signers[1].address
+        );
 
         await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
 
         const newOwnerBalance = await media1.balanceOf(signers[5].address, 1);
-
-        const afterOwnerBalance = (
-          await zapTokenBsc.balanceOf(signers[5].address)
-        ).toNumber();
-
-        const afterCreatorBalance = (
-          await zapTokenBsc.balanceOf(signers[1].address)
-        ).toNumber();
-
-        const bidShares = await zapMarketV2.bidSharesForToken(
-          media1.address,
-          1
-        );
-
-        // expect(afterOwnerBalance, "Owner's balance Should increase by 35").eq(
-        //   beforeOwnerBalance + 35
-        // );
-
-        // expect(
-        //   afterCreatorBalance,
-        //   "Creator's balance Should increase by 15"
-        // ).eq(beforeCreatorBalance + 15);
-
-        expect(newOwnerBalance).eq(1);
-
-        expect(bidShares.owner.value).eq(BigInt(35000000000000000000));
-
-        expect(bidShares.creator.value).eq(BigInt(15000000000000000000));
+        expect(newOwnerBalance.toNumber()).to.equal(1);
       });
 
       it('Should emit a bid finalized event if the bid is accepted', async () => {
@@ -890,16 +868,15 @@ describe.only('Media1155 Test', async () => {
       });
 
       it('Should revert if a non-existent bid is accepted', async () => {
-        // await expect(
-        // media1.connect(signers[4]).acceptBid(
-        //   1,
-        //   {
-        //     ...bid,
-        //     bidder: '0x0000000000000000000000000000000000000000'
-        //   },
-        //   signers[4].address
-        // );
-        // ).revertedWith('Market: cannot accept bid of 0');
+        await expect(
+          media1
+            .connect(signers[4])
+            .acceptBid(
+              1,
+              { ...bid, bidder: '0x0000000000000000000000000000000000000000' },
+              signers[4].address
+            )
+        ).revertedWith('Market: cannot accept bid of 0');
       });
 
       it('Should revert if an invalid bid is accepted', async () => {
