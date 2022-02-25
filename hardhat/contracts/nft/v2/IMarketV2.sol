@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 pragma experimental ABIEncoderV2;
 
-import {Decimal} from '../../Decimal.sol';
+import {Decimal} from '../Decimal.sol';
 
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Market
@@ -80,8 +80,24 @@ interface IMarketV2 {
         bytes32 name,
         bytes32 symbol
     );
-    event Minted(uint256 indexed token, address indexed mediaContract);
-    event Burned(uint256 indexed token, address indexed mediaContract);
+    event Minted(
+        uint256 indexed token, 
+        address indexed mediaContract
+    );
+    event Burned(
+        uint256 indexed token, 
+        address indexed mediaContract
+    );
+    event MintedBatch(
+        uint256[] indexed token, 
+        uint256[] amount,
+        address indexed mediaContract
+    );
+    event BurnedBatch(
+        uint256[] indexed token, 
+        uint256[] amount,
+        address indexed mediaContract
+    );
 
     function bidForTokenBidder(
         address mediaContractAddress,
@@ -124,8 +140,7 @@ interface IMarketV2 {
         address deployer,
         address mediaContract,
         bytes32 name,
-        bytes32 symbol,
-        bool isInternal
+        bytes32 symbol
     ) external;
 
     function revokeRegistration(address mediaContract) external;
@@ -140,38 +155,29 @@ interface IMarketV2 {
         address mediaContract
     ) external;
 
-    function setBidShares(
-        address mediaContract,
-        uint256 tokenId,
-        BidShares calldata bidShares
-    ) external;
+    function setBidShares(uint256 tokenId, BidShares calldata bidShares)
+        external;
 
-    function setAsk(
-        address mediaContract,
-        uint256 tokenId,
-        Ask calldata ask
-    ) external;
+    function setAsk(uint256 tokenId, Ask calldata ask) external;
 
-    function removeAsk(address mediaContract, uint256 tokenId) external;
+    function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask) external;
+
+    function removeAsk(uint256 tokenId) external;
 
     function setBid(
-        address mediaContract,
+        address mediaAddress,
         uint256 tokenId,
         Bid calldata bid,
-        address spender
+        address spender,
+        address owner
     ) external;
 
-    function removeBid(
-        address mediaContract,
-        uint256 tokenId,
-        address bidder
-    ) external;
+    function removeBid(uint256 tokenId, address bidder) external;
 
     function acceptBid(
         address mediaContractAddress,
         uint256 tokenId,
-        Bid calldata expectedBid
+        Bid calldata expectedBid,
+        address owner
     ) external;
-
-    function _isConfigured(address mediaContract) external view returns (bool);
 }
