@@ -725,34 +725,7 @@ describe('Media1155 Test', async () => {
         const balance = await zapTokenBsc.balanceOf(signers[4].address);
         expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
       });
-    });
-
-    describe('#removeBid', () => {
-      beforeEach(async () => {
-        await setupAuction(media1, signers[1]);
-      });
-
-      it('Should revert if the bidder has not placed a bid', async () => {
-        await expect(media1.connect(signers[4]).removeBid(1)).revertedWith(
-          'Market: cannot remove bid amount of 0'
-        );
-      });
-
-      it('Should revert if the tokenId has not yet been created', async () => {
-        await expect(media1.connect(signers[4]).removeBid(100)).revertedWith(
-          'Market: cannot remove bid amount of 0'
-        );
-      });
-
-      it('Should remove a bid and refund the bidder', async () => {
-        const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-        await media1.connect(signers[6]).removeBid(1);
-
-        const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-        expect(afterBalance.toNumber()).eq(beforeBalance.toNumber() + 100);
-      });
+    
 
       it('Should not be able to remove a bid twice', async () => {
         await media1.connect(signers[6]).removeBid(1);
