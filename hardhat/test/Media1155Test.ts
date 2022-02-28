@@ -17,6 +17,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import { formatBytes32String } from 'ethers/lib/utils';
 import { DeployResult } from 'hardhat-deploy/dist/types';
+import { execPath } from 'process';
 
 const { BigNumber } = ethers;
 
@@ -372,6 +373,21 @@ describe('Media1155 Test', async () => {
         expect(balance.eq(1));
       });
 
+      it('Should revert if the tokenId, amount, and bidShares lengths are mismatched', async () => {
+        await expect(
+          media1
+            .connect(signers[4])
+            .mintBatch(
+              signers[4].address,
+              [4, 5, 6],
+              [1],
+              [bidShares, bidShares]
+            )
+        ).to.be.revertedWith(
+          'Media: The tokenId, amount, and bidShares lengths are mismatched'
+        );
+      });
+
       it('Should mint token', async () => {
         await media1
           .connect(signers[5])
@@ -427,27 +443,171 @@ describe('Media1155 Test', async () => {
 
     describe('#setAsk', () => {
       it('Should set the ask', async () => {
+        // Signer[1] sets an ask on tokenId 1
         await media1.setAsk(1, ask, signers[1].address);
 
+        // Returns the ask details on tokenId 1
         let currentAsk = await zapMarketV2.currentAskForToken(
           media1.address,
           1
         );
 
+        // The returned ask amount should equal the amount set
         expect(currentAsk.amount.toNumber() == ask.amount);
+
+        // The returned ask currency should equal the currency set
         expect(currentAsk.currency == ask.currency);
       });
 
       it('Should reject if the ask is 0', async () => {
+        // Should reject due to the ask amount not being abe to be equally divided between shares
         await expect(
           media1.setAsk(1, { ...ask, amount: 0 }, signers[1].address)
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
       });
 
       it('Should reject if the ask amount is invalid and cannot be split', async () => {
+        // Cannot set an ask with an invalid amount
         await expect(
           media1.setAsk(1, { ...ask, amount: 7 }, signers[1].address)
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
+      });
+
+      it('Should reject the ask if the tokenId does not exist', async () => {
+        // Cannot set an ask on a nonexistent tokenId
+        await expect(
+          media1.setAsk(4, ask, signers[1].address)
+        ).to.be.revertedWith('Media: nonexistent token');
+      });
+
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+        // Returns signers[1] balance of tokenId 1 before transferring
+        const ownerBalance = await media1.balanceOf(signers[1].address, 1);
+
+        // The returned balance should equal 1
+        expect(ownerBalance.toNumber()).to.equal(1);
+
+        // Signers[1] transfers tokenId 1 to signers[19] and will no longer have a balance of this token
+        await media1.transferFrom(
+          signers[1].address,
+          signers[19].address,
+          1,
+          1
+        );
+
+        // Returns signers[1] balance of tokenId 1 after transferring
+        const oldOwnerBalance = await media1.balanceOf(signers[1].address, 1);
+
+        // The returned balance should equal 0
+        expect(oldOwnerBalance.toNumber()).to.equal(0);
+
+        // Returns signers[19] balance of tokenId 1 after transferring
+        const newOwnerBalance = await media1.balanceOf(signers[19].address, 1);
+
+        // The returned balance should equal 1
+        expect(newOwnerBalance.toNumber()).to.equal(1);
+
+        // Should reject due to an attempt to set an ask on an existing token with a balance of 0
+        await expect(
+          media1.setAsk(1, ask, signers[1].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
+    });
+
+    describe('#removeAsk', () => {
+      beforeEach(async () => {
+        // Signer[1] sets an ask on tokenId 1
+        await media1.setAsk(1, ask, signers[1].address);
+      });
+
+      it('Should remove the ask', async () => {
+        // Returns the ask set on tokenId 1
+        let postAsk = await zapMarketV2.currentAskForToken(media1.address, 1);
+
+        // The returned amount post ask should equal the amount set
+        expect(postAsk.amount.toNumber()).to.equal(ask.amount);
+
+        // The returned currency post ask should equal the currency set
+        expect(postAsk.currency).to.equal(ask.currency);
+
+        // Signers[1] removes the ask on tokenId 1
+        await media1.removeAsk(1, signers[1].address);
+
+        // Returns the ask set on tokenId 1 after removal
+        let postRemoveAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
+
+        // The returned amount post removal should equal the 0
+        expect(postRemoveAsk.amount.toNumber()).to.equal(0);
+
+        // The returned currency post removal should equal a zero address
+        expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      });
+
+      it('Should remove ask by the approved', async () => {
+        // Return the pre approve for all status
+        const preApprovedStatus = await media1.isApprovedForAll(
+          signers[1].address,
+          signers[17].address
+        );
+
+        // The returned status should equal false
+        expect(preApprovedStatus).to.be.false;
+
+        // Return the pre remove ask
+        const preRemoveAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
+
+        // The returned amount should equal the amount set on ask
+        expect(preRemoveAsk.amount).to.equal(ask.amount);
+
+        // The returned amount should equal the currenct set on ask
+        expect(preRemoveAsk.currency).to.equal(ask.currency);
+
+        // Signers[1] approves signers[17] for all assets
+        await media1.setApprovalForAll(signers[17].address, true);
+
+        // Return the post approval for all status
+        const postApprovedStatus = await media1.isApprovedForAll(
+          signers[1].address,
+          signers[17].address
+        );
+
+        // The returned status should equal true
+        expect(postApprovedStatus).to.be.true;
+
+        // Signers[17] is approved and able to remove an ask on the behalf of signers[1]
+        await media1.connect(signers[17]).removeAsk(1, signers[1].address);
+
+        // Returns the ask post removal
+        const postRemoveAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
+
+        // The returned amount should equal 0
+        expect(postRemoveAsk.amount).to.equal(0);
+
+        // The returned currency should equal a zero address
+        expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      });
+
+      it('Should reject if the tokenId does not exist', async () => {
+        // Cannot remove an ask on a nonexistent tokenId
+        await expect(
+          media1.removeAsk(4, signers[1].address)
+        ).to.be.revertedWith('Media: nonexistent token');
+      });
+
+      it('Should reject if the caller is not approved or the owner', async () => {
+        // Only the owner or approved can remove an ask
+        await expect(
+          media1.connect(signers[17]).removeAsk(1, signers[1].address)
+        ).to.be.revertedWith('Media: Only approved or owner');
       });
     });
 
@@ -745,7 +905,6 @@ describe('Media1155 Test', async () => {
         const balance = await zapTokenBsc.balanceOf(signers[4].address);
         expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
       });
-    
 
       it('Should not be able to remove a bid twice', async () => {
         await media1.connect(signers[6]).removeBid(1);
@@ -901,6 +1060,14 @@ describe('Media1155 Test', async () => {
             .acceptBid(1, invalidBid, signers[4].address)
         ).revertedWith('Market: Bid invalid for share splitting');
       });
+
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+
+        await expect(
+          media1.connect(signers[4]).acceptBid(2, bid, signers[4].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
     });
 
     describe('#burn', () => {
@@ -936,6 +1103,31 @@ describe('Media1155 Test', async () => {
         await expect(
           media3.connect(signers[5]).burn(1, 1, signers[3].address)
         ).revertedWith('Media: Only approved or owner');
+      });
+
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+        const ownerPreBal = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPreBal.toNumber()).to.equal(1);
+
+        const newOwnerPreBal = await media3.balanceOf(signers[17].address, 1);
+        expect(newOwnerPreBal.toNumber()).to.equal(0);
+
+        await media3.transferFrom(
+          signers[3].address,
+          signers[17].address,
+          1,
+          1
+        );
+
+        const ownerPostBal = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPostBal.toNumber()).to.equal(0);
+
+        const newOwnerBal = await media3.balanceOf(signers[17].address, 1);
+        expect(newOwnerBal.toNumber()).to.equal(1);
+
+        await expect(media3.burn(1, 1, signers[3].address)).to.be.revertedWith(
+          'Media: Token balance is zero'
+        );
       });
 
       it('should burn a token', async () => {
