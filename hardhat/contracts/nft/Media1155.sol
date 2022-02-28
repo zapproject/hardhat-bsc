@@ -80,12 +80,11 @@ contract Media1155 is
         address spender,
         uint256 tokenId
     ) {
-        require(balanceOf(owner, tokenId) > 0);
+        require(balanceOf(owner, tokenId) > 0, 'Media: Token balance is zero');
 
         if (owner != spender) {
             require(
                 ERC1155Upgradeable.isApprovedForAll(owner, spender),
-                // remove revert string before deployment to mainnet
                 'Media: Only approved or owner'
             );
         }
@@ -207,8 +206,10 @@ contract Media1155 is
 
         require(
             _tokenId.length == _amount.length &&
-                _amount.length == bidShares.length
+                _amount.length == bidShares.length,
+            'Media: The tokenId, amount, and bidShares lengths are mismatched'
         );
+
         for (uint256 i = 0; i < bidShares.length; i++) {
             require(
                 bidShares[i].collaborators.length ==
@@ -296,8 +297,8 @@ contract Media1155 is
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
         IMarketV2(access.marketContract).setAsk(tokenId, ask);
     }
@@ -326,8 +327,8 @@ contract Media1155 is
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
         IMarketV2(access.marketContract).removeAsk(tokenId);
     }
@@ -414,8 +415,8 @@ contract Media1155 is
     {
         require(
             access._creatorTokens[msg.sender].contains(tokenId) &&
-            msg.sender == owner, 
-            "Media: Must be creator of token to burn"
+                msg.sender == owner,
+            'Media: Must be creator of token to burn'
         );
         _burn(msg.sender, tokenId, amount);
     }
