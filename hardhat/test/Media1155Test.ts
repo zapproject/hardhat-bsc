@@ -427,39 +427,51 @@ describe('Media1155 Test', async () => {
 
     describe('#setAsk', () => {
       it('Should set the ask', async () => {
+        // Signer[1] sets an ask on tokenId 1
         await media1.setAsk(1, ask, signers[1].address);
 
+        // Returns the ask details on tokenId 1
         let currentAsk = await zapMarketV2.currentAskForToken(
           media1.address,
           1
         );
 
+        // The returned ask amount should equal the amount set
         expect(currentAsk.amount.toNumber() == ask.amount);
+
+        // The returned ask currency should equal the currency set
         expect(currentAsk.currency == ask.currency);
       });
 
       it('Should reject if the ask is 0', async () => {
+        // Should reject due to the ask amount not being abe to be equally divided between shares
         await expect(
           media1.setAsk(1, { ...ask, amount: 0 }, signers[1].address)
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
       });
 
       it('Should reject if the ask amount is invalid and cannot be split', async () => {
+        // Cannot set an ask with an invalid amount
         await expect(
           media1.setAsk(1, { ...ask, amount: 7 }, signers[1].address)
         ).to.be.revertedWith('Market: Ask invalid for share splitting');
       });
 
       it('Should reject the ask if the tokenId does not exist', async () => {
+        // Cannot set an ask on a nonexistent tokenId
         await expect(
           media1.setAsk(4, ask, signers[1].address)
         ).to.be.revertedWith('Media: nonexistent token');
       });
 
       it('Should reject the ask if the tokenId exists but the owner does not have a balance of that tokenId', async () => {
+        // Returns signers[1] balance of tokenId 1 before transferring
         const ownerBalance = await media1.balanceOf(signers[1].address, 1);
+
+        // The returned balance should equal 1
         expect(ownerBalance.toNumber()).to.equal(1);
 
+        // Signers[1] transfers tokenId 1 to signers[19] and will no longer have a balance of this token
         await media1.transferFrom(
           signers[1].address,
           signers[19].address,
@@ -467,12 +479,19 @@ describe('Media1155 Test', async () => {
           1
         );
 
+        // Returns signers[1] balance of tokenId 1 after transferring
         const oldOwnerBalance = await media1.balanceOf(signers[1].address, 1);
+
+        // The returned balance should equal 0
         expect(oldOwnerBalance.toNumber()).to.equal(0);
 
+        // Returns signers[19] balance of tokenId 1 after transferring
         const newOwnerBalance = await media1.balanceOf(signers[19].address, 1);
+
+        // The returned balance should equal 1
         expect(newOwnerBalance.toNumber()).to.equal(1);
 
+        // Should reject due to an attempt to set an ask on an existing token with a balance of 0
         await expect(
           media1.setAsk(1, ask, signers[1].address)
         ).to.be.revertedWith('Media: Token balance is zero');
