@@ -268,7 +268,7 @@ contract Media1155 is
             );
         }
 
-        _mintForCreator(to, _id, _amount, bidShares);
+        _mintForCreator(_to, _id, _amount, bidShares);
     }
 
     /**
