@@ -302,15 +302,6 @@ describe('Media1155 Test', async () => {
       expect(balance.eq(1));
     });
 
-    it('Should mint token', async () => {
-      await media1
-        .connect(signers[5])
-        .mint(signers[5].address, 4, 1, bidShares);
-
-      const balance = await media2.balanceOf(signers[3].address, 1);
-      expect(balance.eq(1));
-    });
-
     it('Should not be able to mint a token with bid shares summing to less than 100', async () => {
       await expect(
         media1.mint(signers[1].address, 1, 1, {
@@ -320,6 +311,42 @@ describe('Media1155 Test', async () => {
           }
         })
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
+    });
+
+    it('Should mint tokens to the owner', async () => {
+      // Signers[1] is connected to media1 by default,
+      // Signers[1] will be able mint tokens to itself by passing in their address
+      await media1.mint(signers[1].address, 4, 4, bidShares);
+
+      // Returns signers[1] tokenId 4 balance
+      const balance = await media1.balanceOf(signers[1].address, 4);
+
+      // Should equal the amount minted
+      expect(balance.eq(4));
+    });
+
+    it('Should mint tokens to an address other than the owner without overriding the signer', async () => {
+      // Signers[1] is connected to media1 by default and is able to mint to other addresses
+      await media1.mint(signers[4].address, 4, 4, bidShares);
+
+      // Returns signers[4] tokenId 4 balance
+      const balance = await media1.balanceOf(signers[4].address, 4);
+
+      // Should equal the amount minted
+      expect(balance.eq(4));
+    });
+
+    it('Should mint tokens to an address other than the owner while overriding the signer', async () => {
+      // Signers[4] is able to connect to media1 as a signer and mint tokens to itself
+      await media1
+        .connect(signers[4])
+        .mint(signers[4].address, 4, 4, bidShares);
+
+      // Returns signers[4] tokenId balance
+      const balance = await media1.balanceOf(signers[4].address, 4);
+
+      // Should equal the amount minted
+      expect(balance.eq(4));
     });
 
     describe('#mintBatch', () => {
@@ -657,7 +684,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe.only('#setBid', () => {
+    describe('#setBid', () => {
       let bid1: any;
 
       beforeEach(async () => {
@@ -725,18 +752,16 @@ describe('Media1155 Test', async () => {
 
         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
-        await media1
-          .connect(signers[6])
-          .setBid(
-            1,
-            {
-              ...bid1,
-              amount: 200,
-              bidder: signers[6].address,
-              recipient: signers[6].address
-            },
-            signers[4].address
-          );
+        await media1.connect(signers[6]).setBid(
+          1,
+          {
+            ...bid1,
+            amount: 200,
+            bidder: signers[6].address,
+            recipient: signers[6].address
+          },
+          signers[4].address
+        );
 
         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
