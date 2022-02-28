@@ -313,7 +313,7 @@ describe('Media1155 Test', async () => {
       ).to.be.revertedWith('Market: Invalid bid shares, must sum to 100');
     });
 
-    it('Should mint tokens to the owner', async () => {
+    it('Should mint tokens to the owner without overriding the signer', async () => {
       // Signers[1] is connected to media1 by default,
       // Signers[1] will be able mint tokens to itself by passing in their address
       await media1.mint(signers[1].address, 4, 4, bidShares);
