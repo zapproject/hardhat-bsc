@@ -1025,6 +1025,14 @@ describe('Media1155 Test', async () => {
             .acceptBid(1, invalidBid, signers[4].address)
         ).revertedWith('Market: Bid invalid for share splitting');
       });
+
+      it.only('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+
+        await expect(
+          media1.connect(signers[4]).acceptBid(2, bid, signers[4].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
     });
 
     describe('#burn', () => {
