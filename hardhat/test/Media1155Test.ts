@@ -373,6 +373,21 @@ describe('Media1155 Test', async () => {
         expect(balance.eq(1));
       });
 
+      it('Should revert if the tokenId, amount, and bidShares lengths are mismatched', async () => {
+        await expect(
+          media1
+            .connect(signers[4])
+            .mintBatch(
+              signers[4].address,
+              [4, 5, 6],
+              [1],
+              [bidShares, bidShares]
+            )
+        ).to.be.revertedWith(
+          'Media: The tokenId, amount, and bidShares lengths are mismatched'
+        );
+      });
+
       it('Should mint token', async () => {
         await media1
           .connect(signers[5])
