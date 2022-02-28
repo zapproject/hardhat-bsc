@@ -187,6 +187,19 @@ contract Media1155 is
         _supportedInterfaces[interfaceId] = true;
     }
 
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual override {
+        for (uint i = 0; i < ids.length; i++) {
+            IMarketV2(access.marketContract).removeAsk(ids[i]);
+        }
+    }
+
     /* ****************
      * Public Functions
      * ****************

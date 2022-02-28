@@ -926,7 +926,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe.skip('#transfer', () => {
+    describe('#transfer', () => {
       it('should remove the ask after a transfer', async () => {
         ask.currency = zapTokenBsc.address;
 
