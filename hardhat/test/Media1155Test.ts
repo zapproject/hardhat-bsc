@@ -498,6 +498,37 @@ describe('Media1155 Test', async () => {
       });
     });
 
+    describe.only('#removeAsk', () => {
+      it('Should remove the ask', async () => {
+        // Signer[1] sets an ask on tokenId 1
+        await media1.setAsk(1, ask, signers[1].address);
+
+        // Returns the ask set on tokenId 1
+        let postAsk = await zapMarketV2.currentAskForToken(media1.address, 1);
+
+        // The returned amount post ask should equal the amount set
+        expect(postAsk.amount.toNumber()).to.equal(ask.amount);
+
+        // The returned currency post ask should equal the currency set
+        expect(postAsk.currency).to.equal(ask.currency);
+
+        // Signers[1] removes the ask on tokenId 1
+        await media1.removeAsk(1, signers[1].address);
+
+        // Returns the ask set on tokenId 1 after removal
+        let postRemoveAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
+
+        // The returned amount post removal should equal the 0
+        expect(postRemoveAsk.amount.toNumber()).to.equal(0);
+
+        // The returned currency post removal should equal a zero address
+        expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      });
+    });
+
     describe('#setAskBatch', () => {
       it('Should set the ask of batch', async () => {
         await media1.setAskBatch(
