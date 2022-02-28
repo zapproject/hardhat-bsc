@@ -17,6 +17,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 import { formatBytes32String } from 'ethers/lib/utils';
 import { DeployResult } from 'hardhat-deploy/dist/types';
+import { execPath } from 'process';
 
 const { BigNumber } = ethers;
 
@@ -534,6 +535,12 @@ describe('Media1155 Test', async () => {
         await expect(
           media1.removeAsk(4, signers[1].address)
         ).to.be.revertedWith('Media: nonexistent token');
+      });
+
+      it('Should reject if the caller is not approved or the owner', async () => {
+        await expect(
+          media1.connect(signers[17]).removeAsk(1, signers[1].address)
+        ).to.be.revertedWith('Media: Only approved or owner');
       });
     });
 
