@@ -499,7 +499,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe.only('#removeAsk', () => {
+    describe('#removeAsk', () => {
       beforeEach(async () => {
         // Signer[1] sets an ask on tokenId 1
         await media1.setAsk(1, ask, signers[1].address);
@@ -532,46 +532,64 @@ describe('Media1155 Test', async () => {
       });
 
       it('Should remove ask by the approved', async () => {
+        // Return the pre approve for all status
         const preApprovedStatus = await media1.isApprovedForAll(
           signers[1].address,
           signers[17].address
         );
+
+        // The returned status should equal false
         expect(preApprovedStatus).to.be.false;
 
+        // Return the pre remove ask
         const preRemoveAsk = await zapMarketV2.currentAskForToken(
           media1.address,
           1
         );
 
+        // The returned amount should equal the amount set on ask
         expect(preRemoveAsk.amount).to.equal(ask.amount);
+
+        // The returned amount should equal the currenct set on ask
         expect(preRemoveAsk.currency).to.equal(ask.currency);
 
+        // Signers[1] approves signers[17] for all assets
         await media1.setApprovalForAll(signers[17].address, true);
 
+        // Return the post approval for all status
         const postApprovedStatus = await media1.isApprovedForAll(
           signers[1].address,
           signers[17].address
         );
+
+        // The returned status should equal true
         expect(postApprovedStatus).to.be.true;
 
+        // Signers[17] is approved and able to remove an ask on the behalf of signers[1]
         await media1.connect(signers[17]).removeAsk(1, signers[1].address);
 
+        // Returns the ask post removal
         const postRemoveAsk = await zapMarketV2.currentAskForToken(
           media1.address,
           1
         );
 
+        // The returned amount should equal 0
         expect(postRemoveAsk.amount).to.equal(0);
+
+        // The returned currency should equal a zero address
         expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
       });
 
       it('Should reject if the tokenId does not exist', async () => {
+        // Cannot remove an ask on a nonexistent tokenId
         await expect(
           media1.removeAsk(4, signers[1].address)
         ).to.be.revertedWith('Media: nonexistent token');
       });
 
       it('Should reject if the caller is not approved or the owner', async () => {
+        // Only the owner or approved can remove an ask
         await expect(
           media1.connect(signers[17]).removeAsk(1, signers[1].address)
         ).to.be.revertedWith('Media: Only approved or owner');
