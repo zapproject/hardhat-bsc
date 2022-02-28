@@ -1026,7 +1026,7 @@ describe('Media1155 Test', async () => {
         ).revertedWith('Market: Bid invalid for share splitting');
       });
 
-      it.only('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
         await expect(
