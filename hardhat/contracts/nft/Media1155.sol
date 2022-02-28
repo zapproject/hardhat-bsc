@@ -85,7 +85,6 @@ contract Media1155 is
         if (owner != spender) {
             require(
                 ERC1155Upgradeable.isApprovedForAll(owner, spender),
-                // remove revert string before deployment to mainnet
                 'Media: Only approved or owner'
             );
         }
