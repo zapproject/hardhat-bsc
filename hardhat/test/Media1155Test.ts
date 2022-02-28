@@ -499,10 +499,12 @@ describe('Media1155 Test', async () => {
     });
 
     describe.only('#removeAsk', () => {
-      it('Should remove the ask', async () => {
+      beforeEach(async () => {
         // Signer[1] sets an ask on tokenId 1
         await media1.setAsk(1, ask, signers[1].address);
+      });
 
+      it('Should remove the ask', async () => {
         // Returns the ask set on tokenId 1
         let postAsk = await zapMarketV2.currentAskForToken(media1.address, 1);
 
@@ -526,6 +528,10 @@ describe('Media1155 Test', async () => {
 
         // The returned currency post removal should equal a zero address
         expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      });
+
+      it('Should reject if the tokenId does not exist', async () => {
+        await media1.removeAsk(4, signers[1].address);
       });
     });
 

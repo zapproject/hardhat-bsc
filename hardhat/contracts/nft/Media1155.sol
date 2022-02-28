@@ -325,8 +325,8 @@ contract Media1155 is
         external
         override
         nonReentrant
-        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
         IMarketV2(access.marketContract).removeAsk(tokenId);
     }
