@@ -531,6 +531,40 @@ describe('Media1155 Test', async () => {
         expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
       });
 
+      it('Should remove ask by the approved', async () => {
+        const preApprovedStatus = await media1.isApprovedForAll(
+          signers[1].address,
+          signers[17].address
+        );
+        expect(preApprovedStatus).to.be.false;
+
+        const preRemoveAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
+
+        expect(preRemoveAsk.amount).to.equal(ask.amount);
+        expect(preRemoveAsk.currency).to.equal(ask.currency);
+
+        await media1.setApprovalForAll(signers[17].address, true);
+
+        const postApprovedStatus = await media1.isApprovedForAll(
+          signers[1].address,
+          signers[17].address
+        );
+        expect(postApprovedStatus).to.be.true;
+
+        await media1.connect(signers[17]).removeAsk(1, signers[1].address);
+
+        const postRemoveAsk = await zapMarketV2.currentAskForToken(
+          media1.address,
+          1
+        );
+
+        expect(postRemoveAsk.amount).to.equal(0);
+        expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      });
+
       it('Should reject if the tokenId does not exist', async () => {
         await expect(
           media1.removeAsk(4, signers[1].address)
