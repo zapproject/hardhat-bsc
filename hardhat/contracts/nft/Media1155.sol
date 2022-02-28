@@ -206,8 +206,10 @@ contract Media1155 is
 
         require(
             _tokenId.length == _amount.length &&
-                _amount.length == bidShares.length
+                _amount.length == bidShares.length,
+            'Media: The tokenId, amount, and bidShares lengths are mismatched'
         );
+
         for (uint256 i = 0; i < bidShares.length; i++) {
             require(
                 bidShares[i].collaborators.length ==

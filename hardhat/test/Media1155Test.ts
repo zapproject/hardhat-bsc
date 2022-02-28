@@ -465,7 +465,7 @@ describe('Media1155 Test', async () => {
         ).to.be.revertedWith('Media: nonexistent token');
       });
 
-      it('Should reject the ask if the tokenId exists but the owner does not have a balance of that tokenId', async () => {
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
         // Returns signers[1] balance of tokenId 1 before transferring
         const ownerBalance = await media1.balanceOf(signers[1].address, 1);
 
@@ -1068,6 +1068,31 @@ describe('Media1155 Test', async () => {
         await expect(
           media3.connect(signers[5]).burn(1, 1, signers[3].address)
         ).revertedWith('Media: Only approved or owner');
+      });
+
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+        const ownerPreBal = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPreBal.toNumber()).to.equal(1);
+
+        const newOwnerPreBal = await media3.balanceOf(signers[17].address, 1);
+        expect(newOwnerPreBal.toNumber()).to.equal(0);
+
+        await media3.transferFrom(
+          signers[3].address,
+          signers[17].address,
+          1,
+          1
+        );
+
+        const ownerPostBal = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPostBal.toNumber()).to.equal(0);
+
+        const newOwnerBal = await media3.balanceOf(signers[17].address, 1);
+        expect(newOwnerBal.toNumber()).to.equal(1);
+
+        await expect(media3.burn(1, 1, signers[3].address)).to.be.revertedWith(
+          'Media: Token balance is zero'
+        );
       });
 
       it('should burn a token', async () => {
