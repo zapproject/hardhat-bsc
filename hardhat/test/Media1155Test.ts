@@ -497,7 +497,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe('#setBid-without-setupAuction', () => {
+    describe.only('#setBid', () => {
       let bid1: any;
 
       beforeEach(async () => {
@@ -512,7 +512,7 @@ describe('Media1155 Test', async () => {
           }
         };
 
-        await media1.mint(signers[0].address, 1, 1, bidShares);
+        await media1.mint(signers[0].address, 2, 1, bidShares);
         await media1.setApprovalForAll(zapMarketV2.address, true);
       });
 
@@ -524,7 +524,7 @@ describe('Media1155 Test', async () => {
           .approve(zapMarketV2.address, bid1.amount - 1);
 
         await expect(
-          media1.connect(signers[1]).setBid(1, bid1, signers[1].address)
+          media1.connect(signers[1]).setBid(2, bid1, signers[1].address)
         ).to.be.revertedWith('SafeERC20: low-level call failed');
       });
 
@@ -536,7 +536,7 @@ describe('Media1155 Test', async () => {
           .approve(zapMarketV2.address, bid1.amount / 2);
 
         await expect(
-          media1.connect(signers[1]).setBid(1, bid1, signers[1].address)
+          media1.connect(signers[1]).setBid(2, bid1, signers[1].address)
         ).to.be.revertedWith('SafeERC20: low-level call failed');
       });
 
@@ -551,11 +551,31 @@ describe('Media1155 Test', async () => {
         await zapTokenBsc.connect(signers[1]).approve(media3.address, 100000);
 
         expect(
-          await media1.connect(signers[1]).setBid(1, bid1, signers[0].address)
+          await media1.connect(signers[1]).setBid(2, bid1, signers[0].address)
         );
 
         const balance = await zapTokenBsc.balanceOf(signers[1].address);
         expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
+      });
+
+      it('should refund a bid if one already exists for the bidder', async () => {
+
+        await setupAuction(media1, signers[1]);
+
+        await media1.connect(signers[4]).setAsk(1, ask, signers[4].address);
+
+        const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        await media1.connect(signers[6]).setBid(1, { ...bid1, amount: 200, bidder: signers[6].address, recipient: signers[6].address }, signers[4].address);
+
+        const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        expect(afterBalance.toNumber() - 100).eq(beforeBalance.toNumber() - 200);
+
+        // bidder should have the token now that the bid exceeded ask price
+        const balance = await media1.balanceOf(signers[6].address, 1);
+        
+        expect(balance).eq(1);
       });
     });
 

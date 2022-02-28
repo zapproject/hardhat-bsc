@@ -438,7 +438,6 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         );
 
         emit BidCreated(msg.sender, tokenId, bid);
-
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
