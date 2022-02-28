@@ -253,7 +253,7 @@ describe('Media1155 Test', async () => {
     });
   });
 
-  describe('#mint', () => {
+  describe.only('#mint', () => {
     it('Should not mint a token if the caller is not approved', async () => {
       await expect(
         media2.connect(signers[4]).mint(signers[4].address, 1, 1, bidShares)
@@ -719,22 +719,34 @@ describe('Media1155 Test', async () => {
       });
 
       it('should refund a bid if one already exists for the bidder', async () => {
-
         await setupAuction(media1, signers[1]);
 
         await media1.connect(signers[4]).setAsk(1, ask, signers[4].address);
 
         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
-        await media1.connect(signers[6]).setBid(1, { ...bid1, amount: 200, bidder: signers[6].address, recipient: signers[6].address }, signers[4].address);
+        await media1
+          .connect(signers[6])
+          .setBid(
+            1,
+            {
+              ...bid1,
+              amount: 200,
+              bidder: signers[6].address,
+              recipient: signers[6].address
+            },
+            signers[4].address
+          );
 
         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
 
-        expect(afterBalance.toNumber() - 100).eq(beforeBalance.toNumber() - 200);
+        expect(afterBalance.toNumber() - 100).eq(
+          beforeBalance.toNumber() - 200
+        );
 
         // bidder should have the token now that the bid exceeded ask price
         const balance = await media1.balanceOf(signers[6].address, 1);
-        
+
         expect(balance).eq(1);
       });
     });
