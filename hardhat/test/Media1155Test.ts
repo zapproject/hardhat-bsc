@@ -531,7 +531,9 @@ describe('Media1155 Test', async () => {
       });
 
       it('Should reject if the tokenId does not exist', async () => {
-        await media1.removeAsk(4, signers[1].address);
+        await expect(
+          media1.removeAsk(4, signers[1].address)
+        ).to.be.revertedWith('Media: nonexistent token');
       });
     });
 
