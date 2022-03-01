@@ -254,7 +254,8 @@ describe('Media1155 Test', async () => {
   });
 
   describe.only('#mint', () => {
-    it('Should not mint a token if the caller is not approved', async () => {
+    it('Should not mint a token if the caller is not approved on a non permissible media contract', async () => {
+      // Signers cannot mint on a media contract if theyre not approved by the owner
       await expect(
         media2.connect(signers[4]).mint(signers[4].address, 1, 1, bidShares)
       ).to.be.revertedWith('Media: Only Approved users can mint');
@@ -262,6 +263,7 @@ describe('Media1155 Test', async () => {
 
     it("Should not mint if a collaborator's share has not been defined", async () => {
       let testBidShares = bidShares;
+
       testBidShares = {
         ...testBidShares,
         collabShares: [
@@ -271,6 +273,7 @@ describe('Media1155 Test', async () => {
         ]
       };
 
+      // Collaborator length has to match collabShares
       await expect(
         media2.mint(signers[0].address, 1, 1, testBidShares)
       ).to.be.revertedWith(
@@ -278,31 +281,24 @@ describe('Media1155 Test', async () => {
       );
     });
 
-    it('Should mint token if caller is approved', async () => {
+    it('Should mint token if caller is approved on a non permissible media contract', async () => {
+      // Signers[2] approves signers[3] to mint on media2
       await media2.approveToMint(signers[3].address);
 
-      // expect(
+      // Signers[3] is connected to media2 as a signer and has permission to mint
       await media2
         .connect(signers[3])
         .mint(signers[3].address, 1, 1, bidShares);
-      // ).to.be.ok;
 
+      // Returns signers[3] tokenId 1 balance
       const balance = await media2.balanceOf(signers[3].address, 1);
-      expect(balance.eq(1));
-    });
 
-    it('Should mint a permissive token without approval', async () => {
-      expect(
-        await media1
-          .connect(signers[4])
-          .mint(signers[4].address, 4, 1, bidShares)
-      ).to.be.ok;
-
-      const balance = await media1.balanceOf(signers[4].address, 1);
+      // The returned balance should equal the amount minted
       expect(balance.eq(1));
     });
 
     it('Should not be able to mint a token with bid shares summing to less than 100', async () => {
+      // BidShares cannot be evenly split the signer will not be able to mint
       await expect(
         media1.mint(signers[1].address, 1, 1, {
           ...bidShares,
