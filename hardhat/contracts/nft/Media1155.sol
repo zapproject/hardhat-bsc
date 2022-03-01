@@ -101,11 +101,17 @@ contract Media1155 is
         address spender,
         uint256[] calldata tokenId
     ) {
-        // require(
-        //     ERC1155Upgradeable.isApprovedForAll(spender, tokenId),
-        //     // remove revert string before deployment to mainnet
-        //     'Media: Only approved or owner'
-        // );
+        for (uint i = 0; i < tokenId.length; i++){
+            require(balanceOf(owner, tokenId[i]) > 0, 'Media: Token balance is zero');
+        }
+
+        if (owner != spender) {
+            require(
+                ERC1155Upgradeable.isApprovedForAll(owner, spender),
+                'Media: Only approved or owner'
+            );
+        }
+
         _;
     }
 
@@ -195,6 +201,7 @@ contract Media1155 is
         bytes memory data
     ) internal virtual override {
         for (uint i = 0; i < ids.length; i++) {
+            require(balanceOf(from, ids[i]) >= amounts[i], "ERC1155: Insufficient token balance");
             IMarketV2(access.marketContract).removeAsk(ids[i]);
         }
     }
@@ -327,8 +334,8 @@ contract Media1155 is
         external
         override
         nonReentrant
-        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
+        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
     {
         IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
     }
@@ -353,8 +360,8 @@ contract Media1155 is
         external
         override
         nonReentrant
-        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
         onlyExistingTokenBatch(tokenId)
+        onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
     {}
 
     /**
@@ -399,8 +406,8 @@ contract Media1155 is
         public
         override
         nonReentrant
-        onlyApprovedOrOwner(owner, msg.sender, tokenId)
         onlyExistingToken(tokenId)
+        onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
         IMarketV2(access.marketContract).acceptBid(
             address(this),
