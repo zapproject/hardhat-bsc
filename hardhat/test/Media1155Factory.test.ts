@@ -10,10 +10,9 @@ import {
   ZapMarket,
   ZapMarketV2
 } from '../typechain';
+
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { DeployResult } from 'hardhat-deploy/dist/types';
-import { ContractReceipt, ContractTransaction } from 'ethers';
-import { TypedEventFilter } from '../typechain/commons';
 
 chai.use(solidity);
 
