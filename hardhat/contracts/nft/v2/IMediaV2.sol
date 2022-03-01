@@ -76,12 +76,12 @@ interface IMediaV2 {
     /**
      * @notice Set the ask on a piece of media
      */
-    function setAsk(uint256 tokenId, IMarketV2.Ask calldata ask) external;
+    function setAsk(address owner, uint256 tokenId, IMarketV2.Ask calldata ask) external;
 
     /**
      * @notice Remove the ask on a piece of media
      */
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(address owner, uint256 tokenId) external;
 
     /**
      * @notice Set the bid on a piece of media

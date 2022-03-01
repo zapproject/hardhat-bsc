@@ -369,27 +369,27 @@ contract ZapMediaV2 is
     /**
      * @notice see IMediaV2
      */
-    function setAsk(uint256 tokenId, IMarketV2.Ask memory ask)
+    function setAsk(address owner, uint256 tokenId, IMarketV2.Ask memory ask)
         public
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarketV2(access.marketContract).setAsk(tokenId, ask);
+        IMarketV2(access.marketContract).setAsk(owner, tokenId, ask);
     }
 
     /**
      * @notice see IMediaV2
      */
-    function removeAsk(uint256 tokenId)
+    function removeAsk(address owner, uint256 tokenId)
         external
         override
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarketV2(access.marketContract).removeAsk(tokenId);
+        IMarketV2(access.marketContract).removeAsk(owner, tokenId);
     }
 
     /**
@@ -678,7 +678,7 @@ contract ZapMediaV2 is
         address to,
         uint256 tokenId
     ) internal override {
-        IMarketV2(access.marketContract).removeAsk(tokenId);
+        IMarketV2(access.marketContract).removeAsk(from, tokenId);
 
         ERC721Upgradeable._transfer(from, to, tokenId);
     }

@@ -105,7 +105,7 @@ interface IMarketV2 {
         address bidder
     ) external view returns (Bid memory);
 
-    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
+    function currentAskForToken(address mediaContractAddress, address owner, uint256 tokenId)
         external
         view
         returns (Ask memory);
@@ -158,11 +158,11 @@ interface IMarketV2 {
     function setBidShares(uint256 tokenId, BidShares calldata bidShares)
         external;
 
-    function setAsk(uint256 tokenId, Ask calldata ask) external;
+    function setAsk(address owner, uint256 tokenId, Ask calldata ask) external;
 
-    function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask) external;
+    function setAskBatch(address owner, uint256[] calldata tokenId, Ask[] calldata ask) external;
 
-    function removeAsk(uint256 tokenId) external;
+    function removeAsk(address owner, uint256 tokenId) external;
 
     function setBid(
         address mediaAddress,

@@ -201,7 +201,7 @@ contract Media1155 is
         bytes memory data
     ) internal virtual override {
         for (uint i = 0; i < ids.length; i++) {
-            IMarketV2(access.marketContract).removeAsk(ids[i]);
+            IMarketV2(access.marketContract).removeAsk(from, ids[i]);
         }
     }
 
@@ -319,7 +319,7 @@ contract Media1155 is
         onlyExistingToken(tokenId)
         onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
-        IMarketV2(access.marketContract).setAsk(tokenId, ask);
+        IMarketV2(access.marketContract).setAsk(owner, tokenId, ask);
     }
 
     /**
@@ -336,7 +336,7 @@ contract Media1155 is
         onlyExistingTokenBatch(tokenId)
         onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
     {
-        IMarketV2(access.marketContract).setAskBatch(tokenId, ask);
+        IMarketV2(access.marketContract).setAskBatch(owner, tokenId, ask);
     }
 
     /**
@@ -349,7 +349,7 @@ contract Media1155 is
         onlyExistingToken(tokenId)
         onlyApprovedOrOwner(owner, msg.sender, tokenId)
     {
-        IMarketV2(access.marketContract).removeAsk(tokenId);
+        IMarketV2(access.marketContract).removeAsk(owner, tokenId);
     }
 
     /**

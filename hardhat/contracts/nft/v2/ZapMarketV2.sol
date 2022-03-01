@@ -46,7 +46,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
+    mapping(address => mapping(address => mapping(uint256 => Ask))) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
@@ -102,13 +102,13 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         return _tokenBidders[mediaContractAddress][tokenId][bidder];
     }
 
-    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
+    function currentAskForToken(address mediaContractAddress, address owner, uint256 tokenId)
         external
         view
         override
         returns (Ask memory)
     {
-        return _tokenAsks[mediaContractAddress][tokenId];
+        return _tokenAsks[mediaContractAddress][owner][tokenId];
     }
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
@@ -328,7 +328,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAsk(uint256 tokenId, Ask memory ask)
+    function setAsk(address owner, uint256 tokenId, Ask memory ask)
         public
         override
         onlyMediaCaller
@@ -338,7 +338,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Ask invalid for share splitting'
         );
 
-        _tokenAsks[msg.sender][tokenId] = ask;
+        _tokenAsks[msg.sender][owner][tokenId] = ask;
         emit AskCreated(msg.sender, tokenId, ask);
     }
 
@@ -346,7 +346,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAskBatch(uint256[] calldata tokenId, Ask[] calldata ask)
+    function setAskBatch(address owner, uint256[] calldata tokenId, Ask[] calldata ask)
         external
         override
         onlyMediaCaller
@@ -362,7 +362,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
                 'Market: Ask invalid for share splitting'
             );
 
-            _tokenAsks[msg.sender][tokenId[i]] = ask[i];
+            _tokenAsks[msg.sender][owner][tokenId[i]] = ask[i];
             emit AskCreated(msg.sender, tokenId[i], ask[i]);
         }
     }
@@ -370,9 +370,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     /**
      * @notice removes an ask for a token and emits an AskRemoved event
      */
-    function removeAsk(uint256 tokenId) external override onlyMediaCaller {
-        emit AskRemoved(tokenId, _tokenAsks[msg.sender][tokenId], msg.sender);
-        delete _tokenAsks[msg.sender][tokenId];
+    function removeAsk(address owner, uint256 tokenId) external override onlyMediaCaller {
+        emit AskRemoved(tokenId, _tokenAsks[msg.sender][owner][tokenId], msg.sender);
+        delete _tokenAsks[msg.sender][owner][tokenId];
     }
 
     /**
@@ -441,9 +441,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[msg.sender][tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[msg.sender][tokenId].currency &&
-            bid.amount >= _tokenAsks[msg.sender][tokenId].amount
+            _tokenAsks[msg.sender][owner][tokenId].currency != address(0) &&
+            bid.currency == _tokenAsks[msg.sender][owner][tokenId].currency &&
+            bid.amount >= _tokenAsks[msg.sender][owner][tokenId].amount
         ) {
             // Finalize exchange
             if (IMediaV2(mediaAddress).supportsInterface(0xd9b67a26)) {

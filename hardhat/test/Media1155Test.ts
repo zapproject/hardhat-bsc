@@ -18,6 +18,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { formatBytes32String } from 'ethers/lib/utils';
 import { DeployResult } from 'hardhat-deploy/dist/types';
 import { execPath } from 'process';
+import { isRegExp } from 'util';
 
 const { BigNumber } = ethers;
 
@@ -441,7 +442,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe('#setAsk', () => {
+    describe.only('#setAsk', () => {
       it('Should set the ask', async () => {
         // Signer[1] sets an ask on tokenId 1
         await media1.setAsk(1, ask, signers[1].address);
@@ -449,6 +450,7 @@ describe('Media1155 Test', async () => {
         // Returns the ask details on tokenId 1
         let currentAsk = await zapMarketV2.currentAskForToken(
           media1.address,
+          signers[1].address,
           1
         );
 
@@ -512,6 +514,75 @@ describe('Media1155 Test', async () => {
           media1.setAsk(1, ask, signers[1].address)
         ).to.be.revertedWith('Media: Token balance is zero');
       });
+
+      it.only('Should set ask for different owners of same token id', async () => {
+        let owner1 = signers[1].address;
+        let owner2 = signers[2].address;
+
+        // mint another token id 1 for signer 2
+        await media1.mint(owner2, 1, 1, bidShares);
+
+        let balance2 = await media1.balanceOf(owner2, 1);
+
+        expect(balance2).eq(1);
+
+        // Signer[1] sets an ask on tokenId 1
+        await media1.setAsk(1, ask, owner1);
+
+        // Returns the ask details on tokenId 1
+        let currentAsk1 = await zapMarketV2.currentAskForToken(
+          media1.address,
+          owner1,
+          1
+        );
+
+        // The returned ask amount should equal the amount set
+        expect(currentAsk1.amount.toNumber() == ask.amount);
+
+        // The returned ask currency should equal the currency set
+        expect(currentAsk1.currency == ask.currency);
+
+        let currentAsk2 = await zapMarketV2.currentAskForToken(
+            media1.address,
+            owner2,
+            1
+        );
+
+        // The returned ask amount should equal the amount set
+        expect(currentAsk2.amount.toNumber() == 0);
+
+        // The returned ask currency should equal the currency set
+        expect(currentAsk2.currency == '');
+
+        // Set a new ask for owner 2
+        await media1.setAsk(1, {...ask, amount: 300}, owner2);
+
+        // confirm if the correct ask was set
+        currentAsk2 = await zapMarketV2.currentAskForToken(
+            media1.address,
+            owner2,
+            1
+        );
+
+        // The returned ask amount should equal the amount set
+        expect(currentAsk2.amount.toNumber() == 300);
+
+        // The returned ask currency should equal the currency set
+        expect(currentAsk2.currency == ask.currency);
+
+        // confirm owner1's ask remains the same
+        currentAsk1 = await zapMarketV2.currentAskForToken(
+            media1.address,
+            owner1,
+            1
+        );
+
+        // The returned ask amount should equal the amount set
+        expect(currentAsk1.amount.toNumber() == ask.amount);
+
+        // The returned ask currency should equal the currency set
+        expect(currentAsk1.currency == ask.currency);
+      });
     });
 
     describe('#removeAsk', () => {
@@ -522,7 +593,7 @@ describe('Media1155 Test', async () => {
 
       it('Should remove the ask', async () => {
         // Returns the ask set on tokenId 1
-        let postAsk = await zapMarketV2.currentAskForToken(media1.address, 1);
+        let postAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 1);
 
         // The returned amount post ask should equal the amount set
         expect(postAsk.amount.toNumber()).to.equal(ask.amount);
@@ -536,6 +607,7 @@ describe('Media1155 Test', async () => {
         // Returns the ask set on tokenId 1 after removal
         let postRemoveAsk = await zapMarketV2.currentAskForToken(
           media1.address,
+          signers[1].address,
           1
         );
 
@@ -559,6 +631,7 @@ describe('Media1155 Test', async () => {
         // Return the pre remove ask
         const preRemoveAsk = await zapMarketV2.currentAskForToken(
           media1.address,
+          signers[1].address,
           1
         );
 
@@ -586,6 +659,7 @@ describe('Media1155 Test', async () => {
         // Returns the ask post removal
         const postRemoveAsk = await zapMarketV2.currentAskForToken(
           media1.address,
+          signers[1].address,
           1
         );
 
@@ -621,17 +695,18 @@ describe('Media1155 Test', async () => {
 
         let currentAsk = await zapMarketV2.currentAskForToken(
           media1.address,
+          signers[1].address,
           1
         );
 
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
 
-        currentAsk = await zapMarketV2.currentAskForToken(media1.address, 2);
+        currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 2);
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
 
-        currentAsk = await zapMarketV2.currentAskForToken(media1.address, 3);
+        currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
       });
@@ -1152,7 +1227,7 @@ describe('Media1155 Test', async () => {
             .transferFrom(signers[4].address, signers[5].address, 1, 1)
         );
 
-        const askB = await zapMarket.currentAskForToken(media2.address, 1);
+        const askB = await zapMarketV2.currentAskForToken(media2.address, signers[4].address, 1);
 
         expect(await askB.amount.toNumber()).eq(0);
 
