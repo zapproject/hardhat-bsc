@@ -1227,8 +1227,14 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe.only('#burnBatch', () => {
+    describe('#burnBatch', () => {
+      beforeEach(async () => {
+        await media3.mint(signers[3].address, 1, 1, bidShares);
+      });
 
+      it.only('should revert when the caller is the owner, but not creator', async () => {
+
+  
     });
 
     describe('#burn', () => {
