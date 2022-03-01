@@ -1233,8 +1233,14 @@ describe('Media1155 Test', async () => {
       });
 
       it.only('should revert when the caller is the owner, but not creator', async () => {
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 1);
 
-  
+        await expect(
+          media3.connect(signers[4]).burnBatch([1], [1], signers[4].address)
+        ).revertedWith('Media: Must be creator of token to burn batch');
+      });
     });
 
     describe('#burn', () => {

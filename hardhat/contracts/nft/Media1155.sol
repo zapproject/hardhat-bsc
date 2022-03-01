@@ -458,6 +458,11 @@ contract Media1155 is
         onlyExistingTokenBatch(tokenId)
         onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
     {
+        require(
+            access._creatorTokens[msg.sender].contains(tokenId) &&
+                msg.sender == owner,
+            'Media: Must be creator of token to burn batch'
+        );
         _burnBatch(msg.sender, tokenId, amount);
     }
 
