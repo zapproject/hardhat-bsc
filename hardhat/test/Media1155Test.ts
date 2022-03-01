@@ -253,7 +253,7 @@ describe('Media1155 Test', async () => {
     });
   });
 
-  describe.only('#mint', () => {
+  describe('#mint', () => {
     it('Should not mint a token if the caller is not approved on a non permissible media contract', async () => {
       // Signers cannot mint on a media contract if theyre not approved by the owner
       await expect(
