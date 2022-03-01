@@ -194,7 +194,7 @@ contract Media1155 is
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        for (uint i = 0; i < ids.length; i++) {
+        for (uint256 i = 0; i < ids.length; i++) {
             IMarketV2(access.marketContract).removeAsk(ids[i]);
         }
     }
@@ -268,7 +268,7 @@ contract Media1155 is
             );
         }
 
-        _mintForCreator(msg.sender, _id, _amount, bidShares);
+        _mintForCreator(_to, _id, _amount, bidShares);
     }
 
     /**
