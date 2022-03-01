@@ -122,6 +122,14 @@ describe.only('Media1155Factory', () => {
       mediaAddress = eventLog.args?.mediaContract;
     });
 
+    it('Should be registered to ZapMarketV2 after deployment', async () => {
+      const registeredStatus: boolean = await zapMarketV2.isRegistered(
+        mediaAddress
+      );
+
+      expect(registeredStatus).to.be.true;
+    });
+
     it('Should deploy a Media1155 contract through the Media1155Factory and create an instance', async () => {
       // Creates the Media115 contract instance
       const media1155 = (await ethers.getContractAt(
