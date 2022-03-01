@@ -164,6 +164,8 @@ interface IMarketV2 {
 
     function removeAsk(address owner, uint256 tokenId) external;
 
+    function removeAskBatch(address owner, uint256[] calldata tokenId) external;
+
     function setBid(
         address mediaAddress,
         uint256 tokenId,

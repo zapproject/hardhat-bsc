@@ -361,7 +361,9 @@ contract Media1155 is
         nonReentrant
         onlyExistingTokenBatch(tokenId)
         onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
-    {}
+    {
+        IMarketV2(access.marketContract).removeAskBatch(owner, tokenId);
+    }
 
     /**
      * @notice see IMedia1155
@@ -565,38 +567,4 @@ contract Media1155 is
             );
         }
     }
-
-    // /**
-    //  * @notice Destroys `tokenId`.
-    //  * @dev We modify the OZ _burn implementation to
-    //  * maintain metadata and to remove the
-    //  * previous token owner from the piece
-    //  */
-    // function _burn(uint256 tokenId)
-    //     internal
-    //     override(ERC1155Upgradeable)
-    // {
-    //     ERC1155Upgradeable._burn(tokenId);
-
-    //     delete tokens.previousTokenOwners[tokenId];
-
-    //     IMarketV2(access.marketContract).mintOrBurn(
-    //         false,
-    //         tokenId,
-    //         address(this)
-    //     );
-    // }
-
-    // /**
-    //  * @notice transfer a token and remove the ask for it.
-    //  */
-    // function _transfer(
-    //     address from,
-    //     address to,
-    //     uint256 tokenId
-    // ) internal override {
-    //     IMarketV2(access.marketContract).removeAsk(tokenId);
-
-    //     ERC721Upgradeable._transfer(from, to, tokenId);
-    // }
 }

@@ -376,6 +376,16 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     }
 
     /**
+     * @notice removes specified asks for a specified token and emits AskRemoved event
+     */
+    function removeAskBatch(address owner, uint256[] calldata tokenId) external override onlyMediaCaller {
+        for (uint i = 0; i < tokenId.length; i++) {
+            emit AskRemoved(tokenId[i], _tokenAsks[msg.sender][owner][tokenId[i]], msg.sender);
+            delete _tokenAsks[msg.sender][owner][tokenId[i]];
+        }
+    }
+
+    /**
      * @notice Sets the bid on a particular media for a bidder. The token being used to bid
      * is transferred from the spender to this contract to be held until removed or accepted.
      * If another bid already exists for the bidder, it is refunded.

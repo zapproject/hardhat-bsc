@@ -708,6 +708,55 @@ describe('Media1155 Test', async () => {
       });
     });
 
+    describe('#removeAskBatch', () => {
+        it('Should remove a batch of asks', async () => {
+            await media1.setAskBatch(
+                [1, 2, 3],
+                [ask, ask, ask],
+                signers[1].address
+            );
+    
+            let currentAsk = await zapMarketV2.currentAskForToken(
+                media1.address,
+                signers[1].address,
+                1
+            );
+    
+            expect(currentAsk.amount.toNumber() == ask.amount);
+            expect(currentAsk.currency == ask.currency);
+    
+            currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 2);
+            expect(currentAsk.amount.toNumber() == ask.amount);
+            expect(currentAsk.currency == ask.currency);
+    
+            currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
+            expect(currentAsk.amount.toNumber() == ask.amount);
+            expect(currentAsk.currency == ask.currency);
+
+            await media1.removeAskBatch(
+                [1,2,3],
+                signers[1].address
+            );
+
+            currentAsk = await zapMarketV2.currentAskForToken(
+                media1.address,
+                signers[1].address,
+                1
+            );
+    
+            expect(currentAsk.amount.toNumber() == 0);
+            expect(currentAsk.currency == '');
+    
+            currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 2);
+            expect(currentAsk.amount.toNumber() == 0);
+            expect(currentAsk.currency == '');
+    
+            currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
+            expect(currentAsk.amount.toNumber() == 0);
+            expect(currentAsk.currency == '');
+        });
+    });
+
     describe('#setAskBatch', () => {
       it('Should set the ask of batch', async () => {
         await media1.setAskBatch(
