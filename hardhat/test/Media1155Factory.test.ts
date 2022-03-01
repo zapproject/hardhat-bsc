@@ -4,9 +4,16 @@ import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
 
-import { Media1155Factory, ZapMarket, ZapMarketV2 } from '../typechain';
+import {
+  Media1155Factory,
+  Media1155,
+  ZapMarket,
+  ZapMarketV2
+} from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { DeployResult } from 'hardhat-deploy/dist/types';
+import { ContractReceipt, ContractTransaction } from 'ethers';
+import { TypedEventFilter } from '../typechain/commons';
 
 chai.use(solidity);
 
@@ -88,7 +95,50 @@ describe.only('Media1155Factory', () => {
       media1155FactoryAddress,
       signers[0]
     )) as Media1155Factory;
+
+    // ZapMarketV2 sets the Media1155Factory
+    await zapMarketV2.setMediaFactory(media1155Factory.address);
   });
 
-  it('', async () => {});
+  describe('#deployMedia', () => {
+    let deployMedia: any;
+    let mediaAddress: string;
+
+    beforeEach(async () => {
+      //   Deployes an instance of Media1155 through the Media1155Factory
+      deployMedia = await media1155Factory.deployMedia(
+        'https://www.testing.com',
+        zapMarketV2.address,
+        true,
+        'https://www.testing.com'
+      );
+
+      //   Creates a filter for the Media1155Deployed event on the Media1155Factory contract
+      const filter = media1155Factory.filters.Media1155Deployed(null);
+
+      // Returns the event log for the Media1155Deployed event on the Media1155Factory contract
+      let eventLog = (await media1155Factory.queryFilter(filter))[0];
+
+      // Returns the Media1155 contract address
+      mediaAddress = eventLog.args?.mediaContract;
+    });
+
+    it('Should deploy a Media1155 contract through the Media1155Factory and create an instance', async () => {
+      // Creates the Media115 contract instance
+      const media1155 = (await ethers.getContractAt(
+        'Media1155',
+        mediaAddress,
+        signers[0]
+      )) as Media1155;
+
+      // Signers[0] is the owner of the media1155 and is then only address allowed to claim ownership
+      await media1155.claimTransferOwnership();
+
+      // The address returned from the Media1155Deployed event should equal the address of the Media1155 contract
+      expect(mediaAddress).to.equal(media1155.address);
+
+      // After claiming ownership the owner of media1155 should equal the deployers address
+      expect(await media1155.getOwner()).to.equal(signers[0].address);
+    });
+  });
 });
