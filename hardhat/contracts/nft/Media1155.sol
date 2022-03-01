@@ -457,7 +457,9 @@ contract Media1155 is
         nonReentrant
         onlyExistingTokenBatch(tokenId)
         onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
-    {}
+    {
+        _burnBatch(msg.sender, tokenId, amount);
+    }
 
     function transferFrom(
         address from,
