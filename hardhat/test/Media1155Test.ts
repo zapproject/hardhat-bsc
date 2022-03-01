@@ -616,7 +616,7 @@ describe('Media1155 Test', async () => {
         await media1.setAskBatch(
           [1, 2, 3],
           [ask, ask, ask],
-          signers[0].address
+          signers[1].address
         );
 
         let currentAsk = await zapMarketV2.currentAskForToken(
@@ -638,13 +638,13 @@ describe('Media1155 Test', async () => {
 
       it('Should reject if the ask batch is 0', async () => {
         await expect(
-          media1.setAskBatch([1], [{ ...ask, amount: 0 }], signers[0].address)
+          media1.setAskBatch([1], [{ ...ask, amount: 0 }], signers[1].address)
         ).revertedWith('Market: Ask invalid for share splitting');
       });
 
       it('Should reject if the ask amount is invalid and cannot be split', async () => {
         await expect(
-          media1.setAskBatch([1], [{ ...ask, amount: 101 }], signers[0].address)
+          media1.setAskBatch([1], [{ ...ask, amount: 101 }], signers[1].address)
         ).revertedWith('Market: Ask invalid for share splitting');
       });
 
@@ -657,7 +657,7 @@ describe('Media1155 Test', async () => {
       });
     });
 
-    describe.only('#setBid', () => {
+    describe('#setBid', () => {
       let bid1: any;
 
       beforeEach(async () => {

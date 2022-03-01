@@ -201,7 +201,6 @@ contract Media1155 is
         bytes memory data
     ) internal virtual override {
         for (uint i = 0; i < ids.length; i++) {
-            require(balanceOf(from, ids[i]) >= amounts[i], "ERC1155: Insufficient token balance");
             IMarketV2(access.marketContract).removeAsk(ids[i]);
         }
     }
