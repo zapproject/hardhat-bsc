@@ -1227,6 +1227,10 @@ describe('Media1155 Test', async () => {
       });
     });
 
+    describe.only('#burnBatch', () => {
+
+    });
+
     describe('#burn', () => {
       beforeEach(async () => {
         await media3.mint(signers[3].address, 1, 1, bidShares);
