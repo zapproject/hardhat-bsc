@@ -709,7 +709,7 @@ describe('Media1155 Test', async () => {
     });
 
     describe('#removeAskBatch', () => {
-        it('Should remove a batch of asks', async () => {
+        beforeEach(async () => {
             await media1.setAskBatch(
                 [1, 2, 3],
                 [ask, ask, ask],
@@ -732,13 +732,15 @@ describe('Media1155 Test', async () => {
             currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
             expect(currentAsk.amount.toNumber() == ask.amount);
             expect(currentAsk.currency == ask.currency);
+        });
 
+        it('Should remove a batch of asks', async () => {
             await media1.removeAskBatch(
                 [1,2,3],
                 signers[1].address
             );
 
-            currentAsk = await zapMarketV2.currentAskForToken(
+            let currentAsk = await zapMarketV2.currentAskForToken(
                 media1.address,
                 signers[1].address,
                 1
@@ -754,6 +756,71 @@ describe('Media1155 Test', async () => {
             currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
             expect(currentAsk.amount.toNumber() == 0);
             expect(currentAsk.currency == '');
+
+            // event listening
+            const zapMarketFilter: EventFilter = zapMarketV2.filters.AskRemovedBatch(
+                null,
+                null,
+                null
+            );
+
+            const event: Event = (
+            await zapMarketV2.queryFilter(zapMarketFilter)
+            ).slice(-1)[0];
+
+            const logDescription = zapMarketV2.interface.parseLog(event);
+
+            expect(logDescription.args.mediaContract).to.eq(media1.address);
+            
+            expect(logDescription.args.tokenId[0].toNumber()).to.eq(1);
+
+            expect(logDescription.args.tokenId[1].toNumber()).to.eq(2);
+
+            expect(logDescription.args.tokenId[2].toNumber()).to.eq(3);
+
+            expect(logDescription.args.ask[0].amount.toNumber()).to.eq(ask.amount);
+
+            expect(logDescription.args.ask[1].amount.toNumber()).to.eq(ask.amount);
+
+            expect(logDescription.args.ask[2].amount.toNumber()).to.eq(ask.amount);
+        });
+
+        it('Should remove a batch of asks as approved', async () => {
+            await media1.connect(signers[1]).setApprovalForAll(signers[7].address, true);
+
+            await media1.connect(signers[7]).removeAskBatch(
+                [1,2,3],
+                signers[1].address
+            );
+
+            let currentAsk = await zapMarketV2.currentAskForToken(
+                media1.address,
+                signers[1].address,
+                1
+            );
+    
+            expect(currentAsk.amount.toNumber() == 0);
+            expect(currentAsk.currency == '');
+    
+            currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 2);
+            expect(currentAsk.amount.toNumber() == 0);
+            expect(currentAsk.currency == '');
+    
+            currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
+            expect(currentAsk.amount.toNumber() == 0);
+            expect(currentAsk.currency == '');
+        });
+
+        it('Should revert if caller is not owner or approved', async () => {
+            await expect(media1.connect(signers[5]).removeAskBatch([1,2,3], signers[1].address)).to.be.revertedWith("Media: Only approved or owner");
+        });
+
+        it('Should revert if owner does not have a balance', async () => {
+            await expect(media1.removeAskBatch([1,2,3], signers[3].address)).to.be.revertedWith("Media: Token balance is zero");
+        });
+
+        it ('Should revert if token does not exist', async () => {
+            await expect(media1.removeAskBatch([7], signers[1].address)).to.be.revertedWith("Media: nonexistent token");
         });
     });
 
@@ -781,6 +848,33 @@ describe('Media1155 Test', async () => {
         currentAsk = await zapMarketV2.currentAskForToken(media1.address, signers[1].address, 3);
         expect(currentAsk.amount.toNumber() == ask.amount);
         expect(currentAsk.currency == ask.currency);
+
+        // event listening
+        const zapMarketFilter: EventFilter = zapMarketV2.filters.AskCreatedBatch(
+            null,
+            null,
+            null
+        );
+
+        const event: Event = (
+        await zapMarketV2.queryFilter(zapMarketFilter)
+        ).slice(-1)[0];
+
+        const logDescription = zapMarketV2.interface.parseLog(event);
+
+        expect(logDescription.args.mediaContract).to.eq(media1.address);
+        
+        expect(logDescription.args.tokenId[0].toNumber()).to.eq(1);
+
+        expect(logDescription.args.tokenId[1].toNumber()).to.eq(2);
+
+        expect(logDescription.args.tokenId[2].toNumber()).to.eq(3);
+
+        expect(logDescription.args.ask[0].amount.toNumber()).to.eq(ask.amount);
+
+        expect(logDescription.args.ask[1].amount.toNumber()).to.eq(ask.amount);
+
+        expect(logDescription.args.ask[2].amount.toNumber()).to.eq(ask.amount);
       });
 
       it('Should reject if the ask batch is 0', async () => {
