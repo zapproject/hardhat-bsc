@@ -363,8 +363,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             );
 
             _tokenAsks[msg.sender][owner][tokenId[i]] = ask[i];
-            emit AskCreated(msg.sender, tokenId[i], ask[i]);
+            
         }
+        
+        emit AskCreatedBatch(msg.sender, tokenId, ask);
     }
 
     /**
@@ -379,10 +381,14 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice removes specified asks for a specified token and emits AskRemoved event
      */
     function removeAskBatch(address owner, uint256[] calldata tokenId) external override onlyMediaCaller {
+        Ask[] memory ask = new Ask[](tokenId.length);
+
         for (uint i = 0; i < tokenId.length; i++) {
-            emit AskRemoved(tokenId[i], _tokenAsks[msg.sender][owner][tokenId[i]], msg.sender);
+            ask[i] = _tokenAsks[msg.sender][owner][tokenId[i]];
             delete _tokenAsks[msg.sender][owner][tokenId[i]];
         }
+        
+        emit AskRemovedBatch(tokenId, ask, msg.sender);
     }
 
     /**

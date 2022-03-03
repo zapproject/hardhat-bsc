@@ -65,9 +65,19 @@ interface IMarketV2 {
         uint256 indexed tokenId,
         Ask ask
     );
+    event AskCreatedBatch(
+        address indexed mediaContract,
+        uint256[] tokenId,
+        Ask[] ask
+    );
     event AskRemoved(
         uint256 indexed tokenId,
         Ask ask,
+        address indexed mediaContract
+    );
+    event AskRemovedBatch(
+        uint256[] tokenId,
+        Ask[] ask,
         address indexed mediaContract
     );
     event BidShareUpdated(
