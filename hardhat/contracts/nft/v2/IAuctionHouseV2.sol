@@ -8,10 +8,10 @@ pragma experimental ABIEncoderV2;
  */
 interface IAuctionHouseV2 {
     struct TokenDetails {
-        // ID for the ERC721 token
+        // ID for the tokens
         uint256 tokenId;
-        // Address for the ERC721 contract
-        // address tokenContract;
+        // amount of tokens
+        uint256 amount;
         // Address of the media that minted the token
         address mediaContract;
     }
@@ -44,6 +44,7 @@ interface IAuctionHouseV2 {
     event AuctionCreated(
         uint256 indexed auctionId,
         uint256 tokenId,
+        uint256 amount,
         address indexed mediaContract,
         uint256 duration,
         uint256 reservePrice,
@@ -63,6 +64,7 @@ interface IAuctionHouseV2 {
     event AuctionReservePriceUpdated(
         uint256 indexed auctionId,
         uint256 indexed tokenId,
+        uint256 amount,
         address indexed mediaContract,
         uint256 reservePrice
     );
@@ -105,6 +107,18 @@ interface IAuctionHouseV2 {
 
     function createAuction(
         uint256 tokenId,
+        address mediaContract,
+        uint256 duration,
+        uint256 reservePrice,
+        address payable curator,
+        uint8 curatorFeePercentages,
+        address auctionCurrency
+    ) external returns (uint256);
+
+    function createAuctionBatch(
+        uint256 tokenId,
+        uint256 amount,
+        address owner,
         address mediaContract,
         uint256 duration,
         uint256 reservePrice,

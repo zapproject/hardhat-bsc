@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import {SafeMathUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import {IERC721Upgradeable, IERC165Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
+import {IERC1155Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol';
 import {ReentrancyGuardUpgradeable} from '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
@@ -50,6 +51,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     // A mapping of all of the auctions currently running.
     mapping(uint256 => IAuctionHouseV2.Auction) public auctions;
 
+    // the uint256 key will be the tokenid for ERC721 and the auction id for ERC1155
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
     bytes4 private constant interfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
@@ -89,6 +91,28 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
 
         tokenDetails[mediaContract][tokenId] = TokenDetails({
             tokenId: tokenId,
+            amount: 1,
+            mediaContract: mediaContract
+        });
+    }
+
+    function setTokenDetailsBatch(uint256 tokenId, uint256 amount, uint256 auctionId, address mediaContract)
+        internal
+    {
+        require(
+            mediaContract != address(0),
+            'AuctionHouse: Media Contract Address can not be the zero address'
+        );
+
+        if (tokenDetails[mediaContract][auctionId].mediaContract != address(0)){
+            require(
+                mediaContract == tokenDetails[mediaContract][auctionId].mediaContract,
+                "Token is already set for a different collection");
+        }
+
+        tokenDetails[mediaContract][auctionId] = TokenDetails({
+            tokenId: tokenId,
+            amount: amount,
             mediaContract: mediaContract
         });
     }
@@ -160,6 +184,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         emit AuctionCreated(
             auctionId,
             tokenId,
+            1,
             mediaContract,
             duration,
             reservePrice,
@@ -178,22 +203,93 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         return auctionId;
     }
 
-    /**
-     * @notice Create an auction.
-     * @dev Store the auction details in the auctions mapping and emit an AuctionCreated event.
-     * If there is no curator, or if the curator is the auction creator, automatically approve the auction.
-     */
-    function createAuction(
-        uint256[] calldata tokenId,
-        uint256[] calldata amount,
+    function createAuctionBatch(
+        uint256 tokenId,
+        uint256 amount,
+        address owner,
         address mediaContract,
         uint256 duration,
         uint256 reservePrice,
         address payable curator,
         uint8 curatorFeePercentage,
         address auctionCurrency
-    ) external nonReentrant returns (uint256) {
+    ) public override nonReentrant returns (uint256) {
+        require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
+        require(
+            IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
+            'tokenContract does not support ERC721 interface'
+        );
+        require(
+            IMediaExtended(mediaContract).marketContract() == marketContract,
+            "This market contract is not from Zap's NFT MarketPlace"
+        );
+        require(
+            IMarketV2(marketContract).isRegistered(mediaContract),
+            "Media contract is not registered with the marketplace"
+        );
+        require(
+            curatorFeePercentage < hundredPercent,
+            'curatorFeePercentage must be less than 100'
+        );
 
+        require(
+                IERC1155Upgradeable(mediaContract).isApprovedForAll(owner, msg.sender) ||
+                msg.sender == owner,
+            'Caller must be approved or owner for token id'
+        );
+
+        // require owner has sufficient balance of tokens
+        require(IERC1155Upgradeable(mediaContract).balanceOf(owner, tokenId) >= amount,
+            'Owner does not have sufficient balances'
+        );
+        
+        uint256 auctionId = _auctionIdTracker.current();
+        _auctionIdTracker.increment();
+
+        setTokenDetailsBatch(tokenId, amount, auctionId, mediaContract);
+
+        auctions[auctionId] = Auction({
+            token: tokenDetails[mediaContract][auctionId],
+            approved: false,
+            amount: 0,
+            duration: duration,
+            firstBidTime: 0,
+            reservePrice: reservePrice,
+            curatorFeePercentage: curatorFeePercentage,
+            tokenOwner: owner,
+            bidder: payable(address(0)),
+            curator: curator,
+            auctionCurrency: auctionCurrency
+        });
+
+        IERC1155Upgradeable(mediaContract).safeTransferFrom(
+            owner,
+            address(this),
+            tokenId,
+            amount,
+            ''
+        );
+
+        emit AuctionCreated(
+            auctionId,
+            tokenId,
+            amount,
+            mediaContract,
+            duration,
+            reservePrice,
+            owner,
+            curator,
+            curatorFeePercentage,
+            auctionCurrency
+        );
+
+        if (
+            auctions[auctionId].curator == address(0) || curator == owner
+        ) {
+            _approveAuction(auctionId, true);
+        }
+
+        return auctionId;
     }
 
     /**
@@ -237,6 +333,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         emit AuctionReservePriceUpdated(
             auctionId,
             auctions[auctionId].token.tokenId,
+            auctions[auctionId].token.amount,
             auctions[auctionId].token.mediaContract,
             reservePrice
         );
