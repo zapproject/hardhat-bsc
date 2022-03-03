@@ -1370,7 +1370,7 @@ describe('Media1155 Test', async () => {
         );
       });
 
-      it.only('should revert when the caller is the owner, but not creator', async () => {
+      it('should revert when the caller is the owner, but not creator', async () => {
         // Signers[3] transfers all 10 of tokenId 1 to signers[4]
         // Signers[4] is the now the owner of the 10 tokenId's
         await media3
@@ -1390,7 +1390,7 @@ describe('Media1155 Test', async () => {
         ).to.be.revertedWith('Media: Must be creator of token to burn batch');
       });
 
-      it.only('should revert when the caller is approved, but the owner is not the creator', async () => {
+      it('should revert when the caller is approved, but the owner is not the creator', async () => {
         // Signers[3] transfers all 10 of tokenId 1 to signers[4]
         // Signers[4] is the now the owner of the 10 tokenId's
         await media3
@@ -1412,12 +1412,66 @@ describe('Media1155 Test', async () => {
         ).revertedWith('Media: Must be creator of token to burn batch');
       });
 
-      it.only('should revert when the caller is not the owner or a creator', async () => {
+      it('should revert when the caller is not the owner or a creator', async () => {
         await expect(
           media3
             .connect(signers[5])
             .burnBatch([1, 2], [11, 12], signers[3].address)
         ).revertedWith('Media: Only approved or owner');
+      });
+
+      it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
+        const ownerPreBal1 = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPreBal1.toNumber()).to.equal(11);
+
+        const ownerPreBal2 = await media3.balanceOf(signers[3].address, 2);
+        expect(ownerPreBal2.toNumber()).to.equal(12);
+
+        const newOwnerPreBal1 = await media3.balanceOf(signers[4].address, 1);
+        expect(newOwnerPreBal1.toNumber()).to.equal(0);
+
+        const newOwnerPreBal2 = await media3.balanceOf(signers[4].address, 2);
+        expect(newOwnerPreBal2.toNumber()).to.equal(0);
+
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 11);
+
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 2, 12);
+
+        const ownerPostBal1 = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPostBal1.toNumber()).to.equal(0);
+
+        const ownerPostBal2 = await media3.balanceOf(signers[3].address, 2);
+        expect(ownerPostBal2.toNumber()).to.equal(0);
+
+        const newOwnerBal1 = await media3.balanceOf(signers[4].address, 1);
+        expect(newOwnerBal1.toNumber()).to.equal(11);
+
+        const newOwnerBal2 = await media3.balanceOf(signers[4].address, 2);
+        expect(newOwnerBal2.toNumber()).to.equal(12);
+
+        await expect(
+          media3.burnBatch([1, 2], [11, 12], signers[3].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
+
+      it('should burn a batch of tokens', async () => {
+        let preBurn1 = await media3.balanceOf(signers[3].address, 1);
+        expect(preBurn1).to.eq(11);
+
+        let preBurn2 = await media3.balanceOf(signers[3].address, 2);
+        expect(preBurn2).to.eq(12);
+
+        await media3.burnBatch([1, 2], [11, 12], signers[3].address);
+
+        let postBurn1 = await media3.balanceOf(signers[3].address, 1);
+        expect(postBurn1).to.eq(0);
+
+        let postBurn2 = await media3.balanceOf(signers[3].address, 2);
+        expect(postBurn2).to.eq(0);
       });
     });
 
