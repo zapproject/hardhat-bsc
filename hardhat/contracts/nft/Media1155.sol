@@ -451,9 +451,9 @@ contract Media1155 is
      * @param tokenId the list of IDs of the tokens to burn
      */
     function burnBatch(
-        address owner, // public address 123
         uint256[] calldata tokenId,
-        uint256[] calldata amount
+        uint256[] calldata amount,
+        address owner
     )
         external
         override
@@ -461,12 +461,14 @@ contract Media1155 is
         onlyExistingTokenBatch(tokenId)
         onlyApprovedOrOwnerBatch(owner, msg.sender, tokenId)
     {
-        require(
-            access._creatorTokens[msg.sender].contains(tokenId) &&
-                msg.sender == owner,
-            'Media: Must be creator of token to burn batch'
-        );
-        _burnBatch(owner, tokenId, amount); // Whoever is connected = 456
+        for (uint256 i = 0; i < tokenId.length; i++) {
+            require(
+                access._creatorTokens[msg.sender].contains(tokenId[i]),
+                'Media: Must be creator of token to burn batch'
+            );
+
+            _burnBatch(msg.sender, tokenId, amount);
+        }
     }
 
     function transferFrom(
