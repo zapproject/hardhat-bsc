@@ -101,8 +101,11 @@ contract Media1155 is
         address spender,
         uint256[] calldata tokenId
     ) {
-        for (uint i = 0; i < tokenId.length; i++){
-            require(balanceOf(owner, tokenId[i]) > 0, 'Media: Token balance is zero');
+        for (uint256 i = 0; i < tokenId.length; i++) {
+            require(
+                balanceOf(owner, tokenId[i]) > 0,
+                'Media: Token balance is zero'
+            );
         }
 
         if (owner != spender) {
@@ -200,7 +203,7 @@ contract Media1155 is
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        for (uint i = 0; i < ids.length; i++) {
+        for (uint256 i = 0; i < ids.length; i++) {
             IMarketV2(access.marketContract).removeAsk(from, ids[i]);
         }
     }
@@ -448,9 +451,9 @@ contract Media1155 is
      * @param tokenId the list of IDs of the tokens to burn
      */
     function burnBatch(
+        address owner,
         uint256[] calldata tokenId,
-        uint256[] calldata amount,
-        address owner
+        uint256[] calldata amount
     )
         external
         override
