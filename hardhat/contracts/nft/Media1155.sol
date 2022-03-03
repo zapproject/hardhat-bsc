@@ -463,12 +463,12 @@ contract Media1155 is
     {
         for (uint256 i = 0; i < tokenId.length; i++) {
             require(
-                access._creatorTokens[msg.sender].contains(tokenId[i]),
+                access._creatorTokens[msg.sender].contains(tokenId[i]) &&
+                    msg.sender == owner,
                 'Media: Must be creator of token to burn batch'
             );
-
-            _burnBatch(msg.sender, tokenId, amount);
         }
+        _burnBatch(msg.sender, tokenId, amount);
     }
 
     function transferFrom(

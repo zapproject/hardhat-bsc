@@ -1365,7 +1365,7 @@ describe('Media1155 Test', async () => {
         await media3.mintBatch(
           signers[3].address,
           [1, 2],
-          [10, 4],
+          [11, 12],
           [bidShares, bidShares]
         );
       });
@@ -1375,31 +1375,49 @@ describe('Media1155 Test', async () => {
         // Signers[4] is the now the owner of the 10 tokenId's
         await media3
           .connect(signers[3])
-          .transferFrom(signers[3].address, signers[4].address, 1, 10);
+          .transferFrom(signers[3].address, signers[4].address, 1, 11);
 
         await media3
           .connect(signers[3])
-          .transferFrom(signers[3].address, signers[4].address, 2, 4);
+          .transferFrom(signers[3].address, signers[4].address, 2, 12);
 
         // Signers[4] is the current owner of the tokenId but cannot burn them due to not being
         // the original minter
-        // await expect(
-        media3
-          .connect(signers[3])
-          .burnBatch([1, 2], [10, 4], signers[4].address);
-        // ).to.be.revertedWith('Media: Must be creator of token to burn batch');
+        await expect(
+          media3
+            .connect(signers[4])
+            .burnBatch([1, 2], [11, 12], signers[4].address)
+        ).to.be.revertedWith('Media: Must be creator of token to burn batch');
       });
 
-      it('should revert when the caller is approved, but the owner is not the creator', async () => {
+      it.only('should revert when the caller is approved, but the owner is not the creator', async () => {
+        // Signers[3] transfers all 10 of tokenId 1 to signers[4]
+        // Signers[4] is the now the owner of the 10 tokenId's
         await media3
           .connect(signers[3])
-          .transferFrom(signers[3].address, signers[4].address, 1, 10);
+          .transferFrom(signers[3].address, signers[4].address, 1, 11);
+
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 2, 12);
 
         await media3
           .connect(signers[4])
           .setApprovalForAll(signers[5].address, true);
 
-        media3.connect(signers[5]).burnBatch([1], [10], signers[4].address);
+        await expect(
+          media3
+            .connect(signers[5])
+            .burnBatch([1, 2], [11, 12], signers[4].address)
+        ).revertedWith('Media: Must be creator of token to burn batch');
+      });
+
+      it.only('should revert when the caller is not the owner or a creator', async () => {
+        await expect(
+          media3
+            .connect(signers[5])
+            .burnBatch([1, 2], [11, 12], signers[3].address)
+        ).revertedWith('Media: Only approved or owner');
       });
     });
 
@@ -1438,7 +1456,7 @@ describe('Media1155 Test', async () => {
         ).revertedWith('Media: Only approved or owner');
       });
 
-      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+      it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
         const ownerPreBal = await media3.balanceOf(signers[3].address, 1);
         expect(ownerPreBal.toNumber()).to.equal(1);
 
