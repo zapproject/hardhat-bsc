@@ -768,7 +768,7 @@ describe("AuctionHouse", () => {
           );
       });
 
-			it("Should reject if the auction hasn't begun on the main media", async () => {
+			it("Should reject if the auction started but bid hasn't been placed on the main media", async () => {
 				await curatorMainConnected.startAuction(0, true);
         await curatorMainConnected
           .endAuction(0, mediaAddress)
