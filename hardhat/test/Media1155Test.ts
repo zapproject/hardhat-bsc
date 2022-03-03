@@ -1361,7 +1361,13 @@ describe('Media1155 Test', async () => {
 
     describe('#burnBatch', () => {
       beforeEach(async () => {
-        await media3.mintBatch(signers[3].address, [1], [10], [bidShares]);
+        // Signers[3] mints a batch tokenId's
+        await media3.mintBatch(
+          signers[3].address,
+          [1, 2],
+          [10, 4],
+          [bidShares, bidShares]
+        );
       });
 
       it.only('should revert when the caller is the owner, but not creator', async () => {
@@ -1371,13 +1377,29 @@ describe('Media1155 Test', async () => {
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 1, 10);
 
-        await expect(
-          media3.connect(signers[4]).burnBatch([1], [10], signers[4].address)
-        ).to.be.revertedWith('Media: Must be creator of token to burn batch');
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 2, 4);
 
+        // Signers[4] is the current owner of the tokenId but cannot burn them due to not being
+        // the original minter
         // await expect(
-        //   media3.connect(signers[4]).burnBatch([1], [1], signers[4].address)
-        // ).revertedWith('Media: Must be creator of token to burn batch');
+        media3
+          .connect(signers[3])
+          .burnBatch([1, 2], [10, 4], signers[4].address);
+        // ).to.be.revertedWith('Media: Must be creator of token to burn batch');
+      });
+
+      it('should revert when the caller is approved, but the owner is not the creator', async () => {
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 10);
+
+        await media3
+          .connect(signers[4])
+          .setApprovalForAll(signers[5].address, true);
+
+        media3.connect(signers[5]).burnBatch([1], [10], signers[4].address);
       });
     });
 
