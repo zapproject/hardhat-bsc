@@ -160,6 +160,30 @@ describe('Media1155Factory', () => {
       expect(registeredStatus).to.be.true;
     });
 
+    it('Should emit the MediaContractCreated on ZapMarketV2 with 0x0 values in place of the name & symbol', async () => {
+      //   Creates a filter for the Media1155Deployed event on the Media1155Factory contract
+      const filter = zapMarketV2.filters.MediaContractCreated(
+        mediaAddress,
+        null,
+        null
+      );
+      // Returns the event log for the Media1155Deployed event on the Media1155Factory contract
+      let eventLog = (await zapMarketV2.queryFilter(filter))[0];
+
+      // The emitted address from ZapMarketV2 should equal the emitted address from Media1155Factory
+      expect(eventLog.args?.mediaContract).to.equal(mediaAddress);
+
+      // The emitted name from ZapMarketV2 should be an empty string due to the ERC1155
+      // not supporting a symbol() function in its interface
+      expect(ethers.utils.parseBytes32String(eventLog.args?.name)).to.equal('');
+
+      // The emitted name from ZapMarketV2 should be an empty string due to the ERC1155
+      // not supporting a name() function in its interface
+      expect(ethers.utils.parseBytes32String(eventLog.args?.symbol)).to.equal(
+        ''
+      );
+    });
+
     it('Should deploy a Media1155 contract through the Media1155Factory and create an instance', async () => {
       // Creates the Media115 contract instance
       const media1155 = (await ethers.getContractAt(
