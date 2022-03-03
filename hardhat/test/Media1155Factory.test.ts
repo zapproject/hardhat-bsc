@@ -16,7 +16,7 @@ import { DeployResult } from 'hardhat-deploy/dist/types';
 
 chai.use(solidity);
 
-describe.only('Media1155Factory', () => {
+describe('Media1155Factory', () => {
   let signers: SignerWithAddress[];
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
@@ -122,19 +122,41 @@ describe.only('Media1155Factory', () => {
       mediaAddress = eventLog.args?.mediaContract;
     });
 
+    describe('#Ownership', () => {
+      it('Should revert if a caller other than the owner attempts to claim ownership', async () => {
+        // Creates the Media115 contract instance
+        const media1155 = (await ethers.getContractAt(
+          'Media1155',
+          mediaAddress,
+          signers[0]
+        )) as Media1155;
+
+        // Only the deployer of the media
+        await expect(
+          media1155.connect(signers[2]).claimTransferOwnership()
+        ).to.be.revertedWith(
+          'Ownable: Caller is not the appointed owner of this contract'
+        );
+      });
+    });
+
     it('Should be registered to ZapMarketV2 after deployment', async () => {
+      // Returns the registraton status of the deployed media contract
       const registeredStatus: boolean = await zapMarketV2.isRegistered(
         mediaAddress
       );
 
+      // The deployed media contract registration status should equal true
       expect(registeredStatus).to.be.true;
     });
 
     it('Should be configured to ZapMarketV2 after deployment', async () => {
+      // Returns the configure status of the deployed media contract
       const registeredStatus: boolean = await zapMarketV2.isConfigured(
         mediaAddress
       );
 
+      // The deployed media contract configure status should equal true
       expect(registeredStatus).to.be.true;
     });
 
