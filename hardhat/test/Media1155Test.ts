@@ -1361,7 +1361,7 @@ describe('Media1155 Test', async () => {
 
     describe('#burnBatch', () => {
       beforeEach(async () => {
-        // Signers[3] mints a batch tokenId's
+        // Signers[3] mints a batch of tokenId's to itself
         await media3.mintBatch(
           signers[3].address,
           [1, 2],
@@ -1371,17 +1371,19 @@ describe('Media1155 Test', async () => {
       });
 
       it('should revert when the caller is the owner, but not creator', async () => {
-        // Signers[3] transfers all 10 of tokenId 1 to signers[4]
-        // Signers[4] is the now the owner of the 10 tokenId's
+        // Signers[3] transfers the total amount of tokenId 1 to signers[4]
+        // Signers[4] owns the total amount of tokenId 1
         await media3
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 1, 11);
 
+        // Signers[3] transfers the total amount of tokenId 2 to signers[4]
+        // Signers[4] owns the total amount of tokenId 2
         await media3
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 2, 12);
 
-        // Signers[4] is the current owner of the tokenId but cannot burn them due to not being
+        // Signers[4] is the current owner of tokenId 1 & 2 but cannot burn them due to not being
         // the original minter
         await expect(
           media3
@@ -1391,20 +1393,25 @@ describe('Media1155 Test', async () => {
       });
 
       it('should revert when the caller is approved, but the owner is not the creator', async () => {
-        // Signers[3] transfers all 10 of tokenId 1 to signers[4]
-        // Signers[4] is the now the owner of the 10 tokenId's
+        // Signers[3] transfers the total amount of tokenId 1 to signers[4]
+        // Signers[4] owns the total amount of tokenId 1
         await media3
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 1, 11);
 
+        // Signers[3] transfers the total amount of tokenId 2 to signers[4]
+        // Signers[4] owns the total amount of tokenId 2
         await media3
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 2, 12);
 
+        // Signers[4] sets approval on signers[5] for all its assets
         await media3
           .connect(signers[4])
           .setApprovalForAll(signers[5].address, true);
 
+        // Signers[4] is the current owner and approved signers[5] for all its assets
+        // But only the original minter can burn the tokens
         await expect(
           media3
             .connect(signers[5])
@@ -1413,6 +1420,7 @@ describe('Media1155 Test', async () => {
       });
 
       it('should revert when the caller is not the owner or a creator', async () => {
+        // Only the original minter can burn tokens
         await expect(
           media3
             .connect(signers[5])
@@ -1421,55 +1429,72 @@ describe('Media1155 Test', async () => {
       });
 
       it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
+        // Signers[3] should have a tokenId 1 balance of 11 before transferring
         const ownerPreBal1 = await media3.balanceOf(signers[3].address, 1);
         expect(ownerPreBal1.toNumber()).to.equal(11);
 
+        // Signers[3] should have a tokenId 2 balance of 12 before transferring
         const ownerPreBal2 = await media3.balanceOf(signers[3].address, 2);
         expect(ownerPreBal2.toNumber()).to.equal(12);
 
+        // Signers[4] should have a tokenId 1 balance of 0 before transferring
         const newOwnerPreBal1 = await media3.balanceOf(signers[4].address, 1);
         expect(newOwnerPreBal1.toNumber()).to.equal(0);
 
+        // Signers[4] should have a tokenId 2 balance of 0 before transferring
         const newOwnerPreBal2 = await media3.balanceOf(signers[4].address, 2);
         expect(newOwnerPreBal2.toNumber()).to.equal(0);
 
+        // Signers[3] transfers the total amount of tokenId 1 to signers[4]
         await media3
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 1, 11);
 
+        // Signers[3] transfers the total amount of tokenId 2 to signers[4]
         await media3
           .connect(signers[3])
           .transferFrom(signers[3].address, signers[4].address, 2, 12);
 
+        // Signers[3] tokenId 1 balance should be 0
         const ownerPostBal1 = await media3.balanceOf(signers[3].address, 1);
         expect(ownerPostBal1.toNumber()).to.equal(0);
 
+        // Signers[3] tokenId 2 balance should be 0
         const ownerPostBal2 = await media3.balanceOf(signers[3].address, 2);
         expect(ownerPostBal2.toNumber()).to.equal(0);
 
+        // Signers[4] tokenId 1 balance should be the total amount minted
         const newOwnerBal1 = await media3.balanceOf(signers[4].address, 1);
         expect(newOwnerBal1.toNumber()).to.equal(11);
 
+        // Signers[4] tokenId 2 balance should be the total amount minted
         const newOwnerBal2 = await media3.balanceOf(signers[4].address, 2);
         expect(newOwnerBal2.toNumber()).to.equal(12);
 
+        // Signers[3] no longer has a balance of tokenId 1 & 2
+        // Signers[3] can not burn tokens with a balance of zero and exist
         await expect(
           media3.burnBatch([1, 2], [11, 12], signers[3].address)
         ).to.be.revertedWith('Media: Token balance is zero');
       });
 
       it('should burn a batch of tokens', async () => {
+        // Signers[3] balance of tokenId 1 before burning should be the total amount minted
         let preBurn1 = await media3.balanceOf(signers[3].address, 1);
         expect(preBurn1).to.eq(11);
 
+        // Signers[3] balance of tokenId 2 before burning should be the total amount minted
         let preBurn2 = await media3.balanceOf(signers[3].address, 2);
         expect(preBurn2).to.eq(12);
 
+        // Signers[3] burns a batch of tokenId 1 & 2
         await media3.burnBatch([1, 2], [11, 12], signers[3].address);
 
+        // Signers[3] balance of tokenId 1 before burning should be 0
         let postBurn1 = await media3.balanceOf(signers[3].address, 1);
         expect(postBurn1).to.eq(0);
 
+        // Signers[3] balance of tokenId 2 before burning should be 0
         let postBurn2 = await media3.balanceOf(signers[3].address, 2);
         expect(postBurn2).to.eq(0);
       });
