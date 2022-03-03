@@ -1414,7 +1414,10 @@ describe('Media1155 Test', async () => {
     });
 
     describe.only('#ownership', () => {
-      
+      it('Should successfully transfer ownership', () => {
+
+      });
+
     });
 
   });
