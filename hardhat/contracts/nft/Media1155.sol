@@ -451,7 +451,7 @@ contract Media1155 is
      * @param tokenId the list of IDs of the tokens to burn
      */
     function burnBatch(
-        address owner,
+        address owner, // public address 123
         uint256[] calldata tokenId,
         uint256[] calldata amount
     )
@@ -466,7 +466,7 @@ contract Media1155 is
                 msg.sender == owner,
             'Media: Must be creator of token to burn batch'
         );
-        _burnBatch(msg.sender, tokenId, amount);
+        _burnBatch(owner, tokenId, amount); // Whoever is connected = 456
     }
 
     function transferFrom(
