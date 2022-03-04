@@ -73,5 +73,11 @@ describe('ZapMarketV2', () => {
         zapMarketV2.initializeMarket(zapVault.address)
       ).to.be.revertedWith('Initializable: contract is already initialized');
     });
+
+    it('Should get the market owner', async () => {
+      const owner = await zapMarketV2.getOwner();
+
+      expect(owner).to.equal(signers[0].address);
+    });
   });
 });
