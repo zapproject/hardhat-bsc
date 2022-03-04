@@ -8,7 +8,8 @@ import {
   Media1155Factory,
   Media1155,
   ZapMarket,
-  ZapMarketV2
+  ZapMarketV2,
+  ZapVault
 } from '../typechain';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -20,11 +21,20 @@ describe('ZapMarketV2', () => {
   let signers: SignerWithAddress[];
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
-  let media1155Factory: Media1155Factory;
+  let zapVault: ZapVault;
 
   beforeEach(async () => {
     signers = await ethers.getSigners();
     await deployments.fixture();
+
+    const zapVaultFixture = await deployments.get('ZapVault');
+
+    // Creates an instance of ZapVault
+    zapVault = (await ethers.getContractAt(
+      'ZapMarket',
+      zapVaultFixture.address,
+      signers[0]
+    )) as ZapVault;
 
     const zapMarketFixture = await deployments.get('ZapMarket');
 
@@ -55,5 +65,13 @@ describe('ZapMarketV2', () => {
       zapMarketV2Address,
       signers[0]
     )) as ZapMarketV2;
+  });
+
+  describe.only('#intitialize', () => {
+    it('Should not initialize twice', async () => {
+      await expect(
+        zapMarketV2.initializeMarket(zapVault.address)
+      ).to.be.revertedWith('Initializable: contract is already initialized');
+    });
   });
 });
