@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-SPDX-License-Identifier: MIT
 
-// SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+
+pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
@@ -98,8 +97,9 @@ contract ZapMasterV2 is BoringOwnable, BoringBatchable {
         uint256 balance = dummyToken.balanceOf(msg.sender);
         require(balance != 0, "ZapMasterV2: Balance must exceed 0");
         dummyToken.safeTransferFrom(msg.sender, address(this), balance);
-        dummyToken.approve(address(ZAP_MASTER, balance);
-        ZAP_MASTER.deposit(MASTER_PID, balance);
+        dummyToken.approve(address(ZAP_MASTER, balance),
+        ZAP_MASTER.deposit(MASTER_PID, balance),
+
         emit LogInit();
     }
 

@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./ZapToken.sol";
+import "./GovToken/ERC4671.sol";
 
 interface IMigratorZap {
     // Perform LP token migration from legacy UniswapV2 to ZSwap.

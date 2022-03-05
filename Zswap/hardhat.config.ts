@@ -321,19 +321,27 @@ const config: HardhatUserConfig = {
   preprocess: {
     eachLine: removeConsoleLog((bre) => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
   },
-  solidity: {
-    compilers: [
-      {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
+  
+   
+      solidity: {
+        compilers: [
+          { version: '0.4.24', settings: {} },
+          { version: '0.5.16', settings: {} },
+          { version: '0.6.12', settings: {} },
+          { version: '0.7.3', settings: {} },
+          { version: '0.7.6', settings: {} },
+          {
+            version: '0.8.0',
+            settings: {
+              optimizer: {
+                enabled: true
+                // runs
+              }
+            }
+          }
+        ]
       },
-    ],
-  },
+  
   spdxLicenseIdentifier: {
     overwrite: false,
     runOnCompile: true,

@@ -6,7 +6,7 @@ import "../interfaces/IRewarder.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
-import "../MasterChefV2.sol";
+import "../ZapMasterV2.sol";
 
 /// @author @0xKeno
 contract ComplexRewarderTime is IRewarder,  BoringOwnable{
