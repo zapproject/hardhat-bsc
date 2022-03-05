@@ -1,9 +1,9 @@
 import { ADDRESS_ZERO, advanceBlock, advanceBlockTo, deploy, getBigNumber, prepare } from "./utilities"
 import { assert, expect } from "chai"
 
-describe("MasterChefV2", function () {
+describe("ZswapDirectorV2", function () {
   before(async function () {
-    await prepare(this, ["MasterChef", "SushiToken", "ERC20Mock", "MasterChefV2", "RewarderMock", "RewarderBrokenMock"])
+    await prepare(this, ["ZswapDirector", "SushiToken", "ERC20Mock", "ZswapDirectorV2", "RewarderMock", "RewarderBrokenMock"])
     await deploy(this, [["brokenRewarder", this.RewarderBrokenMock]])
   })
 
@@ -13,7 +13,7 @@ describe("MasterChefV2", function () {
     await deploy(this, [
       ["lp", this.ERC20Mock, ["LP Token", "LPT", getBigNumber(10)]],
       ["dummy", this.ERC20Mock, ["Dummy", "DummyT", getBigNumber(10)]],
-      ["chef", this.MasterChef, [this.sushi.address, this.bob.address, getBigNumber(100), "0", "0"]],
+      ["chef", this.ZswapDirector, [this.sushi.address, this.bob.address, getBigNumber(100), "0", "0"]],
     ])
 
     await this.sushi.transferOwnership(this.chef.address)
