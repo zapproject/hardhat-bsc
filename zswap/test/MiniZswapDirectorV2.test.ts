@@ -186,7 +186,7 @@ describe("MiniZswapDirectorV2", function () {
       let expectedSushi = BigNumber.from("10000000000000000").mul(timestamp2 - timestamp)
       expect((await this.chef.userInfo(0, this.alice.address)).rewardDebt).to.be.equal("-" + expectedSushi)
       await this.chef.harvest(0, this.alice.address)
-      expect(await this.sushi.balanceOf(this.alice.address))
+      expect(await this.gzap.balanceOf(this.alice.address))
         .to.be.equal(await this.r.balanceOf(this.alice.address))
         .to.be.equal(expectedSushi)
     })
@@ -195,7 +195,7 @@ describe("MiniZswapDirectorV2", function () {
       await this.chef.harvest(0, this.alice.address)
     })
 
-    it("Harvest for SUSHI-only pool", async function () {
+    it("Harvest for GZAP-only pool", async function () {
       await this.chef.add(10, this.rlp.address, ADDRESS_ZERO)
       await this.rlp.approve(this.chef.address, getBigNumber(10))
       expect(await this.chef.lpToken(0)).to.be.equal(this.rlp.address)
@@ -207,7 +207,7 @@ describe("MiniZswapDirectorV2", function () {
       let expectedSushi = BigNumber.from("10000000000000000").mul(timestamp2 - timestamp)
       expect((await this.chef.userInfo(0, this.alice.address)).rewardDebt).to.be.equal("-" + expectedSushi)
       await this.chef.harvest(0, this.alice.address)
-      expect(await this.sushi.balanceOf(this.alice.address)).to.be.equal(expectedSushi)
+      expect(await this.gzap.balanceOf(this.alice.address)).to.be.equal(expectedSushi)
     })
   })
 

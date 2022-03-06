@@ -93,7 +93,7 @@ describe("ZswapDirector", function () {
 
     it("should give out GZaps only after farming time", async function () {
       // 100 per block farming rate starting at block 100 with bonus until block 1000
-      this.director = await this.GZap.deploy(this.gzap.address, this.dev.address, "100", "100", "1000")
+      this.director = await this.GZapToken.deploy(this.gzap.address, this.dev.address, "100", "100", "1000")
       await this.director.deployed()
 
       await this.gzap.transferOwnership(this.director.address)
