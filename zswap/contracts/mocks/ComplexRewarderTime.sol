@@ -8,6 +8,7 @@ import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
 import "../ZswapDirectorV2.sol";
 
+/// @author @0xKeno
 contract ComplexRewarderTime is IRewarder,  BoringOwnable{
     using BoringMath for uint256;
     using BoringMath128 for uint128;
@@ -112,6 +113,7 @@ contract ComplexRewarderTime is IRewarder,  BoringOwnable{
     modifier onlyMCV2 {
         require(
             msg.sender == ZSWAPDIRECTOR_V2,
+            // alter to relfect line above
             "Only MCV2 can call this function."
         );
         _;

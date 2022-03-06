@@ -3,9 +3,9 @@ const { keccak256, defaultAbiCoder } = require("ethers");
 import { expect } from "chai";
 import { prepare, deploy, getBigNumber, createSLP } from "./utilities"
 
-describe("KashiSushiMaker", function () {
+describe("ZswapWizardK", function () {
   before(async function () {
-    await prepare(this, ["SushiMakerKashi", "SushiBar", "SushiMakerKashiExploitMock", "ERC20Mock", "UniswapV2Factory", "UniswapV2Pair", "BentoBoxV1", "KashiPairMediumRiskV1", "PeggedOracleV1"])
+    await prepare(this, ["ZswapWizardK", "ZswapStake", "ZswapWizardKExploitMock", "ERC20Mock", "UniswapV2Factory", "UniswapV2Pair", "BentoBoxV1", "KashiPairMediumRiskV1", "PeggedOracleV1"])
   })
 
   beforeEach(async function () {
@@ -19,8 +19,8 @@ describe("KashiSushiMaker", function () {
       ["strudel", this.ERC20Mock, ["$TRDL", "$TRDL", getBigNumber("10000000")]],
       ["factory", this.UniswapV2Factory, [this.alice.address]],
     ])
-    // Deploy Sushi and Kashi contracts
-    await deploy(this, [["bar", this.SushiBar, [this.sushi.address]]])
+    // Deploy Zswap and (unneccessary: Kashi) contracts
+    await deploy(this, [["stake", this.ZswapStake, [this.gzap.address]]])
     await deploy(this, [["bento", this.BentoBoxV1, [this.weth.address]]])
     await deploy(this, [["kashiMaster", this.KashiPairMediumRiskV1, [this.bento.address]]])
     await deploy(this, [["kashiMaker", this.SushiMakerKashi, [this.factory.address, this.bar.address, this.bento.address, this.sushi.address, this.weth.address, this.factory.pairCodeHash()]]])

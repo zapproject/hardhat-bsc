@@ -35,7 +35,7 @@ interface ZswapDirectorInterface extends ethers.utils.Interface {
     "migrate(uint256)": FunctionFragment;
     "migrator()": FunctionFragment;
     "owner()": FunctionFragment;
-    "pendingSushi(uint256,address)": FunctionFragment;
+    "pendingGZap(uint256,address)": FunctionFragment;
     "poolInfo(uint256)": FunctionFragment;
     "poolLength()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -88,7 +88,7 @@ interface ZswapDirectorInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "migrator", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "pendingSushi",
+    functionFragment: "pendingGZap",
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
@@ -166,7 +166,7 @@ interface ZswapDirectorInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "migrator", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "pendingSushi",
+    functionFragment: "pendingGZap",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "poolInfo", data: BytesLike): Result;
@@ -317,13 +317,13 @@ export class ZswapDirector extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
 
-    pendingSushi(
+    pendingGZap(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "pendingSushi(uint256,address)"(
+    "pendingGZap(uint256,address)"(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
@@ -539,13 +539,13 @@ export class ZswapDirector extends Contract {
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
 
-  pendingSushi(
+  pendingGZap(
     _pid: BigNumberish,
     _user: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "pendingSushi(uint256,address)"(
+  "pendingGZap(uint256,address)"(
     _pid: BigNumberish,
     _user: string,
     overrides?: CallOverrides
@@ -755,13 +755,13 @@ export class ZswapDirector extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<string>;
 
-    pendingSushi(
+    pendingGZap(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "pendingSushi(uint256,address)"(
+    "pendingGZap(uint256,address)"(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
@@ -991,13 +991,13 @@ export class ZswapDirector extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pendingSushi(
+    pendingGZap(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "pendingSushi(uint256,address)"(
+    "pendingGZap(uint256,address)"(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
@@ -1189,13 +1189,13 @@ export class ZswapDirector extends Contract {
 
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    pendingSushi(
+    pendingGZap(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "pendingSushi(uint256,address)"(
+    "pendingGZap(uint256,address)"(
       _pid: BigNumberish,
       _user: string,
       overrides?: CallOverrides

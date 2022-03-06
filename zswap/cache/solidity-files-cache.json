@@ -308,8 +308,8 @@
       ]
     },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/ZswapDirector.sol": {
-      "lastModificationDate": 1646523089567,
-      "contentHash": "ad17b86ba2491908559a6da3c0107652",
+      "lastModificationDate": 1646602017527,
+      "contentHash": "c0087e90016b09e64a9dd89664d39911",
       "sourceName": "contracts/ZswapDirector.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -2021,8 +2021,8 @@
       ]
     },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/mocks/ComplexRewarderTime.sol": {
-      "lastModificationDate": 1646524513538,
-      "contentHash": "f8c01bb6c34e5520e5ddeb64be619a59",
+      "lastModificationDate": 1646603641019,
+      "contentHash": "a61580bd725bd1d0313ea8bb74bbdf1c",
       "sourceName": "contracts/mocks/ComplexRewarderTime.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -2300,56 +2300,6 @@
       "artifacts": [
         "CloneRewarderTime",
         "IMasterChefV2"
-      ]
-    },
-    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/MiniChefV2.sol": {
-      "lastModificationDate": 1646518359201,
-      "contentHash": "085d48b3e0446deeac589d86aceea851",
-      "sourceName": "contracts/MiniChefV2.sol",
-      "solcConfig": {
-        "version": "0.6.12",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol",
-        "@boringcrypto/boring-solidity/contracts/BoringBatchable.sol",
-        "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol",
-        "./libraries/SignedSafeMath.sol",
-        "./interfaces/IRewarder.sol",
-        "./interfaces/IMasterChef.sol"
-      ],
-      "versionPragmas": [
-        "0.6.12"
-      ],
-      "artifacts": [
-        "IMigratorChef",
-        "MiniChefV2"
       ]
     },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/interfaces/IMiniChefV2.sol": {
@@ -2874,6 +2824,56 @@
       ],
       "artifacts": [
         "ZswapWizardKExploitMock"
+      ]
+    },
+    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/MiniZswapDirectorV2.sol": {
+      "lastModificationDate": 1646603935483,
+      "contentHash": "5c457f9e9c751afcdd3a0d4c9b95bca9",
+      "sourceName": "contracts/MiniZswapDirectorV2.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol",
+        "@boringcrypto/boring-solidity/contracts/BoringBatchable.sol",
+        "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol",
+        "./libraries/SignedSafeMath.sol",
+        "./interfaces/IRewarder.sol",
+        "./interfaces/IMasterChef.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IMigratorChef",
+        "MiniZswapDirectorV2"
       ]
     }
   }

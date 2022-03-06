@@ -326,7 +326,7 @@
         "type": "address"
       }
     ],
-    "name": "pendingSushi",
+    "name": "pendingGZap",
     "outputs": [
       {
         "internalType": "uint256",

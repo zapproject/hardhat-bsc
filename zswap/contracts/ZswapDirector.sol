@@ -175,7 +175,7 @@ contract ZswapDirector is Ownable {
     }
 
     // View function to see pending SUSHIs on frontend.
-    function pendingSushi(uint256 _pid, address _user)
+    function pendingGZap(uint256 _pid, address _user)
         external
         view
         returns (uint256)
