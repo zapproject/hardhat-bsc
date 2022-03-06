@@ -131,7 +131,7 @@ describe("ZswapDirector", function () {
       // 100 per block farming rate starting at block 200 with bonus until block 1000
       this.director = await this.ZswapDirector.deploy(this.gzap.address, this.dev.address, "100", "200", "1000")
       await this.director.deployed()
-      await this.gzap.transferOwnership(this.chef.address)
+      await this.gzap.transferOwnership(this.director.address)
       await this.director.add("100", this.lp.address, true)
       await this.lp.connect(this.bob).approve(this.director.address, "1000")
       await advanceBlockTo("199")
@@ -154,7 +154,7 @@ describe("ZswapDirector", function () {
 
     it("should distribute GZAPs properly for each staker", async function () {
       // 100 per block farming rate starting at block 300 with bonus until block 1000
-      this.director = await this.ZswapDirector.deploy(this.sushi.address, this.dev.address, "100", "300", "1000")
+      this.director = await this.ZswapDirector.deploy(this.gzap.address, this.dev.address, "100", "300", "1000")
       await this.director.deployed()
       await this.gzap.transferOwnership(this.director.address)
       await this.director.add("100", this.lp.address, true)
@@ -185,7 +185,7 @@ describe("ZswapDirector", function () {
       expect(await this.gzap.balanceOf(this.alice.address)).to.equal("5666")
       expect(await this.gzap.balanceOf(this.bob.address)).to.equal("0")
       expect(await this.gzap.balanceOf(this.carol.address)).to.equal("0")
-      expect(await this.gzap.balanceOf(this.chef.address)).to.equal("4334")
+      expect(await this.gzap.balanceOf(this.director.address)).to.equal("4334")
       expect(await this.gzap.balanceOf(this.dev.address)).to.equal("1000")
       // Bob withdraws 5 LPs at block 330. At this point:
       //   Bob should have: 4*2/3*1000 + 2*2/6*1000 + 10*2/7*1000 = 6190
@@ -195,7 +195,7 @@ describe("ZswapDirector", function () {
       expect(await this.gzap.balanceOf(this.alice.address)).to.equal("5666")
       expect(await this.gzap.balanceOf(this.bob.address)).to.equal("6190")
       expect(await this.gzap.balanceOf(this.carol.address)).to.equal("0")
-      expect(await this.gzap.balanceOf(this.chef.address)).to.equal("8144")
+      expect(await this.gzap.balanceOf(this.director.address)).to.equal("8144")
       expect(await this.gzap.balanceOf(this.dev.address)).to.equal("2000")
       // Alice withdraws 20 LPs at block 340.
       // Bob withdraws 15 LPs at block 350.
@@ -258,7 +258,7 @@ describe("ZswapDirector", function () {
       await this.director.connect(this.alice).deposit(0, "10", { from: this.alice.address })
       // At block 605, she should have 1000*10 + 100*5 = 10500 pending.
       await advanceBlockTo("605")
-      expect(await this.chef.pendingGZap(0, this.alice.address)).to.equal("10500")
+      expect(await this.director.pendingGZap(0, this.alice.address)).to.equal("10500")
       // At block 606, Alice withdraws all pending rewards and should get 10600.
       await this.director.connect(this.alice).deposit(0, "0", { from: this.alice.address })
       expect(await this.director.pendingGZap(0, this.alice.address)).to.equal("0")

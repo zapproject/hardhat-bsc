@@ -118,9 +118,9 @@ contract GZapToken is ERC20("ZapGovernanceToken", "GZAP"), Ownable {
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "SUSHI::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "SUSHI::delegateBySig: invalid nonce");
-        require(now <= expiry, "SUSHI::delegateBySig: signature expired");
+        require(signatory != address(0), "GZAP::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "GZAP::delegateBySig: invalid nonce");
+        require(now <= expiry, "GZAP::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
