@@ -3,27 +3,27 @@ import { assert, expect } from "chai"
 
 describe("ZswapDirectorV2", function () {
   before(async function () {
-    await prepare(this, ["ZswapDirector", "SushiToken", "ERC20Mock", "ZswapDirectorV2", "RewarderMock", "RewarderBrokenMock"])
+    await prepare(this, ["ZswapDirector", "GZapToken", "ERC20Mock", "ZswapDirectorV2", "RewarderMock", "RewarderBrokenMock"])
     await deploy(this, [["brokenRewarder", this.RewarderBrokenMock]])
   })
 
   beforeEach(async function () {
-    await deploy(this, [["sushi", this.SushiToken]])
+    await deploy(this, [["gzap", this.GZapToken]])
 
     await deploy(this, [
       ["lp", this.ERC20Mock, ["LP Token", "LPT", getBigNumber(10)]],
       ["dummy", this.ERC20Mock, ["Dummy", "DummyT", getBigNumber(10)]],
-      ["chef", this.ZswapDirector, [this.sushi.address, this.bob.address, getBigNumber(100), "0", "0"]],
+      ["chef", this.ZswapDirector, [this.gzap.address, this.bob.address, getBigNumber(100), "0", "0"]],
     ])
 
-    await this.sushi.transferOwnership(this.chef.address)
+    await this.gzap.transferOwnership(this.chef.address)
     await this.chef.add(100, this.lp.address, true)
     await this.chef.add(100, this.dummy.address, true)
     await this.lp.approve(this.chef.address, getBigNumber(10))
     await this.chef.deposit(0, getBigNumber(10))
 
     await deploy(this, [
-      ["chef2", this.MasterChefV2, [this.chef.address, this.sushi.address, 1]],
+      ["chef2", this.ZswapDirectorV2, [this.chef.address, this.sushi.address, 1]],
       ["rlp", this.ERC20Mock, ["LP", "rLPT", getBigNumber(10)]],
       ["r", this.ERC20Mock, ["Reward", "RewardT", getBigNumber(100000)]],
     ])

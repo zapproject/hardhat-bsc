@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-describe("GZapToken", function () {
+describe("ZapGovernanceToken", function () {
   before(async function () {
     this.GZapToken = await ethers.getContractFactory("GZapToken")
     this.signers = await ethers.getSigners()
@@ -12,14 +12,14 @@ describe("GZapToken", function () {
 
   beforeEach(async function () {
     this.gzap = await this.GZapToken.deploy()
-    await this.sushi.deployed()
+    await this.gzap.deployed()
   })
 
   it("should have correct name and symbol and decimal", async function () {
     const name = await this.gzap.name()
     const symbol = await this.gzap.symbol()
     const decimals = await this.gzap.decimals()
-    expect(name, "GZAPToken")
+    expect(name, "ZapGovernanceToken")
     expect(symbol, "GZAP")
     expect(decimals, "18")
   })

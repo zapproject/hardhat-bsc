@@ -6,7 +6,7 @@ import "../interfaces/IRewarder.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringERC20.sol";
 import "@boringcrypto/boring-solidity/contracts/libraries/BoringMath.sol";
 import "@boringcrypto/boring-solidity/contracts/BoringOwnable.sol";
-import "../MasterChefV2.sol";
+import "../ZswapDirectorV2.sol";
 
 /// @author @0xKeno
 contract ComplexRewarder is IRewarder, BoringOwnable{
@@ -47,7 +47,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
     uint256 public tokenPerBlock;
     uint256 private constant ACC_TOKEN_PRECISION = 1e12;
 
-    address private immutable MASTERCHEF_V2;
+    address private immutable ZSWAPDIRECTOR_V2;
 
     uint256 internal unlocked;
     modifier lock() {
@@ -63,10 +63,10 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
     event LogUpdatePool(uint256 indexed pid, uint64 lastRewardBlock, uint256 lpSupply, uint256 accSushiPerShare);
     event LogInit();
 
-    constructor (IERC20 _rewardToken, uint256 _tokenPerBlock, address _MASTERCHEF_V2) public {
+    constructor (IERC20 _rewardToken, uint256 _tokenPerBlock, address _ZSWAPDIRECTOR_V2) public {
         rewardToken = _rewardToken;
         tokenPerBlock = _tokenPerBlock;
-        MASTERCHEF_V2 = _MASTERCHEF_V2;
+        ZSWAPDIRECTOR_V2 = _ZSWAPDIRECTOR_V2;
         unlocked = 1;
     }
 
@@ -104,7 +104,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
 
     modifier onlyMCV2 {
         require(
-            msg.sender == MASTERCHEF_V2,
+            msg.sender == ZSWAPDIRECTOR_V2,
             "Only MCV2 can call this function."
         );
         _;
@@ -164,7 +164,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
         PoolInfo memory pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accSushiPerShare = pool.accSushiPerShare;
-        uint256 lpSupply = MasterChefV2(MASTERCHEF_V2).lpToken(_pid).balanceOf(MASTERCHEF_V2);
+        uint256 lpSupply = ZswapDirectorV2(ZSWAPDIRECTOR_V2).lpToken(_pid).balanceOf(ZSWAPDIRECTOR_V2);
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 blocks = block.number.sub(pool.lastRewardBlock);
             uint256 sushiReward = blocks.mul(tokenPerBlock).mul(pool.allocPoint) / totalAllocPoint;
@@ -189,7 +189,7 @@ contract ComplexRewarder is IRewarder, BoringOwnable{
         pool = poolInfo[pid];
         require(pool.lastRewardBlock != 0, "Pool does not exist");
         if (block.number > pool.lastRewardBlock) {
-            uint256 lpSupply = MasterChefV2(MASTERCHEF_V2).lpToken(pid).balanceOf(MASTERCHEF_V2);
+            uint256 lpSupply = ZswapDirectorV2(ZSWAPDIRECTOR_V2).lpToken(pid).balanceOf(ZSWAPDIRECTOR_V2);
 
             if (lpSupply > 0) {
                 uint256 blocks = block.number.sub(pool.lastRewardBlock);

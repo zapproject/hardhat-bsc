@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./SushiToken.sol";
+import "./GZapToken.sol";
 
 interface IMigratorChef {
     // Perform LP token migration from legacy UniswapV2 to SushiSwap.
@@ -55,8 +55,8 @@ contract ZswapDirector is Ownable {
         uint256 lastRewardBlock; // Last block number that SUSHIs distribution occurs.
         uint256 accSushiPerShare; // Accumulated SUSHIs per share, times 1e12. See below.
     }
-    // The SUSHI TOKEN!
-    SushiToken public sushi;
+    // The GZap TOKEN!
+    GZapToken public gzap;
     // Dev address.
     address public devaddr;
     // Block number when bonus SUSHI period ends.
@@ -84,13 +84,13 @@ contract ZswapDirector is Ownable {
     );
 
     constructor(
-        SushiToken _sushi,
+        GZapToken _gzap,
         address _devaddr,
         uint256 _sushiPerBlock,
         uint256 _startBlock,
         uint256 _bonusEndBlock
     ) public {
-        sushi = _sushi;
+        gzap = _gzap;
         devaddr = _devaddr;
         sushiPerBlock = _sushiPerBlock;
         bonusEndBlock = _bonusEndBlock;
@@ -222,8 +222,8 @@ contract ZswapDirector is Ownable {
             multiplier.mul(sushiPerBlock).mul(pool.allocPoint).div(
                 totalAllocPoint
             );
-        sushi.mint(devaddr, sushiReward.div(10));
-        sushi.mint(address(this), sushiReward);
+        gzap.mint(devaddr, sushiReward.div(10));
+        gzap.mint(address(this), sushiReward);
         pool.accSushiPerShare = pool.accSushiPerShare.add(
             sushiReward.mul(1e12).div(lpSupply)
         );
@@ -281,11 +281,11 @@ contract ZswapDirector is Ownable {
 
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
     function safeSushiTransfer(address _to, uint256 _amount) internal {
-        uint256 sushiBal = sushi.balanceOf(address(this));
+        uint256 sushiBal = gzap.balanceOf(address(this));
         if (_amount > sushiBal) {
-            sushi.transfer(_to, sushiBal);
+            gzap.transfer(_to, sushiBal);
         } else {
-            sushi.transfer(_to, _amount);
+            gzap.transfer(_to, _amount);
         }
     }
 

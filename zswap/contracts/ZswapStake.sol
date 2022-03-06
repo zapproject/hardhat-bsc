@@ -14,7 +14,7 @@ contract ZswapStake is ERC20("ZswapStake", "xZap"){
     IERC20 public zap;
 
     // Define the Zap token contract
-    constructor(IERC20 zap) public {
+    constructor(IERC20 _zap) public {
         zap = _zap;
     }
 
@@ -26,12 +26,12 @@ contract ZswapStake is ERC20("ZswapStake", "xZap"){
         // Gets the amount of xZap in existence
         uint256 totalShares = totalSupply();
         // If no xZap exists, mint it 1:1 to the amount put in
-        if (totalShares == 0 || totalSushi == 0) {
+        if (totalShares == 0 || totalZap == 0) {
             _mint(msg.sender, _amount);
         } 
         // Calculate and mint the amount of xZap the Zap is worth. The ratio will change overtime, as xZap is burned/minted and Zap deposited + gained from fees / withdrawn.
         else {
-            uint256 what = _amount.mul(totalShares).div(totalSushi);
+            uint256 what = _amount.mul(totalShares).div(totalZap);
             _mint(msg.sender, what);
         }
         // Lock the Zap in the contract
