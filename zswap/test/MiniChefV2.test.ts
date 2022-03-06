@@ -7,7 +7,7 @@ const { BigNumber } = require("ethers")
 
 describe("MiniChefV2", function () {
   before(async function () {
-    await prepare(this, ["MiniChefV2", "SushiToken", "ERC20Mock", "RewarderMock", "RewarderBrokenMock"])
+    await prepare(this, ["MiniChefV2", "GZapToken", "ERC20Mock", "RewarderMock", "RewarderBrokenMock"])
     await deploy(this, [["brokenRewarder", this.RewarderBrokenMock]])
   })
 

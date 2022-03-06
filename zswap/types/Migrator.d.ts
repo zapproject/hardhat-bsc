@@ -22,19 +22,19 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface MigratorInterface extends ethers.utils.Interface {
   functions: {
-    "chef()": FunctionFragment;
     "desiredLiquidity()": FunctionFragment;
+    "director()": FunctionFragment;
     "factory()": FunctionFragment;
     "migrate(address)": FunctionFragment;
     "notBeforeBlock()": FunctionFragment;
     "oldFactory()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "chef", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "desiredLiquidity",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "director", values?: undefined): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
   encodeFunctionData(functionFragment: "migrate", values: [string]): string;
   encodeFunctionData(
@@ -46,11 +46,11 @@ interface MigratorInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "chef", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "desiredLiquidity",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "director", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "migrate", data: BytesLike): Result;
   decodeFunctionResult(
@@ -76,13 +76,13 @@ export class Migrator extends Contract {
   interface: MigratorInterface;
 
   functions: {
-    chef(overrides?: CallOverrides): Promise<[string]>;
-
-    "chef()"(overrides?: CallOverrides): Promise<[string]>;
-
     desiredLiquidity(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "desiredLiquidity()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    director(overrides?: CallOverrides): Promise<[string]>;
+
+    "director()"(overrides?: CallOverrides): Promise<[string]>;
 
     factory(overrides?: CallOverrides): Promise<[string]>;
 
@@ -104,13 +104,13 @@ export class Migrator extends Contract {
     "oldFactory()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  chef(overrides?: CallOverrides): Promise<string>;
-
-  "chef()"(overrides?: CallOverrides): Promise<string>;
-
   desiredLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
   "desiredLiquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  director(overrides?: CallOverrides): Promise<string>;
+
+  "director()"(overrides?: CallOverrides): Promise<string>;
 
   factory(overrides?: CallOverrides): Promise<string>;
 
@@ -132,13 +132,13 @@ export class Migrator extends Contract {
   "oldFactory()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    chef(overrides?: CallOverrides): Promise<string>;
-
-    "chef()"(overrides?: CallOverrides): Promise<string>;
-
     desiredLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
     "desiredLiquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    director(overrides?: CallOverrides): Promise<string>;
+
+    "director()"(overrides?: CallOverrides): Promise<string>;
 
     factory(overrides?: CallOverrides): Promise<string>;
 
@@ -163,13 +163,13 @@ export class Migrator extends Contract {
   filters: {};
 
   estimateGas: {
-    chef(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "chef()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     desiredLiquidity(overrides?: CallOverrides): Promise<BigNumber>;
 
     "desiredLiquidity()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    director(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "director()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -189,15 +189,15 @@ export class Migrator extends Contract {
   };
 
   populateTransaction: {
-    chef(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "chef()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     desiredLiquidity(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "desiredLiquidity()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    director(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "director()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

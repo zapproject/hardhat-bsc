@@ -3,7 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_chef",
+        "name": "_director",
         "type": "address"
       },
       {
@@ -27,12 +27,12 @@
   },
   {
     "inputs": [],
-    "name": "chef",
+    "name": "desiredLiquidity",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -40,12 +40,12 @@
   },
   {
     "inputs": [],
-    "name": "desiredLiquidity",
+    "name": "director",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",

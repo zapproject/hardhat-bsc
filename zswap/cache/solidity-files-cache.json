@@ -576,55 +576,6 @@
         "Address"
       ]
     },
-    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/SushiRoll.sol": {
-      "lastModificationDate": 1646518359201,
-      "contentHash": "e2b0221b1ce5e6f961bf27cb2d9826b1",
-      "sourceName": "contracts/SushiRoll.sol",
-      "solcConfig": {
-        "version": "0.6.12",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
-        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
-        "./uniswapv2/interfaces/IUniswapV2Pair.sol",
-        "./uniswapv2/interfaces/IUniswapV2Router01.sol",
-        "./uniswapv2/interfaces/IUniswapV2Factory.sol",
-        "./uniswapv2/libraries/UniswapV2Library.sol"
-      ],
-      "versionPragmas": [
-        "0.6.12"
-      ],
-      "artifacts": [
-        "SushiRoll"
-      ]
-    },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/uniswapv2/interfaces/IUniswapV2Pair.sol": {
       "lastModificationDate": 1646518359216,
       "contentHash": "f752430d5f09b9f563592f001dafc406",
@@ -1411,56 +1362,6 @@
         "SushiSwapFactoryMock"
       ]
     },
-    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/SushiMakerKashi.sol": {
-      "lastModificationDate": 1646518359219,
-      "contentHash": "e242baee96c21a045acc684f87f7bfb2",
-      "sourceName": "contracts/SushiMakerKashi.sol",
-      "solcConfig": {
-        "version": "0.6.12",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "./libraries/SafeMath.sol",
-        "./libraries/SafeERC20.sol",
-        "./uniswapv2/interfaces/IUniswapV2Pair.sol",
-        "./uniswapv2/interfaces/IUniswapV2Factory.sol",
-        "./Ownable.sol"
-      ],
-      "versionPragmas": [
-        "0.6.12"
-      ],
-      "artifacts": [
-        "IBentoBoxWithdraw",
-        "IKashiWithdrawFee",
-        "SushiMakerKashi"
-      ]
-    },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/libraries/SafeMath.sol": {
       "lastModificationDate": 1646518359221,
       "contentHash": "bd66242b2b2e2f0bb5d7d525c81816f6",
@@ -1633,55 +1534,6 @@
         "IERC20"
       ]
     },
-    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/SushiMaker.sol": {
-      "lastModificationDate": 1646518359223,
-      "contentHash": "9d9cd0791f4b715d37bbf0305bd56e0f",
-      "sourceName": "contracts/SushiMaker.sol",
-      "solcConfig": {
-        "version": "0.6.12",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "./libraries/SafeMath.sol",
-        "./libraries/SafeERC20.sol",
-        "./uniswapv2/interfaces/IUniswapV2ERC20.sol",
-        "./uniswapv2/interfaces/IUniswapV2Pair.sol",
-        "./uniswapv2/interfaces/IUniswapV2Factory.sol",
-        "./Ownable.sol"
-      ],
-      "versionPragmas": [
-        "0.6.12"
-      ],
-      "artifacts": [
-        "SushiMaker"
-      ]
-    },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/uniswapv2/interfaces/IUniswapV2ERC20.sol": {
       "lastModificationDate": 1646518359213,
       "contentHash": "58593c09900e9d1acb2f19d86544e0a7",
@@ -1725,8 +1577,8 @@
       ]
     },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/Migrator.sol": {
-      "lastModificationDate": 1646518359200,
-      "contentHash": "387bbdbf55742a2f2d980bacd3180566",
+      "lastModificationDate": 1646591114576,
+      "contentHash": "b34821329d967527bd19cc727380078b",
       "sourceName": "contracts/Migrator.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -1767,94 +1619,6 @@
       ],
       "artifacts": [
         "Migrator"
-      ]
-    },
-    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/mocks/SushiMakerExploitMock.sol": {
-      "lastModificationDate": 1646518359199,
-      "contentHash": "588dec0fd8fa87438aec6d32b2e21844",
-      "sourceName": "contracts/mocks/SushiMakerExploitMock.sol",
-      "solcConfig": {
-        "version": "0.6.12",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../SushiMaker.sol"
-      ],
-      "versionPragmas": [
-        "0.6.12"
-      ],
-      "artifacts": [
-        "SushiMakerExploitMock"
-      ]
-    },
-    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/mocks/SushiMakerKashiExploitMock.sol": {
-      "lastModificationDate": 1646518359198,
-      "contentHash": "4747b83ec1871722b861de27be0f8e32",
-      "sourceName": "contracts/mocks/SushiMakerKashiExploitMock.sol",
-      "solcConfig": {
-        "version": "0.6.12",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../SushiMakerKashi.sol"
-      ],
-      "versionPragmas": [
-        "0.6.12"
-      ],
-      "artifacts": [
-        "SushiMakerKashiExploitMock"
       ]
     },
     "/Users/btccenternyc/hardhat-bsc/zswap/contracts/interfaces/IMasterChef.sol": {
@@ -2874,6 +2638,242 @@
       "artifacts": [
         "IOracle",
         "PeggedOracleV1"
+      ]
+    },
+    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/ZswapWizard.sol": {
+      "lastModificationDate": 1646593663590,
+      "contentHash": "522f943ecbaf9fada8bd80cf69ed3bd9",
+      "sourceName": "contracts/ZswapWizard.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./libraries/SafeMath.sol",
+        "./libraries/SafeERC20.sol",
+        "./uniswapv2/interfaces/IUniswapV2ERC20.sol",
+        "./uniswapv2/interfaces/IUniswapV2Pair.sol",
+        "./uniswapv2/interfaces/IUniswapV2Factory.sol",
+        "./Ownable.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ZswapWizard"
+      ]
+    },
+    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/mocks/ZswapWizardExploitMock.sol": {
+      "lastModificationDate": 1646594014801,
+      "contentHash": "7ec867f08c5c6542693bab3369c3833a",
+      "sourceName": "contracts/mocks/ZswapWizardExploitMock.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../ZswapWizard.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ZswapWizardExploitMock"
+      ]
+    },
+    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/ZswapTransmigration.sol": {
+      "lastModificationDate": 1646594385618,
+      "contentHash": "f26cbcb73c01762b993d3f3e05d18c7f",
+      "sourceName": "contracts/ZswapTransmigration.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "./uniswapv2/interfaces/IUniswapV2Pair.sol",
+        "./uniswapv2/interfaces/IUniswapV2Router01.sol",
+        "./uniswapv2/interfaces/IUniswapV2Factory.sol",
+        "./uniswapv2/libraries/UniswapV2Library.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ZswapTransmigration"
+      ]
+    },
+    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/ZswapWizardK.sol": {
+      "lastModificationDate": 1646594182187,
+      "contentHash": "6afccf3149f680d5cc8886adfa3ad22e",
+      "sourceName": "contracts/ZswapWizardK.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./libraries/SafeMath.sol",
+        "./libraries/SafeERC20.sol",
+        "./uniswapv2/interfaces/IUniswapV2Pair.sol",
+        "./uniswapv2/interfaces/IUniswapV2Factory.sol",
+        "./Ownable.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IBentoBoxWithdraw",
+        "IKashiWithdrawFee",
+        "ZswapWizardK"
+      ]
+    },
+    "/Users/btccenternyc/hardhat-bsc/zswap/contracts/mocks/ZswapWizardKExploitMock.sol": {
+      "lastModificationDate": 1646594271070,
+      "contentHash": "75f619f3af078aef35493359cdb861d0",
+      "sourceName": "contracts/mocks/ZswapWizardKExploitMock.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../ZswapWizardK.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ZswapWizardKExploitMock"
       ]
     }
   }
