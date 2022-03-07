@@ -54,7 +54,8 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     // the uint256 key will be the tokenid for ERC721 and the auction id for ERC1155
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
-    bytes4 private constant interfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
+    bytes4 private constant _721InterfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
+    bytes4 private constant _1155InterfaceId = type(IERC1155Upgradeable).interfaceId;
     uint8 constant public hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
@@ -133,7 +134,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     ) public override nonReentrant returns (uint256) {
         require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
-            IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
+            IERC165Upgradeable(mediaContract).supportsInterface(_721InterfaceId),
             'tokenContract does not support ERC721 interface'
         );
         require(
@@ -216,7 +217,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     ) public override nonReentrant returns (uint256) {
         require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
-            IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
+            IERC165Upgradeable(mediaContract).supportsInterface(_1155InterfaceId),
             'tokenContract does not support ERC721 interface'
         );
         require(
@@ -383,7 +384,8 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         );
 
         require(
-            IERC165Upgradeable(mediaContract).supportsInterface(interfaceId),
+            IERC165Upgradeable(mediaContract).supportsInterface(_721InterfaceId) || 
+            IERC165Upgradeable(mediaContract).supportsInterface(_1155InterfaceId),
             "Doesn't support NFT interface"
         );
 

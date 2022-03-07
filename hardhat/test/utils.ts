@@ -6,7 +6,8 @@ import {
   ZapVault,
   ZapTokenBSC,
   Media1155,
-  ZapMarketV2
+  ZapMarketV2,
+  ZapMediaV2
 } from '../typechain';
 import {
   BadBidder,
@@ -509,4 +510,130 @@ export const deploy1155Medias = async (
   }
 
   return medias;
+};
+
+export const deployV2ZapNFTMarketplace = async (market: ZapMarketV2) => {
+  let mediaFactory: MediaFactory;
+
+  let platformFee = {
+    fee: {
+      value: BigNumber.from('5000000000000000000')
+    }
+  };
+
+  const [deployer0, deployer1, deployer2, deployer3] =
+    await ethers.getSigners();
+
+  const unInitMediaFactory = await ethers.getContractFactory('ZapMediaV2');
+
+  const unInitMedia = (await unInitMediaFactory.deploy()) as ZapMediaV2;
+
+  const mediaFactoryFactory = await ethers.getContractFactory(
+    'MediaFactory',
+    deployer0
+  );
+  mediaFactory = (await upgrades.deployProxy(
+    mediaFactoryFactory,
+    [market.address, unInitMedia.address],
+    { initializer: 'initialize' }
+  )) as MediaFactory;
+  await market.setMediaFactory(mediaFactory.address);
+
+  const mediaArgs = [
+    {
+      name: 'Test Media 1',
+      symbol: 'TM1',
+      marketContractAddr: market.address,
+      permissive: true,
+      collectionURI:
+        'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
+    },
+    {
+      name: 'Test Media 1',
+      symbol: 'TM1',
+      marketContractAddr: market.address,
+      permissive: false,
+      collectionURI:
+        'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
+    },
+    {
+      name: 'Test Media 1',
+      symbol: 'TM1',
+      marketContractAddr: market.address,
+      permissive: false,
+      collectionURI:
+        'https://ipfs.moralis.io:2053/ipfs/QmXtZVM1JwnCXax1y5r6i4ARxADUMLm9JSq5Rnn3vq9qsN'
+    }
+  ];
+
+  const medias: ZapMediaV2[] = [];
+  const mediaDeployers = [deployer1, deployer2, deployer3];
+
+  let filter;
+  let eventLog: Event;
+  let mediaAddress: string;
+  const zmABI =
+    require('../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json').abi;
+
+  for (let i = 0; i < mediaArgs.length; i++) {
+    const args = mediaArgs[i];
+    await mediaFactory
+      .connect(mediaDeployers[i])
+      .deployMedia(
+        args.name,
+        args.symbol,
+        args.marketContractAddr,
+        args.permissive,
+        args.collectionURI
+      );
+
+    filter = mediaFactory.filters.MediaDeployed(null);
+    eventLog = (await mediaFactory.queryFilter(filter))[i];
+    mediaAddress = eventLog.args?.mediaContract;
+
+    medias.push(
+      new ethers.Contract(mediaAddress, zmABI, mediaDeployers[i]) as ZapMediaV2
+    );
+  }
+
+  const metadataHex = ethers.utils.formatBytes32String('{}');
+  const metadataHash = await keccak256(metadataHex);
+  const hash = ethers.utils.arrayify(metadataHash);
+
+  const signers = await ethers.getSigners();
+
+  let collaborators = {
+    collaboratorTwo: signers[10].address,
+    collaboratorThree: signers[11].address,
+    collaboratorFour: signers[12].address
+  };
+
+  await medias[0].connect(signers[0]).mint(
+    {
+      tokenURI: 'zap.co',
+      metadataURI: 'zap.co',
+      contentHash: hash,
+      metadataHash: hash
+    },
+    {
+      collaborators: [
+        signers[10].address,
+        signers[11].address,
+        signers[12].address
+      ],
+      collabShares: [
+        BigNumber.from('15000000000000000000'),
+        BigNumber.from('15000000000000000000'),
+        BigNumber.from('15000000000000000000')
+      ],
+      creator: {
+        value: BigNumber.from('15000000000000000000')
+      },
+      owner: {
+        value: BigNumber.from('35000000000000000000')
+      }
+    }
+  );
+
+  return { medias, mediaFactory };
 };
