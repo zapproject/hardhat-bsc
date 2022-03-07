@@ -189,9 +189,9 @@ describe.only('ZapMarketV2', () => {
     });
 
     it('Should get an owners media contract', async () => {
-      const registerStatus = await zapMarketV2.isRegistered(zapMediaAddress);
+      const registerStatus = await zapMarketV2.isRegistered(zapMedia.address);
 
-      const configureStatus = await zapMarketV2.isConfigured(zapMediaAddress);
+      const configureStatus = await zapMarketV2.isConfigured(zapMedia.address);
 
       expect(registerStatus).to.be.true;
 
@@ -223,9 +223,31 @@ describe.only('ZapMarketV2', () => {
     });
   });
 
-  describe.only('bidShareForToken', () => {
+  describe('#bidShareForToken', () => {
     beforeEach(async () => {
       await zapMedia.mint(data, bidShares);
+    });
+
+    it('Should emit the BidShareUpdated event', async () => {
+      const filter = zapMarketV2.filters.BidShareUpdated(null, null, null);
+      const queryFilter = await zapMarketV2.queryFilter(filter);
+      const eventLog = queryFilter[0];
+
+      expect(eventLog.args.tokenId).to.equal(0);
+
+      expect(eventLog.args.bidShares.collaborators).to.eql(
+        bidShares.collaborators
+      );
+      expect(eventLog.args.bidShares.collabShares).to.eql(
+        bidShares.collabShares
+      );
+      expect(eventLog.args.bidShares.creator.value).to.equal(
+        bidShares.creator.value
+      );
+      expect(eventLog.args.bidShares.owner.value).to.equal(
+        bidShares.owner.value
+      );
+      expect(eventLog.args.mediaContract).to.equal(zapMedia.address);
     });
 
     it('Should return null values if the token id does not exsist', async () => {
