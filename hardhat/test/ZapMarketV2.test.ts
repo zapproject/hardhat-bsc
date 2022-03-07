@@ -79,5 +79,12 @@ describe('ZapMarketV2', () => {
 
       expect(owner).to.equal(signers[0].address);
     });
+
+    it('Should get the the platform fee', async () => {
+      const fee = await zapMarketV2.viewFee();
+      expect(parseInt(fee.value._hex)).to.equal(5e18);
+
+      console.log(zapMarket.address == zapMarketV2.address);
+    });
   });
 });
