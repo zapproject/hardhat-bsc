@@ -10,15 +10,18 @@ import {
   ZapMarket,
   ZapMarketV2,
   ZapVault,
-  ZapMedia
+  ZapMedia,
+  ZapMedia__factory
 } from '../typechain';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { DeployResult } from 'hardhat-deploy/dist/types';
 
+import * as zapMediaAbi from '../artifacts/contracts/nft/ZapMedia.sol/ZapMedia.json';
+
 chai.use(solidity);
 
-describe('ZapMarketV2', () => {
+describe.only('ZapMarketV2', () => {
   let signers: SignerWithAddress[];
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
@@ -111,9 +114,15 @@ describe('ZapMarketV2', () => {
 
     // ZapMarketV2 sets the Media1155Factory
     await zapMarketV2.setMediaFactory(media1155Factory.address);
+
+    zapMedia = (await ethers.getContractAt(
+      'Media1155Factory',
+      media1155FactoryAddress,
+      signers[0]
+    )) as ZapMedia;
   });
 
-  describe.only('#intitialize', () => {
+  describe('#intitialize', () => {
     it('Should not initialize twice', async () => {
       await expect(
         zapMarketV2.initializeMarket(zapVault.address)
@@ -140,6 +149,21 @@ describe('ZapMarketV2', () => {
       await expect(
         zapMarketV2.connect(signers[2]).setFee(platformFee)
       ).to.be.revertedWith('Ownable: Only owner has access to this function');
+    });
+
+    it('Should get an owners media contract', async () => {
+      const zapMediaAddress = await zapMarketV2.mediaContracts(
+        signers[0].address,
+        ethers.BigNumber.from('0')
+      );
+
+      const registerStatus = await zapMarketV2.isRegistered(zapMediaAddress);
+
+      const configureStatus = await zapMarketV2.isConfigured(zapMediaAddress);
+
+      expect(registerStatus).to.be.true;
+
+      expect(configureStatus).to.be.true;
     });
 
     it('Should revert if configure is not called by the media factory', async () => {
