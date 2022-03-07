@@ -11,7 +11,9 @@ import {
   ZapMarketV2,
   ZapVault,
   ZapMedia,
-  ZapMedia__factory
+  ZapMedia__factory,
+  ZapToken,
+  ZapTokenBSC
 } from '../typechain';
 
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
@@ -32,10 +34,60 @@ describe.only('ZapMarketV2', () => {
   let zapMediaAddress: string;
   let bidShares: any;
   let data: any;
+  let zapToken: ZapTokenBSC;
 
   beforeEach(async () => {
     signers = await ethers.getSigners();
     await deployments.fixture();
+
+    let tokenURI = 'www.example.com';
+    let metadataURI = 'www.example2.com';
+
+    let metadataHex = ethers.utils.formatBytes32String('{}');
+    let metadataHashRaw = ethers.utils.keccak256(metadataHex);
+    let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
+
+    let contentHex = ethers.utils.formatBytes32String('invert');
+    let contentHashRaw = ethers.utils.keccak256(contentHex);
+    let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
+
+    let contentHash = contentHashBytes;
+    let metadataHash = metadataHashBytes;
+
+    data = {
+      tokenURI,
+      metadataURI,
+      contentHash,
+      metadataHash
+    };
+
+    bidShares = {
+      collaborators: [
+        signers[17].address,
+        signers[18].address,
+        signers[19].address
+      ],
+      collabShares: [
+        ethers.BigNumber.from('15000000000000000000'),
+        ethers.BigNumber.from('15000000000000000000'),
+        ethers.BigNumber.from('15000000000000000000')
+      ],
+      creator: {
+        value: ethers.BigNumber.from('15000000000000000000')
+      },
+      owner: {
+        value: ethers.BigNumber.from('35000000000000000000')
+      }
+    };
+
+    const zapTokenFixture = await deployments.get('ZapToken');
+
+    // Creates an instance of ZapVault
+    zapToken = (await ethers.getContractAt(
+      'ZapMarket',
+      zapTokenFixture.address,
+      signers[0]
+    )) as ZapTokenBSC;
 
     const zapVaultFixture = await deployments.get('ZapVault');
 
@@ -54,6 +106,19 @@ describe.only('ZapMarketV2', () => {
       zapMarketFixture.address,
       signers[0]
     )) as ZapMarket;
+
+    const zapMediaAddress = await zapMarket.mediaContracts(
+      signers[0].address,
+      ethers.BigNumber.from('0')
+    );
+
+    zapMedia = (await ethers.getContractAt(
+      zapMediaAbi.abi,
+      zapMediaAddress,
+      signers[0]
+    )) as ZapMedia;
+
+    await zapMedia.mint(data, bidShares);
 
     // Upgrade ZapMarket to ZapMarketV2
     const marketUpgradeTx = await deployments.deploy('ZapMarket', {
@@ -117,57 +182,6 @@ describe.only('ZapMarketV2', () => {
 
     // ZapMarketV2 sets the Media1155Factory
     await zapMarketV2.setMediaFactory(media1155Factory.address);
-
-    const zapMediaAddress = await zapMarketV2.mediaContracts(
-      signers[0].address,
-      ethers.BigNumber.from('0')
-    );
-
-    zapMedia = (await ethers.getContractAt(
-      zapMediaAbi.abi,
-      zapMediaAddress,
-      signers[0]
-    )) as ZapMedia;
-
-    let tokenURI = 'www.example.com';
-    let metadataURI = 'www.example2.com';
-
-    let metadataHex = ethers.utils.formatBytes32String('{}');
-    let metadataHashRaw = ethers.utils.keccak256(metadataHex);
-    let metadataHashBytes = ethers.utils.arrayify(metadataHashRaw);
-
-    let contentHex = ethers.utils.formatBytes32String('invert');
-    let contentHashRaw = ethers.utils.keccak256(contentHex);
-    let contentHashBytes = ethers.utils.arrayify(contentHashRaw);
-
-    let contentHash = contentHashBytes;
-    let metadataHash = metadataHashBytes;
-
-    data = {
-      tokenURI,
-      metadataURI,
-      contentHash,
-      metadataHash
-    };
-
-    bidShares = {
-      collaborators: [
-        signers[17].address,
-        signers[18].address,
-        signers[19].address
-      ],
-      collabShares: [
-        ethers.BigNumber.from('15000000000000000000'),
-        ethers.BigNumber.from('15000000000000000000'),
-        ethers.BigNumber.from('15000000000000000000')
-      ],
-      creator: {
-        value: ethers.BigNumber.from('15000000000000000000')
-      },
-      owner: {
-        value: ethers.BigNumber.from('35000000000000000000')
-      }
-    };
   });
 
   describe('#intitialize', () => {
@@ -225,7 +239,7 @@ describe.only('ZapMarketV2', () => {
 
   describe('#bidShareForToken', () => {
     beforeEach(async () => {
-      await zapMedia.mint(data, bidShares);
+      // await zapMedia.mint(data, bidShares);
     });
 
     it('Should emit the BidShareUpdated event', async () => {
