@@ -11,7 +11,7 @@ import {
   ZapMarketV2,
   ZapVault,
   ZapMedia,
-  ZapMedia__factory,
+  ZapMediaV2,
   ZapToken,
   ZapTokenBSC
 } from '../typechain';
@@ -27,6 +27,7 @@ describe.only('ZapMarketV2', () => {
   let signers: SignerWithAddress[];
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
+  let zapMediaV2: ZapMediaV2;
   let zapVault: ZapVault;
   let media1155Factory: Media1155Factory;
   let zapMedia: ZapMedia;
@@ -125,7 +126,7 @@ describe.only('ZapMarketV2', () => {
 
     await zapMedia.mint(data, bidShares);
 
-    // await zapMedia.setAsk(0, ask);
+    await zapMedia.setAsk(0, ask);
 
     // Upgrade ZapMarket to ZapMarketV2
     const marketUpgradeTx = await deployments.deploy('ZapMarket', {
@@ -136,8 +137,6 @@ describe.only('ZapMarketV2', () => {
       },
       log: true
     });
-
-    // await zapMedia.setAsk(0, ask);
 
     // Fetch the address of ZapMarketV2 from the transaction receipt
     const zapMarketV2Address: string | any =
@@ -194,7 +193,7 @@ describe.only('ZapMarketV2', () => {
   });
 
   describe('#intitialize', () => {
-    it.only('Should not initialize twice', async () => {
+    it('Should not initialize twice', async () => {
       await expect(
         zapMarketV2.initializeMarket(zapVault.address)
       ).to.be.revertedWith('Initializable: contract is already initialized');
