@@ -80,11 +80,11 @@ describe.only('ZapMarketV2', () => {
       }
     };
 
-    const zapTokenFixture = await deployments.get('ZapToken');
+    const zapTokenFixture = await deployments.get('ZapTokenBSC');
 
     // Creates an instance of ZapVault
     zapToken = (await ethers.getContractAt(
-      'ZapMarket',
+      'ZapTokenBSC',
       zapTokenFixture.address,
       signers[0]
     )) as ZapTokenBSC;
@@ -118,7 +118,14 @@ describe.only('ZapMarketV2', () => {
       signers[0]
     )) as ZapMedia;
 
+    let ask = {
+      amount: 100,
+      currency: zapToken.address
+    };
+
     await zapMedia.mint(data, bidShares);
+
+    // await zapMedia.setAsk(0, ask);
 
     // Upgrade ZapMarket to ZapMarketV2
     const marketUpgradeTx = await deployments.deploy('ZapMarket', {
@@ -129,6 +136,8 @@ describe.only('ZapMarketV2', () => {
       },
       log: true
     });
+
+    // await zapMedia.setAsk(0, ask);
 
     // Fetch the address of ZapMarketV2 from the transaction receipt
     const zapMarketV2Address: string | any =
@@ -185,7 +194,7 @@ describe.only('ZapMarketV2', () => {
   });
 
   describe('#intitialize', () => {
-    it('Should not initialize twice', async () => {
+    it.only('Should not initialize twice', async () => {
       await expect(
         zapMarketV2.initializeMarket(zapVault.address)
       ).to.be.revertedWith('Initializable: contract is already initialized');
