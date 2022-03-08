@@ -107,7 +107,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address owner,
         uint256 tokenId
     ) external view override returns (Ask memory) {
-        return _tokenAsks[mediaContractAddress][owner][tokenId];
+        return _tokenAsks[mediaContractAddress][tokenId];
     }
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
