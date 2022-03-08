@@ -1597,9 +1597,9 @@ describe('Media1155 Test', async () => {
     });
   });
 
-  describe('Ownership', () => {
+  describe.only('Ownership', () => {
 
-    it.only("Should successfully transfer ownership", async () =>{
+    it("Should successfully transfer ownership", async () =>{
 
       let oldOwner = await media1.getOwner();
       let newOwner = signers[2].address;
@@ -1641,6 +1641,10 @@ describe('Media1155 Test', async () => {
       expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
 
     });
+  });
+
+  it("Should revoke appointed owner", async () => {
+
   });
 
 }); 
