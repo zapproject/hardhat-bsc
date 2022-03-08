@@ -19,7 +19,7 @@ interface IERC721Extended {
 /// @notice This contract deploys ZapMedia and external ERC721 contracts,
 ///         registers and then configures them to be used on the Zap NFT Marketplace
 /// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
-contract MediaFactory is OwnableUpgradeable {
+contract MediaFactoryV2 is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
     event ExternalTokenDeployed(address indexed extToken);
 
