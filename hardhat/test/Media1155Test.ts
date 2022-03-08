@@ -1595,14 +1595,52 @@ describe('Media1155 Test', async () => {
         );
       });
     });
+  });
 
-    describe.only('Ownership', () => {
+  describe('Ownership', () => {
+
+    it.only("Should successfully transfer ownership", async () =>{
+
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[1].address;
+
+      // utilized msg.sender instead of owner in the ownernshiptransferred function
+
+      await media1.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+
+      await media1.connect(signers[1]).claimTransferOwnership();
+      expect(newOwner).to.be.equal(await media1.getOwner());
+      expect(ethers.constants.AddressZero).to.be.equal(await media1.appointedOwner());
+
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter = media1.filters.OwnershipTransferInitiated(
+        null, null
+      );
+
+      const event_transferOwnershipInitated: Event = (
+        await media1.queryFilter(filter_transferInitiated)
+      )[0]
+
+      expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+      // expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      // expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
       
-      it('Should successfully transfer ownership', () => {
+      // // listen for transferOwnership event
+      // const filter_transfered: EventFilter = media1.filters.OwnershipTransferred(
+      //   null, null
+      // );
 
-      });
+      // const event_transferredOwnership: Event = (
+      //   await media1.queryFilter(filter_transfered)
+      // )[0]
+
+      // expect(event_transferredOwnership.event).to.be.equal("OwnershipTransferred");
+      // expect(event_transferredOwnership.args?.previousOwner).to.be.equal(oldOwner);
+      // expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
 
     });
-
   });
-});
+
+}); 
