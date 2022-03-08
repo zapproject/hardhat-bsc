@@ -110,7 +110,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address owner,
         uint256 tokenId
     ) external view override returns (Ask memory) {
-        ZapMediaV2(mediaContractAddress);
+        if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)) {
+            return _tokenAsks1155[mediaContractAddress][owner][tokenId];
+        }
         return _tokenAsks[mediaContractAddress][tokenId];
     }
 
