@@ -46,7 +46,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    mapping(address => mapping(address => mapping(uint256 => Ask))) private _tokenAsks;
+    mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
@@ -102,12 +102,11 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         return _tokenBidders[mediaContractAddress][tokenId][bidder];
     }
 
-    function currentAskForToken(address mediaContractAddress, address owner, uint256 tokenId)
-        external
-        view
-        override
-        returns (Ask memory)
-    {
+    function currentAskForToken(
+        address mediaContractAddress,
+        address owner,
+        uint256 tokenId
+    ) external view override returns (Ask memory) {
         return _tokenAsks[mediaContractAddress][owner][tokenId];
     }
 
@@ -328,11 +327,11 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAsk(address owner, uint256 tokenId, Ask memory ask)
-        public
-        override
-        onlyMediaCaller
-    {
+    function setAsk(
+        address owner,
+        uint256 tokenId,
+        Ask memory ask
+    ) public override onlyMediaCaller {
         require(
             isValidBid(msg.sender, tokenId, ask.amount),
             'Market: Ask invalid for share splitting'
@@ -346,11 +345,11 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice Sets the ask on a particular media. If the ask cannot be evenly split into the media's
      * bid shares, this reverts.
      */
-    function setAskBatch(address owner, uint256[] calldata tokenId, Ask[] calldata ask)
-        external
-        override
-        onlyMediaCaller
-    {
+    function setAskBatch(
+        address owner,
+        uint256[] calldata tokenId,
+        Ask[] calldata ask
+    ) external override onlyMediaCaller {
         require(
             tokenId.length == ask.length,
             'Market: TokenId and Ask arrays do not have the same length'
@@ -363,31 +362,42 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             );
 
             _tokenAsks[msg.sender][owner][tokenId[i]] = ask[i];
-            
         }
-        
+
         emit AskCreatedBatch(msg.sender, tokenId, ask);
     }
 
     /**
      * @notice removes an ask for a token and emits an AskRemoved event
      */
-    function removeAsk(address owner, uint256 tokenId) external override onlyMediaCaller {
-        emit AskRemoved(tokenId, _tokenAsks[msg.sender][owner][tokenId], msg.sender);
+    function removeAsk(address owner, uint256 tokenId)
+        external
+        override
+        onlyMediaCaller
+    {
+        emit AskRemoved(
+            tokenId,
+            _tokenAsks[msg.sender][owner][tokenId],
+            msg.sender
+        );
         delete _tokenAsks[msg.sender][owner][tokenId];
     }
 
     /**
      * @notice removes specified asks for a specified token and emits AskRemoved event
      */
-    function removeAskBatch(address owner, uint256[] calldata tokenId) external override onlyMediaCaller {
+    function removeAskBatch(address owner, uint256[] calldata tokenId)
+        external
+        override
+        onlyMediaCaller
+    {
         Ask[] memory ask = new Ask[](tokenId.length);
 
-        for (uint i = 0; i < tokenId.length; i++) {
+        for (uint256 i = 0; i < tokenId.length; i++) {
             ask[i] = _tokenAsks[msg.sender][owner][tokenId[i]];
             delete _tokenAsks[msg.sender][owner][tokenId[i]];
         }
-        
+
         emit AskRemovedBatch(tokenId, ask, msg.sender);
     }
 
