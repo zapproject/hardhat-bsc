@@ -218,7 +218,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
             IERC165Upgradeable(mediaContract).supportsInterface(_1155InterfaceId),
-            'tokenContract does not support ERC721 interface'
+            'tokenContract does not support ERC1155 interface'
         );
         require(
             IMediaExtended(mediaContract).marketContract() == marketContract,
@@ -741,5 +741,25 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             msg.sender == wethAddress,
             'AuctionHouse: Fallback function receive() - sender is not WETH'
         );
+    }
+
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external returns (bytes4) {
+        return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
+    }
+
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external returns (bytes4) {
+        return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
     }
 }
