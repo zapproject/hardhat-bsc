@@ -44,6 +44,7 @@ describe("AuctionHouseV2", () => {
   let media2: Media1155;
   let media3: Media1155;
   let media4: ZapMediaV2;
+  let media5: ZapMediaV2;
   let mediaFactory: Media1155Factory;
   let weth: Contract;
   let zapTokenBsc: ZapTokenBSC;
@@ -85,6 +86,15 @@ describe("AuctionHouseV2", () => {
       zapTokenBscFixture.address,
       signers[0]
     )) as ZapTokenBSC;
+
+    // ZapVault fixture
+    const zapVaultFixture = await deployments.get('ZapVault');
+
+    zapVault = (await ethers.getContractAt(
+      'ZapVault',
+      zapVaultFixture.address,
+      signers[0]
+    )) as ZapVault;
 
     // ZapMarket deployment fixture
     const zapMarketFixture = await deployments.get('ZapMarket');
@@ -354,6 +364,8 @@ describe("AuctionHouseV2", () => {
 
       media4 = contracts.medias[0];
 
+      media5 = contracts.medias[1];
+
       await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
     });
 
@@ -494,58 +506,58 @@ describe("AuctionHouseV2", () => {
       ).to.be.revertedWith("function call to a non-contract account")
     });
 
-    // it("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
-    //   const badMarketFact = await ethers.getContractFactory("ZapMarketV2", signers[5]);
-    //   const badMarket = await upgrades.deployProxy(
-    //     badMarketFact, [zapVault.address],
-    //     { initializer: "initializeMarket" }) as ZapMarketV2;
-    //   // await badMarketFact.deploy(zapVault.address);
+    it("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
+      const badMarketFact = await ethers.getContractFactory("ZapMarketV2", signers[5]);
+      const badMarket = await upgrades.deployProxy(
+        badMarketFact, [zapVault.address],
+        { initializer: "initializeMarket" }) as ZapMarketV2;
+      // await badMarketFact.deploy(zapVault.address);
 
-    //   const { ...mediaArgs } = {
-    //     name: "TEST MEDIA " + `${5}`,
-    //     symbol: "TM" + `${5}`,
-    //     marketContractAddr: badMarket.address,
-    //     permissive: false,
-    //     collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
-    //   }
-    //   const badMediaFact = await ethers.getContractFactory("BadMedia", signers[5]);
-    //   const badMedia = await upgrades.deployProxy(
-    //     badMediaFact,
-    //     [
-    //       mediaArgs.name, mediaArgs.symbol,
-    //       mediaArgs.marketContractAddr, mediaArgs.permissive,
-    //       mediaArgs.collectionURI
-    //     ]
-    //   ) as BadMedia;
-    //   // const badMedia = await badMediaFact.deploy(mediaArgs);
+      const { ...mediaArgs } = {
+        name: "TEST MEDIA " + `${5}`,
+        symbol: "TM" + `${5}`,
+        marketContractAddr: badMarket.address,
+        permissive: false,
+        collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+      }
+      const badMediaFact = await ethers.getContractFactory("BadMedia", signers[5]);
+      const badMedia = await upgrades.deployProxy(
+        badMediaFact,
+        [
+          mediaArgs.name, mediaArgs.symbol,
+          mediaArgs.marketContractAddr, mediaArgs.permissive,
+          mediaArgs.collectionURI
+        ]
+      ) as BadMedia;
+      // const badMedia = await badMediaFact.deploy(mediaArgs);
 
-    //   await badMedia.connect(signers[5]).mint();
-    //   await approveAuction((badMedia as unknown) as Media1155, auctionHouse);
-    //   await expect(
-    //     createAuction(
-    //       auctionHouse.connect(signers[5]),
-    //       signers[5].address,
-    //       zapTokenBsc.address,
-    //       undefined,
-    //       badMedia.address)).to.be.revertedWith(
-    //         "This market contract is not from Zap's NFT MarketPlace"
-    //       );
-    // });
-
-    it.skip("should revert if the given media contract address differs from the one that is already set", async () => {
-      // don't mind this, this test will always fail
-      // tokens and their medias/collections have a 1-to-1 relationship, not 1-to-many
-      const [_, curator] = await ethers.getSigners();
-      await createAuction(auctionHouse, curator.address, zapTokenBsc.address);
-
-      await media2.connect(signers[2]).mint(signers[2].address, 6, 1, bidShares);
-
-      await media1.connect(signers[1]).setApprovalForAll(auctionHouse.address, true);
-
+      await badMedia.connect(signers[5]).mint();
+      await approveAuction((badMedia as unknown) as ZapMediaV2, auctionHouse);
       await expect(
-        createAuction(auctionHouse.connect(signers[2]), curator.address, zapTokenBsc.address, undefined, media2.address)
-      ).to.be.revertedWith("Token is already set for a different collection");
+        createAuction(
+          auctionHouse.connect(signers[5]),
+          signers[5].address,
+          zapTokenBsc.address,
+          undefined,
+          badMedia.address)).to.be.revertedWith(
+            "This market contract is not from Zap's NFT MarketPlace"
+          );
     });
+
+    // it.only("should revert if the given media contract address differs from the one that is already set", async () => {
+    //   // don't mind this, this test will always fail
+    //   // tokens and their medias/collections have a 1-to-1 relationship, not 1-to-many
+    //   const [_, curator] = await ethers.getSigners();
+    //   // await createAuction(auctionHouse, curator.address, zapTokenBsc.address, 60 * 60 * 24, media4.address);
+
+    //   // await media4.connect(signers[2]).mint(signers[2].address, 6, 1, bidShares);
+
+    //   await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+
+    //   await expect(
+    //     createAuction(auctionHouse.connect(signers[2]), curator.address, zapTokenBsc.address, undefined, media4.address)
+    //   ).to.be.revertedWith("Token is already set for a different collection");
+    // });
 
     it("should be automatically approved if the creator is the curator", async () => {
       const owner = await media4.ownerOf(0);
@@ -566,40 +578,41 @@ describe("AuctionHouseV2", () => {
       expect(createdAuction.approved).to.eq(true);
     });
 
-    // it("should emit an AuctionCreated event", async () => {
-    //   const owner = await media1.ownerOf(0);
-    //   const [_, expectedCurator] = await ethers.getSigners();
+    it("should emit an AuctionCreated event", async () => {
+      const owner = await media4.ownerOf(0);
+      const [_, expectedCurator] = await ethers.getSigners();
 
-    //   const block = await ethers.provider.getBlockNumber();
-    //   await createAuction(auctionHouse, await expectedCurator.getAddress(), zapTokenBsc.address);
-    //   const currAuction = await auctionHouse.auctions(0);
-    //   const events = await auctionHouse.queryFilter(
-    //     auctionHouse.filters.AuctionCreated(
-    //       null,
-    //       null,
-    //       null,
-    //       null,
-    //       null,
-    //       null,
-    //       null,
-    //       null,
-    //       null
-    //     ),
-    //     block
-    //   );
-    //   expect(events.length).eq(1);
-    //   const logDescription = auctionHouse.interface.parseLog(events[0]);
-    //   expect(logDescription.name).to.eq("AuctionCreated");
-    //   expect(logDescription.args.duration).to.eq(currAuction.duration);
-    //   expect(logDescription.args.reservePrice).to.eq(currAuction.reservePrice);
-    //   expect(logDescription.args.tokenOwner).to.eq(currAuction.tokenOwner);
-    //   expect(logDescription.args.curator).to.eq(currAuction.curator);
-    //   expect(logDescription.args.curatorFeePercentage).to.eq(
-    //     currAuction.curatorFeePercentage
-    //   );
-    //   expect(logDescription.args.auctionCurrency).to.eq(
-    //     zapTokenBsc.address
-    //   );
-    // });
+      const block = await ethers.provider.getBlockNumber();
+      await createAuction(auctionHouse, await expectedCurator.getAddress(), zapTokenBsc.address, 60 * 60 * 24, media4.address);
+      const currAuction = await auctionHouse.auctions(0);
+      const events = await auctionHouse.queryFilter(
+        auctionHouse.filters.AuctionCreated(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ),
+        block
+      );
+      expect(events.length).eq(1);
+      const logDescription = auctionHouse.interface.parseLog(events[0]);
+      expect(logDescription.name).to.eq("AuctionCreated");
+      expect(logDescription.args.duration).to.eq(currAuction.duration);
+      expect(logDescription.args.reservePrice).to.eq(currAuction.reservePrice);
+      expect(logDescription.args.tokenOwner).to.eq(currAuction.tokenOwner);
+      expect(logDescription.args.curator).to.eq(currAuction.curator);
+      expect(logDescription.args.curatorFeePercentage).to.eq(
+        currAuction.curatorFeePercentage
+      );
+      expect(logDescription.args.auctionCurrency).to.eq(
+        zapTokenBsc.address
+      );
+    });
   });
 });

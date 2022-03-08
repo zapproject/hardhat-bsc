@@ -7,7 +7,8 @@ import {
   ZapTokenBSC,
   Media1155,
   ZapMarketV2,
-  ZapMediaV2
+  ZapMediaV2,
+  AuctionHouseV2
 } from '../typechain';
 import {
   BadBidder,
@@ -345,8 +346,8 @@ export const mint = async (media: ZapMedia) => {
 };
 
 export const approveAuction = async (
-  media: ZapMedia,
-  auctionHouse: AuctionHouse
+  media: ZapMedia | ZapMediaV2,
+  auctionHouse: AuctionHouse | AuctionHouseV2
 ) => {
   await media.approve(auctionHouse.address, 0);
 };
