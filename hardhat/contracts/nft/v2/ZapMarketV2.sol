@@ -48,9 +48,6 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     // Mapping from token to the current ask for the token
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
-    mapping(address => mapping(address => mapping(uint256 => Ask)))
-        private _tokenAsks1155;
-
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
@@ -60,6 +57,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     address platformAddress;
 
     IMarketV2.PlatformFee platformFee;
+
+    mapping(address => mapping(address => mapping(uint256 => Ask)))
+        private _tokenAsks1155;
 
     /* *********
      * Modifiers

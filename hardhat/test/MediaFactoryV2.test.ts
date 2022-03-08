@@ -53,6 +53,8 @@ describe('MediaFactoryV2', () => {
     const marketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
 
     const market = await upgrades.upgradeProxy(zapMarket.address, marketV2);
+
+    console.log(market.address == zapMarket.address);
   });
 
   it.only('Testing', async () => {});
