@@ -4,6 +4,12 @@ import { solidity } from 'ethereum-waffle';
 
 import chai, { expect } from 'chai';
 
+// Relevant OpenZeppelin imports
+import {
+  hashBytecodeWithoutMetadata,
+  Manifest
+} from '@openzeppelin/upgrades-core';
+
 import {
   Media1155Factory,
   Media1155,
@@ -41,17 +47,12 @@ describe('MediaFactoryV2', () => {
       signers[0]
     )) as ZapMarket;
 
-    const zapMedia = (await ethers.getContractAt(
-      'ZapMedia',
-      '0x18998c7E38ede4dF09cEec08E5372Bf8fe5719ea',
-      signers[0]
-    )) as ZapMedia;
+    const marketFactory = await ethers.getContractFactory('ZapMarket');
+    // await upgrades.forceImport(zapMarket.address, marketFactory);
 
-    const v2Factory = await ethers.getContractFactory('ZapMediaV2', signers[0]);
+    const marketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
 
-    const x = await upgrades.erc1967.getBeaconAddress(zapMedia.address);
-
-    await upgrades.upgradeProxy(x, v2Factory);
+    const market = await upgrades.upgradeProxy(zapMarket.address, marketV2);
   });
 
   it.only('Testing', async () => {});
