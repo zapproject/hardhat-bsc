@@ -1672,5 +1672,9 @@ describe('Media1155 Test', async () => {
 
     });
 
+    it("Should revert when non-owner calls init transfer", async () => {
+
+    });
+
   });
 }); 
