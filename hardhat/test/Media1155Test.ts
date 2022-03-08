@@ -1641,10 +1641,36 @@ describe('Media1155 Test', async () => {
       expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
 
     });
+
+    it("Should revoke appointed owner", async () => {
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[2].address;
+
+      await media1.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter = media1.filters.OwnershipTransferInitiated(
+        null, null
+      );
+
+      const event_transferOwnershipInitated: Event = (
+        await media1.queryFilter(filter_transferInitiated)
+      )[1]
+
+      expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+      await media1.revokeTransferOwnership();
+      expect(ethers.constants.AddressZero).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+
+      await expect(media1.connect(signers[2]).claimTransferOwnership()).
+        to.be.revertedWith("Ownable: No ownership transfer have been initiated");
+
+    });
+
   });
-
-  it("Should revoke appointed owner", async () => {
-
-  });
-
 }); 
