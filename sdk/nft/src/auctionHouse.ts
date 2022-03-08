@@ -280,6 +280,12 @@ class AuctionHouse {
     if (parseInt(auctionInfo.firstBidTime._hex) == 0) {
       invariant(false, "AuctionHouse (endAuction): Auction hasn't started.");
     }
+
+		// If the bid hasn't been placed throw an error
+		if (parseInt(auctionInfo.bidder) == 0) {
+      invariant(false, "AuctionHouse (endAuction): Auction started but bid hasn't been placed.");
+    }
+
     // Retrieve the time now in seconds
     const dateNow = Date.now()/1000;
 

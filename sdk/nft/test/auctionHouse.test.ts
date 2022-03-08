@@ -770,19 +770,12 @@ describe("AuctionHouse", () => {
 
 			it("Should reject if the auction started but bid hasn't been placed on the main media", async () => {
 				await curatorMainConnected.startAuction(0, true);
-        await curatorMainConnected
+
+        await ownerAuctionConnected
           .endAuction(0, mediaAddress)
           .should.be.rejectedWith(
             "Invariant failed: AuctionHouse (endAuction): Auction started but bid hasn't been placed."
           );
-      });
-
-      it.only("Should reject if the auction hasn't completed on the main media", async () => {
-        await curatorMainConnected.startAuction(0, true);
-
-        await bidderMainConnected.createBid(0, bidAmt, mediaAddress);
-
-        await invalidSignerConnected.endAuction(0, mediaAddress);
       });
 
     });
