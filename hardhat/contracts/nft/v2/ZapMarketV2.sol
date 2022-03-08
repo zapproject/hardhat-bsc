@@ -48,6 +48,9 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     // Mapping from token to the current ask for the token
     mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
+    mapping(address => mapping(address => mapping(uint256 => Ask)))
+        private _tokenAsks1155;
+
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
 
@@ -107,6 +110,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         address owner,
         uint256 tokenId
     ) external view override returns (Ask memory) {
+        ZapMediaV2(mediaContractAddress);
         return _tokenAsks[mediaContractAddress][tokenId];
     }
 
@@ -361,7 +365,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
                 'Market: Ask invalid for share splitting'
             );
 
-            _tokenAsks[msg.sender][owner][tokenId[i]] = ask[i];
+            _tokenAsks1155[msg.sender][owner][tokenId[i]] = ask[i];
         }
 
         emit AskCreatedBatch(msg.sender, tokenId, ask);
@@ -375,12 +379,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         override
         onlyMediaCaller
     {
-        emit AskRemoved(
-            tokenId,
-            _tokenAsks[msg.sender][owner][tokenId],
-            msg.sender
-        );
-        delete _tokenAsks[msg.sender][owner][tokenId];
+        // emit AskRemoved(
+        //     tokenId,
+        //     _tokenAsks[msg.sender][owner][tokenId],
+        //     msg.sender
+        // );
+        // delete _tokenAsks[msg.sender][owner][tokenId];
     }
 
     /**
@@ -393,10 +397,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     {
         Ask[] memory ask = new Ask[](tokenId.length);
 
-        for (uint256 i = 0; i < tokenId.length; i++) {
-            ask[i] = _tokenAsks[msg.sender][owner][tokenId[i]];
-            delete _tokenAsks[msg.sender][owner][tokenId[i]];
-        }
+        // for (uint256 i = 0; i < tokenId.length; i++) {
+        //     ask[i] = _tokenAsks[msg.sender][owner][tokenId[i]];
+        //     delete _tokenAsks[msg.sender][owner][tokenId[i]];
+        // }
 
         emit AskRemovedBatch(tokenId, ask, msg.sender);
     }
@@ -467,9 +471,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
         if (
-            _tokenAsks[msg.sender][owner][tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[msg.sender][owner][tokenId].currency &&
-            bid.amount >= _tokenAsks[msg.sender][owner][tokenId].amount
+            _tokenAsks1155[msg.sender][owner][tokenId].currency != address(0) &&
+            bid.currency ==
+            _tokenAsks1155[msg.sender][owner][tokenId].currency &&
+            bid.amount >= _tokenAsks1155[msg.sender][owner][tokenId].amount
         ) {
             // Finalize exchange
             if (IMediaV2(mediaAddress).supportsInterface(0xd9b67a26)) {
