@@ -724,6 +724,14 @@ describe("ZapMedia", () => {
             bidShares.collabShares
           );
         });
+        it("should validate BidShares on Market", async () => {
+          const onChainBidShares = await ownerConnected.fetchCurrentBidShares(
+            zapMedia.address,
+            0
+          );
+          const isValid = await ownerConnected.isValidBidShares(onChainBidShares);
+          expect(isValid).to.equal(true);
+        });
 
         it("Should return the bidShares of a token Id on the main media", async () => {
           const onChainBidShares = await ownerConnected.fetchCurrentBidShares(

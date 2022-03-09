@@ -900,6 +900,12 @@ class ZapMedia {
     return isAmountValid && isSellOnShareValid;
   }
 
+ public async isValidBidShares(
+    bidShares: BidShares,
+  ): Promise<boolean> {
+    return this.market.isValidBidShares(bidShares);
+  }
+
   /****************
    * Miscellaneous
    * **************
