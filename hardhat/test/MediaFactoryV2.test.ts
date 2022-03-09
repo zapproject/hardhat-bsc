@@ -40,6 +40,8 @@ describe('MediaFactoryV2', () => {
 
     const zapMarketFixture = await deployments.get('ZapMarket');
 
+    const mediaFactoryFixture = await deployments.get('MediaFactory');
+
     // Creates an instance of ZapMarket
     zapMarket = (await ethers.getContractAt(
       'ZapMarket',
@@ -47,15 +49,43 @@ describe('MediaFactoryV2', () => {
       signers[0]
     )) as ZapMarket;
 
-    const marketFactory = await ethers.getContractFactory('ZapMarket');
-    // await upgrades.forceImport(zapMarket.address, marketFactory);
+    mediaFactory = (await ethers.getContractAt(
+      'MediaFactory',
+      mediaFactoryFixture.address,
+      signers[0]
+    )) as MediaFactory;
 
-    const marketV2 = await ethers.getContractFactory('ZapMarketV2', signers[0]);
+    const marketV1Factory = await ethers.getContractFactory(
+      'ZapMarket',
+      signers[0]
+    );
 
-    const market = await upgrades.upgradeProxy(zapMarket.address, marketV2);
+    const marketV2Factory = await ethers.getContractFactory(
+      'ZapMarketV2',
+      signers[0]
+    );
 
-    console.log(market.address == zapMarket.address);
+    zapMarketV2 = (await upgrades.upgradeProxy(
+      zapMarket.address,
+      marketV1Factory
+    )) as ZapMarketV2;
   });
 
-  it.only('Testing', async () => {});
+  describe('#deployMedia', () => {
+    let deployMedia: any;
+    let mediaAddress: string;
+
+    beforeEach(async () => {
+      //   Deploys an instance of ZapMedia through the MediaFactory
+      deployMedia = await mediaFactory.deployMedia(
+        'TEST COLLECTION',
+        'TC',
+        zapMarket.address,
+        true,
+        'https://www.testing.com'
+      );
+    });
+
+    it('Testing', async () => {});
+  });
 });
