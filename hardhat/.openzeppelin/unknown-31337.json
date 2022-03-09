@@ -1,0 +1,599 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
+  },
+  "proxies": [
+    {
+      "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x59b670e9fA9D0A427751Af201D676719a970857b",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "332b662e4dceef3ef878225b1f9d1fc96fc8a3d032e1e838ca078952efea978c": {
+      "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "label": "owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/nft/access/Ownable.sol:15"
+          },
+          {
+            "label": "appointedOwner",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/nft/access/Ownable.sol:16"
+          },
+          {
+            "label": "mediaContracts",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:29"
+          },
+          {
+            "label": "registeredMedias",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:33"
+          },
+          {
+            "label": "mediaFactory",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_address",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:36"
+          },
+          {
+            "label": "_tokenBidders",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)17955_storage)))",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:39"
+          },
+          {
+            "label": "_bidShares",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)17973_storage))",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:43"
+          },
+          {
+            "label": "_tokenAsks",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)17960_storage))",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:46"
+          },
+          {
+            "label": "isConfigured",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:49"
+          },
+          {
+            "label": "bidMutex",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_uint256,t_bool)",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:52"
+          },
+          {
+            "label": "platformAddress",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_address",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:54"
+          },
+          {
+            "label": "platformFee",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_struct(PlatformFee)17977_storage",
+            "contract": "ZapMarket",
+            "src": "contracts/nft/ZapMarket.sol:56"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)17955_storage)))": {
+            "label": "mapping(address => mapping(uint256 => mapping(address => struct IMarket.Bid)))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)17960_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IMarket.Ask))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)17973_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IMarket.BidShares))"
+          },
+          "t_mapping(t_address,t_struct(Bid)17955_storage)": {
+            "label": "mapping(address => struct IMarket.Bid)"
+          },
+          "t_mapping(t_uint256,t_bool)": {
+            "label": "mapping(uint256 => bool)"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)17955_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct IMarket.Bid))"
+          },
+          "t_mapping(t_uint256,t_struct(Ask)17960_storage)": {
+            "label": "mapping(uint256 => struct IMarket.Ask)"
+          },
+          "t_mapping(t_uint256,t_struct(BidShares)17973_storage)": {
+            "label": "mapping(uint256 => struct IMarket.BidShares)"
+          },
+          "t_struct(Ask)17960_storage": {
+            "label": "struct IMarket.Ask",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_struct(Bid)17955_storage": {
+            "label": "struct IMarket.Bid",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "bidder",
+                "type": "t_address"
+              },
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "sellOnShare",
+                "type": "t_struct(D256)11490_storage"
+              }
+            ]
+          },
+          "t_struct(BidShares)17973_storage": {
+            "label": "struct IMarket.BidShares",
+            "members": [
+              {
+                "label": "creator",
+                "type": "t_struct(D256)11490_storage"
+              },
+              {
+                "label": "owner",
+                "type": "t_struct(D256)11490_storage"
+              },
+              {
+                "label": "collaborators",
+                "type": "t_array(t_address)dyn_storage"
+              },
+              {
+                "label": "collabShares",
+                "type": "t_array(t_uint256)dyn_storage"
+              }
+            ]
+          },
+          "t_struct(D256)11490_storage": {
+            "label": "struct Decimal.D256",
+            "members": [
+              {
+                "label": "value",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_struct(PlatformFee)17977_storage": {
+            "label": "struct IMarket.PlatformFee",
+            "members": [
+              {
+                "label": "fee",
+                "type": "t_struct(D256)11490_storage"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    },
+    "30e8d33949670832cff8209c190d8146a2e40331eb33975c8747a5f424b1860b": {
+      "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "label": "zapMarket",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IMarket)18203",
+            "contract": "MediaFactory",
+            "src": "contracts/nft/MediaFactory.sol:27"
+          },
+          {
+            "label": "beacon",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "MediaFactory",
+            "src": "contracts/nft/MediaFactory.sol:28"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(IMarket)18203": {
+            "label": "contract IMarket"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    },
+    "1a7989fbb0405851d54689cc09841388fe58d9b88baa34f639d3d7ca3ab9e110": {
+      "address": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
+      "txHash": "0x9604a8b888ae20cdfb7e1a2f06cc8d5421cbfdd43b3497cd528df8ed5a27061e",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "label": "owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/nft/access/Ownable.sol:15"
+          },
+          {
+            "label": "appointedOwner",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "Ownable",
+            "src": "contracts/nft/access/Ownable.sol:16"
+          },
+          {
+            "label": "mediaContracts",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:32"
+          },
+          {
+            "label": "registeredMedias",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:36"
+          },
+          {
+            "label": "mediaFactory",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_address",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:39"
+          },
+          {
+            "label": "_tokenBidders",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23351_storage)))",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:42"
+          },
+          {
+            "label": "_bidShares",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)23369_storage))",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:46"
+          },
+          {
+            "label": "_tokenAsks",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage))",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:49"
+          },
+          {
+            "label": "isConfigured",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:52"
+          },
+          {
+            "label": "bidMutex",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_uint256,t_bool)",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:55"
+          },
+          {
+            "label": "platformAddress",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_address",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:57"
+          },
+          {
+            "label": "platformFee",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_struct(PlatformFee)23373_storage",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:59"
+          },
+          {
+            "label": "_tokenAsks1155",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage)))",
+            "contract": "ZapMarketV2",
+            "src": "contracts/nft/v2/ZapMarketV2.sol:61"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage)))": {
+            "label": "mapping(address => mapping(address => mapping(uint256 => struct IMarketV2.Ask)))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23351_storage)))": {
+            "label": "mapping(address => mapping(uint256 => mapping(address => struct IMarketV2.Bid)))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IMarketV2.Ask))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)23369_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct IMarketV2.BidShares))"
+          },
+          "t_mapping(t_address,t_struct(Bid)23351_storage)": {
+            "label": "mapping(address => struct IMarketV2.Bid)"
+          },
+          "t_mapping(t_uint256,t_bool)": {
+            "label": "mapping(uint256 => bool)"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23351_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct IMarketV2.Bid))"
+          },
+          "t_mapping(t_uint256,t_struct(Ask)23356_storage)": {
+            "label": "mapping(uint256 => struct IMarketV2.Ask)"
+          },
+          "t_mapping(t_uint256,t_struct(BidShares)23369_storage)": {
+            "label": "mapping(uint256 => struct IMarketV2.BidShares)"
+          },
+          "t_struct(Ask)23356_storage": {
+            "label": "struct IMarketV2.Ask",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_struct(Bid)23351_storage": {
+            "label": "struct IMarketV2.Bid",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "bidder",
+                "type": "t_address"
+              },
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "sellOnShare",
+                "type": "t_struct(D256)11490_storage"
+              }
+            ]
+          },
+          "t_struct(BidShares)23369_storage": {
+            "label": "struct IMarketV2.BidShares",
+            "members": [
+              {
+                "label": "creator",
+                "type": "t_struct(D256)11490_storage"
+              },
+              {
+                "label": "owner",
+                "type": "t_struct(D256)11490_storage"
+              },
+              {
+                "label": "collaborators",
+                "type": "t_array(t_address)dyn_storage"
+              },
+              {
+                "label": "collabShares",
+                "type": "t_array(t_uint256)dyn_storage"
+              }
+            ]
+          },
+          "t_struct(D256)11490_storage": {
+            "label": "struct Decimal.D256",
+            "members": [
+              {
+                "label": "value",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_struct(PlatformFee)23373_storage": {
+            "label": "struct IMarketV2.PlatformFee",
+            "members": [
+              {
+                "label": "fee",
+                "type": "t_struct(D256)11490_storage"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    }
+  }
+}
