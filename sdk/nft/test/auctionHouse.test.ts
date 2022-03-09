@@ -365,7 +365,7 @@ describe("AuctionHouse", () => {
             );
         });
 
-        it("Should reject if the caller is not the curator or owner on the main media", async () => {
+        it("Should reject if the caller is not the curator nor owner on the main media", async () => {
           await invalidSigner
             .setAuctionReservePrice(0, 200)
             .should.be.rejectedWith(
@@ -711,6 +711,71 @@ describe("AuctionHouse", () => {
             ethers.constants.AddressZero
           );
         });
+      });
+    });
+
+    describe("#endAuction", () => {
+      let invalidSigner: Signer;
+      let curator: Signer;
+      let bidder: Signer;
+      let invalidSignerConnected: AuctionHouse;
+      let bidderMainConnected: AuctionHouse;
+      let curatorMainConnected: AuctionHouse;
+      let mintAmt: any;
+      let bidAmt: any;
+      beforeEach(async () => {
+        mintAmt = 300;
+        bidAmt = 200;
+        curator = signers[4];
+        invalidSigner = signers[9];
+        bidder = signers[5];
+
+        await ownerMediaConnected.approve(auctionHouse.address, 0);
+
+        await ownerAuctionConnected.createAuction(
+          0,
+          mediaAddress,
+          duration,
+          reservePrice,
+          await curator.getAddress(),
+          0,
+          token.address
+        );
+
+        curatorMainConnected = new AuctionHouse(1337, curator);
+        invalidSignerConnected = new AuctionHouse(1337, invalidSigner);
+        bidderMainConnected = new AuctionHouse(1337, bidder);
+
+        await token.mint(await bidder.getAddress(), mintAmt);
+        await token.connect(bidder).approve(auctionHouse.address, bidAmt);
+      });
+
+      it("Should reject if the auctionId does not exist on the main media", async () => {
+        await curatorMainConnected.startAuction(0, true);
+        await bidderMainConnected.createBid(0, 200, mediaAddress);
+        await ownerAuctionConnected
+          .endAuction(30, mediaAddress)
+          .should.be.rejectedWith(
+            "Invariant failed: AuctionHouse (endAuction): AuctionId does not exist."
+          );
+      });
+
+      it("Should reject if the auction hasn't begun on the main media", async () => {
+        await curatorMainConnected
+          .endAuction(0, mediaAddress)
+          .should.be.rejectedWith(
+            "Invariant failed: AuctionHouse (endAuction): Auction hasn't started."
+          );
+      });
+
+      it("Should reject if the auction started but bid hasn't been placed on the main media", async () => {
+        await curatorMainConnected.startAuction(0, true);
+
+        await ownerAuctionConnected
+          .endAuction(0, mediaAddress)
+          .should.be.rejectedWith(
+            "Invariant failed: AuctionHouse (endAuction): Auction started but bid hasn't been placed."
+          );
       });
     });
 
