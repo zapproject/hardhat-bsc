@@ -32,9 +32,7 @@ describe.only('MediaFactoryV2', () => {
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
   let mediaFactory: MediaFactory;
-  let mediaFactoryV2: MediaFactoryV2;
   let zapMedia: ZapMedia;
-  let deployMediaV1: any;
 
   const zapMediaV2Interface = async () => {
     const deploy = await deployments.deploy('ZapMediaV2', {
