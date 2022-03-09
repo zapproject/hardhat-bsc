@@ -8,7 +8,7 @@ import {Decimal} from '../../Decimal.sol';
 /**
  * @title Interface for Zap NFT Marketplace Protocol's Market
  */
-interface IMarketV2 {
+interface IMarketV {
     struct Bid {
         // Amount of the currency being bid
         uint256 amount;

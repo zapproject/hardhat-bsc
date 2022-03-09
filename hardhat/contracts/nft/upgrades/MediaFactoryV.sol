@@ -7,7 +7,7 @@ import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/Upgradeabl
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from '../MediaProxy.sol';
 import {ZapMedia} from '../ZapMedia.sol';
-import {IMarketV2} from '../upgrades/interfaces/IMarketV2.sol';
+import {IMarketV} from './interfaces/IMarketV.sol';
 
 interface IERC721Extended {
     function name() external view returns (string memory);
@@ -19,14 +19,14 @@ interface IERC721Extended {
 /// @notice This contract deploys ZapMedia and external ERC721 contracts,
 ///         registers and then configures them to be used on the Zap NFT Marketplace
 /// @dev It creates instances of ERC1976 MediaProxy and sets their implementation to a deployed ZapMedia
-contract MediaFactoryV2 is OwnableUpgradeable {
+contract MediaFactoryV is OwnableUpgradeable {
     event MediaDeployed(address indexed mediaContract);
     event ExternalTokenConfigured(
         address indexed externalContract,
         uint256 tokenId
     );
 
-    IMarketV2 zapMarket;
+    IMarketV zapMarket;
     address beacon;
 
     /// @notice Contract constructor
@@ -39,7 +39,7 @@ contract MediaFactoryV2 is OwnableUpgradeable {
         initializer
     {
         __Ownable_init();
-        zapMarket = IMarketV2(_zapMarket);
+        zapMarket = IMarketV(_zapMarket);
         beacon = address(new UpgradeableBeacon(zapMediaInterface));
         UpgradeableBeacon(beacon).transferOwnership(address(this));
     }
@@ -120,7 +120,7 @@ contract MediaFactoryV2 is OwnableUpgradeable {
     function configureExternalToken(
         address tokenAddress,
         uint256 tokenId,
-        IMarketV2.BidShares memory _bidShares
+        IMarketV.BidShares memory _bidShares
     ) external returns (bool success) {
         require(
             IERC721(tokenAddress).ownerOf(tokenId) == msg.sender,
