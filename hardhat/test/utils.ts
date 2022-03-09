@@ -11,6 +11,7 @@ import {
   AuctionHouseV2
 } from '../typechain';
 import {
+  BadMedia1155,
   BadBidder,
   AuctionHouse,
   WETH,
@@ -52,6 +53,7 @@ export const THOUSANDTH_ETH = ethers.utils.parseUnits(
 export const TENTH_ETH = ethers.utils.parseUnits('0.1', 'ether') as BigNumber;
 export const ONE_ETH = ethers.utils.parseUnits('1', 'ether') as BigNumber;
 export const TWO_ETH = ethers.utils.parseUnits('2', 'ether') as BigNumber;
+export const THREE_ETH = ethers.utils.parseUnits('3', 'ether') as BigNumber;
 
 export const deployWETH = async () => {
   const [deployer] = await ethers.getSigners();
@@ -304,7 +306,7 @@ export const deployBidder = async (auction: string, nftContract: string) => {
   ).deployed()) as BadBidder;
 };
 
-export const mint = async (media: ZapMedia) => {
+export const mint = async (media: ZapMedia | ZapMediaV2) => {
   const metadataHex = ethers.utils.formatBytes32String('{}');
   const metadataHash = await keccak256(metadataHex);
   const hash = ethers.utils.arrayify(metadataHash);
@@ -637,4 +639,11 @@ export const deployV2ZapNFTMarketplace = async (market: ZapMarketV2) => {
   );
 
   return { medias, mediaFactory };
+};
+
+export const approveAuctionBatch = async (
+  media: Media1155 | BadMedia1155,
+  auctionHouse: AuctionHouse | AuctionHouseV2
+) => {
+  await media.setApprovalForAll(auctionHouse.address, true);
 };
