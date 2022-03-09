@@ -714,7 +714,7 @@ describe("AuctionHouse", () => {
       });
     });
 
-    describe.only("#endAuction", () => {
+    describe("#endAuction", () => {
       let invalidSigner: Signer;
       let curator: Signer;
       let bidder: Signer;
@@ -768,8 +768,8 @@ describe("AuctionHouse", () => {
           );
       });
 
-			it("Should reject if the auction started but bid hasn't been placed on the main media", async () => {
-				await curatorMainConnected.startAuction(0, true);
+      it("Should reject if the auction started but bid hasn't been placed on the main media", async () => {
+        await curatorMainConnected.startAuction(0, true);
 
         await ownerAuctionConnected
           .endAuction(0, mediaAddress)
@@ -777,7 +777,6 @@ describe("AuctionHouse", () => {
             "Invariant failed: AuctionHouse (endAuction): Auction started but bid hasn't been placed."
           );
       });
-
     });
 
     describe("View Functions", () => {
