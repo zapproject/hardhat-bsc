@@ -1597,7 +1597,7 @@ describe('Media1155 Test', async () => {
     });
   });
 
-  describe('Ownership', () => {
+  describe.only('Ownership', () => {
     it('Should successfully transfer ownership', async () => {
       let oldOwner = await media1.getOwner();
       let newOwner = signers[2].address;
@@ -1684,15 +1684,9 @@ describe('Media1155 Test', async () => {
       );
     });
 
-    it.only('Should revert when non-owner calls init transfer', async () => {
+    it('Should revert when non-owner calls init transfer', async () => {
       let oldOwner = await media1.getOwner();
       let newOwner = signers[1].address;
-
-      console.log(media1155Factory.address);
-      console.log(newOwner);
-      console.log(signers[0].address);
-      console.log(signers[1].address);
-      console.log(signers[2].address);
 
       await expect(
         media1.connect(signers[5]).initTransferOwnership(newOwner)
