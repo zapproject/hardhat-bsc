@@ -1597,7 +1597,7 @@ describe('Media1155 Test', async () => {
     });
   });
 
-  describe.only('Ownership', () => {
+  describe('Ownership', () => {
     it('Should successfully transfer ownership', async () => {
       let oldOwner = await media1.getOwner();
       let newOwner = signers[2].address;
