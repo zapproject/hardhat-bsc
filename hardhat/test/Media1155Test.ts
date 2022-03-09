@@ -1698,5 +1698,29 @@ describe('Media1155 Test', async () => {
           .initTransferOwnership(ethers.constants.AddressZero)
       ).to.be.revertedWith('Ownable: Cannot transfer to zero address');
     });
+
+    it('Should revert when non owner calls claim transfer', async () => {
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[2].address;
+
+      await media1.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter = media1.filters.OwnershipTransferInitiated(
+        null, null
+      );
+
+      const event_transferOwnershipInitated: Event = (
+        await media1.queryFilter(filter_transferInitiated)
+      )[1]
+
+      expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
+
+      await expect(media1.connect(signers[5]).claimTransferOwnership()).
+        to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
+    });
   });
 });
