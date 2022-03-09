@@ -33,6 +33,8 @@ describe('MediaFactoryV2', () => {
   let zapMarketV2: ZapMarketV2;
   let mediaFactory: MediaFactory;
   let mediaFactoryV2: MediaFactoryV2;
+  let zapMedia: ZapMedia;
+  let deployMediaV1: any;
 
   beforeEach(async () => {
     signers = await ethers.getSigners();
@@ -42,23 +44,32 @@ describe('MediaFactoryV2', () => {
 
     const mediaFactoryFixture = await deployments.get('MediaFactory');
 
-    // Creates an instance of ZapMarket
+    // Creates an instance of ZapMarketV1
     zapMarket = (await ethers.getContractAt(
       'ZapMarket',
       zapMarketFixture.address,
       signers[0]
     )) as ZapMarket;
 
+    // Returns the address of ZapMediaV1
+    const zapMediaAddress = await zapMarket.mediaContracts(
+      signers[0].address,
+      0
+    );
+
+    // Creates an instance of MediaFactoryV1
     mediaFactory = (await ethers.getContractAt(
       'MediaFactory',
       mediaFactoryFixture.address,
       signers[0]
     )) as MediaFactory;
 
-    const marketV1Factory = await ethers.getContractFactory(
-      'ZapMarket',
+    // Creates an instane of ZapMediaV1
+    zapMedia = (await ethers.getContractAt(
+      'ZapMedia',
+      zapMediaAddress,
       signers[0]
-    );
+    )) as ZapMedia;
 
     const marketV2Factory = await ethers.getContractFactory(
       'ZapMarketV2',
@@ -67,25 +78,16 @@ describe('MediaFactoryV2', () => {
 
     zapMarketV2 = (await upgrades.upgradeProxy(
       zapMarket.address,
-      marketV1Factory
+      marketV2Factory
     )) as ZapMarketV2;
   });
 
-  describe('#deployMedia', () => {
+  describe('#upgradeMediaFactoryV2', () => {
     let deployMedia: any;
     let mediaAddress: string;
 
-    beforeEach(async () => {
-      //   Deploys an instance of ZapMedia through the MediaFactory
-      deployMedia = await mediaFactory.deployMedia(
-        'TEST COLLECTION',
-        'TC',
-        zapMarket.address,
-        true,
-        'https://www.testing.com'
-      );
-    });
+    beforeEach(async () => {});
 
-    it('Testing', async () => {});
+    it.only('Testing', async () => {});
   });
 });
