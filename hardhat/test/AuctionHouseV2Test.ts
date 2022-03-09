@@ -928,22 +928,32 @@ describe("AuctionHouseV2", () => {
         media4.address
       );
 
+      media1.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+
+      await createAuctionBatch(
+        auctionHouse.connect(signers[0]),
+        curator.address,
+        zapTokenBsc.address,
+        undefined,
+        media1.address
+      );
+
       zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
     });
 
-    it("should revert if the auctionHouse does not exist", async () => {
+    it("[721] should revert if the auctionHouse does not exist", async () => {
       await expect(
-        auctionHouse.setAuctionReservePrice(1, TWO_ETH)
+        auctionHouse.setAuctionReservePrice(2, TWO_ETH)
       ).revertedWith(`Auction doesn't exist`);
     });
 
-    it("should revert if not called by the curator or owner", async () => {
+    it("[721] should revert if not called by the curator or owner", async () => {
       await expect(
         auctionHouse.connect(admin).setAuctionReservePrice(0, TWO_ETH)
       ).revertedWith(`Must be auction curator`);
     });
 
-    it("should revert if the auction has already started", async () => {
+    it("[721] should revert if the auction has already started", async () => {
       await zapTokenBsc.mint(bidder.address, TWO_ETH);
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
       await auctionHouse.setAuctionReservePrice(0, TWO_ETH);
@@ -956,21 +966,71 @@ describe("AuctionHouseV2", () => {
       ).revertedWith(`Auction has already started`);
     });
 
-    it("should set the auction reserve price when called by the curator", async () => {
+    it("[721] should set the auction reserve price when called by the curator", async () => {
       await auctionHouse.setAuctionReservePrice(0, TWO_ETH);
 
       expect((await auctionHouse.auctions(0)).reservePrice).to.eq(TWO_ETH);
     });
 
-    it("should set the auction reserve price when called by the token owner", async () => {
+    it("[721] should set the auction reserve price when called by the token owner", async () => {
       await auctionHouse.connect(signers[0]).setAuctionReservePrice(0, TWO_ETH);
 
       expect((await auctionHouse.auctions(0)).reservePrice).to.eq(TWO_ETH);
     });
 
-    it("should emit an AuctionReservePriceUpdated event", async () => {
+    it("[721] should emit an AuctionReservePriceUpdated event", async () => {
       const block = await ethers.provider.getBlockNumber();
       await auctionHouse.setAuctionReservePrice(0, TWO_ETH);
+      const events = await auctionHouse.queryFilter(
+        auctionHouse.filters.AuctionReservePriceUpdated(null, null, null, null, null),
+        block
+      );
+      expect(events.length).eq(1);
+      const logDescription = auctionHouse.interface.parseLog(events[0]);
+
+      expect(logDescription.args.reservePrice).to.eq(TWO_ETH);
+    });
+
+    it("[1155] should revert if the auctionHouse does not exist", async () => {
+      await expect(
+        auctionHouse.setAuctionReservePrice(2, TWO_ETH)
+      ).revertedWith(`Auction doesn't exist`);
+    });
+
+    it("[1155] should revert if not called by the curator or owner", async () => {
+      await expect(
+        auctionHouse.connect(admin).setAuctionReservePrice(1, TWO_ETH)
+      ).revertedWith(`Must be auction curator`);
+    });
+
+    it("[1155] should revert if the auction has already started", async () => {
+      await zapTokenBsc.mint(bidder.address, TWO_ETH);
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, TWO_ETH);
+      await auctionHouse.setAuctionReservePrice(1, TWO_ETH);
+      await auctionHouse.startAuction(1, true);
+      await auctionHouse
+        .connect(bidder)
+        .createBid(1, TWO_ETH, media1.address);
+      await expect(
+        auctionHouse.setAuctionReservePrice(1, ONE_ETH)
+      ).revertedWith(`Auction has already started`);
+    });
+
+    it("[1155] should set the auction reserve price when called by the curator", async () => {
+      await auctionHouse.setAuctionReservePrice(1, TWO_ETH);
+
+      expect((await auctionHouse.auctions(1)).reservePrice).to.eq(TWO_ETH);
+    });
+
+    it("[1155] should set the auction reserve price when called by the token owner", async () => {
+      await auctionHouse.connect(signers[0]).setAuctionReservePrice(1, TWO_ETH);
+
+      expect((await auctionHouse.auctions(1)).reservePrice).to.eq(TWO_ETH);
+    });
+
+    it("[1155] should emit an AuctionReservePriceUpdated event", async () => {
+      const block = await ethers.provider.getBlockNumber();
+      await auctionHouse.setAuctionReservePrice(1, TWO_ETH);
       const events = await auctionHouse.queryFilter(
         auctionHouse.filters.AuctionReservePriceUpdated(null, null, null, null, null),
         block
