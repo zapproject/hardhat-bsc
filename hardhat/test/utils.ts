@@ -53,6 +53,7 @@ export const THOUSANDTH_ETH = ethers.utils.parseUnits(
 export const TENTH_ETH = ethers.utils.parseUnits('0.1', 'ether') as BigNumber;
 export const ONE_ETH = ethers.utils.parseUnits('1', 'ether') as BigNumber;
 export const TWO_ETH = ethers.utils.parseUnits('2', 'ether') as BigNumber;
+export const THREE_ETH = ethers.utils.parseUnits('3', 'ether') as BigNumber;
 
 export const deployWETH = async () => {
   const [deployer] = await ethers.getSigners();
