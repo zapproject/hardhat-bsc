@@ -342,7 +342,7 @@
     },
     "1a7989fbb0405851d54689cc09841388fe58d9b88baa34f639d3d7ca3ab9e110": {
       "address": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
-      "txHash": "0x9604a8b888ae20cdfb7e1a2f06cc8d5421cbfdd43b3497cd528df8ed5a27061e",
+      "txHash": "0x1e5d9ea6b02962801e32042ad62db6baea18ce47592b74753e5bb9ee9749f720",
       "layout": {
         "storage": [
           {
@@ -405,7 +405,7 @@
             "label": "_tokenBidders",
             "offset": 0,
             "slot": "5",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23351_storage)))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23510_storage)))",
             "contract": "ZapMarketV2",
             "src": "contracts/nft/v2/ZapMarketV2.sol:42"
           },
@@ -413,7 +413,7 @@
             "label": "_bidShares",
             "offset": 0,
             "slot": "6",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)23369_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)23528_storage))",
             "contract": "ZapMarketV2",
             "src": "contracts/nft/v2/ZapMarketV2.sol:46"
           },
@@ -421,7 +421,7 @@
             "label": "_tokenAsks",
             "offset": 0,
             "slot": "7",
-            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage))",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23515_storage))",
             "contract": "ZapMarketV2",
             "src": "contracts/nft/v2/ZapMarketV2.sol:49"
           },
@@ -453,7 +453,7 @@
             "label": "platformFee",
             "offset": 0,
             "slot": "11",
-            "type": "t_struct(PlatformFee)23373_storage",
+            "type": "t_struct(PlatformFee)23532_storage",
             "contract": "ZapMarketV2",
             "src": "contracts/nft/v2/ZapMarketV2.sol:59"
           },
@@ -461,7 +461,7 @@
             "label": "_tokenAsks1155",
             "offset": 0,
             "slot": "12",
-            "type": "t_mapping(t_address,t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage)))",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23515_storage)))",
             "contract": "ZapMarketV2",
             "src": "contracts/nft/v2/ZapMarketV2.sol:61"
           }
@@ -485,34 +485,34 @@
           "t_mapping(t_address,t_bool)": {
             "label": "mapping(address => bool)"
           },
-          "t_mapping(t_address,t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage)))": {
+          "t_mapping(t_address,t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23515_storage)))": {
             "label": "mapping(address => mapping(address => mapping(uint256 => struct IMarketV2.Ask)))"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23351_storage)))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23510_storage)))": {
             "label": "mapping(address => mapping(uint256 => mapping(address => struct IMarketV2.Bid)))"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23356_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Ask)23515_storage))": {
             "label": "mapping(address => mapping(uint256 => struct IMarketV2.Ask))"
           },
-          "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)23369_storage))": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(BidShares)23528_storage))": {
             "label": "mapping(address => mapping(uint256 => struct IMarketV2.BidShares))"
           },
-          "t_mapping(t_address,t_struct(Bid)23351_storage)": {
+          "t_mapping(t_address,t_struct(Bid)23510_storage)": {
             "label": "mapping(address => struct IMarketV2.Bid)"
           },
           "t_mapping(t_uint256,t_bool)": {
             "label": "mapping(uint256 => bool)"
           },
-          "t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23351_storage))": {
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(Bid)23510_storage))": {
             "label": "mapping(uint256 => mapping(address => struct IMarketV2.Bid))"
           },
-          "t_mapping(t_uint256,t_struct(Ask)23356_storage)": {
+          "t_mapping(t_uint256,t_struct(Ask)23515_storage)": {
             "label": "mapping(uint256 => struct IMarketV2.Ask)"
           },
-          "t_mapping(t_uint256,t_struct(BidShares)23369_storage)": {
+          "t_mapping(t_uint256,t_struct(BidShares)23528_storage)": {
             "label": "mapping(uint256 => struct IMarketV2.BidShares)"
           },
-          "t_struct(Ask)23356_storage": {
+          "t_struct(Ask)23515_storage": {
             "label": "struct IMarketV2.Ask",
             "members": [
               {
@@ -525,7 +525,7 @@
               }
             ]
           },
-          "t_struct(Bid)23351_storage": {
+          "t_struct(Bid)23510_storage": {
             "label": "struct IMarketV2.Bid",
             "members": [
               {
@@ -550,7 +550,7 @@
               }
             ]
           },
-          "t_struct(BidShares)23369_storage": {
+          "t_struct(BidShares)23528_storage": {
             "label": "struct IMarketV2.BidShares",
             "members": [
               {
@@ -580,7 +580,7 @@
               }
             ]
           },
-          "t_struct(PlatformFee)23373_storage": {
+          "t_struct(PlatformFee)23532_storage": {
             "label": "struct IMarketV2.PlatformFee",
             "members": [
               {
