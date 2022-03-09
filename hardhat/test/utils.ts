@@ -11,6 +11,7 @@ import {
   AuctionHouseV2
 } from '../typechain';
 import {
+  BadMedia1155,
   BadBidder,
   AuctionHouse,
   WETH,
@@ -637,4 +638,11 @@ export const deployV2ZapNFTMarketplace = async (market: ZapMarketV2) => {
   );
 
   return { medias, mediaFactory };
+};
+
+export const approveAuctionBatch = async (
+  media: Media1155 | BadMedia1155,
+  auctionHouse: AuctionHouse | AuctionHouseV2
+) => {
+  await media.setApprovalForAll(auctionHouse.address, true);
 };

@@ -14,6 +14,7 @@ import {
   WETH,
   MediaFactory,
   BadMedia,
+  BadMedia1155,
   Media1155Factory,
   AuctionHouseV2,
   ZapMediaV2
@@ -23,6 +24,7 @@ import { BigNumber, Contract } from "ethers";
 
 import {
   approveAuction,
+  approveAuctionBatch,
   deployBidder,
   deployOtherNFTs,
   deployWETH,
@@ -211,8 +213,8 @@ describe("AuctionHouseV2", () => {
     await media3.claimTransferOwnership();
 
     // signer[1] is the owner of media1 and is minting a batch on their collection
-    await media1.mintBatch(
-      signers[1].address,
+    await media1.connect(signers[0]).mintBatch(
+      signers[0].address,
       [1, 2, 3],
       [1, 2, 3],
       [bidShares, bidShares, bidShares]
@@ -226,6 +228,7 @@ describe("AuctionHouseV2", () => {
     testERC721 = (await (
         await ethers.getContractFactory('TestERC1155')
       ).deploy()) as TestERC1155;
+    
 
     let [_, two, three, bidder] = await ethers.getSigners();
 
@@ -275,7 +278,33 @@ describe("AuctionHouseV2", () => {
       5,
       currency
     );
+  }
 
+  async function createAuctionBatch(
+    auctionHouse: AuctionHouseV2,
+    curator: string,
+    currency: string,
+    duration?: number,
+    media?: string,
+    signer?: string
+  ) {
+    const tokenId = 1;
+    if (!duration) duration = 60 * 60 * 24;
+    const reservePrice = BigNumber.from(10).pow(18).div(2);
+
+    await media1.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+
+    await auctionHouse.connect(signers[0]).createAuctionBatch(
+      tokenId,
+      1,
+      signer == null ? signers[0].address : signer,
+      media == null ? media1.address : media,
+      duration,
+      reservePrice,
+      curator,
+      5,
+      currency
+    );
   }
 
   describe("#constructor", () => {
@@ -584,6 +613,258 @@ describe("AuctionHouseV2", () => {
 
       const block = await ethers.provider.getBlockNumber();
       await createAuction(auctionHouse, await expectedCurator.getAddress(), zapTokenBsc.address, 60 * 60 * 24, media4.address);
+      const currAuction = await auctionHouse.auctions(0);
+      const events = await auctionHouse.queryFilter(
+        auctionHouse.filters.AuctionCreated(
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ),
+        block
+      );
+      expect(events.length).eq(1);
+      const logDescription = auctionHouse.interface.parseLog(events[0]);
+      expect(logDescription.name).to.eq("AuctionCreated");
+      expect(logDescription.args.duration).to.eq(currAuction.duration);
+      expect(logDescription.args.reservePrice).to.eq(currAuction.reservePrice);
+      expect(logDescription.args.tokenOwner).to.eq(currAuction.tokenOwner);
+      expect(logDescription.args.curator).to.eq(currAuction.curator);
+      expect(logDescription.args.curatorFeePercentage).to.eq(
+        currAuction.curatorFeePercentage
+      );
+      expect(logDescription.args.auctionCurrency).to.eq(
+        zapTokenBsc.address
+      );
+    });
+  });
+
+  describe("#createAuctionBatch", () => {
+
+    let auctionHouse: AuctionHouseV2;
+
+    beforeEach(async () => {
+
+      signers = await ethers.getSigners();
+
+      auctionHouse = await deploy(signers[0]);
+
+      // const contracts = await deployV2ZapNFTMarketplace(market);
+
+      // media4 = contracts.medias[0];
+
+      // media5 = contracts.medias[1];
+
+      // await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+    });
+
+    it("should revert if the token contract does not support the ERC1155 interface", async () => {
+      const duration = 60 * 60 * 24;
+      const reservePrice = BigNumber.from(10).pow(18).div(2);
+      const [_, curator] = await ethers.getSigners();
+
+      await expect(
+        auctionHouse.createAuctionBatch(
+          0,
+          1,
+          signers[0].address,
+          badERC721.address,
+          duration,
+          reservePrice,
+          curator.address,
+          5,
+          ethers.constants.AddressZero
+        )
+      ).revertedWith(
+        `tokenContract does not support ERC1155 interface`
+      );
+    });
+
+    it("should revert if the caller is not approved", async () => {
+      const duration = 60 * 60 * 24;
+      const reservePrice = BigNumber.from(10).pow(18).div(2);
+      const [_, curator, __, ___, unapproved] = await ethers.getSigners();
+      await expect(
+        auctionHouse
+          .connect(unapproved)
+          .createAuctionBatch(
+            1,
+            1,
+            signers[0].address,
+            media1.address,
+            duration,
+            reservePrice,
+            curator.address,
+            5,
+            ethers.constants.AddressZero
+          )
+      ).revertedWith(
+        `Caller must be approved or owner for token id`
+      );
+    });
+
+    it("should revert if owner does not have a balance of token ID", async () => {
+      const tokenId = 999;
+      const duration = 60 * 60 * 24;
+      const reservePrice = BigNumber.from(10).pow(18).div(2);
+      const [admin, curator] = await ethers.getSigners();
+
+      await expect(
+        auctionHouse
+          .connect(admin)
+          .createAuctionBatch(
+            tokenId,
+            1,
+            signers[0].address,
+            media1.address,
+            duration,
+            reservePrice,
+            curator.address,
+            5,
+            ethers.constants.AddressZero
+          )
+      ).revertedWith(
+        `Owner does not have sufficient balances`
+      );
+    });
+
+    it("should revert if the curator fee percentage is >= 100", async () => {
+      const duration = 60 * 60 * 24;
+      const reservePrice = BigNumber.from(10).pow(18).div(2);
+      const [_, curator] = await ethers.getSigners();
+
+      await expect(
+        auctionHouse.createAuctionBatch(
+          1,
+          1,
+          signers[0].address,
+          media1.address,
+          duration,
+          reservePrice,
+          curator.address,
+          100,
+          ethers.constants.AddressZero
+        )
+      ).revertedWith(
+        `curatorFeePercentage must be less than 100`
+      );
+    });
+
+    it("should revert if the duration is not 24 hrs", async () => {
+      const [_, expectedCurator] = await ethers.getSigners();
+      await expect(
+        createAuctionBatch(auctionHouse, expectedCurator.address, zapTokenBsc.address, 60 * 14)
+      ).to.be.revertedWith("Your auction needs to go on for at least 15 minutes");
+    })
+
+    it("should create an auction", async () => {
+      const [_, expectedCurator] = await ethers.getSigners();
+
+      await createAuctionBatch(auctionHouse, await expectedCurator.getAddress(), zapTokenBsc.address);
+
+      let createdAuction = await auctionHouse.auctions(0);
+
+      expect(createdAuction.duration).to.eq(24 * 60 * 60);
+      expect(createdAuction.reservePrice).to.eq(
+        BigNumber.from(10).pow(18).div(2)
+      );
+      expect(createdAuction.curatorFeePercentage).to.eq(5);
+      expect(createdAuction.tokenOwner).to.eq(signers[0].address);
+      expect(createdAuction.curator).to.eq(expectedCurator.address);
+      // since curator address is not the token owner's address, needs approval
+      expect(createdAuction.approved).to.eq(false);
+
+      await auctionHouse.connect(expectedCurator).startAuction(0, true);
+
+      createdAuction = await auctionHouse.auctions(0);
+      expect(createdAuction.duration).to.eq(24 * 60 * 60);
+      expect(createdAuction.reservePrice).to.eq(
+        BigNumber.from(10).pow(18).div(2)
+      );
+      expect(createdAuction.curatorFeePercentage).to.eq(5);
+      expect(createdAuction.tokenOwner).to.eq(signers[0].address);
+      expect(createdAuction.curator).to.eq(expectedCurator.address);
+      // since curator address is not the token owner's address, needs approval
+      expect(createdAuction.approved).to.eq(true);
+    });
+
+    it("should revert if the media contract address is the zero address", async () => {
+      const duration = 60 * 60 * 24;
+      const reservePrice = BigNumber.from(10).pow(18).div(2);
+      await expect(
+        auctionHouse.createAuctionBatch(
+          1, 1, signers[0].address, ethers.constants.AddressZero, duration, reservePrice,
+          signers[1].address, 5, zapTokenBsc.address
+        )
+      ).to.be.revertedWith("function call to a non-contract account")
+    });
+
+    it("should revert if a non-standard market and media is used to create an auction on the Zap platform", async () => {
+      const badMarketFact = await ethers.getContractFactory("ZapMarketV2", signers[5]);
+      const badMarket = await upgrades.deployProxy(
+        badMarketFact, [zapVault.address],
+        { initializer: "initializeMarket" }) as ZapMarketV2;
+      // await badMarketFact.deploy(zapVault.address);
+
+      const { ...mediaArgs } = {
+        _uri: "test uri",
+        marketContractAddr: badMarket.address,
+        permissive: false,
+        collectionURI: "https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV"
+      }
+      const badMediaFact = await ethers.getContractFactory("BadMedia1155", signers[5]);
+      const badMedia = await upgrades.deployProxy(
+        badMediaFact,
+        [
+          mediaArgs._uri,
+          mediaArgs.marketContractAddr, mediaArgs.permissive,
+          mediaArgs.collectionURI
+        ]
+      ) as BadMedia1155;
+      // const badMedia = await badMediaFact.deploy(mediaArgs);
+
+      await badMedia.connect(signers[5]).mint(signers[5].address, [1], [1]);
+      await approveAuctionBatch(badMedia, auctionHouse);
+      await expect(
+        createAuctionBatch(
+          auctionHouse.connect(signers[5]),
+          signers[5].address,
+          zapTokenBsc.address,
+          undefined,
+          badMedia.address)).to.be.revertedWith(
+            "This market contract is not from Zap's NFT MarketPlace"
+          );
+    });
+
+    it("should be automatically approved if the creator is the curator", async () => {
+      await createAuctionBatch(auctionHouse, signers[0].address, zapTokenBsc.address);
+
+      const createdAuction = await auctionHouse.auctions(0);
+
+      expect(createdAuction.approved).to.eq(true);
+
+    });
+
+    it("should be automatically approved if the creator is the Zero Address", async () => {
+
+      await createAuctionBatch(auctionHouse, ethers.constants.AddressZero, zapTokenBsc.address);
+
+      const createdAuction = await auctionHouse.auctions(0);
+
+      expect(createdAuction.approved).to.eq(true);
+    });
+
+    it("should emit an AuctionCreated event", async () => {
+      const [_, expectedCurator] = await ethers.getSigners();
+
+      const block = await ethers.provider.getBlockNumber();
+      await createAuctionBatch(auctionHouse, await expectedCurator.getAddress(), zapTokenBsc.address);
       const currAuction = await auctionHouse.auctions(0);
       const events = await auctionHouse.queryFilter(
         auctionHouse.filters.AuctionCreated(
