@@ -49,31 +49,31 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         // Ethereum mainnet deployment
         case 1:
             tokenAddress = ethMainAddress
-            console.log("Ethereum Mainnet")
+            // console.log("Ethereum Mainnet")
             break;
 
         // Localhost deployment
         case 31337:
             tokenAddress = localhostAddress
-            console.log("Localhost")
+            // console.log("Localhost")
             break;
 
         // Rinkeby deployment
         case 4:
             tokenAddress = rinkebyAddress;
-            console.log("Rinkeby")
+            // console.log("Rinkeby")
             break;
 
         // BSC Testnet deployment
         case 97:
             tokenAddress = bscTestAddress
-            console.log("BSC Testnet")
+            // console.log("BSC Testnet")
             break;
 
         // BSC Mainnet Deployment
         case 56:
             tokenAddress = bscMainAddress
-            console.log("BSC Mainnet")
+            // console.log("BSC Mainnet")
             break;
     }
 
@@ -88,8 +88,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
                 methodName: 'initialize',
                 args: [tokenAddress, marketAddress]
             }
-        },
-        log: true,
+        }
     })
     return !useProxy // When live network, record the script as executed to prevent rexecution
 }

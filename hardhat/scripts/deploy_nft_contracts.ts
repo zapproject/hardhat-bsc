@@ -146,7 +146,7 @@ async function main() {
 
     // set Fee for the platform
     await zapMarket.setFee(platformFee);
-    console.log("Platform fee set for ZapMarket")
+    // console.log("Platform fee set for ZapMarket")
 
     // // ************************************************************** //
     // // deploy AuctionHouse
@@ -190,10 +190,10 @@ async function main() {
 
     // set mediaFactory address to ZapMarket
     await zapMarket.setMediaFactory(mediaFactory.address);
-    console.log("MediaFactory set to ZapMarket");
+    // console.log("MediaFactory set to ZapMarket");
 
-    console.log('MediaFactory deployed to:', mediaFactory.address);
-    console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
+    // console.log('MediaFactory deployed to:', mediaFactory.address);
+    // console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
 
 
     // const mediaDeployGas = await mediaFactory.estimateGas.deployMedia(
@@ -221,8 +221,8 @@ async function main() {
     const zapMedia = new ethers.Contract(zapMediaAddress, zapMediaABI, signers[0]) as ZapMedia;
     await zapMedia.deployed();
 
-    console.log("ZapMedia deployed to:", zapMedia.address);
-    console.log("ZapMedia contract URI (this time it should show something): ", await zapMedia.contractURI());
+    // console.log("ZapMedia deployed to:", zapMedia.address);
+    // console.log("ZapMedia contract URI (this time it should show something): ", await zapMedia.contractURI());
 
     await zapMedia.claimTransferOwnership();
 

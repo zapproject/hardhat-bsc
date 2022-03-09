@@ -36,8 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
                 methodName: 'initializeMarket',
                 args: [vaultAddress]
             }
-        },
-        log: true,
+        }
     })
 
     // ZapMarket address
@@ -49,7 +48,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // Set fee to 5%
     await zapMarket.setFee(platformFee);
 
-    console.log("Platform fee set for ZapMarket", await zapMarket.viewFee());
+    // console.log("Platform fee set for ZapMarket", await zapMarket.viewFee());
 
     return !useProxy // When live network, record the script as executed to prevent rexecution
 
