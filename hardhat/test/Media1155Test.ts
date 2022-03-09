@@ -1698,11 +1698,11 @@ describe('Media1155 Test', async () => {
         media1.connect(signers[5]).initTransferOwnership(newOwner)
       ).to.be.revertedWith('onlyOwner error: Only Owner of the Contract can make this Call');
 
-      // await expect(
-      //   media1
-      //     .connect(signers[0])
-      //     .initTransferOwnership(ethers.constants.AddressZero)
-      // ).to.be.revertedWith('Ownable: Cannot transfer to zero address');
+      await expect(
+        media1
+          .connect(signers[1])
+          .initTransferOwnership(ethers.constants.AddressZero)
+      ).to.be.revertedWith('Ownable: Cannot transfer to zero address');
     });
   });
 });
