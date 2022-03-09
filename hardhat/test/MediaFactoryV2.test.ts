@@ -44,6 +44,12 @@ describe('MediaFactoryV2', () => {
 
     const mediaFactoryFixture = await deployments.get('MediaFactory');
 
+    // ZapMarketV2 contract factory
+    const marketV2Factory = await ethers.getContractFactory(
+      'ZapMarketV2',
+      signers[0]
+    );
+
     // Creates an instance of ZapMarketV1
     zapMarket = (await ethers.getContractAt(
       'ZapMarket',
@@ -71,23 +77,33 @@ describe('MediaFactoryV2', () => {
       signers[0]
     )) as ZapMedia;
 
-    const marketV2Factory = await ethers.getContractFactory(
-      'ZapMarketV2',
-      signers[0]
-    );
-
+    // Upgrade ZapMarket to ZapMarketV2
     zapMarketV2 = (await upgrades.upgradeProxy(
       zapMarket.address,
       marketV2Factory
     )) as ZapMarketV2;
   });
 
-  describe('#upgradeMediaFactoryV2', () => {
-    let deployMedia: any;
-    let mediaAddress: string;
+  describe('#upgrade', () => {
+    let mediaFactoryV2Factory: any;
 
-    beforeEach(async () => {});
+    beforeEach(async () => {
+      // MediaFactoryV2 contract factory
+      mediaFactoryV2Factory = await ethers.getContractFactory(
+        'MediaFactoryV2',
+        signers[0]
+      );
+    });
 
-    it.only('Testing', async () => {});
+    it.only('Should upgrade MediaFactory to MediaFactoryV2', async () => {
+      // Upgraded MediaFactory to MediaFactoryV2
+      const mediaFactoryV2 = await upgrades.upgradeProxy(
+        mediaFactory.address,
+        mediaFactoryV2Factory
+      );
+
+      // MediaFactoryV2 address should equal MediaFactoryV1 address after upgrading
+      expect(mediaFactoryV2.address).to.equal(mediaFactory.address);
+    });
   });
 });
