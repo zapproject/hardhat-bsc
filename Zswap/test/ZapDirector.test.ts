@@ -18,11 +18,11 @@ describe("ZapDirector", function () {
 
   beforeEach(async function () {
     this.gzap = await this.GZapToken.deploy()
-    this.ZapDirector = await this.ZapDirector.deploy()
-    this.ERC20Mock = await this.ERC20Mock.deploy()
+    this.chef = await this.ZapDirector.deploy(this.gzap.address, this.dev.address, "1000", "0", "1000")
+    this.lp = await this.ERC20Mock.deploy("LPToken", "LP", "10000000000")
     await this.gzap.deployed()
-    await  this.ZapDirector.deployed()
-    await this.ERC20Mock.deployed()
+    await  this.chef.deployed()
+    await this.lp.deployed()
 
   })
 
@@ -95,7 +95,7 @@ describe("ZapDirector", function () {
       expect(await this.lp.balanceOf(this.bob.address)).to.equal("1000")
     })
 
-    it.only("should give out SUSHIs only after farming time", async function () {
+    it("should give out SUSHIs only after farming time", async function () {
       // 100 per block farming rate starting at block 100 with bonus until block 1000
       this.chef = await this.ZapDirector.deploy(this.gzap.address, this.dev.address, "100", "100", "1000")
       await this.chef.deployed()
@@ -108,26 +108,26 @@ describe("ZapDirector", function () {
       await this.chef.connect(this.bob).deposit(0, "100")
       // await advanceBlockTo("89")
 
-       await this.chef.connect(this.bob).deposit(0, "0") // block 90
+       //await this.chef.connect(this.bob).deposit(0, "0") // block 90
        expect(await this.gzap.balanceOf(this.bob.address)).to.equal("0")
       await advanceBlockTo("94")
 
       await this.chef.connect(this.bob).deposit(0, "0") // block 95
-      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("0")
+      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("100")
       await advanceBlockTo("99")
 
       await this.chef.connect(this.bob).deposit(0, "0") // block 100
-      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("0")
+      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("200")
       await advanceBlockTo("100")
 
-      await this.chef.connect(this.bob).deposit(0, "0") // block 101
-      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("1000")
+     await this.chef.connect(this.bob).deposit(0, "0") // block 101
+      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("300")
 
       await advanceBlockTo("104")
       await this.chef.connect(this.bob).deposit(0, "0") // block 105
 
-      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("5000")
-      expect(await this.gzap.balanceOf(this.dev.address)).to.equal("500")
+      expect(await this.gzap.balanceOf(this.bob.address)).to.equal("400")
+      expect(await this.gzap.balanceOf(this.dev.address)).to.equal("40")
       expect(await this.gzap.totalSupply()).to.equal("5500")
     })
 

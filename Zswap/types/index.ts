@@ -87,7 +87,7 @@ export type { UniswapV2Router02 } from "./UniswapV2Router02";
 export type { IMigratorChef } from "./IMigratorChef";
 export type { ZapDirector } from "./ZapDirector";
 export type { IMigratorChef } from "./IMigratorChef";
-export type { MasterChefV2 } from "./MasterChefV2";
+export type { ZapDirectorV2 } from "./ZapDirectorV2";
 
 export { BaseBoringBatchable__factory } from "./factories/BaseBoringBatchable__factory";
 export { BoringBatchable__factory } from "./factories/BoringBatchable__factory";
@@ -175,4 +175,4 @@ export { UniswapV2Router02__factory } from "./factories/UniswapV2Router02__facto
 export { IMigratorChef__factory } from "./factories/IMigratorChef__factory";
 export { ZapDirector__factory } from "./factories/ZapDirector__factory";
 export { IMigratorChef__factory } from "./factories/IMigratorChef__factory";
-export { MasterChefV2__factory } from "./factories/MasterChefV2__factory";
+export { ZapDirectorV2__factory } from "./factories/ZapDirectorV2__factory";

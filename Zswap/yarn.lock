@@ -24,8 +24,7 @@
     "js-tokens" "^4.0.0"
 
 "@boringcrypto/boring-solidity@boringcrypto/BoringSolidity#e06e943":
-  "integrity" "sha512-yQguy+3ac2sP+fHlDS5U0CI2asTcGJcocRUYOQ/d6nxBc9aVRLYCE7YtaIDP2Q+a6j4GFe8oJXuKPdtjeeKi6g=="
-  "resolved" "https://codeload.github.com/boringcrypto/BoringSolidity/tar.gz/e06e943e7e8a168ed0395ef663a17fd71a6949a2"
+  "resolved" "git+ssh://git@github.com/boringcrypto/BoringSolidity.git#e06e943e7e8a168ed0395ef663a17fd71a6949a2"
   "version" "1.0.4"
 
 "@codechecks/client@^0.1.0":
@@ -1238,9 +1237,9 @@
     "@types/underscore" "*"
 
 "@uniswap/v2-core@git://github.com/uniswap/uniswap-v2-core.git#27f6354bae6685612c182c3bc7577e61bc8717e3":
-  "integrity" "sha512-HRflLBj6wJCHnxrufDtnIftpqC3UtTGZzEgqTUijtF1SwX39FM2Yq2dXN35hLKDdGglSic5uUi085Aa90TgK3A=="
-  "resolved" "git+ssh://git@github.com/uniswap/uniswap-v2-core.git"
-  "version" "1.0.1"
+  "integrity" "sha512-xktWH2WqQGdbr5xbmZ1DS2vJR5M/iq35zt7tRALSTDhuYoBJCxDxWrigcLN0iCphK4WRNogooOotPnQTBIh+bg=="
+  "resolved" "git+ssh://git@github.com/uniswap/uniswap-v2-core.git#27f6354bae6685612c182c3bc7577e61bc8717e3"
+  "version" "1.0.0-beta.0"
 
 "@yarnpkg/lockfile@^1.1.0":
   "integrity" "sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ=="

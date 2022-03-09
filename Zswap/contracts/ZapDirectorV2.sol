@@ -21,7 +21,7 @@ interface IMigratorChef {
 /// The idea for this ZapDirector V2 (ZDV2) contract is therefore to be the owner of a dummy token
 /// that is deposited into the ZapDirector V1 (ZDV1) contract.
 /// The allocation point for this pool on ZDV1 is the total allocation point for all pools that receive double incentives.
-contract MasterChefV2 is BoringOwnable, BoringBatchable {
+contract ZapDirectorV2 is BoringOwnable, BoringBatchable {
     using BoringMath for uint256;
     using BoringMath128 for uint128;
     using BoringERC20 for IERC20;
