@@ -14,8 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // constructor is invoked
     await deploy('ZapMedia', {
         from: deployer,
-        args: [],
-        log: true,
+        args: []
     })
     return !useProxy // When live network, record the script as executed to prevent rexecution
 }

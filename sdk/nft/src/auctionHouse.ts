@@ -268,6 +268,35 @@ class AuctionHouse {
 
     return this.auctionHouse.cancelAuction(auctionId);
   }
+
+  public async endAuction(auctionId: BigNumberish, mediaAddress: string) {
+    const auctionInfo = await this.auctionHouse.auctions(auctionId);
+
+    if (auctionInfo.token.mediaContract == ethers.constants.AddressZero) {
+      invariant(false, "AuctionHouse (endAuction): AuctionId does not exist.");
+    }
+
+    // If the fetched firstBidTime is not 0 throw an error
+    if (parseInt(auctionInfo.firstBidTime._hex) == 0) {
+      invariant(false, "AuctionHouse (endAuction): Auction hasn't started.");
+    }
+
+		// If the bid hasn't been placed throw an error
+		if (parseInt(auctionInfo.bidder) == 0) {
+      invariant(false, "AuctionHouse (endAuction): Auction started but bid hasn't been placed.");
+    }
+
+    // Retrieve the time now in seconds
+    const dateNow = Date.now()/1000;
+
+    // Sum of the auction duration and auction's first time bid
+    const auctionSum = parseInt(auctionInfo.duration._hex) + parseInt(auctionInfo.firstBidTime._hex);
+  
+    if (dateNow !>= auctionSum) {
+      console.log("auction not completed");
+    }
+    return this.auctionHouse.endAuction(auctionId, mediaAddress);
+  }
 }
 
 export default AuctionHouse;
