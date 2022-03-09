@@ -174,6 +174,7 @@ contract ZapMediaV2 is
         _registerInterface(0x80ac58cd); // registers old erc721 interface for AucitonHouse
         _registerInterface(0x5b5e139f); // registers current metadata upgradeable interface for AuctionHouse
         _registerInterface(type(IMediaV2).interfaceId);
+        _registerInterface(type(IERC721Upgradeable).interfaceId);
 
         access.isPermissive = permissive;
         _contractURI = bytes(collectionURI);

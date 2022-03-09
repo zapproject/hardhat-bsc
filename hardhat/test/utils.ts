@@ -305,7 +305,7 @@ export const deployBidder = async (auction: string, nftContract: string) => {
   ).deployed()) as BadBidder;
 };
 
-export const mint = async (media: ZapMedia) => {
+export const mint = async (media: ZapMedia | ZapMediaV2) => {
   const metadataHex = ethers.utils.formatBytes32String('{}');
   const metadataHash = await keccak256(metadataHex);
   const hash = ethers.utils.arrayify(metadataHash);
