@@ -466,6 +466,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
                 _finalizeNFTTransfer1155(
                     msg.sender,
                     tokenId,
+                    1,
                     bid.bidder,
                     owner
                 );
@@ -510,6 +511,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     function acceptBid(
         address mediaContractAddress,
         uint256 tokenId,
+        uint256 amount,
         Bid calldata expectedBid,
         address owner
     ) external override onlyMediaCaller isUnlocked(tokenId) {
@@ -534,6 +536,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             _finalizeNFTTransfer1155(
                 mediaContractAddress,
                 tokenId,
+                amount,
                 bid.bidder,
                 owner
             );
@@ -620,6 +623,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     function _finalizeNFTTransfer1155(
         address mediaContractAddress,
         uint256 tokenId,
+        uint256 amount,
         address bidder,
         address owner
     ) private {
@@ -665,7 +669,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         // Transfer media to bid recipient
         Media1155(mediaContractAddress).auctionTransfer(
             tokenId,
-            1,
+            amount,
             bid.recipient,
             owner
         );

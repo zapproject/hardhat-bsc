@@ -100,6 +100,7 @@ interface IMedia1155 {
 
     function acceptBid(
         uint256 tokenId,
+        uint256 amount,
         IMarketV2.Bid calldata bid,
         address owner
     ) external;

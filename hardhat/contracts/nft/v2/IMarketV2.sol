@@ -189,6 +189,7 @@ interface IMarketV2 {
     function acceptBid(
         address mediaContractAddress,
         uint256 tokenId,
+        uint256 amount,
         Bid calldata expectedBid,
         address owner
     ) external;

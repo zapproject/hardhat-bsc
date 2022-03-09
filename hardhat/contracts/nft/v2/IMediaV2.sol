@@ -93,7 +93,7 @@ interface IMediaV2 {
      */
     function removeBid(uint256 tokenId) external;
 
-    function acceptBid(uint256 tokenId, IMarketV2.Bid calldata bid, address owner) external;
+    function acceptBid(uint256 tokenId, uint256 amount, IMarketV2.Bid calldata bid, address owner) external;
 
     /**
      * @notice Revoke approval for a piece of media

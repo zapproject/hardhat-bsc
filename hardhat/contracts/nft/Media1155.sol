@@ -404,9 +404,10 @@ contract Media1155 is
      */
     function acceptBid(
         uint256 tokenId,
+        uint256 amount,
         IMarketV2.Bid memory bid,
         address owner
-    )
+    ) 
         public
         override
         nonReentrant
@@ -416,6 +417,7 @@ contract Media1155 is
         IMarketV2(access.marketContract).acceptBid(
             address(this),
             tokenId,
+            amount,
             bid,
             owner
         );

@@ -509,21 +509,42 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             }
         } else {
             // Otherwise, transfer the token to the winner and pay out the participants below
-            try
-                IERC721Upgradeable(auctions[auctionId].token.mediaContract)
-                    .safeTransferFrom(
-                        address(this),
+            if (IMediaV2(auctions[auctionId].token.mediaContract).supportsInterface(_721InterfaceId)){
+                try
+                    IERC721Upgradeable(auctions[auctionId].token.mediaContract)
+                        .safeTransferFrom(
+                            address(this),
+                            auctions[auctionId].bidder,
+                            auctions[auctionId].token.tokenId
+                        )
+                {} catch {
+                    _handleOutgoingBid(
                         auctions[auctionId].bidder,
-                        auctions[auctionId].token.tokenId
-                    )
-            {} catch {
-                _handleOutgoingBid(
-                    auctions[auctionId].bidder,
-                    auctions[auctionId].amount,
-                    auctions[auctionId].auctionCurrency
-                );
-                _cancelAuction(auctionId);
-                return;
+                        auctions[auctionId].amount,
+                        auctions[auctionId].auctionCurrency
+                    );
+                    _cancelAuction(auctionId);
+                    return;
+                }
+            } else {
+                try
+                    IERC1155Upgradeable(auctions[auctionId].token.mediaContract)
+                        .safeTransferFrom(
+                            address(this),
+                            auctions[auctionId].bidder,
+                            auctions[auctionId].token.tokenId,
+                            auctions[auctionId].token.amount,
+                            ""
+                        )
+                {} catch {
+                    _handleOutgoingBid(
+                        auctions[auctionId].bidder,
+                        auctions[auctionId].amount,
+                        auctions[auctionId].auctionCurrency
+                    );
+                    _cancelAuction(auctionId);
+                    return;
+                }
             }
         }
 
@@ -714,6 +735,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         try
             IMediaV2(mediaContract).acceptBid(
                 auctions[auctionId].token.tokenId,
+                auctions[auctionId].token.amount,
                 bid,
                 owner
             )

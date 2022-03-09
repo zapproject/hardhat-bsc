@@ -421,14 +421,14 @@ contract ZapMediaV2 is
     /**
      * @notice see IMediaV2
      */
-    function acceptBid(uint256 tokenId, IMarketV2.Bid memory bid, address owner)
+    function acceptBid(uint256 tokenId, uint256 amount, IMarketV2.Bid memory bid, address owner)
         public
-        override
+        override 
         nonReentrant
         onlyApprovedOrOwner(msg.sender, tokenId)
         onlyExistingToken(tokenId)
     {
-        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, bid, owner);
+        IMarketV2(access.marketContract).acceptBid(address(this), tokenId, amount, bid, owner);
     }
 
     /**
