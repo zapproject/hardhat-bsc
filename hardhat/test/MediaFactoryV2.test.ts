@@ -44,16 +44,18 @@ describe.only('MediaFactoryV2', () => {
   };
 
   beforeEach(async () => {
+    // Hardhat test accounts
     signers = await ethers.getSigners();
+
+    // Gets the deployment fixtures of the NFT contracts
     await deployments.fixture();
 
+    // ZapMarket deployment fixture
     const zapMarketFixture = await deployments.get('ZapMarket');
 
-    const mediaFactoryFixture = await deployments.get('MediaFactory');
-
-    // ZapMarketV2 contract factory
-    const marketV2Factory = await ethers.getContractFactory(
-      'ZapMarketV2',
+    // ZapMarket contract factory
+    const marketFactory = await ethers.getContractFactory(
+      'ZapMarket',
       signers[0]
     );
 
@@ -64,31 +66,52 @@ describe.only('MediaFactoryV2', () => {
       signers[0]
     )) as ZapMarket;
 
-    // Returns the address of ZapMediaV1
-    const zapMediaAddress = await zapMarket.mediaContracts(
-      signers[0].address,
-      0
+    // Imports the upgradeable ZapMarket proxy address to the OpenZeppelin manifest
+    await upgrades.forceImport(zapMarket.address, marketFactory);
+
+    // ZapMarketV2 contract factory
+    const marketV2Factory = await ethers.getContractFactory(
+      'ZapMarketV2',
+      signers[0]
     );
-
-    // Creates an instance of MediaFactoryV1
-    mediaFactory = (await ethers.getContractAt(
-      'MediaFactory',
-      mediaFactoryFixture.address,
-      signers[0]
-    )) as MediaFactory;
-
-    // Creates an instance of ZapMediaV1
-    zapMedia = (await ethers.getContractAt(
-      'ZapMedia',
-      zapMediaAddress,
-      signers[0]
-    )) as ZapMedia;
 
     // Upgrade ZapMarket to ZapMarketV2
     zapMarketV2 = (await upgrades.upgradeProxy(
       zapMarket.address,
       marketV2Factory
     )) as ZapMarketV2;
+
+    // MediaFactory deployment fixture
+    const mediaFactoryFixture = await deployments.get('MediaFactory');
+
+    // MediaFactory contract factory
+    const mediaDeployerFactory = await ethers.getContractFactory(
+      'MediaFactory',
+      signers[0]
+    );
+
+    // Creates an instance of MediaFactory
+    mediaFactory = (await ethers.getContractAt(
+      'MediaFactory',
+      mediaFactoryFixture.address,
+      signers[0]
+    )) as MediaFactory;
+
+    // Imports the upgradeable MediaFactory proxy address to the OpenZeppelin manifest
+    await upgrades.forceImport(mediaFactory.address, mediaDeployerFactory);
+
+    // Returns the address of ZapMedia
+    const zapMediaAddress = await zapMarket.mediaContracts(
+      signers[0].address,
+      0
+    );
+
+    // Creates an instance of ZapMedia
+    zapMedia = (await ethers.getContractAt(
+      'ZapMedia',
+      zapMediaAddress,
+      signers[0]
+    )) as ZapMedia;
   });
 
   describe('#upgrade', () => {

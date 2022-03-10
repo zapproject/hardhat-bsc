@@ -257,89 +257,6 @@
         }
       }
     },
-    "30e8d33949670832cff8209c190d8146a2e40331eb33975c8747a5f424b1860b": {
-      "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
-      "layout": {
-        "storage": [
-          {
-            "label": "_initialized",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
-          },
-          {
-            "label": "_initializing",
-            "offset": 1,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_array(t_uint256)50_storage",
-            "contract": "ContextUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
-          },
-          {
-            "label": "_owner",
-            "offset": 0,
-            "slot": "51",
-            "type": "t_address",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "52",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
-          },
-          {
-            "label": "zapMarket",
-            "offset": 0,
-            "slot": "101",
-            "type": "t_contract(IMarket)18203",
-            "contract": "MediaFactory",
-            "src": "contracts/nft/MediaFactory.sol:27"
-          },
-          {
-            "label": "beacon",
-            "offset": 0,
-            "slot": "102",
-            "type": "t_address",
-            "contract": "MediaFactory",
-            "src": "contracts/nft/MediaFactory.sol:28"
-          }
-        ],
-        "types": {
-          "t_address": {
-            "label": "address"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]"
-          },
-          "t_bool": {
-            "label": "bool"
-          },
-          "t_contract(IMarket)18203": {
-            "label": "contract IMarket"
-          },
-          "t_uint256": {
-            "label": "uint256"
-          }
-        }
-      }
-    },
     "1a7989fbb0405851d54689cc09841388fe58d9b88baa34f639d3d7ca3ab9e110": {
       "address": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
       "txHash": "0x7aad838538846a8f3ac53dcf640364e501af9b65fe1b2b89271cf93ad6ba2eec",
@@ -588,6 +505,89 @@
                 "type": "t_struct(D256)11490_storage"
               }
             ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    },
+    "30e8d33949670832cff8209c190d8146a2e40331eb33975c8747a5f424b1860b": {
+      "address": "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:21"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:26"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:30"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:21"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:77"
+          },
+          {
+            "label": "zapMarket",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IMarket)18203",
+            "contract": "MediaFactory",
+            "src": "contracts/nft/MediaFactory.sol:27"
+          },
+          {
+            "label": "beacon",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "MediaFactory",
+            "src": "contracts/nft/MediaFactory.sol:28"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(IMarket)18203": {
+            "label": "contract IMarket"
           },
           "t_uint256": {
             "label": "uint256"
