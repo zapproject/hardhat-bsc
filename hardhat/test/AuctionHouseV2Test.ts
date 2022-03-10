@@ -1079,7 +1079,6 @@ describe("AuctionHouseV2", () => {
         media4.address
       );
 
-
       media1.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
 
       await createAuctionBatch(
@@ -1656,6 +1655,7 @@ describe("AuctionHouseV2", () => {
     let bidder: SignerWithAddress;
     let other: SignerWithAddress;
     let badBidder: BadBidder;
+    let badBidder2: BadBidder;
     let weth: WETH;
 
     beforeEach(async () => {
@@ -1679,23 +1679,36 @@ describe("AuctionHouseV2", () => {
       );
       badBidder = await deployBidder(auctionHouse.address, media4.address);
 
+
+      media1.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+
+      await createAuctionBatch(
+        auctionHouse.connect(signers[0]),
+        curator.address,
+        zapTokenBsc.address,
+        undefined,
+        media1.address
+      );
+
+      badBidder2 = await deployBidder(auctionHouse.address, media1.address);
+
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, BigNumber.from("10000000000000000000"));
     });
 
-    it("should revert if the auction does not exist", async () => {
+    it("[721] should revert if the auction does not exist", async () => {
       await auctionHouse.connect(curator).startAuction(0, true);
       await expect(auctionHouse.endAuction(1110, media4.address, signers[0].address)).revertedWith(
         `Auction doesn't exist`
       );
     });
 
-    it("should revert if the auction has not begun", async () => {
+    it("[721] should revert if the auction has not begun", async () => {
       await expect(auctionHouse.endAuction(0, media4.address, signers[0].address)).revertedWith(
         `Auction hasn't begun`
       );
     });
 
-    it("should revert if the auction has not completed", async () => {
+    it("[721] should revert if the auction has not completed", async () => {
       await auctionHouse.connect(curator).startAuction(0, true);
       await auctionHouse.connect(bidder).createBid(0, ONE_ETH, media4.address);
 
@@ -1704,7 +1717,7 @@ describe("AuctionHouseV2", () => {
       );
     });
 
-    it("should cancel the auction if the winning bidder is unable to receive NFTs", async () => {
+    it("[721] should cancel the auction if the winning bidder is unable to receive NFTs", async () => {
       await zapTokenBsc.mint(badBidder.address, TWO_ETH);
       await zapTokenBsc.connect(bidder).approve(badBidder.address, TWO_ETH);
       await auctionHouse.connect(curator).startAuction(0, true);
@@ -1722,7 +1735,47 @@ describe("AuctionHouseV2", () => {
       );
     });
 
-    describe("ETH auction", () => {
+    it("[1155] should revert if the auction does not exist", async () => {
+      await auctionHouse.connect(curator).startAuction(1, true);
+      await expect(auctionHouse.endAuction(1110, media1.address, signers[0].address)).revertedWith(
+        `Auction doesn't exist`
+      );
+    });
+
+    it("[1155] should revert if the auction has not begun", async () => {
+      await expect(auctionHouse.endAuction(1, media1.address, signers[0].address)).revertedWith(
+        `Auction hasn't begun`
+      );
+    });
+
+    it("[1155] should revert if the auction has not completed", async () => {
+      await auctionHouse.connect(curator).startAuction(1, true);
+      await auctionHouse.connect(bidder).createBid(1, ONE_ETH, media1.address);
+
+      await expect(auctionHouse.endAuction(1, media1.address, signers[0].address)).revertedWith(
+        `Auction hasn't completed`
+      );
+    });
+
+    it("[1155] should cancel the auction if the winning bidder is unable to receive NFTs", async () => {
+      await zapTokenBsc.mint(badBidder2.address, TWO_ETH);
+      await zapTokenBsc.connect(bidder).approve(badBidder2.address, TWO_ETH);
+      await auctionHouse.connect(curator).startAuction(1, true);
+      await badBidder2.connect(bidder).placeBid(1, TWO_ETH, media1.address, zapTokenBsc.address);
+      const endTime =
+        (await auctionHouse.auctions(1)).duration.toNumber() +
+        (await auctionHouse.auctions(1)).firstBidTime.toNumber();
+      await ethers.provider.send("evm_setNextBlockTimestamp", [endTime + 1]);
+
+      await auctionHouse.endAuction(1, media1.address, signers[0].address);
+
+      expect(await media1.balanceOf(signers[0].address, 1)).to.eq(1);
+      expect(await zapTokenBsc.balanceOf(badBidder2.address)).to.eq(
+        TWO_ETH
+      );
+    });
+
+    describe("[721] ETH auction", () => {
       // We may need to think this over, AH is using ZapToken for
       // these tests, not (W)ETH
 
@@ -1743,7 +1796,7 @@ describe("AuctionHouseV2", () => {
 
       });
 
-      it("should transfer the NFT to the winning bidder", async () => {
+      it("[721] should transfer the NFT to the winning bidder", async () => {
 
         await auctionHouse.endAuction(0, media4.address, signers[0].address);
 
@@ -1757,7 +1810,7 @@ describe("AuctionHouseV2", () => {
 
       });
 
-      it("should pay the curator their curatorFee percentage", async () => {
+      it("[721] should pay the curator their curatorFee percentage", async () => {
 
         const beforeBalance = await zapTokenBsc.balanceOf(
           curator.address
@@ -1777,7 +1830,7 @@ describe("AuctionHouseV2", () => {
 
       });
 
-      it("should pay the creator the remainder of the winning bid", async () => {
+      it("[721] should pay the creator the remainder of the winning bid", async () => {
         const beforeBalance = await zapTokenBsc.balanceOf(signers[0].address);
 
         await auctionHouse.endAuction(0, media4.address, signers[0].address);
@@ -1790,7 +1843,7 @@ describe("AuctionHouseV2", () => {
         ).to.eq(expectedProfit);
       });
 
-      it("should emit an AuctionEnded event", async () => {
+      it("[721] should emit an AuctionEnded event", async () => {
         const block = await ethers.provider.getBlockNumber();
         const auctionData = await auctionHouse.auctions(0);
         await auctionHouse.endAuction(0, media4.address, signers[0].address);
@@ -1825,9 +1878,132 @@ describe("AuctionHouseV2", () => {
         expect(logDescription.args.auctionCurrency).to.eq(zapTokenBsc.address);
       });
 
-      it("should delete the auction", async () => {
+      it("[721] should delete the auction", async () => {
 
         await auctionHouse.endAuction(0, media4.address, signers[0].address);
+
+        const auctionResult = await auctionHouse.auctions(0);
+
+        expect(auctionResult.amount.toNumber()).to.eq(0);
+        expect(auctionResult.duration.toNumber()).to.eq(0);
+        expect(auctionResult.firstBidTime.toNumber()).to.eq(0);
+        expect(auctionResult.reservePrice.toNumber()).to.eq(0);
+        expect(auctionResult.curatorFeePercentage).to.eq(0);
+        expect(auctionResult.tokenOwner).to.eq(ethers.constants.AddressZero);
+        expect(auctionResult.bidder).to.eq(ethers.constants.AddressZero);
+        expect(auctionResult.curator).to.eq(ethers.constants.AddressZero);
+        expect(auctionResult.auctionCurrency).to.eq(
+          ethers.constants.AddressZero
+        );
+      });
+    });
+
+    describe("[1155] ETH auction", () => {
+      // We may need to think this over, AH is using ZapToken for
+      // these tests, not (W)ETH
+
+      beforeEach(async () => {
+        //  const [ deity ] = await ethers.getSigners();
+        //   auctionHouse = await deploy(deity, ethers.constants.AddressZero);
+        await auctionHouse.connect(curator).startAuction(1, true);
+        await auctionHouse
+          .connect(bidder)
+          .createBid(1, ONE_ETH, media1.address);
+
+        const endTime =
+          (await auctionHouse.auctions(1)).duration.toNumber() +
+          (await auctionHouse.auctions(1)).firstBidTime.toNumber();
+
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [endTime + 1]);
+
+      });
+
+      it("[1155] should transfer the NFT to the winning bidder", async () => {
+
+        await auctionHouse.endAuction(1, media1.address, signers[0].address);
+
+        const zapMarketFilter = market.filters.BidFinalized(null, null, null);
+
+        const event = (await market.queryFilter(zapMarketFilter));
+
+        expect(await media1.balanceOf(bidder.address, 1)).to.eq(1);
+
+        expect(event[0].args[2]).to.equal(media1.address)
+
+      });
+
+      it("[1155] should pay the curator their curatorFee percentage", async () => {
+
+        const beforeBalance = await zapTokenBsc.balanceOf(
+          curator.address
+        );
+
+        await auctionHouse.endAuction(1, media1.address, signers[0].address);
+
+        const expectedCuratorFee = "17500000000000000";
+
+        const curatorBalance = await zapTokenBsc.balanceOf(
+          curator.address
+        );
+
+        await expect(curatorBalance.sub(beforeBalance).toString()).to.eq(
+          expectedCuratorFee
+        );
+
+      });
+
+      it("[1155] should pay the creator the remainder of the winning bid", async () => {
+        const beforeBalance = await zapTokenBsc.balanceOf(signers[0].address);
+
+        await auctionHouse.endAuction(1, media1.address, signers[0].address);
+        const expectedProfit = "482500000000000000";
+        const creatorBalance = await zapTokenBsc.balanceOf(signers[0].address);
+        weth = await deployWETH();
+        const wethBalance = await weth.balanceOf(await creator.getAddress());
+        await expect(
+          creatorBalance.sub(beforeBalance).add(wethBalance).toString()
+        ).to.eq(expectedProfit);
+      });
+
+      it("[1155] should emit an AuctionEnded event", async () => {
+        const block = await ethers.provider.getBlockNumber();
+        const auctionData = await auctionHouse.auctions(1);
+        await auctionHouse.endAuction(1, media1.address, signers[0].address);
+        const events = await auctionHouse.queryFilter(
+          auctionHouse.filters.AuctionEnded(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ),
+          block
+        );
+        expect(events.length).eq(1);
+        const logDescription = auctionHouse.interface.parseLog(events[0]);
+
+        expect(logDescription.args.tokenId).to.eq(1);
+        expect(logDescription.args.tokenOwner).to.eq(auctionData.tokenOwner);
+        expect(logDescription.args.curator).to.eq(auctionData.curator);
+        expect(logDescription.args.winner).to.eq(auctionData.bidder);
+
+        expect(logDescription.args.amount.toString()).to.eq(
+          "332500000000000000"
+        );
+        expect(logDescription.args.curatorFee.toString()).to.eq(
+          "17500000000000000"
+        );
+        expect(logDescription.args.auctionCurrency).to.eq(zapTokenBsc.address);
+      });
+
+      it("[1155] should delete the auction", async () => {
+
+        await auctionHouse.endAuction(1, media1.address, signers[0].address);
 
         const auctionResult = await auctionHouse.auctions(0);
 
