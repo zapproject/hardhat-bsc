@@ -1645,14 +1645,17 @@ describe("AuctionHouseV2", () => {
           ).revertedWith(`Auction expired`);
         });
       });
-
-      describe.only("#cancelAuction", () => {
-
-        it("should revert if the auction does not exist", async () => {
-
-        });
-      });
-
     });
+
+    describe.only("#cancelAuction", () => {
+
+      it("should revert if the auction does not exist", async () => {
+        await expect(auctionHouse.cancelAuction(100));
+        // .revertedWith(
+        //   `Auction doesn't exist`
+        // );
+      });
+    });
+
   });
 });
