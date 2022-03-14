@@ -13,8 +13,10 @@ import {Counters} from '@openzeppelin/contracts/utils/Counters.sol';
 import {IMarketV2} from './IMarketV2.sol';
 import {Decimal} from '../Decimal.sol';
 import {IMediaV2} from './IMediaV2.sol';
+import {IMedia1155} from '../interfaces/IMedia1155.sol';
 import {IAuctionHouseV2} from './IAuctionHouseV2.sol';
 import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import 'hardhat/console.sol';
 
 interface IWETH {
     function deposit() external payable;
@@ -27,6 +29,7 @@ interface IWETH {
 interface IMediaExtended is IMediaV2 {
     function marketContract() external returns (address);
 }
+
 
 /**
  * @title An open auction house, enabling collectors and curators to run their own auctions
@@ -54,9 +57,11 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     // the uint256 key will be the tokenid for ERC721 and the auction id for ERC1155
     mapping(address => mapping(uint256 => TokenDetails)) private tokenDetails;
 
-    bytes4 private constant _721InterfaceId = type(IERC721Upgradeable).interfaceId; // 721 interface id
-    bytes4 private constant _1155InterfaceId = type(IERC1155Upgradeable).interfaceId;
-    uint8 constant public hundredPercent = 100;
+    bytes4 private constant _721InterfaceId =
+        type(IERC721Upgradeable).interfaceId; // 721 interface id
+    bytes4 private constant _1155InterfaceId =
+        type(IERC1155Upgradeable).interfaceId;
+    uint8 public constant hundredPercent = 100;
     Counters.Counter private _auctionIdTracker;
 
     /**
@@ -70,24 +75,27 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
     /*
      * Constructor
      */
-    function initialize(address _weth, address _marketContract) public initializer {
+    function initialize(address _weth, address _marketContract)
+        public
+        initializer
+    {
         __ReentrancyGuard_init();
         wethAddress = _weth;
         marketContract = _marketContract;
     }
 
-    function setTokenDetails(uint256 tokenId, address mediaContract)
-        internal
-    {
+    function setTokenDetails(uint256 tokenId, address mediaContract) internal {
         require(
             mediaContract != address(0),
             'AuctionHouse: Media Contract Address can not be the zero address'
         );
 
-        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0)){
+        if (tokenDetails[mediaContract][tokenId].mediaContract != address(0)) {
             require(
-                mediaContract == tokenDetails[mediaContract][tokenId].mediaContract,
-                "Token is already set for a different collection");
+                mediaContract ==
+                    tokenDetails[mediaContract][tokenId].mediaContract,
+                'Token is already set for a different collection'
+            );
         }
 
         tokenDetails[mediaContract][tokenId] = TokenDetails({
@@ -97,18 +105,25 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         });
     }
 
-    function setTokenDetailsBatch(uint256 tokenId, uint256 amount, uint256 auctionId, address mediaContract)
-        internal
-    {
+    function setTokenDetailsBatch(
+        uint256 tokenId,
+        uint256 amount,
+        uint256 auctionId,
+        address mediaContract
+    ) internal {
         require(
             mediaContract != address(0),
             'AuctionHouse: Media Contract Address can not be the zero address'
         );
 
-        if (tokenDetails[mediaContract][auctionId].mediaContract != address(0)){
+        if (
+            tokenDetails[mediaContract][auctionId].mediaContract != address(0)
+        ) {
             require(
-                mediaContract == tokenDetails[mediaContract][auctionId].mediaContract,
-                "Token is already set for a different collection");
+                mediaContract ==
+                    tokenDetails[mediaContract][auctionId].mediaContract,
+                'Token is already set for a different collection'
+            );
         }
 
         tokenDetails[mediaContract][auctionId] = TokenDetails({
@@ -132,9 +147,14 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         uint8 curatorFeePercentage,
         address auctionCurrency
     ) public override nonReentrant returns (uint256) {
-        require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
-            IERC165Upgradeable(mediaContract).supportsInterface(_721InterfaceId),
+            duration >= 60 * 15,
+            'Your auction needs to go on for at least 15 minutes'
+        );
+        require(
+            IERC165Upgradeable(mediaContract).supportsInterface(
+                _721InterfaceId
+            ),
             'tokenContract does not support ERC721 interface'
         );
         require(
@@ -143,7 +163,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         );
         require(
             IMarketV2(marketContract).isRegistered(mediaContract),
-            "Media contract is not registered with the marketplace"
+            'Media contract is not registered with the marketplace'
         );
         require(
             curatorFeePercentage < hundredPercent,
@@ -215,9 +235,14 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         uint8 curatorFeePercentage,
         address auctionCurrency
     ) public override nonReentrant returns (uint256) {
-        require(duration >= 60 * 15 , "Your auction needs to go on for at least 15 minutes");
         require(
-            IERC165Upgradeable(mediaContract).supportsInterface(_1155InterfaceId),
+            duration >= 60 * 15,
+            'Your auction needs to go on for at least 15 minutes'
+        );
+        require(
+            IERC165Upgradeable(mediaContract).supportsInterface(
+                _1155InterfaceId
+            ),
             'tokenContract does not support ERC1155 interface'
         );
         require(
@@ -226,7 +251,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         );
         require(
             IMarketV2(marketContract).isRegistered(mediaContract),
-            "Media contract is not registered with the marketplace"
+            'Media contract is not registered with the marketplace'
         );
         require(
             curatorFeePercentage < hundredPercent,
@@ -234,16 +259,20 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         );
 
         require(
-                IERC1155Upgradeable(mediaContract).isApprovedForAll(owner, msg.sender) ||
-                msg.sender == owner,
+            IERC1155Upgradeable(mediaContract).isApprovedForAll(
+                owner,
+                msg.sender
+            ) || msg.sender == owner,
             'Caller must be approved or owner for token id'
         );
 
         // require owner has sufficient balance of tokens
-        require(IERC1155Upgradeable(mediaContract).balanceOf(owner, tokenId) >= amount,
+        require(
+            IERC1155Upgradeable(mediaContract).balanceOf(owner, tokenId) >=
+                amount,
             'Owner does not have sufficient balances'
         );
-        
+
         uint256 auctionId = _auctionIdTracker.current();
         _auctionIdTracker.increment();
 
@@ -284,9 +313,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             auctionCurrency
         );
 
-        if (
-            auctions[auctionId].curator == address(0) || curator == owner
-        ) {
+        if (auctions[auctionId].curator == address(0) || curator == owner) {
             _approveAuction(auctionId, true);
         }
 
@@ -384,8 +411,12 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         );
 
         require(
-            IERC165Upgradeable(mediaContract).supportsInterface(_721InterfaceId) || 
-            IERC165Upgradeable(mediaContract).supportsInterface(_1155InterfaceId),
+            IERC165Upgradeable(mediaContract).supportsInterface(
+                _721InterfaceId
+            ) ||
+                IERC165Upgradeable(mediaContract).supportsInterface(
+                    _1155InterfaceId
+                ),
             "Doesn't support NFT interface"
         );
 
@@ -422,9 +453,9 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         // we want to know by how much the timestamp is less than start + duration
         // if the difference is less than the timeBuffer, increase the duration by the timeBuffer
         uint256 timeDiff = auctions[auctionId]
-                .firstBidTime
-                .add(auctions[auctionId].duration)
-                .sub(block.timestamp);
+            .firstBidTime
+            .add(auctions[auctionId].duration)
+            .sub(block.timestamp);
 
         if (timeDiff < timeBuffer) {
             // Playing code golf for gas optimization:
@@ -464,12 +495,11 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
      * @dev If for some reason the auction cannot be finalized (invalid token recipient, for example),
      * The auction is reset and the NFT is transferred back to the auction creator.
      */
-    function endAuction(uint256 auctionId, address mediaContract, address owner)
-        external
-        override
-        auctionExists(auctionId)
-        nonReentrant
-    {
+    function endAuction(
+        uint256 auctionId,
+        address mediaContract,
+        address owner
+    ) external override auctionExists(auctionId) nonReentrant {
         require(
             uint256(auctions[auctionId].firstBidTime) != 0,
             "Auction hasn't begun"
@@ -494,7 +524,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             (
                 bool success,
                 uint256 remainingProfit
-            ) = _handleZapAuctionSettlement(auctionId, mediaContract, owner);
+            ) = _handleZapAuctionSettlement(auctionId, mediaContract);
 
             tokenOwnerProfit = remainingProfit;
 
@@ -509,7 +539,10 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             }
         } else {
             // Otherwise, transfer the token to the winner and pay out the participants below
-            if (IMediaV2(auctions[auctionId].token.mediaContract).supportsInterface(_721InterfaceId)){
+            if (
+                IMediaV2(auctions[auctionId].token.mediaContract)
+                    .supportsInterface(_721InterfaceId)
+            ) {
                 try
                     IERC721Upgradeable(auctions[auctionId].token.mediaContract)
                         .safeTransferFrom(
@@ -534,7 +567,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
                             auctions[auctionId].bidder,
                             auctions[auctionId].token.tokenId,
                             auctions[auctionId].token.amount,
-                            ""
+                            ''
                         )
                 {} catch {
                     _handleOutgoingBid(
@@ -596,7 +629,10 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
                 auctions[auctionId].curator == msg.sender,
             'Can only be called by auction creator or curator'
         );
-        require(auctions[auctionId].bidder == address(0), "You can't cancel an auction that has a bid");
+        require(
+            auctions[auctionId].bidder == address(0),
+            "You can't cancel an auction that has a bid"
+        );
         _cancelAuction(auctionId);
     }
 
@@ -641,7 +677,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         // If the auction is in ETH, unwrap it from its underlying WETH and try to send it to the recipient.
         if (currency == address(0)) {
             IWETH(wethAddress).withdraw(amount);
-
+            
             // If the ETH transfer fails (sigh), rewrap the ETH and try send it as WETH.
             if (!_safeTransferETH(to, amount)) {
                 IWETH(wethAddress).deposit{value: amount}();
@@ -662,13 +698,23 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
-        IERC721Upgradeable(auctions[auctionId].token.mediaContract)
-            .safeTransferFrom(
-                address(this),
-                tokenOwner,
-                auctions[auctionId].token.tokenId
-            );
-
+        if (IMediaV2(auctions[auctionId].token.mediaContract).supportsInterface(0xd9b67a26)){
+            IERC1155Upgradeable(auctions[auctionId].token.mediaContract)
+                .safeTransferFrom(
+                    address(this),
+                    tokenOwner,
+                    auctions[auctionId].token.tokenId,
+                    auctions[auctionId].token.amount,
+                    ""
+                );
+        } else {
+            IERC721Upgradeable(auctions[auctionId].token.mediaContract)
+                .safeTransferFrom(
+                    address(this),
+                    tokenOwner,
+                    auctions[auctionId].token.tokenId
+                );
+        }
         emit AuctionCanceled(
             auctionId,
             auctions[auctionId].token.tokenId,
@@ -697,8 +743,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
 
     function _handleZapAuctionSettlement(
         uint256 auctionId,
-        address mediaContract,
-        address owner
+        address mediaContract
     ) internal returns (bool, uint256) {
         require(
             IMediaExtended(mediaContract).marketContract() == marketContract,
@@ -706,7 +751,7 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         );
         require(
             IMarketV2(marketContract).isRegistered(mediaContract),
-            "This Media Contract is unauthorised to settle auctions"
+            'This Media Contract is unauthorized to settle auctions'
         );
         address currency = auctions[auctionId].auctionCurrency == address(0)
             ? wethAddress
@@ -725,7 +770,11 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             bid.amount
         );
 
-        IMediaV2(mediaContract).setBid(auctions[auctionId].token.tokenId, bid, owner);
+        IMediaV2(mediaContract).setBid(
+            auctions[auctionId].token.tokenId,
+            bid,
+            address(this)
+        );
 
         // 1e18
         uint256 beforeBalance = IERC20Upgradeable(currency).balanceOf(
@@ -737,16 +786,15 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
                 auctions[auctionId].token.tokenId,
                 auctions[auctionId].token.amount,
                 bid,
-                owner
+                address(this)
             )
         {} catch {
             // If the underlying NFT transfer here fails, we should cancel the auction and refund the winner
-            IMediaExtended(mediaContract).removeBid(
+            IMediaV2(mediaContract).removeBid(
                 auctions[auctionId].token.tokenId
             );
             return (false, 0);
         }
-
         // 5e17
         uint256 afterBalance = IERC20Upgradeable(currency).balanceOf(
             address(this)
@@ -772,7 +820,12 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         uint256 value,
         bytes calldata data
     ) external returns (bytes4) {
-        return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
+        return
+            bytes4(
+                keccak256(
+                    'onERC1155Received(address,address,uint256,uint256,bytes)'
+                )
+            );
     }
 
     function onERC1155BatchReceived(
@@ -782,6 +835,11 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
         uint256[] calldata values,
         bytes calldata data
     ) external returns (bytes4) {
-        return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
+        return
+            bytes4(
+                keccak256(
+                    'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'
+                )
+            );
     }
 }

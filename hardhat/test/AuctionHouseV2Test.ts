@@ -3,6 +3,7 @@ import { deployments, ethers, upgrades } from "hardhat";
 import {
 //   AuctionHouse,
   BadBidder,
+  // BadBidder1155,
   BadERC721,
   TestERC1155,
   ZapMarket,
@@ -36,6 +37,7 @@ import {
   TWO_ETH,
   THREE_ETH,
   deployV2ZapNFTMarketplace,
+  deployBidder1155,
 } from "./utils";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { DeployResult } from 'hardhat-deploy/dist/types';
@@ -1647,7 +1649,7 @@ describe("AuctionHouseV2", () => {
     });
   });
 
-  describe.only("#endAuction", () => {
+  describe("#endAuction", () => {
     let auctionHouse: AuctionHouseV2;
     let admin: SignerWithAddress;
     let creator: SignerWithAddress;
@@ -1679,6 +1681,7 @@ describe("AuctionHouseV2", () => {
       );
       badBidder = await deployBidder(auctionHouse.address, media4.address);
 
+      await zapTokenBsc.connect(signers[0]).approve(auctionHouse.address, 999999999999999);
 
       media1.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
 
@@ -1960,7 +1963,7 @@ describe("AuctionHouseV2", () => {
         const expectedProfit = "482500000000000000";
         const creatorBalance = await zapTokenBsc.balanceOf(signers[0].address);
         weth = await deployWETH();
-        const wethBalance = await weth.balanceOf(await creator.getAddress());
+        const wethBalance = await weth.balanceOf(creator.address);
         await expect(
           creatorBalance.sub(beforeBalance).add(wethBalance).toString()
         ).to.eq(expectedProfit);
@@ -2005,7 +2008,7 @@ describe("AuctionHouseV2", () => {
 
         await auctionHouse.endAuction(1, media1.address, signers[0].address);
 
-        const auctionResult = await auctionHouse.auctions(0);
+        const auctionResult = await auctionHouse.auctions(1);
 
         expect(auctionResult.amount.toNumber()).to.eq(0);
         expect(auctionResult.duration.toNumber()).to.eq(0);

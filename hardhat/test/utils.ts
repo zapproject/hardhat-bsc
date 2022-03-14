@@ -8,7 +8,8 @@ import {
   Media1155,
   ZapMarketV2,
   ZapMediaV2,
-  AuctionHouseV2
+  AuctionHouseV2,
+  BadBidder1155
 } from '../typechain';
 import {
   BadMedia1155,
@@ -304,6 +305,14 @@ export const deployBidder = async (auction: string, nftContract: string) => {
       await ethers.getContractFactory('BadBidder')
     ).deploy(auction, nftContract)
   ).deployed()) as BadBidder;
+};
+
+export const deployBidder1155 = async (auction: string, nftContract: string) => {
+  return (await (
+    await (
+      await ethers.getContractFactory('BadBidder')
+    ).deploy(auction, nftContract)
+  ).deployed()) as BadBidder1155;
 };
 
 export const mint = async (media: ZapMedia | ZapMediaV2) => {

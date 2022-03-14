@@ -1075,6 +1075,7 @@ describe('Media1155 Test', async () => {
 
       await ownerContract.connect(ownerWallet).acceptBid(
         1,
+        1,
         {
           ...bid1,
           bidder: signers[3].address,
@@ -1097,6 +1098,7 @@ describe('Media1155 Test', async () => {
       );
 
       await ownerContract.connect(signers[3]).acceptBid(
+        1,
         1,
         {
           ...bid1,
@@ -1248,7 +1250,7 @@ describe('Media1155 Test', async () => {
           signers[1].address
         );
 
-        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+        await media1.connect(signers[4]).acceptBid(1, 1, bid, signers[4].address);
 
         const newOwnerBalance = await media1.balanceOf(signers[5].address, 1);
         expect(newOwnerBalance.toNumber()).to.equal(1);
@@ -1257,7 +1259,7 @@ describe('Media1155 Test', async () => {
       it('Should emit a bid finalized event if the bid is accepted', async () => {
         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
-        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+        await media1.connect(signers[4]).acceptBid(1, 1, bid, signers[4].address);
 
         const zapMarketFilter: EventFilter = zapMarketV2.filters.BidFinalized(
           null,
@@ -1287,7 +1289,7 @@ describe('Media1155 Test', async () => {
       it('Should emit a bid shares updated event if the bid is accepted', async () => {
         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
-        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+        await media1.connect(signers[4]).acceptBid(1, 1, bid, signers[4].address);
 
         const zapMarketFilter: EventFilter =
           zapMarketV2.filters.BidShareUpdated(null, null, null);
@@ -1314,6 +1316,7 @@ describe('Media1155 Test', async () => {
             .connect(signers[3])
             .acceptBid(
               1,
+              1,
               { ...bid, bidder: signers[3].address },
               signers[4].address
             )
@@ -1325,6 +1328,7 @@ describe('Media1155 Test', async () => {
           media1
             .connect(signers[4])
             .acceptBid(
+              1,
               1,
               { ...bid, bidder: '0x0000000000000000000000000000000000000000' },
               signers[4].address
@@ -1346,7 +1350,7 @@ describe('Media1155 Test', async () => {
         await expect(
           media1
             .connect(signers[4])
-            .acceptBid(1, invalidBid, signers[4].address)
+            .acceptBid(1, 1, invalidBid, signers[4].address)
         ).revertedWith('Market: Bid invalid for share splitting');
       });
 
@@ -1354,7 +1358,7 @@ describe('Media1155 Test', async () => {
         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
 
         await expect(
-          media1.connect(signers[4]).acceptBid(2, bid, signers[4].address)
+          media1.connect(signers[4]).acceptBid(2, 1, bid, signers[4].address)
         ).to.be.revertedWith('Media: Token balance is zero');
       });
     });
