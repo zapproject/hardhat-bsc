@@ -1665,11 +1665,16 @@ describe("AuctionHouseV2", () => {
       await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
   });
 
-    it.only("should revert if the auction does not exist", async () => {
+    it("Should revert if the auction does not exist", async () => {
       await expect(auctionHouse.cancelAuction(200000000000))
       .revertedWith(
         `Auction doesn't exist`
       );
     });
+
+    it.only("Should revert if the auction has already begun", async () => {
+
+    });
+
   });
 });
