@@ -345,7 +345,7 @@ describe('Media1155 Test', async () => {
       });
 
       describe('#mintBatch', () => {
-        it.only('Should not mint batch if caller is unapproved', async () => {
+        it('Should not mint batch if caller is unapproved', async () => {
           await expect(
             media2
               .connect(signers[4])
