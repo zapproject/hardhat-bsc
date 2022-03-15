@@ -90,21 +90,15 @@ interface IMarketV2 {
         bytes32 name,
         bytes32 symbol
     );
-    event Minted(
-        uint256 indexed token, 
-        address indexed mediaContract
-    );
-    event Burned(
-        uint256 indexed token, 
-        address indexed mediaContract
-    );
+    event Minted(uint256 indexed token, address indexed mediaContract);
+    event Burned(uint256 indexed token, address indexed mediaContract);
     event MintedBatch(
-        uint256[] indexed token, 
+        uint256[] indexed token,
         uint256[] amount,
         address indexed mediaContract
     );
     event BurnedBatch(
-        uint256[] indexed token, 
+        uint256[] indexed token,
         uint256[] amount,
         address indexed mediaContract
     );
@@ -115,10 +109,11 @@ interface IMarketV2 {
         address bidder
     ) external view returns (Bid memory);
 
-    function currentAskForToken(address mediaContractAddress, address owner, uint256 tokenId)
-        external
-        view
-        returns (Ask memory);
+    function currentAskForToken(
+        address mediaContractAddress,
+        address owner,
+        uint256 tokenId
+    ) external returns (Ask memory);
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
         external
@@ -168,9 +163,17 @@ interface IMarketV2 {
     function setBidShares(uint256 tokenId, BidShares calldata bidShares)
         external;
 
-    function setAsk(address owner, uint256 tokenId, Ask calldata ask) external;
+    function setAsk(
+        address owner,
+        uint256 tokenId,
+        Ask calldata ask
+    ) external;
 
-    function setAskBatch(address owner, uint256[] calldata tokenId, Ask[] calldata ask) external;
+    function setAskBatch(
+        address owner,
+        uint256[] calldata tokenId,
+        Ask[] calldata ask
+    ) external;
 
     function removeAsk(address owner, uint256 tokenId) external;
 
