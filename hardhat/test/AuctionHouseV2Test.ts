@@ -1650,6 +1650,10 @@ describe("AuctionHouseV2", () => {
 
   describe("#cancelAuction", () => {
     let auctionHouse: AuctionHouseV2;
+    let admin: SignerWithAddress;
+    let creator: SignerWithAddress;
+    let curator: SignerWithAddress;
+    let bidder: SignerWithAddress;
 
   beforeEach(async () => {
       signers = await ethers.getSigners();
@@ -1673,6 +1677,11 @@ describe("AuctionHouseV2", () => {
     });
 
     it.only("Should revert if the auction has already begun", async () => {
+      await zapTokenBsc.mint(bidder.address, ONE_ETH);
+
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
+
+      await auctionHouse.connect(curator).startAuction(0, true);
 
     });
 
