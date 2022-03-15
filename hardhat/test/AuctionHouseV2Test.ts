@@ -1646,16 +1646,30 @@ describe("AuctionHouseV2", () => {
         });
       });
     });
+  });
 
-    describe.only("#cancelAuction", () => {
+  describe("#cancelAuction", () => {
+    let auctionHouse: AuctionHouseV2;
 
-      it("should revert if the auction does not exist", async () => {
-        await expect(auctionHouse.cancelAuction(100));
-        // .revertedWith(
-        //   `Auction doesn't exist`
-        // );
-      });
+  beforeEach(async () => {
+      signers = await ethers.getSigners();
+
+      auctionHouse = await deploy(signers[0]);
+
+      const contracts = await deployV2ZapNFTMarketplace(market);
+
+      media4 = contracts.medias[0];
+
+      media5 = contracts.medias[1];
+
+      await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+  });
+
+    it.only("should revert if the auction does not exist", async () => {
+      await expect(auctionHouse.cancelAuction(200000000000))
+      .revertedWith(
+        `Auction doesn't exist`
+      );
     });
-
   });
 });
