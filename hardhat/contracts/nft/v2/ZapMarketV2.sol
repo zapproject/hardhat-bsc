@@ -343,6 +343,11 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Ask invalid for share splitting'
         );
 
+        if (IMediaV2(msg.sender).supportsInterface(0xd9b67a26)) {
+            _tokenAsks1155[msg.sender][owner][tokenId];
+            emit AskCreated(msg.sender, tokenId, ask);
+        }
+
         _tokenAsks[msg.sender][tokenId] = ask;
         emit AskCreated(msg.sender, tokenId, ask);
     }
