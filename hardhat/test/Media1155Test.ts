@@ -354,14 +354,11 @@ describe('Media1155 Test', async () => {
         1
       );
 
-      console.log(currentAsk);
+      // The returned ask amount should equal the amount set
+      expect(currentAsk.amount.toNumber() == ask.amount);
 
-      // console.log(currentAsk);
-      // // The returned ask amount should equal the amount set
-      // expect(currentAsk.amount.toNumber() == ask.amount);
-
-      // // // The returned ask currency should equal the currency set
-      // expect(currentAsk.currency == ask.currency);
+      // The returned ask currency should equal the currency set
+      expect(currentAsk.currency == ask.currency);
     });
 
     it('Should reject if the ask is 0', async () => {
