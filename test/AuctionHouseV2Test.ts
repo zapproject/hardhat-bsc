@@ -1722,5 +1722,9 @@ describe("AuctionHouseV2", () => {
       expect(await media4.ownerOf(0)).to.eq(signers[0].address);
     });
 
+    it("Should emit an AuctionCanceled event", async () =>{
+
+    });
+
   });
 });
