@@ -26,7 +26,7 @@ const { deploy } = deployments;
 
 chai.use(solidity);
 
-describe('Media1155 Test', async () => {
+describe.only('Media1155 Test', async () => {
   let zapTokenBsc: ZapTokenBSC;
   let zapMarket: ZapMarket;
   let zapMarketV2: ZapMarketV2;
@@ -342,7 +342,7 @@ describe('Media1155 Test', async () => {
     });
   });
 
-  describe.only('#setAsk', () => {
+  describe('#setAsk', () => {
     it('Should set the ask', async () => {
       // Signer[1] sets an ask on tokenId 1
       await media1.setAsk(1, ask, signers[1].address);
