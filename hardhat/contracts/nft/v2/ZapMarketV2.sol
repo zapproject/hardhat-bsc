@@ -394,12 +394,22 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         override
         onlyMediaCaller
     {
-        // emit AskRemoved(
-        //     tokenId,
-        //     _tokenAsks[msg.sender][owner][tokenId],
-        //     msg.sender
-        // );
-        // delete _tokenAsks[msg.sender][owner][tokenId];
+        if (IMediaV2(msg.sender).supportsInterface(0xd9b67a26)) {
+            emit AskRemoved(
+                tokenId,
+                _tokenAsks1155[msg.sender][owner][tokenId],
+                msg.sender
+            );
+
+            delete _tokenAsks1155[msg.sender][owner][tokenId];
+        } else {
+            emit AskRemoved(
+                tokenId,
+                _tokenAsks[msg.sender][tokenId],
+                msg.sender
+            );
+            delete _tokenAsks[msg.sender][tokenId];
+        }
     }
 
     /**
@@ -412,10 +422,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     {
         Ask[] memory ask = new Ask[](tokenId.length);
 
-        // for (uint256 i = 0; i < tokenId.length; i++) {
-        //     ask[i] = _tokenAsks[msg.sender][owner][tokenId[i]];
-        //     delete _tokenAsks[msg.sender][owner][tokenId[i]];
-        // }
+        for (uint256 i = 0; i < tokenId.length; i++) {
+            ask[i] = _tokenAsks1155[msg.sender][owner][tokenId[i]];
+            delete _tokenAsks1155[msg.sender][owner][tokenId[i]];
+        }
 
         emit AskRemovedBatch(tokenId, ask, msg.sender);
     }

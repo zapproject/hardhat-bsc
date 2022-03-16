@@ -343,7 +343,7 @@ describe('Media1155 Test', async () => {
   });
 
   describe.only('#setAsk', () => {
-    it.only('Should set the ask', async () => {
+    it('Should set the ask', async () => {
       // Signer[1] sets an ask on tokenId 1
       await media1.setAsk(1, ask, signers[1].address);
 
@@ -431,11 +431,11 @@ describe('Media1155 Test', async () => {
         1
       );
 
-      // // The returned ask amount should equal the amount set
-      // expect(currentAsk1.amount.toNumber() == ask.amount);
+      // The returned ask amount should equal the amount set
+      expect(currentAsk1.amount.toNumber() == ask.amount);
 
-      // // The returned ask currency should equal the currency set
-      // expect(currentAsk1.currency == ask.currency);
+      // The returned ask currency should equal the currency set
+      expect(currentAsk1.currency == ask.currency);
 
       let currentAsk2 = await zapMarketV2.currentAskFor1155(
         media1.address,
@@ -443,11 +443,11 @@ describe('Media1155 Test', async () => {
         1
       );
 
-      // // The returned ask amount should equal the amount set
-      // expect(currentAsk2.amount.toNumber() == 0);
+      // The returned ask amount should equal the amount set
+      expect(currentAsk2.amount.toNumber() == 0);
 
-      // // The returned ask currency should equal the currency set
-      // expect(currentAsk2.currency == '');
+      // The returned ask currency should equal the currency set
+      expect(currentAsk2.currency == '');
 
       // Set a new ask for owner 2
       await media1
@@ -461,11 +461,11 @@ describe('Media1155 Test', async () => {
         1
       );
 
-      // // The returned ask amount should equal the amount set
-      // expect(currentAsk2.amount.toNumber() == 300);
+      // The returned ask amount should equal the amount set
+      expect(currentAsk2.amount.toNumber() == 300);
 
-      // // The returned ask currency should equal the currency set
-      // expect(currentAsk2.currency == ask.currency);
+      // The returned ask currency should equal the currency set
+      expect(currentAsk2.currency == ask.currency);
 
       // confirm owner1's ask remains the same
       currentAsk1 = await zapMarketV2.currentAskFor1155(
@@ -474,11 +474,11 @@ describe('Media1155 Test', async () => {
         1
       );
 
-      // // The returned ask amount should equal the amount set
-      // expect(currentAsk1.amount.toNumber() == ask.amount);
+      // The returned ask amount should equal the amount set
+      expect(currentAsk1.amount.toNumber() == ask.amount);
 
-      // // The returned ask currency should equal the currency set
-      // expect(currentAsk1.currency == ask.currency);
+      // The returned ask currency should equal the currency set
+      expect(currentAsk1.currency == ask.currency);
     });
   });
 
@@ -606,10 +606,10 @@ describe('Media1155 Test', async () => {
       );
 
       // The returned amount post ask should equal the amount set
-      // expect(postAsk.amount.toNumber()).to.equal(ask.amount);
+      expect(postAsk.amount.toNumber()).to.equal(ask.amount);
 
       // // The returned currency post ask should equal the currency set
-      // expect(postAsk.currency).to.equal(ask.currency);
+      expect(postAsk.currency).to.equal(ask.currency);
 
       // Signers[1] removes the ask on tokenId 1
       await media1.removeAsk(1, signers[1].address);
@@ -622,10 +622,10 @@ describe('Media1155 Test', async () => {
       );
 
       // The returned amount post removal should equal the 0
-      // expect(postRemoveAsk.amount.toNumber()).to.equal(0);
+      expect(postRemoveAsk.amount.toNumber()).to.equal(0);
 
-      // // The returned currency post removal should equal a zero address
-      // expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      // The returned currency post removal should equal a zero address
+      expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
     });
 
     it('Should remove ask by the approved', async () => {
@@ -646,10 +646,10 @@ describe('Media1155 Test', async () => {
       );
 
       // The returned amount should equal the amount set on ask
-      // expect(preRemoveAsk.amount).to.equal(ask.amount);
+      expect(preRemoveAsk.amount).to.equal(ask.amount);
 
-      // // The returned amount should equal the currenct set on ask
-      // expect(preRemoveAsk.currency).to.equal(ask.currency);
+      // The returned amount should equal the currenct set on ask
+      expect(preRemoveAsk.currency).to.equal(ask.currency);
 
       // Signers[1] approves signers[17] for all assets
       await media1.setApprovalForAll(signers[17].address, true);
@@ -674,10 +674,10 @@ describe('Media1155 Test', async () => {
       );
 
       // The returned amount should equal 0
-      // expect(postRemoveAsk.amount).to.equal(0);
+      expect(postRemoveAsk.amount).to.equal(0);
 
-      // // The returned currency should equal a zero address
-      // expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
+      // The returned currency should equal a zero address
+      expect(postRemoveAsk.currency).to.equal(ethers.constants.AddressZero);
     });
 
     it('Should reject if the tokenId does not exist', async () => {
@@ -704,1000 +704,1008 @@ describe('Media1155 Test', async () => {
         signers[1].address,
         1
       );
+
+      expect(currentAsk.amount.toNumber() == ask.amount);
+      expect(currentAsk.currency == ask.currency);
+
+      currentAsk = await zapMarketV2.currentAskFor1155(
+        media1.address,
+        signers[1].address,
+        2
+      );
+      expect(currentAsk.amount.toNumber() == ask.amount);
+      expect(currentAsk.currency == ask.currency);
+
+      currentAsk = await zapMarketV2.currentAskFor1155(
+        media1.address,
+        signers[1].address,
+        3
+      );
+      expect(currentAsk.amount.toNumber() == ask.amount);
+      expect(currentAsk.currency == ask.currency);
+    });
+  });
+
+  it('Should remove a batch of asks', async () => {
+    await media1.removeAskBatch([1, 2, 3], signers[1].address);
+
+    let currentAsk = await zapMarketV2.currentAskFor1155(
+      media1.address,
+      signers[1].address,
+      1
+    );
+
+    expect(currentAsk.amount.toNumber() == 0);
+    expect(currentAsk.currency == '');
+
+    currentAsk = await zapMarketV2.currentAskFor1155(
+      media1.address,
+      signers[1].address,
+      2
+    );
+    expect(currentAsk.amount.toNumber() == 0);
+    expect(currentAsk.currency == '');
+
+    currentAsk = await zapMarketV2.currentAskFor1155(
+      media1.address,
+      signers[1].address,
+      3
+    );
+    expect(currentAsk.amount.toNumber() == 0);
+    expect(currentAsk.currency == '');
+
+    // event listening
+    const zapMarketFilter: EventFilter = zapMarketV2.filters.AskRemovedBatch(
+      null,
+      null,
+      null
+    );
+
+    const event: Event = (await zapMarketV2.queryFilter(zapMarketFilter)).slice(
+      -1
+    )[0];
+
+    const logDescription = zapMarketV2.interface.parseLog(event);
+
+    expect(logDescription.args.mediaContract).to.eq(media1.address);
+
+    expect(logDescription.args.tokenId[0].toNumber()).to.eq(1);
+
+    expect(logDescription.args.tokenId[1].toNumber()).to.eq(2);
+
+    expect(logDescription.args.tokenId[2].toNumber()).to.eq(3);
+
+    expect(logDescription.args.ask[0].amount.toNumber()).to.eq(ask.amount);
+
+    expect(logDescription.args.ask[1].amount.toNumber()).to.eq(ask.amount);
+
+    expect(logDescription.args.ask[2].amount.toNumber()).to.eq(ask.amount);
+
+    it('Should remove a batch of asks as approved', async () => {
+      await media1
+        .connect(signers[1])
+        .setApprovalForAll(signers[7].address, true);
+
+      await media1
+        .connect(signers[7])
+        .removeAskBatch([1, 2, 3], signers[1].address);
+
+      let currentAsk = await zapMarketV2.currentAskFor1155(
+        media1.address,
+        signers[1].address,
+        1
+      );
+
+      expect(currentAsk.amount.toNumber() == 0);
+      expect(currentAsk.currency == '');
+
+      currentAsk = await zapMarketV2.currentAskFor1155(
+        media1.address,
+        signers[1].address,
+        2
+      );
+      expect(currentAsk.amount.toNumber() == 0);
+      expect(currentAsk.currency == '');
+
+      currentAsk = await zapMarketV2.currentAskFor1155(
+        media1.address,
+        signers[1].address,
+        3
+      );
+      expect(currentAsk.amount.toNumber() == 0);
+      expect(currentAsk.currency == '');
     });
 
-    //         expect(currentAsk.amount.toNumber() == ask.amount);
-    //         expect(currentAsk.currency == ask.currency);
-
-    //         currentAsk = await zapMarketV2.currentAskFor1155(
-    //           media1.address,
-    //           signers[1].address,
-    //           2
-    //         );
-    //         expect(currentAsk.amount.toNumber() == ask.amount);
-    //         expect(currentAsk.currency == ask.currency);
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           3
-    //         );
-    //         expect(currentAsk.amount.toNumber() == ask.amount);
-    //         expect(currentAsk.currency == ask.currency);
-    //       });
-
-    //       it('Should remove a batch of asks', async () => {
-    //         await media1.removeAskBatch([1, 2, 3], signers[1].address);
-
-    //         let currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           1
-    //         );
-
-    //         expect(currentAsk.amount.toNumber() == 0);
-    //         expect(currentAsk.currency == '');
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           2
-    //         );
-    //         expect(currentAsk.amount.toNumber() == 0);
-    //         expect(currentAsk.currency == '');
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           3
-    //         );
-    //         expect(currentAsk.amount.toNumber() == 0);
-    //         expect(currentAsk.currency == '');
-
-    //         // event listening
-    //         const zapMarketFilter: EventFilter =
-    //           zapMarketV2.filters.AskRemovedBatch(null, null, null);
-
-    //         const event: Event = (
-    //           await zapMarketV2.queryFilter(zapMarketFilter)
-    //         ).slice(-1)[0];
-
-    //         const logDescription = zapMarketV2.interface.parseLog(event);
-
-    //         expect(logDescription.args.mediaContract).to.eq(media1.address);
-
-    //         expect(logDescription.args.tokenId[0].toNumber()).to.eq(1);
-
-    //         expect(logDescription.args.tokenId[1].toNumber()).to.eq(2);
-
-    //         expect(logDescription.args.tokenId[2].toNumber()).to.eq(3);
-
-    //         expect(logDescription.args.ask[0].amount.toNumber()).to.eq(ask.amount);
-
-    //         expect(logDescription.args.ask[1].amount.toNumber()).to.eq(ask.amount);
-
-    //         expect(logDescription.args.ask[2].amount.toNumber()).to.eq(ask.amount);
-    //       });
-
-    //       it('Should remove a batch of asks as approved', async () => {
-    //         await media1
-    //           .connect(signers[1])
-    //           .setApprovalForAll(signers[7].address, true);
-
-    //         await media1
-    //           .connect(signers[7])
-    //           .removeAskBatch([1, 2, 3], signers[1].address);
-
-    //         let currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           1
-    //         );
-
-    //         expect(currentAsk.amount.toNumber() == 0);
-    //         expect(currentAsk.currency == '');
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           2
-    //         );
-    //         expect(currentAsk.amount.toNumber() == 0);
-    //         expect(currentAsk.currency == '');
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           3
-    //         );
-    //         expect(currentAsk.amount.toNumber() == 0);
-    //         expect(currentAsk.currency == '');
-    //       });
-
-    //       it('Should revert if caller is not owner or approved', async () => {
-    //         await expect(
-    //           media1
-    //             .connect(signers[5])
-    //             .removeAskBatch([1, 2, 3], signers[1].address)
-    //         ).to.be.revertedWith('Media: Only approved or owner');
-    //       });
-
-    //       it('Should revert if owner does not have a balance', async () => {
-    //         await expect(
-    //           media1.removeAskBatch([1, 2, 3], signers[3].address)
-    //         ).to.be.revertedWith('Media: Token balance is zero');
-    //       });
-
-    //       it('Should revert if token does not exist', async () => {
-    //         await expect(
-    //           media1.removeAskBatch([7], signers[1].address)
-    //         ).to.be.revertedWith('Media: nonexistent token');
-    //       });
-    //     });
-
-    //     describe('#setAskBatch', () => {
-    //       it('Should set the ask of batch', async () => {
-    //         await media1.setAskBatch(
-    //           [1, 2, 3],
-    //           [ask, ask, ask],
-    //           signers[1].address
-    //         );
-
-    //         let currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           1
-    //         );
-
-    //         expect(currentAsk.amount.toNumber() == ask.amount);
-    //         expect(currentAsk.currency == ask.currency);
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           2
-    //         );
-    //         expect(currentAsk.amount.toNumber() == ask.amount);
-    //         expect(currentAsk.currency == ask.currency);
-
-    //         currentAsk = await zapMarketV2.currentAskForToken(
-    //           media1.address,
-    //           signers[1].address,
-    //           3
-    //         );
-    //         expect(currentAsk.amount.toNumber() == ask.amount);
-    //         expect(currentAsk.currency == ask.currency);
-
-    //         // event listening
-    //         const zapMarketFilter: EventFilter =
-    //           zapMarketV2.filters.AskCreatedBatch(null, null, null);
-
-    //         const event: Event = (
-    //           await zapMarketV2.queryFilter(zapMarketFilter)
-    //         ).slice(-1)[0];
-
-    //         const logDescription = zapMarketV2.interface.parseLog(event);
-
-    //         expect(logDescription.args.mediaContract).to.eq(media1.address);
-
-    //         expect(logDescription.args.tokenId[0].toNumber()).to.eq(1);
-
-    //         expect(logDescription.args.tokenId[1].toNumber()).to.eq(2);
-
-    //         expect(logDescription.args.tokenId[2].toNumber()).to.eq(3);
-
-    //         expect(logDescription.args.ask[0].amount.toNumber()).to.eq(ask.amount);
-
-    //         expect(logDescription.args.ask[1].amount.toNumber()).to.eq(ask.amount);
-
-    //         expect(logDescription.args.ask[2].amount.toNumber()).to.eq(ask.amount);
-    //       });
-
-    //       it('Should reject if the ask batch is 0', async () => {
-    //         await expect(
-    //           media1.setAskBatch([1], [{ ...ask, amount: 0 }], signers[1].address)
-    //         ).revertedWith('Market: Ask invalid for share splitting');
-    //       });
-
-    //       it('Should reject if the ask amount is invalid and cannot be split', async () => {
-    //         await expect(
-    //           media1.setAskBatch([1], [{ ...ask, amount: 101 }], signers[1].address)
-    //         ).revertedWith('Market: Ask invalid for share splitting');
-    //       });
-
-    //       it('Should reject if the tokenId and ask arrays do not have the same length', async () => {
-    //         await expect(
-    //           media1.setAskBatch([1, 2], [ask, ask, ask], signers[1].address)
-    //         ).to.be.revertedWith(
-    //           'Market: TokenId and Ask arrays do not have the same length'
-    //         );
-    //       });
-    //     });
-
-    //     describe('#setBid', () => {
-    //       let bid1: any;
-
-    //       beforeEach(async () => {
-    //         bid1 = {
-    //           amount: 100,
-    //           currency: zapTokenBsc.address,
-    //           bidder: signers[1].address,
-    //           recipient: signers[1].address,
-    //           spender: signers[0].address,
-    //           sellOnShare: {
-    //             value: BigInt(0)
-    //           }
-    //         };
-
-    //         await media1.mint(signers[0].address, 2, 1, bidShares);
-    //         await media1.setApprovalForAll(zapMarketV2.address, true);
-    //       });
-
-    //       it('Should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
-    //         await zapTokenBsc.mint(signers[1].address, bid1.amount);
-
-    //         await zapTokenBsc
-    //           .connect(signers[1])
-    //           .approve(zapMarketV2.address, bid1.amount - 1);
-
-    //         await expect(
-    //           media1.connect(signers[1]).setBid(2, bid1, signers[1].address)
-    //         ).to.be.revertedWith('SafeERC20: low-level call failed');
-    //       });
-
-    //       it('Should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
-    //         await zapTokenBsc.mint(signers[1].address, bid1.amount / 2);
-
-    //         await zapTokenBsc
-    //           .connect(signers[1])
-    //           .approve(zapMarketV2.address, bid1.amount / 2);
-
-    //         await expect(
-    //           media1.connect(signers[1]).setBid(2, bid1, signers[1].address)
-    //         ).to.be.revertedWith('SafeERC20: low-level call failed');
-    //       });
-
-    //       it('Should set a bid', async () => {
-    //         await zapTokenBsc.mint(signers[1].address, 100000);
-
-    //         const prevBalance = await zapTokenBsc.balanceOf(signers[1].address);
-
-    //         await zapTokenBsc
-    //           .connect(signers[1])
-    //           .approve(zapMarketV2.address, 100000);
-    //         await zapTokenBsc.connect(signers[1]).approve(media3.address, 100000);
-
-    //         expect(
-    //           await media1.connect(signers[1]).setBid(2, bid1, signers[0].address)
-    //         );
-
-    //         const balance = await zapTokenBsc.balanceOf(signers[1].address);
-    //         expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
-    //       });
-
-    //       it('should refund a bid if one already exists for the bidder', async () => {
-    //         await setupAuction(media1, signers[1]);
-
-    //         await media1.connect(signers[4]).setAsk(1, ask, signers[4].address);
-
-    //         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-    //         await media1.connect(signers[6]).setBid(
-    //           1,
-    //           {
-    //             ...bid1,
-    //             amount: 200,
-    //             bidder: signers[6].address,
-    //             recipient: signers[6].address
-    //           },
-    //           signers[4].address
-    //         );
-
-    //         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-    //         expect(afterBalance.toNumber() - 100).eq(
-    //           beforeBalance.toNumber() - 200
-    //         );
-
-    //         // bidder should have the token now that the bid exceeded ask price
-    //         const balance = await media1.balanceOf(signers[6].address, 1);
-
-    //         expect(balance).eq(1);
-    //       });
-    //     });
-
-    //     async function setupAuction(
-    //       ownerContract: Media1155,
-    //       ownerWallet: SignerWithAddress
-    //     ) {
-    //       const bid1 = {
-    //         amount: 100,
-    //         currency: zapTokenBsc.address,
-    //         bidder: ownerWallet.address,
-    //         recipient: ownerWallet.address,
-    //         spender: ownerWallet.address,
-    //         sellOnShare: {
-    //           value: BigInt(0)
-    //         }
-    //       };
-
-    //       await zapTokenBsc.mint(ownerWallet.address, 10000);
-    //       await zapTokenBsc.mint(signers[3].address, 10000);
-    //       await zapTokenBsc.mint(signers[4].address, 10000);
-    //       await zapTokenBsc.mint(signers[5].address, 10000);
-    //       await zapTokenBsc.mint(signers[6].address, 10000);
-    //       await zapTokenBsc
-    //         .connect(ownerWallet)
-    //         .approve(zapMarketV2.address, 10000);
-    //       await zapTokenBsc
-    //         .connect(signers[1])
-    //         .approve(ownerContract.address, 100000);
-    //       await zapTokenBsc.connect(signers[3]).approve(zapMarketV2.address, 10000);
-    //       await zapTokenBsc.connect(signers[4]).approve(zapMarketV2.address, 10000);
-    //       await zapTokenBsc.connect(signers[5]).approve(zapMarketV2.address, 10000);
-    //       await zapTokenBsc.connect(signers[6]).approve(zapMarketV2.address, 10000);
-
-    //       await ownerContract
-    //         .connect(ownerWallet)
-    //         .mint(ownerWallet.address, 1, 1, bidShares);
-
-    //       await ownerContract.connect(signers[3]).setBid(
-    //         1,
-    //         {
-    //           ...bid1,
-    //           bidder: signers[3].address,
-    //           recipient: signers[3].address
-    //         },
-    //         ownerWallet.address
-    //       );
-
-    //       await ownerContract.connect(ownerWallet).acceptBid(
-    //         1,
-    //         {
-    //           ...bid1,
-    //           bidder: signers[3].address,
-    //           recipient: signers[3].address
-    //         },
-    //         ownerWallet.address
-    //       );
-
-    //       let balance = await ownerContract.balanceOf(signers[3].address, 1);
-    //       expect(balance).to.equal(1);
-
-    //       await ownerContract.connect(signers[4]).setBid(
-    //         1,
-    //         {
-    //           ...bid1,
-    //           bidder: signers[4].address,
-    //           recipient: signers[4].address
-    //         },
-    //         ownerWallet.address
-    //       );
-
-    //       await ownerContract.connect(signers[3]).acceptBid(
-    //         1,
-    //         {
-    //           ...bid1,
-    //           bidder: signers[4].address,
-    //           recipient: signers[4].address
-    //         },
-    //         signers[3].address
-    //       );
-
-    //       balance = await ownerContract.balanceOf(signers[4].address, 1);
-    //       expect(balance).to.equal(1);
-
-    //       await ownerContract.connect(signers[5]).setBid(
-    //         1,
-    //         {
-    //           ...bid1,
-    //           bidder: signers[5].address,
-    //           recipient: signers[5].address
-    //         },
-    //         signers[4].address
-    //       );
-
-    //       await ownerContract.connect(signers[6]).setBid(
-    //         1,
-    //         {
-    //           ...bid1,
-    //           bidder: signers[6].address,
-    //           recipient: signers[6].address
-    //         },
-    //         signers[4].address
-    //       );
-
-    //       balance = await ownerContract.balanceOf(signers[4].address, 1);
-    //       expect(balance).to.equal(1);
-    //     }
-
-    //     describe('#removeBid', () => {
-    //       let bid1: any;
-    //       beforeEach(async () => {
-    //         bid1 = {
-    //           amount: 100,
-    //           currency: zapTokenBsc.address,
-    //           bidder: signers[4].address,
-    //           recipient: signers[4].address,
-    //           spender: signers[4].address,
-    //           sellOnShare: {
-    //             value: BigInt(0)
-    //           }
-    //         };
-    //         await setupAuction(media1, signers[1]);
-    //       });
-
-    //       it('Should revert if the bidder has not placed a bid', async () => {
-    //         await expect(media1.connect(signers[4]).removeBid(1)).revertedWith(
-    //           'Market: cannot remove bid amount of 0'
-    //         );
-    //       });
-
-    //       it('Should revert if the tokenId has not yet been created', async () => {
-    //         await expect(media1.connect(signers[4]).removeBid(100)).revertedWith(
-    //           'Market: cannot remove bid amount of 0'
-    //         );
-    //       });
-
-    //       it('Should remove a bid and refund the bidder', async () => {
-    //         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
-    //         const { amount } = await zapMarketV2.bidForTokenBidder(
-    //           media1.address,
-    //           1,
-    //           signers[6].address
-    //         );
-
-    //         expect(beforeBalance.toNumber()).to.equal(10000 - amount.toNumber());
-
-    //         await media1.connect(signers[6]).removeBid(1);
-
-    //         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-    //         expect(afterBalance.toNumber()).to.equal(
-    //           beforeBalance.toNumber() + amount.toNumber()
-    //         );
-    //       });
-
-    //       it('Should set a bid', async () => {
-    //         await zapTokenBsc.mint(signers[4].address, 100000);
-
-    //         const prevBalance = await zapTokenBsc.balanceOf(signers[4].address);
-
-    //         await zapTokenBsc
-    //           .connect(signers[4])
-    //           .approve(zapMarketV2.address, 100000);
-
-    //         await media1.connect(signers[4]).setBid(1, bid1, signers[1].address);
-
-    //         const balance = await zapTokenBsc.balanceOf(signers[4].address);
-    //         expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
-    //       });
-
-    //       it('Should not be able to remove a bid twice', async () => {
-    //         await media1.connect(signers[6]).removeBid(1);
-
-    //         await expect(media1.connect(signers[6]).removeBid(0)).revertedWith(
-    //           'Market: cannot remove bid amount of 0'
-    //         );
-    //       });
-
-    //       it('Should remove a bid, even if the token is burned', async () => {
-    //         await media1
-    //           .connect(signers[4])
-    //           .transferFrom(signers[4].address, signers[1].address, 1, 1);
-
-    //         await media1.connect(signers[1]).burn(1, 1, signers[1].address);
-
-    //         const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-    //         await media1.connect(signers[6]).removeBid(1);
-
-    //         const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
-
-    //         expect(afterBalance.toNumber()).eq(beforeBalance.toNumber() + 100);
-    //       });
-    //     });
-
-    //     describe('#acceptBid', () => {
-    //       let bid: any;
-
-    //       beforeEach(async () => {
-    //         bid = {
-    //           amount: 100,
-    //           currency: zapTokenBsc.address,
-    //           bidder: signers[5].address,
-    //           recipient: signers[5].address,
-    //           spender: signers[5].address,
-    //           sellOnShare: {
-    //             value: BigInt(10000000000000000000)
-    //           }
-    //         };
-
-    //         await setupAuction(media1, signers[1]);
-    //       });
-
-    //       it('Should accept a bid', async () => {
-    //         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
-
-    //         const postBidderBal = await zapTokenBsc.balanceOf(signers[5].address);
-    //         expect(postBidderBal.toNumber()).to.equal(9900);
-
-    //         const creatorPreAcceptBal = await zapTokenBsc.balanceOf(
-    //           signers[1].address
-    //         );
-
-    //         await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
-
-    //         const newOwnerBalance = await media1.balanceOf(signers[5].address, 1);
-    //         expect(newOwnerBalance.toNumber()).to.equal(1);
-    //       });
-
-    //       it('Should emit a bid finalized event if the bid is accepted', async () => {
-    //         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
-
-    //         await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
-
-    //         const zapMarketFilter: EventFilter = zapMarketV2.filters.BidFinalized(
-    //           null,
-    //           null,
-    //           null
-    //         );
-
-    //         const event: Event = (
-    //           await zapMarketV2.queryFilter(zapMarketFilter)
-    //         ).slice(-1)[0];
-
-    //         const logDescription = zapMarketV2.interface.parseLog(event);
-
-    //         expect(logDescription.args.tokenId.toNumber()).to.eq(1);
-
-    //         expect(logDescription.args.bid.amount.toNumber()).to.eq(bid.amount);
-
-    //         expect(logDescription.args.bid.currency).to.eq(bid.currency);
-
-    //         expect(logDescription.args.bid.sellOnShare.value).to.eq(
-    //           bid.sellOnShare.value
-    //         );
-
-    //         expect(logDescription.args.bid.bidder).to.eq(bid.bidder);
-    //       });
-
-    //       it('Should emit a bid shares updated event if the bid is accepted', async () => {
-    //         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
-
-    //         await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
-
-    //         const zapMarketFilter: EventFilter =
-    //           zapMarketV2.filters.BidShareUpdated(null, null, null);
-
-    //         const event: Event = (
-    //           await zapMarketV2.queryFilter(zapMarketFilter)
-    //         ).slice(-1)[0];
-
-    //         const logDescription = zapMarketV2.interface.parseLog(event);
-
-    //         expect(logDescription.args.tokenId.toNumber()).to.eq(1);
-
-    //         expect(logDescription.args.bidShares.owner.value).to.eq(
-    //           BigInt(35000000000000000000)
-    //         );
-    //         expect(logDescription.args.bidShares.creator.value).to.eq(
-    //           BigInt(15000000000000000000)
-    //         );
-    //       });
-
-    //       it('Should revert if not called by the owner', async () => {
-    //         await expect(
-    //           media1
-    //             .connect(signers[3])
-    //             .acceptBid(
-    //               1,
-    //               { ...bid, bidder: signers[3].address },
-    //               signers[4].address
-    //             )
-    //         ).to.be.revertedWith('Media: Only approved or owner');
-    //       });
-
-    //       it('Should revert if a non-existent bid is accepted', async () => {
-    //         await expect(
-    //           media1
-    //             .connect(signers[4])
-    //             .acceptBid(
-    //               1,
-    //               { ...bid, bidder: '0x0000000000000000000000000000000000000000' },
-    //               signers[4].address
-    //             )
-    //         ).revertedWith('Market: cannot accept bid of 0');
-    //       });
-
-    //       it('Should revert if an invalid bid is accepted', async () => {
-    //         const invalidBid = {
-    //           ...bid,
-    //           bidder: signers[5].address,
-    //           amount: 99
-    //         };
-
-    //         await media1
-    //           .connect(signers[5])
-    //           .setBid(1, invalidBid, signers[4].address);
-
-    //         await expect(
-    //           media1
-    //             .connect(signers[4])
-    //             .acceptBid(1, invalidBid, signers[4].address)
-    //         ).revertedWith('Market: Bid invalid for share splitting');
-    //       });
-
-    //       it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
-    //         await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
-
-    //         await expect(
-    //           media1.connect(signers[4]).acceptBid(2, bid, signers[4].address)
-    //         ).to.be.revertedWith('Media: Token balance is zero');
-    //       });
-    //     });
-
-    //     describe('#burnBatch', () => {
-    //       beforeEach(async () => {
-    //         // Signers[3] mints a batch of tokenId's to itself
-    //         await media3.mintBatch(
-    //           signers[3].address,
-    //           [1, 2],
-    //           [11, 12],
-    //           [bidShares, bidShares]
-    //         );
-    //       });
-
-    //       it('should revert when the caller is the owner, but not creator', async () => {
-    //         // Signers[3] transfers the total amount of tokenId 1 to signers[4]
-    //         // Signers[4] owns the total amount of tokenId 1
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 1, 11);
-
-    //         // Signers[3] transfers the total amount of tokenId 2 to signers[4]
-    //         // Signers[4] owns the total amount of tokenId 2
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 2, 12);
-
-    //         // Signers[4] is the current owner of tokenId 1 & 2 but cannot burn them due to not being
-    //         // the original minter
-    //         await expect(
-    //           media3
-    //             .connect(signers[4])
-    //             .burnBatch([1, 2], [11, 12], signers[4].address)
-    //         ).to.be.revertedWith('Media: Must be creator of token to burn batch');
-    //       });
-
-    //       it('should revert when the caller is approved, but the owner is not the creator', async () => {
-    //         // Signers[3] transfers the total amount of tokenId 1 to signers[4]
-    //         // Signers[4] owns the total amount of tokenId 1
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 1, 11);
-
-    //         // Signers[3] transfers the total amount of tokenId 2 to signers[4]
-    //         // Signers[4] owns the total amount of tokenId 2
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 2, 12);
-
-    //         // Signers[4] sets approval on signers[5] for all its assets
-    //         await media3
-    //           .connect(signers[4])
-    //           .setApprovalForAll(signers[5].address, true);
-
-    //         // Signers[4] is the current owner and approved signers[5] for all its assets
-    //         // But only the original minter can burn the tokens
-    //         await expect(
-    //           media3
-    //             .connect(signers[5])
-    //             .burnBatch([1, 2], [11, 12], signers[4].address)
-    //         ).revertedWith('Media: Must be creator of token to burn batch');
-    //       });
-
-    //       it('should revert when the caller is not the owner or a creator', async () => {
-    //         // Only the original minter can burn tokens
-    //         await expect(
-    //           media3
-    //             .connect(signers[5])
-    //             .burnBatch([1, 2], [11, 12], signers[3].address)
-    //         ).revertedWith('Media: Only approved or owner');
-    //       });
-
-    //       it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
-    //         // Signers[3] should have a tokenId 1 balance of 11 before transferring
-    //         const ownerPreBal1 = await media3.balanceOf(signers[3].address, 1);
-    //         expect(ownerPreBal1.toNumber()).to.equal(11);
-
-    //         // Signers[3] should have a tokenId 2 balance of 12 before transferring
-    //         const ownerPreBal2 = await media3.balanceOf(signers[3].address, 2);
-    //         expect(ownerPreBal2.toNumber()).to.equal(12);
-
-    //         // Signers[4] should have a tokenId 1 balance of 0 before transferring
-    //         const newOwnerPreBal1 = await media3.balanceOf(signers[4].address, 1);
-    //         expect(newOwnerPreBal1.toNumber()).to.equal(0);
-
-    //         // Signers[4] should have a tokenId 2 balance of 0 before transferring
-    //         const newOwnerPreBal2 = await media3.balanceOf(signers[4].address, 2);
-    //         expect(newOwnerPreBal2.toNumber()).to.equal(0);
-
-    //         // Signers[3] transfers the total amount of tokenId 1 to signers[4]
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 1, 11);
-
-    //         // Signers[3] transfers the total amount of tokenId 2 to signers[4]
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 2, 12);
-
-    //         // Signers[3] tokenId 1 balance should be 0
-    //         const ownerPostBal1 = await media3.balanceOf(signers[3].address, 1);
-    //         expect(ownerPostBal1.toNumber()).to.equal(0);
-
-    //         // Signers[3] tokenId 2 balance should be 0
-    //         const ownerPostBal2 = await media3.balanceOf(signers[3].address, 2);
-    //         expect(ownerPostBal2.toNumber()).to.equal(0);
-
-    //         // Signers[4] tokenId 1 balance should be the total amount minted
-    //         const newOwnerBal1 = await media3.balanceOf(signers[4].address, 1);
-    //         expect(newOwnerBal1.toNumber()).to.equal(11);
-
-    //         // Signers[4] tokenId 2 balance should be the total amount minted
-    //         const newOwnerBal2 = await media3.balanceOf(signers[4].address, 2);
-    //         expect(newOwnerBal2.toNumber()).to.equal(12);
-
-    //         // Signers[3] no longer has a balance of tokenId 1 & 2
-    //         // Signers[3] can not burn tokens with a balance of zero and exist
-    //         await expect(
-    //           media3.burnBatch([1, 2], [11, 12], signers[3].address)
-    //         ).to.be.revertedWith('Media: Token balance is zero');
-    //       });
-
-    //       it('should burn a batch of tokens', async () => {
-    //         // Signers[3] balance of tokenId 1 before burning should be the total amount minted
-    //         let preBurn1 = await media3.balanceOf(signers[3].address, 1);
-    //         expect(preBurn1).to.eq(11);
-
-    //         // Signers[3] balance of tokenId 2 before burning should be the total amount minted
-    //         let preBurn2 = await media3.balanceOf(signers[3].address, 2);
-    //         expect(preBurn2).to.eq(12);
-
-    //         // Signers[3] burns a batch of tokenId 1 & 2
-    //         await media3.burnBatch([1, 2], [11, 12], signers[3].address);
-
-    //         // Signers[3] balance of tokenId 1 before burning should be 0
-    //         let postBurn1 = await media3.balanceOf(signers[3].address, 1);
-    //         expect(postBurn1).to.eq(0);
-
-    //         // Signers[3] balance of tokenId 2 before burning should be 0
-    //         let postBurn2 = await media3.balanceOf(signers[3].address, 2);
-    //         expect(postBurn2).to.eq(0);
-    //       });
-    //     });
-
-    //     describe('#burn', () => {
-    //       beforeEach(async () => {
-    //         await media3.mint(signers[3].address, 1, 1, bidShares);
-    //       });
-
-    //       it('should revert when the caller is the owner, but not creator', async () => {
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 1, 1);
-
-    //         await expect(
-    //           media3.connect(signers[4]).burn(1, 1, signers[4].address)
-    //         ).revertedWith('Media: Must be creator of token to burn');
-    //       });
-
-    //       it('should revert when the caller is approved, but the owner is not the creator', async () => {
-    //         await media3
-    //           .connect(signers[3])
-    //           .transferFrom(signers[3].address, signers[4].address, 1, 1);
-
-    //         await media3
-    //           .connect(signers[4])
-    //           .setApprovalForAll(signers[5].address, true);
-
-    //         await expect(
-    //           media3.connect(signers[5]).burn(1, 1, signers[4].address)
-    //         ).revertedWith('Media: Must be creator of token to burn');
-    //       });
-
-    //       it('should revert when the caller is not the owner or a creator', async () => {
-    //         await expect(
-    //           media3.connect(signers[5]).burn(1, 1, signers[3].address)
-    //         ).revertedWith('Media: Only approved or owner');
-    //       });
-
-    //       it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
-    //         const ownerPreBal = await media3.balanceOf(signers[3].address, 1);
-    //         expect(ownerPreBal.toNumber()).to.equal(1);
-
-    //         const newOwnerPreBal = await media3.balanceOf(signers[17].address, 1);
-    //         expect(newOwnerPreBal.toNumber()).to.equal(0);
-
-    //         await media3.transferFrom(
-    //           signers[3].address,
-    //           signers[17].address,
-    //           1,
-    //           1
-    //         );
-
-    //         const ownerPostBal = await media3.balanceOf(signers[3].address, 1);
-    //         expect(ownerPostBal.toNumber()).to.equal(0);
-
-    //         const newOwnerBal = await media3.balanceOf(signers[17].address, 1);
-    //         expect(newOwnerBal.toNumber()).to.equal(1);
-
-    //         await expect(media3.burn(1, 1, signers[3].address)).to.be.revertedWith(
-    //           'Media: Token balance is zero'
-    //         );
-    //       });
-
-    //       it('should burn a token', async () => {
-    //         expect(await media3.connect(signers[3]).burn(1, 1, signers[3].address));
-
-    //         let balance = await media3.balanceOf(signers[3].address, 1);
-    //         expect(balance).to.eq(0);
-    //       });
-    //     });
-
-    //     describe('#transfer', () => {
-    //       it('should remove the ask after a transfer', async () => {
-    //         ask.currency = zapTokenBsc.address;
-
-    //         await setupAuction(media2, signers[2]);
-
-    //         await media2.connect(signers[4]).setAsk(1, ask, signers[4].address);
-
-    //         expect(
-    //           await media2
-    //             .connect(signers[4])
-    //             .transferFrom(signers[4].address, signers[5].address, 1, 1)
-    //         );
-
-    //         const askB = await zapMarketV2.currentAskForToken(
-    //           media2.address,
-    //           signers[4].address,
-    //           1
-    //         );
-
-    //         expect(await askB.amount.toNumber()).eq(0);
-
-    //         expect(await askB.currency).eq(
-    //           '0x0000000000000000000000000000000000000000'
-    //         );
-    //       });
-    //     });
-    //   });
-
-    //   describe('Ownership', () => {
-    //     it('Should successfully transfer ownership', async () => {
-    //       let oldOwner = await media1.getOwner();
-    //       let newOwner = signers[2].address;
-
-    //       // utilized msg.sender instead of owner in the ownernshiptransferred function
-
-    //       await media1.initTransferOwnership(newOwner);
-    //       expect(newOwner).to.be.equal(await media1.appointedOwner());
-    //       expect(oldOwner).to.be.equal(await media1.getOwner());
-
-    //       await media1.connect(signers[2]).claimTransferOwnership();
-    //       expect(newOwner).to.be.equal(await media1.getOwner());
-    //       expect(ethers.constants.AddressZero).to.be.equal(
-    //         await media1.appointedOwner()
-    //       );
-
-    //       // listen for transferOwnershipInitiated event
-    //       const filter_transferInitiated: EventFilter =
-    //         media1.filters.OwnershipTransferInitiated(null, null);
-
-    //       const event_transferOwnershipInitated: Event = (
-    //         await media1.queryFilter(filter_transferInitiated)
-    //       )[1];
-
-    //       expect(event_transferOwnershipInitated.event).to.be.equal(
-    //         'OwnershipTransferInitiated'
-    //       );
-    //       expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
-    //       expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(
-    //         newOwner
-    //       );
-
-    //       // listen for transferOwnership event
-    //       const filter_transfered: EventFilter =
-    //         media1.filters.OwnershipTransferred(null, null);
-
-    //       const event_transferredOwnership: Event = (
-    //         await media1.queryFilter(filter_transfered)
-    //       )[1];
-
-    //       expect(event_transferredOwnership.event).to.be.equal(
-    //         'OwnershipTransferred'
-    //       );
-    //       expect(event_transferredOwnership.args?.previousOwner).to.be.equal(
-    //         oldOwner
-    //       );
-    //       expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
-    //     });
-
-    //     it('Should revoke appointed owner', async () => {
-    //       let oldOwner = await media1.getOwner();
-    //       let newOwner = signers[2].address;
-
-    //       await media1.initTransferOwnership(newOwner);
-    //       expect(newOwner).to.be.equal(await media1.appointedOwner());
-    //       expect(oldOwner).to.be.equal(await media1.getOwner());
-
-    //       // listen for transferOwnershipInitiated event
-    //       const filter_transferInitiated: EventFilter =
-    //         media1.filters.OwnershipTransferInitiated(null, null);
-
-    //       const event_transferOwnershipInitated: Event = (
-    //         await media1.queryFilter(filter_transferInitiated)
-    //       )[1];
-
-    //       expect(event_transferOwnershipInitated.event).to.be.equal(
-    //         'OwnershipTransferInitiated'
-    //       );
-    //       expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
-    //       expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(
-    //         newOwner
-    //       );
-
-    //       await media1.revokeTransferOwnership();
-    //       expect(ethers.constants.AddressZero).to.be.equal(
-    //         await media1.appointedOwner()
-    //       );
-    //       expect(oldOwner).to.be.equal(await media1.getOwner());
-
-    //       await expect(
-    //         media1.connect(signers[2]).claimTransferOwnership()
-    //       ).to.be.revertedWith(
-    //         'Ownable: No ownership transfer have been initiated'
-    //       );
-    //     });
-
-    //     it('Should revert when non-owner calls init transfer', async () => {
-    //       let oldOwner = await media1.getOwner();
-    //       let newOwner = signers[1].address;
-
-    //       await expect(
-    //         media1.connect(signers[5]).initTransferOwnership(newOwner)
-    //       ).to.be.revertedWith('onlyOwner error: Only Owner of the Contract can make this Call');
-
-    //       await expect(
-    //         media1
-    //           .connect(signers[1])
-    //           .initTransferOwnership(ethers.constants.AddressZero)
-    //       ).to.be.revertedWith('Ownable: Cannot transfer to zero address');
-    //     });
-
-    //     it('Should revert when non owner calls claim transfer', async () => {
-    //       let oldOwner = await media1.getOwner();
-    //       let newOwner = signers[2].address;
-
-    //       await media1.initTransferOwnership(newOwner);
-    //       expect(newOwner).to.be.equal(await media1.appointedOwner());
-    //       expect(oldOwner).to.be.equal(await media1.getOwner());
-    //       // listen for transferOwnershipInitiated event
-    //       const filter_transferInitiated: EventFilter = media1.filters.OwnershipTransferInitiated(
-    //         null, null
-    //       );
-
-    //       const event_transferOwnershipInitated: Event = (
-    //         await media1.queryFilter(filter_transferInitiated)
-    //       )[1]
-
-    //       expect(event_transferOwnershipInitated.event).to.be.equal("OwnershipTransferInitiated");
-    //       expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
-    //       expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(newOwner);
-
-    //       await expect(media1.connect(signers[5]).claimTransferOwnership()).
-    //         to.be.revertedWith("Ownable: Caller is not the appointed owner of this contract");
+    it('Should revert if caller is not owner or approved', async () => {
+      await expect(
+        media1.connect(signers[5]).removeAskBatch([1, 2, 3], signers[1].address)
+      ).to.be.revertedWith('Media: Only approved or owner');
+    });
+
+    it('Should revert if owner does not have a balance', async () => {
+      await expect(
+        media1.removeAskBatch([1, 2, 3], signers[3].address)
+      ).to.be.revertedWith('Media: Token balance is zero');
+    });
+
+    it('Should revert if token does not exist', async () => {
+      await expect(
+        media1.removeAskBatch([7], signers[1].address)
+      ).to.be.revertedWith('Media: nonexistent token');
+    });
+
+    describe('#setAskBatch', () => {
+      it('Should set the ask of batch', async () => {
+        await media1.setAskBatch(
+          [1, 2, 3],
+          [ask, ask, ask],
+          signers[1].address
+        );
+
+        let currentAsk = await zapMarketV2.currentAskFor1155(
+          media1.address,
+          signers[1].address,
+          1
+        );
+
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
+
+        currentAsk = await zapMarketV2.currentAskFor1155(
+          media1.address,
+          signers[1].address,
+          2
+        );
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
+
+        currentAsk = await zapMarketV2.currentAskFor1155(
+          media1.address,
+          signers[1].address,
+          3
+        );
+        expect(currentAsk.amount.toNumber() == ask.amount);
+        expect(currentAsk.currency == ask.currency);
+
+        // event listening
+        const zapMarketFilter: EventFilter =
+          zapMarketV2.filters.AskCreatedBatch(null, null, null);
+
+        const event: Event = (
+          await zapMarketV2.queryFilter(zapMarketFilter)
+        ).slice(-1)[0];
+
+        const logDescription = zapMarketV2.interface.parseLog(event);
+
+        expect(logDescription.args.mediaContract).to.eq(media1.address);
+
+        expect(logDescription.args.tokenId[0].toNumber()).to.eq(1);
+
+        expect(logDescription.args.tokenId[1].toNumber()).to.eq(2);
+
+        expect(logDescription.args.tokenId[2].toNumber()).to.eq(3);
+
+        expect(logDescription.args.ask[0].amount.toNumber()).to.eq(ask.amount);
+
+        expect(logDescription.args.ask[1].amount.toNumber()).to.eq(ask.amount);
+
+        expect(logDescription.args.ask[2].amount.toNumber()).to.eq(ask.amount);
+      });
+
+      it('Should reject if the ask batch is 0', async () => {
+        await expect(
+          media1.setAskBatch([1], [{ ...ask, amount: 0 }], signers[1].address)
+        ).revertedWith('Market: Ask invalid for share splitting');
+      });
+
+      it('Should reject if the ask amount is invalid and cannot be split', async () => {
+        await expect(
+          media1.setAskBatch([1], [{ ...ask, amount: 101 }], signers[1].address)
+        ).revertedWith('Market: Ask invalid for share splitting');
+      });
+
+      it('Should reject if the tokenId and ask arrays do not have the same length', async () => {
+        await expect(
+          media1.setAskBatch([1, 2], [ask, ask, ask], signers[1].address)
+        ).to.be.revertedWith(
+          'Market: TokenId and Ask arrays do not have the same length'
+        );
+      });
+    });
+
+    describe('#setBid', () => {
+      let bid1: any;
+
+      beforeEach(async () => {
+        bid1 = {
+          amount: 100,
+          currency: zapTokenBsc.address,
+          bidder: signers[1].address,
+          recipient: signers[1].address,
+          spender: signers[0].address,
+          sellOnShare: {
+            value: BigInt(0)
+          }
+        };
+
+        await media1.mint(signers[0].address, 2, 1, bidShares);
+        await media1.setApprovalForAll(zapMarketV2.address, true);
+      });
+
+      it('Should revert if the token bidder does not have a high enough allowance for their bidding currency', async () => {
+        await zapTokenBsc.mint(signers[1].address, bid1.amount);
+
+        await zapTokenBsc
+          .connect(signers[1])
+          .approve(zapMarketV2.address, bid1.amount - 1);
+
+        await expect(
+          media1.connect(signers[1]).setBid(2, bid1, signers[1].address)
+        ).to.be.revertedWith('SafeERC20: low-level call failed');
+      });
+
+      it('Should revert if the token bidder does not have a high enough balance for their bidding currency', async () => {
+        await zapTokenBsc.mint(signers[1].address, bid1.amount / 2);
+
+        await zapTokenBsc
+          .connect(signers[1])
+          .approve(zapMarketV2.address, bid1.amount / 2);
+
+        await expect(
+          media1.connect(signers[1]).setBid(2, bid1, signers[1].address)
+        ).to.be.revertedWith('SafeERC20: low-level call failed');
+      });
+
+      it('Should set a bid', async () => {
+        await zapTokenBsc.mint(signers[1].address, 100000);
+
+        const prevBalance = await zapTokenBsc.balanceOf(signers[1].address);
+
+        await zapTokenBsc
+          .connect(signers[1])
+          .approve(zapMarketV2.address, 100000);
+        await zapTokenBsc.connect(signers[1]).approve(media3.address, 100000);
+
+        expect(
+          await media1.connect(signers[1]).setBid(2, bid1, signers[0].address)
+        );
+
+        const balance = await zapTokenBsc.balanceOf(signers[1].address);
+        expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
+      });
+
+      it('should refund a bid if one already exists for the bidder', async () => {
+        await setupAuction(media1, signers[1]);
+
+        await media1.connect(signers[4]).setAsk(1, ask, signers[4].address);
+
+        const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        await media1.connect(signers[6]).setBid(
+          1,
+          {
+            ...bid1,
+            amount: 200,
+            bidder: signers[6].address,
+            recipient: signers[6].address
+          },
+          signers[4].address
+        );
+
+        const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        expect(afterBalance.toNumber() - 100).eq(
+          beforeBalance.toNumber() - 200
+        );
+
+        // bidder should have the token now that the bid exceeded ask price
+        const balance = await media1.balanceOf(signers[6].address, 1);
+
+        expect(balance).eq(1);
+      });
+    });
+
+    async function setupAuction(
+      ownerContract: Media1155,
+      ownerWallet: SignerWithAddress
+    ) {
+      const bid1 = {
+        amount: 100,
+        currency: zapTokenBsc.address,
+        bidder: ownerWallet.address,
+        recipient: ownerWallet.address,
+        spender: ownerWallet.address,
+        sellOnShare: {
+          value: BigInt(0)
+        }
+      };
+
+      await zapTokenBsc.mint(ownerWallet.address, 10000);
+      await zapTokenBsc.mint(signers[3].address, 10000);
+      await zapTokenBsc.mint(signers[4].address, 10000);
+      await zapTokenBsc.mint(signers[5].address, 10000);
+      await zapTokenBsc.mint(signers[6].address, 10000);
+      await zapTokenBsc
+        .connect(ownerWallet)
+        .approve(zapMarketV2.address, 10000);
+      await zapTokenBsc
+        .connect(signers[1])
+        .approve(ownerContract.address, 100000);
+      await zapTokenBsc.connect(signers[3]).approve(zapMarketV2.address, 10000);
+      await zapTokenBsc.connect(signers[4]).approve(zapMarketV2.address, 10000);
+      await zapTokenBsc.connect(signers[5]).approve(zapMarketV2.address, 10000);
+      await zapTokenBsc.connect(signers[6]).approve(zapMarketV2.address, 10000);
+
+      await ownerContract
+        .connect(ownerWallet)
+        .mint(ownerWallet.address, 1, 1, bidShares);
+
+      await ownerContract.connect(signers[3]).setBid(
+        1,
+        {
+          ...bid1,
+          bidder: signers[3].address,
+          recipient: signers[3].address
+        },
+        ownerWallet.address
+      );
+
+      await ownerContract.connect(ownerWallet).acceptBid(
+        1,
+        {
+          ...bid1,
+          bidder: signers[3].address,
+          recipient: signers[3].address
+        },
+        ownerWallet.address
+      );
+
+      let balance = await ownerContract.balanceOf(signers[3].address, 1);
+      expect(balance).to.equal(1);
+
+      await ownerContract.connect(signers[4]).setBid(
+        1,
+        {
+          ...bid1,
+          bidder: signers[4].address,
+          recipient: signers[4].address
+        },
+        ownerWallet.address
+      );
+
+      await ownerContract.connect(signers[3]).acceptBid(
+        1,
+        {
+          ...bid1,
+          bidder: signers[4].address,
+          recipient: signers[4].address
+        },
+        signers[3].address
+      );
+
+      balance = await ownerContract.balanceOf(signers[4].address, 1);
+      expect(balance).to.equal(1);
+
+      await ownerContract.connect(signers[5]).setBid(
+        1,
+        {
+          ...bid1,
+          bidder: signers[5].address,
+          recipient: signers[5].address
+        },
+        signers[4].address
+      );
+
+      await ownerContract.connect(signers[6]).setBid(
+        1,
+        {
+          ...bid1,
+          bidder: signers[6].address,
+          recipient: signers[6].address
+        },
+        signers[4].address
+      );
+
+      balance = await ownerContract.balanceOf(signers[4].address, 1);
+      expect(balance).to.equal(1);
+    }
+
+    describe('#removeBid', () => {
+      let bid1: any;
+      beforeEach(async () => {
+        bid1 = {
+          amount: 100,
+          currency: zapTokenBsc.address,
+          bidder: signers[4].address,
+          recipient: signers[4].address,
+          spender: signers[4].address,
+          sellOnShare: {
+            value: BigInt(0)
+          }
+        };
+        await setupAuction(media1, signers[1]);
+      });
+
+      it('Should revert if the bidder has not placed a bid', async () => {
+        await expect(media1.connect(signers[4]).removeBid(1)).revertedWith(
+          'Market: cannot remove bid amount of 0'
+        );
+      });
+
+      it('Should revert if the tokenId has not yet been created', async () => {
+        await expect(media1.connect(signers[4]).removeBid(100)).revertedWith(
+          'Market: cannot remove bid amount of 0'
+        );
+      });
+
+      it('Should remove a bid and refund the bidder', async () => {
+        const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
+        const { amount } = await zapMarketV2.bidForTokenBidder(
+          media1.address,
+          1,
+          signers[6].address
+        );
+
+        expect(beforeBalance.toNumber()).to.equal(10000 - amount.toNumber());
+
+        await media1.connect(signers[6]).removeBid(1);
+
+        const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        expect(afterBalance.toNumber()).to.equal(
+          beforeBalance.toNumber() + amount.toNumber()
+        );
+      });
+
+      it('Should set a bid', async () => {
+        await zapTokenBsc.mint(signers[4].address, 100000);
+
+        const prevBalance = await zapTokenBsc.balanceOf(signers[4].address);
+
+        await zapTokenBsc
+          .connect(signers[4])
+          .approve(zapMarketV2.address, 100000);
+
+        await media1.connect(signers[4]).setBid(1, bid1, signers[1].address);
+
+        const balance = await zapTokenBsc.balanceOf(signers[4].address);
+        expect(balance.toNumber()).eq(prevBalance.toNumber() - 100);
+      });
+
+      it('Should not be able to remove a bid twice', async () => {
+        await media1.connect(signers[6]).removeBid(1);
+
+        await expect(media1.connect(signers[6]).removeBid(0)).revertedWith(
+          'Market: cannot remove bid amount of 0'
+        );
+      });
+
+      it('Should remove a bid, even if the token is burned', async () => {
+        await media1
+          .connect(signers[4])
+          .transferFrom(signers[4].address, signers[1].address, 1, 1);
+
+        await media1.connect(signers[1]).burn(1, 1, signers[1].address);
+
+        const beforeBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        await media1.connect(signers[6]).removeBid(1);
+
+        const afterBalance = await zapTokenBsc.balanceOf(signers[6].address);
+
+        expect(afterBalance.toNumber()).eq(beforeBalance.toNumber() + 100);
+      });
+    });
+
+    describe('#acceptBid', () => {
+      let bid: any;
+
+      beforeEach(async () => {
+        bid = {
+          amount: 100,
+          currency: zapTokenBsc.address,
+          bidder: signers[5].address,
+          recipient: signers[5].address,
+          spender: signers[5].address,
+          sellOnShare: {
+            value: BigInt(10000000000000000000)
+          }
+        };
+
+        await setupAuction(media1, signers[1]);
+      });
+
+      it('Should accept a bid', async () => {
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+
+        const postBidderBal = await zapTokenBsc.balanceOf(signers[5].address);
+        expect(postBidderBal.toNumber()).to.equal(9900);
+
+        const creatorPreAcceptBal = await zapTokenBsc.balanceOf(
+          signers[1].address
+        );
+
+        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+
+        const newOwnerBalance = await media1.balanceOf(signers[5].address, 1);
+        expect(newOwnerBalance.toNumber()).to.equal(1);
+      });
+
+      it('Should emit a bid finalized event if the bid is accepted', async () => {
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+
+        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+
+        const zapMarketFilter: EventFilter = zapMarketV2.filters.BidFinalized(
+          null,
+          null,
+          null
+        );
+
+        const event: Event = (
+          await zapMarketV2.queryFilter(zapMarketFilter)
+        ).slice(-1)[0];
+
+        const logDescription = zapMarketV2.interface.parseLog(event);
+
+        expect(logDescription.args.tokenId.toNumber()).to.eq(1);
+
+        expect(logDescription.args.bid.amount.toNumber()).to.eq(bid.amount);
+
+        expect(logDescription.args.bid.currency).to.eq(bid.currency);
+
+        expect(logDescription.args.bid.sellOnShare.value).to.eq(
+          bid.sellOnShare.value
+        );
+
+        expect(logDescription.args.bid.bidder).to.eq(bid.bidder);
+      });
+
+      it('Should emit a bid shares updated event if the bid is accepted', async () => {
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+
+        await media1.connect(signers[4]).acceptBid(1, bid, signers[4].address);
+
+        const zapMarketFilter: EventFilter =
+          zapMarketV2.filters.BidShareUpdated(null, null, null);
+
+        const event: Event = (
+          await zapMarketV2.queryFilter(zapMarketFilter)
+        ).slice(-1)[0];
+
+        const logDescription = zapMarketV2.interface.parseLog(event);
+
+        expect(logDescription.args.tokenId.toNumber()).to.eq(1);
+
+        expect(logDescription.args.bidShares.owner.value).to.eq(
+          BigInt(35000000000000000000)
+        );
+        expect(logDescription.args.bidShares.creator.value).to.eq(
+          BigInt(15000000000000000000)
+        );
+      });
+
+      it('Should revert if not called by the owner', async () => {
+        await expect(
+          media1
+            .connect(signers[3])
+            .acceptBid(
+              1,
+              { ...bid, bidder: signers[3].address },
+              signers[4].address
+            )
+        ).to.be.revertedWith('Media: Only approved or owner');
+      });
+
+      it('Should revert if a non-existent bid is accepted', async () => {
+        await expect(
+          media1
+            .connect(signers[4])
+            .acceptBid(
+              1,
+              { ...bid, bidder: '0x0000000000000000000000000000000000000000' },
+              signers[4].address
+            )
+        ).revertedWith('Market: cannot accept bid of 0');
+      });
+
+      it('Should revert if an invalid bid is accepted', async () => {
+        const invalidBid = {
+          ...bid,
+          bidder: signers[5].address,
+          amount: 99
+        };
+
+        await media1
+          .connect(signers[5])
+          .setBid(1, invalidBid, signers[4].address);
+
+        await expect(
+          media1
+            .connect(signers[4])
+            .acceptBid(1, invalidBid, signers[4].address)
+        ).revertedWith('Market: Bid invalid for share splitting');
+      });
+
+      it('Should reject if the  tokenId exists, but the owner does not have a balance', async () => {
+        await media1.connect(signers[5]).setBid(1, bid, signers[4].address);
+
+        await expect(
+          media1.connect(signers[4]).acceptBid(2, bid, signers[4].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
+    });
+
+    describe('#burnBatch', () => {
+      beforeEach(async () => {
+        // Signers[3] mints a batch of tokenId's to itself
+        await media3.mintBatch(
+          signers[3].address,
+          [1, 2],
+          [11, 12],
+          [bidShares, bidShares]
+        );
+      });
+
+      it('should revert when the caller is the owner, but not creator', async () => {
+        // Signers[3] transfers the total amount of tokenId 1 to signers[4]
+        // Signers[4] owns the total amount of tokenId 1
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 11);
+
+        // Signers[3] transfers the total amount of tokenId 2 to signers[4]
+        // Signers[4] owns the total amount of tokenId 2
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 2, 12);
+
+        // Signers[4] is the current owner of tokenId 1 & 2 but cannot burn them due to not being
+        // the original minter
+        await expect(
+          media3
+            .connect(signers[4])
+            .burnBatch([1, 2], [11, 12], signers[4].address)
+        ).to.be.revertedWith('Media: Must be creator of token to burn batch');
+      });
+
+      it('should revert when the caller is approved, but the owner is not the creator', async () => {
+        // Signers[3] transfers the total amount of tokenId 1 to signers[4]
+        // Signers[4] owns the total amount of tokenId 1
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 11);
+
+        // Signers[3] transfers the total amount of tokenId 2 to signers[4]
+        // Signers[4] owns the total amount of tokenId 2
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 2, 12);
+
+        // Signers[4] sets approval on signers[5] for all its assets
+        await media3
+          .connect(signers[4])
+          .setApprovalForAll(signers[5].address, true);
+
+        // Signers[4] is the current owner and approved signers[5] for all its assets
+        // But only the original minter can burn the tokens
+        await expect(
+          media3
+            .connect(signers[5])
+            .burnBatch([1, 2], [11, 12], signers[4].address)
+        ).revertedWith('Media: Must be creator of token to burn batch');
+      });
+
+      it('should revert when the caller is not the owner or a creator', async () => {
+        // Only the original minter can burn tokens
+        await expect(
+          media3
+            .connect(signers[5])
+            .burnBatch([1, 2], [11, 12], signers[3].address)
+        ).revertedWith('Media: Only approved or owner');
+      });
+
+      it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
+        // Signers[3] should have a tokenId 1 balance of 11 before transferring
+        const ownerPreBal1 = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPreBal1.toNumber()).to.equal(11);
+
+        // Signers[3] should have a tokenId 2 balance of 12 before transferring
+        const ownerPreBal2 = await media3.balanceOf(signers[3].address, 2);
+        expect(ownerPreBal2.toNumber()).to.equal(12);
+
+        // Signers[4] should have a tokenId 1 balance of 0 before transferring
+        const newOwnerPreBal1 = await media3.balanceOf(signers[4].address, 1);
+        expect(newOwnerPreBal1.toNumber()).to.equal(0);
+
+        // Signers[4] should have a tokenId 2 balance of 0 before transferring
+        const newOwnerPreBal2 = await media3.balanceOf(signers[4].address, 2);
+        expect(newOwnerPreBal2.toNumber()).to.equal(0);
+
+        // Signers[3] transfers the total amount of tokenId 1 to signers[4]
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 11);
+
+        // Signers[3] transfers the total amount of tokenId 2 to signers[4]
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 2, 12);
+
+        // Signers[3] tokenId 1 balance should be 0
+        const ownerPostBal1 = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPostBal1.toNumber()).to.equal(0);
+
+        // Signers[3] tokenId 2 balance should be 0
+        const ownerPostBal2 = await media3.balanceOf(signers[3].address, 2);
+        expect(ownerPostBal2.toNumber()).to.equal(0);
+
+        // Signers[4] tokenId 1 balance should be the total amount minted
+        const newOwnerBal1 = await media3.balanceOf(signers[4].address, 1);
+        expect(newOwnerBal1.toNumber()).to.equal(11);
+
+        // Signers[4] tokenId 2 balance should be the total amount minted
+        const newOwnerBal2 = await media3.balanceOf(signers[4].address, 2);
+        expect(newOwnerBal2.toNumber()).to.equal(12);
+
+        // Signers[3] no longer has a balance of tokenId 1 & 2
+        // Signers[3] can not burn tokens with a balance of zero and exist
+        await expect(
+          media3.burnBatch([1, 2], [11, 12], signers[3].address)
+        ).to.be.revertedWith('Media: Token balance is zero');
+      });
+
+      it('should burn a batch of tokens', async () => {
+        // Signers[3] balance of tokenId 1 before burning should be the total amount minted
+        let preBurn1 = await media3.balanceOf(signers[3].address, 1);
+        expect(preBurn1).to.eq(11);
+
+        // Signers[3] balance of tokenId 2 before burning should be the total amount minted
+        let preBurn2 = await media3.balanceOf(signers[3].address, 2);
+        expect(preBurn2).to.eq(12);
+
+        // Signers[3] burns a batch of tokenId 1 & 2
+        await media3.burnBatch([1, 2], [11, 12], signers[3].address);
+
+        // Signers[3] balance of tokenId 1 before burning should be 0
+        let postBurn1 = await media3.balanceOf(signers[3].address, 1);
+        expect(postBurn1).to.eq(0);
+
+        // Signers[3] balance of tokenId 2 before burning should be 0
+        let postBurn2 = await media3.balanceOf(signers[3].address, 2);
+        expect(postBurn2).to.eq(0);
+      });
+    });
+
+    describe('#burn', () => {
+      beforeEach(async () => {
+        await media3.mint(signers[3].address, 1, 1, bidShares);
+      });
+
+      it('should revert when the caller is the owner, but not creator', async () => {
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 1);
+
+        await expect(
+          media3.connect(signers[4]).burn(1, 1, signers[4].address)
+        ).revertedWith('Media: Must be creator of token to burn');
+      });
+
+      it('should revert when the caller is approved, but the owner is not the creator', async () => {
+        await media3
+          .connect(signers[3])
+          .transferFrom(signers[3].address, signers[4].address, 1, 1);
+
+        await media3
+          .connect(signers[4])
+          .setApprovalForAll(signers[5].address, true);
+
+        await expect(
+          media3.connect(signers[5]).burn(1, 1, signers[4].address)
+        ).revertedWith('Media: Must be creator of token to burn');
+      });
+
+      it('should revert when the caller is not the owner or a creator', async () => {
+        await expect(
+          media3.connect(signers[5]).burn(1, 1, signers[3].address)
+        ).revertedWith('Media: Only approved or owner');
+      });
+
+      it('Should reject if the tokenId exists, but the owner does not have a balance', async () => {
+        const ownerPreBal = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPreBal.toNumber()).to.equal(1);
+
+        const newOwnerPreBal = await media3.balanceOf(signers[17].address, 1);
+        expect(newOwnerPreBal.toNumber()).to.equal(0);
+
+        await media3.transferFrom(
+          signers[3].address,
+          signers[17].address,
+          1,
+          1
+        );
+
+        const ownerPostBal = await media3.balanceOf(signers[3].address, 1);
+        expect(ownerPostBal.toNumber()).to.equal(0);
+
+        const newOwnerBal = await media3.balanceOf(signers[17].address, 1);
+        expect(newOwnerBal.toNumber()).to.equal(1);
+
+        await expect(media3.burn(1, 1, signers[3].address)).to.be.revertedWith(
+          'Media: Token balance is zero'
+        );
+      });
+
+      it('should burn a token', async () => {
+        expect(await media3.connect(signers[3]).burn(1, 1, signers[3].address));
+
+        let balance = await media3.balanceOf(signers[3].address, 1);
+        expect(balance).to.eq(0);
+      });
+    });
+
+    describe('#transfer', () => {
+      it('should remove the ask after a transfer', async () => {
+        ask.currency = zapTokenBsc.address;
+
+        await setupAuction(media2, signers[2]);
+
+        await media2.connect(signers[4]).setAsk(1, ask, signers[4].address);
+
+        expect(
+          await media2
+            .connect(signers[4])
+            .transferFrom(signers[4].address, signers[5].address, 1, 1)
+        );
+
+        const askB = await zapMarketV2.currentAskFor1155(
+          media2.address,
+          signers[4].address,
+          1
+        );
+
+        expect(await askB.amount.toNumber()).eq(0);
+
+        expect(await askB.currency).eq(
+          '0x0000000000000000000000000000000000000000'
+        );
+      });
+    });
+  });
+
+  describe('Ownership', () => {
+    it('Should successfully transfer ownership', async () => {
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[2].address;
+
+      // utilized msg.sender instead of owner in the ownernshiptransferred function
+
+      await media1.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+
+      await media1.connect(signers[2]).claimTransferOwnership();
+      expect(newOwner).to.be.equal(await media1.getOwner());
+      expect(ethers.constants.AddressZero).to.be.equal(
+        await media1.appointedOwner()
+      );
+
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter =
+        media1.filters.OwnershipTransferInitiated(null, null);
+
+      const event_transferOwnershipInitated: Event = (
+        await media1.queryFilter(filter_transferInitiated)
+      )[1];
+
+      expect(event_transferOwnershipInitated.event).to.be.equal(
+        'OwnershipTransferInitiated'
+      );
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(
+        newOwner
+      );
+
+      // listen for transferOwnership event
+      const filter_transfered: EventFilter =
+        media1.filters.OwnershipTransferred(null, null);
+
+      const event_transferredOwnership: Event = (
+        await media1.queryFilter(filter_transfered)
+      )[1];
+
+      expect(event_transferredOwnership.event).to.be.equal(
+        'OwnershipTransferred'
+      );
+      expect(event_transferredOwnership.args?.previousOwner).to.be.equal(
+        oldOwner
+      );
+      expect(event_transferredOwnership.args?.newOwner).to.be.equal(newOwner);
+    });
+
+    it('Should revoke appointed owner', async () => {
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[2].address;
+
+      await media1.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter =
+        media1.filters.OwnershipTransferInitiated(null, null);
+
+      const event_transferOwnershipInitated: Event = (
+        await media1.queryFilter(filter_transferInitiated)
+      )[1];
+
+      expect(event_transferOwnershipInitated.event).to.be.equal(
+        'OwnershipTransferInitiated'
+      );
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(
+        newOwner
+      );
+
+      await media1.revokeTransferOwnership();
+      expect(ethers.constants.AddressZero).to.be.equal(
+        await media1.appointedOwner()
+      );
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+
+      await expect(
+        media1.connect(signers[2]).claimTransferOwnership()
+      ).to.be.revertedWith(
+        'Ownable: No ownership transfer have been initiated'
+      );
+    });
+
+    it('Should revert when non-owner calls init transfer', async () => {
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[1].address;
+
+      await expect(
+        media1.connect(signers[5]).initTransferOwnership(newOwner)
+      ).to.be.revertedWith(
+        'onlyOwner error: Only Owner of the Contract can make this Call'
+      );
+
+      await expect(
+        media1
+          .connect(signers[1])
+          .initTransferOwnership(ethers.constants.AddressZero)
+      ).to.be.revertedWith('Ownable: Cannot transfer to zero address');
+    });
+
+    it('Should revert when non owner calls claim transfer', async () => {
+      let oldOwner = await media1.getOwner();
+      let newOwner = signers[2].address;
+
+      await media1.initTransferOwnership(newOwner);
+      expect(newOwner).to.be.equal(await media1.appointedOwner());
+      expect(oldOwner).to.be.equal(await media1.getOwner());
+      // listen for transferOwnershipInitiated event
+      const filter_transferInitiated: EventFilter =
+        media1.filters.OwnershipTransferInitiated(null, null);
+
+      const event_transferOwnershipInitated: Event = (
+        await media1.queryFilter(filter_transferInitiated)
+      )[1];
+
+      expect(event_transferOwnershipInitated.event).to.be.equal(
+        'OwnershipTransferInitiated'
+      );
+      expect(event_transferOwnershipInitated.args?.owner).to.be.equal(oldOwner);
+      expect(event_transferOwnershipInitated.args?.appointedOwner).to.be.equal(
+        newOwner
+      );
+
+      await expect(
+        media1.connect(signers[5]).claimTransferOwnership()
+      ).to.be.revertedWith(
+        'Ownable: Caller is not the appointed owner of this contract'
+      );
+    });
   });
 });
