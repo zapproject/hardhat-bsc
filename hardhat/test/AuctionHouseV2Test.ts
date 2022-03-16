@@ -1648,26 +1648,37 @@ describe("AuctionHouseV2", () => {
     });
   });
 
-  describe("#cancelAuction", () => {
+  describe.only("#cancelAuction", () => {
     let auctionHouse: AuctionHouseV2;
     let admin: SignerWithAddress;
     let creator: SignerWithAddress;
     let curator: SignerWithAddress;
     let bidder: SignerWithAddress;
 
-  beforeEach(async () => {
-      signers = await ethers.getSigners();
+    beforeEach(async () => {
+        [admin, creator, curator, bidder] = await ethers.getSigners();
 
-      auctionHouse = await deploy(signers[0]);
+        auctionHouse = await deploy(signers[0]);
 
-      const contracts = await deployV2ZapNFTMarketplace(market);
+        const contracts = await deployV2ZapNFTMarketplace(market);
 
-      media4 = contracts.medias[0];
+        media4 = contracts.medias[0];
 
-      media5 = contracts.medias[1];
+        await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
 
-      await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
-  });
+        await approveAuction(
+          media4.connect(signers[0]),
+          auctionHouse.connect(signers[0])
+        );
+
+        await createAuction(
+          auctionHouse.connect(signers[0]),
+          await curator.getAddress(),
+          zapTokenBsc.address,
+          undefined,
+          media4.address
+        );
+    });
 
     it("Should revert if the auction does not exist", async () => {
       await expect(auctionHouse.cancelAuction(200000000000))
@@ -1676,13 +1687,21 @@ describe("AuctionHouseV2", () => {
       );
     });
 
-    it.only("Should revert if the auction has already begun", async () => {
+    it("Should revert if the auction has already begun", async () => {
+      
       await zapTokenBsc.mint(bidder.address, ONE_ETH);
 
       await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
 
       await auctionHouse.connect(curator).startAuction(0, true);
 
+      await auctionHouse
+        .connect(bidder)
+        .createBid(0, ONE_ETH, media4.address);
+
+      await expect(auctionHouse.cancelAuction(0)).revertedWith(
+        `You can't cancel an auction that has a bid`
+      );
     });
 
   });
