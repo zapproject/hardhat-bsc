@@ -1705,7 +1705,21 @@ describe("AuctionHouseV2", () => {
     });
 
     it("Should be callable by the creator", async () => {
+      await auctionHouse.cancelAuction(0);
 
+      const auctionResult = await auctionHouse.auctions(0);
+
+      expect(auctionResult.amount.toNumber()).to.eq(0);
+      expect(auctionResult.duration.toNumber()).to.eq(0);
+      expect(auctionResult.firstBidTime.toNumber()).to.eq(0);
+      expect(auctionResult.reservePrice.toNumber()).to.eq(0);
+      expect(auctionResult.curatorFeePercentage).to.eq(0);
+      expect(auctionResult.tokenOwner).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.bidder).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.curator).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.auctionCurrency).to.eq(ethers.constants.AddressZero);
+
+      expect(await media4.ownerOf(0)).to.eq(signers[0].address);
     });
 
   });
