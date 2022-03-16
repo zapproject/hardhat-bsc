@@ -1704,5 +1704,9 @@ describe("AuctionHouseV2", () => {
       );
     });
 
+    it("Should be callable by the creator", async () => {
+
+    });
+
   });
 });
