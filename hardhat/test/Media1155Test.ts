@@ -348,12 +348,15 @@ describe('Media1155 Test', async () => {
       await media1.setAsk(1, ask, signers[1].address);
 
       // Returns the ask details on tokenId 1
-      let currentAsk = await zapMarketV2.currentAskForToken(
+      let currentAsk = await zapMarketV2.currentAskFor1155(
         media1.address,
         signers[1].address,
         1
       );
 
+      console.log(currentAsk);
+
+      // console.log(currentAsk);
       // // The returned ask amount should equal the amount set
       // expect(currentAsk.amount.toNumber() == ask.amount);
 
@@ -425,7 +428,7 @@ describe('Media1155 Test', async () => {
       await media1.setAsk(1, ask, owner1);
 
       // Returns the ask details on tokenId 1
-      let currentAsk1 = await zapMarketV2.currentAskForToken(
+      let currentAsk1 = await zapMarketV2.currentAskFor1155(
         media1.address,
         owner1,
         1
@@ -437,7 +440,7 @@ describe('Media1155 Test', async () => {
       // // The returned ask currency should equal the currency set
       // expect(currentAsk1.currency == ask.currency);
 
-      let currentAsk2 = await zapMarketV2.currentAskForToken(
+      let currentAsk2 = await zapMarketV2.currentAskFor1155(
         media1.address,
         owner2,
         1
@@ -455,7 +458,7 @@ describe('Media1155 Test', async () => {
         .setAsk(1, { ...ask, amount: 300 }, owner2);
 
       // confirm if the correct ask was set
-      currentAsk2 = await zapMarketV2.currentAskForToken(
+      currentAsk2 = await zapMarketV2.currentAskFor1155(
         media1.address,
         owner2,
         1
@@ -468,7 +471,7 @@ describe('Media1155 Test', async () => {
       // expect(currentAsk2.currency == ask.currency);
 
       // confirm owner1's ask remains the same
-      currentAsk1 = await zapMarketV2.currentAskForToken(
+      currentAsk1 = await zapMarketV2.currentAskFor1155(
         media1.address,
         owner1,
         1
@@ -599,7 +602,7 @@ describe('Media1155 Test', async () => {
 
     it('Should remove the ask', async () => {
       // Returns the ask set on tokenId 1
-      let postAsk = await zapMarketV2.currentAskForToken(
+      let postAsk = await zapMarketV2.currentAskFor1155(
         media1.address,
         signers[1].address,
         1
@@ -615,7 +618,7 @@ describe('Media1155 Test', async () => {
       await media1.removeAsk(1, signers[1].address);
 
       // Returns the ask set on tokenId 1 after removal
-      let postRemoveAsk = await zapMarketV2.currentAskForToken(
+      let postRemoveAsk = await zapMarketV2.currentAskFor1155(
         media1.address,
         signers[1].address,
         1
@@ -639,7 +642,7 @@ describe('Media1155 Test', async () => {
       expect(preApprovedStatus).to.be.false;
 
       // Return the pre remove ask
-      const preRemoveAsk = await zapMarketV2.currentAskForToken(
+      const preRemoveAsk = await zapMarketV2.currentAskFor1155(
         media1.address,
         signers[1].address,
         1
@@ -667,7 +670,7 @@ describe('Media1155 Test', async () => {
       await media1.connect(signers[17]).removeAsk(1, signers[1].address);
 
       // Returns the ask post removal
-      const postRemoveAsk = await zapMarketV2.currentAskForToken(
+      const postRemoveAsk = await zapMarketV2.currentAskFor1155(
         media1.address,
         signers[1].address,
         1
@@ -699,7 +702,7 @@ describe('Media1155 Test', async () => {
     beforeEach(async () => {
       await media1.setAskBatch([1, 2, 3], [ask, ask, ask], signers[1].address);
 
-      let currentAsk = await zapMarketV2.currentAskForToken(
+      let currentAsk = await zapMarketV2.currentAskFor1155(
         media1.address,
         signers[1].address,
         1
@@ -709,7 +712,7 @@ describe('Media1155 Test', async () => {
     //         expect(currentAsk.amount.toNumber() == ask.amount);
     //         expect(currentAsk.currency == ask.currency);
 
-    //         currentAsk = await zapMarketV2.currentAskForToken(
+    //         currentAsk = await zapMarketV2.currentAskFor1155(
     //           media1.address,
     //           signers[1].address,
     //           2

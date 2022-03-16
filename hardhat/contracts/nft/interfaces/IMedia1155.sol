@@ -60,9 +60,9 @@ interface IMedia1155 {
      * @notice Set the ask on a piece of media
      */
     function setAsk(
-        address owner,
         uint256 tokenId,
-        IMarketV2.Ask calldata ask
+        IMarketV2.Ask calldata ask,
+        address owner
     ) external;
 
     /**

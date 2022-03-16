@@ -109,7 +109,11 @@ interface IMarketV2 {
         address bidder
     ) external view returns (Bid memory);
 
-    function currentAskForToken(
+    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
+        external
+        returns (Ask memory);
+
+    function currentAskFor1155(
         address mediaContractAddress,
         address owner,
         uint256 tokenId

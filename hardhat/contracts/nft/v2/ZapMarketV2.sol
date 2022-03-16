@@ -105,15 +105,21 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         return _tokenBidders[mediaContractAddress][tokenId][bidder];
     }
 
-    function currentAskForToken(
+    function currentAskForToken(address mediaContractAddress, uint256 tokenId)
+        public
+        view
+        override
+        returns (Ask memory)
+    {
+        return _tokenAsks[mediaContractAddress][tokenId];
+    }
+
+    function currentAskFor1155(
         address mediaContractAddress,
         address owner,
         uint256 tokenId
-    ) external override returns (Ask memory) {
-        if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)) {
-            return _tokenAsks1155[mediaContractAddress][owner][tokenId];
-        }
-        return _tokenAsks[mediaContractAddress][tokenId];
+    ) public view override returns (Ask memory) {
+        return _tokenAsks1155[mediaContractAddress][owner][tokenId];
     }
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
@@ -343,13 +349,15 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Ask invalid for share splitting'
         );
 
+        // If the media contract supports the ERC-1155 interface
         if (IMediaV2(msg.sender).supportsInterface(0xd9b67a26)) {
-            _tokenAsks1155[msg.sender][owner][tokenId];
+            _tokenAsks1155[msg.sender][owner][tokenId] = ask;
+
+            emit AskCreated(msg.sender, tokenId, ask);
+        } else {
+            _tokenAsks[msg.sender][tokenId] = ask;
             emit AskCreated(msg.sender, tokenId, ask);
         }
-
-        _tokenAsks[msg.sender][tokenId] = ask;
-        emit AskCreated(msg.sender, tokenId, ask);
     }
 
     /**

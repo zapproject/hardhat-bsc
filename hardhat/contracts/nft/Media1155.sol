@@ -312,9 +312,9 @@ contract Media1155 is
      * @notice see IMedia1155
      */
     function setAsk(
-        address owner,
         uint256 tokenId,
-        IMarketV2.Ask calldata ask
+        IMarketV2.Ask calldata ask,
+        address owner
     )
         external
         override
