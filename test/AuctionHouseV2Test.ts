@@ -1648,7 +1648,7 @@ describe("AuctionHouseV2", () => {
     });
   });
 
-  describe("#cancelAuction", () => {
+  describe.only("#cancelAuction", () => {
     let auctionHouse: AuctionHouseV2;
     let admin: SignerWithAddress;
     let creator: SignerWithAddress;
@@ -1680,14 +1680,14 @@ describe("AuctionHouseV2", () => {
         );
     });
 
-    it("Should revert if the auction does not exist", async () => {
+    it("[721] Should revert if the auction does not exist", async () => {
       await expect(auctionHouse.cancelAuction(200000000000))
       .revertedWith(
         `Auction doesn't exist`
       );
     });
 
-    it("Should revert if the auction has already begun", async () => {
+    it("[721] Should revert if the auction has already begun", async () => {
       
       await zapTokenBsc.mint(bidder.address, ONE_ETH);
 
@@ -1704,7 +1704,7 @@ describe("AuctionHouseV2", () => {
       );
     });
 
-    it("Should be callable by the creator", async () => {
+    it("[721] Should be callable by the creator", async () => {
       await auctionHouse.cancelAuction(0);
 
       const auctionResult = await auctionHouse.auctions(0);
@@ -1722,7 +1722,7 @@ describe("AuctionHouseV2", () => {
       expect(await media4.ownerOf(0)).to.eq(signers[0].address);
     });
 
-    it("Should emit an AuctionCanceled event", async () =>{
+    it("[721] Should emit an AuctionCanceled event", async () =>{
       const block = await ethers.provider.getBlockNumber();
       
       await auctionHouse.cancelAuction(0);
