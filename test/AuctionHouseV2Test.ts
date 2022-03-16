@@ -1723,6 +1723,21 @@ describe("AuctionHouseV2", () => {
     });
 
     it("Should emit an AuctionCanceled event", async () =>{
+      const block = await ethers.provider.getBlockNumber();
+      
+      await auctionHouse.cancelAuction(0);
+      
+      const events = await auctionHouse.queryFilter(
+        auctionHouse.filters.AuctionCanceled(0, null, null, null),
+        block
+      );
+
+      expect(events.length).eq(1);
+      const logDescription = auctionHouse.interface.parseLog(events[0]);
+
+      expect(logDescription.args.tokenId.toNumber()).to.eq(0);
+      expect(logDescription.args.tokenOwner).to.eq(signers[0].address);
+      expect(logDescription.args.mediaContract).to.eq(media4.address);
 
     });
 
