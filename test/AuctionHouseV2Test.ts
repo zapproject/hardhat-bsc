@@ -1648,7 +1648,7 @@ describe("AuctionHouseV2", () => {
     });
   });
 
-  describe.only("#cancelAuction", () => {
+  describe("#cancelAuction", () => {
     let auctionHouse: AuctionHouseV2;
     let admin: SignerWithAddress;
     let creator: SignerWithAddress;
