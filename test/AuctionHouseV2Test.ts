@@ -574,7 +574,7 @@ describe("AuctionHouseV2", () => {
           );
     });
 
-    // it.only("should revert if the given media contract address differs from the one that is already set", async () => {
+    // it("should revert if the given media contract address differs from the one that is already set", async () => {
     //   // don't mind this, this test will always fail
     //   // tokens and their medias/collections have a 1-to-1 relationship, not 1-to-many
     //   const [_, curator] = await ethers.getSigners();
@@ -1648,7 +1648,7 @@ describe("AuctionHouseV2", () => {
     });
   });
 
-  describe("#cancelAuction", () => {
+  describe.only("#cancelAuction", () => {
     let auctionHouse: AuctionHouseV2;
     let admin: SignerWithAddress;
     let creator: SignerWithAddress;
@@ -1770,7 +1770,7 @@ describe("AuctionHouseV2", () => {
       );
     });
 
-    // it.only("[1155] Should be callable by the creator", async () => {
+    // it("[1155] Should be callable by the creator", async () => {
     //   await auctionHouse.cancelAuction(0);
     //   const owner = await media1.ownerOf(0);
     //   const auctionResult = await auctionHouse.auctions(0);
@@ -1795,37 +1795,16 @@ describe("AuctionHouseV2", () => {
     //   expect(await media1.address).to.eq(signers[1].address);
     // });
 
-    it.only("[1155] Should emit an AuctionCanceled event", async () =>{
-      
-
+    it("[1155] Should emit an AuctionCanceled event", async () =>{
       const block = await ethers.provider.getBlockNumber();
       const tx = await auctionHouse.cancelAuction(1);
-      // const events = await auctionHouse.queryFilter(
-      //   auctionHouse.filters.AuctionCanceled(0, null, null, null),
-      //   block
-      // );
-      // expect(events.length).eq(1);
-      // const logDescription = auctionHouse.interface.parseLog(events[0]);
-
       const receipt = await tx.wait();
-      
       const auctionCanceledEvents = receipt.events as Event[];
       const auctionCanceledEvent = auctionCanceledEvents.slice(-1);
-      console.log(auctionCanceledEvent[0].args?.mediaContract);
       
-
-      console.log(media1.address);
-      console.log(media2.address);
-      console.log(media3.address);
-      console.log(media4.address);
-  
-      // console.log(media1.address);
-      // console.log(logDescription.args.mediaContract);
-      // expect(logDescription.args.tokenId.toNumber()).to.eq(0);
-      
-      // expect(logDescription.args.tokenOwner).to.eq(await admin.getAddress());
-      // expect(logDescription.args.mediaContract).to.eq(media1.address);
-
+      expect(auctionCanceledEvent[0].args?.tokenId.toNumber()).to.eq(1);
+      expect(auctionCanceledEvent[0].args?.tokenOwner).to.eq(signers[0].address);
+      expect(auctionCanceledEvent[0].args?.mediaContract).to.eq(media1.address);
     });
 
   });
