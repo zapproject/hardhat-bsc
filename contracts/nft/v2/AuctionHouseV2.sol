@@ -641,6 +641,13 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
+        
+        if (IERC1155Upgradeable(mediaContractAddress).supportsInterface(0xd9b67a26)) {
+            _finalizeNFTTransfer1155(
+                mediaContractAddress
+            );
+        }
+        
         IERC721Upgradeable(auctions[auctionId].token.mediaContract)
             .safeTransferFrom(
                 address(this),
@@ -655,12 +662,6 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             tokenOwner
         );
         delete auctions[auctionId];
-
-        if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)) {
-            _finalizeNFTTransfer1155(
-                mediaContractAddress
-            );
-        }
     }
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
