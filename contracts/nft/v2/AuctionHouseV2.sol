@@ -655,6 +655,12 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
             tokenOwner
         );
         delete auctions[auctionId];
+
+        if (IMediaV2(mediaContractAddress).supportsInterface(0xd9b67a26)) {
+            _finalizeNFTTransfer1155(
+                mediaContractAddress
+            );
+        }
     }
 
     function _approveAuction(uint256 auctionId, bool approved) internal {
