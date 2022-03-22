@@ -641,19 +641,31 @@ contract AuctionHouseV2 is IAuctionHouseV2, ReentrancyGuardUpgradeable {
 
     function _cancelAuction(uint256 auctionId) internal {
         address tokenOwner = auctions[auctionId].tokenOwner;
-        IERC721Upgradeable(auctions[auctionId].token.mediaContract)
+        if (IERC1155Upgradeable(auctions[auctionId].token.mediaContract).supportsInterface(_1155InterfaceId)) {
+            IERC1155Upgradeable(auctions[auctionId].token.mediaContract).safeTransferFrom(
+            address(this),
+                tokenOwner,
+                auctions[auctionId].token.tokenId,
+                auctions[auctionId].token.amount,
+                ''
+            ); 
+
+        } else {
+            IERC721Upgradeable(auctions[auctionId].token.mediaContract)
             .safeTransferFrom(
                 address(this),
                 tokenOwner,
                 auctions[auctionId].token.tokenId
             );
+        }
 
         emit AuctionCanceled(
-            auctionId,
-            auctions[auctionId].token.tokenId,
-            auctions[auctionId].token.mediaContract,
-            tokenOwner
-        );
+                auctionId,
+                auctions[auctionId].token.tokenId,
+                auctions[auctionId].token.mediaContract,
+                tokenOwner
+            );
+            
         delete auctions[auctionId];
     }
 

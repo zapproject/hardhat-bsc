@@ -20,7 +20,7 @@ import {
   ZapMediaV2
 } from "../typechain";
 import { } from "../typechain";
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, Event } from "ethers";
 
 import {
   approveAuction,
@@ -574,7 +574,7 @@ describe("AuctionHouseV2", () => {
           );
     });
 
-    // it.only("should revert if the given media contract address differs from the one that is already set", async () => {
+    // it("should revert if the given media contract address differs from the one that is already set", async () => {
     //   // don't mind this, this test will always fail
     //   // tokens and their medias/collections have a 1-to-1 relationship, not 1-to-many
     //   const [_, curator] = await ethers.getSigners();
@@ -1646,5 +1646,158 @@ describe("AuctionHouseV2", () => {
         });
       });
     });
+  });
+
+  describe("#cancelAuction", () => {
+    let auctionHouse: AuctionHouseV2;
+    let admin: SignerWithAddress;
+    let creator: SignerWithAddress;
+    let curator: SignerWithAddress;
+    let bidder: SignerWithAddress;
+
+    beforeEach(async () => {
+        [admin, creator, curator, bidder] = await ethers.getSigners();
+
+        auctionHouse = await deploy(signers[0]);
+
+        const contracts = await deployV2ZapNFTMarketplace(market);
+
+        media4 = contracts.medias[0];
+
+        await media4.connect(signers[0]).setApprovalForAll(auctionHouse.address, true);
+
+        await approveAuction(
+          media4.connect(signers[0]),
+          auctionHouse.connect(signers[0])
+        );
+
+        await media1.connect(signers[1]).setApprovalForAll(auctionHouse.address, true);
+
+        await createAuction(
+          auctionHouse.connect(signers[0]),
+          await curator.getAddress(),
+          zapTokenBsc.address,
+          undefined,
+          media4.address
+        );
+
+        await createAuctionBatch(auctionHouse, await curator.getAddress(), zapTokenBsc.address);
+
+    });
+
+    it("[721] Should revert if the auction does not exist", async () => {
+      await expect(auctionHouse.cancelAuction(200000000000))
+      .revertedWith(
+        `Auction doesn't exist`
+      );
+    });
+
+    it("[721] Should revert if the auction has already begun", async () => {
+      
+      await zapTokenBsc.mint(bidder.address, ONE_ETH);
+
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
+
+      await auctionHouse.connect(curator).startAuction(0, true);
+
+      await auctionHouse
+        .connect(bidder)
+        .createBid(0, ONE_ETH, media4.address);
+
+      await expect(auctionHouse.cancelAuction(0)).revertedWith(
+        `You can't cancel an auction that has a bid`
+      );
+    });
+
+    it("[721] Should be callable by the creator", async () => {
+      await auctionHouse.cancelAuction(0);
+
+      const auctionResult = await auctionHouse.auctions(0);
+
+      expect(auctionResult.amount.toNumber()).to.eq(0);
+      expect(auctionResult.duration.toNumber()).to.eq(0);
+      expect(auctionResult.firstBidTime.toNumber()).to.eq(0);
+      expect(auctionResult.reservePrice.toNumber()).to.eq(0);
+      expect(auctionResult.curatorFeePercentage).to.eq(0);
+      expect(auctionResult.tokenOwner).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.bidder).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.curator).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.auctionCurrency).to.eq(ethers.constants.AddressZero);
+
+      expect(await media4.ownerOf(0)).to.eq(signers[0].address);
+    });
+
+    it("[721] Should emit an AuctionCanceled event", async () => {
+      const block = await ethers.provider.getBlockNumber();
+      
+      await auctionHouse.cancelAuction(0);
+      
+      const events = await auctionHouse.queryFilter(
+        auctionHouse.filters.AuctionCanceled(0, null, null, null),
+        block
+      );
+
+      expect(events.length).eq(1);
+      const logDescription = auctionHouse.interface.parseLog(events[0]);
+
+      expect(logDescription.args.tokenId.toNumber()).to.eq(0);
+      expect(logDescription.args.tokenOwner).to.eq(signers[0].address);
+      expect(logDescription.args.mediaContract).to.eq(media4.address);
+
+    });
+
+    it("[1155] Should revert if the auction does not exist", async () => {
+      await expect(auctionHouse.cancelAuction(200000000000))
+      .revertedWith(
+        `Auction doesn't exist`
+      );
+    });
+
+    it("[1155] Should revert if the auction has already begun", async () => {
+      
+      await zapTokenBsc.mint(bidder.address, ONE_ETH);
+
+      await zapTokenBsc.connect(bidder).approve(auctionHouse.address, ONE_ETH);
+
+      await auctionHouse.connect(curator).startAuction(0, true);
+
+      await auctionHouse
+        .connect(bidder)
+        .createBid(0, ONE_ETH, media1.address);
+
+      await expect(auctionHouse.cancelAuction(0)).revertedWith(
+        `You can't cancel an auction that has a bid`
+      );
+    });
+
+    it("[1155] Should be callable by the creator", async () => {
+      await auctionHouse.cancelAuction(1);
+      
+      const auctionResult = await auctionHouse.auctions(1);
+
+      expect(auctionResult.amount.toNumber()).to.eq(0);
+      expect(auctionResult.duration.toNumber()).to.eq(0);
+      expect(auctionResult.firstBidTime.toNumber()).to.eq(0);
+      expect(auctionResult.reservePrice.toNumber()).to.eq(0);
+      expect(auctionResult.curatorFeePercentage).to.eq(0);
+      expect(auctionResult.tokenOwner).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.bidder).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.curator).to.eq(ethers.constants.AddressZero);
+      expect(auctionResult.auctionCurrency).to.eq(ethers.constants.AddressZero);
+      expect(signers[1].address).to.eq(await creator.getAddress());
+    });
+
+    it("[1155] Should emit an AuctionCanceled event", async () =>{
+      const block = await ethers.provider.getBlockNumber();
+      const tx = await auctionHouse.cancelAuction(1);
+      const receipt = await tx.wait();
+      const auctionCanceledEvents = receipt.events as Event[];
+      const auctionCanceledEvent = auctionCanceledEvents.slice(-1);
+      
+      expect(auctionCanceledEvent[0].args?.tokenId.toNumber()).to.eq(1);
+      expect(auctionCanceledEvent[0].args?.tokenOwner).to.eq(signers[0].address);
+      expect(auctionCanceledEvent[0].args?.mediaContract).to.eq(media1.address);
+    });
+
   });
 });
