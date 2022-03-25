@@ -1,14 +1,14 @@
-import { config as dotEnvConfig } from "dotenv";
+import { config as dotEnvConfig } from 'dotenv';
 
 dotEnvConfig();
 
 import '@openzeppelin/hardhat-upgrades';
-import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-gas-reporter"
-import "hardhat-typechain";
-import "hardhat-deploy";
-import "hardhat-contract-sizer";
+import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
+import 'hardhat-gas-reporter';
+import 'hardhat-typechain';
+import 'hardhat-deploy';
+import 'hardhat-contract-sizer';
 import './tasks/faucet';
 import './tasks/checkbalance';
 import './tasks/checkbalances';
@@ -22,27 +22,35 @@ import './tasks/dispatch';
 // import './tasks/dispatchCGPriceClient';
 // import './tasks/dispatchBittrex';
 // import './tasks/checkClient';
-import './tasks/verifyContract.js'
+import './tasks/verifyContract.js';
 // import './tasks/mine';
+import './tasks/zapVaultInitOwnership';
+import './tasks/zapVaultClaim';
+import './tasks/zapMarketInitOwnership';
+import './tasks/zapMarketClaim';
+import './tasks/mediaFactoryTransfer';
+import './tasks/zapMediaInitOwnership';
+import './tasks/zapMediaClaim';
 
-require("hardhat-tracer");
+require('hardhat-tracer');
 
-import { getBSCGasPrice } from './scripts/getGasPrice'
-const fs = require('fs');  // required for reading BSC gas price
+import { getBSCGasPrice } from './scripts/getGasPrice';
+const fs = require('fs'); // required for reading BSC gas price
 
 // TODO: reenable solidity-coverage when it works
 // import "solidity-coverage";
 
-const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
+const INFURA_API_KEY = process.env.INFURA_API_KEY || '';
 const RINKEBY_PRIVATE_KEY =
   process.env.RINKEBY_PRIVATE_KEY! ||
-  "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"; // well known private key
+  '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'; // well known private key
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 const BSC_API_KEY = process.env.BSC_API_KEY;
-const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY ||
-  "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3";
+const KOVAN_PRIVATE_KEY =
+  process.env.KOVAN_PRIVATE_KEY ||
+  '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3';
 
-getBSCGasPrice()
+getBSCGasPrice();
 
 const config = {
   solidity: {
@@ -81,11 +89,7 @@ const config = {
     // },
     rinkeby: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/rinkeby',
-      accounts: [RINKEBY_PRIVATE_KEY],
-      timeout: 60000,
-      gas: 30000000, //30 mil
-      gasPrice: 2000000000, //2 gwei
-      gasMultiplier: 2
+      accounts: [RINKEBY_PRIVATE_KEY]
     },
     kovan: {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/kovan',
@@ -99,13 +103,13 @@ const config = {
     //   accounts: { mnemonic: process.env.MNEMONIC },
     //   timeout: 300000
     // },
-    // testnet: {
-    //   url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
-    //   chainId: 97,
-    //   gasPrice: 20000000000,
-    //   accounts: { mnemonic: process.env.MNEMONIC },
-    //   timeout: 300000
-    // },
+    bscTestnet: {
+      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: [process.env.BSC_TESTNET_KEY],
+      timeout: 300000
+    },
     hardhat: {
       gas: 12000000,
       gasPrice: 10000000000,
@@ -137,14 +141,14 @@ const config = {
 
 // read BSC gas price and assign the gas reporter and hardhat network's gas price to it
 try {
-  let data = fs.readFileSync("./output/bscGas.txt", 'utf8')
-  data = data.replaceAll('"', '')
-  data = Number.parseInt(data)
-  config.networks.hardhat.gasPrice = data
-  let parsedData = (data / 1000000000).toFixed(2)  // round to 2 decimal places
-  config.gasReporter.gasPrice = Number(parsedData)
+  let data = fs.readFileSync('./output/bscGas.txt', 'utf8');
+  data = data.replaceAll('"', '');
+  data = Number.parseInt(data);
+  config.networks.hardhat.gasPrice = data;
+  let parsedData = (data / 1000000000).toFixed(2); // round to 2 decimal places
+  config.gasReporter.gasPrice = Number(parsedData);
 } catch (err) {
-  console.error(err)
+  console.error(err);
 }
 
 export default config;
