@@ -5,11 +5,11 @@ typechain
 artifacts
 cache
 .env 
-output
 deployments
 .openzeppelin
 .vscode
 output
+
 test/output
 output/bscGas.txt
 dct.js
