@@ -164,7 +164,7 @@ describe("Fork Tests", () => {
             signer: signers[0]
         });
 
-        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address, zeroAddress)) as ZapMaster
+        zapMaster = (await zapMasterFactory.deploy(zap.address, zapTokenBsc.address)) as ZapMaster
         await zapMaster.deployed();
 
         const Vault: ContractFactory = await ethers.getContractFactory('Vault', { signer: signers[0] });

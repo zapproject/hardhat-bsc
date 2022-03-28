@@ -368,7 +368,7 @@ export async function signPermit(
     await zapMedia.getPermitNonce(signers[4].address, tokenId)
   ).toNumber();
 
-  const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
+  const deadline = (await ethers.provider.getBlock("latest")).timestamp + (60 * 60 * 24); // 24 hours
   const name = await zapMedia.name();
 
   const chainId = await signers[5].getChainId();
@@ -412,7 +412,7 @@ export async function signMintWithSig(
   version: string
 ) {
   const nonce = (await zapMedia.getSigNonces(signers[1].address)).toNumber();
-  const deadline = Math.floor(new Date().getTime() / 1000) + 60 * 60 * 24; // 24 hours
+  const deadline = (await ethers.provider.getBlock("latest")).timestamp + (60 * 60 * 24); // 24 hours
   const name = await zapMedia.name();
 
   const chainId = await signers[1].getChainId();

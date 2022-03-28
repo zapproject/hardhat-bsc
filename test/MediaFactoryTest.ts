@@ -285,7 +285,7 @@ describe("MediaFactory", () => {
         let mediaFactoryFactoryV2: ContractFactory;
 
         beforeEach(async () => {
-            const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+            const oldVaultArtifact = require('../artifacts/contracts/nft/ZapVault.sol/ZapVault.json');
             const oldVaultABI = oldVaultArtifact.abi;
             const oldVaultBytecode = oldVaultArtifact.bytecode;
             const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, deployer);
@@ -294,7 +294,7 @@ describe("MediaFactory", () => {
                 initializer: 'initializeVault'
             })) as ZapVault;
 
-            const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+            const oldZMArtifact = require('../artifacts/contracts/nft/ZapMarket.sol/ZapMarket.json');
             const oldZMABI = oldZMArtifact.abi;
             const oldZMBytecode = oldZMArtifact.bytecode;
             const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, deployer);
@@ -305,10 +305,10 @@ describe("MediaFactory", () => {
 
             await zapMarket.deployed();
 
-            const zapMediaFactoryV1 = await ethers.getContractFactory("ZapMediaOld", deployer);
+            const zapMediaFactoryV1 = await ethers.getContractFactory("ZapMediaV2", deployer);
             const zapMediaInterface = await zapMediaFactoryV1.deploy();
 
-            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryOld", deployer);
+            const mediaDeployerFactory = await ethers.getContractFactory("MediaFactoryV2", deployer);
             mediaFactory = (await upgrades.deployProxy(mediaDeployerFactory, [zapMarket.address, zapMediaInterface.address], {
                 initializer: 'initialize'
             })) as MediaFactory;
