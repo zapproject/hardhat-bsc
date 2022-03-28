@@ -104,10 +104,10 @@ const config = {
     //   timeout: 300000
     // },
     bscTestnet: {
-      url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/bsc/testnet',
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: [process.env.BSC_TESTNET_KEY],
+      accounts: process.env.BSC_TESTNET_KEY ? [process.env.BSC_TESTNET_KEY] : undefined,
       timeout: 300000
     },
     hardhat: {
@@ -130,7 +130,8 @@ const config = {
     // apiKey: BSC_API_KEY
   },
   mocha: {
-    timeout: 1000000
+    timeout: 1000000,
+    // parallel: true
   },
   namedAccounts: {
     deployer: {
