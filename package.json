@@ -1,5 +1,5 @@
 {
-  "name": "zap-hardhat",
+  "name": "@zapprotocol/zap-hardhat-bsc",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
