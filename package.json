@@ -1,7 +1,7 @@
 {
   "name": "@zapprotocol/bsc-contracts",
   "version": "1.0.0",
-  "description": "",
+  "description": "Zap Protocol Smart Contracts",
   "main": "index.js",
   "scripts": {
     "build": "npm run clean && npm run compile",
