@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ develop, staging, release ]
+    branches: [ release ]
     paths:
       - "contracts/**"
       - "package.json"
