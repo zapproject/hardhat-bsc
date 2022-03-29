@@ -1,4 +1,9 @@
-on: push
+on:
+  push:
+    branches: [ develop, staging, release ]
+    paths:
+      - "contracts/**"
+      - "package.json"
 
 jobs:
   publish:
@@ -10,7 +15,7 @@ jobs:
           node-version: 16
       - run: npm i
       - run: npx hardhat compile
-      - run: npx hardhat test
+      - run: npx hardhat test --no-compile
       - uses: JS-DevTools/npm-publish@v1
         with:
           check-version: true  # this is the default, just making it explicit
