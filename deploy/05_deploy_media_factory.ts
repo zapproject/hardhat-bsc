@@ -33,8 +33,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
                 methodName: 'initialize',
                 args: [marketAddress, mediaInterfaceAddress]
             }
-        },
-        log: true,
+        }
     })
 
     // const zapMarket = await zapMarketFactory.attach(marketAddress);

@@ -139,36 +139,9 @@ async function main() {
     // // // deploy ZapMarket
     // // // ************************************************************** //
 
-    // const zapMarketFactory = await ethers.getContractFactory('ZapMarket', signers[0]);
-
-    // const zapMarket = await upgrades.deployProxy(
-    //     zapMarketFactory,
-    //     [zapVault.address],
-    //     { initializer: 'initializeMarket' },
-
-    // );
-
-    // await zapMarket.deployed();
-    // console.log('ZapMarket deployed to:', zapMarket.address);
-    // console.log("ZapMarket isRegistered (should be false): ", await zapMarket.isRegistered(zapVault.address), "\n");
-
-    // // const ZapMarket = await ethers.getContractFactory("ZapMarket");
-
-    // // set Fee for the platform
+    // set Fee for the platform
     // await zapMarket.setFee(platformFee);
     // console.log("Platform fee set for ZapMarket")
-
-    // // // ************************************************************** //
-    // // // deploy AuctionHouse
-    // // // ************************************************************** //
-
-    // const AuctionHouse = await ethers.getContractFactory('AuctionHouse', signers[0]);
-    // const auctionHouse = await upgrades.deployProxy(AuctionHouse,
-    //     [tokenAddress, zapMarket.address],
-    //     { initializer: 'initialize' }
-    // );
-    // await auctionHouse.deployed();
-    // console.log('AuctionHouse deployed to:', auctionHouse.address);
 
     // // ************************************************************** //
     // // deploy ZapMedia Implementation Contract
@@ -189,11 +162,27 @@ async function main() {
 
     // const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
+    // // ************************************************************** //
+    // // deploy MediaFactory
+    // // ************************************************************** //
+
+    // const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+
     // const mediaFactory = await upgrades.deployProxy(
     //     MediaFactory,
     //     [zapMarket.address, zapMediaImplementation.address],
     //     { initializer: 'initialize' }
     // ) as MediaFactory;
+
+    
+    // await mediaFactory.deployed();
+
+    // set mediaFactory address to ZapMarket
+    // await zapMarket.setMediaFactory(mediaFactory.address);
+    // console.log("MediaFactory set to ZapMarket");
+
+    // console.log('MediaFactory deployed to:', mediaFactory.address);
+    // console.log("MediaFactory Owner: ", await mediaFactory.owner(), "\n")
 
 
     // await mediaFactory.deployed();
@@ -234,7 +223,8 @@ async function main() {
     // console.log("ZapMedia deployed to:", zapMedia.address);
     // console.log("ZapMedia contract URI (this time it should show something): ", await zapMedia.contractURI());
 
-    // await zapMedia.claimTransferOwnership();
+    // console.log("ZapMedia deployed to:", zapMedia.address);
+    // console.log("ZapMedia contract URI (this time it should show something): ", await zapMedia.contractURI());
 
     // console.log("Ownership claimed by", await zapMedia.getOwner(), "\n")
 }

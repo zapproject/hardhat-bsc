@@ -885,6 +885,7 @@ describe("AuctionHouse", () => {
           expect(logDescription.args.extended).to.eq(true);
         });
       });
+      
       describe("late bid", () => {
         beforeEach(async () => {
           const currAuction = await auctionHouse.auctions(0);

@@ -1784,7 +1784,7 @@ describe('ZapMarket Test', () => {
       zapTokenBsc = await zapTokenFactory.deploy();
       await zapTokenBsc.deployed();
 
-      const oldVaultArtifact = require('../artifacts/contracts/nft/develop/ZapVaultOld.sol/ZapVaultOld.json');
+      const oldVaultArtifact = require('../artifacts/contracts/nft/ZapVault.sol/ZapVault.json');
       const oldVaultABI = oldVaultArtifact.abi;
       const oldVaultBytecode = oldVaultArtifact.bytecode;
       const zapVaultFactory = new ethers.ContractFactory(oldVaultABI, oldVaultBytecode, signers[0]);
@@ -1793,7 +1793,7 @@ describe('ZapMarket Test', () => {
         initializer: 'initializeVault'
       })) as ZapVault;
 
-      const oldZMArtifact = require('../artifacts/contracts/nft/develop/ZapMarketOld.sol/ZapMarketOld.json');
+      const oldZMArtifact = require('../artifacts/contracts/nft/ZapMarket.sol/ZapMarket.json');
       const oldZMABI = oldZMArtifact.abi;
       const oldZMBytecode = oldZMArtifact.bytecode;
       const zapMarketFactory = new ethers.ContractFactory(oldZMABI, oldZMBytecode, signers[0]);
@@ -1804,7 +1804,7 @@ describe('ZapMarket Test', () => {
 
       await zapMarket.deployed();
 
-      const ZMArtifact = require('../artifacts/contracts/nft/ZapMarket.sol/ZapMarket.json');
+      const ZMArtifact = require('../artifacts/contracts/nft/v2/ZapMarketV2.sol/ZapMarketV2.json');
       const ZMABI = ZMArtifact.abi;
       const ZMBytecode = ZMArtifact.bytecode;
       zapMarketV2Factory = new ethers.ContractFactory(ZMABI, ZMBytecode, signers[0]);

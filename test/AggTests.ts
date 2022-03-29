@@ -85,14 +85,14 @@ describe("All tests", function () {
 
   });
 
-  it("Should return the totalTip for a request", async function () {
+  it.skip("Should return the totalTip for a request", async function () {
     await zapToken.mint(acc1.address, BigInt(3));
     await zapToken.connect(acc1).approve(ZM.address, 3);
     await zapDotSol.attach(ZM.address).connect(acc1).addTip(1, 3);
     expect(await Agg.totalTip(1)).to.equal(3);
   });
 
-  it("Should return the current reward amount", async function () {
+  it.skip("Should return the current reward amount", async function () {
     // 5min past last submitted value.
     {
       const timeOfLastValue = (await Agg.timeOfLastValue());
@@ -119,7 +119,7 @@ describe("All tests", function () {
     }
   });
 
-  it("Should return the last N submitted values", async function () {
+  it.skip("Should return the last N submitted values", async function () {
     await zapToken.connect(owner).mint(acc1.address, BigInt(1e18 * 500000));
     await zapToken.connect(owner).mint(acc2.address, BigInt(1e18 * 500000));
     await zapToken.connect(owner).mint(acc3.address, BigInt(1e18 * 500000));

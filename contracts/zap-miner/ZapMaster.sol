@@ -1,7 +1,9 @@
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
 import './ZapGetters.sol';
 import './libraries/Address.sol';
+import './libraries/ZapStake.sol';
 
 /**
  * @title Zap Master
@@ -11,7 +13,11 @@ import './libraries/Address.sol';
  */
 contract ZapMaster is ZapGetters {
     event NewZapAddress(address _newZap);
+    event Received(address, uint);
+
     using Address for address;
+    using ZapStake for ZapStorage.ZapStorageStruct;
+    using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
 
     address public owner;
     bool private vaultLock;
@@ -24,18 +30,18 @@ contract ZapMaster is ZapGetters {
 
     /**
      * @dev The constructor sets the original `zapStorageOwner` of the contract to the sender
-     * account, the zap contract to the Zap master address and owner to the Zap master owner address
+     * account, the zap contract to the Zap master address and owner to the Zap master owner address.
+     * If there are no predecessors or no storage transfer is wanted, pass in the zero address.
      * @param _zapContract is the address for the zap contract
+     * @param tokenAddress is the address for the ZAP token contract
      */
     constructor(address _zapContract, address tokenAddress)
-        public
         ZapGetters(tokenAddress)
     {
         zap.init();
         zap.addressVars[keccak256('_owner')] = msg.sender;
         zap.addressVars[keccak256('_deity')] = msg.sender;
         zap.addressVars[keccak256('zapContract')] = _zapContract;
-        // zap.addressVars[keccak256('zapTokenContract')] = tokenAddress;
 
         owner = msg.sender;
 
@@ -43,20 +49,10 @@ contract ZapMaster is ZapGetters {
     }
 
     /**
-     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
-     * @dev Only needs to be in library
-     * @param _newDeity the new Deity in the contract
-     */
-
-    function changeDeity(address _newDeity) external {
-        zap.changeDeity(_newDeity);
-    }
-
-    /**
      * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
      * @param _vaultContract the address of the new Vault Contract
      */
-    function changeVaultContract(address _vaultContract) external {
+    function changeVaultContract(address _vaultContract) external onlyOwner {
         require(!vaultLock);
         vaultLock = true;
         zap.changeVaultContract(_vaultContract);
@@ -65,7 +61,7 @@ contract ZapMaster is ZapGetters {
     /**
      * @dev This is the fallback function that allows contracts to call the zap contract at the address stored
      */
-    function() external payable {
+    fallback() external payable {
         address addr = zap.addressVars[keccak256('zapContract')];
         bytes memory _calldata = msg.data;
         assembly {
@@ -77,7 +73,7 @@ contract ZapMaster is ZapGetters {
                 0,
                 0
             )
-            let size := returndatasize
+            let size := returndatasize()
             let ptr := mload(0x40)
             returndatacopy(ptr, 0, size)
             // revert instead of invalid() bc if the underlying call failed with invalid() it already wasted gas.
@@ -90,5 +86,12 @@ contract ZapMaster is ZapGetters {
                 return(ptr, size)
             }
         }
+    }
+
+    /**
+     * Receive function for incoming ethers
+     */
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
     }
 }

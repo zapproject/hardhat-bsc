@@ -1,0 +1,22 @@
+on:
+  push:
+    branches: [ release ]
+    paths:
+      - "contracts/**"
+      - "package.json"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - run: npm i
+      - run: npx hardhat compile
+      - run: npx hardhat test --no-compile
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          check-version: true  # this is the default, just making it explicit
+          token: ${{ secrets.NPM_TOKEN }}

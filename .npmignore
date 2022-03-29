@@ -1,0 +1,35 @@
+# dirs
+.ansible
+.github
+.legacy
+cache
+contracts/lib
+contracts/MPO
+contracts/platform
+deploy
+legacy
+scripts
+tasks
+test
+./utils
+
+# files
+.prettierrc
+ansible.cfg
+bash.exe.stackdump
+config
+credentials
+deploy.yml
+deployContracts.json
+docker-image.yml
+Dockerfile
+entrypoint
+galaxy-requirements.yml
+hardhat-v2.0.7.tar
+inventory
+message.yml
+nft_bsc_*.sh
+output.md
+start.sh
+task-definition.json
+yarn-error.log

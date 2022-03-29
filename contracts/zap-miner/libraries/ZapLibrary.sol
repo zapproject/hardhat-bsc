@@ -1,8 +1,6 @@
-// pragma solidity =0.5.16;
-pragma solidity =0.5.16;
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.4;
 
-import './SafeMathM.sol';
-import './SignedSafeMath.sol';
 import './Utilities.sol';
 import './ZapStorage.sol';
 import './ZapDispute.sol';
@@ -15,9 +13,6 @@ import './ZapGettersLibrary.sol';
  * along with the value and smart contracts can requestData and tip miners.
  */
 library ZapLibrary {
-    using SafeMathM for uint256;
-    using SignedSafeMath for int256;
-
     event TipAdded(
         address indexed _sender,
         uint256 indexed _requestId,
@@ -83,31 +78,12 @@ library ZapLibrary {
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
-
-        // difficulty + difficulty(timeTarget - (now - timeOfLastNewValue))
-
-        int256 _newDiff = int256(self.uintVars[keccak256('difficulty')])
-            .add(
-                int256(self.uintVars[keccak256('difficulty')]).mul(
-                    int256(self.uintVars[keccak256('timeTarget')]).sub(
-                        int256(
-                            now.sub(
-                                self.uintVars[keccak256('timeOfLastNewValue')]
-                            )
-                        )
+        int256 _newDiff = (int256(self.uintVars[keccak256('difficulty')]) +
+                int256(self.uintVars[keccak256('difficulty')]) *
+                    (int256(self.uintVars[keccak256('timeTarget')]) -
+                        int256(block.timestamp - self.uintVars[keccak256('timeOfLastNewValue')])
                     )
-                )
-            )
-            .div(100);
-
-        // original
-        // int256 _newDiff = int256(self.uintVars[keccak256('difficulty')]) +
-        //     (int256(self.uintVars[keccak256('difficulty')]) *
-        //         (int256(self.uintVars[keccak256('timeTarget')]) -
-        //             int256(
-        //                 now - self.uintVars[keccak256('timeOfLastNewValue')]
-        //             ))) /
-        //     100;
+            ) / 100;
 
         if (_newDiff <= 0) {
             self.uintVars[keccak256('difficulty')] = 1;
@@ -117,8 +93,8 @@ library ZapLibrary {
 
         //Sets time of value submission rounded to 1 minute
         self.uintVars[keccak256('timeOfLastNewValue')] =
-            now -
-            (now % 1 minutes);
+            block.timestamp -
+            (block.timestamp % 1 minutes);
 
         //The sorting algorithm that sorts the values of the first five values that come in
         ZapStorage.Details[5] memory a = self.currentMiners;
