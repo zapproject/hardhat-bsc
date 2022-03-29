@@ -1,3 +1,4 @@
+name: Publish BSC Smart Contracts to NPM
 on:
   push:
     branches: [ main ]
@@ -15,8 +16,9 @@ jobs:
           node-version: 16
       - run: npm i
       - run: npx hardhat compile
-      - run: npx hardhat test --no-compile
+      # - run: npx hardhat test --no-compile
       - uses: JS-DevTools/npm-publish@v1
         with:
+          access: public
           check-version: true  # this is the default, just making it explicit
           token: ${{ secrets.NPM_TOKEN }}
