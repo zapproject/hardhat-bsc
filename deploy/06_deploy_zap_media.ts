@@ -25,7 +25,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     const mediaFactory = await mediaFactoryFactory.attach(factoryAddress);
 
+    const marketFactory = await ethers.getContractFactory('ZapMarket')
+
+    
     const marketAddress = await (await hre.deployments.get('ZapMarket')).address;
+    
+    const zapMarket = marketFactory.attach(marketAddress) as ZapMarket;
 
     const name = 'Zap Collection';
 
@@ -65,7 +70,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
     }
 
-    const gas = await mediaFactory.estimateGas.deployMedia(
+    let gas = await zapMarket.estimateGas.setMediaFactory(factoryAddress);
+
+    await zapMarket.setMediaFactory(factoryAddress);
+
+    gas = await mediaFactory.estimateGas.deployMedia(
         name,
         symbol,
         marketAddress,
