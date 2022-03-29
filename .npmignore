@@ -2,9 +2,16 @@
 .ansible
 .github
 .legacy
+cache
 contracts/lib
 contracts/MPO
 contracts/platform
+deploy
+legacy
+scripts
+tasks
+test
+./utils
 
 # files
 .prettierrc
