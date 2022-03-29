@@ -1452,25 +1452,19 @@ describe("ZapMedia Test", async () => {
 
         it('should clear approvals, set remove owner, but maintain tokenURI and contentHash when the owner is creator and caller', async () => {
 
-            expect(await zapMedia3.connect(signers[3]).approve(signers[4].address, 0));
+            await zapMedia3.connect(signers[3]).approve(signers[4].address, 0);
 
-            expect(await zapMedia3.connect(signers[3]).burn(0));
+            await zapMedia3.connect(signers[3]).burn(0);
 
-            await expect(zapMedia3.connect(signers[3]).ownerOf(0)).revertedWith(
-                "ERC721: owner query for nonexistent token"
-            );
+            await expect(zapMedia3.connect(signers[3]).ownerOf(0)).to.be.reverted;
 
             const totalSupply = await zapMedia3.connect(signers[3]).totalSupply();
 
             expect(totalSupply.toNumber()).eq(0);
 
-            await expect(zapMedia3.connect(signers[3]).getApproved(0)).revertedWith(
-                'ERC721: approved query for nonexistent token'
-            );
+            await expect(zapMedia3.connect(signers[3]).getApproved(0)).reverted;
 
-            await expect(zapMedia3.connect(signers[3]).tokenURI(0)).revertedWith(
-                'ERC721URIStorage: URI query for nonexistent token'
-            );
+            await expect(zapMedia3.connect(signers[3]).tokenURI(0)).reverted;
 
         });
 
@@ -1480,21 +1474,15 @@ describe("ZapMedia Test", async () => {
 
             expect(await zapMedia3.connect(signers[3]).burn(0));
 
-            await expect(zapMedia1.connect(signers[3]).ownerOf(0)).revertedWith(
-                "ERC721: owner query for nonexistent token"
-            );
+            await expect(zapMedia1.connect(signers[3]).ownerOf(0)).reverted;
 
             const totalSupply = await zapMedia1.connect(signers[1]).totalSupply();
 
             expect(totalSupply.toNumber()).eq(0);
 
-            await expect(zapMedia3.connect(signers[3]).getApproved(0)).revertedWith(
-                'ERC721: approved query for nonexistent token'
-            );
+            await expect(zapMedia3.connect(signers[3]).getApproved(0)).reverted;
 
-            await expect(zapMedia3.connect(signers[3]).tokenURI(0)).revertedWith(
-                'ERC721URIStorage: URI query for nonexistent token'
-            );
+            await expect(zapMedia3.connect(signers[3]).tokenURI(0)).reverted;
 
         });
 
