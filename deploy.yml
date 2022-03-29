@@ -1,0 +1,25 @@
+- name: run
+
+  hosts: localhost
+  connection: local
+
+ 
+  tasks: 
+    - name: run
+      command: apt-get install npm
+
+    
+    - name: run node version
+      command: cd /sdk/nft
+    
+    - name: initialize
+      shell: npm install
+    - name: run ganache
+      command: npm run ganache &
+    - name: test
+      command: npm test 
+   
+
+    - name: out
+      command: echo "done"
+

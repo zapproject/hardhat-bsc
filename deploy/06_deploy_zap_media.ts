@@ -65,12 +65,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             contractURI = 'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/bsc'
     }
 
-    const tx = await mediaFactory.deployMedia(
+    const gas = await mediaFactory.estimateGas.deployMedia(
         name,
         symbol,
         marketAddress,
         true,
         contractURI
+    );
+
+    const tx = await mediaFactory.deployMedia(
+        name,
+        symbol,
+        marketAddress,
+        true,
+        contractURI,
+        { gasLimit: gas }
     );
 
     const receipt = await tx.wait();

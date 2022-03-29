@@ -36,11 +36,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         }
     })
 
-    const zapMarket = await zapMarketFactory.attach(marketAddress);
+    // const zapMarket = await zapMarketFactory.attach(marketAddress);
 
-    const factoryAddress = await (await hre.deployments.get('MediaFactory')).address;
+    // const factoryAddress = await (await hre.deployments.get('MediaFactory')).address;
 
-    await zapMarket.setMediaFactory(factoryAddress);
+    // await zapMarket.setMediaFactory(factoryAddress);
 
     // console.log("MediaFactory set to ZapMarket");
 
