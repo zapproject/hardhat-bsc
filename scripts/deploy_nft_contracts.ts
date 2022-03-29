@@ -140,7 +140,7 @@ async function main() {
     // // // ************************************************************** //
 
     // set Fee for the platform
-    await zapMarket.setFee(platformFee);
+    // await zapMarket.setFee(platformFee);
     // console.log("Platform fee set for ZapMarket")
 
     // // ************************************************************** //
@@ -166,19 +166,19 @@ async function main() {
     // // deploy MediaFactory
     // // ************************************************************** //
 
-    const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
+    // const MediaFactory = await ethers.getContractFactory("MediaFactory", signers[0]);
 
-    const mediaFactory = await upgrades.deployProxy(
-        MediaFactory,
-        [zapMarket.address, zapMediaImplementation.address],
-        { initializer: 'initialize' }
-    ) as MediaFactory;
+    // const mediaFactory = await upgrades.deployProxy(
+    //     MediaFactory,
+    //     [zapMarket.address, zapMediaImplementation.address],
+    //     { initializer: 'initialize' }
+    // ) as MediaFactory;
 
     
-    await mediaFactory.deployed();
+    // await mediaFactory.deployed();
 
     // set mediaFactory address to ZapMarket
-    await zapMarket.setMediaFactory(mediaFactory.address);
+    // await zapMarket.setMediaFactory(mediaFactory.address);
     // console.log("MediaFactory set to ZapMarket");
 
     // console.log('MediaFactory deployed to:', mediaFactory.address);
