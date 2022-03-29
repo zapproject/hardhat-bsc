@@ -46,7 +46,7 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     mapping(address => mapping(uint256 => BidShares)) private _bidShares;
 
     // Mapping from token to the current ask for the token
-    mapping(address => mapping(address => mapping(uint256 => Ask))) private _tokenAsks;
+    mapping(address => mapping(uint256 => Ask)) private _tokenAsks;
 
     // Mapping from Media address to the Market configuration status
     mapping(address => bool) public isConfigured;
@@ -57,6 +57,10 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     address platformAddress;
 
     IMarketV2.PlatformFee platformFee;
+
+    // Mapping from abi.encodePacked(mediaContractAddress, tokenOwner)
+    // to the current ask for the token
+    mapping(bytes => mapping(uint256 => Ask)) private __tokenAsks;
 
     /* *********
      * Modifiers
@@ -108,7 +112,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         override
         returns (Ask memory)
     {
-        return _tokenAsks[mediaContractAddress][owner][tokenId];
+        return __tokenAsks[
+            abi.encodePacked(
+                mediaContractAddress,
+                owner
+            )
+        ][tokenId];
     }
 
     function bidSharesForToken(address mediaContractAddress, uint256 tokenId)
@@ -338,7 +347,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
             'Market: Ask invalid for share splitting'
         );
 
-        _tokenAsks[msg.sender][owner][tokenId] = ask;
+        __tokenAsks[
+            abi.encodePacked(
+                msg.sender,
+                owner
+            )
+        ][tokenId] = ask;
         emit AskCreated(msg.sender, tokenId, ask);
     }
 
@@ -362,7 +376,12 @@ contract ZapMarketV2 is IMarketV2, Ownable {
                 'Market: Ask invalid for share splitting'
             );
 
-            _tokenAsks[msg.sender][owner][tokenId[i]] = ask[i];
+            __tokenAsks[
+                abi.encodePacked(
+                    msg.sender,
+                    owner
+                )
+            ][tokenId[i]] = ask[i];
             
         }
         
@@ -373,8 +392,13 @@ contract ZapMarketV2 is IMarketV2, Ownable {
      * @notice removes an ask for a token and emits an AskRemoved event
      */
     function removeAsk(address owner, uint256 tokenId) external override onlyMediaCaller {
-        emit AskRemoved(tokenId, _tokenAsks[msg.sender][owner][tokenId], msg.sender);
-        delete _tokenAsks[msg.sender][owner][tokenId];
+        bytes memory _index = abi.encodePacked(
+            msg.sender,
+            owner
+        );
+
+        emit AskRemoved(tokenId, __tokenAsks[_index][tokenId], msg.sender);
+        delete __tokenAsks[_index][tokenId];
     }
 
     /**
@@ -383,9 +407,14 @@ contract ZapMarketV2 is IMarketV2, Ownable {
     function removeAskBatch(address owner, uint256[] calldata tokenId) external override onlyMediaCaller {
         Ask[] memory ask = new Ask[](tokenId.length);
 
-        for (uint i = 0; i < tokenId.length; i++) {
-            ask[i] = _tokenAsks[msg.sender][owner][tokenId[i]];
-            delete _tokenAsks[msg.sender][owner][tokenId[i]];
+        bytes memory _index = abi.encodePacked(
+            msg.sender,
+            owner
+        );
+
+   for (uint i = 0; i < tokenId.length; i++) {
+            ask[i] = __tokenAsks[_index][tokenId[i]];
+            delete __tokenAsks[_index][tokenId[i]];
         }
         
         emit AskRemovedBatch(tokenId, ask, msg.sender);
@@ -456,10 +485,15 @@ contract ZapMarketV2 is IMarketV2, Ownable {
         emit BidCreated(msg.sender, tokenId, bid);
         // If a bid meets the criteria for an ask, automatically accept the bid.
         // If no ask is set or the bid does not meet the requirements, ignore.
+        bytes memory _index = abi.encodePacked(
+            msg.sender,
+            owner
+        );
+
         if (
-            _tokenAsks[msg.sender][owner][tokenId].currency != address(0) &&
-            bid.currency == _tokenAsks[msg.sender][owner][tokenId].currency &&
-            bid.amount >= _tokenAsks[msg.sender][owner][tokenId].amount
+            __tokenAsks[_index][tokenId].currency != address(0) &&
+            bid.currency == __tokenAsks[_index][tokenId].currency &&
+            bid.amount >= __tokenAsks[_index][tokenId].amount
         ) {
             // Finalize exchange
             if (IMediaV2(mediaAddress).supportsInterface(0xd9b67a26)) {
