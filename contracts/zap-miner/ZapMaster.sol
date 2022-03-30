@@ -62,13 +62,19 @@ contract ZapMaster is ZapGetters {
     }
 
     /**
+     * @dev retires the deity after contract deployment period has ended
+     */
+    function retireDeity() internal onlyDeity {
+        zap.addressVars[keccak256('_deity')] = deity = address(0);
+    }
+
+    /**
      * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
      * @param _vaultContract the address of the new Vault Contract
      */
-    function changeVaultContract(address _vaultContract) external onlyOwner {
-        require(!vaultLock);
-        vaultLock = true;
+    function changeVaultContract(address _vaultContract) external onlyDeity vaultMutex {
         zap.changeVaultContract(_vaultContract);
+        retireDeity();
     }
 
     /**
