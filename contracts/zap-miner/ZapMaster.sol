@@ -20,11 +20,17 @@ contract ZapMaster is ZapGetters {
     using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
 
     address public owner;
+    address public deity;
     bool private vaultLock;
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
-        require(msg.sender == owner, 'Only owner can transfer balance.');
+        require(msg.sender == owner, 'Only owner can perform this operation.');
+        _;
+    }
+
+    modifier onlyDeity(){
+        require(msg.sender == deity, 'Only the deity can perform this operation');
         _;
     }
 
@@ -50,7 +56,7 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('_deity')] = msg.sender;
         zap.addressVars[keccak256('zapContract')] = _zapContract;
 
-        owner = msg.sender;
+        owner = deity = msg.sender;
 
         emit NewZapAddress(_zapContract);
     }
