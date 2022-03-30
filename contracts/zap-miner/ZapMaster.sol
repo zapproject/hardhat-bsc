@@ -28,6 +28,13 @@ contract ZapMaster is ZapGetters {
         _;
     }
 
+    modifier vaultMutex(){
+        require(!vaultLock);
+        vaultLock = true;
+        _;
+        vaultLock = false;
+    }
+
     /**
      * @dev The constructor sets the original `zapStorageOwner` of the contract to the sender
      * account, the zap contract to the Zap master address and owner to the Zap master owner address.
