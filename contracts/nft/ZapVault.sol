@@ -9,7 +9,7 @@ import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ER
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import {Ownable} from './access/Ownable.sol';
 
-contract ZapVault is Initializable, Ownable {
+contract ZapVault is Ownable {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
