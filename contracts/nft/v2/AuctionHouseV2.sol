@@ -14,7 +14,7 @@ import {IMarketV2} from './IMarketV2.sol';
 import {Decimal} from '../Decimal.sol';
 import {IMediaV2} from './IMediaV2.sol';
 import {IAuctionHouseV2} from './IAuctionHouseV2.sol';
-import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 interface IWETH {
     function deposit() external payable;
