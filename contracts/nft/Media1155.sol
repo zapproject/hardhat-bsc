@@ -16,7 +16,6 @@ import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators

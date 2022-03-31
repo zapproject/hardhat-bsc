@@ -45,8 +45,11 @@ describe("AuctionHouse", () => {
 
   beforeEach(async () => {
     await ethers.provider.send("hardhat_reset", []);
+    
     const contracts = await deployZapNFTMarketplace();
+    
     const nfts = await deployOtherNFTs();
+    
     market = contracts.market;
 
     media1 = contracts.medias[0];

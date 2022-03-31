@@ -377,7 +377,6 @@ describe("Fork Tests", () => {
         // check if existing staker details exists
         let staker1: BigNumber[] = await zapMaster2.getStakerInfo(signers[0].address);
         // expect(staker1[0]).to.equal(1);
-        console.log(staker1)
 
         // verify shared state of new staker between Zap and new ZapMaster
         await zapMaster2.functions.changeVaultContract(vault.address);
@@ -386,6 +385,5 @@ describe("Fork Tests", () => {
         await zapTokenBsc.connect(signers[10]).approve(zapMaster2.address, BigNumber.from("500000000000000000000000"));
         await zap.connect(signers[10]).depositStake();
         let staker10: BigNumber[] = await zapMaster2.getStakerInfo(signers[10].address);
-        console.log(staker10)
     });
 });
