@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpgradeable.sol'; // exposes _registerInterface
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
-import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/utils/Context.sol';
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
@@ -16,7 +15,6 @@ import {IMedia1155} from './interfaces/IMedia1155.sol';
 import {Ownable} from './Ownable.sol';
 import {MediaStorage} from './libraries/MediaStorage.sol';
 import './libraries/Constants.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title A media value system, with perpetual equity to creators

@@ -8,7 +8,6 @@ import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import {MediaProxy} from './MediaProxy.sol';
 import {ZapMedia} from './ZapMedia.sol';
 import {IMarket} from './interfaces/IMarket.sol';
-import 'hardhat/console.sol';
 
 interface IERC721Extended {
     function name() external view returns (string memory);

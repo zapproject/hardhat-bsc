@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
-import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 contract Ownable is Initializable {
     event OwnershipTransferInitiated(

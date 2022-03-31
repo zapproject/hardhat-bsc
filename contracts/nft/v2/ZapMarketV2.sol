@@ -7,14 +7,13 @@ pragma experimental ABIEncoderV2;
 import {IERC721Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 import {IERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
 import {SafeERC20Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
-import {Initializable} from '@openzeppelin/contracts/proxy/utils/Initializable.sol';
+import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 import {Decimal} from '../Decimal.sol';
 import {ZapMediaV2} from './ZapMediaV2.sol';
 import {IMediaV2} from './IMediaV2.sol';
 import {Media1155} from '../Media1155.sol';
 import {IMarketV2} from './IMarketV2.sol';
 import {Ownable} from '../access/Ownable.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title A Market for pieces of media

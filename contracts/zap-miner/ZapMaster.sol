@@ -20,12 +20,25 @@ contract ZapMaster is ZapGetters {
     using ZapGettersLibrary for ZapStorage.ZapStorageStruct;
 
     address public owner;
+    address public deity;
     bool private vaultLock;
 
     /// @dev Throws if called by any contract other than latest designated caller
     modifier onlyOwner() {
-        require(msg.sender == owner, 'Only owner can transfer balance.');
+        require(msg.sender == owner, 'Only owner can perform this operation.');
         _;
+    }
+
+    modifier onlyDeity(){
+        require(msg.sender == deity, 'Only the deity can perform this operation');
+        _;
+    }
+
+    modifier vaultMutex(){
+        require(!vaultLock);
+        vaultLock = true;
+        _;
+        vaultLock = false;
     }
 
     /**
@@ -43,19 +56,25 @@ contract ZapMaster is ZapGetters {
         zap.addressVars[keccak256('_deity')] = msg.sender;
         zap.addressVars[keccak256('zapContract')] = _zapContract;
 
-        owner = msg.sender;
+        owner = deity = msg.sender;
 
         emit NewZapAddress(_zapContract);
+    }
+
+    /**
+     * @dev retires the deity after contract deployment period has ended
+     */
+    function retireDeity() internal onlyDeity {
+        zap.addressVars[keccak256('_deity')] = deity = address(0);
     }
 
     /**
      * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
      * @param _vaultContract the address of the new Vault Contract
      */
-    function changeVaultContract(address _vaultContract) external onlyOwner {
-        require(!vaultLock);
-        vaultLock = true;
+    function changeVaultContract(address _vaultContract) external onlyDeity vaultMutex {
         zap.changeVaultContract(_vaultContract);
+        retireDeity();
     }
 
     /**

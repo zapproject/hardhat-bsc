@@ -7,8 +7,6 @@ import {UpgradeableBeacon} from '@openzeppelin/contracts/proxy/beacon/Upgradeabl
 import {Media1155Proxy} from './Media1155Proxy.sol';
 import {Media1155} from './Media1155.sol';
 import {IMarketV2} from './v2/IMarketV2.sol';
-import 'hardhat/console.sol';
-
 
 /// @title Media 1155 Factory Contract
 /// @notice This contract deploys Media1155 and external ERC1155 contracts,

@@ -206,6 +206,8 @@ export const deployZapNFTMarketplace = async () => {
   zapTokenBsc = (await zapTokenFactory.deploy()) as ZapTokenBSC;
   await zapTokenBsc.deployed();
 
+  
+
   const zapVaultFactory = await ethers.getContractFactory('ZapVault');
 
   zapVault = (await upgrades.deployProxy(
@@ -216,11 +218,15 @@ export const deployZapNFTMarketplace = async () => {
     }
   )) as ZapVault;
 
+  
+
   const marketFactory = await ethers.getContractFactory('ZapMarket', deployer0);
 
   market = (await upgrades.deployProxy(marketFactory, [zapVault.address], {
     initializer: 'initializeMarket'
   })) as ZapMarket;
+
+  
 
   await market.setFee(platformFee);
 
@@ -239,6 +245,8 @@ export const deployZapNFTMarketplace = async () => {
   )) as MediaFactory;
   await market.setMediaFactory(mediaFactory.address);
 
+  
+
   const mediaArgs = [
     {
       name: 'Test Media 1',
@@ -249,16 +257,16 @@ export const deployZapNFTMarketplace = async () => {
         'https://ipfs.moralis.io:2053/ipfs/QmeWPdpXmNP4UF9Urxyrp7NQZ9unaHfE2d43fbuur6hWWV'
     },
     {
-      name: 'Test Media 1',
-      symbol: 'TM1',
+      name: 'Test Media 2',
+      symbol: 'TM2',
       marketContractAddr: market.address,
       permissive: false,
       collectionURI:
         'https://ipfs.io/ipfs/QmTDCTPF6CpUK7DTqcUvRpGysfA1EbgRob5uGsStcCZie6'
     },
     {
-      name: 'Test Media 1',
-      symbol: 'TM1',
+      name: 'Test Media 3',
+      symbol: 'TM3',
       marketContractAddr: market.address,
       permissive: false,
       collectionURI:
@@ -286,6 +294,8 @@ export const deployZapNFTMarketplace = async () => {
         args.permissive,
         args.collectionURI
       );
+
+      
 
     filter = mediaFactory.filters.MediaDeployed(null);
     eventLog = (await mediaFactory.queryFilter(filter))[i];
