@@ -251,9 +251,9 @@ library ZapDispute {
             1000
         ) {
             //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
-            //or at the its minimum of 15
+            //or at the its minimum of 15 ZAP
             self.uintVars[keccak256('disputeFee')] = SafeMathM.max(
-                15,
+                15 * self.uintVars[keccak256("decimals")],
                 self.uintVars[keccak256('stakeAmount')].mul(
                     1000 -
                         (self.uintVars[keccak256('stakerCount')] * 1000) /
@@ -261,8 +261,8 @@ library ZapDispute {
                 ) / 1000
             );
         } else {
-            //otherwise set the dispute fee at 15 (the floor/minimum fee allowed)
-            self.uintVars[keccak256('disputeFee')] = 15;
+            //otherwise set the dispute fee at 15 ZAP (the floor/minimum fee allowed)
+            self.uintVars[keccak256('disputeFee')] = 15 * self.uintVars[keccak256("decimals")];
         }
     }
 }
