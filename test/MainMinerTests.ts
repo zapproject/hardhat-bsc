@@ -21,7 +21,6 @@ import { Zap } from "../typechain/Zap";
 import { Vault } from "../typechain/Vault";
 
 import { BigNumber, ContractFactory } from "ethers";
-import { start } from "pm2";
 
 const { expect } = chai;
 
