@@ -16,7 +16,7 @@ jobs:
           node-version: 16
       - run: npm i
       - run: npx hardhat compile
-      # - run: npx hardhat test --no-compile
+      - run: npx hardhat test --no-compile
       - uses: JS-DevTools/npm-publish@v1
         with:
           access: public
