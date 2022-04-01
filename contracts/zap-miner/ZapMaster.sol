@@ -38,7 +38,6 @@ contract ZapMaster is ZapGetters {
         require(!vaultLock);
         vaultLock = true;
         _;
-        vaultLock = false;
     }
 
     /**
