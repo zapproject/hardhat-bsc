@@ -140,9 +140,14 @@ contract Zap {
 
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
-        vault.withdraw(msg.sender, zap.uintVars[keccak256('disputeFee')]);
-        vault.deposit(zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
-        transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
+        uint256 disputeFee = zap.uintVars[keccak256('disputeFee')];
+
+        require(
+            token.allowance(msg.sender, address(this)) >= disputeFee,
+            "Not approved to deposit disputeFee to Vault"
+        );
+        vault.deposit(vaultAddress, disputeFee);
+        transferFrom(msg.sender, vaultAddress, disputeFee);
 
         //Increase the dispute count by 1
         zap.uintVars[keccak256('disputeCount')] =
