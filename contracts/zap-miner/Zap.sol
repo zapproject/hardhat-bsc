@@ -233,12 +233,8 @@ contract Zap {
 
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
+            vault.withdraw(currentVault, _disputeFee);
             vault.deposit(_to, _disputeFee);
-            // disabled token transfer to wallet as we want to only transfer within vault and this is a *duplicate* transfer
-            // data = abi.encodeWithSignature(
-            //     "transfer(address,uint256)",
-            //     _to, _disputeFee);
-            // _callOptionalReturn(token, data);
 
             // if the disputed has lost, transfer stake amount to dispute initiator and transfer remaining balance to zap owner
             if (disp.reportingParty == _to) {
