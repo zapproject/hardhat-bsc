@@ -366,7 +366,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let initiatorVBal = await vault.userBalance(disp[4]);
 
-    expect(initiatorVBal).to.equal(BigNumber.from("1000005000000000000000010"));
+    expect(initiatorVBal).to.equal(BigNumber.from("1487505000000000000000010"));
 
     let disputedVBal = await vault.userBalance(disp[3]);
 
@@ -431,7 +431,7 @@ describe("Test ZapDispute and it's dispute functions", () => {
 
     let disputeFee = initReportingWBal.sub(reporting_miner_wallet_bal);
 
-    expect(initReportingVBal.sub(disputeFee)).to.equal(postReportingVBal);
+    expect(initReportingWBal.sub(disputeFee)).to.equal(BigNumber.from("112500000000000000000000"));
 
     // expect to be the address that begain the dispute
     expect(disp[4]).to.equal(signers[1].address);
