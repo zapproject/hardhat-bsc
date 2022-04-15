@@ -1,10 +1,17 @@
 import { ethers } from "hardhat";
+import { ContractFactory } from "ethers";
+import { ZapToken } from "../typechain";
 
 const hre = require("hardhat")
 
 async function main() {
 
   let signers = await ethers.getSigners();
+  let deployer = signers[0];
+
+  let zapToken: ZapToken;
+  let ZapTokenBSCFactory: ContractFactory;
+  let withZapBSC = true;
 
 
     /**
@@ -14,20 +21,25 @@ async function main() {
 
   // const zapToken = '0x09d8af358636d9bcc9a3e177b66eb30381a4b1a8';
   // const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
-  const ZapTokenBSCFactory = await ethers.getContractFactory("ZapTokenBSC", signers[0]);
-  let zapToken = await ZapTokenBSCFactory.deploy();
-  await zapToken.deployed();
-  console.log("ZapTokenBSC Address: ", zapToken.address)
-  console.log("deployed ZapTokenBSC")
+  ZapTokenBSCFactory = await ethers.getContractFactory("ZapTokenBSC", deployer);
 
-  const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", signers[0]);
+  if (withZapBSC){
+    zapToken = await ZapTokenBSCFactory.deploy() as ZapToken;
+    await zapToken.deployed();
+    console.log("ZapTokenBSC Address: ", zapToken.address)
+    console.log("deployed ZapTokenBSC")
+  } else {
+    zapToken = ZapTokenBSCFactory.attach(process.env.ZT_BSC!) as ZapToken;
+  }
+
+  const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", deployer);
   const ZapGettersLibrary = await zapGettersLibrary.deploy();
   await ZapGettersLibrary.deployed();
   console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
   console.log("deployed ZapGettersLibrary")
 
   const zapDispute = await ethers.getContractFactory("ZapDispute", {
-    signer: signers[0]
+    signer: deployer
   });
   const ZapDispute = await zapDispute.deploy();
   await ZapDispute.deployed();
@@ -38,7 +50,7 @@ async function main() {
     libraries: {
       ZapDispute: ZapDispute.address
     },
-    signer: signers[0]
+    signer: deployer
   });
   const ZapStake = await zapStake.deploy();
   await ZapStake.deployed();
@@ -47,7 +59,7 @@ async function main() {
 
   const zapLibrary = await ethers.getContractFactory("ZapLibrary",
     {
-      signer: signers[0]
+      signer: deployer
     });
   const ZapLibrary = await zapLibrary.deploy();
   await ZapLibrary.deployed()
@@ -61,7 +73,7 @@ async function main() {
         ZapDispute: ZapDispute.address,
         ZapLibrary: ZapLibrary.address,
       },
-      signer: signers[0]
+      signer: deployer
     });
 
   let Zap = await zap.deploy(zapToken.address);
@@ -73,7 +85,7 @@ async function main() {
     libraries: {
       ZapStake: ZapStake.address
     },
-    signer: signers[0]
+    signer: deployer
   });
 
   const ZapMaster = await zapMaster.deploy(Zap.address, zapToken.address);
@@ -81,18 +93,18 @@ async function main() {
   console.log("ZapMaster Address: " + ZapMaster.address)
   console.log("Deployed ZapMaster")
 
-  const vault = await ethers.getContractFactory("Vault", signers[0]);
+  const vault = await ethers.getContractFactory("Vault", deployer);
   const Vault = await vault.deploy(zapToken.address, ZapMaster.address);
   await Vault.deployed();
   console.log("Vault Address:", Vault.address)
   console.log("deployed Vault")
 
   await ZapMaster.changeVaultContract(Vault.address)
-  await zapToken.allocate(signers[0].address, "10000000000000000000000000");
+  // await zapToken.allocate(deployer.address, "10000000000000000000000000");
 
-  for (let i = 0; i<signers.length; i++){
-    await zapToken.allocate(signers[i].address, "1000000000000000000000000");
-  }
+  // for (let i = 0; i<signers.length; i++){
+  //   await zapToken.allocate(signers[i].address, "1000000000000000000000000");
+  // }
 }
 
 

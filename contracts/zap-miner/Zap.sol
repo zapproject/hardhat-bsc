@@ -140,9 +140,14 @@ contract Zap {
 
         address vaultAddress = zap.addressVars[keccak256('_vault')];
         Vault vault = Vault(vaultAddress);
-        vault.withdraw(msg.sender, zap.uintVars[keccak256('disputeFee')]);
-        vault.deposit(zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
-        transferFrom(msg.sender, zap.addressVars[keccak256('_owner')], zap.uintVars[keccak256('disputeFee')]);
+        uint256 disputeFee = zap.uintVars[keccak256('disputeFee')];
+
+        require(
+            token.allowance(msg.sender, address(this)) >= disputeFee,
+            "Not approved to deposit disputeFee to Vault"
+        );
+        vault.deposit(vaultAddress, disputeFee);
+        transferFrom(msg.sender, vaultAddress, disputeFee);
 
         //Increase the dispute count by 1
         zap.uintVars[keccak256('disputeCount')] =
@@ -228,12 +233,8 @@ contract Zap {
 
         if (disp.forkedContract == uint(ForkedContract.NoContract)) {
             // If this is a normal dispute, send the winners amount to their wallet
+            vault.withdraw(currentVault, _disputeFee);
             vault.deposit(_to, _disputeFee);
-            // disabled token transfer to wallet as we want to only transfer within vault and this is a *duplicate* transfer
-            // data = abi.encodeWithSignature(
-            //     "transfer(address,uint256)",
-            //     _to, _disputeFee);
-            // _callOptionalReturn(token, data);
 
             // if the disputed has lost, transfer stake amount to dispute initiator and transfer remaining balance to zap owner
             if (disp.reportingParty == _to) {
