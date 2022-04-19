@@ -96,10 +96,10 @@ const config = {
       accounts: [KOVAN_PRIVATE_KEY]
     },
     binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
+      url: 'https://bsc-dataseed1.binance.org/',
       chainId: 56,
-      gas: 2000000,
-      gasPrice: "auto",
+      gas: 30000000,
+      gasPrice: 20000000000,
       accounts: { mnemonic: process.env.BSC_TESTNET_KEY },
       timeout: 300000
     },
