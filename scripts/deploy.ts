@@ -79,7 +79,8 @@ async function main() {
       signer: deployer
     });
 
-  let Zap = await zap.deploy(zapToken.address);
+  // let Zap = await zap.deploy(zapToken.address);
+  let Zap = await zap.attach("0xC9508af0d18479dAB0A599cD3AC4995a78f1f12C");
   await Zap.deployed();
   console.log("Zap Address:", Zap.address);
   console.log("Deployed Zap")
