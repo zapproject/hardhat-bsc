@@ -100,7 +100,7 @@ const config = {
       chainId: 56,
       gas: 30000000,
       gasPrice: 20000000000,
-      accounts: { mnemonic: process.env.BSC_TESTNET_KEY },
+      accounts: { mnemonic: process.env.MNEMONIC },
       timeout: 300000
     },
     bscTestnet: {
