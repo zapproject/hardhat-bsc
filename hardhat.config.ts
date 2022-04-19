@@ -95,14 +95,14 @@ const config = {
       url: 'https://speedy-nodes-nyc.moralis.io/732ab4a941019375863742e4/eth/kovan',
       accounts: [KOVAN_PRIVATE_KEY]
     },
-    // binanceMainnet: {
-    //   url: 'https://bsc-dataseed.binance.org/',
-    //   chainId: 56,
-    //   gas: 2000000,
-    //   gasPrice: "auto",
-    //   accounts: { mnemonic: process.env.MNEMONIC },
-    //   timeout: 300000
-    // },
+    binanceMainnet: {
+      url: 'https://bsc-dataseed.binance.org/',
+      chainId: 56,
+      gas: 2000000,
+      gasPrice: "auto",
+      accounts: { mnemonic: process.env.BSC_TESTNET_KEY },
+      timeout: 300000
+    },
     bscTestnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
       chainId: 97,
