@@ -97,7 +97,8 @@ async function main() {
   console.log("Deployed ZapMaster")
 
   const vault = await ethers.getContractFactory("Vault", deployer);
-  const Vault = await vault.deploy(zapToken.address, ZapMaster.address);
+  // const Vault = await vault.deploy(zapToken.address, ZapMaster.address);
+  const Vault = await vault.attach("0xA7CB6Ed9e60A1a513e8CdDF2dFD28E6De6c97682");
   await Vault.deployed();
   console.log("Vault Address:", Vault.address)
   console.log("deployed Vault")
