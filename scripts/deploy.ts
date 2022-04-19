@@ -11,16 +11,16 @@ async function main() {
 
   let zapToken: ZapToken;
   let ZapTokenBSCFactory: ContractFactory;
-  let withZapBSC = true;
+  let withZapBSC = false;
 
 
-    /**
-     * MINERS
-     */
-  //Vault contract deploy
+  //   /**
+  //    * MINERS
+  //    */
+  // //Vault contract deploy
 
-  // const zapToken = '0x09d8af358636d9bcc9a3e177b66eb30381a4b1a8';
-  // const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
+  // // const zapToken = '0x09d8af358636d9bcc9a3e177b66eb30381a4b1a8';
+  // // const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
   ZapTokenBSCFactory = await ethers.getContractFactory("ZapTokenBSC", deployer);
 
   if (withZapBSC){
@@ -32,16 +32,17 @@ async function main() {
     zapToken = ZapTokenBSCFactory.attach(process.env.ZT_BSC!) as ZapToken;
   }
 
-  const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", deployer);
-  const ZapGettersLibrary = await zapGettersLibrary.deploy();
-  await ZapGettersLibrary.deployed();
-  console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
-  console.log("deployed ZapGettersLibrary")
+  // const zapGettersLibrary = await ethers.getContractFactory("ZapGettersLibrary", deployer);
+  // const ZapGettersLibrary = await zapGettersLibrary.deploy();
+  // await ZapGettersLibrary.deployed();
+  // console.log("ZapGettersLibary Address:", ZapGettersLibrary.address)
+  // console.log("deployed ZapGettersLibrary")
 
   const zapDispute = await ethers.getContractFactory("ZapDispute", {
     signer: deployer
   });
-  const ZapDispute = await zapDispute.deploy();
+  // const ZapDispute = await zapDispute.deploy();
+  const ZapDispute = await zapDispute.attach("0xEC99DAC3A5BFC441A9f14ab32f7c909A377ff665");
   await ZapDispute.deployed();
   console.log("ZapDispute Address:", ZapDispute.address)
   console.log("Deployed ZapDispute");
@@ -52,34 +53,35 @@ async function main() {
     },
     signer: deployer
   });
-  const ZapStake = await zapStake.deploy();
+  // const ZapStake = await zapStake.deploy();
+  const ZapStake = await zapStake.attach("0xF6943860A0A0A1938B1707Cd7FFec81D68Ab139B")
   await ZapStake.deployed();
   console.log("ZapStake Address:", ZapStake.address);
   console.log("Deployed ZapStake");
 
-  const zapLibrary = await ethers.getContractFactory("ZapLibrary",
-    {
-      signer: deployer
-    });
-  const ZapLibrary = await zapLibrary.deploy();
-  await ZapLibrary.deployed()
-  console.log("ZapLibrary Address:", ZapLibrary.address);
-  console.log("Deployed ZapLibrary");
+  // const zapLibrary = await ethers.getContractFactory("ZapLibrary",
+  //   {
+  //     signer: deployer
+  //   });
+  // const ZapLibrary = await zapLibrary.deploy();
+  // await ZapLibrary.deployed()
+  // console.log("ZapLibrary Address:", ZapLibrary.address);
+  // console.log("Deployed ZapLibrary");
 
-  const zap = await ethers.getContractFactory("Zap",
-    {
-      libraries: {
-        ZapStake: ZapStake.address,
-        ZapDispute: ZapDispute.address,
-        ZapLibrary: ZapLibrary.address,
-      },
-      signer: deployer
-    });
+  // const zap = await ethers.getContractFactory("Zap",
+  //   {
+  //     libraries: {
+  //       ZapStake: ZapStake.address,
+  //       ZapDispute: ZapDispute.address,
+  //       ZapLibrary: ZapLibrary.address,
+  //     },
+  //     signer: deployer
+  //   });
 
-  let Zap = await zap.deploy(zapToken.address);
-  await Zap.deployed();
-  console.log("Zap Address:", Zap.address);
-  console.log("Deployed Zap")
+  // let Zap = await zap.deploy(zapToken.address);
+  // await Zap.deployed();
+  // console.log("Zap Address:", Zap.address);
+  // console.log("Deployed Zap")
 
   const zapMaster = await ethers.getContractFactory("ZapMaster", {
     libraries: {
@@ -88,7 +90,8 @@ async function main() {
     signer: deployer
   });
 
-  const ZapMaster = await zapMaster.deploy(Zap.address, zapToken.address);
+  // const ZapMaster = await zapMaster.deploy(Zap.address, zapToken.address);
+  const ZapMaster = await zapMaster.attach("0x0BDC0ED5EA410FcD3f90858eB677840973C32935");
   await ZapMaster.deployed();
   console.log("ZapMaster Address: " + ZapMaster.address)
   console.log("Deployed ZapMaster")
