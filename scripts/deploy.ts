@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { ContractFactory } from "ethers";
 import { ZapToken } from "../typechain";
+import { Blackhole } from "../typechain";
 
 const hre = require("hardhat")
 
@@ -11,7 +12,7 @@ async function main() {
 
   let zapToken: ZapToken;
   let ZapTokenBSCFactory: ContractFactory;
-  let withZapBSC = false;
+  let alsoZapBSC = true;
 
 
   //   /**
@@ -23,7 +24,7 @@ async function main() {
   // // const zapToken = (await hre.deployments.get('ZapTokenBSC')).address;
   ZapTokenBSCFactory = await ethers.getContractFactory("ZapTokenBSC", deployer);
 
-  if (withZapBSC){
+  if (alsoZapBSC){
     zapToken = await ZapTokenBSCFactory.deploy() as ZapToken;
     await zapToken.deployed();
     console.log("ZapTokenBSC Address: ", zapToken.address)
@@ -41,8 +42,8 @@ async function main() {
   const zapDispute = await ethers.getContractFactory("ZapDispute", {
     signer: deployer
   });
-  // const ZapDispute = await zapDispute.deploy();
-  const ZapDispute = await zapDispute.attach("0xEC99DAC3A5BFC441A9f14ab32f7c909A377ff665");
+  const ZapDispute = await zapDispute.deploy();
+  // const ZapDispute = await zapDispute.attach("0xEC99DAC3A5BFC441A9f14ab32f7c909A377ff665");
   await ZapDispute.deployed();
   console.log("ZapDispute Address:", ZapDispute.address)
   console.log("Deployed ZapDispute");
@@ -53,8 +54,8 @@ async function main() {
     },
     signer: deployer
   });
-  // const ZapStake = await zapStake.deploy();
-  const ZapStake = await zapStake.attach("0xF6943860A0A0A1938B1707Cd7FFec81D68Ab139B")
+  const ZapStake = await zapStake.deploy();
+  // const ZapStake = await zapStake.attach("0xF6943860A0A0A1938B1707Cd7FFec81D68Ab139B")
   await ZapStake.deployed();
   console.log("ZapStake Address:", ZapStake.address);
   console.log("Deployed ZapStake");
@@ -63,8 +64,8 @@ async function main() {
     {
       signer: deployer
     });
-  // const ZapLibrary = await zapLibrary.deploy();
-  const ZapLibrary = await zapLibrary.attach("0x4Ca6E1DdF51f225986108aff2f670C5109Fe4172");
+  const ZapLibrary = await zapLibrary.deploy();
+  // const ZapLibrary = await zapLibrary.attach("0x4Ca6E1DdF51f225986108aff2f670C5109Fe4172");
   await ZapLibrary.deployed()
   console.log("ZapLibrary Address:", ZapLibrary.address);
   console.log("Deployed ZapLibrary");
@@ -79,8 +80,8 @@ async function main() {
       signer: deployer
     });
 
-  // let Zap = await zap.deploy(zapToken.address);
-  let Zap = await zap.attach("0xC9508af0d18479dAB0A599cD3AC4995a78f1f12C");
+  let Zap = await zap.deploy(zapToken.address);
+  // let Zap = await zap.attach("0xC9508af0d18479dAB0A599cD3AC4995a78f1f12C");
   await Zap.deployed();
   console.log("Zap Address:", Zap.address);
   console.log("Deployed Zap")
